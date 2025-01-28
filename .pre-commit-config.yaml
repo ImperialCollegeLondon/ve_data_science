@@ -1,0 +1,37 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    # These are generic hooks to keep files clean and tidy
+    rev: v5.0.0
+    hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-yaml
+    - id: check-added-large-files
+    - id: check-merge-conflict
+    - id: debug-statements
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # This is python specific linting and formatting using ruff
+    rev: v0.9.3
+    hooks:
+    - id: ruff                                  # Run the linter.
+      args: [--fix, --exit-non-zero-on-fix]
+    - id: ruff-format                           # Run the formatter.
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    # This is markdown linting
+    rev: v0.44.0
+    hooks:
+    - id: markdownlint
+  - repo: https://github.com/lorenzwalthert/precommit
+    # These are R specific tools to format and lint the code and check for common errors 
+    rev: v0.4.3.9003
+    hooks: 
+    - id: style-files
+      args: [--style_pkg=styler, --indent_by=4, --style_fun=tidyverse_style]
+    - id: lintr
+    - id: readme-rmd-rendered
+    - id: parsable-R
+    - id: no-browser-statement
+    - id: no-debug-statement
+    - id: deps-in-desc

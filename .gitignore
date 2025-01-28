@@ -1,3 +1,15 @@
+# Data files - we do not want to populate data files into this repository.
+*.nc
+*.ncdf
+*.tiff
+*.tif
+*.geotiff
+*.xlsx
+*.xls
+*.csv
+*.dat
+*.txt
+
 # History files
 .Rhistory
 .Rapp.history

@@ -1,0 +1,31 @@
+[tool.poetry]
+authors = [
+  "Rob Ewers <r.ewers@imperial.ac.uk>",
+  "David Orme <d.orme@imperial.ac.uk>",
+  "Jacob Cook <j.cook17@imperial.ac.uk>",
+  "Vivienne Groner <v.groner@imperial.ac.uk>",
+  "Taran Rallings <t.rallings@imperial.ac.uk>",
+  "Olivia Daniel <olivia.daniel08@imperial.ac.uk>",
+  "Jaideep Joshi <joshi@iiasa.ac.at>",
+  "Anna Rallings <a.rallings@imperial.ac.uk>",
+  "Priyanga Amarasekare <pamarasekare@gmail.com>",
+]
+description = "A repository for the data science code for the Virtual Ecosystem"
+license = "BSD-3-Clause"
+name = "ve_data_science"
+package-mode = false
+readme = "README.md"
+repository = "https://github.com/ImperialCollegeLondon/ve_data_science"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+numpy = "~2.1" # Pinning numpy less than 2.2.0 until this resolves: https://github.com/numpy/numpy/issues/27957
+python = ">=3.10,<3.13" 
+xarray = "^2025.1.1"
+pre-commit = "^4.1.0"
+radian = "^0.6.13"
+ruff = "^0.9.3"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=2.0.0,<3.0.0"]
