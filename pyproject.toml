@@ -20,12 +20,15 @@ version = "0.1.0"
 
 [tool.poetry.dependencies]
 numpy = "~2.1" # Pinning numpy less than 2.2.0 until this resolves: https://github.com/numpy/numpy/issues/27957
-python = ">=3.10,<3.13"
-xarray = "^2025.1.1"
 pre-commit = "^4.1.0"
+python = ">=3.10,<3.13"
 radian = "^0.6.13"
 ruff = "^0.9.3"
+xarray = "^2025.1.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
+
+[tool.ruff]
+line-length = 88
