@@ -33,7 +33,6 @@ repos:
     - id: style-files
       args: [--style_pkg=styler, --indent_by=4, --style_fun=tidyverse_style]
     - id: lintr
-    - id: readme-rmd-rendered
     - id: parsable-R
     - id: no-browser-statement
     - id: no-debug-statement
