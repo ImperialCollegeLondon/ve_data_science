@@ -24,9 +24,12 @@ repos:
     hooks:
     - id: markdownlint
   - repo: https://github.com/lorenzwalthert/precommit
-    # These are R specific tools to format and lint the code and check for common errors 
-    rev: v0.4.3.9003
-    hooks: 
+    # These are R specific tools to format and lint the code and check for common errors
+    # Note that this currently points to a specific GitHub commit to avoid an issue with
+    # Rcpp: https://github.com/lorenzwalthert/precommit/issues/612 but should be updated
+    # when that issue gets resolved in a published version.
+    rev: dcd2a60
+    hooks:
     - id: style-files
       args: [--style_pkg=styler, --indent_by=4, --style_fun=tidyverse_style]
     - id: lintr

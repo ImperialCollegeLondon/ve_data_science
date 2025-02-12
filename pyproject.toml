@@ -20,7 +20,7 @@ version = "0.1.0"
 
 [tool.poetry.dependencies]
 numpy = "~2.1" # Pinning numpy less than 2.2.0 until this resolves: https://github.com/numpy/numpy/issues/27957
-python = ">=3.10,<3.13" 
+python = ">=3.10,<3.13"
 xarray = "^2025.1.1"
 pre-commit = "^4.1.0"
 radian = "^0.6.13"
