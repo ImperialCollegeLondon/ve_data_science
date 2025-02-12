@@ -37,4 +37,3 @@ up working:
 
 6. Whenever you are working in the repo, use `poetry shell` to start up the environment
    first.
-
