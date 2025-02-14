@@ -5,3 +5,7 @@
 
 # This is required for R support in VSCode
 library(languageserver)
+library(styler) # Provides code formatting suggestions and auto-formatting
+# The VSCode lintr extension uses this package for linting, but it isn't included as a
+# dependency of lintr so it needs to be explicitly included here.
+library(cyclocomp)
