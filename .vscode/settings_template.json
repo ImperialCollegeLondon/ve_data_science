@@ -1,11 +1,11 @@
 {
     "r.alwaysUseActiveTerminal": true,
     "r.bracketedPaste": true,
-    "r.rpath.mac": "/opt/homebrew/bin/R",
+    "r.rpath.mac": "Insert output of `which R` (MacOS, Linux, WSL) or `where.exe R` (Windows Powershell)",
     "r.useRenvLibPath": true,
     "r.workspaceViewer.clearPrompt": false,
     "r.rterm.mac": "radian",
     "r.libPaths": [
-        "/Users/dorme/Research/Virtual_Rainforest/ve_data_science/renv/library/macos/R-4.4/aarch64-apple-darwin23.6.0 "
+        "Insert output from running renv::paths$library() in R"
     ]
 }
