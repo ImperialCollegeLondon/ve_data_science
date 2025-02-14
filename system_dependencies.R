@@ -3,5 +3,7 @@
 # for packages used within the project, so there is no need to add packages used in
 # analysis.
 
-# This is required for R support in VSCode
-library(languageserver)
+
+library(languageserver) # Enables code suggestions and linting in VSCode
+library(styler) # Provides code formatting suggestions and auto-formatting
+library(cyclocomp) # Supports code complexity checks in R linting
