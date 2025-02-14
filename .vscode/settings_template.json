@@ -1,7 +1,9 @@
 {
     "r.alwaysUseActiveTerminal": true,
     "r.bracketedPaste": true,
-    "r.rpath.mac": "Insert output of `which R` (MacOS, Linux, WSL) or `where.exe R` (Windows Powershell)",
+    "r.rpath.linux": "Insert output of `which R` ",
+    "r.rpath.windows": "Insert output of `where.exe R`",
+    "r.rpath.mac": "Insert output of `which R`",
     "r.useRenvLibPath": true,
     "r.workspaceViewer.clearPrompt": false,
     "r.rterm.mac": "radian",
