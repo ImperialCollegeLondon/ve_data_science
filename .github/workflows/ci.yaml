@@ -1,4 +1,4 @@
-name: Test and build
+name: Run pre-commit
 
 # When does this run - new, reopened or updated PRs, pushes to main
 on:
@@ -7,8 +7,14 @@ on:
   push:
     branches: [main]
 
+
+# The precommit job is not behaving - something about the caching of the precommit
+# environment doesn't work on GitHub Actions, but does work on pre-commit.ci. So, this
+# workflow has been disabled, but the file is retained in case we want to extend the
+# actions at some point.
 jobs:
-  qa:
+  precommit:
+    if: false
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
