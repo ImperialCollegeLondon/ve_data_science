@@ -5,3 +5,6 @@
 
 # This is required for R support in VSCode
 library(languageserver)
+
+# This is required to use R with Jupyter
+library(IRkernel)
