@@ -7,15 +7,10 @@
 #'
 #'     This can include multiple paragraphs.
 #'
-#' VE_module: Animal, Plant, Abiotic, Soil
+#' VE_module: Animal, Plant, Abiotic, Soil, None, etc
 #'
 #' author:
 #'   - name: David Orme
-#'
-#' # I don't think we should include this. We need to define our shared R environment
-#' # but capturing it here doesn't give us useful information and is not portable across
-#' # Python and notebook formats.
-#' # R_version: !r R.version.string  # Auto-populated when executed in R
 #'
 #' status: final or wip
 #'

@@ -10,6 +10,7 @@ description: |
 author:
   - name: David Orme
 
+virtual_ecosystem_module: Animal, Plant, Abiotic, Soil, None, etc.
 
 status: final or wip
 
@@ -34,14 +35,6 @@ package_dependencies:
 usage_notes: |
   Any known issues or bugs? Future plans for script/extensions or improvements
   planned that should be noted?
-
-
-virtual_ecosystem_module: Animal, Plant, Abiotic, Soil
-
-# I don't think we should include this. We need to define our shared R environment
-# but capturing it here doesn't give us useful information and is not portable across
-# Python and notebook formats.
-# R_version: !r R.version.string  # Auto-populated when executed in R
 ---
 
 # An R Markdown template
