@@ -19,5 +19,4 @@ jobs:
           with:
             r-version: 'release'
             use-public-rspm: true
-        # - uses: r-lib/actions/setup-renv@v2
         - uses: pre-commit/action@v3.0.0
