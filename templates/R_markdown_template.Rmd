@@ -44,8 +44,39 @@ virtual_ecosystem_module: Animal, Plant, Abiotic, Soil
 # R_version: !r R.version.string  # Auto-populated when executed in R
 ---
 
-# Title
+# An R Markdown template
+
+First we load the packages at the top of the notebook
+
+```{r load_packages}
+library(tools)
+```
+
+
+We can define local functions and these should be documented using the
+[ROxygen2 format](https://roxygen2.r-lib.org/articles/rd.html).
+
+```{r local_function}
+my_function <- function(value = 10) {
+  #' A function to return a value
+  #'
+  #' This function simply prints out the value passed to it and then returns the value.
+  #' It is just a simple example to give a template for the function description syntax.
+  #'
+  #' @param value A value to be used in the function
+  #'
+  #' @return Returns the original valu
+
+  # Print the value
+  print(value)
+
+  # Return the value
+  return(value)
+}
+```
+
+Now we can use the function.
 
 ```{r}
-x <- 10
+x <- my_function()
 ```

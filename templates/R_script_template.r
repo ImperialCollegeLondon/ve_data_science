@@ -35,10 +35,38 @@
 #'       scripts?
 #'
 #' package_dependencies:
-#'     - vegan
-#'     - MASS
+#'     - tools
 #'
 #' usage_notes: |
 #'   Any known issues or bugs? Future plans for script/extensions or improvements
 #'   planned that should be noted?
 #' ---
+
+
+# An R Markdown template
+# First we load the packages at the top of the notebook
+
+library(tools)
+
+# We can define local functions and these should be documented using the
+# [ROxygen2 format](https://roxygen2.r-lib.org/articles/rd.html).
+
+my_function <- function(value = 10) {
+  #' A function to return a value
+  #'
+  #' This function simply prints out the value passed to it and then returns the value.
+  #' It is just a simple example to give a template for the function description syntax.
+  #'
+  #' @param value A value to be used in the function
+  #'
+  #' @return Returns the original valu
+
+  # Print the value
+  print(value)
+
+  # Return the value
+  return(value)
+}
+
+# Now we can use the function.
+x <- my_function()
