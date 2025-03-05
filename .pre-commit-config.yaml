@@ -31,7 +31,7 @@ repos:
     rev: dcd2a60
     hooks:
     - id: style-files
-      args: [--style_pkg=styler, --indent_by=4, --style_fun=tidyverse_style]
+      args: [--style_pkg=styler, --style_fun=tidyverse_style]
     - id: lintr
     - id: parsable-R
     - id: no-browser-statement
