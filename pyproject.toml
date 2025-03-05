@@ -25,6 +25,10 @@ python = ">=3.10,<3.13"
 radian = "^0.6.13"
 ruff = "^0.9.3"
 xarray = "^2025.1.1"
+ipython = "^8.32.0"
+jupyterlab = "^4.3.5"
+jupyterlab-myst = "^2.4.2"
+jupytext = "^1.16.7"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
@@ -32,3 +36,22 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 
 [tool.ruff]
 line-length = 88
+
+[tool.ruff.lint]
+# Enable all `pydocstyle` rules, limiting to those that adhere to the
+# Google convention via `convention = "google"`, below.
+select = [
+  "E", # pycodestyle
+  "F", # pyflakes
+  "D", # pydocstyle
+  "I", # isort
+  "UP", # pyupgrade
+  "RUF", # ruff-only checking
+  "NPY201", # Numpy 2.0.1
+]
+
+# On top of the Google convention, disable:
+ignore = [
+  "D202", # Blank line after docstring is ok
+  "D107", # Location of __init__ docstring in class not __init__"
+]
