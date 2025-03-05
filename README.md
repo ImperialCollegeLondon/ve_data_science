@@ -21,9 +21,9 @@ As a brief overview, this involves setting up the following tools:
   tools.
 * **Poetry**. This is a Python package manager that we use to manage a shared set of
   Python packages used across the project.
-* **R**. We will be using R extensively for analysis and data visualisation.
-* **renv**. This is an R package manager that, like `poetry`, is being used to manage
-  the shared set of R packages used across the project.
+* **R**. We will be using R extensively for analysis and data visualisation. At the
+  moment, we are managing package use and versioning with a simple list of packages.
+  This is currently very light touch and we may use something stricter in the future.
 * **pre-commit**. This is a QA tool - we have a set of configured checks that run
   whenever you try and `git commit` some changes to the repo. If the changes fail any of
   the checks, then you will have to fix them and try again. Sometimes, the QA checks can
