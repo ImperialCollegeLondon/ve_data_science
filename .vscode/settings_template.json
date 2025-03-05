@@ -1,0 +1,13 @@
+{
+    "r.alwaysUseActiveTerminal": true,
+    "r.bracketedPaste": true,
+    "r.rpath.linux": "Insert output of `which R` ",
+    "r.rpath.windows": "Insert output of `where.exe R`",
+    "r.rpath.mac": "Insert output of `which R`",
+    "r.useRenvLibPath": true,
+    "r.workspaceViewer.clearPrompt": false,
+    "r.rterm.mac": "radian",
+    "r.libPaths": [
+        "Insert output from running renv::paths$library() in R"
+    ]
+}

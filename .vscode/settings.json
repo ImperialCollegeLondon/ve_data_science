@@ -1,7 +1,0 @@
-{
-    "r.alwaysUseActiveTerminal": true,
-    "r.bracketedPaste": true,
-    "r.rpath.mac": "/opt/homebrew/bin/R",
-    "r.workspaceViewer.clearPrompt": false,
-    "r.rterm.mac": "radian",
-}
