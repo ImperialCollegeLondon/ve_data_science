@@ -29,6 +29,11 @@ ipython = "^8.32.0"
 jupyterlab = "^4.3.5"
 jupyterlab-myst = "^2.4.2"
 jupytext = "^1.16.7"
+pyyaml = "^6.0.2"
+globus-cli = "^3.32.0"
+globus-sdk = "3.46.0"
+marshmallow = "^3.26.1"
+marshmallow-dataclass = "^8.7.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
