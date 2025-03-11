@@ -177,4 +177,8 @@ def globus_sync(config_file_path: Path) -> None:
     tdata.add_item("/ve_data_science/data/", "/~/testing/", recursive=True)
 
     # Raises globus_sdk.services.transfer.errors.TransferAPIError
-    submit_result = tc.submit_transfer(tdata)  # noqa: F841
+    try:
+        submit_result = tc.submit_transfer(tdata)  # noqa: F841
+    except globus_sdk.services.transfer.errors.TransferAPIError as excep:
+        print(excep.raw_json)
+        raise
