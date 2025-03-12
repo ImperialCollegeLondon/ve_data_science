@@ -52,6 +52,9 @@ bibliography: ../../../bib/refs.bib
 usage_notes: |
   The Bayesian model takes a few minutes to run, grab a cuppa! If the setup
   works as intended, then the model will only run once unless you make changes.
+  Run jupytext --to ipynb code/soil/cue/update_cue_parameters.Rmd
+  --output code/soil/cue/update_cue_parameters.ipynb
+  to convert this Rmd file to ipynb
 ---
 
 ```{r setup, include=FALSE}
