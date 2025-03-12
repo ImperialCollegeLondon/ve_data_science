@@ -163,6 +163,17 @@ m <- brm(
 
 # Results
 
+```{r Parameter estimates, include=FALSE}
+param <- fixef(m)
+```
+
+The posterior median of the parameters are:
+
+- $\text{CUE}_T =$ `r round(param["Temp_centered", "Estimate"], 3)`
+- $\text{CUE}_\text{ref} =$ `r round(param["Intercept", "Estimate"], 3)`
+
+Note that the intercept $\text{CUE}_\text{ref}$ is in logit scale, in the original proportional scale it is `r round(plogis(param["Intercept", "Estimate"]), 3)`.
+
 ```{r Prediction, fig.height=5, fig.width=7}
 # counterfactual data
 newdat <-
