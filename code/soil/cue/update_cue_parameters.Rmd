@@ -174,7 +174,7 @@ The posterior median of the parameters are:
 
 Note that the intercept $\text{CUE}_\text{ref}$ is in logit scale, in the original proportional scale it is `r round(plogis(param["Intercept", "Estimate"]), 3)`.
 
-```{r Prediction, fig.height=5, fig.width=7}
+```{r Prediction, fig.height=5, fig.width=7, fig.cap="Fitted regressions through the Qiao et al. (2019) dataset. Line color denotes the three different models: black = the Abramoff Millenial model current used by VE; red = the fitted linear regression by Qiao et al. (2019); blue = our GLM fit. Dashed blue lines are the 90% credible intervals of our GLM."}
 # counterfactual data
 newdat <-
   data.frame(
