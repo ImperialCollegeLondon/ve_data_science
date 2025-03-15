@@ -20,7 +20,7 @@ status: final
 
 input_files:
   - name: 41598_2019_42145_MOESM2_ESM.xlsx
-    path: data/Qiao2019
+    path: data/primary/soil/carbon_use_efficiency/Qiao2019
     description: |
       The global carbon-use-efficiency (CUE) dataset was compiled by
       Qiao et al. (2019) https://doi.org/10.1038/s41598-019-42145-6
@@ -30,12 +30,13 @@ input_files:
 
 output_files:
   - name: update_cue_parameters.html
-    path: code/soil/cue
+    path: analysis/soil/carbon_use_efficiency
     description: |
       This is a RMarkdown report of my analysis, including the results.
+      Need to knitr from the RMarkdown file.
       If you run the script, it will also save the GLM model object as follows.
   - name: model_cue.rds
-    path: out
+    path: analysis/soil/carbon_use_efficiency
     description: |
       A Bayesian GLM model object in the class brms, which contains the
       summary statistics, as well as the full posterior samples
@@ -81,8 +82,16 @@ library(brms)
 # Background
 
 ```{r Read data}
+# inout folder
+in_path <-
+  "data/primary/soil/carbon_use_efficiency/Qiao2019/"
+
 dat_cue <-
-  read_xlsx("data/Qiao2019/41598_2019_42145_MOESM2_ESM.xlsx",
+  read_xlsx(
+    paste0(
+      in_path,
+      "41598_2019_42145_MOESM2_ESM.xlsx"
+    ),
     .name_repair = "unique"
   ) %>%
   select(No_Wj,
@@ -159,7 +168,7 @@ m <- brm(
   warmup = 3000,
   iter = 4000,
   cores = 4,
-  file = "out/model_cue",
+  file = "analysis/soil/carbon_use_efficiency/model_cue",
   file_refit = "on_change"
 )
 ```
