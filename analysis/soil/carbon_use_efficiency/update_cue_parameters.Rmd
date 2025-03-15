@@ -14,6 +14,10 @@ description: |
 author:
   - name: Hao Ran Lai
 
+output:
+    github_document:
+        html_preview: false
+
 virtual_ecosystem_module: Soil
 
 status: final
