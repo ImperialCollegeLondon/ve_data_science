@@ -9,6 +9,8 @@
 *.csv
 *.dat
 *.txt
+*.rds
+*.RData
 
 # History files
 .Rhistory
