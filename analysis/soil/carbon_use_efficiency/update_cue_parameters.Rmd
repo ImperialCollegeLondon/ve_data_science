@@ -33,7 +33,7 @@ input_files:
       predictor of CUE in our analysis here.
 
 output_files:
-  - name: update_cue_parameters.html
+  - name: update_cue_parameters.md
     path: analysis/soil/carbon_use_efficiency
     description: |
       This is a RMarkdown report of my analysis, including the results.
