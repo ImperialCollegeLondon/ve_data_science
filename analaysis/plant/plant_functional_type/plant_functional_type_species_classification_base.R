@@ -33,8 +33,8 @@
 #'
 #'
 #' input_files:
-#'   - name: tree_census_11_20
-#'     path: ve_data_science\data\primary\plant\tree_census
+#'   - name: tree_census_11_20.xlsx
+#'     path: ../../../data/primary/plant/tree_census
 #'     description: |
 #'       https://doi.org/10.5281/zenodo.14882506
 #'       Tree census data from the SAFE Project 2011–2020.
@@ -43,8 +43,8 @@
 #'       estimates of epiphyte and liana cover, and taxonomic IDs.
 #'
 #' output_files:
-#'   - name: plant_functional_type_species_classification_base
-#'     path: ve_data_science\data\derived\plant\plant_functional_type
+#'   - name: plant_functional_type_species_classification_base.csv
+#'     path: ../../../data/derived/plant/plant_functional_type
 #'     description: |
 #'       This CSV file contains a list of species and their respective PFT.
 #'       This CSV file can be loaded when working with other datasets
@@ -69,9 +69,8 @@ library(readxl)
 
 # Load SAFE tree census data
 
-tree_census_11_20 <- read_excel("C:\\Users\\schei\\VE_Data_Science\\
-                              ve_data_science\\data\\primary\\plant\\
-                              tree_census\\tree_census_11_20.xlsx",
+tree_census_11_20 <- read_excel(
+  "../../../data/primary/plant/tree_census/tree_census_11_20.xlsx",
   sheet = "Census11_20",
   col_names = FALSE
 )
@@ -103,6 +102,11 @@ unique(data_taxa$TaxaName)
 ##########
 
 # Assign plant functional type number to correct taxa
+
+# 1 is emergent
+# 2 is overstory
+# 3 is pioneer
+# 4 is understory
 
 data_taxa$PFT <- NA
 
@@ -174,9 +178,11 @@ data_taxa <- data_taxa[order(
 
 # Write CSV file
 
-write.csv(data_taxa,
-  "C:\\Users\\schei\\VE_Data_Science\\ve_data_science\\data\\derived\\
-  plant\\plant_functional_type\\
-  plant_functional_type_species_classification_base.csv",
+write.csv(
+  data_taxa,
+  file = file.path(
+    "..", "..", "..", "data", "derived", "plant", "plant_functional_type",
+    "plant_functional_type_species_classification_base.csv"
+  ),
   row.names = FALSE
 )
