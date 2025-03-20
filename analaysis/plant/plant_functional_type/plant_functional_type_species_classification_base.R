@@ -180,9 +180,6 @@ data_taxa <- data_taxa[order(
 
 write.csv(
   data_taxa,
-  file = file.path(
-    "..", "..", "..", "data", "derived", "plant", "plant_functional_type",
-    "plant_functional_type_species_classification_base.csv"
-  ),
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
   row.names = FALSE
 )
