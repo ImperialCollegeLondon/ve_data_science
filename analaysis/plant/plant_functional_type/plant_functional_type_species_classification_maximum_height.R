@@ -441,107 +441,33 @@ for (id in taxa_names_final) {
     temp$maximum_height[temp$TaxaName == id]
 }
 
-# Note that some species/genus without maximum height
-# (i.e., those without any height measurements) are not assigned a PFT
-# Keep this in mind when calculating stem density
-# Perhaps keep these in an "unknown" PFT (seen this before in literature)
-
-##########
-
-# Subset without junk variables
-# Keep plot and logging variables to allow making subsets for certain plots
-
-names(data_taxa)
-data_taxa_final <- data_taxa[, c(
-  "Block", "Plot", "PlotID", "TagStem_latest",
-  "Family", "Genus", "Species", "TaxaName",
-  "TaxaLevel", "PFT", "PFT_name", "PFT_final",
-  "maximum_height", "HeightTotal_m_2011",
-  "DBH2011_mm_clean", "logging"
-)]
-
-data_taxa_final$HeightTotal_m_2011 <- as.numeric(data_taxa_final$HeightTotal_m_2011)
-data_taxa_final$DBH2011_mm_clean <- as.numeric(data_taxa_final$DBH2011_mm_clean)
-
-# Save log of trees without PFT to see where data is missing
-# (i.e., is it concentrated in certain plots)
-data_taxa_final_without_PFT <- data_taxa_final[is.na(data_taxa_final$PFT_final), ] # nolint
-
-# Before NA removal:
-nrow(data_taxa_final)
-# After NA removal:
-nrow(data_taxa_final_without_PFT)
-# The difference is the amount of trees with PFT, across all plots
-nrow(data_taxa_final) - nrow(data_taxa_final_without_PFT)
-
-plot(as.factor(data_taxa_final_without_PFT$Block),
-  xlab = "Block", ylab = "Trees without PFT"
-)
-# OG1, OG2 and OG3 are good to use
-# A-F have a lot of missing values
-
-# Remove trees without PFT assigned
-data_taxa_final_with_PFT <- drop_na(data_taxa_final, PFT_final) # nolint
-
-plot(as.factor(data_taxa_final_with_PFT$Block),
-  xlab = "Block", ylab = "Trees with PFT"
-)
-# Note that B and E have most trees measured
-
-##########
-
-# Final height plot checking
-
-data_taxa_final_height <- data_taxa_final[, c(
-  "TagStem_latest", "Family", "Genus",
-  "Species", "TaxaName", "TaxaLevel",
-  "PFT_final", "maximum_height",
-  "HeightTotal_m_2011"
-)]
-data_taxa_final_height <- drop_na(data_taxa_final_height, HeightTotal_m_2011)
-# Note that a lot of trees do not have height values
-ggplot(
-  data_taxa_final_height,
-  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT_final))
-) +
-  geom_point() +
-  labs(x = "TreeID", y = "Height (m)")
-
 ####################
 
-# Note that a lot of trees have no height measurements
-# Because of this, a lot of them also cannot be assigned into a PFT
-# This is not important for this script, as its main purpose is to link trees
-# into a PFT as good as possible, but this will need to be taken into account
-# when calculating the cohort distribution.
+# Prepare data_taxa for saving
 
-####################
-
-# Prepare data_taxa_final for saving
-
-data_taxa_final <- data_taxa_final[, c(
+data_taxa <- data_taxa[, c(
   "PFT_final", "PFT_name", "TaxaName",
   "TaxaLevel", "Species", "Genus", "Family",
   "maximum_height"
 )]
 
-data_taxa_final$PFT_name[data_taxa_final$PFT_final == "1"] <- "emergent"
-data_taxa_final$PFT_name[data_taxa_final$PFT_final == "2"] <- "overstory"
-data_taxa_final$PFT_name[data_taxa_final$PFT_final == "3"] <- "pioneer"
-data_taxa_final$PFT_name[data_taxa_final$PFT_final == "4"] <- "understory"
+data_taxa$PFT_name[data_taxa$PFT_final == "1"] <- "emergent"
+data_taxa$PFT_name[data_taxa$PFT_final == "2"] <- "overstory"
+data_taxa$PFT_name[data_taxa$PFT_final == "3"] <- "pioneer"
+data_taxa$PFT_name[data_taxa$PFT_final == "4"] <- "understory"
 
-data_taxa_final <- na.omit(data_taxa_final)
-data_taxa_final <- unique(data_taxa_final)
+data_taxa <- na.omit(data_taxa)
+data_taxa <- unique(data_taxa)
 
-data_taxa_final <- data_taxa_final[order(
-  data_taxa_final$PFT_final, data_taxa_final$Family,
-  data_taxa_final$Genus, data_taxa_final$TaxaName
+data_taxa <- data_taxa[order(
+  data_taxa$PFT_final, data_taxa$Family,
+  data_taxa$Genus, data_taxa$TaxaName
 ), ]
 
 # Write CSV file
 
 write.csv(
-  data_taxa_final,
+  data_taxa,
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_maximum_height.csv", # nolint
   row.names = FALSE
 )
