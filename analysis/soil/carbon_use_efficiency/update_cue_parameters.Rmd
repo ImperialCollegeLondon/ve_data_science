@@ -23,7 +23,7 @@ virtual_ecosystem_module: Soil
 status: final
 
 input_files:
-  - name: 41598_2019_42145_MOESM2_ESM.xlsx
+  - name: 41598_2019_42145_MOESM2_ESM.csv
     path: data/primary/soil/carbon_use_efficiency/Qiao2019
     description: |
       The global carbon-use-efficiency (CUE) dataset was compiled by
@@ -31,6 +31,9 @@ input_files:
       They shared the data in the Supplementary ("Dataset 1")
       The dataset also contains treatment temperature that is used as a
       predictor of CUE in our analysis here.
+      The original data was published as a .xlsx file, which is currently
+      gitignored. I have saved it as a csv file so it can be pushed for
+      code checking, for now.
 
 output_files:
   - name: update_cue_parameters.md
@@ -77,7 +80,6 @@ knitr::opts_chunk$set(
 ```{r Libraries}
 # load packages
 library(tidyverse)
-library(readxl)
 library(sf)
 library(tmap)
 library(brms)
@@ -85,18 +87,17 @@ library(brms)
 
 # Background
 
-```{r Read data}
+```{r Read data, message=FALSE, warning=FALSE}
 # inout folder
 in_path <-
   "data/primary/soil/carbon_use_efficiency/Qiao2019/"
 
 dat_cue <-
-  read_xlsx(
+  read_csv(
     paste0(
       in_path,
-      "41598_2019_42145_MOESM2_ESM.xlsx"
-    ),
-    .name_repair = "unique"
+      "41598_2019_42145_MOESM2_ESM.csv"
+    )
   ) %>%
   select(No_Wj,
     Author,

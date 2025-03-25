@@ -6,7 +6,6 @@
 *.geotiff
 *.xlsx
 *.xls
-*.csv
 *.dat
 *.txt
 *.rds
