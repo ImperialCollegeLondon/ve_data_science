@@ -1,0 +1,256 @@
+---
+title: "Updating carbon use efficiency parameters"
+
+description: |
+    This analysis involves a GLM to estimate parameters for
+    temperature-dependent microbial carbon use efficiency (CUE)
+    that does not predict CUE out of bound (stays between 0 and 1).
+    It also updates the soil constant --- currently the one we use
+    originates from a rice paddy study in the US, which is too
+    narrow. The data used here is a global dataset. I re-analysed the
+    dataset using a GLM, because the original study used a Gaussian
+    regression. See the output html file for more details.
+
+author:
+  - name: Hao Ran Lai
+
+output:
+    github_document:
+        html_preview: false
+
+virtual_ecosystem_module: Soil
+
+status: final
+
+input_files:
+  - name: 41598_2019_42145_MOESM2_ESM.csv
+    path: data/primary/soil/carbon_use_efficiency/Qiao2019
+    description: |
+      The global carbon-use-efficiency (CUE) dataset was compiled by
+      Qiao et al. (2019) https://doi.org/10.1038/s41598-019-42145-6
+      They shared the data in the Supplementary ("Dataset 1")
+      The dataset also contains treatment temperature that is used as a
+      predictor of CUE in our analysis here.
+      The original data was published as a .xlsx file, which is currently
+      gitignored. I have saved it as a csv file so it can be pushed for
+      code checking, for now.
+
+output_files:
+  - name: update_cue_parameters.md
+    path: analysis/soil/carbon_use_efficiency
+    description: |
+      This is a RMarkdown report of my analysis, including the results.
+      Need to knitr from the RMarkdown file.
+      If you run the script, it will also save the GLM model object as follows.
+  - name: model_cue.rds
+    path: analysis/soil/carbon_use_efficiency
+    description: |
+      A Bayesian GLM model object in the class brms, which contains the
+      summary statistics, as well as the full posterior samples
+
+package_dependencies:
+    - tidyverse
+    - readxl
+    - sf
+    - tmap
+    - brms
+
+bibliography: ../../../bib/refs.bib
+
+usage_notes: |
+  The Bayesian model takes a few minutes to run, grab a cuppa! If the setup
+  works as intended, then the model will only run once unless you make changes.
+  Run jupytext --to ipynb code/soil/cue/update_cue_parameters.Rmd
+  --output code/soil/cue/update_cue_parameters.ipynb
+  to convert this Rmd file to ipynb
+---
+
+```{r setup, include=FALSE}
+# some knit options
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = NA,
+  message = NA,
+  fig.align = "center",
+  dpi = 72
+)
+```
+
+
+```{r Libraries}
+# load packages
+library(tidyverse)
+library(sf)
+library(tmap)
+library(brms)
+```
+
+# Background
+
+```{r Read data, message=FALSE, warning=FALSE}
+# inout folder
+in_path <-
+  "data/primary/soil/carbon_use_efficiency/Qiao2019/"
+
+dat_cue <-
+  read_csv(
+    paste0(
+      in_path,
+      "41598_2019_42145_MOESM2_ESM.csv"
+    )
+  ) %>%
+  select(No_Wj,
+    Author,
+    # Site,
+    lat = Latitude,
+    lon = longitude,
+    CUE,
+    PFT = `PFT...7`,
+    Temp = "Temperature(℃)"
+  ) %>%
+  # fill in and simplify author names
+  fill(Author, .direction = "down") %>%
+  mutate(AuthorID = as.numeric(as.factor(Author))) %>%
+  # center temperature at 20 deg C
+  mutate(
+    Temp = as.numeric(Temp),
+    Temp_centered = Temp - 20
+  ) %>%
+  # remove incomplete data
+  filter(!is.na(Temp_centered))
+```
+
+Currently, the temperature-dependent carbon use efficiency (CUE) function we used is
+$$
+\text{CUE} = \text{CUE}_\text{ref} + \text{CUE}_T \left(T - T_\text{ae-ref} \right) \,,
+$$
+where $T$ is temperature ($^\circ$C), $\text{CUE}_\text{ref}$ is the CUE at reference temperature $T_\text{ae-ref}$ (i.e., centered intercept), and $\text{CUE}_T$ is the temperature-dependence slope. This equation came from @abramoff_millennial_2018, who cited @xu-ri_terrestrial_2008, who then cited @Devevre2000 and used their empirical estimates. In @Devevre2000, CUE came from a single rice paddy study:
+
+> by soil microorganisms during rice straw decomposition was determined in a rice paddy soil, under aerobic and anaerobic (flooded) conditions at different temperatures (5, 15, and 25°C)
+
+The latest global study I could find is @Qiao2019. Mostly from US and Europe and not a lot of tropical studies (see map below; there are some misplaced coordinates but I think they are placeholder for missing data), but seems to be the most extensive to date. Their model is also identical to ours so should be easy to adapt.
+
+```{r Map, fig.height=3.5, fig.width=6}
+data("World")
+
+dat_sf <-
+  dat_cue %>%
+  st_as_sf(
+    coords = c("lon", "lat"),
+    crs = st_crs(World)
+  )
+
+ggplot() +
+  geom_sf(data = World) +
+  geom_sf(data = dat_sf) +
+  theme_minimal()
+```
+
+@Qiao2019 performed curve fitting and published their parameter estimates. However, they fitted a linear regression that could predict CUE out of bound (above 1 or below 0) under certain temperature. Our goal here is to refit a model on their compiled dataset, and constrain CUE to be bound between 0 and 1 using a generalised linear regression (GLM).
+
+# Modelling
+
+A beta-distribution GLM with logit link would do this. Our generative model is:
+\begin{equation*}
+\begin{aligned}
+\text{CUE}_{ij} &\sim \text{Beta}\left( \mu_{ij}, \phi \right) \\
+\text{logit}\left( \mu_{ij} \right) &= \text{CUE}_\text{ref} + \text{CUE}_T \left(T_{ij} - T_\text{ae-ref} \right) + \epsilon_j \,,
+\end{aligned}
+\end{equation*}
+where $\mu_{ij}$ is the linear predictor of CUE for observation $i$ in study $j$. The dataset contains multiple CUE values from the same study, so I controlled for non-independence within study using a random intercept term $\epsilon_j$.
+
+There are covariates that could potentially be included, such as biome and length of incubation. I have left them out for simplicity here, and because biome contains missing data. If needed, we could revisit these covariates.
+
+The model was fitted with Bayesian inference using the `brms` package in `R`.
+
+```{r Model}
+m <- brm(
+  CUE ~ 1 + Temp_centered + (1 | Author),
+  data = dat_cue,
+  family = Beta(),
+  prior =
+    prior(normal(0, 0.5), ub = 0, class = b),
+  warmup = 3000,
+  iter = 4000,
+  cores = 4,
+  file = "analysis/soil/carbon_use_efficiency/model_cue",
+  file_refit = "on_change"
+)
+```
+
+# Results
+
+```{r Parameter estimates, include=FALSE}
+param <- fixef(m)
+```
+
+The posterior median of the parameters are:
+
+- $\text{CUE}_T =$ `r round(param["Temp_centered", "Estimate"], 3)`
+- $\text{CUE}_\text{ref} =$ `r round(param["Intercept", "Estimate"], 3)`
+
+Note that the intercept $\text{CUE}_\text{ref}$ is in logit scale, in the original proportional scale it is `r round(plogis(param["Intercept", "Estimate"]), 3)`.
+
+```{r Prediction, fig.height=5, fig.width=7, fig.cap="Fitted regressions through the Qiao et al. (2019) dataset. Line color denotes the three different models: black = the Abramoff Millenial model current used by VE; red = the fitted linear regression by Qiao et al. (2019); blue = our GLM fit. Dashed blue lines are the 90% credible intervals of our GLM."}
+# counterfactual data
+newdat <-
+  data.frame(
+    Temp = seq(-10, 50, length.out = 100),
+    Author = NA
+  ) %>%
+  mutate(Temp_centered = Temp - 20)
+
+# fitted line from our model
+cue_hat <-
+  fitted(
+    m,
+    newdata = newdat,
+    scale = "response",
+    robust = TRUE,
+    probs = c(0.05, 0.95),
+    allow_new_levels = TRUE
+  )
+
+# fitted line from Qiao et al. (2019)
+cue_hat_qiao <- 0.475 - 0.016 * newdat$Temp_centered
+
+# fitted line from Abramoff et al. (2018)
+cue_hat_abramoff <- 0.6 - 0.012 * (newdat$Temp - 15)
+
+# plot
+par(mar = c(4, 4, 0.5, 0.5), las = 1)
+with(dat_cue, plot(
+  jitter(Temp, 2), CUE,
+  xlim = c(-10, 50),
+  xlab = "Temperature (\u00B0C)",
+  ylab = "CUE (unitless)"
+))
+abline(h = c(0, 1), col = "darkgrey", lty = 2)
+lines(newdat$Temp, cue_hat_qiao,
+  col = "tomato",
+  lwd = 2
+)
+lines(newdat$Temp, cue_hat_abramoff,
+  col = "black",
+  lwd = 2
+)
+lines(newdat$Temp, cue_hat[, "Estimate"],
+  col = "steelblue2",
+  lwd = 2
+)
+lines(newdat$Temp, cue_hat[, "Q5"],
+  col = "steelblue2",
+  lwd = 2, lty = 2
+)
+lines(newdat$Temp, cue_hat[, "Q95"],
+  col = "steelblue2",
+  lwd = 2, lty = 2
+)
+legend("topright",
+  lwd = 2,
+  col = c("tomato", "black", "steelblue2"),
+  legend = c("Qiao", "Abramoff", "Our model")
+)
+```
+
+# References
