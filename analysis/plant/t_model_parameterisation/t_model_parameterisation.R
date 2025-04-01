@@ -6,8 +6,7 @@
 #'     the T model to values more closely aligned with the SAFE project.
 #'     The script works with multiple datasets and calculates values for the
 #'     T model for each PFT. Species are linked to their PFT by working with
-#'     the output of the PFT species classification base script. Additional
-#'     useful traits included in the same datasets are also calculated.
+#'     the output of the PFT species classification base script.
 #'
 #' VE_module: Plant
 #'
@@ -53,9 +52,7 @@
 #'   - name: t_model_parameters.csv
 #'     path: ../../../data/derived/plant/traits_data/t_model_parameters.csv
 #'     description: |
-#'       This CSV file contains a summary of updated T model parameters, as well
-#'       as additional PFT traits for leaf and sapwood stoichiometry derived
-#'       from the same datasets.
+#'       This CSV file contains a summary of updated T model parameters for each PFT.
 #'
 #' package_dependencies:
 #'     - readxl
@@ -67,11 +64,8 @@
 #'   This script is intended to run entirely from start to finish in order to
 #'   preserve the flow and links between different datasets, so that the final
 #'   output file contains all necessary parts. The units are the same as the
-#'   ones in Li et al. (2014) unless specified in the script. It might be better
-#'   to include the units in the summary output file too to avoid confusion.
-#'   At the moment, leaf and wood stoichiometry are included in this script but
-#'   these are technically not T model parameters, so they may need to be
-#'   separated into their own script.
+#'   ones in Li et al. (2014) unless specified otherwise in the script.
+#'   It might be a good idea to include the units in the summary output file.
 #' ---
 
 
@@ -671,7 +665,7 @@ ggplot(plot_data, aes(
 
 ################################################################################
 
-# Stem stoichiometry
+# Calculate sapwood carbon content (needed to convert wood density later on)
 
 # Load wood nutrients data and clean up a bit
 
@@ -688,28 +682,12 @@ colnames(data) <- data[7, ]
 data <- data[8:427, ]
 names(data)
 
-data <- data[, c("Species", "TissueType", "C_total", "N_total", "P_total")]
-colnames(data) <- c("species", "TissueType", "C_total", "N_total", "P_total")
+data <- data[, c("Species", "TissueType", "C_total")]
+colnames(data) <- c("species", "TissueType", "C_total")
 
 data$C_total <- as.numeric(data$C_total)
-data$N_total <- as.numeric(data$N_total)
-data$P_total <- as.numeric(data$P_total)
-
-data$P_total <- data$P_total * 0.1
-# Convert to % in order to match unit of C_total and N_total
-
-data[data$P_total == 0, ]
-data <- data[data$P_total != 0, ]
-# If not removed ratio is problematic (cannot divide by zero)
-
-data$CN <- data$C_total / data$N_total
-data$CP <- data$C_total / data$P_total
-data$NP <- data$N_total / data$P_total
-
-##########
 
 # Because we only have 10 unique species, we'll use the mean across species
-# Mean sapwood carbon content
 
 temp <- data[, c("species", "TissueType", "C_total")]
 unique(temp$TissueType)
@@ -725,74 +703,9 @@ temp <- unique(temp)
 
 mean(temp$C_total_mean) # Use 46% carbon content for sapwood later in calculations
 
-##########
-
-# Mean sapwood stoichiometry
-# (other tissues: "Bark" "Sapwood" "Heartwood" "Wood" "WoodAndBark")
-
-temp <- data[, c("species", "TissueType", "CN", "CP", "NP")]
-temp <- temp[temp$TissueType == "Sapwood", ]
-
-temp <- temp %>%
-  group_by(species) %>%
-  mutate(CN_sapwood = mean(as.numeric(CN), na.rm = TRUE)) %>%
-  ungroup()
-
-temp <- temp %>%
-  group_by(species) %>%
-  mutate(CP_sapwood = mean(as.numeric(CP), na.rm = TRUE)) %>%
-  ungroup()
-
-temp <- temp %>%
-  group_by(species) %>%
-  mutate(NP_sapwood = mean(as.numeric(NP), na.rm = TRUE)) %>%
-  ungroup()
-
-temp <- temp[, c("species", "TissueType", "CN_sapwood", "CP_sapwood", "NP_sapwood")]
-temp <- unique(temp)
-
-mean(temp$CN_sapwood)
-sd(temp$CN_sapwood)
-mean(temp$CP_sapwood)
-sd(temp$CP_sapwood)
-mean(temp$NP_sapwood)
-sd(temp$NP_sapwood)
-
-data$CN_mean[data$TissueType == "Sapwood"] <- mean(temp$CN_sapwood)
-data$CN_mean_SD[data$TissueType == "Sapwood"] <- sd(temp$CN_sapwood)
-data$CP_mean[data$TissueType == "Sapwood"] <- mean(temp$CP_sapwood)
-data$CP_mean_SD[data$TissueType == "Sapwood"] <- sd(temp$CP_sapwood)
-data$NP_mean[data$TissueType == "Sapwood"] <- mean(temp$NP_sapwood)
-data$NP_mean_SD[data$TissueType == "Sapwood"] <- sd(temp$NP_sapwood)
-
-# Check with David which other tissue types need stoichiometric ratio's
-# Can repeat code above for other tissues (and then add this to data and summary)
-
-# Write to summary
-
-summary$CN_sapwood_mean <- NA
-summary$CN_sapwood_mean_SD <- NA
-summary$CP_sapwood_mean <- NA
-summary$CP_sapwood_mean_SD <- NA
-summary$NP_sapwood_mean <- NA
-summary$NP_sapwood_mean_SD <- NA
-
-summary$CN_sapwood_mean <-
-  round(unique(data$CN_mean[data$TissueType == "Sapwood"]), 2)
-summary$CN_sapwood_mean_SD <-
-  round(unique(data$CN_mean_SD[data$TissueType == "Sapwood"]), 2)
-summary$CP_sapwood_mean <-
-  round(unique(data$CP_mean[data$TissueType == "Sapwood"]), 2)
-summary$CP_sapwood_mean_SD <-
-  round(unique(data$CP_mean_SD[data$TissueType == "Sapwood"]), 2)
-summary$NP_sapwood_mean <-
-  round(unique(data$NP_mean[data$TissueType == "Sapwood"]), 2)
-summary$NP_sapwood_mean_SD <-
-  round(unique(data$NP_mean_SD[data$TissueType == "Sapwood"]), 2)
-
 ################################################################################
 
-# More traits and leaf stoichiometry
+# More traits (wood density and SLA)
 
 both_tree_functional_traits <- read_excel(
   "../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
@@ -823,70 +736,6 @@ data <- data[, c(1:9, 86, 10:85)]
 
 ##########
 
-# Leaf stoichiometry
-
-names(data)
-temp <- data[, c("species", "C_perc", "N_perc", "total_P_mg.g")]
-colnames(temp) <- c("species", "C_total", "N_total", "P_total")
-
-temp$C_total <- as.numeric(temp$C_total)
-temp$N_total <- as.numeric(temp$N_total)
-temp$P_total <- as.numeric(temp$P_total)
-
-temp$P_total <- temp$P_total * 0.1
-# Convert to % in order to match unit of C_total and N_total
-
-temp <- na.omit(temp)
-
-temp$CN_leaf <- temp$C_total / temp$N_total
-temp$CP_leaf <- temp$C_total / temp$P_total
-temp$NP_leaf <- temp$N_total / temp$P_total
-
-# Mean leaf stoichiometry
-
-temp <- temp %>%
-  group_by(species) %>%
-  mutate(CN_leaf_mean = mean(as.numeric(CN_leaf), na.rm = TRUE)) %>%
-  ungroup()
-
-temp <- temp %>%
-  group_by(species) %>%
-  mutate(CP_leaf_mean = mean(as.numeric(CP_leaf), na.rm = TRUE)) %>%
-  ungroup()
-
-temp <- temp %>%
-  group_by(species) %>%
-  mutate(NP_leaf_mean = mean(as.numeric(NP_leaf), na.rm = TRUE)) %>%
-  ungroup()
-
-temp <- temp[, c("species", "CN_leaf_mean", "CP_leaf_mean", "NP_leaf_mean")]
-temp <- unique(temp)
-
-data$CN_leaf_mean <- NA
-data$CP_leaf_mean <- NA
-data$NP_leaf_mean <- NA
-
-leaf_ratios <- unique(temp$species)
-
-for (id in leaf_ratios) {
-  data$CN_leaf_mean[data$species == id] <- temp$CN_leaf_mean[temp$species == id]
-  data$CP_leaf_mean[data$species == id] <- temp$CP_leaf_mean[temp$species == id]
-  data$NP_leaf_mean[data$species == id] <- temp$NP_leaf_mean[temp$species == id]
-}
-
-# So atm the ratio's are not averaged across species but are calculated
-# for each species
-# This allows to use mean PFT values using the PFT species classification
-
-# Check with David if we want to use mean across species
-# (similar to woody stoichiometry) or finer
-
-mean(temp$CN_leaf_mean)
-mean(temp$CP_leaf_mean)
-mean(temp$NP_leaf_mean)
-
-##########
-
 # Link dataset to PFT species classification dataset
 
 # Match by species first
@@ -903,175 +752,6 @@ data2 <- left_join(data, PFT_species_classification_base,
 # otherwise from genus match
 data$PFT <- ifelse(!is.na(data1$PFT), data1$PFT, data2$PFT)
 data$PFT_name <- ifelse(!is.na(data1$PFT_name), data1$PFT_name, data2$PFT_name)
-
-###
-
-# Calculate PFT leaf stoichiometry
-
-names(data)
-
-plot_data <- data[, c(
-  "location", "forest_type", "sample_code", "PFT",
-  "PFT_name", "species", "CN_leaf_mean", "CP_leaf_mean",
-  "NP_leaf_mean"
-)]
-plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
-
-plot_data$forest_type <- as.factor(plot_data$forest_type)
-
-# CN_leaf_mean
-
-ggplot(plot_data, aes(
-  x = sample_code, y = CN_leaf_mean,
-  color = as.factor(PFT)
-)) +
-  geom_point() +
-  labs(x = "Individual", y = "CN_leaf_mean") +
-  theme_minimal()
-
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = CN_leaf_mean,
-  color = as.factor(forest_type)
-)) +
-  geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
-  stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
-  labs(x = "PFT", y = "CN_leaf_mean") +
-  theme_minimal()
-
-summary_stats <- plot_data %>%
-  group_by(PFT) %>%
-  summarise(
-    Mean_CN_leaf_mean = mean(CN_leaf_mean, na.rm = TRUE),
-    SD_CN_leaf_mean = sd(CN_leaf_mean, na.rm = TRUE)
-  )
-
-print(summary_stats) # Note: mean across all species was 26.06
-
-# Write to summary (check with David regarding using species means
-# or across species, see wood stoichiometry)
-
-summary$CN_leaf_mean <- NA
-summary$CN_leaf_mean_SD <- NA
-
-summary$CN_leaf_mean[summary$PFT == "1"] <-
-  round(summary_stats[1, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "1"] <-
-  round(summary_stats[1, "SD_CN_leaf_mean"], 2)
-summary$CN_leaf_mean[summary$PFT == "2"] <-
-  round(summary_stats[2, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "2"] <-
-  round(summary_stats[2, "SD_CN_leaf_mean"], 2)
-summary$CN_leaf_mean[summary$PFT == "3"] <-
-  round(summary_stats[3, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "3"] <-
-  round(summary_stats[3, "SD_CN_leaf_mean"], 2)
-summary$CN_leaf_mean[summary$PFT == "4"] <-
-  round(summary_stats[4, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "4"] <-
-  round(summary_stats[4, "SD_CN_leaf_mean"], 2)
-
-# CP_leaf_mean
-
-ggplot(plot_data, aes(
-  x = sample_code, y = CP_leaf_mean,
-  color = as.factor(PFT)
-)) +
-  geom_point() +
-  labs(x = "Individual", y = "CP_leaf_mean") +
-  theme_minimal()
-
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = CP_leaf_mean,
-  color = as.factor(forest_type)
-)) +
-  geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
-  stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
-  labs(x = "PFT", y = "CP_leaf_mean") +
-  theme_minimal()
-
-summary_stats <- plot_data %>%
-  group_by(PFT) %>%
-  summarise(
-    Mean_CP_leaf_mean = mean(CP_leaf_mean, na.rm = TRUE),
-    SD_CP_leaf_mean = sd(CP_leaf_mean, na.rm = TRUE)
-  )
-
-print(summary_stats) # Note: mean across all species was 506.15
-
-# Write to summary (check with David regarding using species means or
-# across species, see wood stoichiometry)
-
-summary$CP_leaf_mean <- NA
-summary$CP_leaf_mean_SD <- NA
-
-summary$CP_leaf_mean[summary$PFT == "1"] <-
-  round(summary_stats[1, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "1"] <-
-  round(summary_stats[1, "SD_CP_leaf_mean"], 2)
-summary$CP_leaf_mean[summary$PFT == "2"] <-
-  round(summary_stats[2, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "2"] <-
-  round(summary_stats[2, "SD_CP_leaf_mean"], 2)
-summary$CP_leaf_mean[summary$PFT == "3"] <-
-  round(summary_stats[3, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "3"] <-
-  round(summary_stats[3, "SD_CP_leaf_mean"], 2)
-summary$CP_leaf_mean[summary$PFT == "4"] <-
-  round(summary_stats[4, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "4"] <-
-  round(summary_stats[4, "SD_CP_leaf_mean"], 2)
-
-# NP_leaf_mean
-
-ggplot(plot_data, aes(
-  x = sample_code,
-  y = NP_leaf_mean, color = as.factor(PFT)
-)) +
-  geom_point() +
-  labs(x = "Individual", y = "NP_leaf_mean") +
-  theme_minimal()
-
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = NP_leaf_mean,
-  color = as.factor(forest_type)
-)) +
-  geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
-  stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
-  labs(x = "PFT", y = "NP_leaf_mean") +
-  theme_minimal()
-
-summary_stats <- plot_data %>%
-  group_by(PFT) %>%
-  summarise(
-    Mean_NP_leaf_mean = mean(NP_leaf_mean, na.rm = TRUE),
-    SD_NP_leaf_mean = sd(NP_leaf_mean, na.rm = TRUE)
-  )
-
-print(summary_stats) # Mean across all species was 19.65
-
-# Write to summary (check with David regarding using species means or
-# across species, see wood stoichiometry)
-
-summary$NP_leaf_mean <- NA
-summary$NP_leaf_mean_SD <- NA
-
-summary$NP_leaf_mean[summary$PFT == "1"] <-
-  round(summary_stats[1, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "1"] <-
-  round(summary_stats[1, "SD_NP_leaf_mean"], 2)
-summary$NP_leaf_mean[summary$PFT == "2"] <-
-  round(summary_stats[2, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "2"] <-
-  round(summary_stats[2, "SD_NP_leaf_mean"], 2)
-summary$NP_leaf_mean[summary$PFT == "3"] <-
-  round(summary_stats[3, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "3"] <-
-  round(summary_stats[3, "SD_NP_leaf_mean"], 2)
-summary$NP_leaf_mean[summary$PFT == "4"] <-
-  round(summary_stats[4, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "4"] <-
-  round(summary_stats[4, "SD_NP_leaf_mean"], 2)
 
 ##########
 
@@ -1133,7 +813,7 @@ summary$WD_NB_SD[summary$PFT == "4"] <- round(summary_stats[4, "SD_WD_NB"], 2)
 
 ##########
 
-# Figures for SLA (SLA_mm2.mg_mean)
+# SLA (SLA_mm2.mg_mean)
 
 plot_data <- data[, c(
   "location", "forest_type", "sample_code",
@@ -1210,10 +890,6 @@ names(summary)
 summary <- summary[, c(
   "PFT", "PFT_name", "Family", "Genus", "Species", "TaxaName",
   "HeightTotal_m_2011", "Hm", "Hm_SE", "a", "a_SE", "c", "c_SE",
-  "CN_leaf_mean", "CN_leaf_mean_SD", "CP_leaf_mean", "CP_leaf_mean_SD",
-  "NP_leaf_mean", "NP_leaf_mean_SD",
-  "CN_sapwood_mean", "CN_sapwood_mean_SD", "CP_sapwood_mean",
-  "CP_sapwood_mean_SD", "NP_sapwood_mean", "NP_sapwood_mean_SD",
   "WD_NB", "WD_NB_SD", "SLA", "SLA_SD", "TagStem_latest"
 )]
 summary <- summary[order(
@@ -1249,10 +925,6 @@ summary <- summary[, c(
   "PFT", "PFT_name", "Family", "Genus", "Species", "TaxaName",
   "TaxaNames", "Trees", "HeightTotal_m_2011", "Hm", "Hm_SE",
   "a", "a_SE", "c", "c_SE",
-  "CN_leaf_mean", "CN_leaf_mean_SD", "CP_leaf_mean", "CP_leaf_mean_SD",
-  "NP_leaf_mean", "NP_leaf_mean_SD",
-  "CN_sapwood_mean", "CN_sapwood_mean_SD", "CP_sapwood_mean",
-  "CP_sapwood_mean_SD", "NP_sapwood_mean", "NP_sapwood_mean_SD",
   "WD_NB", "WD_NB_SD", "SLA", "SLA_SD"
 )]
 summary <- summary[order(
@@ -1263,32 +935,15 @@ summary <- summary[order(
 names(summary)
 summary <- summary[, c(
   "PFT", "PFT_name", "Hm", "Hm_SE", "a", "a_SE", "c", "c_SE",
-  "CN_leaf_mean", "CN_leaf_mean_SD", "CP_leaf_mean", "CP_leaf_mean_SD",
-  "NP_leaf_mean", "NP_leaf_mean_SD",
-  "CN_sapwood_mean", "CN_sapwood_mean_SD", "CP_sapwood_mean",
-  "CP_sapwood_mean_SD", "NP_sapwood_mean", "NP_sapwood_mean_SD",
   "WD_NB", "WD_NB_SD", "SLA", "SLA_SD", "TaxaNames", "Trees"
 )]
 
 summary <- unique(summary)
 summary <- na.omit(summary)
 summary <- summary[order(summary$PFT), ]
-rownames(summary) <- 1:4
+rownames(summary) <- 1:nrow(summary) # nolint
 
 # Save summary
-
-summary$CN_leaf_mean <- as.numeric(summary$CN_leaf_mean)
-summary$CN_leaf_mean_SD <- as.numeric(summary$CN_leaf_mean_SD)
-summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
-summary$CP_leaf_mean_SD <- as.numeric(summary$CP_leaf_mean_SD)
-summary$NP_leaf_mean <- as.numeric(summary$NP_leaf_mean)
-summary$NP_leaf_mean_SD <- as.numeric(summary$NP_leaf_mean_SD)
-summary$CN_sapwood_mean <- as.numeric(summary$CN_sapwood_mean)
-summary$CN_sapwood_mean_SD <- as.numeric(summary$CN_sapwood_mean_SD)
-summary$CP_sapwood_mean <- as.numeric(summary$CP_sapwood_mean)
-summary$CP_sapwood_mean_SD <- as.numeric(summary$CP_sapwood_mean_SD)
-summary$NP_sapwood_mean <- as.numeric(summary$NP_sapwood_mean)
-summary$NP_sapwood_mean_SD <- as.numeric(summary$NP_sapwood_mean_SD)
 
 summary$WD_NB <- as.numeric(summary$WD_NB)
 summary$WD_NB_SD <- as.numeric(summary$WD_NB_SD)

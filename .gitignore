@@ -6,9 +6,10 @@
 *.geotiff
 *.xlsx
 *.xls
-*.csv
 *.dat
 *.txt
+*.rds
+*.RData
 
 # History files
 .Rhistory
