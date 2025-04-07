@@ -79,7 +79,7 @@ request = {
     "day": [f"{i:02d}" for i in range(1, 32)],  # Days 1 to 31
     "time": [f"{i:02d}:00" for i in range(24)],  # Hourly data (00:00 to 23:00)
     "data_format": "netcdf",
-    "area": [<N>, <W>, <S>, <E>],  # Replace with bounding box coordinates
+    "area": [N, W, S, E],  # Use bounding box coordinates
 }
 
 # Download the dataset
