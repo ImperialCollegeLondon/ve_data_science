@@ -64,7 +64,7 @@ package_dependencies:
       - The selected spatial extent (smaller regions will download faster)
 
 
-# An R Markdown template
+# ERA5-Land Rainfall Data Download Script
 import cdsapi
 
 # Initialize the CDS API client
