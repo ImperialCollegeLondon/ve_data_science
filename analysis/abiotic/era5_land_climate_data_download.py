@@ -2,8 +2,7 @@
 #' title: ERA5-Land Hourly Climate Data Download Script (User-Selectable Variable)
 #'
 #' description: |
-#'   This Python script automates the download of hourly ERA5-Land data for a user-selected 
-#'   climate variable (e.g., precipitation, temperature, wind) using the Copernicus Climate Data Store (CDS).
+#'   This Python script automates the download of hourly ERA5-Land data for a user-selected  climate variable (e.g., precipitation, temperature, wind) using the Copernicus Climate Data Store (CDS).
 #'   It automates the download of climate variables essential for the Abiotic model of the Virtual Ecosystem (VE).
 #'   It uses the `cdsapi` library and command-line arguments to flexibly retrieve data for a specific
 #'   variable, region, and year with a defined spatial bounding box.
@@ -32,8 +31,8 @@
 #'       No local input files are required. Users define download parameters via the command line.
 #'
 #' output_files:
-#'   - name: ERA5-Land Climate Dataset (user-selected variable)
-#'     path: ./ERA5_<variable>_<region>_<year>.nc
+#'   - name: era5-land climate dataset (user-selected variable)
+#'     path: ./era5_<variable>_<region>_<year>.nc
 #'     description: |
 #'       The output is a NetCDF file containing hourly ERA5-Land data for the selected variable, 
 #'       year, and bounding box. It is suitable for use in hydrological modeling, climate analysis, 
@@ -83,26 +82,26 @@
 #'     Requesting multiple variables or years simultaneously may cause errors due to large file sizes or server timeouts.
 #' ---
 
-# ERA5-Land Cimate Data Download Script with argparse
+# ERA5-Land Climate Data Download Script with argparse
 import argparse
 import cdsapi
 import sys
 
-# List of ERA5 climate variables 
-CLIMATE_VARIABLES = {
-    "2m_temperature"
-    "2m_dewpoint_temperature"
-    "total_precipitation"
-    "surface_pressure"
-    "10m_u_component_of_wind"
-    "10m_v_component_of_wind"
-    "surface_runoff"
+# List of ERA5 climate variables
+climate_variables = {
+    "2m_temperature": "2-meter Temperature",
+    "2m_dewpoint_temperature": "2-meter Dewpoint Temperature",
+    "total_precipitation": "Total Precipitation",
+    "surface_pressure": "Surface Pressure",
+    "10m_u_component_of_wind": "10-meter U Component of Wind",
+    "10m_v_component_of_wind": "10-meter V Component of Wind",
+    "surface_runoff": "Surface Runoff"
 }
-#**Note:** This list can be modified or extended based on evolving requirements of the Virtual Ecosystem (VE) abiotic module.
+# **Note:** This list can be modified or extended based on evolving requirements of the Virtual Ecosystem (VE) abiotic module.
 
-def print_supported_variables():
+def print_climate_variables():
     print("Available ERA5 variables:")
-    for key, desc in CLIMATE_VARIABLES.items():
+    for key, desc in climate_variables.items():
         print(f"  - {key}: {desc}")
     print()
 
@@ -131,7 +130,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.variable not in CLIMATE_VARIABLES:
+    if args.variable not in climate_variables:
         print(f"\n❌ Error: '{args.variable}' is not in the climate variables list.")
         print("Please choose one of the following:")
         print_climate_variables()
@@ -150,16 +149,15 @@ def main():
         "format": "netcdf",
         "area": args.bbox,
     }
-#'    -**Recommendation on Data Volume**  
-#'     ⚠️ It is recommended to download **only one variable per year** at a time.  
-#'     Requesting multiple variables or years simultaneously may cause errors due to large file sizes or server timeouts.
-#' ---
+
+    # **Recommendation on Data Volume**
+    # ⚠️ It is recommended to download **only one variable per year** at a time.
+    # Requesting multiple variables or years simultaneously may cause errors due to large file sizes or server timeouts.
 
     output_filename = f"ERA5_{args.variable}_{args.region}_{args.year}.nc"
-    print(f"\n📥 Downloading {CLIMATE_VARIABLES[args.variable]} to {output_filename} ...")
+    print(f"\n📥 Downloading {climate_variables[args.variable]} to {output_filename} ...")
     c.retrieve("reanalysis-era5-land", request, output_filename)
     print("✅ Download complete!")
 
 if __name__ == "__main__":
     main()
-   

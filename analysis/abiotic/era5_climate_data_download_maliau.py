@@ -2,8 +2,8 @@
 #' title: ERA5-Land Monthly Averaged Climate Data Download Script for Maliau Basin (2010–2020)
 #'
 #' description: |
-#'   This Python script automates the download of monthly averaged ERA5-Land climate data for the Maliau Basin region for the years 2010 to 2020. 
-#'   It uses the Copernicus Climate Data Store (CDS) API and argparse to support user input for selecting specific climate variables. 
+#'   This Python script automates the download of monthly averaged ERA5-Land climate data for the Maliau Basin region for the years 2010 to 2020.
+#'   It uses the Copernicus Climate Data Store (CDS) API and argparse to support user input for selecting specific climate variables.
 #'   This modular approach supports flexible download of different variables, aiding hydrological modeling, climate analysis, and ecosystem simulations in the Virtual Ecosystem (VE) Abiotic module.
 #'
 #' author:
@@ -32,7 +32,7 @@
 #'   - xarray
 
 #' usage_notes: |
-#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**  
+#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**
 #'     Register at [Copernicus Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and configure your `.cdsapirc` file in your home directory.
 #'
 #'     Example `.cdsapirc`:
@@ -42,19 +42,19 @@
 #'     verify: 1
 #'     ```
 #'
-#'   - **Installing Required Packages**  
+#'   - **Installing Required Packages**
 #'     Install dependencies using:
 #'     ```bash
 #'     pip install cdsapi
 #'     ```
 #'
-#'   - **Running the Script with Variable Input**  
+#'   - **Running the Script with Variable Input**
 #'     Run the script using a command line interface with the `--variable` flag. Example:
 #'     ```bash
 #'     python download_era5_data.py --variable total_precipitation
 #'     ```
 #'
-#'   - **Recommended Download Practice**  
+#'   - **Recommended Download Practice**
 #'     To avoid CDS download errors caused by large requests, it's recommended to download **one variable** per run.
 #'
 #' ---
