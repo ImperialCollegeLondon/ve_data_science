@@ -109,5 +109,5 @@ output_path = os.path.join(output_dir, output_filename)
 
 # Download data
 client = cdsapi.Client()
-client.retrieve(dataset, request, output_path)
-print(f"✅ Downloaded successfully: {output_path}")
+client.retrieve(dataset, request).download(f"era5_{args.variable}_monthly_Maliau_2010_2020.nc")
+print(f"✅ Downloaded successfully: {args.variable}")
