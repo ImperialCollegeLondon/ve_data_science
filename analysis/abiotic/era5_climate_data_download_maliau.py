@@ -1,8 +1,10 @@
 #' ---
-#' title: ERA5-Land Rainfall Data Download Script for Maliau Basin (2010-2020)
+#' title: ERA5-Land Monthly Averaged Climate Data Download Script for Maliau Basin (2010–2020)
 #'
 #' description: |
-#'   This Python script automates the download of hourly ERA5-Land total precipitation data for the Maliau Basin region spanning the years 2010 to 2020. It utilizes the Copernicus Climate Data Store (CDS) API to retrieve data, which is essential for hydrological modeling, climate analysis, and ecosystem simulations in the Virtual Ecosystem (VE) Abiotic module.
+#'   This Python script automates the download of monthly averaged ERA5-Land climate data for the Maliau Basin region for the years 2010 to 2020. 
+#'   It uses the Copernicus Climate Data Store (CDS) API and argparse to support user input for selecting specific climate variables. 
+#'   This modular approach supports flexible download of different variables, aiding hydrological modeling, climate analysis, and ecosystem simulations in the Virtual Ecosystem (VE) Abiotic module.
 #'
 #' author:
 #'   - name: Lelavathy
@@ -15,73 +17,90 @@
 #'   - name: None (direct API request)
 #'     path: Data retrieved via Copernicus Climate Data Store API
 #'     description: |
-#'       No local input files are required. The script defines download parameters internally.
+#'       No local input files are required. Download parameters are defined within the script and can be customized through command-line arguments.
 #'
 #' output_files:
-#'   - name: ERA5-Land Total Precipitation Dataset for Maliau Basin (2010-2020)
-#'     path: ./ERA5_total_precipitation_Maliau_<year>.nc
+#'   - name: era5_land_monthly_maliau_2010_2020.nc
+#'     path: ./era5_land_monthly_<variable>_maliau_<year>.nc
 #'     description: |
-#'       The output consists of NetCDF files containing hourly ERA5-Land total precipitation data for each year from 2010 to 2020 for the Maliau Basin region.
+#'       The output is a NetCDF file containing monthly averaged ERA5-Land data for the selected climate variable over the Maliau Basin bounding box.
 #'
 #' package_dependencies:
 #'   - cdsapi
-#'
+#'   - netCDF4
+#'   - pandas
+#'   - xarray
+
 #' usage_notes: |
-#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**
-#'     Register at [Copernicus Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and set up your `.cdsapirc` file in your home directory.
+#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**  
+#'     Register at [Copernicus Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and configure your `.cdsapirc` file in your home directory.
 #'
-#'     Example `.cdsapirc` content:
+#'     Example `.cdsapirc`:
 #'     ```ini
 #'     url: https://cds.climate.copernicus.eu/api/v2
 #'     key: your-uid:your-api-key
 #'     verify: 1
 #'     ```
 #'
-#'   - **Installing Required Packages**
+#'   - **Installing Required Packages**  
 #'     Install dependencies using:
 #'     ```bash
 #'     pip install cdsapi
 #'     ```
 #'
-#'   - **Running the Script**
-#'     Simply execute the script. It will sequentially download data for each year from 2010 to 2020.
+#'   - **Running the Script with Variable Input**  
+#'     Run the script using a command line interface with the `--variable` flag. Example:
+#'     ```bash
+#'     python download_era5_data.py --variable total_precipitation
+#'     ```
 #'
-#'   - **Download Time**
-#'     Download duration may vary depending on:
-#'       - CDS server load
-#'       - Internet speed
-#'       - Size of the selected bounding box
+#'   - **Recommended Download Practice**  
+#'     To avoid CDS download errors caused by large requests, it's recommended to download **one variable** per run.
+#'
 #' ---
 
+# ERA5-Land Cimate Data Download Script for Maliau Basin (2010-2020)
+import argparse
 import cdsapi
+import sys
 
-# Define the climate variable and region
-VARIABLE = "total_precipitation"
-REGION = "Maliau"
-BBOX = [4.9, 116.7, 4.5, 117.1]  # North, West, South, East
+# List of supported ERA5 climate variables
+climate_variables = [
+    "2m_temperature",
+    "2m_dewpoint_temperature",
+    "total_precipitation",
+    "surface_pressure",
+    "10m_u_component_of_wind",
+    "10m_v_component_of_wind",
+    "surface_runoff"
+]
 
-# Define the range of years
-START_YEAR = 2010
-END_YEAR = 2020
+# Set up argparse
+parser = argparse.ArgumentParser(description="Download ERA5-Land monthly averaged data for a specific variable.")
+parser.add_argument('--variable', type=str, required=True,
+                    help=f"Climate variable to download. Choose from: {', '.join(climate_variables)}")
+args = parser.parse_args()
 
-# Initialize CDS API client
-c = cdsapi.Client()
+# Validate user input
+if args.variable not in climate_variables:
+    print(f"Error: '{args.variable}' is not a valid variable.")
+    print(f"Choose from: {', '.join(climate_variables)}")
+    sys.exit(1)
 
-# Loop through each year and download data
-for year in range(START_YEAR, END_YEAR + 1):
-    print(f"\n📥 Requesting ERA5-Land data for {VARIABLE}, year: {year}")
-
-    request = {
-        "variable": [VARIABLE],
-        "year": str(year),
-        "month": [f"{i:02d}" for i in range(1, 13)],
-        "day": [f"{i:02d}" for i in range(1, 32)],
-        "time": [f"{i:02d}:00" for i in range(24)],
-        "format": "netcdf",
-        "area": BBOX,  # [N, W, S, E]
+# Set up request
+dataset = "reanalysis-era5-land-monthly-means"
+request = {
+    "variable": [args.variable],
+    "year": [str(y) for y in range(2010, 2021)],  # 2010 to 2020 inclusive
+    "month": [f"{i:02d}" for i in range(1, 13)],
+    "day": [f"{i:02d}" for i in range(1, 32)],
+    "time": [f"{i:02d}:00" for i in range(24)],
+    "format": "netcdf",
+    "area": [4.9, 116.7, 4.5, 117.1]  # North, West, South, East of Maliau Basin
+    "grid":[0.1,0.1], # 0.1 degree grid resolition
     }
 
-    output_filename = f"ERA5_{VARIABLE}_{REGION}_{year}.nc"
-    c.retrieve("reanalysis-era5-land", request, output_filename)
-
-    print(f"✅ Downloaded: {output_filename}")
+# Download data
+client = cdsapi.Client()
+client.retrieve(dataset, request).download(f"era5_{args.variable}_Maliau_2010_2020.nc")
+    print(f"✅ Downloaded successfully: {args.variable}")
