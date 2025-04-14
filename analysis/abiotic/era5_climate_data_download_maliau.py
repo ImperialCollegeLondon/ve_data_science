@@ -102,5 +102,5 @@ request = {
 
 # Download data
 client = cdsapi.Client()
-client.retrieve(dataset, request).download(f"era5_{args.variable}_Maliau_2010_2020.nc")
+client.retrieve(dataset, request).download(f"era5_{args.variable}_monthly_Maliau_2010_2020.nc")
 print(f"✅ Downloaded successfully: {args.variable}")
