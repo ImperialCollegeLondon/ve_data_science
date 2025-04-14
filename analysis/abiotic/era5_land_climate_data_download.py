@@ -34,8 +34,8 @@
 #'   - name: era5-land climate dataset (user-selected variable)
 #'     path: ./era5_<variable>_<region>_<year>.nc
 #'     description: |
-#'       The output is a NetCDF file containing hourly ERA5-Land data for the selected variable, 
-#'       year, and bounding box. It is suitable for use in hydrological modeling, climate analysis, 
+#'       The output is a NetCDF file containing hourly ERA5-Land data for the selected variable,
+#'       year, and bounding box. It is suitable for use in hydrological modeling, climate analysis,
 #'       and ecosystem simulations.
 #'
 #' package_dependencies:
@@ -45,7 +45,7 @@
 #'   - xarray
 #'
 #' usage_notes: |
-#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**  
+#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**
 #'     Register at [Copernicus Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and set up your `.cdsapirc` file in your home directory.
 #'
 #'     Example `.cdsapirc` content:
@@ -55,13 +55,13 @@
 #'     verify: 1
 #'     ```
 #'
-#'   - **Installing Required Packages**  
+#'   - **Installing Required Packages**
 #'     Install dependencies using:
 #'     ```bash
 #'     pip install cdsapi netCDF4 pandas xarray
 #'     ```
 #'
-#'   - **Running the Script**  
+#'   - **Running the Script**
 #'     Run the script using command-line arguments. For example:
 #'     ```bash
 #'     python download_era5_climate_variable.py \
@@ -71,21 +71,22 @@
 #'       --variable total_precipitation
 #'     ```
 #'
-#'   - **Download Time**  
+#'   - **Download Time**
 #'     Download duration may vary depending on:
 #'       - CDS server load
 #'       - Internet speed
 #'       - Size of the selected bounding box
 #'
-#'    -**Recommendation on Data Volume**  
-#'     ⚠️ It is recommended to download **only one variable per year** at a time.  
+#'    -**Recommendation on Data Volume**
+#'     ⚠️ It is recommended to download **only one variable per year** at a time.
 #'     Requesting multiple variables or years simultaneously may cause errors due to large file sizes or server timeouts.
 #' ---
 
 # ERA5-Land Climate Data Download Script with argparse
 import argparse
-import cdsapi
 import sys
+
+import cdsapi
 
 # List of ERA5 climate variables
 climate_variables = {
@@ -95,9 +96,10 @@ climate_variables = {
     "surface_pressure": "Surface Pressure",
     "10m_u_component_of_wind": "10-meter U Component of Wind",
     "10m_v_component_of_wind": "10-meter V Component of Wind",
-    "surface_runoff": "Surface Runoff"
+    "surface_runoff": "Surface Runoff",
 }
 # **Note:** This list can be modified or extended based on evolving requirements of the Virtual Ecosystem (VE) abiotic module.
+
 
 def print_climate_variables():
     print("Available ERA5 variables:")
@@ -105,27 +107,35 @@ def print_climate_variables():
         print(f"  - {key}: {desc}")
     print()
 
+
 def main():
     print_climate_variables()
 
     parser = argparse.ArgumentParser(
         description="Download a single ERA5-Land climate variable for a specified region and year."
     )
-    parser.add_argument("--region", type=str, required=True, help="Region name (used in output file name)")
-    parser.add_argument("--year", type=str, required=True, help="Year of data to download, e.g., 2020")
+    parser.add_argument(
+        "--region",
+        type=str,
+        required=True,
+        help="Region name (used in output file name)",
+    )
+    parser.add_argument(
+        "--year", type=str, required=True, help="Year of data to download, e.g., 2020"
+    )
     parser.add_argument(
         "--bbox",
         nargs=4,
         metavar=("N", "W", "S", "E"),
         type=float,
         required=True,
-        help="Bounding box coordinates: North West South East"
+        help="Bounding box coordinates: North West South East",
     )
     parser.add_argument(
         "--variable",
         type=str,
         required=True,
-        help="Select ONE variable name from the climate variables list above"
+        help="Select ONE variable name from the climate variables list above",
     )
 
     args = parser.parse_args()
@@ -155,9 +165,12 @@ def main():
     # Requesting multiple variables or years simultaneously may cause errors due to large file sizes or server timeouts.
 
     output_filename = f"ERA5_{args.variable}_{args.region}_{args.year}.nc"
-    print(f"\n📥 Downloading {climate_variables[args.variable]} to {output_filename} ...")
+    print(
+        f"\n📥 Downloading {climate_variables[args.variable]} to {output_filename} ..."
+    )
     c.retrieve("reanalysis-era5-land", request, output_filename)
     print("✅ Download complete!")
+
 
 if __name__ == "__main__":
     main()
