@@ -27,7 +27,7 @@
 #'   - cdsapi
 #'
 #' usage_notes: |
-#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**  
+#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**
 #'     Register at [Copernicus Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and set up your `.cdsapirc` file in your home directory.
 #'
 #'     Example `.cdsapirc` content:
@@ -37,16 +37,16 @@
 #'     verify: 1
 #'     ```
 #'
-#'   - **Installing Required Packages**  
+#'   - **Installing Required Packages**
 #'     Install dependencies using:
 #'     ```bash
 #'     pip install cdsapi
 #'     ```
 #'
-#'   - **Running the Script**  
+#'   - **Running the Script**
 #'     Simply execute the script. It will sequentially download data for each year from 2010 to 2020.
 #'
-#'   - **Download Time**  
+#'   - **Download Time**
 #'     Download duration may vary depending on:
 #'       - CDS server load
 #'       - Internet speed
