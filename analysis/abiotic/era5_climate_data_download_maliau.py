@@ -61,8 +61,9 @@
 
 # ERA5-Land Climate Data Download Script for Maliau Basin (2010–2020)
 import argparse
-import cdsapi
 import sys
+
+import cdsapi
 
 # List of supported ERA5 climate variables
 climate_variables = [
@@ -72,13 +73,19 @@ climate_variables = [
     "surface_pressure",
     "10m_u_component_of_wind",
     "10m_v_component_of_wind",
-    "surface_runoff"
+    "surface_runoff",
 ]
 
 # Set up argparse
-parser = argparse.ArgumentParser(description="Download ERA5-Land monthly averaged data for a specific variable.")
-parser.add_argument('--variable', type=str, required=True,
-                    help=f"Climate variable to download. Choose from: {', '.join(climate_variables)}")
+parser = argparse.ArgumentParser(
+    description="Download ERA5-Land monthly averaged data for a specific variable."
+)
+parser.add_argument(
+    "--variable",
+    type=str,
+    required=True,
+    help=f"Climate variable to download. Choose from: {', '.join(climate_variables)}",
+)
 args = parser.parse_args()
 
 # Validate user input
@@ -93,11 +100,16 @@ request = {
     "product_type": ["monthly_averaged_reanalysis_by_hour_of_day"],
     "variable": [args.variable],
     "year": [str(y) for y in range(2010, 2021)],  # 2010 to 2020 inclusive
-    "month": [f"{i:02d}" for i in range(1, 13)], # all months in a year
-    "time": [f"{i:02d}:00" for i in range(24)], # all hours in a day
+    "month": [f"{i:02d}" for i in range(1, 13)],  # all months in a year
+    "time": [f"{i:02d}:00" for i in range(24)],  # all hours in a day
     "data_format": "netcdf",
     "download_format": "unarchived",
-    "area": [4.7, 116.7, 4.5, 117.1] # Maliau Basin bounding box (North, West, South, East)
+    "area": [
+        4.7,
+        116.7,
+        4.5,
+        117.1,
+    ],  # Maliau Basin bounding box (North, West, South, East)
 }
 
 # Download data
