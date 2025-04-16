@@ -70,20 +70,20 @@ import os
 import sys
 import cdsapi
 
-# List of supported ERA5 climate variables
+# List of selected ERA5 climate variables
 selected_variables = [
-    "2m_temperature", # abiotic variable
-    "2m_dewpoint_temperature", #abiotic variable
-    "surface_pressure", #abiotic variable
-    "10m_u_component_of_wind", #abiotic variable
-    "total_precipitation", #hydrological variable
-    "surface_runoff"#hydrological variable
+  "2m_temperature",                         # abiotic variable
+  "2m_dewpoint_temperature",                #abiotic variable
+  "surface_pressure",                       #abiotic variable
+  "10m_u_component_of_wind",                #abiotic variable
+  "total_precipitation",                    #hydrological variable
+  "surface_runoff"                          #hydrological variable
 ]
 
 # Set up argparse
 parser = argparse.ArgumentParser(description="Download ERA5-Land monthly averaged data for a specific variable.")
 parser.add_argument('--variable', type=str, required=True,
-                    help=f"ERA5  variable to download. Choose from: {', '.join(selected_variables)}")
+                    help=f"Selected variable to download. Choose from: {', '.join(selected_variables)}")
 args = parser.parse_args()
 
 # Validate user input
@@ -117,5 +117,3 @@ client.retrieve(dataset, request).download(
     f"era5_{args.variable}_monthly_Maliau_2010_2020.nc"
 )
 print(f"✅ Downloaded successfully: {args.variable}")
-
-
