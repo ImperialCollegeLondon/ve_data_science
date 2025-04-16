@@ -72,20 +72,19 @@ import sys
 import cdsapi
 
 # List of supported ERA5 climate variables
-climate_variables = [
-    "2m_temperature",
-    "2m_dewpoint_temperature",
-    "total_precipitation",
-    "surface_pressure",
-    "10m_u_component_of_wind",
-    "10m_v_component_of_wind",
-    "surface_runoff"
+selected_variables = [
+    "2m_temperature", # abiotic variable
+    "2m_dewpoint_temperature", #abiotic variable
+    "surface_pressure", #abiotic variable
+    "10m_u_component_of_wind", #abiotic variable
+    "total_precipitation", #hydrological variable
+    "surface_runoff"#hydrological variable
 ]
 
 # Set up argparse
 parser = argparse.ArgumentParser(description="Download ERA5-Land monthly averaged data for a specific variable.")
 parser.add_argument('--variable', type=str, required=True,
-                    help=f"Climate variable to download. Choose from: {', '.join(climate_variables)}")
+                    help=f"ERA5  variable to download. Choose from: {', '.join(selected_variables)}")
 args = parser.parse_args()
 
 # Validate user input
@@ -104,12 +103,7 @@ request = {
     "time": [f"{i:02d}:00" for i in range(24)],  # all hours in a day
     "data_format": "netcdf",
     "download_format": "unarchived",
-    "area": [
-        4.7,
-        116.7,
-        4.5,
-        117.1,
-    ],  # Maliau Basin bounding box (North, West, South, East)
+    "area": [4.757, 116.949, 4.728, 116.983],  # Maliau Basin bounding box (North, West, South, East)
 }
 
 # Define output directory and filename
