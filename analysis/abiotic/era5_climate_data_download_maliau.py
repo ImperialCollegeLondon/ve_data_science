@@ -68,7 +68,6 @@
 import argparse
 import os
 import sys
-
 import cdsapi
 
 # List of supported ERA5 climate variables
