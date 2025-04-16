@@ -79,13 +79,19 @@ climate_variables = [
     "surface_pressure",
     "10m_u_component_of_wind",
     "10m_v_component_of_wind",
-    "surface_runoff"
+    "surface_runoff",
 ]
 
 # Set up argparse
-parser = argparse.ArgumentParser(description="Download ERA5-Land monthly averaged data for a specific variable.")
-parser.add_argument('--variable', type=str, required=True,
-                    help=f"Climate variable to download. Choose from: {', '.join(climate_variables)}")
+parser = argparse.ArgumentParser(
+    description="Download ERA5-Land monthly averaged data for a specific variable."
+)
+parser.add_argument(
+    "--variable",
+    type=str,
+    required=True,
+    help=f"Climate variable to download. Choose from: {', '.join(climate_variables)}",
+)
 args = parser.parse_args()
 
 # Validate user input
@@ -124,5 +130,3 @@ client.retrieve(dataset, request).download(
     f"era5_{args.variable}_monthly_Maliau_2010_2020.nc"
 )
 print(f"✅ Downloaded successfully: {args.variable}")
-
-
