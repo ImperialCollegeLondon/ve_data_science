@@ -1,15 +1,15 @@
 #' ---
-#' title: ERA5-Land Monthly Averaged Climate Data Download Script for Maliau Basin (2010–2020)
+#' title: ERA5-Land Monthly Averaged Data Download Script for Maliau Basin (2010–2020)
 #'
 #' description: |
-#'   This Python script automates the download of monthly averaged ERA5-Land climate data for the Maliau Basin region for the years 2010 to 2020.
-#'   It uses the Copernicus Climate Data Store (CDS) API and argparse to support user input for selecting specific climate variables.
+#'   This Python script automates the download of ERA5-Land monthly averaged  data for the Maliau Basin region for the years 2010 to 2020.
+#'   It uses the Copernicus Climate Data Store (CDS) API and argparse to support user input for selecting specific variables.
 #'   This modular approach supports flexible download of different variables, aiding hydrological modeling, climate analysis, and ecosystem simulations in the Virtual Ecosystem (VE) Abiotic module.
 #'
 #' author:
 #'   - name: Lelavathy
 #'
-#' virtual_ecosystem_module: Abiotic
+#' virtual_ecosystem_module: abiotic, abiotic_simple, hydrology
 #'
 #' status: final
 #'
@@ -23,7 +23,7 @@
 #'   - name: era5_land_monthly_maliau_2010_2020.nc
 #'     path: ./era5_land_monthly_<variable>_maliau_<year>.nc
 #'     description: |
-#'       The output is a NetCDF file containing monthly averaged ERA5-Land data for the selected climate variable over the Maliau Basin bounding box.
+#'       The output is a NetCDF file containing monthly averaged ERA5-Land data for the selected abiotic/ hydrological variable over the Maliau Basin bounding box.
 #'
 #' package_dependencies:
 #'   - cdsapi
@@ -57,41 +57,45 @@
 #'   - **Recommended Download Practice**
 #'     To avoid CDS download errors caused by large requests, it's recommended to download **one variable** per run.
 #'
+#' 💡 Remark:
+#'    - the Copernicus Climate Data Store provides comprehensive guidance on setting up and using their API.
+#'    - This documentation can help you understand how to structure your requests and handle data downloads effectively.
+#'    - Access the documentation here: https://cds.climate.copernicus.eu/how-to-api
+#'
 #' ---
 
-# ERA5-Land Climate Data Download Script for Maliau Basin (2010–2020)
+# ERA5-Land Monthly Averaged Data Download Script for Maliau Basin (2010–2020) with argparse functionality
 import argparse
 import cdsapi
 import sys
 import os
 
-# List of supported ERA5 climate variables
-climate_variables = [
-    "2m_temperature",
-    "2m_dewpoint_temperature",
-    "total_precipitation",
-    "surface_pressure",
-    "10m_u_component_of_wind",
-    "10m_v_component_of_wind",
-    "surface_runoff"
+# List of selected ERA5 variables
+selected_variables = [
+    "2m_temperature", # abiotic variable
+    "2m_dewpoint_temperature", #abiotic variable
+    "surface_pressure", #abiotic variable
+    "10m_u_component_of_wind", #abiotic variable
+    "total_precipitation", #hydrological variable
+    "surface_runoff"#hydrological variable
 ]
 
 # Set up argparse
 parser = argparse.ArgumentParser(description="Download ERA5-Land monthly averaged data for a specific variable.")
 parser.add_argument('--variable', type=str, required=True,
-                    help=f"Climate variable to download. Choose from: {', '.join(climate_variables)}")
+                    help=f"Selected variable to download. Choose from: {', '.join(selected_variables)}")
 args = parser.parse_args()
 
 # Validate user input
-if args.variable not in climate_variables:
+if args.variable not in selected_variables:
     print(f"Error: '{args.variable}' is not a valid variable.")
-    print(f"Choose from: {', '.join(climate_variables)}")
+    print(f"Choose from: {', '.join(selected_variables)}")
     sys.exit(1)
 
 # Set up request
 dataset = "reanalysis-era5-land-monthly-means"
 request = {
-    "product_type": ["monthly_averaged_reanalysis_by_hour_of_day"],
+    "product_type": ["monthly_averaged_reanalysis"],
     "variable": [args.variable],
     "year": [str(y) for y in range(2010, 2021)],  # 2010 to 2020 inclusive
     "month": [f"{i:02d}" for i in range(1, 13)], # all months in a year
@@ -111,3 +115,5 @@ output_path = os.path.join(output_dir, output_filename)
 client = cdsapi.Client()
 client.retrieve(dataset, request).download(f"era5_{args.variable}_monthly_Maliau_2010_2020.nc")
 print(f"✅ Downloaded successfully: {args.variable}")
+
+
