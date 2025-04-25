@@ -294,7 +294,7 @@ We save this excel as csv
 ```{r}
 # Read the csv file
 bird_data <- read.csv("C:/Users/Nicholas/OneDrive/Virtual_Ecosystem/Stoichiometry/Adrieux_etal21/BirdLife/Birdlife_Taxanomy.csv",
-  sep = ",", check.names = F
+  sep = ",", check.names = FALSE
 )
 
 # remove the subspecies rows
