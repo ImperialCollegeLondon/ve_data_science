@@ -1,0 +1,5 @@
+"PFT","PFT_name","CN_sapwood_mean","CN_sapwood_mean_SD","CP_sapwood_mean","CP_sapwood_mean_SD","NP_sapwood_mean","NP_sapwood_mean_SD","CN_leaf_mean","CN_leaf_mean_SD","CP_leaf_mean","CP_leaf_mean_SD","NP_leaf_mean","NP_leaf_mean_SD"
+1,"emergent",1069.53,331.65,9179.05,5313.78,9.34,5.84,24.44,3.28,483.94,121.37,19.75,3.41
+2,"overstory",1069.53,331.65,9179.05,5313.78,9.34,5.84,29.18,4.89,634.32,92.83,22.34,3.62
+3,"pioneer",1069.53,331.65,9179.05,5313.78,9.34,5.84,21.41,3.55,382.24,57.29,18.29,1.4
+4,"understory",1069.53,331.65,9179.05,5313.78,9.34,5.84,27.99,6.1,520.54,209.66,18.61,5.38
