@@ -2,7 +2,7 @@
 title: Updating taxonomy on the dataset from Adrieux et al. 2021
 
 description: |
-This script is made to deal with the inconsistency in taxanomy found in the dataset. Some orders and classes rows are NAs in the dataset even though the families are known. Some orders are known but classes not.So we would like to update those missing NAs in the lower taxonomic ranks using known global database for different animal classes and the known higher taxanomic ranks in our dataset as a reference point. 
+This script is made to deal with the inconsistency in taxanomy found in the dataset. Some orders and classes rows are NAs in the dataset even though the families are known. Some orders are known but classes not.So we would like to update those missing NAs in the lower taxonomic ranks using known global database for different animal classes and the known higher taxanomic ranks in our dataset as a reference point.
 
 author:
   - name: Nicholas Wei Cheng Tan
@@ -16,36 +16,36 @@ input_files:
     path: ../../../data/primary/animal/body_stoichiometry
     url: https://figshare.com/ndownloader/files/25757324
     description: |
-      Dataset of stoichiometric traits of heterotrophs from the article "Body stoichiometry of heterotrophs: assessing drivers of interspecific variations in elemental composition" (https://onlinelibrary.wiley.com/doi/abs/10.1111/geb.13265) 
+      Dataset of stoichiometric traits of heterotrophs from the article "Body stoichiometry of heterotrophs: assessing drivers of interspecific variations in elemental composition" (https://onlinelibrary.wiley.com/doi/abs/10.1111/geb.13265)
       This input file is a csv file containing body stoichiometry portions in heterotrophs, a dataset from a metadata study. It is used here to be the base file dataset to create our new file dataset for body stoichiometry.
       The next input files are the taxaonomy datasets used in this script to compare taxonomy with our base stoichiometry dataset
-      
+
   - name: Mammal_species_list.csv
     path: ../../../data/primary/animal/body_stoichiometry/taxonomy
     url: https://github.com/mammaldiversity/mammaldiversity.github.io/raw/refs/heads/master/assets/data/MDD.zip
     description: |
       Taxonomy dataset of mammals for comparing taxonomy with our base stoichiometry dataset
 
-  - name: ReptTraits_dataset_taxonomy.csv 
+  - name: ReptTraits_dataset_taxonomy.csv
     path: ../../../data/primary/animal/body_stoichiometry/taxonomy
     url: https://figshare.com/ndownloader/files/45408133
     description: |
-      This downloads an excel file from the RepTraits database: 
+      This downloads an excel file from the RepTraits database:
       https://www.nature.com/articles/s41597-024-03079-5
       where we can save only the "Data" sheet into a csv. "Data" was then saved as ReptTraits_dataset_taxonomy.csv
 
   - name: amphib_taxanomy.csv
     path: ../../../data/primary/animal/body_stoichiometry/taxonomy
-    url: https://amphibiaweb.org/amphib_names.txt 
+    url: https://amphibiaweb.org/amphib_names.txt
     description: |
       This downloads a "amphib_names" text file from amphibiaweb and use excel to import text to convert and save to csv "amphib_taxanomy.csv"
-      
+
   - name: Birdlife_Taxanomy.csv
     path: ../../../data/primary/animal/body_stoichiometry/taxonomy
-    url:  https://datazone.birdlife.org/species/taxonomy 
+    url:  https://datazone.birdlife.org/species/taxonomy
    description: |
       This downloads an excel file Handbook of the Birds of the World and BirdLife International Digital Checklist of the Birds of the World_Version_9. We save this excel as csv "Birdlife_Taxanomy.csv"
-      
+
   - name: Arthropoda.csv
     path: ../../../data/primary/animal/body_stoichiometry/taxonomy
     url: https://www.itis.gov/download.html
@@ -57,21 +57,21 @@ output_files:
   - name: animal_body_stoichiometry.csv
     path: ../../../data/derived/animal/body_stoichiometry
     description: |
-      This new stoichiometry dataset with updated taxon would be used in the next steps where we explore the dataset and see if there is any redudancy in animal groups in terms of their bulk CNP portions. 
+      This new stoichiometry dataset with updated taxon would be used in the next steps where we explore the dataset and see if there is any redudancy in animal groups in terms of their bulk CNP portions.
 
 package_dependencies:
     - tidyverse
 
 usage_notes: |
-  None for now. 
+  None for now.
 ---
 
 First we load the packages at the top of the notebook
 
 1. Setup
 ```{r load_packages}
-if(!require(tidyverse)){
-  install.packages("tidyverse")  
+if (!require(tidyverse)) {
+  install.packages("tidyverse")
   library(tidyverse)
 } # install (if not) then load package 'tidyverse'
 ```
@@ -80,12 +80,12 @@ if(!require(tidyverse)){
 ```{r setup, include = FALSE}
 knitr::opts_knit$set(root.dir = "C:/Users/Nicholas/OneDrive/Virtual_Ecosystem/
                      Stoichiometry/Adrieux_etal21")
-getwd() 
+getwd()
 ```
 
 ```{r load data}
 #  Load data
-stoichio <- read.csv("Global_heterotroph_stoichio_v5.csv", sep="\t")
+stoichio <- read.csv("Global_heterotroph_stoichio_v5.csv", sep = "\t")
 ```
 3. Data summary and clean up
 ```{r}
@@ -93,76 +93,81 @@ stoichio <- read.csv("Global_heterotroph_stoichio_v5.csv", sep="\t")
 summary(stoichio)
 ```
 
-As we are only focusing on terrestrial organisms, we remove irrelevant groups, e.g. microbes, fish, elasmo etc. 
+As we are only focusing on terrestrial organisms, we remove irrelevant groups, e.g. microbes, fish, elasmo etc.
 ```{r}
-# Get what group of animals there are 
+# Get what group of animals there are
 unique(stoichio$Group)
 
 # Filter and keep only relevant groups. i.e. terrestrial ones
-stoichio_filt <- stoichio %>% 
-  dplyr::filter(Group %in% c("Mammal","Invert",
-                             "Amphibian","Reptile","Bird"))
+stoichio_filt <- stoichio %>%
+  dplyr::filter(Group %in% c(
+    "Mammal", "Invert",
+    "Amphibian", "Reptile", "Bird"
+  ))
 
 # Let us also remove marine and freshwater habitat by keeping terrestrial and NA
-unique (stoichio$Habitat)
-stoichio_filt <- stoichio_filt %>% 
+unique(stoichio$Habitat)
+stoichio_filt <- stoichio_filt %>%
   dplyr::filter(Habitat %in% c("Terrestrial", "NA"))
 ```
 4. Look at what is missing (NAs) for Carbon, Nitrogen & Phosphorus (CNP) columns
-- So at first glance, there seem to be some inconsistency in the taxa fields. Some orders and classes rows are NAs in the dataset even though the families are known. Some orders are known but classes not. Let us look at that. 
+- So at first glance, there seem to be some inconsistency in the taxa fields. Some orders and classes rows are NAs in the dataset even though the families are known. Some orders are known but classes not. Let us look at that.
 ```{r}
 # only select CNP and order column
-na_count <- stoichio_filt  %>% 
+na_count <- stoichio_filt %>%
   select(Order, C_mean, N_mean, P_mean)
 
-#counting na across all orders
-na_counts_dat <- na_count %>% 
-  group_by (Order) %>% 
+# counting na across all orders
+na_counts_dat <- na_count %>%
+  group_by(Order) %>%
   summarise_all(~ sum(as.numeric(is.na(.))))
 
-na_counts_dat <- na_counts_dat[apply(na_counts_dat[,-1], 1, function(x)
-  !all(x==0)),]
+na_counts_dat <- na_counts_dat[apply(na_counts_dat[, -1], 1, function(x) {
+  !all(x == 0)
+}), ]
 
 # plotting the graph for NAs, bar graphs
-na_counts_dat %>% 
-  pivot_longer(-Order) %>% 
-  ggplot(aes(x = Order, y = value, fill = name)) + 
-  geom_col(position="stack") +
+na_counts_dat %>%
+  pivot_longer(-Order) %>%
+  ggplot(aes(x = Order, y = value, fill = name)) +
+  geom_col(position = "stack") +
   coord_flip() +
-  theme(text = element_text(size = 10)) +  
+  theme(text = element_text(size = 10)) +
   ylim(0, 350)
-
 ```
 - It seems like there a lot of NAs in Order.
 - By looking at the data, there seems to be missing Orders even though the genus are known.
 - We should be able to fill in these gaps by comparing with taxanomy databases.
 
 5. Filling in NAs
-a) Mammals 
-First we find a mammal database, from https://www.mammaldiversity.org/ 
+a) Mammals
+First we find a mammal database, from https://www.mammaldiversity.org/
 ```{r}
-# Import public dataset 
-mammal_data <- read.csv("Mammal_species_list.csv", sep=",")
+# Import public dataset
+mammal_data <- read.csv("Mammal_species_list.csv", sep = ",")
 
 # retain only taxonomic columns
-mammal_data <- mammal_data %>% 
-  dplyr::select("Subclass", "Superorder","Order",
-                                             "Family","Genus")
+mammal_data <- mammal_data %>%
+  dplyr::select(
+    "Subclass", "Superorder", "Order",
+    "Family", "Genus"
+  )
 ```
 
 Next,we join our dataset with the public dataset
 ```{r}
 # to filter our dataset to contain only mammals
-stoichio_mammal <- stoichio_filt %>% 
+stoichio_mammal <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Mammal"))
 
 # Join the the mammal data to the filtered mammal dataset by "Genus" key
-merged_mammal <- left_join(stoichio_mammal, 
-                           mammal_data, 
-                           by = "Genus")
+merged_mammal <- left_join(stoichio_mammal,
+  mammal_data,
+  by = "Genus"
+)
 
 # Have a look at how the new orders compared to the old ones
-test <- merged_mammal %>% 
+test <- merged_mammal %>%
   select("Order.x", "Order.y", "Genus")
 test
 ```
@@ -170,42 +175,62 @@ Now, we replace the Order back in original data with the new Order (order.y) fro
 
 ```{r}
 stoichio_filt$Order <-
-# If its not an NA in Order of merged_mammal data with a matching "Genus",
-  ifelse(!is.na(merged_mammal$Order.y[match(stoichio_filt$Genus,
-                                            merged_mammal$Genus)]),
-# then we take the Order of the merged_mammal data to replace, 
-# if its an NA, we retain the original Order of stoichio_filt
-  merged_mammal$Order.y[match(stoichio_filt$Genus, merged_mammal$Genus)], 
-                                stoichio_filt$Order)
+  # If its not an NA in Order of merged_mammal data with a matching "Genus",
+  ifelse(!is.na(merged_mammal$Order.y[match(
+    stoichio_filt$Genus,
+    merged_mammal$Genus
+  )]),
+  # then we take the Order of the merged_mammal data to replace,
+  # if its an NA, we retain the original Order of stoichio_filt
+  merged_mammal$Order.y[match(stoichio_filt$Genus, merged_mammal$Genus)],
+  stoichio_filt$Order
+  )
 
-# Repeat the same for "Subclass", "Superorder", "Family" 
+# Repeat the same for "Subclass", "Superorder", "Family"
 stoichio_filt$Subclass <-
-  ifelse(!is.na(merged_mammal$Subclass.y[match(stoichio_filt$Genus,
-                                               merged_mammal$Genus)]), 
-                merged_mammal$Subclass.y[match(stoichio_filt$Genus,
-                                               merged_mammal$Genus)], 
-                                stoichio_filt$Subclass)
+  ifelse(!is.na(merged_mammal$Subclass.y[match(
+    stoichio_filt$Genus,
+    merged_mammal$Genus
+  )]),
+  merged_mammal$Subclass.y[match(
+    stoichio_filt$Genus,
+    merged_mammal$Genus
+  )],
+  stoichio_filt$Subclass
+  )
 stoichio_filt$Superorder <-
-  ifelse(!is.na(merged_mammal$Superorder.y[match(stoichio_filt$Genus,
-                                                 merged_mammal$Genus)]), 
-                merged_mammal$Superorder.y[match(stoichio_filt$Genus,
-                                                 merged_mammal$Genus)], 
-                                stoichio_filt$Superorder)
+  ifelse(!is.na(merged_mammal$Superorder.y[match(
+    stoichio_filt$Genus,
+    merged_mammal$Genus
+  )]),
+  merged_mammal$Superorder.y[match(
+    stoichio_filt$Genus,
+    merged_mammal$Genus
+  )],
+  stoichio_filt$Superorder
+  )
 stoichio_filt$Family <-
-  ifelse(!is.na(merged_mammal$Family.y[match(stoichio_filt$Genus,
-                                             merged_mammal$Genus)]),
-         merged_mammal$Family.y[match(stoichio_filt$Genus,
-                                      merged_mammal$Genus)], 
-                                stoichio_filt$Family)
+  ifelse(!is.na(merged_mammal$Family.y[match(
+    stoichio_filt$Genus,
+    merged_mammal$Genus
+  )]),
+  merged_mammal$Family.y[match(
+    stoichio_filt$Genus,
+    merged_mammal$Genus
+  )],
+  stoichio_filt$Family
+  )
 ```
 
 Now the moment of truth, let us check if there is less NA in the previous stoichio_filt dataframe
 ```{r}
-stoichio_filt_old <- stoichio %>% 
-  dplyr::filter(Group %in% c("Mammal", "Invert","Amphibian",
-                             "Reptile","Bird"))
+stoichio_filt_old <- stoichio %>%
+  dplyr::filter(Group %in% c(
+    "Mammal", "Invert", "Amphibian",
+    "Reptile", "Bird"
+  ))
 
-stoichio_filt_old <- stoichio_filt_old %>% 
+stoichio_filt_old <- stoichio_filt_old %>%
   dplyr::filter(Habitat %in% c("Terrestrial", "NA"))
 
 sum(is.na(stoichio_filt$Order))
@@ -213,10 +238,10 @@ sum(is.na(stoichio_filt_old$Order))
 sum(is.na(stoichio_filt$Family))
 sum(is.na(stoichio_filt_old$Family))
 ```
-We updated 15 more orders and 15 more families. 
+We updated 15 more orders and 15 more families.
 
-b) Reptiles 
-To fill reptile NAs with reptile database, lets start by importing public dataset from https://figshare.com/articles/dataset/ReptTraits_a_comprehensive_database_of_ecological_traits_in_reptiles/24572683 
+b) Reptiles
+To fill reptile NAs with reptile database, lets start by importing public dataset from https://figshare.com/articles/dataset/ReptTraits_a_comprehensive_database_of_ecological_traits_in_reptiles/24572683
 This downloads an excel file where we can save only the "Data" sheet into a csv
 "Data" was then saved as ReptTraits_dataset_taxonomy.csv
 ```{r}
@@ -224,25 +249,29 @@ This downloads an excel file where we can save only the "Data" sheet into a csv
 rept_data <- read.csv("C:/Users/Nicholas/OneDrive/Virtual_Ecosystem/
             Stoichiometry/Adrieux_etal21/RepTrait/
             ReptTraits_dataset_taxonomy.csv",
-                      sep=",", check.names = FALSE)
+  sep = ",", check.names = FALSE
+)
 
 # retain only taxanomical columns
-rept_data <- rept_data %>% dplyr::select("Species","Suborder","Order",
-                                         "Family","Genus")
+rept_data <- rept_data %>% dplyr::select(
+  "Species", "Suborder", "Order",
+  "Family", "Genus"
+)
 ```
 Next,we join our dataset with the public dataset
 ```{r}
 # Filter our original dataset to contain only reptiles
-stoichio_rept <- stoichio_filt %>% 
+stoichio_rept <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Reptile"))
 
 # Join the the rept data to the filtered rept dataset by "Genus" key
-merged_rept <- left_join(stoichio_rept, 
-                         rept_data, 
-                         by = "Genus")
+merged_rept <- left_join(stoichio_rept,
+  rept_data,
+  by = "Genus"
+)
 
 # Have a look at how the new orders compared to the old ones
-test <- merged_rept %>% 
+test <- merged_rept %>%
   select("Order.x", "Order.y", "Genus")
 test
 ```
@@ -251,25 +280,33 @@ Now, we replace the Order back in original data with the new Order (order.y) fro
 ```{r}
 # If its not an NA in Order of merged_mammal data with a matching "Genus",
 stoichio_filt$Order <-
-  ifelse(!is.na(merged_rept$Order.y[match(stoichio_filt$Genus,
-                                          merged_rept$Genus)]), 
-# then we take the Order of the merged_mammal data to replace, 
-# if its an NA, we retain the original Order of stoichio_filt
-merged_rept$Order.y[match(stoichio_filt$Genus, merged_rept$Genus)], 
-                              stoichio_filt$Order)
+  ifelse(!is.na(merged_rept$Order.y[match(
+    stoichio_filt$Genus,
+    merged_rept$Genus
+  )]),
+  # then we take the Order of the merged_mammal data to replace,
+  # if its an NA, we retain the original Order of stoichio_filt
+  merged_rept$Order.y[match(stoichio_filt$Genus, merged_rept$Genus)],
+  stoichio_filt$Order
+  )
 
 # Repeat the same for "Family"
 stoichio_filt$Family <-
-  ifelse(!is.na(merged_rept$Family.y[match(stoichio_filt$Genus,
-                                          merged_rept$Genus)]),           
-              merged_rept$Family.y[match(stoichio_filt$Genus,
-                                          merged_rept$Genus)], 
-                               stoichio_filt$Family)
+  ifelse(!is.na(merged_rept$Family.y[match(
+    stoichio_filt$Genus,
+    merged_rept$Genus
+  )]),
+  merged_rept$Family.y[match(
+    stoichio_filt$Genus,
+    merged_rept$Genus
+  )],
+  stoichio_filt$Family
+  )
 ```
 
 Check if there is less NA in the previous stoichio_filt dataframe
 ```{r}
-stoichio_filt_rept <- stoichio_filt %>% 
+stoichio_filt_rept <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Reptile"))
 
 sum(is.na(stoichio_filt_rept$Order))
@@ -277,65 +314,75 @@ sum(is.na(stoichio_rept$Order))
 sum(is.na(stoichio_filt_rept$Family))
 sum(is.na(stoichio_rept$Family))
 ```
-5 more order and families are added. 
+5 more order and families are added.
 
-c) Amphibians 
-To fill amphibian NAs with amphibian database, lets start by importing public dataset from https://amphibiaweb.org/data/access.html  
+c) Amphibians
+To fill amphibian NAs with amphibian database, lets start by importing public dataset from https://amphibiaweb.org/data/access.html
 In this page, we download "amphib_names" text file
 Use excel to import text to convert and save to csv "amphib_taxanomy.csv"
 ```{r}
 amphib_data <- read.csv("C:/Users/Nicholas/OneDrive/Virtual_Ecosystem
-            /Stoichiometry/Adrieux_etal21/AmphibiaWeb/amphib_taxanomy.csv", 
-            check.names = FALSE)
+            /Stoichiometry/Adrieux_etal21/AmphibiaWeb/amphib_taxanomy.csv",
+  check.names = FALSE
+)
 
 # retain only taxanomical columns
 amphib_data <- amphib_data %>%
-  dplyr::select("order","subfamily","family","genus")
+  dplyr::select("order", "subfamily", "family", "genus")
 
 # Rename them to stay consistent
-colnames(amphib_data) <- c("Order", "subfamily", "Family","Genus")
+colnames(amphib_data) <- c("Order", "subfamily", "Family", "Genus")
 ```
 
 Next,we join our dataset with the public dataset
 ```{r}
 # to filter our original dataset to contain only amphibians
-stoichio_amphib <- stoichio_filt %>% 
+stoichio_amphib <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Amphibian"))
 
 # Join the the amphib data to the filtered amphib dataset by "Genus" key
-merged_amphib <- left_join(stoichio_amphib, 
-                           amphib_data, 
-                           by = "Genus")
+merged_amphib <- left_join(stoichio_amphib,
+  amphib_data,
+  by = "Genus"
+)
 # Have a look at how the new orders and families compared to the old ones
-test <- merged_amphib %>% 
+test <- merged_amphib %>%
   select("Order.x", "Order.y", "Genus")
-test <- merged_amphib %>% 
+test <- merged_amphib %>%
   select("Family.x", "Family.y", "Genus")
 test
 ```
 Now, we replace the Order back in original data with the new Order (order.y) from the merged_amphib data
 ```{r}
-#   If its not an NA in Order of merged_amphib data with a matching "Genus", 
+#   If its not an NA in Order of merged_amphib data with a matching "Genus",
 stoichio_filt$Order <-
-  ifelse(!is.na(merged_amphib$Order.y[match(stoichio_filt$Genus, 
-                                            merged_amphib$Genus)]), 
-# then we take the Order of the merged_amphib data to replace. 
-# If its an NA, we retain the original Order of stoichio_filt
- merged_amphib$Order.y[match(stoichio_filt$Genus, merged_amphib$Genus)], 
-                              stoichio_filt$Order)
+  ifelse(!is.na(merged_amphib$Order.y[match(
+    stoichio_filt$Genus,
+    merged_amphib$Genus
+  )]),
+  # then we take the Order of the merged_amphib data to replace.
+  # If its an NA, we retain the original Order of stoichio_filt
+  merged_amphib$Order.y[match(stoichio_filt$Genus, merged_amphib$Genus)],
+  stoichio_filt$Order
+  )
 
 # Repeat the same for "Family"
 stoichio_filt$Family <-
-  ifelse(!is.na(merged_amphib$Family.y[match(stoichio_filt$Genus,
-                                             merged_amphib$Genus)]),
-         merged_amphib$Family.y[match(stoichio_filt$Genus, 
-                                      merged_amphib$Genus)], 
-                               stoichio_filt$Family)
+  ifelse(!is.na(merged_amphib$Family.y[match(
+    stoichio_filt$Genus,
+    merged_amphib$Genus
+  )]),
+  merged_amphib$Family.y[match(
+    stoichio_filt$Genus,
+    merged_amphib$Genus
+  )],
+  stoichio_filt$Family
+  )
 ```
 
 Check if there is less NA in the previous stoichio_filt dataframe
 ```{r}
-stoichio_filt_amphib <- stoichio_filt %>% 
+stoichio_filt_amphib <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Amphibian"))
 
 sum(is.na(stoichio_filt_amphib$Order))
@@ -343,36 +390,37 @@ sum(is.na(stoichio_amphib$Order))
 sum(is.na(stoichio_filt_amphib$Family))
 sum(is.na(stoichio_amphib$Family))
 ```
-11 more orders and families are added! 
+11 more orders and families are added!
 
 d) Birds
-To fill bird NAs with bird database, lets start by importing public dataset from https://datazone.birdlife.org/species/taxonomy 
+To fill bird NAs with bird database, lets start by importing public dataset from https://datazone.birdlife.org/species/taxonomy
 This downloads an excel file Handbook of the Birds of the World and BirdLife International Digital Checklist of the Birds of the World_Version_9
 We save this excel as csv
 ```{r}
-# Read the csv file 
+# Read the csv file
 bird_data <- read.csv("C:/Users/Nicholas/OneDrive/Virtual_Ecosystem/Stoichiome
                       try/Adrieux_etal21/BirdLife/Birdlife_Taxanomy.csv",
-                      sep=",", check.names = FALSE)
+  sep = ",", check.names = FALSE
+)
 
-# remove the subspecies rows 
-bird_data2 <- bird_data %>% 
-  dplyr::filter(`Subsp. Seq.`=="0")
-bird_data3 <- bird_data2 %>% 
-  separate("Scientific name", into = c('Genus', 'Species'), sep = '\\s')
+# remove the subspecies rows
+bird_data2 <- bird_data %>%
+  dplyr::filter(`Subsp. Seq.` == "0")
+bird_data3 <- bird_data2 %>%
+  separate("Scientific name", into = c("Genus", "Species"), sep = "\\s")
 
 # retain only taxanomical columns
-bird_data <- bird_data3 %>% 
-  dplyr::select("Order","Family name","Subfamily","Genus","Species")
+bird_data <- bird_data3 %>%
+  dplyr::select("Order", "Family name", "Subfamily", "Genus", "Species")
 
 # Renaming columns to be consistence
-colnames(bird_data) <- c("Order","Family","Subfamily","Genus","Species")
+colnames(bird_data) <- c("Order", "Family", "Subfamily", "Genus", "Species")
 ```
 
-We have replace blank space with NA if not, our 
+We have replace blank space with NA if not, our
 ```{r}
-# Replace blank space with NA 
-bird_data <- bird_data %>% mutate_all(na_if,"")
+# Replace blank space with NA
+bird_data <- bird_data %>% mutate_all(na_if, "")
 
 # Replace ALLCAPS in Order with only first letter
 library(stringr)
@@ -382,13 +430,14 @@ bird_data$Order <- str_to_sentence(bird_data$Order)
 Next,we join our dataset with the public dataset
 ```{r}
 # to filter our original dataset to contain only birds
-stoichio_bird <- stoichio_filt %>% 
+stoichio_bird <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Bird"))
 
 # Join the the rept data to the filtered rept dataset by "Genus" key
-merged_bird <- left_join(stoichio_bird, 
-                         bird_data, 
-                         by = "Genus")
+merged_bird <- left_join(stoichio_bird,
+  bird_data,
+  by = "Genus"
+)
 
 # Have a look at how the new orders compared to the old ones
 test <- merged_bird %>% select("Order.x", "Order.y", "Genus")
@@ -397,34 +446,47 @@ test
 Now, we replace the Order back in original data with the new Order (order.y) from the merged_bird data
 ```{r}
 #   If its not an NA in Order of merged_bird data with a matching "Genus",
-stoichio_filt$Order <- 
-  ifelse(!is.na(merged_bird$Order.y[match(stoichio_filt$Genus,
-                                          merged_bird$Genus)]), 
-# then we take the Order of the merged_bird data to replace, 
-# if its an NA, we retain the original Order of stoichio_filt
-merged_bird$Order.y[match(stoichio_filt$Genus, merged_bird$Genus)], 
-                              stoichio_filt$Order)
-                              
+stoichio_filt$Order <-
+  ifelse(!is.na(merged_bird$Order.y[match(
+    stoichio_filt$Genus,
+    merged_bird$Genus
+  )]),
+  # then we take the Order of the merged_bird data to replace,
+  # if its an NA, we retain the original Order of stoichio_filt
+  merged_bird$Order.y[match(stoichio_filt$Genus, merged_bird$Genus)],
+  stoichio_filt$Order
+  )
+
 
 # Repeat the same for "Subfamily" and "Family"
-stoichio_filt$Subfamily <- 
-  ifelse(!is.na(merged_bird$Suborder[match(stoichio_filt$Genus, 
-                                           merged_bird$Genus)]), 
-                merged_bird$Suborder.y[match(stoichio_filt$Genus, 
-                                             merged_bird$Genus)], 
-                                 stoichio_filt$Suborder)
+stoichio_filt$Subfamily <-
+  ifelse(!is.na(merged_bird$Suborder[match(
+    stoichio_filt$Genus,
+    merged_bird$Genus
+  )]),
+  merged_bird$Suborder.y[match(
+    stoichio_filt$Genus,
+    merged_bird$Genus
+  )],
+  stoichio_filt$Suborder
+  )
 
-stoichio_filt$Family <- 
-  ifelse(!is.na(merged_bird$Family.y[match(stoichio_filt$Genus, 
-                                           merged_bird$Genus)]), 
-                merged_bird$Family.y[match(stoichio_filt$Genus, 
-                                           merged_bird$Genus)], 
-                               stoichio_filt$Family)
+stoichio_filt$Family <-
+  ifelse(!is.na(merged_bird$Family.y[match(
+    stoichio_filt$Genus,
+    merged_bird$Genus
+  )]),
+  merged_bird$Family.y[match(
+    stoichio_filt$Genus,
+    merged_bird$Genus
+  )],
+  stoichio_filt$Family
+  )
 ```
 
 Check if there is less NA than in the previous stoichio_filt dataframe
 ```{r}
-stoichio_filt_bird <- stoichio_filt %>% 
+stoichio_filt_bird <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Bird"))
 
 sum(is.na(stoichio_filt_bird$Order))
@@ -432,85 +494,102 @@ sum(is.na(stoichio_bird$Order))
 sum(is.na(stoichio_filt_bird$Family))
 sum(is.na(stoichio_bird$Family))
 ```
-Hey! 45 orders and families are added to the original data! 
- 
+Hey! 45 orders and families are added to the original data!
+
 e) For INVERTS.........
 To see if we can fill the ~300 invert NAs with known taxonomy from invert database from ITIS
-Lets start by importing public dataset from https://www.itis.gov/itisdownload/itisdownload.do 
-Since most of the inverts in our original data consist of insects, I decided to download only the phylum "Arthropoda". 
-This downloads a zip folder with a text document "taxa" which we can import into excel 
+Lets start by importing public dataset from https://www.itis.gov/itisdownload/itisdownload.do
+Since most of the inverts in our original data consist of insects, I decided to download only the phylum "Arthropoda".
+This downloads a zip folder with a text document "taxa" which we can import into excel
 We save the excel file as a "csv"
 
 Loading data and clean up
 ```{r}
-# Read the csv file 
+# Read the csv file
 insect_data_ITIS <- read.csv("C:/Users/Nicholas/OneDrive/Virtual_Ecosystem/
 Stoichiometry/Adrieux_etal21/ITIS/Arthropoda/Arthropoda.csv",
-                      sep=",", check.names = FALSE)
+  sep = ",", check.names = FALSE
+)
 
 # retain only taxanomical columns
 insect_data <- insect_data_ITIS %>%
-  dplyr::select("class","order","family","genus")
+  dplyr::select("class", "order", "family", "genus")
 
 # Renaming columns to be consistence
-colnames(insect_data) <- c("Class","Order","Family","Genus")
+colnames(insect_data) <- c("Class", "Order", "Family", "Genus")
 
-# Replace blank space with NA 
-insect_data <- insect_data %>% 
-  mutate_all(na_if,"")
+# Replace blank space with NA
+insect_data <- insect_data %>%
+  mutate_all(na_if, "")
 ```
 
 Next,we join our dataset with the public dataset
 ```{r}
 # to filter our original dataset to contain only inverts
-stoichio_insect <- stoichio_filt %>% 
+stoichio_insect <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Invert"))
 
 # Join the the insect data to the filtered insect dataset by "Genus" key
-merged_insect <- left_join(stoichio_insect, 
-                           insect_data, 
-                           by = "Genus")
+merged_insect <- left_join(stoichio_insect,
+  insect_data,
+  by = "Genus"
+)
 
 # Have a look at how the new orders or families compared to the old ones
-test <- merged_insect %>% 
+test <- merged_insect %>%
   select("Order.x", "Order.y", "Genus")
-test <- merged_insect %>% 
+test <- merged_insect %>%
   select("Family.x", "Family.y", "Genus")
 test
 ```
 
 Now, we replace the Order back in original data with the new Order (order.y) from the merged_insect data
 ```{r}
-#   If its not an NA in Order of merged_insect data with a matching "Genus", 
+#   If its not an NA in Order of merged_insect data with a matching "Genus",
 
-stoichio_filt$Order <- 
-  ifelse(!is.na(merged_insect$Order.y[match(stoichio_filt$Genus, 
-                                            merged_insect$Genus)]), 
-# then we take the Order of the merged_insect data to replace, 
-# if its an NA, we retain the original Order of stoichio_filt
-merged_insect$Order.y[match(stoichio_filt$Genus, 
-                            merged_insect$Genus)], 
-          stoichio_filt$Order)
+stoichio_filt$Order <-
+  ifelse(!is.na(merged_insect$Order.y[match(
+    stoichio_filt$Genus,
+    merged_insect$Genus
+  )]),
+  # then we take the Order of the merged_insect data to replace,
+  # if its an NA, we retain the original Order of stoichio_filt
+  merged_insect$Order.y[match(
+    stoichio_filt$Genus,
+    merged_insect$Genus
+  )],
+  stoichio_filt$Order
+  )
 
 # Repeat the same for "Class" and "Family"
-stoichio_filt$Class <- 
-  ifelse(!is.na(merged_insect$Class.y[match(stoichio_filt$Genus, 
-                                            merged_insect$Genus)]),                             
-         merged_insect$Class.y[match(stoichio_filt$Genus, 
-                                     merged_insect$Genus)],
-         stoichio_filt$Subclass)
+stoichio_filt$Class <-
+  ifelse(!is.na(merged_insect$Class.y[match(
+    stoichio_filt$Genus,
+    merged_insect$Genus
+  )]),
+  merged_insect$Class.y[match(
+    stoichio_filt$Genus,
+    merged_insect$Genus
+  )],
+  stoichio_filt$Subclass
+  )
 
-stoichio_filt$Family <- 
-  ifelse(!is.na(merged_insect$Family.y[match(stoichio_filt$Genus, 
-                                             merged_insect$Genus)]),
-         merged_insect$Family.y[match(stoichio_filt$Genus, 
-                                      merged_insect$Genus)],
-         stoichio_filt$Family)
+stoichio_filt$Family <-
+  ifelse(!is.na(merged_insect$Family.y[match(
+    stoichio_filt$Genus,
+    merged_insect$Genus
+  )]),
+  merged_insect$Family.y[match(
+    stoichio_filt$Genus,
+    merged_insect$Genus
+  )],
+  stoichio_filt$Family
+  )
 ```
 
 Check if there is less NA in the previous stoichio_filt dataframe
 ```{r}
-stoichio_filt_insect <- stoichio_filt %>% 
+stoichio_filt_insect <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Invert"))
 
 sum(is.na(stoichio_filt_insect$Order))
@@ -520,20 +599,21 @@ sum(is.na(stoichio_insect$Family))
 sum(is.na(stoichio_filt_insect$Class))
 sum(is.na(stoichio_insect$Class))
 ```
-Not the best but not bad! There is 35 more Orders, families and class. But lets see if we can fill in more gaps by joining with by family instead of genus? 
+Not the best but not bad! There is 35 more Orders, families and class. But lets see if we can fill in more gaps by joining with by family instead of genus?
 
 ```{r}
 # filter our updated original dataset from above, again to contain only inverts
-stoichio_insect <- stoichio_filt %>% 
+stoichio_insect <- stoichio_filt %>%
   dplyr::filter(Group %in% c("Invert"))
 
 # Join the the insect data to the filtered insect dataset by "Family" key
-merged_insect_fam <- left_join(stoichio_insect, 
-                               insect_data, 
-                               by = "Family")
+merged_insect_fam <- left_join(stoichio_insect,
+  insect_data,
+  by = "Family"
+)
 
 # Have a look at how the new orders compared to the old ones
-test <- merged_insect_fam %>% 
+test <- merged_insect_fam %>%
   select("Order.x", "Order.y", "Family")
 test
 ```
@@ -541,17 +621,19 @@ test
 Now, we replace the Order back in original data with the new Order (order.y) from the merged_insect data
 ```{r}
 stoichio_filt$Order <-
-  #If its not an NA in Order of merged_insect_fam data with a matching "Family", 
-  ifelse(!is.na(merged_insect_fam$Order.y[match(stoichio_filt$Family, merged_insect_fam$Family)]), 
-         # then we take the Order of the merged_insect_fam data to replace,
-         merged_insect_fam$Order.y[match(stoichio_filt$Family, merged_insect_fam$Family)], 
-         # If NA,  we retain the original Order of stoichio_filt
-         stoichio_filt$Order)
+  # If its not an NA in Order of merged_insect_fam data with a matching "Family",
+  ifelse(!is.na(merged_insect_fam$Order.y[match(stoichio_filt$Family, merged_insect_fam$Family)]),
+    # then we take the Order of the merged_insect_fam data to replace,
+    merged_insect_fam$Order.y[match(stoichio_filt$Family, merged_insect_fam$Family)],
+    # If NA,  we retain the original Order of stoichio_filt
+    stoichio_filt$Order
+  )
 
-# Repeat the same for "Class", but there were no replacement needed. 
-stoichio_filt$Class <- ifelse(!is.na(merged_insect_fam$Class.y[match(stoichio_filt$Family, merged_insect_fam$Family)]), 
-                              merged_insect_fam$Class.y[match(stoichio_filt$Family, merged_insect_fam$Family)], 
-                              stoichio_filt$Subclass)
+# Repeat the same for "Class", but there were no replacement needed.
+stoichio_filt$Class <- ifelse(!is.na(merged_insect_fam$Class.y[match(stoichio_filt$Family, merged_insect_fam$Family)]),
+  merged_insect_fam$Class.y[match(stoichio_filt$Family, merged_insect_fam$Family)],
+  stoichio_filt$Subclass
+)
 ```
 
 Check again if there is less NA in the previous stoichio_filt dataframe
@@ -560,46 +642,43 @@ stoichio_filt_insect_new <- stoichio_filt %>% dplyr::filter(Group %in% c("Invert
 sum(is.na(stoichio_filt_insect_new$Order))
 sum(is.na(stoichio_insect$Order))
 sum(is.na(stoichio_filt_insect_new$Class))
-sum(is.na(stoichio_insect$Class))  
-
+sum(is.na(stoichio_insect$Class))
 ```
-Hey! We got to replace 38 more orders and classes. I am pretty happy with this outcome, considering when insects were the ones with the most gaps/most NA values. 
+Hey! We got to replace 38 more orders and classes. I am pretty happy with this outcome, considering when insects were the ones with the most gaps/most NA values.
 
-So now that we updated our taxanomy, let us check for NA/missing values again - see step 6. 
+So now that we updated our taxanomy, let us check for NA/missing values again - see step 6.
 
 
 6.count NAs of CNP for each order again!
 ```{r}
 # only select columns CNP with order
-na_count <- stoichio_filt  %>% 
+na_count <- stoichio_filt %>%
   select(Order, C_mean, N_mean, P_mean)
 
-#counting na across all orders
-na_counts_dat <- na_count %>% 
-  group_by (Order) %>% 
+# counting na across all orders
+na_counts_dat <- na_count %>%
+  group_by(Order) %>%
   summarise_all(~ sum(as.numeric(is.na(.))))
 
-na_counts_dat <- na_counts_dat[apply(na_counts_dat[,-1], 1, function(x) !all(x==0)),]
+na_counts_dat <- na_counts_dat[apply(na_counts_dat[, -1], 1, function(x) !all(x == 0)), ]
 
 # plotting the graph for NAs with bar graph
-na_counts_dat %>% 
-  pivot_longer(-Order) %>% 
-  ggplot(aes(x = Order, y = value, fill = name)) + 
-  geom_col(position="stack") +
+na_counts_dat %>%
+  pivot_longer(-Order) %>%
+  ggplot(aes(x = Order, y = value, fill = name)) +
+  geom_col(position = "stack") +
   coord_flip() +
-  theme(text = element_text(size = 10)) +  
+  theme(text = element_text(size = 10)) +
   ylim(0, 350)
-
 ```
-- It seems like there are less NA values now. some new orders are added, 
+- It seems like there are less NA values now. some new orders are added,
 
 - Some have more NAs because more new entry are added to the old Orders (e.g. in Lepidoptera)
 
-- Let us export into a new csv to build our boxplots. See step 7. 
+- Let us export into a new csv to build our boxplots. See step 7.
 
-7. Export data 
+7. Export data
 ```{r}
-write.csv (stoichio_filt, "../../../data/derived/animal/body_stoichiometry/
+write.csv(stoichio_filt, "../../../data/derived/animal/body_stoichiometry/
            animal_body_stoichiometry.csv")
 ```
-
