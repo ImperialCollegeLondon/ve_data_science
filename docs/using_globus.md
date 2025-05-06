@@ -4,7 +4,7 @@ We are using the [GLOBUS system](https://www.globus.org/) to curate the data use
 Virtual Ecosystem data science repository.
 
 * All paths to data files within the repository should be relative paths to a data file
-  location in the `data` directory.
+  location in the `data`  directory.
 * However, to avoid adding large and/or binary data files to the GitHub repository
   itself, the contents of the `data` directory are managed using GLOBUS.
 
