@@ -56,4 +56,12 @@ interact with the data repository. You can access the tab from a particular coll
 (as above), from the tab button on the left or directly using the URL
 [https://app.globus.org/file-manager](https://app.globus.org/file-manager)
 
-Once you have opened a collection in the pane
+Once you have opened a collection in the pane then you should be able to see the files
+and folders in the collection and can open folders to explore the data.
+
+> [!NOTE] Collection path
+> When you open the VE Data Science collection, you will see that it shows a path at the
+> top: `ve_data_science/data`. This is because the collection shares _all_ of the files
+> in our Research Data Store. This include a clone of the `ve_data_science` repo but
+> also some other data resources. You can move up to look at the contents of those
+> directories, but the collection is set up to go to the `data` directory by default.
