@@ -57,12 +57,13 @@ interact with the data repository. You can access the tab from a particular coll
 Once you have opened a collection in the pane then you should be able to see the files
 and folders in the collection and can open folders to explore the data.
 
-> [!NOTE]
-> When you open the VE Data Science collection, you will see that it shows a path at the
-> top: `ve_data_science/data`. This is because the collection shares _all_ of the files
-> in our Research Data Store. This include a clone of the `ve_data_science` repo but
-> also some other data resources. You can move up to look at the contents of those
-> directories, but the collection is set up to go to the `data` directory by default.
+!!! alert "Collection paths"
+
+    When you open the VE Data Science collection, you will see that it shows a path at the
+    top: `ve_data_science/data`. This is because the collection shares _all_ of the files
+    in our Research Data Store. This include a clone of the `ve_data_science` repo but
+    also some other data resources. You can move up to look at the contents of those
+    directories, but the collection is set up to go to the `data` directory by default.
 
 ### File Manager actions
 
@@ -88,9 +89,9 @@ own computer as a collection.
 ## Globus Connect Personal
 
 The Globus Connect Personal application
-[https://www.globus.org/globus-connect-personal](Globus Connect Personal) is a local
-application that you install to your computer that sets up a GLOBUS collection on your
-computer.
+[https://www.globus.org/globus-connect-personal](https://www.globus.org/globus-connect-personal)
+is a local application that you install to your computer that sets up a GLOBUS
+collection on your computer.
 
 * Download and install the program.
 * When you open it for the first time, it will ask you to log in with your GLOBUS
@@ -109,9 +110,33 @@ In the File Manager tab of the web application, you can now select your personal
 collection and use the File Manager action buttons to manage your files and transfer
 folders between the two collections.
 
-> [!WARNING]
-> By default, Globus Connect Personal (GCP) has access to your home directory. Only you
-> have access to the collection, but you can also configure GCP to only be able to
-> access a subset of files. Under the `GCP > Preferences` settings, you can select the
-> Access tab and specify which files GCP can access _and_ whether GCP is allowed to
-> write to those folders.
+!!! Warning "Local file access permissions"
+
+    By default, Globus Connect Personal (GCP) has access to your home directory. Only you
+    have access to the collection, but you can also configure GCP to only be able to
+    access a subset of files. Under the `GCP > Preferences` settings, you can select the
+    Access tab and specify which files GCP can access _and_ whether GCP is allowed to
+    write to those folders.
+
+### The GLOBUS Transfer system
+
+Transfer is used to copy files from a source collection to a destination collection.
+Here, you could be uploading a folder from your personal collection (source) to the RDS
+repo (destination) or downloading data from the RDS (source) to your local collection
+(destination) for analsysis. Or possibly doing both to synchronise the two folders!
+
+To transfer files or folders between collections:
+
+* Select the files or folders on the source collection
+* In the destination folder, open the location where the selected data will be
+  transferred. **Do not_ select the folders or files on the destination** but instead
+  make sure you have the location that you want to copy to open.
+
+  For example, if you are synchronising the `data/derived` data folder, you will need to
+  select the `derived` folder in the source collection, but just have the `data` folder
+  open in the destination. If you do not do this then the data will be transfered _into_
+  the selected folder.
+
+* Press the "Start button" above the source collection. GLOBUS will schedule and run the
+  transfer in the background: you can open the activity monitor link to see the progress
+  of the transfer.
