@@ -29,12 +29,10 @@ given access to collections.
 For the VE Data Science team, we are using GLOBUS to connect to a collection of files
 hosted on the Imperial College London Research Data Store.
 
-## The GLOBUS web application
-
 Once you have logged into the GLOBUS web application, you will end up on a page with a
 set of different tabs on the left hand side.
 
-### The Collections tab
+## The Collections tab
 
 The Collections tab is used to provide an overview of the data collections that you have
 access to.
@@ -49,7 +47,7 @@ access to.
   details.
 * You should also see a button marked "Open in File Manager" - click this!
 
-### The File Manager
+## The File Manager
 
 The File Manager tab is used to view the files and folders within a collection and to
 interact with the data repository. You can access the tab from a particular collection
@@ -59,9 +57,61 @@ interact with the data repository. You can access the tab from a particular coll
 Once you have opened a collection in the pane then you should be able to see the files
 and folders in the collection and can open folders to explore the data.
 
-> [!NOTE] Collection path
+> [!NOTE]
 > When you open the VE Data Science collection, you will see that it shows a path at the
 > top: `ve_data_science/data`. This is because the collection shares _all_ of the files
 > in our Research Data Store. This include a clone of the `ve_data_science` repo but
 > also some other data resources. You can move up to look at the contents of those
 > directories, but the collection is set up to go to the `data` directory by default.
+
+### File Manager actions
+
+The bar in the centre of the file manager provides action buttons to work with files and
+folders.
+
+* **New Folder**, **Rename** and **Delete Selected** can be used with any selected
+   folder or file in the collection. You'd need a very good reason to rename or delete
+   files in the collection!
+
+* **Download** and **Upload** can only be used with single files: these allow you to
+  drop a single file from any location into a folder in the collection or download a
+  file.
+
+These tools may be all you need for day to day work - if you have a few files to upload
+this may well be what you want to do. However, if you want to upload a more complex
+set of files or download a large number of files, this is going to be a problem.
+
+This is where the **Transfer or Sync to...** option comes in - it allows files and
+folders to be copied between **two collections**. To do so, you need to configure your
+own computer as a collection.
+
+## Globus Connect Personal
+
+The Globus Connect Personal application
+[https://www.globus.org/globus-connect-personal](Globus Connect Personal) is a local
+application that you install to your computer that sets up a GLOBUS collection on your
+computer.
+
+* Download and install the program.
+* When you open it for the first time, it will ask you to log in with your GLOBUS
+  credentials:
+  * This will first take you to the GLOBUS website to authorise your GLOBUS account
+    to create and manage a collection.
+  * It will then ask for the collection details to create on your computer.
+* It will then start the Globus Connect Personal application.
+
+If you now go to the web application and look at the collections administered by you,
+you should see the a new Private Mapped Connection:
+
+[https://app.globus.org/collections?scope=administered-by-me](https://app.globus.org/collections?scope=administered-by-me)
+
+In the File Manager tab of the web application, you can now select your personal
+collection and use the File Manager action buttons to manage your files and transfer
+folders between the two collections.
+
+> [!WARNING]
+> By default, Globus Connect Personal (GCP) has access to your home directory. Only you
+> have access to the collection, but you can also configure GCP to only be able to
+> access a subset of files. Under the `GCP > Preferences` settings, you can select the
+> Access tab and specify which files GCP can access _and_ whether GCP is allowed to
+> write to those folders.
