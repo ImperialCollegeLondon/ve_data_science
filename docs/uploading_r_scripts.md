@@ -1,6 +1,12 @@
 # Uploading an R Script to a GitHub Repository
 
-(This text was written by @arne-exe and is copied directly from <https://github.com/ImperialCollegeLondon/ve_data_science/issues/22#issuecomment-2740835471>)
+<!-- markdownlint-disable MD046 -->
+<!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
+indented content of the admonition is code. It then complains about the mixture of
+fenced code blocks (e.g. ```sh) and indented code blocks.-->
+
+(This text was written by @arne-exe and is copied directly from
+<https://github.com/ImperialCollegeLondon/ve_data_science/issues/22#issuecomment-2740835471>)
 
 These notes should help guide you through uploading an R script to a GitHub repository
 using Git, Visual Studio Code (VSC), and best practices for version control, branch

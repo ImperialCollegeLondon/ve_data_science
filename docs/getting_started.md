@@ -1,5 +1,10 @@
 # Getting started with the `ve_data_science` repository
 
+<!-- markdownlint-disable MD046 -->
+<!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
+indented content of the admonition is code. It then complains about the mixture of
+fenced code blocks (e.g. ```sh) and indented code blocks.-->
+
 !!! IMPORTANT
 
     This is a draft document
@@ -16,7 +21,7 @@ will need to install it:
 Next, in your terminal, change directory to the location where you want the repository
 to live and then run the following command.
 
-```sh
+``` sh
 git clone https://github.com/ImperialCollegeLondon/ve_data_science.git
 ```
 
