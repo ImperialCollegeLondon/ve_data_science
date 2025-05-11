@@ -1,0 +1,169 @@
+---
+title: Relationship_Mass_vs_Stoichio
+
+description: |
+The aim of this script is to provide an overview of how size is spread out in stoichiometry of animal groups to understand the mass relationship with the bulk portions of carbon/nitrogen/phosphorus/other. Here we will use the (taxon-updated) dataset, animal_body_stoichiometry.csv, obtained from the paper Adrieux et al. 2021: https://onlinelibrary.wiley.com/doi/abs/10.1111/geb.13265 
+
+author:
+  - name: Nicholas Wei Cheng Tan
+
+virtual_ecosystem_module: Animal
+
+status: final
+
+input_files:
+  - name: animal_body_stoichiometry.csv
+    path: ../../../data/derived/animal/traits_data/animal_body_stoichiometry.csv
+    description: |
+      New stoichiometry dataset with updated taxon which we will now use to explore. 
+  
+
+output_files:
+  - name: animal_body_stoichiometry.csv
+    path: ../../../data/derived/animal/traits_data/animal_body_stoichiometry.csv
+    description: |
+      This 
+
+package_dependencies:
+    - tidyverse
+
+usage_notes: |
+  None for now. 
+---
+
+First we load the packages at the top of the notebook
+
+1. Setup
+```{r load_packages}
+if(!require(tidyverse)){
+  install.packages("tidyverse")  
+  library(tidyverse)
+} # install (if not) then load package 'tidyverse'
+```
+
+2. Load data
+```{r setup, include = FALSE}
+knitr::opts_knit$set(root.dir = "C:/Users/Nicholas/OneDrive/Virtual_Ecosystem/Stoichiometry/Adrieux_etal21")
+getwd() 
+```
+
+```{r load data}
+#  Load data
+stoichio <- read.csv("stoichio_VE.csv", sep=",") # later replace with animal_body_stoichiometry.csv
+```
+
+3. Preparing data
+Since each group has individual samples with CNP% but not always all CNP, let us create a new column with the "rest" of the body mass, excluding CNP
+```{r}
+stoichio <- stoichio %>%
+  # replace all na with 0 
+  replace(is.na(.), 0)    %>% 
+  #get the rest of the percentage
+  mutate(rest = 100 - C_mean - N_mean - P_mean)
+```
+
+Let's look at how mass is distributed among animals.Pick up broad tax groupings 
+```{r}
+colnames(stoichio)
+```
+Lets go with Groups or Functional groups in this case. Ok, lets try Groups (e.g. Mammals, Birds and insects)
+
+Plot stoichio vs mass in "Group". But first check out Mass ranges in Group to see the range. 
+```{r}
+Group_Dry_Mass <- stoichio %>% filter(!is.na(Mass_dry_full)) %>% 
+  select(Group, Mass_dry_full) 
+
+Group_Dry_Mass  %>%
+  ggplot(aes(x=Group, y=Mass_dry_full)) +
+  coord_flip() +
+  geom_boxplot() +  
+  ylim(0, 50000)
+# Play around withthe ylim() to see how mass is distributed
+```
+So it seems like mass is not distributed equally!
+
+
+4. Looking at the CNP content and rest of body mass
+We plot cnp mass in each group, but showing remaining  percentage of mass which we will call from here onwards, "rest". 
+```{r}
+stoichio_cnp <- stoichio %>% 
+  #select only columns needed for the plots 
+  select(Group, C_mean, N_mean, P_mean, rest)
+```
+
+Creating stacked barplot of each individual of each group. Here we use mammal as an example. To look at other animal groups, just replace "Mammal" with your group of interest in (Group %in% c("Mammal") on the first code line below
+```{r}
+# First separate the animals in groups - mammals, birds....
+stoichio_cnp_Mammal <- stoichio_cnp  %>% filter(Group %in% c("Mammal"))
+# remove Group columns
+stoichio_cnp_Mammal <- subset(stoichio_cnp_Mammal, select = -c(Group))
+# Make id using row names
+stoichio_cnp_Mammal$Mammal <- as.numeric(row.names(stoichio_cnp_Mammal))
+```
+
+Plot your stacked boxplot
+```{r}
+stoichio_cnp_Mammal %>%
+  # pivot to make table for plotting
+  pivot_longer(-Mammal)%>% 
+  ggplot(aes(x = Mammal, y = value, fill = name)) + 
+  geom_col(position="stack")   +
+  ylab("Percentage of dry mass (%)") +
+  xlab("Mammal_sample_ID")
+```
+So it seems like 90% of the sample have either only C, N or P values, or two out of the three. And the rest of the 10% containing all three CNP values consist of only invertebrates. 
+
+3) looking at cnp ranges across animal group
+```{r}
+# Make wide table to long table for plotting
+stoichio_cnp <- stoichio %>%
+  select(Group, C_mean, N_mean, P_mean)
+stoichio_cnp_long <- stoichio_cnp %>% 
+  gather(key = "Stoichiometry", value = "mean", -Group)
+```
+
+```{r}
+# Make boxplot for the ranges of cnp 
+stoichio_cnp_long  %>%
+  ggplot(aes(x=mean, y=Stoichiometry, fill=Group)) +
+  geom_violin(trim=FALSE)
+
+```
+Seems like C is pretty spread out compared to N and P. P has the narrowest range, but also the lowest values, which makes sense. In general, values are pretty spread out, so mean values might not be very useful here. 
+
+4) Plot scatterplot carbon, nitrogen phosphorus against body mass 
+
+First we log CNP and "rest"
+```{r}
+stoichio_log <- stoichio %>% 
+  #select only columns needed for the plots 
+  select(Group, C_mean, N_mean, P_mean, rest, Mass_dry_full, Mass_log10)%>% 
+  # Replace 0 with NA
+  mutate_if(is.numeric, ~na_if(., 0))%>% 
+  mutate(C_mean_log10 = log(C_mean)) %>%
+  mutate(N_mean_log10 = log(N_mean)) %>%
+  mutate(P_mean_log10 = log(P_mean)) 
+```
+
+Because the groups (e.g. Mammals vs inverts) can differ so much in mass, we would plot separately. 
+
+First, we make a linear equation function
+```{r}
+lm_eqn <- function(df){
+  m <- lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(unname(coef(m)[1]), digits = 2),
+                        b = format(unname(coef(m)[2]), digits = 2),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));
+}
+```
+
+
+
+You can also embed plots, for example:
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
