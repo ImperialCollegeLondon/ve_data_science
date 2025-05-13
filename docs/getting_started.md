@@ -30,7 +30,7 @@ files, all of the changes ever made to those files. It also contains the details
 the branches containing active versions of the code that differ from the core `main` branch.
 Those changes are hidden away in the `.git` folder.
 
-See the [GitHub Overview](github_overview) for details on working with Git and GitHub.
+See the [GitHub Overview](github_overview.md) for details on working with Git and GitHub.
 
 ## Setting up the repository for use
 
