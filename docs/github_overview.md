@@ -102,11 +102,43 @@ your changes to github.
    the pull request tab, or if you've recently pushed from a local branch, github will
    prompt you to make a PR from that branch. When you're making a PR, you want to merge
    your branch into main.
+
 2. Add a description of what the PR accomplishes and request review from the relevant
    team members.
-3. Wait for review. Once the reviewers give approval (or if you complete their
-   requests), you can merge from the PR page. This sends your updates into the main
-   branch.
+
+3. Wait for the reviews to come in: it makes life hard for reviewers if there are more
+   changes coming into a PR while they are trying to review it!
+
+4. Respond to reviews. Your reviewers can either give approval or request changes. Even
+   if they approve the PR, they may also make some comments for minor changes, so before
+   merging (see below) you should go through any comments in the review and deal with
+   them. Typical actions are:
+
+   * Making some additional changes on the branch to address the comment and then
+     commiting and pushing those changes.
+
+   * Accepting a "suggestion"  -  this option appears when a reviewer has posted some
+     actual changes, a bit like a suggestion in track changes in Word, rather than a
+     comment about what they would like you to change. You can accept suggestions
+     directly in GitHub but will then need to use `git pull` to bring those suggestions
+     into your local copy
+
+   * Simply replying to the comment - it might be that the comment just wanted
+     clarification without needing to changes anything, or it might be that there are
+     good reasons not to do what the comment asks. This might involve a short discussion
+     before deciding on what to do.
+
+   When a comment has been handled, it is good practice to leave some form of comment:
+   that could just be a simple "thumbs up" reaction for simple changes or could be a few
+   sentences explaining what you've done. You should click on the "resolve conversation"
+   button when there is no further action to be taken.
+
+   If a reviewer has requested changes, you will need to request a new review from that
+   reviewer to get them to approve the update PR.
+
+5. Once you have approvals from all reviewers, you can merge from the PR page, which
+   sends your updates into the main branch. If the main branch has changed since you
+   started your branch and PR, you may need to update the branch before you can merge.
 
 ## Start it all over
 

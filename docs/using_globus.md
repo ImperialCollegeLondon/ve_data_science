@@ -21,7 +21,7 @@ GLOBUS is a web-based system that provides access to data files.
 * GLOBUS also manages access privileges and authentication to connect to data: users
   register with GLOBUS and can then be granted access to data sets
 
-A single data repositories is called **a collection**. A collection is basically just a
+A single data repository is called **a collection**. A collection is basically just a
 configured connection to a particular set of files. Individual users can then be given
 access to collections. Users can also be made part of a group and that group can be
 given access to collections.
@@ -31,6 +31,15 @@ hosted on the Imperial College London Research Data Store.
 
 Once you have logged into the GLOBUS web application, you will end up on a page with a
 set of different tabs on the left hand side.
+
+!!! info "Access permissions"
+
+    Globus frequently requests extra authentication steps. This is usually when you are
+    accessing a new part of the GLOBUS functionality. It will typically take you to a
+    page with a prompt like "Session reauthentication required (Globus Transfer)". The
+    page will then also show your login ID email - this is actually a clickable link to
+    start the authentication for the action and should just complete and take you to the
+    page you were trying to access.
 
 ## The Collections tab
 
@@ -61,9 +70,10 @@ and folders in the collection and can open folders to explore the data.
 
     When you open the VE Data Science collection, you will see that it shows a path at the
     top: `ve_data_science/data`. This is because the collection shares _all_ of the files
-    in our Research Data Store. This include a clone of the `ve_data_science` repo but
-    also some other data resources. You can move up to look at the contents of those
-    directories, but the collection is set up to go to the `data` directory by default.
+    in our Research Data Store. This includes a clone of the `ve_data_science` repo but
+    also some other data resources. We are managing access to the files using a GLOBUS
+    group ('VE Data Science team') that only has access to the files under the
+    `ve_data_science/data` path, so you can't see the other data on that drive.
 
 ### File Manager actions
 
@@ -71,12 +81,17 @@ The bar in the centre of the file manager provides action buttons to work with f
 folders.
 
 * **New Folder**, **Rename** and **Delete Selected** can be used with any selected
-   folder or file in the collection. You'd need a very good reason to rename or delete
-   files in the collection!
+   folder or file in the collection.
 
-* **Download** and **Upload** can only be used with single files: these allow you to
-  drop a single file from any location into a folder in the collection or download a
-  file.
+   You'd need a very good reason to rename or delete files in the collection and this
+   should be done through GitHub and not GLOBUS. If you change the names or files or
+   folders then this will **break any existing scripts that use those files**, so if you
+   want to change or delete file paths, you should create a PR that explains the
+   rationale for the changes and also updates any affected scripts.
+
+* **Download** and **Upload** can be used with single files and folders: these allow you
+  to drop a single file or folder from any location into a folder in the collection or
+  download a file or folder
 
 These tools may be all you need for day to day work - if you have a few files to upload
 this may well be what you want to do. However, if you want to upload a more complex
@@ -118,12 +133,17 @@ folders between the two collections.
     Access tab and specify which files GCP can access _and_ whether GCP is allowed to
     write to those folders.
 
+    Within the GLOBUS web application, you can also check the visibility of your local
+    collection through the Collections tab: click your local collection and then explore
+    the visibility options to check if other users can see the existence of your
+    collection.
+
 ### The GLOBUS Transfer system
 
 Transfer is used to copy files from a source collection to a destination collection.
 Here, you could be uploading a folder from your personal collection (source) to the RDS
 repo (destination) or downloading data from the RDS (source) to your local collection
-(destination) for analsysis. Or possibly doing both to synchronise the two folders!
+(destination) for analysis. Or possibly doing both to synchronise the two folders!
 
 To transfer files or folders between collections:
 

@@ -108,10 +108,10 @@ git push -u origin your-branch-name
 
 ## 8️⃣ Create a Pull Request (PR)
 
-* *Go to your GitHub repo
-* *Click **"Compare & pull request"**
-* *Add a title and description
-* *Assign reviewers and submit
+* Go to your GitHub repo
+* Click **"Compare & pull request"**
+* Add a title and description
+* Assign reviewers and submit
 
 !!! TIP
 
@@ -164,4 +164,4 @@ git branch -d your-branch-name
 * Never push directly to `main`
 * Communicate clearly in PRs and commit messages
 * Ask for help if `lintr` feedback is confusing — even paste the code into ChatGPT
-  for help!`
+  for help!
