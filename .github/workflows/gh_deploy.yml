@@ -2,7 +2,6 @@ name: ci
 on:
   push:
     branches:
-      - 46-moving-documentation-inside-the-repo
       - main
 permissions:
   contents: write
