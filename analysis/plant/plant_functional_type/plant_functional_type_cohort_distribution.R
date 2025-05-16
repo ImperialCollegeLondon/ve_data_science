@@ -3,8 +3,11 @@
 #'
 #' description: |
 #'     This script calculates the PFT cohort distribution using the SAFE tree
-#'     census dataset. It provides an output file that contains the number of
-#'     individuals per DBH class for each PFT.
+#'     census dataset. It provides two output files that contain the number of
+#'     individuals per DBH class for each PFT, based on the old growth plots.
+#'     The first output file contains a list of individuals in all three OG plots.
+#'     The second output file builds on top of this by providing a standardised
+#'     count per hectare.
 #'
 #' VE_module: Plant
 #'
@@ -36,7 +39,13 @@
 #'   - name: plant_functional_type_cohort_distribution.csv
 #'     path: ../../../data/derived/plant/plant_functional_type
 #'     description: |
-#'       This CSV file contains the number of individuals per DBH class for each PFT.
+#'       This CSV file contains an overview of the individuals in OG plots per
+#'       DBH class for each PFT.
+#'   - name: plant_functional_type_cohort_distribution_per_hectare.csv
+#'     path: ../../../data/derived/plant/plant_functional_type
+#'     description: |
+#'       This CSV file contains the number of individuals per DBH class for each PFT,
+#'       providing a standardised count per hectare.
 #'
 #' package_dependencies:
 #'     - readxl
