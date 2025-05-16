@@ -199,6 +199,9 @@ ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_fina
 
 #####
 
+# The section below explores stem density to get an idea of the
+# representativeness of the OG plots relative to the literature
+
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 plot(as.factor(check$Block),
   xlab = "Block", ylab = "Trees in OG blocks"
@@ -332,6 +335,9 @@ data_taxa$dbh[
     data_taxa$DBH2011_mm_clean <= 2000
 ] <- 2000
 
+max(data_taxa$DBH2011_mm_clean)
+# Note that more classes will need to be added if DBH exceeds 2000 mm
+
 # Prepare data_taxa for saving
 
 names(data_taxa)
@@ -356,14 +362,70 @@ rownames(data_taxa) <- c(1:maxrows)
 
 # Subset and convert dbh to m
 
-data_taxa <- data_taxa[, c("Block", "Plot", "PlotID", "PFT_final", "DBH_class")]
+data_taxa <- data_taxa[, c("Block", "Plot", "PlotID", "PFT_name", "DBH_class")]
 data_taxa$DBH_class <- data_taxa$DBH_class / 1000
 
-# Save file
+# Save cohort distribution (not on area basis yet - with individual stem density)
 
 write.csv(
   data_taxa,
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution.csv", # nolint
+  row.names = FALSE
+)
+
+################################################################################
+
+# Calculating OG cohort distribution on an area basis
+
+check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
+plot(as.factor(check$Block),
+  xlab = "Block", ylab = "Trees in OG blocks"
+)
+unique(check$PlotID)
+
+OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
+OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9 # nolint
+OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9 # nolint
+
+OG1_area <- 9 * (25 * 25) # m2 # nolint
+OG2_area <- 9 * (25 * 25) # m2 # nolint
+OG3_area <- 9 * (25 * 25) # m2 # nolint
+
+total_OG_area <- OG1_area + OG2_area + OG3_area # m2 # nolint
+
+data_taxa$total_OG_area <- total_OG_area
+
+data_taxa <- data_taxa %>%
+  group_by(PFT_name, DBH_class) %>%
+  mutate(plant_cohorts_n = n()) %>%
+  ungroup()
+
+# Divide plant_cohorts_n by total_OG_area to get individuals per m2
+# Then multiply by 10000 to get cohort distribution per hectare
+
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n / data_taxa$total_OG_area
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n * 10000
+
+# Clean up summary
+
+data_taxa <- data_taxa[, c("plant_cohorts_n", "PFT_name", "DBH_class")]
+data_taxa <- unique(data_taxa)
+
+data_taxa <- data_taxa[
+  order(
+    data_taxa$PFT_name, data_taxa$DBH_class
+  ),
+]
+
+# Round up to nearest whole number (as a decimal of a tree does not exist)
+
+data_taxa$plant_cohorts_n <- ceiling(data_taxa$plant_cohorts_n)
+
+# Save cohort distribution on a per hectare basis
+
+write.csv(
+  data_taxa,
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv", # nolint
   row.names = FALSE
 )
 
@@ -377,7 +439,6 @@ names(data)
 
 data$Block <- as.factor(data$Block)
 data$PlotID <- as.factor(data$PlotID)
-data$PFT_final <- as.factor(data$PFT_final)
 
 plots <- unique(data$PlotID)
 plots
@@ -390,7 +451,7 @@ nrow(data) / (25 * 25 * 27) * 10000 # average stem density per hectare
 # Plots
 
 # Plot using OG1, OG2 and OG3 - split up per Block (expressed as proportion %)
-ggplot(data, aes(x = Block, fill = PFT_final)) +
+ggplot(data, aes(x = Block, fill = PFT_name)) +
   geom_bar(position = "fill") + # Normalizes counts within each PlotID
   scale_y_continuous(labels = scales::percent_format()) + # Shows y-axis as percentages
   labs(
@@ -402,7 +463,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but absolute stack
-ggplot(data, aes(x = Block, fill = PFT_final)) +
+ggplot(data, aes(x = Block, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Block by PFT",
@@ -413,7 +474,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but bars not stacked
-ggplot(data, aes(x = Block, fill = PFT_final)) + # Use PFT to differentiate the bars
+ggplot(data, aes(x = Block, fill = PFT_name)) + # Use PFT to differentiate the bars
   geom_bar(stat = "count", position = "dodge") +
   labs(
     title = "Number of Trees per Block by PFT",
@@ -426,7 +487,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) + # Use PFT to differentiate the 
 ##########
 
 # Plot using OG1, OG2 and OG3 - split up per PlotID (expressed as proportion %)
-ggplot(data, aes(x = PlotID, fill = PFT_final)) +
+ggplot(data, aes(x = PlotID, fill = PFT_name)) +
   geom_bar(position = "fill") + # Normalizes counts within each PlotID
   scale_y_continuous(labels = scales::percent_format()) + # Shows y-axis as percentages
   labs(
@@ -438,7 +499,7 @@ ggplot(data, aes(x = PlotID, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but absolute stack
-ggplot(data, aes(x = PlotID, fill = PFT_final)) +
+ggplot(data, aes(x = PlotID, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Plot by PFT",
@@ -454,7 +515,7 @@ ggplot(data, aes(x = PlotID, fill = PFT_final)) +
 
 names(data)
 
-ggplot(data, aes(x = DBH_class, fill = PFT_final)) +
+ggplot(data, aes(x = DBH_class, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Plot by PFT",
