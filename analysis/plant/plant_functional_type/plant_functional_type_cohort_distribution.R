@@ -46,6 +46,9 @@
 #'     description: |
 #'       This CSV file contains the number of individuals per DBH class for each PFT,
 #'       providing a standardised count per hectare.
+#'       The variable "plant_cohorts_n_corrected" is "plant_cohorts_n" but where
+#'       the trees with unknown PFT have been distributed evenly across the
+#'       existing PFTs.
 #'
 #' package_dependencies:
 #'     - readxl
@@ -171,11 +174,31 @@ plot(as.factor(data_taxa_without_PFT$Block),
 # OG1, OG2 and OG3 seem relatively good to use
 # A-F have quite a lot of missing values
 
+plot(as.factor(data_taxa_without_PFT$PlotID),
+  xlab = "Block", ylab = "Trees without PFT"
+)
+
+plot(
+  as.factor(data_taxa_without_PFT$PlotID[data_taxa_without_PFT$Block
+    %in% c("OG1", "OG2", "OG3")]), # nolint
+  xlab = "PlotID", ylab = "Trees without PFT"
+)
+
 # Remove trees without PFT assigned
 data_taxa_with_PFT <- drop_na(data_taxa, PFT_final) # nolint
 
 plot(as.factor(data_taxa_with_PFT$Block),
   xlab = "Block", ylab = "Trees with PFT"
+)
+
+plot(as.factor(data_taxa_with_PFT$PlotID),
+  xlab = "PlotID", ylab = "Trees with PFT"
+)
+
+plot(
+  as.factor(data_taxa_with_PFT$PlotID[data_taxa_with_PFT$Block
+    %in% c("OG1", "OG2", "OG3")]), # nolint
+  xlab = "PlotID", ylab = "Trees with PFT"
 )
 
 ##########
@@ -186,6 +209,11 @@ plot(as.factor(data_taxa_with_PFT$Block),
 
 # Block OG1 contains several plots, which are not connected to each other
 # Each plot (e.g., OG1_711) is 25mx25m
+
+# Note that when looking at plot level there are a few plots that have relatively
+# more trees measured and missing (e.g., 1 in OG1 and 4 in OG3)
+# Because the ratio between trees measured and missing in these plots is balanced
+# I think it's ok to still include these plots
 
 #####
 
@@ -259,90 +287,90 @@ data_taxa <- data_taxa[
 
 # Use dividers of 0.1 m (100 mm)
 # Assign each tree into one of these DBH classes
-# The value for dbh represents the upper limit of the dbh class
+# The value for dbh represents the midpoint of the dbh class
 
 data_taxa$dbh <- NA
 
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 0.0 &
     data_taxa$DBH2011_mm_clean <= 100
-] <- 100
+] <- 50
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 100 &
     data_taxa$DBH2011_mm_clean <= 200
-] <- 200
+] <- 150
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 200 &
     data_taxa$DBH2011_mm_clean <= 300
-] <- 300
+] <- 250
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 300 &
     data_taxa$DBH2011_mm_clean <= 400
-] <- 400
+] <- 350
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 400 &
     data_taxa$DBH2011_mm_clean <= 500
-] <- 500
+] <- 450
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 500 &
     data_taxa$DBH2011_mm_clean <= 600
-] <- 600
+] <- 550
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 600 &
     data_taxa$DBH2011_mm_clean <= 700
-] <- 700
+] <- 650
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 700 &
     data_taxa$DBH2011_mm_clean <= 800
-] <- 800
+] <- 750
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 800 &
     data_taxa$DBH2011_mm_clean <= 900
-] <- 900
+] <- 850
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 900 &
     data_taxa$DBH2011_mm_clean <= 1000
-] <- 1000
+] <- 950
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1000 &
     data_taxa$DBH2011_mm_clean <= 1100
-] <- 1100
+] <- 1050
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1100 &
     data_taxa$DBH2011_mm_clean <= 1200
-] <- 1200
+] <- 1150
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1200 &
     data_taxa$DBH2011_mm_clean <= 1300
-] <- 1300
+] <- 1250
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1300 &
     data_taxa$DBH2011_mm_clean <= 1400
-] <- 1400
+] <- 1350
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1400 &
     data_taxa$DBH2011_mm_clean <= 1500
-] <- 1500
+] <- 1450
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1500 &
     data_taxa$DBH2011_mm_clean <= 1600
-] <- 1600
+] <- 1550
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1600 &
     data_taxa$DBH2011_mm_clean <= 1700
-] <- 1700
+] <- 1650
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1700 &
     data_taxa$DBH2011_mm_clean <= 1800
-] <- 1800
+] <- 1750
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1800 &
     data_taxa$DBH2011_mm_clean <= 1900
-] <- 1900
+] <- 1850
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1900 &
     data_taxa$DBH2011_mm_clean <= 2000
-] <- 2000
+] <- 1950
 
 max(data_taxa$DBH2011_mm_clean)
 # Note that more classes will need to be added if DBH exceeds 2000 mm
@@ -409,15 +437,55 @@ data_taxa <- data_taxa %>%
   mutate(plant_cohorts_n = n()) %>%
   ungroup()
 
+# Calculate the count of individuals with (un)known PFTs
+
+data_taxa$PFT_known <-
+  nrow(data_taxa[data_taxa$PFT_name
+    %in% c("emergent", "overstory", "pioneer", "understory"), ]) # nolint
+data_taxa$PFT_unknown <-
+  nrow(data_taxa[data_taxa$PFT_name %in% c("unknown"), ])
+data_taxa$PFT_total <- data_taxa$PFT_known + data_taxa$PFT_unknown
+
+# Correct plant_cohorts_n for trees with unknown PFT
+# In other words, evenly distribute trees with unknown PFT to other known PFTs
+
+data_taxa$plant_cohorts_n_corrected <-
+  (data_taxa$plant_cohorts_n / data_taxa$PFT_known) * data_taxa$PFT_total
+
+###
+
+before <- data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n")]
+after <- data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n_corrected")]
+before <- unique(before)
+after <- unique(after)
+
+sum(before$plant_cohorts_n)
+sum(after$plant_cohorts_n_corrected[after$PFT_name %in% c("emergent", "overstory", "understory", "pioneer")]) # nolint
+
+after_check <-
+  data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n", "plant_cohorts_n_corrected")] # nolint
+data_taxa$plant_cohorts_n_corrected[data_taxa$PFT_name == "unknown"] <- 0
+
+###
+
 # Divide plant_cohorts_n by total_OG_area to get individuals per m2
 # Then multiply by 10000 to get cohort distribution per hectare
 
 data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n / data_taxa$total_OG_area
 data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n * 10000
 
+data_taxa$plant_cohorts_n_corrected <-
+  data_taxa$plant_cohorts_n_corrected / data_taxa$total_OG_area
+data_taxa$plant_cohorts_n_corrected <-
+  data_taxa$plant_cohorts_n_corrected * 10000
+
 # Clean up summary
 
-data_taxa <- data_taxa[, c("plant_cohorts_n", "PFT_name", "DBH_class")]
+data_taxa <-
+  data_taxa[
+    ,
+    c("plant_cohorts_n", "plant_cohorts_n_corrected", "PFT_name", "DBH_class")
+  ]
 data_taxa <- unique(data_taxa)
 
 data_taxa <- data_taxa[
@@ -429,6 +497,14 @@ data_taxa <- data_taxa[
 # Round up to nearest whole number (as a decimal of a tree does not exist)
 
 data_taxa$plant_cohorts_n <- ceiling(data_taxa$plant_cohorts_n)
+data_taxa$plant_cohorts_n_corrected <- ceiling(data_taxa$plant_cohorts_n_corrected)
+
+# Quick check of total stem density per hectare (to compare with literature)
+# Original stem density from SAFE census data was 559 per hectare
+# Rounding upwards results in an overestimate of 20-25 trees per hectare
+
+sum(data_taxa$plant_cohorts_n)
+sum(data_taxa$plant_cohorts_n_corrected)
 
 # Save cohort distribution on a per hectare basis
 
