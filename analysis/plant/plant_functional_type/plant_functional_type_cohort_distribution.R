@@ -3,8 +3,11 @@
 #'
 #' description: |
 #'     This script calculates the PFT cohort distribution using the SAFE tree
-#'     census dataset. It provides an output file that contains the number of
-#'     individuals per DBH class for each PFT.
+#'     census dataset. It provides two output files that contain the number of
+#'     individuals per DBH class for each PFT, based on the old growth plots.
+#'     The first output file contains a list of individuals in all three OG plots.
+#'     The second output file builds on top of this by providing a standardised
+#'     count per hectare.
 #'
 #' VE_module: Plant
 #'
@@ -36,7 +39,16 @@
 #'   - name: plant_functional_type_cohort_distribution.csv
 #'     path: ../../../data/derived/plant/plant_functional_type
 #'     description: |
-#'       This CSV file contains the number of individuals per DBH class for each PFT.
+#'       This CSV file contains an overview of the individuals in OG plots per
+#'       DBH class for each PFT.
+#'   - name: plant_functional_type_cohort_distribution_per_hectare.csv
+#'     path: ../../../data/derived/plant/plant_functional_type
+#'     description: |
+#'       This CSV file contains the number of individuals per DBH class for each PFT,
+#'       providing a standardised count per hectare.
+#'       The variable "plant_cohorts_n_corrected" is "plant_cohorts_n" but where
+#'       the trees with unknown PFT have been distributed evenly across the
+#'       existing PFTs.
 #'
 #' package_dependencies:
 #'     - readxl
@@ -162,11 +174,31 @@ plot(as.factor(data_taxa_without_PFT$Block),
 # OG1, OG2 and OG3 seem relatively good to use
 # A-F have quite a lot of missing values
 
+plot(as.factor(data_taxa_without_PFT$PlotID),
+  xlab = "Block", ylab = "Trees without PFT"
+)
+
+plot(
+  as.factor(data_taxa_without_PFT$PlotID[data_taxa_without_PFT$Block
+    %in% c("OG1", "OG2", "OG3")]), # nolint
+  xlab = "PlotID", ylab = "Trees without PFT"
+)
+
 # Remove trees without PFT assigned
 data_taxa_with_PFT <- drop_na(data_taxa, PFT_final) # nolint
 
 plot(as.factor(data_taxa_with_PFT$Block),
   xlab = "Block", ylab = "Trees with PFT"
+)
+
+plot(as.factor(data_taxa_with_PFT$PlotID),
+  xlab = "PlotID", ylab = "Trees with PFT"
+)
+
+plot(
+  as.factor(data_taxa_with_PFT$PlotID[data_taxa_with_PFT$Block
+    %in% c("OG1", "OG2", "OG3")]), # nolint
+  xlab = "PlotID", ylab = "Trees with PFT"
 )
 
 ##########
@@ -177,6 +209,11 @@ plot(as.factor(data_taxa_with_PFT$Block),
 
 # Block OG1 contains several plots, which are not connected to each other
 # Each plot (e.g., OG1_711) is 25mx25m
+
+# Note that when looking at plot level there are a few plots that have relatively
+# more trees measured and missing (e.g., 1 in OG1 and 4 in OG3)
+# Because the ratio between trees measured and missing in these plots is balanced
+# I think it's ok to still include these plots
 
 #####
 
@@ -198,6 +235,9 @@ ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_fina
   labs(x = "TreeID", y = "DBH (mm)")
 
 #####
+
+# The section below explores stem density to get an idea of the
+# representativeness of the OG plots relative to the literature
 
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 plot(as.factor(check$Block),
@@ -247,90 +287,93 @@ data_taxa <- data_taxa[
 
 # Use dividers of 0.1 m (100 mm)
 # Assign each tree into one of these DBH classes
-# The value for dbh represents the upper limit of the dbh class
+# The value for dbh represents the midpoint of the dbh class
 
 data_taxa$dbh <- NA
 
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 0.0 &
     data_taxa$DBH2011_mm_clean <= 100
-] <- 100
+] <- 50
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 100 &
     data_taxa$DBH2011_mm_clean <= 200
-] <- 200
+] <- 150
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 200 &
     data_taxa$DBH2011_mm_clean <= 300
-] <- 300
+] <- 250
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 300 &
     data_taxa$DBH2011_mm_clean <= 400
-] <- 400
+] <- 350
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 400 &
     data_taxa$DBH2011_mm_clean <= 500
-] <- 500
+] <- 450
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 500 &
     data_taxa$DBH2011_mm_clean <= 600
-] <- 600
+] <- 550
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 600 &
     data_taxa$DBH2011_mm_clean <= 700
-] <- 700
+] <- 650
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 700 &
     data_taxa$DBH2011_mm_clean <= 800
-] <- 800
+] <- 750
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 800 &
     data_taxa$DBH2011_mm_clean <= 900
-] <- 900
+] <- 850
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 900 &
     data_taxa$DBH2011_mm_clean <= 1000
-] <- 1000
+] <- 950
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1000 &
     data_taxa$DBH2011_mm_clean <= 1100
-] <- 1100
+] <- 1050
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1100 &
     data_taxa$DBH2011_mm_clean <= 1200
-] <- 1200
+] <- 1150
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1200 &
     data_taxa$DBH2011_mm_clean <= 1300
-] <- 1300
+] <- 1250
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1300 &
     data_taxa$DBH2011_mm_clean <= 1400
-] <- 1400
+] <- 1350
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1400 &
     data_taxa$DBH2011_mm_clean <= 1500
-] <- 1500
+] <- 1450
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1500 &
     data_taxa$DBH2011_mm_clean <= 1600
-] <- 1600
+] <- 1550
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1600 &
     data_taxa$DBH2011_mm_clean <= 1700
-] <- 1700
+] <- 1650
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1700 &
     data_taxa$DBH2011_mm_clean <= 1800
-] <- 1800
+] <- 1750
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1800 &
     data_taxa$DBH2011_mm_clean <= 1900
-] <- 1900
+] <- 1850
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1900 &
     data_taxa$DBH2011_mm_clean <= 2000
-] <- 2000
+] <- 1950
+
+max(data_taxa$DBH2011_mm_clean)
+# Note that more classes will need to be added if DBH exceeds 2000 mm
 
 # Prepare data_taxa for saving
 
@@ -356,14 +399,118 @@ rownames(data_taxa) <- c(1:maxrows)
 
 # Subset and convert dbh to m
 
-data_taxa <- data_taxa[, c("Block", "Plot", "PlotID", "PFT_final", "DBH_class")]
+data_taxa <- data_taxa[, c("Block", "Plot", "PlotID", "PFT_name", "DBH_class")]
 data_taxa$DBH_class <- data_taxa$DBH_class / 1000
 
-# Save file
+# Save cohort distribution (not on area basis yet - with individual stem density)
 
 write.csv(
   data_taxa,
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution.csv", # nolint
+  row.names = FALSE
+)
+
+################################################################################
+
+# Calculating OG cohort distribution on an area basis
+
+check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
+plot(as.factor(check$Block),
+  xlab = "Block", ylab = "Trees in OG blocks"
+)
+unique(check$PlotID)
+
+OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
+OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9 # nolint
+OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9 # nolint
+
+OG1_area <- 9 * (25 * 25) # m2 # nolint
+OG2_area <- 9 * (25 * 25) # m2 # nolint
+OG3_area <- 9 * (25 * 25) # m2 # nolint
+
+total_OG_area <- OG1_area + OG2_area + OG3_area # m2 # nolint
+
+data_taxa$total_OG_area <- total_OG_area
+
+data_taxa <- data_taxa %>%
+  group_by(PFT_name, DBH_class) %>%
+  mutate(plant_cohorts_n = n()) %>%
+  ungroup()
+
+# Calculate the count of individuals with (un)known PFTs
+
+data_taxa$PFT_known <-
+  nrow(data_taxa[data_taxa$PFT_name
+    %in% c("emergent", "overstory", "pioneer", "understory"), ]) # nolint
+data_taxa$PFT_unknown <-
+  nrow(data_taxa[data_taxa$PFT_name %in% c("unknown"), ])
+data_taxa$PFT_total <- data_taxa$PFT_known + data_taxa$PFT_unknown
+
+# Correct plant_cohorts_n for trees with unknown PFT
+# In other words, evenly distribute trees with unknown PFT to other known PFTs
+
+data_taxa$plant_cohorts_n_corrected <-
+  (data_taxa$plant_cohorts_n / data_taxa$PFT_known) * data_taxa$PFT_total
+
+###
+
+before <- data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n")]
+after <- data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n_corrected")]
+before <- unique(before)
+after <- unique(after)
+
+sum(before$plant_cohorts_n)
+sum(after$plant_cohorts_n_corrected[after$PFT_name %in% c("emergent", "overstory", "understory", "pioneer")]) # nolint
+
+after_check <-
+  data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n", "plant_cohorts_n_corrected")] # nolint
+data_taxa$plant_cohorts_n_corrected[data_taxa$PFT_name == "unknown"] <- 0
+
+###
+
+# Divide plant_cohorts_n by total_OG_area to get individuals per m2
+# Then multiply by 10000 to get cohort distribution per hectare
+
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n / data_taxa$total_OG_area
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n * 10000
+
+data_taxa$plant_cohorts_n_corrected <-
+  data_taxa$plant_cohorts_n_corrected / data_taxa$total_OG_area
+data_taxa$plant_cohorts_n_corrected <-
+  data_taxa$plant_cohorts_n_corrected * 10000
+
+# Clean up summary
+
+data_taxa <-
+  data_taxa[
+    ,
+    c("plant_cohorts_n", "plant_cohorts_n_corrected", "PFT_name", "DBH_class")
+  ]
+data_taxa <- unique(data_taxa)
+
+data_taxa <- data_taxa[
+  order(
+    data_taxa$PFT_name, data_taxa$DBH_class
+  ),
+]
+
+# Round up to nearest whole number (as a decimal of a tree does not exist)
+
+data_taxa$plant_cohorts_n <- ceiling(data_taxa$plant_cohorts_n)
+data_taxa$plant_cohorts_n_corrected <- ceiling(data_taxa$plant_cohorts_n_corrected)
+
+# Quick check of total stem density per hectare (to compare with literature)
+# Original stem density from SAFE census data was 559 per hectare
+# Rounding upwards results in an overestimate of 20-25 trees per hectare
+
+sum(data_taxa$plant_cohorts_n)
+sum(data_taxa$plant_cohorts_n_corrected)
+
+# Save cohort distribution on a per hectare basis
+
+write.csv(
+  data_taxa,
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv", # nolint
   row.names = FALSE
 )
 
@@ -377,7 +524,6 @@ names(data)
 
 data$Block <- as.factor(data$Block)
 data$PlotID <- as.factor(data$PlotID)
-data$PFT_final <- as.factor(data$PFT_final)
 
 plots <- unique(data$PlotID)
 plots
@@ -390,7 +536,7 @@ nrow(data) / (25 * 25 * 27) * 10000 # average stem density per hectare
 # Plots
 
 # Plot using OG1, OG2 and OG3 - split up per Block (expressed as proportion %)
-ggplot(data, aes(x = Block, fill = PFT_final)) +
+ggplot(data, aes(x = Block, fill = PFT_name)) +
   geom_bar(position = "fill") + # Normalizes counts within each PlotID
   scale_y_continuous(labels = scales::percent_format()) + # Shows y-axis as percentages
   labs(
@@ -402,7 +548,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but absolute stack
-ggplot(data, aes(x = Block, fill = PFT_final)) +
+ggplot(data, aes(x = Block, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Block by PFT",
@@ -413,7 +559,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but bars not stacked
-ggplot(data, aes(x = Block, fill = PFT_final)) + # Use PFT to differentiate the bars
+ggplot(data, aes(x = Block, fill = PFT_name)) + # Use PFT to differentiate the bars
   geom_bar(stat = "count", position = "dodge") +
   labs(
     title = "Number of Trees per Block by PFT",
@@ -426,7 +572,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) + # Use PFT to differentiate the 
 ##########
 
 # Plot using OG1, OG2 and OG3 - split up per PlotID (expressed as proportion %)
-ggplot(data, aes(x = PlotID, fill = PFT_final)) +
+ggplot(data, aes(x = PlotID, fill = PFT_name)) +
   geom_bar(position = "fill") + # Normalizes counts within each PlotID
   scale_y_continuous(labels = scales::percent_format()) + # Shows y-axis as percentages
   labs(
@@ -438,7 +584,7 @@ ggplot(data, aes(x = PlotID, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but absolute stack
-ggplot(data, aes(x = PlotID, fill = PFT_final)) +
+ggplot(data, aes(x = PlotID, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Plot by PFT",
@@ -454,7 +600,7 @@ ggplot(data, aes(x = PlotID, fill = PFT_final)) +
 
 names(data)
 
-ggplot(data, aes(x = DBH_class, fill = PFT_final)) +
+ggplot(data, aes(x = DBH_class, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Plot by PFT",
