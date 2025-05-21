@@ -466,25 +466,179 @@ summary$NP_leaf_mean_SD[summary$PFT == "4"] <-
 
 ################################################################################
 
-# Root stoichiometry
+# Propagule reproductive tissue stoichiometry (fruits and seeds)
 
+# The first approach is to use the data from Kitayama et al., 2015
+# Here they provide element concentrations for fruits/flowers combined
+# for a range of forests on Mount Kinabalu, Borneo
 
+kitayama_litter_stoichiometry <- read_excel(
+  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx", # nolint
+  sheet = "Sheet1",
+  col_names = FALSE
+)
+
+colnames(kitayama_litter_stoichiometry) <- kitayama_litter_stoichiometry[2, ]
+
+kitayama_litter_stoichiometry_C <- kitayama_litter_stoichiometry[c(28:36), c(1, 2, 3)] # nolint
+colnames(kitayama_litter_stoichiometry_C) <- c("site", "leaf_C", "reproductive_organ_C") # nolint
+kitayama_litter_stoichiometry_N <- kitayama_litter_stoichiometry[c(15:23), c(1, 2, 3)] # nolint
+colnames(kitayama_litter_stoichiometry_N) <- c("site", "leaf_N", "reproductive_organ_N") # nolint
+kitayama_litter_stoichiometry_P <- kitayama_litter_stoichiometry[c(3:11), c(1, 2, 3)] # nolint
+colnames(kitayama_litter_stoichiometry_P) <- c("site", "leaf_P", "reproductive_organ_P") # nolint
+
+# Merge together
+
+kitayama_litter_stoichiometry <- kitayama_litter_stoichiometry_C %>%
+  left_join(kitayama_litter_stoichiometry_N, by = "site") %>%
+  left_join(kitayama_litter_stoichiometry_P, by = "site")
+
+kitayama_litter_stoichiometry$leaf_C <-
+  as.numeric(kitayama_litter_stoichiometry$leaf_C)
+kitayama_litter_stoichiometry$reproductive_organ_C <-
+  as.numeric(kitayama_litter_stoichiometry$reproductive_organ_C)
+kitayama_litter_stoichiometry$leaf_N <-
+  as.numeric(kitayama_litter_stoichiometry$leaf_N)
+kitayama_litter_stoichiometry$reproductive_organ_N <-
+  as.numeric(kitayama_litter_stoichiometry$reproductive_organ_N)
+kitayama_litter_stoichiometry$leaf_P <-
+  as.numeric(kitayama_litter_stoichiometry$leaf_P)
+kitayama_litter_stoichiometry$reproductive_organ_P <-
+  as.numeric(kitayama_litter_stoichiometry$reproductive_organ_P)
+
+# Calculate stoichiometric ratios
+# Note that leaf stoichiometry is also calculated here, so that it can be
+# compared with our other measure of leaf stoichiometry
+
+kitayama_litter_stoichiometry$reproductive_organ_CN <-
+  kitayama_litter_stoichiometry$reproductive_organ_C / kitayama_litter_stoichiometry$reproductive_organ_N # nolint
+kitayama_litter_stoichiometry$reproductive_organ_CP <-
+  kitayama_litter_stoichiometry$reproductive_organ_C / kitayama_litter_stoichiometry$reproductive_organ_P # nolint
+
+kitayama_litter_stoichiometry$leaf_CN <-
+  kitayama_litter_stoichiometry$leaf_C / kitayama_litter_stoichiometry$leaf_N
+kitayama_litter_stoichiometry$leaf_CP <-
+  kitayama_litter_stoichiometry$leaf_C / kitayama_litter_stoichiometry$leaf_P
+
+# Note that values for leaf stoichiometry are higher than our PFT specific ratios
+
+# Here is where we'd need to make a choice on which plots to use from Kitayama
+# They have sedimentary sites (S-XX), ultrabasic sites (U-XX)
+# and quaternary sedimentary sites (Q-XX)
+# The number (XX) stands for the plot elevation
+
+# Overall mean
+mean(kitayama_litter_stoichiometry$reproductive_organ_CN)
+mean(kitayama_litter_stoichiometry$reproductive_organ_CP)
+
+# Below I take the average of "hill dipterocarp rain forest", "lower montane
+# rain forest" and "upper montane rain forest", both on the sedimentary and
+# ultrabasic sites
+
+mean(
+  kitayama_litter_stoichiometry$reproductive_organ_CN[
+    kitayama_litter_stoichiometry$site %in%
+      c("S-700", "S-1700", "S-2700", "U-700", "U-1700", "U-2700")
+  ]
+)
+mean(
+  kitayama_litter_stoichiometry$reproductive_organ_CP[
+    kitayama_litter_stoichiometry$site %in%
+      c("S-700", "S-1700", "S-2700", "U-700", "U-1700", "U-2700")
+  ]
+)
+
+# Add to summary
+
+summary$reproductive_organ_CN <-
+  mean(
+    kitayama_litter_stoichiometry$reproductive_organ_CN[
+      kitayama_litter_stoichiometry$site %in%
+        c("S-700", "S-1700", "S-2700", "U-700", "U-1700", "U-2700")
+    ]
+  )
+summary$reproductive_organ_CP <-
+  mean(
+    kitayama_litter_stoichiometry$reproductive_organ_CP[
+      kitayama_litter_stoichiometry$site %in%
+        c("S-700", "S-1700", "S-2700", "U-700", "U-1700", "U-2700")
+    ]
+  )
+
+###
+
+# The second approach is to use the data from Ichie et al., 2005
+
+# This paper does not have supplementary information, so I extract the data manually
+# from the paper (DOI: https://doi.org/10.1017/S0266467404002214)
+# The paper focuses on one species (Dipterocarpus tempehes) and has detailed
+# info on mass, number and stoichiometry for different developmental stages of
+# reproductive tissues. The advantage here is that they separate fruits and flowers
+# To calculate fruit stoichiometric ratios, the values for mature fruit are used
+
+mature_fruit_C_percentage <- 50.62 # mean with SD of 0.44 # nolint
+mature_fruit_N_percentage <- 0.79 # mean with SD of 0.14 # nolint
+mature_fruit_P_percentage <- 0.61 # mean with SD of 0.11 # nolint
+
+mature_fruit_CN <- mature_fruit_C_percentage / mature_fruit_N_percentage # nolint
+mature_fruit_CP <- mature_fruit_C_percentage / mature_fruit_P_percentage # nolint
+
+# Note that the CP ratio here is much lower than the one by Kitayama
+
+# Add to summary
+
+summary$mature_fruit_CN <- mature_fruit_CN
+summary$mature_fruit_CP <- mature_fruit_CP
+
+###
+
+# Thoughts om both approaches:
+# There seems to be quite a large difference in the CP ratio between the two
+# approaches, and I'm not sure which one is the best
+# Also, when comparing Kitayama values for leaf stoichiometry with our PFT values,
+# Kitayama values appear to be quite a bit higher
+# The one based on Kitayama is more general (i.e., different species and sites)
+# but is less detailed than the one based on Ichie with regards to different
+# tissue types
+
+# Also worth noting is that Kitayama's data also has measurements of litterfall
+# of leaf and reproductive tissues, so this could be used to define the ratio
+# between foliage mass and reproductive tissue mass (being a proxy, as it refers
+# to litterfall and does not work on carbon mass basis, so doesn't account for
+# differences in fresh:dry weight for leaves/reproductive tissues)
+# Because of this, it may be better to choose Kitayama derived stoichiometric
+# values for reproductive tissue (and not use the ones derived from Ichie)
+
+# Note that we'll likely use Ichie to determine the ratio between non-propagule
+# and propagule mass
 
 ################################################################################
 
-# Flower stoichiometry
+# Non-propagule reproductive tissue stoichiometry (flowers)
 
+# For flowers I used the same approach as described for fruit stoichiometry above
+# i.e., based on the data from Ichie et al., 2005
+# To calculate flower stoichiometry, the following tissue stages are averaged:
+# flower bud, corolla appearing from flower bud, just before flowering, open flower
 
+flower_C_percentage <- (49.16 + 49.42 + 49.13 + 48.71) / 4 # See paper for SD # nolint
+flower_N_percentage <- (0.86 + 1.11 + 0.92 + 1.11) / 4 # See paper for SD # nolint
+flower_P_percentage <- (0.88 + 1.05 + 0.84 + 0.85) / 4 # See paper for SD # nolint
+
+flower_CN <- flower_C_percentage / flower_N_percentage # nolint
+flower_CP <- flower_C_percentage / flower_P_percentage # nolint
+
+# Note that the CP ratio here is also much lower than the one by Kitayama
+
+# Add to summary
+
+summary$flower_CN <- flower_CN
+summary$flower_CP <- flower_CP
 
 ################################################################################
 
-# Seed stoichiometry
+# Fine root stoichiometry
 
-
-
-################################################################################
-
-# Fruit stoichiometry
 
 
 
@@ -494,23 +648,13 @@ summary$NP_leaf_mean_SD[summary$PFT == "4"] <-
 
 names(summary)
 summary <- summary[, c(
-  1, 2, 4:15
+  1, 2, 4, 6, 10, 12, 16:21
 )]
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary) # nolint
 
-summary$CN_sapwood_mean <- as.numeric(summary$CN_sapwood_mean)
-summary$CN_sapwood_mean_SD <- as.numeric(summary$CN_sapwood_mean_SD)
-summary$CP_sapwood_mean <- as.numeric(summary$CP_sapwood_mean)
-summary$CP_sapwood_mean_SD <- as.numeric(summary$CP_sapwood_mean_SD)
-summary$NP_sapwood_mean <- as.numeric(summary$NP_sapwood_mean)
-summary$NP_sapwood_mean_SD <- as.numeric(summary$NP_sapwood_mean_SD)
 summary$CN_leaf_mean <- as.numeric(summary$CN_leaf_mean)
-summary$CN_leaf_mean_SD <- as.numeric(summary$CN_leaf_mean_SD)
 summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
-summary$CP_leaf_mean_SD <- as.numeric(summary$CP_leaf_mean_SD)
-summary$NP_leaf_mean <- as.numeric(summary$NP_leaf_mean)
-summary$NP_leaf_mean_SD <- as.numeric(summary$NP_leaf_mean_SD)
 
 # Write CSV file
 
