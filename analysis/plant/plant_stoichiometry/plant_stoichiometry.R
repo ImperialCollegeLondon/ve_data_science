@@ -123,7 +123,6 @@ data <- data[data$P_total != 0, ]
 
 data$CN <- data$C_total / data$N_total
 data$CP <- data$C_total / data$P_total
-data$NP <- data$N_total / data$P_total
 
 ##########
 
@@ -132,7 +131,7 @@ data$NP <- data$N_total / data$P_total
 # Mean sapwood stoichiometry
 # (other tissues: "Bark" "Sapwood" "Heartwood" "Wood" "WoodAndBark")
 
-temp <- data[, c("species", "TissueType", "CN", "CP", "NP")]
+temp <- data[, c("species", "TissueType", "CN", "CP")]
 temp <- temp[temp$TissueType == "Sapwood", ]
 
 temp <- temp %>%
@@ -145,30 +144,20 @@ temp <- temp %>%
   mutate(CP_sapwood = mean(as.numeric(CP), na.rm = TRUE)) %>%
   ungroup()
 
-temp <- temp %>%
-  group_by(species) %>%
-  mutate(NP_sapwood = mean(as.numeric(NP), na.rm = TRUE)) %>%
-  ungroup()
-
-temp <- temp[, c("species", "TissueType", "CN_sapwood", "CP_sapwood", "NP_sapwood")]
+temp <- temp[, c("species", "TissueType", "CN_sapwood", "CP_sapwood")]
 temp <- unique(temp)
 
 mean(temp$CN_sapwood)
 sd(temp$CN_sapwood)
 mean(temp$CP_sapwood)
 sd(temp$CP_sapwood)
-mean(temp$NP_sapwood)
-sd(temp$NP_sapwood)
 
 data$CN_mean[data$TissueType == "Sapwood"] <- mean(temp$CN_sapwood)
 data$CN_mean_SD[data$TissueType == "Sapwood"] <- sd(temp$CN_sapwood)
 data$CP_mean[data$TissueType == "Sapwood"] <- mean(temp$CP_sapwood)
 data$CP_mean_SD[data$TissueType == "Sapwood"] <- sd(temp$CP_sapwood)
-data$NP_mean[data$TissueType == "Sapwood"] <- mean(temp$NP_sapwood)
-data$NP_mean_SD[data$TissueType == "Sapwood"] <- sd(temp$NP_sapwood)
 
-# Check with David which other tissue types need stoichiometric ratio's
-# Can repeat code above for other tissues
+# Can repeat code above for additional tissues
 
 # Create summary file, based on data_taxa and add stoichiometric ratios to it
 
@@ -180,8 +169,6 @@ summary$CN_sapwood_mean <- NA
 summary$CN_sapwood_mean_SD <- NA
 summary$CP_sapwood_mean <- NA
 summary$CP_sapwood_mean_SD <- NA
-summary$NP_sapwood_mean <- NA
-summary$NP_sapwood_mean_SD <- NA
 
 summary$CN_sapwood_mean <-
   round(unique(data$CN_mean[data$TissueType == "Sapwood"]), 2)
@@ -191,10 +178,6 @@ summary$CP_sapwood_mean <-
   round(unique(data$CP_mean[data$TissueType == "Sapwood"]), 2)
 summary$CP_sapwood_mean_SD <-
   round(unique(data$CP_mean_SD[data$TissueType == "Sapwood"]), 2)
-summary$NP_sapwood_mean <-
-  round(unique(data$NP_mean[data$TissueType == "Sapwood"]), 2)
-summary$NP_sapwood_mean_SD <-
-  round(unique(data$NP_mean_SD[data$TissueType == "Sapwood"]), 2)
 
 ################################################################################
 
