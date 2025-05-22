@@ -212,17 +212,43 @@ data <- data[, c(1:9, 86, 10:85)]
 
 names(data)
 temp <- data[
-  , c("species", "C_perc", "N_perc", "total_P_mg.g", "lignin_recalcitrants_perc")
+  , c(
+    "species", "C_perc", "N_perc", "total_P_mg.g",
+    "lignin_recalcitrants_perc", "dry_weight_g_mean"
+  )
 ]
-colnames(temp) <- c("species", "C_total", "N_total", "P_total", "lignin")
+colnames(temp) <- c(
+  "species", "C_total", "N_total", "P_total",
+  "lignin", "dry_weight"
+)
 
 temp$C_total <- as.numeric(temp$C_total)
 temp$N_total <- as.numeric(temp$N_total)
 temp$P_total <- as.numeric(temp$P_total)
 temp$lignin <- as.numeric(temp$lignin)
+temp$dry_weight <- as.numeric(temp$dry_weight)
 
-temp$P_total <- temp$P_total * 0.1
 # Convert to % in order to match unit of C_total and N_total
+temp$P_total <- temp$P_total * 0.1
+
+###
+
+# Convert leaf lignin content from dry weight basis to carbon basis
+# According to Muddasar et al., 2024 (https://doi.org/10.1016/j.mtsust.2024.100990)
+# lignin has 60-65% carbon content (average = 62.5%)
+# So, first convert lignin content from dry weight to carbon weight
+# Then calculate lignin carbon mass using 62.5% lignin carbon content
+
+temp$lignin_g <- (temp$lignin / 100) * temp$dry_weight
+temp$lignin_C_g <- temp$lignin_g * 0.625
+temp$leaf_C_g <- (temp$C_total / 100) * temp$dry_weight
+temp$lignin_C_of_leaf_C <- (temp$lignin_C_g / temp$leaf_C_g) * 100
+
+# Use lignin_C_of_leaf_C as the new lignin content
+temp$lignin <- temp$lignin_C_of_leaf_C
+temp <- temp[, c(1:5)]
+
+###
 
 temp <- na.omit(temp)
 
