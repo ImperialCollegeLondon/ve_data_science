@@ -181,7 +181,7 @@ summary$CP_sapwood_mean_SD <-
 
 ################################################################################
 
-# Leaf stoichiometry
+# Leaf stoichiometry and lignin content
 
 both_tree_functional_traits <- read_excel(
   "../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
@@ -211,12 +211,15 @@ data <- data[, c(1:9, 86, 10:85)]
 ##########
 
 names(data)
-temp <- data[, c("species", "C_perc", "N_perc", "total_P_mg.g")]
-colnames(temp) <- c("species", "C_total", "N_total", "P_total")
+temp <- data[
+  , c("species", "C_perc", "N_perc", "total_P_mg.g", "lignin_recalcitrants_perc")
+]
+colnames(temp) <- c("species", "C_total", "N_total", "P_total", "lignin")
 
 temp$C_total <- as.numeric(temp$C_total)
 temp$N_total <- as.numeric(temp$N_total)
 temp$P_total <- as.numeric(temp$P_total)
+temp$lignin <- as.numeric(temp$lignin)
 
 temp$P_total <- temp$P_total * 0.1
 # Convert to % in order to match unit of C_total and N_total
@@ -225,9 +228,8 @@ temp <- na.omit(temp)
 
 temp$CN_leaf <- temp$C_total / temp$N_total
 temp$CP_leaf <- temp$C_total / temp$P_total
-temp$NP_leaf <- temp$N_total / temp$P_total
 
-# Mean leaf stoichiometry
+# Mean leaf stoichiometry and lignin content
 
 temp <- temp %>%
   group_by(species) %>%
@@ -241,22 +243,22 @@ temp <- temp %>%
 
 temp <- temp %>%
   group_by(species) %>%
-  mutate(NP_leaf_mean = mean(as.numeric(NP_leaf), na.rm = TRUE)) %>%
+  mutate(lignin_leaf_mean = mean(as.numeric(lignin), na.rm = TRUE)) %>%
   ungroup()
 
-temp <- temp[, c("species", "CN_leaf_mean", "CP_leaf_mean", "NP_leaf_mean")]
+temp <- temp[, c("species", "CN_leaf_mean", "CP_leaf_mean", "lignin_leaf_mean")]
 temp <- unique(temp)
 
 data$CN_leaf_mean <- NA
 data$CP_leaf_mean <- NA
-data$NP_leaf_mean <- NA
+data$lignin_leaf_mean <- NA
 
 leaf_ratios <- unique(temp$species)
 
 for (id in leaf_ratios) {
   data$CN_leaf_mean[data$species == id] <- temp$CN_leaf_mean[temp$species == id]
   data$CP_leaf_mean[data$species == id] <- temp$CP_leaf_mean[temp$species == id]
-  data$NP_leaf_mean[data$species == id] <- temp$NP_leaf_mean[temp$species == id]
+  data$lignin_leaf_mean[data$species == id] <- temp$lignin_leaf_mean[temp$species == id]
 }
 
 # Because the ratios are calculated for each species, this allows calculation of
@@ -268,7 +270,7 @@ for (id in leaf_ratios) {
 
 mean(temp$CN_leaf_mean)
 mean(temp$CP_leaf_mean)
-mean(temp$NP_leaf_mean)
+mean(temp$lignin_leaf_mean)
 
 ##########
 
@@ -298,7 +300,7 @@ names(data)
 plot_data <- data[, c(
   "location", "forest_type", "sample_code", "PFT",
   "PFT_name", "species", "CN_leaf_mean", "CP_leaf_mean",
-  "NP_leaf_mean"
+  "lignin_leaf_mean"
 )]
 plot_data <- na.omit(plot_data)
 unique(plot_data$PFT)
@@ -405,55 +407,55 @@ summary$CP_leaf_mean[summary$PFT == "4"] <-
 summary$CP_leaf_mean_SD[summary$PFT == "4"] <-
   round(summary_stats[4, "SD_CP_leaf_mean"], 2)
 
-# NP_leaf_mean
+# lignin_leaf_mean
 
 ggplot(plot_data, aes(
   x = sample_code,
-  y = NP_leaf_mean, color = as.factor(PFT)
+  y = lignin_leaf_mean, color = as.factor(PFT)
 )) +
   geom_point() +
-  labs(x = "Individual", y = "NP_leaf_mean") +
+  labs(x = "Individual", y = "lignin_leaf_mean") +
   theme_minimal()
 
 ggplot(plot_data, aes(
-  x = as.factor(PFT), y = NP_leaf_mean,
+  x = as.factor(PFT), y = lignin_leaf_mean,
   color = as.factor(forest_type)
 )) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
-  labs(x = "PFT", y = "NP_leaf_mean") +
+  labs(x = "PFT", y = "lignin_leaf_mean") +
   theme_minimal()
 
 summary_stats <- plot_data %>%
   group_by(PFT) %>%
   summarise(
-    Mean_NP_leaf_mean = mean(NP_leaf_mean, na.rm = TRUE),
-    SD_NP_leaf_mean = sd(NP_leaf_mean, na.rm = TRUE)
+    Mean_lignin_leaf_mean = mean(lignin_leaf_mean, na.rm = TRUE),
+    SD_lignin_leaf_mean = sd(lignin_leaf_mean, na.rm = TRUE)
   )
 
 print(summary_stats) # Mean across all species was 19.65
 
 # Write to summary
 
-summary$NP_leaf_mean <- NA
-summary$NP_leaf_mean_SD <- NA
+summary$lignin_leaf_mean <- NA
+summary$lignin_leaf_mean_SD <- NA
 
-summary$NP_leaf_mean[summary$PFT == "1"] <-
-  round(summary_stats[1, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "1"] <-
-  round(summary_stats[1, "SD_NP_leaf_mean"], 2)
-summary$NP_leaf_mean[summary$PFT == "2"] <-
-  round(summary_stats[2, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "2"] <-
-  round(summary_stats[2, "SD_NP_leaf_mean"], 2)
-summary$NP_leaf_mean[summary$PFT == "3"] <-
-  round(summary_stats[3, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "3"] <-
-  round(summary_stats[3, "SD_NP_leaf_mean"], 2)
-summary$NP_leaf_mean[summary$PFT == "4"] <-
-  round(summary_stats[4, "Mean_NP_leaf_mean"], 2)
-summary$NP_leaf_mean_SD[summary$PFT == "4"] <-
-  round(summary_stats[4, "SD_NP_leaf_mean"], 2)
+summary$lignin_leaf_mean[summary$PFT == "1"] <-
+  round(summary_stats[1, "Mean_lignin_leaf_mean"], 2)
+summary$lignin_leaf_mean_SD[summary$PFT == "1"] <-
+  round(summary_stats[1, "SD_lignin_leaf_mean"], 2)
+summary$lignin_leaf_mean[summary$PFT == "2"] <-
+  round(summary_stats[2, "Mean_lignin_leaf_mean"], 2)
+summary$lignin_leaf_mean_SD[summary$PFT == "2"] <-
+  round(summary_stats[2, "SD_lignin_leaf_mean"], 2)
+summary$lignin_leaf_mean[summary$PFT == "3"] <-
+  round(summary_stats[3, "Mean_lignin_leaf_mean"], 2)
+summary$lignin_leaf_mean_SD[summary$PFT == "3"] <-
+  round(summary_stats[3, "SD_lignin_leaf_mean"], 2)
+summary$lignin_leaf_mean[summary$PFT == "4"] <-
+  round(summary_stats[4, "Mean_lignin_leaf_mean"], 2)
+summary$lignin_leaf_mean_SD[summary$PFT == "4"] <-
+  round(summary_stats[4, "SD_lignin_leaf_mean"], 2)
 
 ################################################################################
 
@@ -646,6 +648,7 @@ rownames(summary) <- 1:nrow(summary) # nolint
 
 summary$CN_leaf_mean <- as.numeric(summary$CN_leaf_mean)
 summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
+summary$lignin_leaf_mean <- as.numeric(summary$lignin_leaf_mean)
 
 # Write CSV file
 
