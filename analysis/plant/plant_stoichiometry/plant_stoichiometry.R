@@ -656,8 +656,21 @@ summary$flower_CP <- flower_CP
 
 # Fine root stoichiometry
 
+# Fine root stoichiometry is obtained from Imai et al., 2010
+# (https://doi.org/10.1017/S0266467410000350)
+# These data are for mixed dipterocarp lowland tropical rain forest in Sabah
 
+fine_root_C_percentage <- 45.2 # SD = 4.4 # nolint
+fine_root_N_percentage <- 1.38 # SD = 0.32 # nolint
+fine_root_P_percentage <- 0.052 # SD = 0.004 # nolint
 
+fine_root_CN <- fine_root_C_percentage / fine_root_N_percentage # nolint
+fine_root_CP <- fine_root_C_percentage / fine_root_P_percentage # nolint
+
+# Add to summary
+
+summary$fine_root_CN <- fine_root_CN
+summary$fine_root_CP <- fine_root_CP
 
 ################################################################################
 
