@@ -459,7 +459,7 @@ summary_stats <- plot_data %>%
     SD_lignin_leaf_mean = sd(lignin_leaf_mean, na.rm = TRUE)
   )
 
-print(summary_stats) # Mean across all species was 19.65
+print(summary_stats) # Mean across all species was 25.08
 
 # Write to summary
 
@@ -544,7 +544,7 @@ kitayama_litter_stoichiometry$leaf_CP <-
 # Here is where we'd need to make a choice on which plots to use from Kitayama
 # They have sedimentary sites (S-XX), ultrabasic sites (U-XX)
 # and quaternary sedimentary sites (Q-XX)
-# The number (XX) stands for the plot elevation
+# The number (XX) stands for the plot elevation (i.e., altitude; m)
 
 # Overall mean
 mean(kitayama_litter_stoichiometry$reproductive_organ_CN)
@@ -620,11 +620,9 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # but is less detailed than the one based on Ichie with regards to different
 # tissue types
 
-# Also worth noting is that Kitayama's data also has measurements of litterfall
-# of leaf and reproductive tissues, so this could be used to define the ratio
-# between foliage mass and reproductive tissue mass (being a proxy, as it refers
-# to litterfall and does not work on carbon mass basis, so doesn't account for
-# differences in fresh:dry weight for leaves/reproductive tissues)
+# Worth noting is that Kitayama's data has measurements for litterfall of
+# both leaf and reproductive tissues, so this could be used to define the ratio
+# between foliage mass and reproductive tissue mass (see SI for carbon mass)
 # Because of this, it may be better to choose Kitayama derived stoichiometric
 # values for reproductive tissue (and not use the ones derived from Ichie)
 
@@ -635,7 +633,7 @@ summary$mature_fruit_CP <- mature_fruit_CP
 
 # Non-propagule reproductive tissue stoichiometry (flowers)
 
-# For flowers I used the same approach as described for fruit stoichiometry above
+# For flowers the same approach is used as described for fruit stoichiometry above
 # i.e., based on the data from Ichie et al., 2005
 # To calculate flower stoichiometry, the following tissue stages are averaged:
 # flower bud, corolla appearing from flower bud, just before flowering, open flower
@@ -667,7 +665,7 @@ summary$flower_CP <- flower_CP
 
 names(summary)
 summary <- summary[, c(
-  1, 2, 4, 6, 10, 12, 16:21
+  2, 4, 6, 8, 10, 12, 14:19
 )]
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary) # nolint
