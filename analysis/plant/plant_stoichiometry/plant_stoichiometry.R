@@ -667,10 +667,27 @@ fine_root_P_percentage <- 0.052 # SD = 0.004 # nolint
 fine_root_CN <- fine_root_C_percentage / fine_root_N_percentage # nolint
 fine_root_CP <- fine_root_C_percentage / fine_root_P_percentage # nolint
 
+# Fine root lignin content
+
+# According to White et al., 2000
+# (https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2)
+# the mean fine root lignin content is 22% across all biomes
+# There is a lack of data for this parameter, so we'll use this mean for now
+
+fine_root_lignin_percentage <- 22
+
+# Still need to correct it to go from dry weight to carbon mass
+# We'll use the fine_root_C_percentage (45.2%) from Imai et al., 2010 (see above)
+# We'll also use 62.5% carbon content (Muddasar et al., 2024)
+
+lignin_C_percentage <- fine_root_lignin_percentage * 0.625 # nolint
+fine_root_lignin_C_of_root_C <- (lignin_C_percentage / 45.2) * 100 # nolint
+
 # Add to summary
 
 summary$fine_root_CN <- fine_root_CN
 summary$fine_root_CP <- fine_root_CP
+summary$fine_root_lignin <- fine_root_lignin_C_of_root_C
 
 ################################################################################
 
