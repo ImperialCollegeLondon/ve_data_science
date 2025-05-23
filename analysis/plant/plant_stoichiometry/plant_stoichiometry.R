@@ -179,6 +179,26 @@ summary$CP_sapwood_mean <-
 summary$CP_sapwood_mean_SD <-
   round(unique(data$CP_mean_SD[data$TissueType == "Sapwood"]), 2)
 
+# Stem lignin content
+
+# According to White et al., 2000
+# (https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2)
+# the mean stem (dead wood) lignin content is 23% for deciduous broadleaf forest
+
+stem_lignin_percentage <- 23
+
+# Still need to correct it to go from dry weight to carbon mass
+# We'll use the mean sapwood carbon content (45.9%) across PFTs
+mean(data$C_total[data$TissueType == "Sapwood"])
+# We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
+
+stem_lignin_C_percentage <- stem_lignin_percentage * 0.625 # nolint
+stem_lignin_C_of_stem_C <- (stem_lignin_C_percentage / 45.9) * 100 # nolint
+
+# Add to summary
+
+summary$stem_lignin <- stem_lignin_C_of_stem_C
+
 ################################################################################
 
 # Leaf stoichiometry and lignin content
@@ -678,7 +698,7 @@ fine_root_lignin_percentage <- 22
 
 # Still need to correct it to go from dry weight to carbon mass
 # We'll use the fine_root_C_percentage (45.2%) from Imai et al., 2010 (see above)
-# We'll also use 62.5% carbon content (Muddasar et al., 2024)
+# We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
 
 lignin_C_percentage <- fine_root_lignin_percentage * 0.625 # nolint
 fine_root_lignin_C_of_root_C <- (lignin_C_percentage / 45.2) * 100 # nolint
@@ -695,7 +715,7 @@ summary$fine_root_lignin <- fine_root_lignin_C_of_root_C
 
 names(summary)
 summary <- summary[, c(
-  2, 4, 6, 8, 10, 12, 14:19
+  2, 4, 6, 8, 9, 11, 13, 15:23
 )]
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary) # nolint
