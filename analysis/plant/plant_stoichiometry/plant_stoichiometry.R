@@ -608,8 +608,8 @@ summary$reproductive_organ_CP <-
 
 # The second approach is to use the data from Ichie et al., 2005
 
-# This paper does not have supplementary information, so I extract the data manually
-# from the paper (DOI: https://doi.org/10.1017/S0266467404002214)
+# The Ichie paper does not have supplementary information, so I extract the data
+# manually from the paper (DOI: https://doi.org/10.1017/S0266467404002214)
 # The paper focuses on one species (Dipterocarpus tempehes) and has detailed
 # info on mass, number and stoichiometry for different developmental stages of
 # reproductive tissues. The advantage here is that they separate fruits and flowers
@@ -648,6 +648,15 @@ summary$mature_fruit_CP <- mature_fruit_CP
 
 # Note that we'll likely use Ichie to determine the ratio between non-propagule
 # and propagule mass
+
+# Add propagule carbon mass based on dry weight and C mass % from Ichie
+
+mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98
+mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100 # nolint
+
+# Add to summary
+
+summary$mature_fruit_C_mass <- mature_fruit_C_mass
 
 ################################################################################
 
