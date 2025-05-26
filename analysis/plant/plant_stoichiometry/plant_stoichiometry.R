@@ -649,14 +649,37 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # Note that we'll likely use Ichie to determine the ratio between non-propagule
 # and propagule mass
 
-# Add propagule carbon mass based on dry weight and C mass % from Ichie
+# Add mature fruit and seed carbon mass based on:
+# mature fruit C mass % of Dipterocarpus tempehes from Ichie
+# mature fruit dry weight of Dipterocarpus tempehes from Ichie
+# seed dry weight of Dipterocarpus tempehes from Nakagawa and Nakashizuka (2004)
 
-mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98
+mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98 (see Ichie)
 mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100 # nolint
+
+seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
+seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100 # nolint
+
+# Add seed lignin content (the percentage of reproductive tissue that is lignin)
+
+# Convert seed lignin content from dry weight basis to carbon basis
+# According to Muddasar et al., 2024 (https://doi.org/10.1016/j.mtsust.2024.100990)
+# lignin has 60-65% carbon content (average = 62.5%)
+# So, first convert lignin content from dry weight to carbon weight
+# Then calculate lignin carbon mass using 62.5% lignin carbon content
+
+seed_lignin_percentage <- 14.4 # with SD of 3.2 (see Nakagawa and Nakashizuka)
+
+seed_lignin_g <- (seed_lignin_percentage / 100) * seed_dry_mass
+seed_lignin_C_g <- seed_lignin_g * 0.625 # nolint
+seed_C_g <- (mature_fruit_C_percentage / 100) * seed_dry_mass # nolint
+lignin_C_of_seed_C <- (seed_lignin_C_g / seed_C_g) * 100 # nolint
 
 # Add to summary
 
 summary$mature_fruit_C_mass <- mature_fruit_C_mass
+summary$seed_C_mass <- seed_C_mass
+summary$seed_lignin <- lignin_C_of_seed_C
 
 ################################################################################
 
@@ -727,7 +750,7 @@ summary <- backup
 
 names(summary)
 summary <- summary[, c(
-  2, 4, 6, 8, 9, 11, 13, 15:24
+  2, 4, 6, 8, 9, 11, 13, 15:26
 )]
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary) # nolint
