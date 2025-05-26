@@ -653,6 +653,7 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # mature fruit C mass % of Dipterocarpus tempehes from Ichie
 # mature fruit dry weight of Dipterocarpus tempehes from Ichie
 # seed dry weight of Dipterocarpus tempehes from Nakagawa and Nakashizuka (2004)
+# (DOI https://doi.org/10.1079/SSR2004181)
 
 mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98 (see Ichie)
 mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100 # nolint
