@@ -722,9 +722,12 @@ summary$fine_root_lignin <- fine_root_lignin_C_of_root_C
 
 # Clean up summary
 
+backup <- summary
+summary <- backup
+
 names(summary)
 summary <- summary[, c(
-  2, 4, 6, 8, 9, 11, 13, 15:23
+  2, 4, 6, 8, 9, 11, 13, 15:24
 )]
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary) # nolint
