@@ -288,3 +288,68 @@ mean(dent_data$reproductive_to_leaf_ratio) # seems rather low compared to rest
 # Calculating the ratio between propagule and non propagule carbon mass
 
 # Approach 1: Ichie et al. (2005; DOI https://www.jstor.org/stable/4092073)
+# Summarise all tissues belonging to flowers, and all tissues belonging to fruits
+# Correct the dry weight mass for % C content first
+# Then calculate the ratio
+
+# Extract data from paper (Table 2; SD is available)
+ichie_data <- data.frame(
+  tissue_type = c("flower"),
+  developmental_stage = c("flower bud"),
+  dry_mass = c(0.08),
+  carbon_percentage = c(49.16),
+  litter_mass = c(6.5),
+  live_organ_mass = c(24.0)
+)
+
+ichie_data[2, ] <-
+  c("flower", "corolla appearing from flower bud", 0.13, 49.42, 0.8, 28.3)
+ichie_data[3, ] <-
+  c("flower", "just before flowering", 0.16, 49.13, 2.9, 34.4)
+ichie_data[4, ] <-
+  c("flower", "open flower", 0.17, 48.71, 19.9, 32)
+ichie_data[5, ] <-
+  c("fruit", "immature fruit 0 1 cm", 0.17, 49.74, 3.0, 12.5)
+ichie_data[6, ] <-
+  c("fruit", "immature fruit 1 2 cm", 0.65, 51.01, 8.3, 36)
+ichie_data[7, ] <-
+  c("fruit", "mature fruit 2 cm", 8.04, 50.62, 345.5, 345.5)
+
+ichie_data$dry_mass <- as.numeric(ichie_data$dry_mass)
+ichie_data$carbon_percentage <- as.numeric(ichie_data$carbon_percentage)
+ichie_data$litter_mass <- as.numeric(ichie_data$litter_mass)
+ichie_data$live_organ_mass <- as.numeric(ichie_data$live_organ_mass)
+
+ichie_data$litter_carbon_mass <-
+  ichie_data$litter_mass * (ichie_data$carbon_percentage / 100)
+ichie_data$live_organ_carbon_mass <-
+  ichie_data$live_organ_mass * (ichie_data$carbon_percentage / 100)
+
+ichie_data$flower_litter_carbon_mass <-
+  sum(ichie_data$litter_carbon_mass[ichie_data$tissue_type == "flower"])
+ichie_data$fruit_litter_carbon_mass <-
+  sum(ichie_data$litter_carbon_mass[ichie_data$tissue_type == "fruit"])
+
+ichie_data$flower_live_organ_carbon_mass <-
+  sum(ichie_data$live_organ_carbon_mass[ichie_data$tissue_type == "flower"])
+ichie_data$fruit_live_organ_carbon_mass <-
+  sum(ichie_data$live_organ_carbon_mass[ichie_data$tissue_type == "fruit"])
+
+# Calculate ratio (i.e., which percentage is flowers, which is fruits)
+
+ichie_data$flower_allocation_litter <-
+  ichie_data$flower_litter_carbon_mass /
+    (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass) # nolint
+ichie_data$fruit_allocation_litter <-
+  ichie_data$fruit_litter_carbon_mass /
+    (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass) # nolint
+
+ichie_data$flower_allocation_live_organ <-
+  ichie_data$flower_live_organ_carbon_mass /
+    (ichie_data$flower_live_organ_carbon_mass + ichie_data$fruit_live_organ_carbon_mass) # nolint
+ichie_data$fruit_allocation_live_organ <-
+  ichie_data$fruit_live_organ_carbon_mass /
+    (ichie_data$flower_live_organ_carbon_mass + ichie_data$fruit_live_organ_carbon_mass) # nolint
+
+# Have another look at the paper and see if we want to use the ratio based on
+# litter or live organ
