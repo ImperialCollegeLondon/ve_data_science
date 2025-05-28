@@ -176,6 +176,9 @@ print(kitayama_mean_C_percentage)
 
 data$reproductive_organ_C_perc <- kitayama_mean_C_percentage
 
+# Note that here we could also use the carbon content for reproductive tissues
+# obtained from Aoyagi, which focuses on dipterocarp forests (not montane forests)
+
 #####
 
 # Return to working with data (copy of safe_carbon_balance)
@@ -196,17 +199,28 @@ mean(data$reproductive_to_leaf_ratio_C)
 mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Old-growth"])
 mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Logged"])
 
-# Also calculate the uncorrected ratio to compare if correction matters a lot
-data$reproductive_to_leaf_ratio <-
-  data$CanopyNPP_Reproductive / data$CanopyNPP_Leaf
-
-mean(data$reproductive_to_leaf_ratio)
-mean(data$reproductive_to_leaf_ratio[data$ForestType == "Old-growth"])
-mean(data$reproductive_to_leaf_ratio[data$ForestType == "Logged"])
-
 # Decide which plots to use (logged/unlogged, SAFE, Danum, etc.)
 
 # Create summary and write ratio to summary
+
+summary <- data.frame(
+  approach = c("1"),
+  source = c("safe_carbon_balance_components"),
+  reproductive_to_leaf_ratio_C =
+    mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Old-growth"]),
+  notes =
+    c("old growth, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Kitayama")
+)
+
+summary[2, ] <-
+  c(
+    "1",
+    "safe_carbon_balance_components",
+    mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Logged"]),
+    "selectively logged, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Kitayama"
+  )
 
 #####
 
@@ -245,6 +259,14 @@ kitayama_data$reproductive_to_leaf_ratio <-
 mean(kitayama_data$reproductive_to_leaf_ratio)
 
 # Write ratio to summary
+
+summary[3, ] <-
+  c(
+    "2",
+    "kitayama",
+    mean(kitayama_data$reproductive_to_leaf_ratio),
+    "lower/upper montane rain forests, may need to select specific plots"
+  )
 
 #####
 
@@ -307,6 +329,49 @@ aoyagi_data$reproductive_to_leaf_ratio <-
   aoyagi_data$fruit_and_flower_C_mass / aoyagi_data$leaf_C_mass
 
 # Write ratio to summary
+
+summary[4, ] <-
+  c(
+    "3",
+    "aoyagi",
+    aoyagi_data[1, 10],
+    "aoyagi, dipterocarp forest, mast"
+  )
+summary[5, ] <-
+  c(
+    "3",
+    "aoyagi",
+    aoyagi_data[2, 10],
+    "aoyagi, dipterocarp forest, non-mast"
+  )
+summary[6, ] <-
+  c(
+    "3",
+    "aoyagi",
+    aoyagi_data[3, 10],
+    "kitayama, dipterocarp forest, mast"
+  )
+summary[7, ] <-
+  c(
+    "3",
+    "aoyagi",
+    aoyagi_data[4, 10],
+    "aoyagi, dipterocarp forest, non-mast"
+  )
+summary[8, ] <-
+  c(
+    "3",
+    "aoyagi",
+    aoyagi_data[5, 10],
+    "kitayama, montane forest, mast"
+  )
+summary[9, ] <-
+  c(
+    "3",
+    "aoyagi",
+    aoyagi_data[6, 10],
+    "aoyagi, montane forest, non-mast"
+  )
 
 # Calculate difference mast and non-mast year (for exploration)
 # This could potentially be a way to implement masting into the model
@@ -395,6 +460,21 @@ mean(anderson_data$reproductive_to_leaf_ratio[
 
 # Write ratio to summary
 
+summary[10, ] <-
+  c(
+    "4",
+    "anderson",
+    anderson_data[1, 9],
+    "alluvial forest"
+  )
+summary[11, ] <-
+  c(
+    "4",
+    "anderson",
+    anderson_data[2, 9],
+    "dipterocarp forest"
+  )
+
 #####
 
 # Approach 5: Proctor et al. (1989; DOI https://doi.org/10.2307/2260752)
@@ -428,6 +508,14 @@ proctor_data$reproductive_to_leaf_ratio <-
 mean(proctor_data$reproductive_to_leaf_ratio)
 
 # Write ratio to summary
+
+summary[12, ] <-
+  c(
+    "5",
+    "proctor",
+    mean(proctor_data$reproductive_to_leaf_ratio),
+    "montane forest"
+  )
 
 #####
 
@@ -467,6 +555,14 @@ dent_data$reproductive_to_leaf_ratio <-
 mean(dent_data$reproductive_to_leaf_ratio) # seems rather low compared to rest
 
 # Write ratio to summary
+
+summary[13, ] <-
+  c(
+    "6",
+    "dent",
+    dent_data[1, 8],
+    "alluvial forest"
+  )
 
 ################################################################################
 ################################################################################
@@ -541,3 +637,32 @@ ichie_data$fruit_allocation_live_organ <-
 # litter or live organ
 
 # Write ratio to summary
+
+summary[14, ] <-
+  c(
+    "propagule allocation litter",
+    "ichie",
+    unique(ichie_data$fruit_allocation_litter),
+    "dipterocarp forest"
+  )
+summary[15, ] <-
+  c(
+    "non-propagule allocation litter",
+    "ichie",
+    unique(ichie_data$flower_allocation_litter),
+    "dipterocarp forest"
+  )
+summary[16, ] <-
+  c(
+    "propagule allocation live organ",
+    "ichie",
+    unique(ichie_data$fruit_allocation_live_organ),
+    "dipterocarp forest"
+  )
+summary[17, ] <-
+  c(
+    "non-propagule allocation live organ",
+    "ichie",
+    unique(ichie_data$flower_allocation_live_organ),
+    "dipterocarp forest"
+  )
