@@ -59,7 +59,15 @@ plfa <-
     sheet = 5,
     skip = 9
   ) %>%
-  rename(FBR = `Fungal:Bacteria`) %>%
+  # convert to long-format to model fungi and bacteria as groups
+  select(Plot, location_name, Fungal_PLFA, Bacteria_PLFA) %>%
+  pivot_longer(
+    cols = ends_with("_PLFA"),
+    names_to = "Group",
+    names_pattern = "(.*)_PLFA",
+    values_to = "PLFA"
+  ) %>%
+  mutate(Group = as.factor(Group)) %>%
   # join spatial coordinates and convert to glmmTMB-compatible class
   left_join(coord) %>%
   mutate(
@@ -74,18 +82,23 @@ plfa <-
 # Model -------------------------------------------------------------------
 
 mod <- glmmTMB(
-  FBR ~ 1 + (1 | Plot_ID),
-  family = beta_family(link = "logit"),
+  PLFA ~ 0 + Group + (1 | Plot),
+  dispformula = ~ 0 + Group,
+  family = lognormal(link = "log"),
   data = plfa
 )
 
 summary(mod)
 
 newdat <- data.frame(
-  Plot_ID = NA
+  Group = unique(plfa$Group),
+  Plot = NA
 )
-predict(mod,
-  newdata = newdat,
-  allow.new.levels = TRUE,
-  type = "response"
-)
+yhat <-
+  predict(mod,
+    newdata = newdat,
+    allow.new.levels = TRUE,
+    type = "response",
+    cov.fit = TRUE
+  )
+yhat$fit[1] / yhat$fit[2]
