@@ -1,11 +1,8 @@
 #' ---
-#' title: Descriptive name of the script
+#' title: Estimating fungal-to-bacteria ratio from SAFE data
 #'
 #' description: |
-#'     Brief description of what the script does, its main purpose, and any important
-#'     scientific context. Keep it concise but informative.
-#'
-#'     This can include multiple paragraphs.
+#'     This R script estimates fungal-to-bacteria ratio from SAFE data
 #'
 #' VE_module: Soil
 #'
@@ -15,11 +12,13 @@
 #' status: wip
 #'
 #' input_files:
-#'   - name: Input file name
-#'     path: Full file path on shared drive
+#'   - name: SAFE_Dataset.xlsx
+#'     path: data/primary/soil/fungal_bacteria_ratio
 #'     description: |
-#'       Source (short citation) and a brief explanation of what this input file
-#'       contains and its use case in this script
+#'       Soil and litter chemistry, soil microbial communities and
+#'       litter decomposition from tropical forest and oil palm dataset by
+#'       Elias Dafydd et al. from SAFE; downloaded from
+#'       https://doi.org/10.5281/zenodo.3929632
 #'
 #' output_files:
 #'   - name: Output file name
@@ -29,7 +28,9 @@
 #'       scripts?
 #'
 #' package_dependencies:
-#'     - tools
+#'     - tidyverse
+#'     - readxl
+#'     - glmmTMB
 #'
 #' usage_notes: |
 #'   Any known issues or bugs? Future plans for script/extensions or improvements
@@ -73,9 +74,18 @@ plfa <-
 # Model -------------------------------------------------------------------
 
 mod <- glmmTMB(
-  FBR ~ 1 + exp(pos + 0 | group),
+  FBR ~ 1 + (1 | Plot_ID),
   family = beta_family(link = "logit"),
   data = plfa
 )
 
 summary(mod)
+
+newdat <- data.frame(
+  Plot_ID = NA
+)
+predict(mod,
+  newdata = newdat,
+  allow.new.levels = TRUE,
+  type = "response"
+)
