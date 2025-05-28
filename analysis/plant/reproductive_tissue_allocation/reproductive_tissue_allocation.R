@@ -206,6 +206,8 @@ mean(data$reproductive_to_leaf_ratio[data$ForestType == "Logged"])
 
 # Decide which plots to use (logged/unlogged, SAFE, Danum, etc.)
 
+# Create summary and write ratio to summary
+
 #####
 
 # Approach 2: Kitayama et al. (2015; DOI http://dx.doi.org/10.1111/1365-2745.12379)
@@ -213,9 +215,9 @@ mean(data$reproductive_to_leaf_ratio[data$ForestType == "Logged"])
 # Extract data from paper (Table 2)
 kitayama_data <- data.frame(
   site = c(
-    "S 700", "S 1700", "S 2700", "S 3100",
-    "U 700", "U 1700", "U 2700", "U 3100",
-    "Q 1700"
+    "S-700", "S-1700", "S-2700", "S-3100",
+    "U-700", "U-1700", "U-2700", "U-3100",
+    "Q-1700"
   ),
   leaf_mean = c(6403, 5107, 2929, 4848, 6027, 4131, 4676, 1236, 5450),
   leaf_sd = c(749, 723, 491, 1041, 886, 626, 605, 368, 792),
@@ -223,10 +225,26 @@ kitayama_data <- data.frame(
   reproductive_sd = c(448, 216, 195, 98, 1091, 129, 74, 115, 379)
 )
 
+# Correct for carbon content using the dataframe we loaded earlier on the
+# litter nutrient concentration by Kitayama.
+kitayama_data <-
+  left_join(kitayama_data, kitayama_litter_stoichiometry_C, by = "site")
+
+kitayama_data$leaf_C <- kitayama_data$leaf_C / 10
+kitayama_data$reproductive_organ_C <- kitayama_data$reproductive_organ_C / 10
+
+kitayama_data$leaf_mean_C <-
+  kitayama_data$leaf_mean * kitayama_data$leaf_C / 100
+kitayama_data$reproductive_mean_C <-
+  kitayama_data$reproductive_mean * kitayama_data$reproductive_organ_C / 100
+
+# Then calculate the carbon corrected ratio
 kitayama_data$reproductive_to_leaf_ratio <-
-  kitayama_data$reproductive_mean / kitayama_data$leaf_mean
+  kitayama_data$reproductive_mean_C / kitayama_data$leaf_mean_C
 
 mean(kitayama_data$reproductive_to_leaf_ratio)
+
+# Write ratio to summary
 
 #####
 
@@ -270,13 +288,25 @@ aoyagi_data[6, ] <-
     mean(c(190, 301)), mean(c(4130, 5106))
   )
 
+# Add carbon content for fruits/flowers and leaves (Table 3)
+aoyagi_data$fruit_and_flower_C_perc <- ((464 + 452) / 2) / 10
+aoyagi_data$leaf_C_perc <- 482 / 10
+
 aoyagi_data$dry_mass_fruit_and_flower <-
   as.numeric(aoyagi_data$dry_mass_fruit_and_flower)
 aoyagi_data$dry_mass_leaf <-
   as.numeric(aoyagi_data$dry_mass_leaf)
 
+# Correct for carbon content
+aoyagi_data$fruit_and_flower_C_mass <-
+  aoyagi_data$dry_mass_fruit_and_flower * aoyagi_data$fruit_and_flower_C_perc / 100
+aoyagi_data$leaf_C_mass <-
+  aoyagi_data$dry_mass_leaf * aoyagi_data$leaf_C_perc / 100
+
 aoyagi_data$reproductive_to_leaf_ratio <-
-  aoyagi_data$dry_mass_fruit_and_flower / aoyagi_data$dry_mass_leaf
+  aoyagi_data$fruit_and_flower_C_mass / aoyagi_data$leaf_C_mass
+
+# Write ratio to summary
 
 # Calculate difference mast and non-mast year (for exploration)
 # This could potentially be a way to implement masting into the model
@@ -304,6 +334,7 @@ aoyagi_data$ratio_mast_to_non_mast[aoyagi_data$site == "kitayama_2015" &
     aoyagi_data$reproductive_to_leaf_ratio[aoyagi_data$site == "kitayama_2015" & # nolint
       aoyagi_data$vegetation == "montane forest" & # nolint
       aoyagi_data$masting == "non-mast"]
+
 #####
 
 # Approach 4: Anderson et al. (1983; DOI https://doi.org/10.2307/2259731)
@@ -337,8 +368,20 @@ anderson_data[8, ] <-
 anderson_data$leaves <- as.numeric(anderson_data$leaves)
 anderson_data$reproductive_organs <- as.numeric(anderson_data$reproductive_organs)
 
+# Correct for carbon content in leaves and reproductive organs
+# Since the paper does not have values for carbon content, we'll use the same
+# carbon content as reported for dipterocarp forest by Aoyagi (see above).
+anderson_data$reproductive_organs_C_perc <- ((464 + 452) / 2) / 10
+anderson_data$leaves_C_perc <- 482 / 10
+
+# Correct for carbon content and calculate ratio
+anderson_data$reproductive_organs_C <-
+  anderson_data$reproductive_organs * anderson_data$reproductive_organs_C_perc / 100
+anderson_data$leaves_C <-
+  anderson_data$leaves * anderson_data$leaves_C_perc / 100
+
 anderson_data$reproductive_to_leaf_ratio <-
-  anderson_data$reproductive_organs / anderson_data$leaves
+  anderson_data$reproductive_organs_C / anderson_data$leaves_C
 
 # Decide which plots to use and whether to use litter ratio or standing crop ratio
 # Standing crop ratio is much lower
@@ -349,6 +392,8 @@ mean(anderson_data$reproductive_to_leaf_ratio[
 mean(anderson_data$reproductive_to_leaf_ratio[
   anderson_data$vegetation == "alluvial forest"
 ])
+
+# Write ratio to summary
 
 #####
 
@@ -368,10 +413,21 @@ proctor_data[4, ] <- c(610, 4.13, 0.07)
 proctor_data[5, ] <- c(790, 3.66, 0.11)
 proctor_data[6, ] <- c(870, 3.32, 0.08)
 
+# Correct for carbon content using the values from Aoyagi (see above)
+proctor_data$reproductive_organs_C_perc <- ((464 + 452) / 2) / 10
+proctor_data$leaves_C_perc <- 482 / 10
+
+proctor_data$reproductive_organs_C <-
+  proctor_data$reproductive_organs * proctor_data$reproductive_organs_C_perc / 100
+proctor_data$leaves_C <-
+  proctor_data$leaves * proctor_data$leaves_C_perc / 100
+
 proctor_data$reproductive_to_leaf_ratio <-
   proctor_data$reproductive_organs / proctor_data$leaves
 
 mean(proctor_data$reproductive_to_leaf_ratio)
+
+# Write ratio to summary
 
 #####
 
@@ -395,10 +451,22 @@ dent_data[4, ] <-
 dent_data$leaves <- as.numeric(dent_data$leaves)
 dent_data$reproductive_organs <- as.numeric(dent_data$reproductive_organs)
 
+# Correct for carbon content
+# Use values from Aoyagi (see above)
+dent_data$reproductive_organs_C_perc <- ((464 + 452) / 2) / 10
+dent_data$leaves_C_perc <- 482 / 10
+
+dent_data$reproductive_organs_C <-
+  dent_data$reproductive_organs * dent_data$reproductive_organs_C_perc / 100
+dent_data$leaves_C <-
+  dent_data$leaves * dent_data$leaves_C_perc / 100
+
 dent_data$reproductive_to_leaf_ratio <-
   dent_data$reproductive_organs / dent_data$leaves
 
 mean(dent_data$reproductive_to_leaf_ratio) # seems rather low compared to rest
+
+# Write ratio to summary
 
 ################################################################################
 ################################################################################
@@ -471,3 +539,5 @@ ichie_data$fruit_allocation_live_organ <-
 
 # Have another look at the paper and see if we want to use the ratio based on
 # litter or live organ
+
+# Write ratio to summary
