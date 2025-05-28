@@ -2,9 +2,10 @@
 #' title: Plant allocation to reproductive tissues
 #'
 #' description: |
-#'     This script focuses on calculating the ratios that allow to derive
-#'     reproductive tissue from foliage mass, and to separate reproductive
-#'     tissues into (non) propagule mass (i.e., fruits/seeds, flowers).
+#'     This script focuses on calculating the ratio that allows to derive
+#'     reproductive tissue from foliage mass. It also calculates the ratio to
+#'     separate reproductive tissues into propagules (fruits/seeds) and
+#'     non-propagules (flowers), and calculates their respective carbon mass.
 #'
 #' VE_module: Plant
 #'
@@ -19,17 +20,29 @@
 #'     path: ../../../data/primary/plant/carbon_balance_components
 #'     description: |
 #'     https://doi.org/10.5281/zenodo.7307449
-#'     Measured components of total carbon budget at SAFE project,
-#'     values, with standard errors, for each 1-ha carbon plots for 11 plots
+#'     Measured components of total carbon budget at the SAFE project.
+#'     Values with standard errors for each 1-ha carbon plots for 11 plots
 #'     investigated across a logging gradient from unlogged old-growth to
 #'     heavily logged.
+#'   - name: both_tree_functional_traits.xlsx
+#'     path: ../../../data/primary/plant/traits_data
+#'     description: |
+#'     https://doi.org/10.5281/zenodo.3247631
+#'     Functional traits of tree species in old-growth and selectively
+#'     logged forest.
+#'   - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
+#'     path: ../../../data/primary/plant/traits_data
+#'     description: |
+#'     https://doi.org/10.1111/1365-2745.12379
+#'     Element concentrations of litter fractions.
 #'
 #' output_files:
 #'   - name: plant_reproductive_tissue_allocation.csv
 #'     path: ../../../data/derived/plant/reproductive_tissue_allocation/plant_reproductive_tissue_allocation.csv # nolint
 #'     description: |
 #'       This CSV file contains a summary of the ratios needed to calculate
-#'       reproductive tissue allocation.
+#'       reproductive tissue allocation, and to separate propagules from non-
+#'       propagules.
 #'
 #' package_dependencies:
 #'     - readxl
@@ -47,7 +60,9 @@ library(dplyr)
 library(ggplot2)
 
 # Calculating the ratio between foliage mass and reproductive tissue mass
-# This ratio is based on data from litter fall studies.
+# Note that this ratio is based on data from litter fall studies. By calculating
+# the ratio this way, it is assumed that the relationship between how much falls
+# to the ground and how much is present in the tree is preserved.
 
 #####
 
@@ -76,15 +91,118 @@ data <- data[
   )
 ]
 
+#####
+
+# Before continuing, first need to correct for carbon mass in leaf and
+# reproductive tissues.
+# For leaf carbon mass, we'll use data from the same plots
+# For reproductive tissue carbon mass, we'll use the mean carbon content for
+# reproductive tissues obtained from Kitayama et al. (2015).
+
+# Load leaf carbon content dataset and calculate mean for each plot
+# Note that in theory we could apply the PFT species classification here to
+# calculate the PFT specific leaf carbon content, but I think for now a mean
+# value across plots is fine, as the rest of reproductive allocation does not
+# work on a PFT basis (it actually works on plot basis for the first approach).
+both_tree_functional_traits <- read_excel(
+  "../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
+  sheet = "Tree_functional_traits",
+  col_names = FALSE
+)
+
+both_data <- both_tree_functional_traits
+max(nrow(both_data))
+colnames(both_data) <- both_data[7, ]
+both_data <- both_data[8:724, ]
+names(both_data)
+
+# Note that this dataset has logged and old-growth plots
+
+both_data <- both_data[
+  , c(
+    "forest_type", "forestplots_name", "branch_type", "tree_id", "C_perc"
+  )
+]
+
+both_data$C_perc <- as.numeric(both_data$C_perc)
+both_data <- na.omit(both_data)
+mean(both_data$C_perc)
+mean(both_data$C_perc[both_data$forest_type == "OG"])
+mean(both_data$C_perc[both_data$forest_type == "SL"])
+
+# Check the variability
+
+plot(both_data$C_perc ~ as.factor(both_data$forestplots_name))
+abline(h = 44.70894)
+abline(h = 44.10732, col = "red")
+abline(h = 45.20412, col = "blue")
+
+# Add mean leaf carbon content to safe_carbon_balance_components (called data)
+# Separate for old growth and selectively logged plots
+data$leaf_C_perc[data$ForestType == "Old-growth"] <-
+  mean(both_data$C_perc[both_data$forest_type == "OG"])
+data$leaf_C_perc[data$ForestType == "Logged"] <-
+  mean(both_data$C_perc[both_data$forest_type == "SL"])
+
+# Load Kitayama litter nutrient concentrations dataset and calculate mean
+# reproductive organ litter carbon content across the different plots.
+
+kitayama_litter_stoichiometry <- read_excel(
+  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx", # nolint
+  sheet = "Sheet1",
+  col_names = FALSE
+)
+
+colnames(kitayama_litter_stoichiometry) <- kitayama_litter_stoichiometry[2, ]
+
+kitayama_litter_stoichiometry_C <- # nolint
+  kitayama_litter_stoichiometry[c(28:36), c(1, 2, 3)]
+colnames(kitayama_litter_stoichiometry_C) <- # nolint
+  c("site", "leaf_C", "reproductive_organ_C")
+
+kitayama_litter_stoichiometry_C$leaf_C <- # nolint
+  as.numeric(kitayama_litter_stoichiometry_C$leaf_C)
+kitayama_litter_stoichiometry_C$reproductive_organ_C <- # nolint
+  as.numeric(kitayama_litter_stoichiometry_C$reproductive_organ_C)
+
+# Make sure mean reproductive carbon content is saved separately as it will be
+# used to correct for carbon mass in other approaches in this script.
+
+kitayama_mean_C_percentage <- # nolint
+  mean(kitayama_litter_stoichiometry_C$reproductive_organ_C / 1000) * 100
+print(kitayama_mean_C_percentage)
+
+# Add to safe_carbon_balance (called data)
+
+data$reproductive_organ_C_perc <- kitayama_mean_C_percentage
+
+#####
+
+# Return to working with data (copy of safe_carbon_balance)
+
 data$CanopyNPP_Leaf <- as.numeric(data$CanopyNPP_Leaf)
 data$CanopyNPP_Reproductive <- as.numeric(data$CanopyNPP_Reproductive)
 
-# Dataset has SE as measure of uncertainty (not used here)
+# Correct CanopyNPP_Leaf and CanopyNPP_Reproductive for its carbon mass
+data$CanopyNPP_Leaf_C <- data$CanopyNPP_Leaf * data$leaf_C_perc / 100
+data$CanopyNPP_Reproductive_C <-
+  data$CanopyNPP_Reproductive * data$reproductive_organ_C_perc / 100
 
-data$reproductive_to_leaf_ratio <- data$CanopyNPP_Reproductive / data$CanopyNPP_Leaf
+# Calculate the (carbon corrected) ratio
+data$reproductive_to_leaf_ratio_C <-
+  data$CanopyNPP_Reproductive_C / data$CanopyNPP_Leaf_C
+
+mean(data$reproductive_to_leaf_ratio_C)
+mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Old-growth"])
+mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Logged"])
+
+# Also calculate the uncorrected ratio to compare if correction matters a lot
+data$reproductive_to_leaf_ratio <-
+  data$CanopyNPP_Reproductive / data$CanopyNPP_Leaf
 
 mean(data$reproductive_to_leaf_ratio)
 mean(data$reproductive_to_leaf_ratio[data$ForestType == "Old-growth"])
+mean(data$reproductive_to_leaf_ratio[data$ForestType == "Logged"])
 
 # Decide which plots to use (logged/unlogged, SAFE, Danum, etc.)
 
