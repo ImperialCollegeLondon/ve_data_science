@@ -3,9 +3,9 @@
 #'
 #' description: |
 #'     This script focuses on calculating the ratio that allows to derive
-#'     reproductive tissue from foliage mass. It also calculates the ratio to
-#'     separate reproductive tissues into propagules (fruits/seeds) and
-#'     non-propagules (flowers), and calculates their respective carbon mass.
+#'     reproductive tissue carbon mass from foliage carbon mass.
+#'     It also calculates the ratio to separate reproductive tissue carbon mass
+#'     into propagule (fruits/seeds) and non-propagule (flowers) carbon mass.
 #'
 #' VE_module: Plant
 #'
@@ -38,7 +38,7 @@
 #'
 #' output_files:
 #'   - name: plant_reproductive_tissue_allocation.csv
-#'     path: ../../../data/derived/plant/reproductive_tissue_allocation/plant_reproductive_tissue_allocation.csv # nolint
+#'     path: ../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv # nolint
 #'     description: |
 #'       This CSV file contains a summary of the ratios needed to calculate
 #'       reproductive tissue allocation, and to separate propagules from non-
@@ -96,8 +96,11 @@ data <- data[
 # Before continuing, first need to correct for carbon mass in leaf and
 # reproductive tissues.
 # For leaf carbon mass, we'll use data from the same plots
-# For reproductive tissue carbon mass, we'll use the mean carbon content for
-# reproductive tissues obtained from Kitayama et al. (2015).
+# For reproductive tissue carbon mass we have two main options:
+# A: use the mean carbon content for reproductive tissues obtained from
+# Kitayama et al. (2015; DOI http://dx.doi.org/10.1111/1365-2745.12379).
+# B: use the mean carbon content of fruits and flower combined from
+# Aoyagi et al. (2018; DOI https://doi.org/10.1007/s11284-018-1642-9)
 
 # Load leaf carbon content dataset and calculate mean for each plot
 # Note that in theory we could apply the PFT species classification here to
@@ -165,8 +168,8 @@ kitayama_litter_stoichiometry_C$leaf_C <- # nolint
 kitayama_litter_stoichiometry_C$reproductive_organ_C <- # nolint
   as.numeric(kitayama_litter_stoichiometry_C$reproductive_organ_C)
 
-# Make sure mean reproductive carbon content is saved separately as it will be
-# used to correct for carbon mass in other approaches in this script.
+# Save mean reproductive carbon content separately in case we want to use it
+# to correct for carbon mass in other approaches in this script.
 
 kitayama_mean_C_percentage <- # nolint
   mean(kitayama_litter_stoichiometry_C$reproductive_organ_C / 1000) * 100
@@ -174,10 +177,14 @@ print(kitayama_mean_C_percentage)
 
 # Add to safe_carbon_balance (called data)
 
-data$reproductive_organ_C_perc <- kitayama_mean_C_percentage
+data$reproductive_organ_C_perc_kitayama <- kitayama_mean_C_percentage
 
-# Note that here we could also use the carbon content for reproductive tissues
-# obtained from Aoyagi, which focuses on dipterocarp forests (not montane forests)
+# Next we calculate the carbon content for reproductive tissues obtained from
+# Aoyagi, which focuses on dipterocarp forests
+# The carbon content is extracted directly from the paper by calculating the
+# average across fruits and flowers (Table 3)
+
+data$fruit_and_flower_C_perc_aoyagi <- ((464 + 452) / 2) / 10
 
 #####
 
@@ -187,17 +194,31 @@ data$CanopyNPP_Leaf <- as.numeric(data$CanopyNPP_Leaf)
 data$CanopyNPP_Reproductive <- as.numeric(data$CanopyNPP_Reproductive)
 
 # Correct CanopyNPP_Leaf and CanopyNPP_Reproductive for its carbon mass
+# A: Kitayama C perc reproductive tissues
 data$CanopyNPP_Leaf_C <- data$CanopyNPP_Leaf * data$leaf_C_perc / 100
-data$CanopyNPP_Reproductive_C <-
-  data$CanopyNPP_Reproductive * data$reproductive_organ_C_perc / 100
+data$CanopyNPP_Reproductive_C_kitayama <-
+  data$CanopyNPP_Reproductive * data$reproductive_organ_C_perc_kitayama / 100
 
 # Calculate the (carbon corrected) ratio
-data$reproductive_to_leaf_ratio_C <-
-  data$CanopyNPP_Reproductive_C / data$CanopyNPP_Leaf_C
+data$reproductive_to_leaf_ratio_C_kitayama <-
+  data$CanopyNPP_Reproductive_C_kitayama / data$CanopyNPP_Leaf_C
 
-mean(data$reproductive_to_leaf_ratio_C)
-mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Old-growth"])
-mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Logged"])
+mean(data$reproductive_to_leaf_ratio_C_kitayama)
+mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Old-growth"])
+mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Logged"])
+
+# B: Aoyagi C perc reproductive tissues
+data$CanopyNPP_Leaf_C <- data$CanopyNPP_Leaf * data$leaf_C_perc / 100
+data$CanopyNPP_Reproductive_C_aoyagi <-
+  data$CanopyNPP_Reproductive * data$fruit_and_flower_C_perc_aoyagi / 100
+
+# Calculate the (carbon corrected) ratio
+data$reproductive_to_leaf_ratio_C_aoyagi <-
+  data$CanopyNPP_Reproductive_C_aoyagi / data$CanopyNPP_Leaf_C
+
+mean(data$reproductive_to_leaf_ratio_C_aoyagi)
+mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Old-growth"])
+mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Logged"])
 
 # Decide which plots to use (logged/unlogged, SAFE, Danum, etc.)
 
@@ -207,7 +228,7 @@ summary <- data.frame(
   approach = c("1"),
   source = c("safe_carbon_balance_components"),
   reproductive_to_leaf_ratio_C =
-    mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Old-growth"]),
+    mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Old-growth"]),
   notes =
     c("old growth, litter fall from SAFE, leaf carbon from same plots,
       reproductive tissue carbon from Kitayama")
@@ -217,9 +238,27 @@ summary[2, ] <-
   c(
     "1",
     "safe_carbon_balance_components",
-    mean(data$reproductive_to_leaf_ratio_C[data$ForestType == "Logged"]),
+    mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Logged"]),
     "selectively logged, litter fall from SAFE, leaf carbon from same plots,
       reproductive tissue carbon from Kitayama"
+  )
+
+summary[3, ] <-
+  c(
+    "1",
+    "safe_carbon_balance_components",
+    mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Old-growth"]),
+    "old growth, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Aoyagi"
+  )
+
+summary[4, ] <-
+  c(
+    "1",
+    "safe_carbon_balance_components",
+    mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Logged"]),
+    "selectively logged, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Aoyagi"
   )
 
 #####
@@ -258,14 +297,39 @@ kitayama_data$reproductive_to_leaf_ratio <-
 
 mean(kitayama_data$reproductive_to_leaf_ratio)
 
+# Decide which plots to focus on, if we want a general relationship then keep all
+# Alternatively we could focus on particular altitudes or soil type
+
+# Aoyagi also use Kitayama's data, where S-700 and U-700 are dipterocarp forest,
+# and S-1700 and U-1700 are montane forest
+
+mean(kitayama_data$reproductive_to_leaf_ratio[
+  kitayama_data$site %in% c("S-700", "U-700")
+])
+mean(kitayama_data$reproductive_to_leaf_ratio[
+  kitayama_data$site %in% c("S-1700", "U-1700")
+])
+
 # Write ratio to summary
 
-summary[3, ] <-
+summary[5, ] <-
   c(
     "2",
     "kitayama",
-    mean(kitayama_data$reproductive_to_leaf_ratio),
-    "lower/upper montane rain forests, may need to select specific plots"
+    mean(kitayama_data$reproductive_to_leaf_ratio[
+      kitayama_data$site %in% c("S-700", "U-700")
+    ]),
+    "dipterocarp forest"
+  )
+
+summary[6, ] <-
+  c(
+    "2",
+    "kitayama",
+    mean(kitayama_data$reproductive_to_leaf_ratio[
+      kitayama_data$site %in% c("S-1700", "U-1700")
+    ]),
+    "lower montane forest"
   )
 
 #####
@@ -310,6 +374,20 @@ aoyagi_data[6, ] <-
     mean(c(190, 301)), mean(c(4130, 5106))
   )
 
+# Note that for the Kitayama data Aoyagi used plots S-700 and U-700 for dipterocarp
+# forest, and plots S-1700 and U-1700 for montane forest, at least for the leaf
+# mass data. It is not clear where they got the reproductive tissue mass from
+# as the values are not the same as in the Kitayama paper.
+# I think they may have had access to an additional dataset, as the original
+# Kitayama paper also does not present data for mast vs non-mast.
+
+# Also note that in this approach I used the mean of the range presented by
+# Aoyagi, which seems less accurate to me than when the ratio was calculated
+# directly from the values presented by Kitayama.
+# Hence, I think the Aoyagi paper is mostly relevant for the difference between
+# mast and non-mast years, but we'd need access to that additional dataset to
+# verify where the data came from.
+
 # Add carbon content for fruits/flowers and leaves (Table 3)
 aoyagi_data$fruit_and_flower_C_perc <- ((464 + 452) / 2) / 10
 aoyagi_data$leaf_C_perc <- 482 / 10
@@ -330,47 +408,47 @@ aoyagi_data$reproductive_to_leaf_ratio <-
 
 # Write ratio to summary
 
-summary[4, ] <-
+summary[7, ] <-
   c(
     "3",
     "aoyagi",
     aoyagi_data[1, 10],
     "aoyagi, dipterocarp forest, mast"
   )
-summary[5, ] <-
+summary[8, ] <-
   c(
     "3",
     "aoyagi",
     aoyagi_data[2, 10],
     "aoyagi, dipterocarp forest, non-mast"
   )
-summary[6, ] <-
+summary[9, ] <-
   c(
     "3",
     "aoyagi",
     aoyagi_data[3, 10],
     "kitayama, dipterocarp forest, mast"
   )
-summary[7, ] <-
+summary[10, ] <-
   c(
     "3",
     "aoyagi",
     aoyagi_data[4, 10],
-    "aoyagi, dipterocarp forest, non-mast"
+    "kitayama, dipterocarp forest, non-mast"
   )
-summary[8, ] <-
+summary[11, ] <-
   c(
     "3",
     "aoyagi",
     aoyagi_data[5, 10],
     "kitayama, montane forest, mast"
   )
-summary[9, ] <-
+summary[12, ] <-
   c(
     "3",
     "aoyagi",
     aoyagi_data[6, 10],
-    "aoyagi, montane forest, non-mast"
+    "kitayama, montane forest, non-mast"
   )
 
 # Calculate difference mast and non-mast year (for exploration)
@@ -460,14 +538,14 @@ mean(anderson_data$reproductive_to_leaf_ratio[
 
 # Write ratio to summary
 
-summary[10, ] <-
+summary[13, ] <-
   c(
     "4",
     "anderson",
     anderson_data[1, 9],
     "alluvial forest"
   )
-summary[11, ] <-
+summary[14, ] <-
   c(
     "4",
     "anderson",
@@ -509,12 +587,12 @@ mean(proctor_data$reproductive_to_leaf_ratio)
 
 # Write ratio to summary
 
-summary[12, ] <-
+summary[15, ] <-
   c(
     "5",
     "proctor",
     mean(proctor_data$reproductive_to_leaf_ratio),
-    "montane forest"
+    "montane forest, could select specific altitudes"
   )
 
 #####
@@ -556,7 +634,7 @@ mean(dent_data$reproductive_to_leaf_ratio) # seems rather low compared to rest
 
 # Write ratio to summary
 
-summary[13, ] <-
+summary[16, ] <-
   c(
     "6",
     "dent",
@@ -638,31 +716,41 @@ ichie_data$fruit_allocation_live_organ <-
 
 # Write ratio to summary
 
-summary[14, ] <-
+summary[17, ] <-
   c(
-    "propagule allocation litter",
+    "propagule litter carbon percentage",
     "ichie",
     unique(ichie_data$fruit_allocation_litter),
     "dipterocarp forest"
   )
-summary[15, ] <-
+summary[18, ] <-
   c(
-    "non-propagule allocation litter",
+    "non-propagule litter carbon percentage",
     "ichie",
     unique(ichie_data$flower_allocation_litter),
     "dipterocarp forest"
   )
-summary[16, ] <-
+summary[19, ] <-
   c(
-    "propagule allocation live organ",
+    "propagule live organ carbon percentage",
     "ichie",
     unique(ichie_data$fruit_allocation_live_organ),
     "dipterocarp forest"
   )
-summary[17, ] <-
+summary[20, ] <-
   c(
-    "non-propagule allocation live organ",
+    "non-propagule live organ carbon percentage",
     "ichie",
     unique(ichie_data$flower_allocation_live_organ),
     "dipterocarp forest"
   )
+
+################################################################################
+
+# Save summary output file
+
+write.csv(
+  summary,
+  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv", # nolint
+  row.names = FALSE
+)
