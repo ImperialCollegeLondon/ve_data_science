@@ -976,7 +976,27 @@ summary$light_extinction_coefficient <- 0.6
 
 #####
 
+# Leaf turnover
+# Value based on Anderson et al. (1983)
+# (DOI; https://doi.org/10.2307/2259731)
+# The value used here is for dipterocarp forest, but paper also has values for
+# alluvial forest, heath forest and forest over limestone
+# Turnover time (unit = years) is calculated as the inverse of turnover per year
 
+summary$turnover_leaf <- 1 / 1.7
+
+# Reproductive organ turnover
+# The same approach and data is used as for leaf turnover
+
+summary$turnover_reproductive_organ <- 1 / 10
+
+# Fine root turnover
+# Value based on Huaraca Huasco et al. (2021)
+# (DOI https://doi.org/10.1111/gcb.15677)
+# Value calculated as the mean root residence time based on 4 plots (Table 4)
+# (DAN-04 and DAN-05 from Danum, MLA-01 and MLA-02 from Maliau)
+
+summary$turnover_fine_root <- mean(c(0.63, 1.76, 1.50, 1.79))
 
 ################################################################################
 
