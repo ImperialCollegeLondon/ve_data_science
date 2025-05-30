@@ -5,8 +5,8 @@
 #'     This script focuses on updating the base values for the parameters in
 #'     the T model to values more closely aligned with the SAFE project.
 #'     The script works with multiple datasets and calculates values for the
-#'     T model for each PFT. Species are linked to their PFT by working with
-#'     the output of the PFT species classification base script.
+#'     T model, ideally at PFT level. Species are linked to their PFT by working
+#'     with the output of the PFT species classification base script.
 #'
 #' VE_module: Plant
 #'
@@ -701,7 +701,7 @@ temp <- temp %>%
 temp <- temp[, c("species", "TissueType", "C_total_mean")]
 temp <- unique(temp)
 
-mean(temp$C_total_mean) # Use 46% carbon content for sapwood later in calculations
+mean(temp$C_total_mean) # Use 45.9% carbon content for sapwood later in calculations
 
 ################################################################################
 
@@ -771,8 +771,8 @@ plot_data$forest_type <- as.factor(plot_data$forest_type)
 
 plot_data$WD_NB <- plot_data$WD_NB * 1000
 # Convert WD from g cm-3 to kg m-3
-plot_data$WD_NB <- plot_data$WD_NB * 0.46
-# Account for 46% carbon content (see earlier calculation)
+plot_data$WD_NB <- plot_data$WD_NB * 0.459
+# Account for 45.9% carbon content (see earlier calculation)
 
 ggplot(plot_data, aes(x = sample_code, y = WD_NB, color = as.factor(PFT))) +
   geom_point() +
@@ -943,12 +943,29 @@ summary <- na.omit(summary)
 summary <- summary[order(summary$PFT), ]
 rownames(summary) <- 1:nrow(summary) # nolint
 
-# Save summary
-
 summary$WD_NB <- as.numeric(summary$WD_NB)
 summary$WD_NB_SD <- as.numeric(summary$WD_NB_SD)
 summary$SLA <- as.numeric(summary$SLA)
 summary$SLA_SD <- as.numeric(summary$SLA_SD)
+
+################################################################################
+
+# Below we add the remaining T model parameters. Most of these are not PFT
+# specific (for now).
+
+# Leaf area index
+# LAI is assumed to be constant across PFTs and within the crown/canopy
+# The value for LAI is based on Pfeifer et al. (2016)
+# (DOI https://doi.org/10.1016/j.rse.2016.01.014)
+# This paper has mean values for primary forest, lightly logged, twice logged,
+# salvage logged and oil palm plantation
+# It also provides SD as measure of uncertainty (not included here atm)
+
+summary$leaf_area_index <- 4.43
+
+#
+
+################################################################################
 
 # Write CSV file
 
