@@ -953,6 +953,8 @@ summary$SLA_SD <- as.numeric(summary$SLA_SD)
 # Below we add the remaining T model parameters. Most of these are not PFT
 # specific (for now).
 
+#####
+
 # Leaf area index
 # LAI is assumed to be constant across PFTs and within the crown/canopy
 # The value for LAI is based on Pfeifer et al. (2016)
@@ -963,7 +965,18 @@ summary$SLA_SD <- as.numeric(summary$SLA_SD)
 
 summary$leaf_area_index <- 4.43
 
-#
+#####
+
+# Light extinction coefficient
+# Value is taken from White et al. (2000)
+# (DOI https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2),
+# The value used is the one reported for rain forest by Waring and Schlesinger (1985)
+
+summary$light_extinction_coefficient <- 0.6
+
+#####
+
+
 
 ################################################################################
 
