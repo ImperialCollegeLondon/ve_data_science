@@ -1017,6 +1017,96 @@ summary$respiration_leaf <- (2.0 * 10^-3) * 365
 
 summary$respiration_wood <- (1.0 * 10^-3) * 365
 
+#####
+
+# Yield factor
+# Value based on Yan and Zhao (2007)
+# (DOI http://dx.doi.org/10.1016/S1872-2032(07)60056-0)
+# Yield factor calculated from growth respiration coefficient (rg) using the
+# formula: 1/(1+rg) where rg = 0.25
+
+summary$yield_factor <- (1 / (1 + 0.25))
+
+#####
+
+# Fine root mass to foliage area ratio
+# There are 2 main datasets used here:
+# -the data from Kenzo et al. (2015)
+# (DOI http://dx.doi.org/10.1007/s10310-014-0465-y)
+# -the data from Niiyama et al. (2010)
+# (DOI http://dx.doi.org/10.1017/S0266467410000040)
+
+# Both of these papers have data on foliage mass and fine root mass
+# However, fine root mass needs to be expressed on carbon mass basis
+# So, the dry weight mass of fine roots needs to be corrected for carbon content
+# To do this, we'll use the mean carbon content for based on Imai et al. (2010)
+# (DOI https://doi.org/10.1017/S0266467410000350) for fine roots: 45.2%.
+
+# As a first approach we can focus on the data from Kenzo et al. (2015)
+# Here, we can use leaf and fine root mass and LMA (combined with Imai's fine root
+# carbon content) to define a ratio that is (mostly) tracked within 1 study.
+
+# As a second approach we could focus on getting an average ratio between fine
+# root mass and foliage mass, which is then linked to the SLA of each PFT
+# Note that PFT SLA values will first need to be converted back to dry weight mass
+# using the foliar carbon percentage (found in both_tree_functional_traits)
+# This approach is similar to the one that Li et al. (2014) used
+# I think it makes sense to assume that there is more variability in the conversion
+# from foliage mass to area than in the ratio between fine root and foliage mass.
+# If we then average the ratio between fine root and foliage mass across studies
+# we can capture most of this variability across studies/systems.
+
+# First approach: Kenzo et al (2015)
+# Data extracted from paper directly
+# For fine root mass, values below and above 10 cm depth are combined
+
+kenzo_data <- data.frame(
+  site = c("Sabal", "Balai Ringin"),
+  leaf_dry_mass_big_trees = c(5.1, 5.5),
+  leaf_dry_mass_small_trees = c(2.5, 1.6),
+  fine_root_total_dry_mass = c(26.8, 5.8),
+  leaf_mass_per_area_big_trees = c(155.6, 155.6),
+  leaf_mass_per_area_small_trees = c(73.3, 73.3)
+)
+
+# Convert the leaf dry mass from megagrams per hectare to grams per hectare
+kenzo_data$leaf_dry_mass_big_trees <- kenzo_data$leaf_dry_mass_big_trees * 1000000
+kenzo_data$leaf_dry_mass_small_trees <- kenzo_data$leaf_dry_mass_small_trees * 1000000
+
+# Use LMA to find the total leaf area (m2 per hectare)
+kenzo_data$leaf_area_big_trees <-
+  kenzo_data$leaf_dry_mass_big_trees / kenzo_data$leaf_mass_per_area_big_trees
+kenzo_data$leaf_area_small_trees <-
+  kenzo_data$leaf_dry_mass_small_trees / kenzo_data$leaf_mass_per_area_small_trees
+
+# Combine leaf area of big and small trees to get total leaf area
+kenzo_data$total_leaf_area <-
+  kenzo_data$leaf_area_big_trees + kenzo_data$leaf_area_small_trees
+
+# Correct fine root dry mass for carbon content (45.2%)
+kenzo_data$fine_root_total_carbon_mass <-
+  kenzo_data$fine_root_total_dry_mass * 45.2 / 100
+
+# Convert fine root carbon mass from Mg per hectare to kg per hectare
+kenzo_data$fine_root_total_carbon_mass <-
+  kenzo_data$fine_root_total_carbon_mass * 1000
+
+# Calculate the ratio of fine root carbon mass divided by leaf area
+kenzo_data$fine_root_carbon_foliage_area <-
+  kenzo_data$fine_root_total_carbon_mass / kenzo_data$total_leaf_area
+
+print(kenzo_data$fine_root_carbon_foliage_area)
+
+# Second approach: obtaining a mean ratio between foliage and fine root dry mass
+# and then linking this to PFT specific SLA values
+
+
+################################################################################
+
+# Prep summary output again, check variable names, etc.
+
+#
+
 ################################################################################
 
 # Write CSV file
