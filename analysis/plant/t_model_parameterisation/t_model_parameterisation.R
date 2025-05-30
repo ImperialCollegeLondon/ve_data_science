@@ -998,6 +998,25 @@ summary$turnover_reproductive_organ <- 1 / 10
 
 summary$turnover_fine_root <- mean(c(0.63, 1.76, 1.50, 1.79))
 
+#####
+
+# Fine root specific respiration
+# Value based on Yan and Zhao (2007)
+# (DOI http://dx.doi.org/10.1016/S1872-2032(07)60056-0)
+# Value for tropical rain forest tree is used (Table 2)
+
+summary$respiration_fine_root <- (1.5 * 10^-3) * 365
+
+# Leaf specific respiration
+# Same approach and data used as for fine root specific respiration
+
+summary$respiration_leaf <- (2.0 * 10^-3) * 365
+
+# Wood specific respiration
+# Same approach and data used as for fine root and leaf specific respiration
+
+summary$respiration_wood <- (1.0 * 10^-3) * 365
+
 ################################################################################
 
 # Write CSV file
