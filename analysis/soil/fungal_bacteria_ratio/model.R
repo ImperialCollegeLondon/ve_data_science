@@ -30,7 +30,6 @@
 #'     - tidyverse
 #'     - readxl
 #'     - glmmTMB
-#'     - performance
 #'
 #' usage_notes: |
 #'   In the future, it is possible to get a numerically more accurate ratio
@@ -41,7 +40,6 @@
 library(tidyverse)
 library(readxl)
 library(glmmTMB)
-library(performance)
 
 
 
