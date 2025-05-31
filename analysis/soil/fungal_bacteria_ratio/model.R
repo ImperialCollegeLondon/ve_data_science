@@ -9,7 +9,7 @@
 #' author:
 #'   - name: Hao Ran Lai
 #'
-#' status: wip
+#' status: final
 #'
 #' input_files:
 #'   - name: SAFE_Dataset.xlsx
@@ -21,20 +21,21 @@
 #'       https://doi.org/10.5281/zenodo.3929632
 #'
 #' output_files:
-#'   - name: Output file name
-#'     path: Full file path on shared drive
+#'   - name: NA
+#'     path: NA
 #'     description: |
-#'       What the output file contains and its significance, are they used in any other
-#'       scripts?
+#'       NA
 #'
 #' package_dependencies:
 #'     - tidyverse
 #'     - readxl
 #'     - glmmTMB
+#'     - performance
 #'
 #' usage_notes: |
-#'   Any known issues or bugs? Future plans for script/extensions or improvements
-#'   planned that should be noted?
+#'   In the future, it is possible to get a numerically more accurate ratio
+#'   using bootstrap values from the point estimate AND covariances of the
+#'   predict function.
 #' ---
 
 library(tidyverse)
@@ -89,6 +90,8 @@ dat <-
     group = factor(1)
   )
 
+# scale the covariates for model convergence and ease of interpretation
+# also log-transform soil nutrients that are very skewed
 dat_scaled <-
   dat %>%
   mutate_at(vars(soil_N, soil_C, soil_P), log) %>%
@@ -102,6 +105,9 @@ dat_scaled <-
 
 # Model -------------------------------------------------------------------
 
+# the soil nutrients (N, C and P) are highly collinear
+# so I fitted three candidate models, each with one of the soil nutrients
+# and then compare their predictive accuracy using AICc
 mod_n <- glmmTMB(
   PLFA ~ 0 + Group * (soil_pH + soil_N) +
     (1 | Plot_ID),
@@ -124,22 +130,29 @@ mod_p <- glmmTMB(
   data = dat_scaled
 )
 
-compare_performance(mod_N, mod_C, mod_P,
+# compare models
+compare_performance(mod_n, mod_c, mod_p,
   metrics = c("AICc"),
   rank = TRUE
 )
 
-summary(mod_C)
+# the model with soil C turned out to be the best model
+summary(mod_c)
 
+# predict fungal and bacterial biomass (in terms of PLFA)
 newdat <- data.frame(
   Group = unique(plfa$Group),
-  Plot = NA
+  soil_pH = 0,
+  soil_C = 0,
+  Plot_ID = NA
 )
 yhat <-
-  predict(mod,
+  predict(mod_c,
     newdata = newdat,
     allow.new.levels = TRUE,
     type = "response",
     cov.fit = TRUE
   )
+
+# calculate (predicted) fungal-to-bacterial ratio using their predicted biomass
 yhat$fit[1] / yhat$fit[2]
