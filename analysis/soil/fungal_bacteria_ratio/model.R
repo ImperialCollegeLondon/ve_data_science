@@ -59,7 +59,8 @@ soil <-
   read_xlsx("data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
     sheet = 3,
     skip = 9
-  )
+  ) %>%
+  rename(moisture = `gravimetric moisture content`)
 
 # PLFA concentrations containing fungal:bacterial ratio
 plfa <-
@@ -96,7 +97,7 @@ dat_scaled <-
   dat %>%
   mutate_at(vars(soil_N, soil_C, soil_P), log) %>%
   mutate_at(
-    vars(soil_pH, soil_N, soil_C, soil_P),
+    vars(moisture, soil_pH, soil_N, soil_C, soil_P),
     ~ as.numeric(scale(.))
   )
 
@@ -105,49 +106,29 @@ dat_scaled <-
 
 # Model -------------------------------------------------------------------
 
-# the soil nutrients (N, C and P) are highly collinear
-# so I fitted three candidate models, each with one of the soil nutrients
-# and then compare their predictive accuracy using AICc
-mod_n <- glmmTMB(
-  PLFA ~ 0 + Group * (soil_pH + soil_N) +
-    (1 | Plot_ID),
-  dispformula = ~ 0 + Group,
-  family = lognormal(link = "log"),
-  data = dat_scaled
-)
-mod_c <- glmmTMB(
-  PLFA ~ 0 + Group * (soil_pH + soil_C) +
-    (1 | Plot_ID),
-  dispformula = ~ 0 + Group,
-  family = lognormal(link = "log"),
-  data = dat_scaled
-)
-mod_p <- glmmTMB(
-  PLFA ~ 0 + Group * (soil_pH + soil_P) +
+# the soil nutrients (N, C and P) are highly collinear with one another
+# more importantly, they are highly collinear with soil moisture
+# so I only included soil pH and moisture in the model (which are not very
+# correlated with one another)
+mod <- glmmTMB(
+  PLFA ~ 0 + Group * (soil_pH + moisture) +
     (1 | Plot_ID),
   dispformula = ~ 0 + Group,
   family = lognormal(link = "log"),
   data = dat_scaled
 )
 
-# compare models
-compare_performance(mod_n, mod_c, mod_p,
-  metrics = c("AICc"),
-  rank = TRUE
-)
-
-# the model with soil C turned out to be the best model
-summary(mod_c)
+summary(mod)
 
 # predict fungal and bacterial biomass (in terms of PLFA)
 newdat <- data.frame(
   Group = unique(plfa$Group),
   soil_pH = 0,
-  soil_C = 0,
+  moisture = 0,
   Plot_ID = NA
 )
 yhat <-
-  predict(mod_c,
+  predict(mod,
     newdata = newdat,
     allow.new.levels = TRUE,
     type = "response",
