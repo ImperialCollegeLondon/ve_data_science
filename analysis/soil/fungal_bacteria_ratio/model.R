@@ -40,6 +40,7 @@
 library(tidyverse)
 library(readxl)
 library(glmmTMB)
+library(performance)
 
 
 
@@ -52,6 +53,12 @@ coord <-
   ) %>%
   filter(Type == "Carbon Subplot") %>%
   rename(location_name = `Location name`)
+
+soil <-
+  read_xlsx("data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
+    sheet = 3,
+    skip = 9
+  )
 
 # PLFA concentrations containing fungal:bacterial ratio
 plfa <-
@@ -67,7 +74,13 @@ plfa <-
     names_pattern = "(.*)_PLFA",
     values_to = "PLFA"
   ) %>%
-  mutate(Group = as.factor(Group)) %>%
+  mutate(Group = as.factor(Group))
+
+# combine data
+dat <-
+  plfa %>%
+  # join soil variables
+  left_join(soil) %>%
   # join spatial coordinates and convert to glmmTMB-compatible class
   left_join(coord) %>%
   mutate(
@@ -76,19 +89,47 @@ plfa <-
     group = factor(1)
   )
 
+dat_scaled <-
+  dat %>%
+  mutate_at(vars(soil_N, soil_C, soil_P), log) %>%
+  mutate_at(
+    vars(soil_pH, soil_N, soil_C, soil_P),
+    ~ as.numeric(scale(.))
+  )
+
 
 
 
 # Model -------------------------------------------------------------------
 
-mod <- glmmTMB(
-  PLFA ~ 0 + Group + (1 | Plot),
+mod_n <- glmmTMB(
+  PLFA ~ 0 + Group * (soil_pH + soil_N) +
+    (1 | Plot_ID),
   dispformula = ~ 0 + Group,
   family = lognormal(link = "log"),
-  data = plfa
+  data = dat_scaled
+)
+mod_c <- glmmTMB(
+  PLFA ~ 0 + Group * (soil_pH + soil_C) +
+    (1 | Plot_ID),
+  dispformula = ~ 0 + Group,
+  family = lognormal(link = "log"),
+  data = dat_scaled
+)
+mod_p <- glmmTMB(
+  PLFA ~ 0 + Group * (soil_pH + soil_P) +
+    (1 | Plot_ID),
+  dispformula = ~ 0 + Group,
+  family = lognormal(link = "log"),
+  data = dat_scaled
 )
 
-summary(mod)
+compare_performance(mod_N, mod_C, mod_P,
+  metrics = c("AICc"),
+  rank = TRUE
+)
+
+summary(mod_C)
 
 newdat <- data.frame(
   Group = unique(plfa$Group),
