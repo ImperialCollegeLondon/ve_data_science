@@ -1,7 +1,8 @@
 library(tidyverse)
 library(readxl)
 library(gllvm)
-
+library(corrplot)
+library(gclus)
 
 
 
@@ -51,36 +52,39 @@ comm <-
   group_by(guild) %>%
   summarise_at(vars(starts_with("MYC_")), sum)
 
-comm_total <-
-  comm %>%
-  pivot_longer(
-    cols = starts_with("MYC_"),
-    names_to = "Sample_ID",
-    values_to = "Abundance"
-  ) %>%
-  group_by(Sample_ID) %>%
-  summarise(Total = sum(Abundance))
+y <- t(as.matrix(comm[, -1]))
+colnames(y) <- comm$guild
 
-comm_long <-
-  comm %>%
-  pivot_longer(
-    cols = starts_with("MYC_"),
-    names_to = "Sample_ID",
-    values_to = "Abundance"
-  ) %>%
-  left_join(comm_total)
+offset <- log(rowSums(y))
 
+y <- y[, -which(colnames(y) == "other")]
+
+y <- y[, order(colMeans(y), decreasing = TRUE)]
 
 
 
 # Model -------------------------------------------------------------------
 
 mod <- gllvm(
-  Abundance ~
-    0 + guild + rr(guild + 0 | Sample_ID, d = 2),
-  offset = log(Total),
-  family = nbinom2,
-  data = comm_long
+  y = y,
+  family = "negative.binomial",
+  num.lv = 2,
+  row.eff = "random",
+  offset = offset
 )
 
 summary(mod)
+mod$params
+
+ordiplot(mod, biplot = TRUE)
+
+# Plot residual correlations
+cr <- getResidualCor(mod)
+corrplot(
+  cr[order.single(cr), order.single(cr)],
+  diag = FALSE,
+  type = "lower",
+  tl.cex = 0.8,
+  tl.srt = 45,
+  tl.col = "red"
+)
