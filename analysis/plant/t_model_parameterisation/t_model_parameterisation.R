@@ -1044,17 +1044,20 @@ summary$yield_factor <- (1 / (1 + 0.25))
 
 # As a first approach we can focus on the data from Kenzo et al. (2015)
 # Here, we can use leaf and fine root mass and LMA (combined with Imai's fine root
-# carbon content) to define a ratio that is (mostly) tracked within 1 study.
+# carbon content) to define a ratio that is (mostly) tracked within 1 study system.
 
 # As a second approach we could focus on getting an average ratio between fine
 # root mass and foliage mass, which is then linked to the SLA of each PFT
 # Note that PFT SLA values will first need to be converted back to dry weight mass
 # using the foliar carbon percentage (found in both_tree_functional_traits)
+# or instead use the uncorrected PFT SLA values still stored in plot_data.
 # This approach is similar to the one that Li et al. (2014) used
 # I think it makes sense to assume that there is more variability in the conversion
 # from foliage mass to area than in the ratio between fine root and foliage mass.
 # If we then average the ratio between fine root and foliage mass across studies
 # we can capture most of this variability across studies/systems.
+
+#####
 
 # First approach: Kenzo et al (2015)
 # Data extracted from paper directly
@@ -1068,6 +1071,10 @@ kenzo_data <- data.frame(
   leaf_mass_per_area_big_trees = c(155.6, 155.6),
   leaf_mass_per_area_small_trees = c(73.3, 73.3)
 )
+
+# Note that Sabal is logged and Balai Ringin is protected
+# So, preferable we'd use the Balai Ringin values, however, the root mass seems
+# very low compared to Sabal, and other studies (like Niiyama)
 
 # Convert the leaf dry mass from megagrams per hectare to grams per hectare
 kenzo_data$leaf_dry_mass_big_trees <- kenzo_data$leaf_dry_mass_big_trees * 1000000
@@ -1097,15 +1104,106 @@ kenzo_data$fine_root_carbon_foliage_area <-
 
 print(kenzo_data$fine_root_carbon_foliage_area)
 
+#####
+
 # Second approach: obtaining a mean ratio between foliage and fine root dry mass
 # and then linking this to PFT specific SLA values
 
+# Extract mean dry mass ratio directly from Niiyama et al. (2010) paper
+# Add rows for each PFT in the model
+
+niiyama_data <- data.frame(
+  PFT_name = c("emergent", "overstory", "understory", "pioneer"),
+  leaf_dry_mass = c(5.7, 5.7, 5.7, 5.7),
+  fine_root_dry_mass = c(13.3, 13.3, 13.3, 13.3)
+)
+
+# Get PFT specific SLA values (not corrected for carbon content)
+# These data are stored per PFT in "data" (see earlier in this script)
+# The unit of SLA is mm2 mg-1
+
+names(data)
+pft_sla_data <- data[, c("PFT_name", "SLA_mm2.mg_mean")]
+pft_sla_data <- na.omit(pft_sla_data)
+pft_sla_data$SLA_mm2.mg_mean <- as.numeric(pft_sla_data$SLA_mm2.mg_mean)
+pft_sla_data$specific_leaf_area_pft <- NA
+
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "emergent"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "emergent"])
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "overstory"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "overstory"])
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "understory"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "understory"])
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "pioneer"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "pioneer"])
+
+pft_sla_data <- pft_sla_data[, c("PFT_name", "specific_leaf_area_pft")]
+pft_sla_data <- unique(pft_sla_data)
+
+# Calculate the corresponding leaf area for the leaf dry mass in niiyama_data
+# using the PFT specific SLA values. We'll use the PFT specific SLA values
+# stored in "data" as these are also based on dry mass (not carbon corrected).
+# This is fine as we are only interested in the leaf area here.
+
+# Add PFT SLA values to niiyama data
+niiyama_data <- left_join(niiyama_data, pft_sla_data, by = "PFT_name")
+
+# Convert foliage dry mass unit Mg/ha to mg/ha to match SLA weight units
+niiyama_data$leaf_dry_mass <- niiyama_data$leaf_dry_mass * 10^9
+
+# Calculate foliage area (with unit mm2 ha-1)
+niiyama_data$leaf_area <-
+  niiyama_data$leaf_dry_mass * niiyama_data$specific_leaf_area_pft
+
+# Convert mm2 to m2
+niiyama_data$leaf_area <- niiyama_data$leaf_area / 10^6
+
+# Convert fine root dry mass to carbon mass using 45.2% carbon content (Imai et al.)
+# The unit then becomes Mg C per hectare
+niiyama_data$fine_root_carbon_mass <- niiyama_data$fine_root_dry_mass * 45.2 / 100
+
+# Convert Mg C ha-1 to Kg C ha-1
+niiyama_data$fine_root_carbon_mass <- niiyama_data$fine_root_carbon_mass * 1000
+
+# Calculate ratio of fine root carbon mass to foliage area (kg C m-2)
+niiyama_data$fine_root_carbon_foliage_area <-
+  niiyama_data$fine_root_carbon_mass / niiyama_data$leaf_area
+
+print(niiyama_data$fine_root_carbon_foliage_area)
+mean(niiyama_data$fine_root_carbon_foliage_area)
+
+# Note that these ratios are very close to the mean cross both Kenzo and Niiyama
+# So I think we can use this second approach, using PFT specific values, as it
+# works with well studies dipterocarp plots and seems to capture the variability
+# across different plots well.
+
+# Subset niiyama_data with ratio and add to summary
+
+niiyama_data <- niiyama_data[, c("PFT_name", "fine_root_carbon_foliage_area")]
+
+summary <- left_join(summary, niiyama_data, by = "PFT_name")
 
 ################################################################################
 
 # Prep summary output again, check variable names, etc.
 
-#
+names(summary)
+
+summary <- summary[, c(
+  "PFT_name", "Hm", "a", "c", "WD_NB", "SLA", "leaf_area_index",
+  "light_extinction_coefficient", "turnover_leaf",
+  "turnover_reproductive_organ", "turnover_fine_root",
+  "respiration_fine_root", "respiration_leaf",
+  "respiration_wood", "yield_factor",
+  "fine_root_carbon_foliage_area"
+)]
+
+colnames(summary) <- c(
+  "PFT_name", "Hm", "a", "c", "WD", "SLA", "LAI",
+  "LEC", "turnover_leaf", "turnover_RT", "turnover_root",
+  "respiration_root", "respiration_leaf", "respiration_wood",
+  "yield_factor", "zeta"
+)
 
 ################################################################################
 
