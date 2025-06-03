@@ -1,0 +1,25 @@
+"approach","source","reproductive_to_leaf_ratio_C","notes"
+"1","safe_carbon_balance_components","0.0482959678948266","old growth, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Kitayama"
+"1","safe_carbon_balance_components","0.0238133486414022","selectively logged, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Kitayama"
+"1","safe_carbon_balance_components","0.0436648324595051","old growth, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Aoyagi"
+"1","safe_carbon_balance_components","0.0215298693462563","selectively logged, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Aoyagi"
+"2","kitayama","0.174230061983564","dipterocarp forest"
+"2","kitayama","0.0695574237806977","lower montane forest"
+"3","aoyagi","0.16166724296911","aoyagi, dipterocarp forest, mast"
+"3","aoyagi","0.0224446098529555","aoyagi, dipterocarp forest, non-mast"
+"3","aoyagi","0.312148772663584","kitayama, dipterocarp forest, mast"
+"3","aoyagi","0.0735457064174303","kitayama, dipterocarp forest, non-mast"
+"3","aoyagi","0.122531084391044","kitayama, montane forest, mast"
+"3","aoyagi","0.050514494068852","kitayama, montane forest, non-mast"
+"4","anderson","0.0575883314472526","alluvial forest"
+"4","anderson","0.0527893038266482","dipterocarp forest"
+"5","proctor","0.0355642441536516","montane forest, could select specific altitudes"
+"6","dent","0.00582089552238806","alluvial forest"
+"propagule litter carbon percentage","ichie","0.924696412860591","dipterocarp forest"
+"non-propagule litter carbon percentage","ichie","0.0753035871394091","dipterocarp forest"
+"propagule live organ carbon percentage","ichie","0.773915714803501","dipterocarp forest"
+"non-propagule live organ carbon percentage","ichie","0.226084285196499","dipterocarp forest"
