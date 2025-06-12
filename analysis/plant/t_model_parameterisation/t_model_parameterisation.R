@@ -65,7 +65,8 @@
 #'   preserve the flow and links between different datasets, so that the final
 #'   output file contains all necessary parts. The units are the same as the
 #'   ones in Li et al. (2014) unless specified otherwise in the script.
-#'   It might be a good idea to include the units in the summary output file.
+#'   A summary of the unit for each variable can also be found at the end of
+#'   this script. Variable names have been matched with those used by the VE.
 #' ---
 
 
@@ -883,6 +884,7 @@ backup <- summary
 ################################################################################
 
 # Calculate the number of trees and species within PFT
+# This step is primarily used as a quality/robustness check of the data
 
 summary <- backup
 
@@ -1174,7 +1176,7 @@ mean(niiyama_data$fine_root_carbon_foliage_area)
 
 # Note that these ratios are very close to the mean cross both Kenzo and Niiyama
 # So I think we can use this second approach, using PFT specific values, as it
-# works with well studies dipterocarp plots and seems to capture the variability
+# works with well studied dipterocarp plots and seems to capture the variability
 # across different plots well.
 
 # Subset niiyama_data with ratio and add to summary
@@ -1203,6 +1205,33 @@ colnames(summary) <- c(
   "LEC", "turnover_leaf", "turnover_RT", "turnover_root",
   "respiration_root", "respiration_leaf", "respiration_wood",
   "yield_factor", "zeta"
+)
+
+# Below I change the variable names to match those used by the model
+# and also provide an overview of the units between parentheses
+
+# PFT_name is name
+# Hm is h_max (m)
+# a is a_hd (-)
+# c is ca_ratio (-)
+# WD is rho_s (kg C m-3)
+# SLA is sla (m2 kg-1 C)
+# LAI is lai (-)
+# LEC is par_ext (-)
+# turnover_leaf is tau_f (years)
+# turnover_RT is tau_rt (years)
+# turnover_root is tau_r (years)
+# respiration_root is resp_r (year-1)
+# respiration_leaf is resp_f (year-1)
+# respiration_wood is resp_s (year-1)
+# yield_factor is yld (-)
+# zeta is zeta (kg C m-2)
+
+colnames(summary) <- c(
+  "name", "h_max", "a_hd", "ca_ratio", "rho_s", "sla", "lai",
+  "par_ext", "tau_f", "tau_rt", "tau_r",
+  "resp_r", "resp_f", "resp_s",
+  "yld", "zeta"
 )
 
 ################################################################################
