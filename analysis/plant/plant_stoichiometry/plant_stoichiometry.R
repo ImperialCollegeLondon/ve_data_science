@@ -3,8 +3,9 @@
 #'
 #' description: |
 #'     This script focuses on collecting stoichiometric ratios and lignin content
-#'     for each of the biomass pools in the plant model (leaves, sapwood, roots,
-#'     reproductive tissue, flowers, fruits, seeds).
+#'     for each of the biomass pools in the plant model:leaves, sapwood, roots
+#'     and reproductive tissue, which consists of propagules (fruits/seeds) and
+#'     non-propagules (flowers).
 #'     The script works with multiple datasets and ideally calculates the ratios
 #'     at PFT level. Species are linked to their PFT by working with the output
 #'     of the PFT species classification base script.
@@ -179,7 +180,7 @@ summary$CP_sapwood_mean <-
 summary$CP_sapwood_mean_SD <-
   round(unique(data$CP_mean_SD[data$TissueType == "Sapwood"]), 2)
 
-# Stem lignin content
+# Stem lignin content (expressed as a fraction of stem carbon mass)
 
 # According to White et al., 2000
 # (https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2)
@@ -193,7 +194,7 @@ mean(data$C_total[data$TissueType == "Sapwood"])
 # We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
 
 stem_lignin_C_percentage <- stem_lignin_percentage * 0.625 # nolint
-stem_lignin_C_of_stem_C <- (stem_lignin_C_percentage / 45.9) * 100 # nolint
+stem_lignin_C_of_stem_C <- stem_lignin_C_percentage / 45.9 # nolint
 
 # Add to summary
 
@@ -262,9 +263,10 @@ temp$P_total <- temp$P_total * 0.1
 temp$lignin_g <- (temp$lignin / 100) * temp$dry_weight
 temp$lignin_C_g <- temp$lignin_g * 0.625
 temp$leaf_C_g <- (temp$C_total / 100) * temp$dry_weight
-temp$lignin_C_of_leaf_C <- (temp$lignin_C_g / temp$leaf_C_g) * 100
+temp$lignin_C_of_leaf_C <- temp$lignin_C_g / temp$leaf_C_g
 
-# Use lignin_C_of_leaf_C as the new lignin content
+# Use lignin_C_of_leaf_C as the new lignin content (expressed as fraction of
+# leaf carbon mass)
 temp$lignin <- temp$lignin_C_of_leaf_C
 temp <- temp[, c(1:5)]
 
@@ -661,7 +663,7 @@ mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100 #
 seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
 seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100 # nolint
 
-# Add seed lignin content (the percentage of reproductive tissue that is lignin)
+# Add seed lignin content (the fraction of reproductive tissue carbon that is lignin)
 
 # Convert seed lignin content from dry weight basis to carbon basis
 # According to Muddasar et al., 2024 (https://doi.org/10.1016/j.mtsust.2024.100990)
@@ -674,7 +676,7 @@ seed_lignin_percentage <- 14.4 # with SD of 3.2 (see Nakagawa and Nakashizuka)
 seed_lignin_g <- (seed_lignin_percentage / 100) * seed_dry_mass
 seed_lignin_C_g <- seed_lignin_g * 0.625 # nolint
 seed_C_g <- (mature_fruit_C_percentage / 100) * seed_dry_mass # nolint
-lignin_C_of_seed_C <- (seed_lignin_C_g / seed_C_g) * 100 # nolint
+lignin_C_of_seed_C <- seed_lignin_C_g / seed_C_g # nolint
 
 # Add to summary
 
@@ -720,7 +722,7 @@ fine_root_P_percentage <- 0.052 # SD = 0.004 # nolint
 fine_root_CN <- fine_root_C_percentage / fine_root_N_percentage # nolint
 fine_root_CP <- fine_root_C_percentage / fine_root_P_percentage # nolint
 
-# Fine root lignin content
+# Fine root lignin content (expressed as fraction of fine root carbon mass)
 
 # According to White et al., 2000
 # (https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2)
@@ -734,7 +736,7 @@ fine_root_lignin_percentage <- 22
 # We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
 
 lignin_C_percentage <- fine_root_lignin_percentage * 0.625 # nolint
-fine_root_lignin_C_of_root_C <- (lignin_C_percentage / 45.2) * 100 # nolint
+fine_root_lignin_C_of_root_C <- lignin_C_percentage / 45.2 # nolint
 
 # Add to summary
 
@@ -749,16 +751,35 @@ summary$fine_root_lignin <- fine_root_lignin_C_of_root_C
 backup <- summary
 summary <- backup
 
+summary$CN_leaf_mean <- as.numeric(summary$CN_leaf_mean)
+summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
+summary$lignin_leaf_mean <- as.numeric(summary$lignin_leaf_mean)
+
 names(summary)
 summary <- summary[, c(
-  2, 4, 6, 8, 9, 11, 13, 15:26
+  "PFT_name", "CN_sapwood_mean", "CP_sapwood_mean", "stem_lignin",
+  "CN_leaf_mean", "CP_leaf_mean", "lignin_leaf_mean",
+  "reproductive_organ_CN", "reproductive_organ_CP",
+  "mature_fruit_CN", "mature_fruit_CP", "mature_fruit_C_mass",
+  "seed_C_mass", "seed_lignin",
+  "flower_CN", "flower_CP",
+  "fine_root_CN", "fine_root_CP", "fine_root_lignin"
 )]
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary) # nolint
 
-summary$CN_leaf_mean <- as.numeric(summary$CN_leaf_mean)
-summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
-summary$lignin_leaf_mean <- as.numeric(summary$lignin_leaf_mean)
+# Change variable names to match those used in the VE
+names(summary)
+colnames(summary) <- c(
+  "name", "deadwood_c_n_ratio", "deadwood_c_p_ratio", "stem_lignin",
+  "leaf_turnover_c_n_ratio", "leaf_turnover_c_p_ratio", "leaf_lignin",
+  "plant_reproductive_tissue_turnover_c_n_ratio",
+  "plant_reproductive_tissue_turnover_c_p_ratio",
+  "mature_fruit_c_n_ratio", "mature_fruit_c_p_ratio", "mature_fruit_c_mass",
+  "carbon_mass_per_propagule", "plant_reproductive_tissue_lignin",
+  "flower_c_n_ratio", "flower_c_p_ratio",
+  "root_turnover_c_n_ratio", "root_turnover_c_p_ratio", "root_lignin"
+)
 
 # Write CSV file
 
