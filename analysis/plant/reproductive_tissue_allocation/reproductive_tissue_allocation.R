@@ -50,8 +50,18 @@
 #'     - ggplot2
 #'
 #' usage_notes: |
+#'     The summary output file provides the ratio of reproductive tissue carbon
+#'     mass to leaf carbon mass, for a range of studies. At the moment, no decision
+#'     has been made yet which ratio to use or to use an average across studies.
+#'     The summary also provides the ratio between non-propagule and propagule
+#'     carbon mass, using one approach based on litter fall and one approach
+#'     based on estimated live organs.
+#'     If I had to pick, I would recommend using the ratio obtained from the SAFE
+#'     carbon balance components dataset, focusing on old growth plots, with the
+#'     Aoyagi reproductive tissue carbon content (so the ratio on row 3). With
+#'     regards to the ratio between non-propagule and propagule, I would recommend
+#'     the one based on litter fall.
 #' ---
-
 
 # Load packages
 
@@ -641,6 +651,13 @@ summary[16, ] <-
     dent_data[1, 8],
     "alluvial forest"
   )
+
+###
+
+# Change to numeric
+
+summary$reproductive_to_leaf_ratio_C <-
+  as.numeric(summary$reproductive_to_leaf_ratio_C)
 
 ################################################################################
 ################################################################################
