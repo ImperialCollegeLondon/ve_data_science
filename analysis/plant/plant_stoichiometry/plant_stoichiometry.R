@@ -561,7 +561,9 @@ kitayama_litter_stoichiometry$leaf_CN <-
 kitayama_litter_stoichiometry$leaf_CP <-
   kitayama_litter_stoichiometry$leaf_C / kitayama_litter_stoichiometry$leaf_P
 
-# Note that values for leaf stoichiometry are higher than our PFT specific ratios
+# Note that values for leaf stoichiometry are higher than our PFT specific ratios,
+# particularly for CP. This suggests lower nitrogen and phosphorus for the same
+# amount of carbon. Keep this in mind when comparing with Ichie's approach below.
 
 # Here is where we'd need to make a choice on which plots to use from Kitayama
 # They have sedimentary sites (S-XX), ultrabasic sites (U-XX)
@@ -606,6 +608,11 @@ summary$reproductive_organ_CP <-
     ]
   )
 
+# Note that here reproductive organs includes everything (so flowers, fruits,
+# seeds, etc.).
+# Also note that this approach provides averages across different types of forest,
+# albeit on distinct soils.
+
 ###
 
 # The second approach is to use the data from Ichie et al., 2005
@@ -637,7 +644,7 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # There seems to be quite a large difference in the CP ratio between the two
 # approaches, and I'm not sure which one is the best
 # Also, when comparing Kitayama values for leaf stoichiometry with our PFT values,
-# Kitayama values appear to be quite a bit higher
+# Kitayama values appear to be quite a bit higher (so less nutrients per carbon)
 # The one based on Kitayama is more general (i.e., different species and sites)
 # but is less detailed than the one based on Ichie with regards to different
 # tissue types
@@ -647,6 +654,9 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # between foliage mass and reproductive tissue mass (see SI for carbon mass)
 # Because of this, it may be better to choose Kitayama derived stoichiometric
 # values for reproductive tissue (and not use the ones derived from Ichie)
+
+# Note that when using the ratio derived from Kityama's data we do not have
+# different ratios for propagule and non-propagules, which is is not ideal
 
 # Note that we'll likely use Ichie to determine the ratio between non-propagule
 # and propagule mass
@@ -663,7 +673,8 @@ mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100 #
 seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
 seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100 # nolint
 
-# Add seed lignin content (the fraction of reproductive tissue carbon that is lignin)
+# Add seed lignin content (the fraction of reproductive tissue carbon that is
+# captured in lignin)
 
 # Convert seed lignin content from dry weight basis to carbon basis
 # According to Muddasar et al., 2024 (https://doi.org/10.1016/j.mtsust.2024.100990)
