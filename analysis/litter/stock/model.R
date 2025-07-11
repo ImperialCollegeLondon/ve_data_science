@@ -33,6 +33,8 @@
 #' usage_notes: |
 #'   This model estimates litter stock in kg/m2/day, but VE takes kg/m2 for
 #'   initialisation. We will discuss more about this.
+#'   If more data is needed for even more accurate parameterisation, see
+#'   Turner et al. (2019) https://zenodo.org/records/3265722
 #' ---
 
 library(tidyverse)
