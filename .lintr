@@ -1,5 +1,6 @@
 linters: linters_with_defaults(
     cyclocomp_linter(complexity_limit = 10L),
     indentation_linter(indent = 2L),
-    line_length_linter(length = 88L)
+    line_length_linter(length = 88L),
+    object_name_linter = NULL
   )
