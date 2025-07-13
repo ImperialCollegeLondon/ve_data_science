@@ -1,9 +1,10 @@
 #' ---
-#' title: Estimating litter stocks from SAFE data
+#' title: Estimating litter decomposition rates from SAFE data
 #'
 #' description: |
-#'     This R script estimates litter stocks (leaf, wood, reproductive)
-#'     from SAFE data
+#'     This R script estimates litter decomposition rates from SAFE data.
+#'     The goal is to parameterise the litter theoretical model documented
+#'     under /theory/soil/litter_theory.html on the VE website
 #'
 #' VE_module: Litter
 #'
@@ -13,11 +14,12 @@
 #' status: wip
 #'
 #' input_files:
-#'   - name: Ewers_LeafLitter.xlsx
+#'   - name: Both_litter_decomposition_experiment.xlsx
 #'     path: data/primary/litter/
 #'     description: |
-#'       Wet and dry weight of leaf litterfall at SAFE vegetation plots by
-#'       Robert Ewers; downloaded from https://zenodo.org/records/1198587
+#'       Litter chemistry and decomposition at SAFE vegetation plots by
+#'       Sabine Both et al.
+#'       Downloaded from https://doi.org/10.5281/zenodo.3247639
 #'
 #' output_files:
 #'   - name: NA
@@ -28,48 +30,195 @@
 #' package_dependencies:
 #'     - tidyverse
 #'     - readxl
+#'     - greta
+#'     - bayesplot
 #'
 #' usage_notes: |
-#'   NA
+#'   There is also another dataset
+#'   Plowman et al. (2018) https://zenodo.org/records/1220270
+#'   but the initial mass was wet weight
 #'
 #' ---
 
 library(tidyverse)
 library(readxl)
+library(greta)
+library(bayesplot)
 
 
 
 # Data --------------------------------------------------------------------
 
-# SAFE has multiple litter dynamics datasets
-# so the first step is to harmonise them into a single dataset
-# the target is a dataframe at least with columns initial litter weight,
-# final litter weight, and time lapsed
-
-# Plowman et al. (2018) https://zenodo.org/records/1220270
-turner19 <-
-  read_xlsx("data/primary/litter/template_Plowman.xlsx",
-    sheet = 3,
-    skip = 5
+# litter chemistry
+chem <-
+  read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
+    sheet = 4,
+    skip = 7
   ) %>%
   select(
-    Plot_ID,
-    location_name,
-    Pretreatment,
-    leaf_N,
-    leaf_P,
-    leaf_C,
-    lig_rec
+    code,
+    P_mg.g:lignin_recalcitrants
+  ) %>%
+  mutate_at(vars(P_mg.g:lignin_recalcitrants), as.numeric) %>%
+  mutate(C.P = C_perc / (P_mg.g / 1000 * 100))
+
+# litter decomposition
+litter <-
+  read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
+    sheet = 5,
+    skip = 7
+  ) %>%
+  # filter replicate A because only these litter bag had chemistry measured
+  filter(replicate == "A") %>%
+  # long format for modelling
+  select(
+    code,
+    plot,
+    litter_type,
+    mesh,
+    x0 = weight_t0,
+    weight_t1,
+    weight_t2,
+    weight_t3,
+    weight_t4,
+    weight_t5,
+    weight_t6 = t6_corrected
   ) %>%
   pivot_longer(
-    cols = c(leaf_N, leaf_P, leaf_C, lig_rec),
-    names_to = "chemical",
-    values_to = "concentration"
-  )
-
+    cols = weight_t1:weight_t6,
+    names_to = "time_step",
+    values_to = "xt",
+    names_prefix = "weight_t"
+  ) %>%
+  mutate(
+    weeks = case_match(
+      time_step,
+      "1" ~ 2,
+      "2" ~ 4,
+      "3" ~ 6,
+      "4" ~ 8,
+      "5" ~ 13,
+      "6" ~ 24
+    ),
+    days = weeks * 7
+  ) %>%
+  # join chemistry data
+  left_join(chem) %>%
+  # remove data without lignin content
+  filter(!is.na(lignin_recalcitrants))
 
 
 
 
 
 # Model -------------------------------------------------------------------
+
+# Data
+xt <- litter$xt
+x0 <- litter$x0
+log_x0 <- log(x0)
+
+t <- litter$days
+
+plot <- litter$plot
+n_plot <- max(plot)
+
+# C:N ratio
+CN <- litter$C.N / 100
+
+# C:P ratio
+CP <- litter$C.P / 1000
+
+# lignin content
+L <- litter$lignin_recalcitrants
+
+# parameters and priors
+log_sN <- normal(-3, 1)
+log_sP <- normal(-3, 1)
+sN <- exp(log_sN)
+sP <- exp(log_sP)
+
+logit_fM <- normal(1.73, 0.5)
+fM <- ilogit(logit_fM)
+
+log_r <- normal(0, 1)
+r <- exp(log_r)
+
+log_ks <- normal(-2, 0.5)
+ks <- exp(log_ks)
+
+# constrain ks < km
+log_km_diff <- normal(1, 0.1)
+log_km <- log_ks + exp(log_km_diff)
+km <- exp(log_km)
+
+fm <- fM - L * (sN * CN + sP * CP)
+metabolic <- fm * exp(-km * t)
+structural <- (1 - fm) * exp(-(ks * exp(-r * L) * t))
+
+# random terms
+sd_plot <- exponential(1)
+z_plot <- normal(0, 1, dim = n_plot)
+e_plot <- z_plot * sd_plot
+
+# linear predictor
+log_mu <- log_x0 + log(metabolic + structural) + e_plot[plot]
+
+# residual variance
+sigma <- exponential(1)
+
+# likelihood
+distribution(xt) <- lognormal(log_mu, sigma)
+
+# model
+mod <-
+  model(
+    log_sN, log_sP,
+    logit_fM,
+    log_r,
+    log_ks,
+    log_km,
+    sigma,
+    sd_plot
+  )
+
+draws <- mcmc(
+  mod,
+  warmup = 2000,
+  sampler = hmc(15, 20)
+)
+
+
+
+
+
+# Diagnostics ------------------------------------------------------------
+
+mcmc_trace(draws)
+mcmc_intervals(draws)
+
+
+
+
+# Predictions -------------------------------------------------------------
+
+t_new <- seq(0, 24 * 7, length.out = 25)
+
+CN_new <- mean(CN)
+CP_new <- mean(CP)
+L_new <- mean(L)
+fm_new <- fM - L_new * (sN * CN_new + sP * CP_new)
+metabolic_new <- fm_new * exp(-km * t_new)
+structural_new <- (1 - fm_new) * exp(-(ks * exp(-r * L_new) * t_new))
+log_mu_new <- log(mean(x0)) + log(metabolic_new + structural_new)
+mu_new <- exp(log_mu_new)
+
+mu_sim <- calculate(mu_new, values = draws, nsim = 100)
+
+matplot(t_new, t(mu_sim$mu_new[, , 1]),
+  type = "l",
+  lty = 1,
+  col = grey(0, 0.2),
+  ylim = c(0, 11)
+)
+points(t, xt)
