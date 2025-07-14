@@ -3,7 +3,11 @@
 #'
 #' description: |
 #'     This R script estimates litter stocks (leaf, wood, reproductive)
-#'     from SAFE data
+#'     from SAFE data. It combines a dataset that measured
+#'     total aboveground litter stock and another dataset that
+#'     measured litter composition (can be converted to
+#'     proportions) to estimate litter stock per composition.
+#'     Belowground stock is still missing for now.
 #'
 #' VE_module: Litter
 #'
@@ -18,6 +22,11 @@
 #'     description: |
 #'       Wet and dry weight of leaf litterfall at SAFE vegetation plots by
 #'       Robert Ewers; downloaded from https://zenodo.org/records/1198587
+#'   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx
+#'     path: data/primary/litter/
+#'     description: |
+#'       Litter stock from SAFE carbon inventory by
+#'       Riutta et al.; downloaded from https://zenodo.org/records/4542881
 #'
 #' output_files:
 #'   - name: NA
@@ -31,8 +40,6 @@
 #'     - glmmTMB
 #'
 #' usage_notes: |
-#'   This model estimates litter stock in kg/m2/day, but VE takes kg/m2 for
-#'   initialisation. We will discuss more about this.
 #'   If more data is needed for even more accurate parameterisation, see
 #'   Turner et al. (2019) https://zenodo.org/records/3265722
 #' ---
@@ -45,7 +52,24 @@ library(glmmTMB)
 
 # Data --------------------------------------------------------------------
 
+# Litter stock data by Riutta et al.
+# https://zenodo.org/records/4542881
+
 litter_stock <-
+  # nolint start
+  read_xlsx("data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
+    sheet = 4,
+    skip = 5
+  ) %>%
+  # nolint end
+  select(field_name:ForestPlotsCode, LitterStock) %>%
+  # convert litter stock from Mg C / ha to kg C / m2
+  mutate(LitterStock = LitterStock * 0.1)
+
+# Litter composition data from litter traps by Ewers
+# https://zenodo.org/records/1198587
+
+litter_compo <-
   read_xlsx("data/primary/litter/Ewers_LeafLitter.xlsx",
     sheet = 3,
     skip = 9
@@ -70,6 +94,7 @@ litter_stock <-
   pivot_longer(
     cols = starts_with("DW"),
     names_to = "Type",
+    names_prefix = "DW\\.",
     values_to = "DW"
   )
 
@@ -78,17 +103,44 @@ litter_stock <-
 
 # Model -------------------------------------------------------------------
 
-# Tweedie log-link GLMM
-mod <- glmmTMB(
-  DW ~ 0 + Type + (1 | Plot) + offset(log_days),
-  dispformula = ~ 0 + Type,
-  family = tweedie,
+# Stock model
+mod_stock <- glmmTMB(
+  LitterStock ~ 1,
+  family = lognormal,
   data = litter_stock
 )
 
-summary(mod)
+summary(mod_stock)
 
-# expected litter stock per litter type
-# original measurement was in g/m2/day, convert to kg/m2/day
-stock_fitted <- exp(fixef(mod)$cond) / 1000
-stock_fitted
+# Composition model
+mod_compo <- glmmTMB(
+  DW ~ 0 + Type + (1 | Plot) + offset(log_days),
+  dispformula = ~ 0 + Type,
+  family = tweedie,
+  data = litter_compo
+)
+
+summary(mod_compo)
+
+
+
+
+
+# Prediction --------------------------------------------------------------
+
+# Our stock model only predicts total aboveground litter stock
+# To split it into separate litter components, we will combine
+# it with the litter composition model
+# Ideally we would do this with simulated posterior to propagate
+# parameter uncertain better but I will do it quick and dirty
+# for now because the goal is a first pass for VE
+
+# Expected litter composition in proportions
+compo_hat <- exp(fixef(mod_compo)$cond)
+compo_hat <- compo_hat / sum(compo_hat)
+
+# Expected litter stock in kg C / m2
+stock_hat <- exp(fixef(mod_stock)$cond)
+
+# Expected litter stock by component
+stock_compo <- stock_hat * compo_hat
