@@ -189,8 +189,8 @@ litter_wood <-
     !is.na(Density)
   ) %>%
   # wood lignin
-  # fix at 25% for now, as a guess from https://doi.org/10.5194/bg-15-693-2018
-  mutate(lignin = 25)
+  # fix at 235% for now, as a guess similar to Arne's plant stoichiometry scripts
+  mutate(lignin = 23)
 
 
 
@@ -255,15 +255,15 @@ CP <- litter$C.P / 1000
 L <- litter$lignin
 
 # parameters and priors
-log_sN <- normal(-3, 1)
-log_sP <- normal(-3, 1)
+log_sN <- normal(-3, 0.5)
+log_sP <- normal(-3, 0.5)
 sN <- exp(log_sN)
 sP <- exp(log_sP)
 
 logit_fM <- normal(1.73, 0.5)
 fM <- ilogit(logit_fM)
 
-log_r <- normal(0, 1)
+log_r <- normal(-1, 0.5)
 r <- exp(log_r)
 
 log_ks <- normal(-2, 0.5)
