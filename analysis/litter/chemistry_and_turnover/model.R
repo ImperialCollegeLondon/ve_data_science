@@ -49,8 +49,10 @@ library(bayesplot)
 
 # Data --------------------------------------------------------------------
 
+# Leaf litter ================================================
+
 # litter chemistry
-chem <-
+chem_leaf <-
   read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
     sheet = 4,
     skip = 7
@@ -63,7 +65,7 @@ chem <-
   mutate(C.P = C_perc / (P_mg.g / 1000 * 100))
 
 # litter decomposition
-litter <-
+litter_leaf <-
   read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
     sheet = 5,
     skip = 7
@@ -100,12 +102,121 @@ litter <-
       "5" ~ 13,
       "6" ~ 24
     ),
-    days = weeks * 7
+    days = weeks * 7,
+    plot = as.character(plot),
   ) %>%
   # join chemistry data
-  left_join(chem) %>%
+  left_join(chem_leaf) %>%
   # remove data without lignin content
   filter(!is.na(lignin_recalcitrants))
+
+
+# Wood litter ================================================
+
+# wood litter chemistry
+chem_wood <-
+  # nolint start
+  read_xlsx("data/primary/litter/SAFE_WoodDecomposition_Data_SAFEdatabase_2021-06-04.xlsx",
+    sheet = 4,
+    skip = 5
+  ) %>%
+  # nolint end
+  # calculate C:N and C:P ratios
+  mutate(
+    C.N = C_total / N_total,
+    C.P = C_total / (P_total / 1000 * 100)
+  ) %>%
+  select(Tag, C.N, C.P)
+
+# wood litter decomposition
+litter_wood_raw <-
+  # nolint start
+  read_xlsx("data/primary/litter/SAFE_WoodDecomposition_Data_SAFEdatabase_2021-06-04.xlsx",
+    sheet = 3,
+    skip = 5
+  ) %>%
+  # nolint end
+  filter(SampleType == "Wood") %>%
+  group_by(
+    SamplingCampaign,
+    SamplingDate,
+    Block,
+    Plot,
+    PlotCode,
+    Tag
+  ) %>%
+  mutate(Density_WaterDisplacement = as.numeric(Density_WaterDisplacement)) %>%
+  summarise(Density = mean(Density_WaterDisplacement, na.rm = TRUE)) %>%
+  group_by(Tag) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+litter_wood <-
+  litter_wood_raw %>%
+  filter(SamplingCampaign == "1st") %>%
+  select(-SamplingCampaign) %>%
+  left_join(
+    litter_wood_raw %>%
+      filter(SamplingCampaign != "1st") %>%
+      select(
+        SamplingDate2 = SamplingDate,
+        Tag,
+        Density2 = Density
+      )
+  ) %>%
+  filter(!is.na(Density2)) %>%
+  mutate(
+    t = as.numeric(SamplingDate2 - SamplingDate),
+    .keep = "unused"
+  ) %>%
+  # join chemistry data
+  left_join(chem_wood) %>%
+  # remove wood with Infinite C:P ratios; they had zero P measurement
+  # this is not necessary for now because wood is always classified as
+  # structural litter regardless of its C:P ratio, but I want to be safe
+  # for the future (not a lot of removal anyways)
+  # also remove wood that was not measured in the first census
+  filter(
+    is.finite(C.P),
+    !is.na(Density)
+  ) %>%
+  # wood lignin
+  # fix at 25% for now, as a guess from https://doi.org/10.5194/bg-15-693-2018
+  mutate(lignin = 25)
+
+
+
+
+
+# Combine litter dataset ======================================
+litter <-
+  litter_leaf %>%
+  select(
+    id = code,
+    plot,
+    x0,
+    xt,
+    t = days,
+    C.N,
+    C.P,
+    lignin = lignin_recalcitrants
+  ) %>%
+  mutate(type = "leaf") %>%
+  bind_rows(
+    litter_wood %>%
+      select(
+        id = Tag,
+        plot = Plot,
+        x0 = Density,
+        xt = Density2,
+        t,
+        C.N,
+        C.P,
+        lignin
+      ) %>%
+      mutate(type = "wood")
+  )
+
 
 
 
@@ -118,10 +229,13 @@ xt <- litter$xt
 x0 <- litter$x0
 log_x0 <- log(x0)
 
-t <- litter$days
+t <- litter$t
 
-plot <- litter$plot
+plot <- as.numeric(as.factor(litter$plot))
 n_plot <- max(plot)
+
+# indicator variable to let fm of non-leaves be zero
+type <- ifelse(litter$type == "leaf", 1, 0)
 
 # C:N ratio
 CN <- litter$C.N / 100
@@ -130,7 +244,7 @@ CN <- litter$C.N / 100
 CP <- litter$C.P / 1000
 
 # lignin content
-L <- litter$lignin_recalcitrants
+L <- litter$lignin
 
 # parameters and priors
 log_sN <- normal(-3, 1)
@@ -152,7 +266,7 @@ log_km_diff <- normal(1, 0.1)
 log_km <- log_ks + exp(log_km_diff)
 km <- exp(log_km)
 
-fm <- fM - L * (sN * CN + sP * CP)
+fm <- (fM - L * (sN * CN + sP * CP)) * type
 metabolic <- fm * exp(-km * t)
 structural <- (1 - fm) * exp(-(ks * exp(-r * L) * t))
 
