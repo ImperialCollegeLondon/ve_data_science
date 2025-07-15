@@ -4,7 +4,9 @@
 #' description: |
 #'     This R script estimates litter decomposition rates from SAFE data.
 #'     The goal is to parameterise the litter theoretical model documented
-#'     under /theory/soil/litter_theory.html on the VE website
+#'     under /theory/soil/litter_theory.html on the VE website. Currently it
+#'     includes leaf and wood litter, and we need to work on reproductive and
+#'     root litter later
 #'
 #' VE_module: Litter
 #'
@@ -20,6 +22,12 @@
 #'       Litter chemistry and decomposition at SAFE vegetation plots by
 #'       Sabine Both et al.
 #'       Downloaded from https://doi.org/10.5281/zenodo.3247639
+#'   - name: SAFE_WoodDecomposition_Data_SAFEdatabase_2021-06-04.xlsx
+#'     path: data/primary/litter/
+#'     description: |
+#'       Deadwood decay and traits in the SAFE landscape by
+#'       Terhi Riutta et al.
+#'       Downloaded from https://zenodo.org/records/4899610
 #'
 #' output_files:
 #'   - name: NA
