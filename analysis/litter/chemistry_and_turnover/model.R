@@ -189,7 +189,7 @@ litter_wood <-
     !is.na(Density)
   ) %>%
   # wood lignin
-  # fix at 235% for now, as a guess similar to Arne's plant stoichiometry scripts
+  # fix at 23% for now, as a guess similar to Arne's plant stoichiometry scripts
   mutate(lignin = 23)
 
 
@@ -326,13 +326,16 @@ mcmc_intervals(draws)
 
 t_new <- seq(0, 24 * 7, length.out = 25)
 
-CN_new <- mean(CN)
-CP_new <- mean(CP)
-L_new <- mean(L)
-fm_new <- fM - L_new * (sN * CN_new + sP * CP_new)
+type_new <- 0
+x0_new <- 1
+CN_new <- mean(CN[type == type_new])
+CP_new <- mean(CP[type == type_new])
+L_new <- mean(L[type == type_new])
+fm_new <- (fM - L_new * (sN * CN_new + sP * CP_new)) * type_new
 metabolic_new <- fm_new * exp(-km * t_new)
-structural_new <- (1 - fm_new) * exp(-(ks * exp(-r * L_new) * t_new))
-log_mu_new <- log(mean(x0)) + log(metabolic_new + structural_new)
+structural_new <- (1 - fm_new) * exp(-(ks * exp(-r * L_new)) * t_new)
+log_mu_new <- log(x0_new) + log(metabolic_new + structural_new)
+
 mu_new <- exp(log_mu_new)
 
 mu_sim <- calculate(mu_new, values = draws, nsim = 100)
@@ -341,6 +344,6 @@ matplot(t_new, t(mu_sim$mu_new[, , 1]),
   type = "l",
   lty = 1,
   col = grey(0, 0.2),
-  ylim = c(0, 11)
+  ylim = c(0, 1)
 )
 points(t, xt)
