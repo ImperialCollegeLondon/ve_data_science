@@ -2,12 +2,12 @@
 #' title: Plant functional type cohort distribution
 #'
 #' description: |
-#'     This script calculates the PFT cohort distribution using the SAFE tree
-#'     census dataset. It provides two output files that contain the number of
-#'     individuals per DBH class for each PFT, based on the old growth plots.
-#'     The first output file contains a list of individuals in all three OG plots.
-#'     The second output file builds on top of this by providing a standardised
-#'     count per hectare.
+#'     This script calculates the Plant Functional Type (PFT) cohort distribution
+#'     using the SAFE tree census dataset. The script processes data from
+#'     old-growth (OG) plots to generate a CSV file with the number of individuals
+#'     per Diameter at Breast Height (DBH) class for each PFT. It first compiles
+#'     a list of all trees across the three OG plots and then converts this to
+#'     individuals per hectare for standardised comparison.
 #'
 #' VE_module: Plant
 #'
@@ -45,10 +45,7 @@
 #'     path: ../../../data/derived/plant/plant_functional_type
 #'     description: |
 #'       This CSV file contains the number of individuals per DBH class for each PFT,
-#'       providing a standardised count per hectare.
-#'       The variable "plant_cohorts_n_corrected" is "plant_cohorts_n" but where
-#'       the trees with unknown PFT have been distributed evenly across the
-#'       existing PFTs.
+#'       standardised as a count per hectare.
 #'
 #' package_dependencies:
 #'     - readxl
@@ -60,6 +57,9 @@
 #'   This script applies the PFT species classification to the SAFE census dataset
 #'   in order to get the respective cohort distribution. However, the same approach
 #'   can be applied to different census datasets and other PFT species classifications.
+#'   Trees with unknown PFT have been distributed evenly across the existing PFTs,
+#'   this could be handled more precise by taking into account the relative abundance
+#'   of each PFT.
 #' ---
 
 
@@ -151,9 +151,9 @@ ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_fina
 # At the moment, these trees will be excluded from the cohort distribution,
 # unless we change the abovementioned issue.
 
-# Additionally, the code below demonstrates the amount of trees that have no
-# height and DBH values, and because of this these trees will also be excluded
-# from the cohort distribution.
+# The code below demonstrates the amount of trees that have no PFT and/or DBH
+# values, and because of this these trees will be excluded from the cohort
+# distribution.
 
 ##########
 
@@ -264,7 +264,7 @@ OG1_density <- OG1_trees / OG1_area * 10000 # from trees per m2 to per hectare #
 OG2_density <- OG2_trees / OG2_area * 10000 # from trees per m2 to per hectare # nolint
 OG3_density <- OG3_trees / OG3_area * 10000 # from trees per m2 to per hectare # nolint
 
-# Mean OG tree density per hectare
+# Mean OG tree density per hectare (558)
 mean(c(OG1_density, OG2_density, OG3_density))
 # Compare to 410-444-535-478-427-600 from Kenzo, Slik,
 # Mills, Saner papers (especially Slik appendix, many locations)
@@ -402,7 +402,8 @@ rownames(data_taxa) <- c(1:maxrows)
 data_taxa <- data_taxa[, c("Block", "Plot", "PlotID", "PFT_name", "DBH_class")]
 data_taxa$DBH_class <- data_taxa$DBH_class / 1000
 
-# Save cohort distribution (not on area basis yet - with individual stem density)
+# This cohort distribution is not standardised per hectare yet (see continued below)
+# This version is saved for plotting and exploration (see bottom of this script)
 
 write.csv(
   data_taxa,
@@ -412,7 +413,7 @@ write.csv(
 
 ################################################################################
 
-# Calculating OG cohort distribution on an area basis
+# Standardising OG cohort distribution per hectare
 
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 plot(as.factor(check$Block),
@@ -446,8 +447,8 @@ data_taxa$PFT_unknown <-
   nrow(data_taxa[data_taxa$PFT_name %in% c("unknown"), ])
 data_taxa$PFT_total <- data_taxa$PFT_known + data_taxa$PFT_unknown
 
-# Correct plant_cohorts_n for trees with unknown PFT
-# In other words, evenly distribute trees with unknown PFT to other known PFTs
+# Correct plant_cohorts_n for trees with unknown PFT by evenly distributing trees
+# with unknown PFT across the known PFTs
 
 data_taxa$plant_cohorts_n_corrected <-
   (data_taxa$plant_cohorts_n / data_taxa$PFT_known) * data_taxa$PFT_total
@@ -468,23 +469,25 @@ data_taxa$plant_cohorts_n_corrected[data_taxa$PFT_name == "unknown"] <- 0
 
 ###
 
+# Remove original plant_cohorts_n and rename plant_cohorts_n_corrected to
+# plant_cohorts_n, then remove the rows with unknown PFT
+
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n_corrected
+data_taxa <- data_taxa[, c(1:10)]
+data_taxa <- data_taxa[data_taxa$PFT_name != "unknown", ]
+
 # Divide plant_cohorts_n by total_OG_area to get individuals per m2
 # Then multiply by 10000 to get cohort distribution per hectare
 
 data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n / data_taxa$total_OG_area
 data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n * 10000
 
-data_taxa$plant_cohorts_n_corrected <-
-  data_taxa$plant_cohorts_n_corrected / data_taxa$total_OG_area
-data_taxa$plant_cohorts_n_corrected <-
-  data_taxa$plant_cohorts_n_corrected * 10000
-
 # Clean up summary
 
 data_taxa <-
   data_taxa[
     ,
-    c("plant_cohorts_n", "plant_cohorts_n_corrected", "PFT_name", "DBH_class")
+    c("plant_cohorts_n", "PFT_name", "DBH_class")
   ]
 data_taxa <- unique(data_taxa)
 
@@ -494,17 +497,11 @@ data_taxa <- data_taxa[
   ),
 ]
 
-# Round up to nearest whole number (as a decimal of a tree does not exist)
-
-data_taxa$plant_cohorts_n <- ceiling(data_taxa$plant_cohorts_n)
-data_taxa$plant_cohorts_n_corrected <- ceiling(data_taxa$plant_cohorts_n_corrected)
-
 # Quick check of total stem density per hectare (to compare with literature)
-# Original stem density from SAFE census data was 559 per hectare
-# Rounding upwards results in an overestimate of 20-25 trees per hectare
+# Original stem density from SAFE census data was 558 per hectare
+# After distributing trees with unknown PFT across PFTs, the stem density is 560
 
 sum(data_taxa$plant_cohorts_n)
-sum(data_taxa$plant_cohorts_n_corrected)
 
 # Save cohort distribution on a per hectare basis
 
@@ -596,7 +593,7 @@ ggplot(data, aes(x = PlotID, fill = PFT_name)) +
 
 ##########
 
-# Barplot per DBH (should rescale this to per hectare and compare against other studies)
+# Barplot per DBH
 
 names(data)
 
