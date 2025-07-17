@@ -497,6 +497,10 @@ data_taxa <- data_taxa[
   ),
 ]
 
+# Rename variables to match VE
+names(data_taxa)
+colnames(data_taxa) <- c("plant_cohorts_n", "plant_cohorts_pft", "plant_cohorts_dbh")
+
 # Quick check of total stem density per hectare (to compare with literature)
 # Original stem density from SAFE census data was 558 per hectare
 # After distributing trees with unknown PFT across PFTs, the stem density is 560
