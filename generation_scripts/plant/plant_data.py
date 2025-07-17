@@ -7,19 +7,22 @@ This script exports a NetCDF file containing the plant community setup for the 9
 
 import numpy as np
 import pandas as pd
-from virtual_ecosystem.example_data.generation_scripts.common import (
+from xarray import DataArray, Dataset
+
+from generation_scripts.plant.common import (
     cell_id,
     n_cells,
     n_dates,
     time,
     time_index,
 )
-from xarray import DataArray, Dataset
 
 data = Dataset()
 
 # Load cohort distribution
-plant_cohorts = pd.read_csv("../data/plant_cohorts.csv")
+plant_cohorts = pd.read_csv(
+    "../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv"
+)
 
 # Determine cohorts per cell
 n_cohorts_per_cell = len(plant_cohorts)
@@ -65,4 +68,4 @@ data["downward_shortwave_radiation"] = DataArray(
 
 data["time"] = DataArray(time, coords={"time_index": time_index})
 
-data.to_netcdf("../data/plant_data.nc")
+data.to_netcdf("plant_data.nc")
