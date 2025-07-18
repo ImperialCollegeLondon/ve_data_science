@@ -21,7 +21,7 @@ data = Dataset()
 
 # Load cohort distribution
 plant_cohorts = pd.read_csv(
-    "../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv"
+    "data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv"
 )
 
 # Determine cohorts per cell
