@@ -63,7 +63,8 @@ package_dependencies:
     - tidyverse
 
 usage_notes: |
-  None for now.
+    Make sure input files are in the correct directories when globus data on ve_data_science repo is set up. 
+
 ---
 
 First we load the packages at the top of the notebook
@@ -78,8 +79,8 @@ if (!require(tidyverse)) {
 
 2. Load data
 ```{r setup, include = FALSE}
-knitr::opts_knit$set(root.dir = "C:/Users/Nicholas/OneDrive/Virtual_Ecosystem/
-                     Stoichiometry/Adrieux_etal21")
+knitr::opts_knit$set(root.dir = "../../../data/primary/animal/body_stoichiometry") 
+# Make sure input files are in the directory when globus is set up
 getwd()
 ```
 
