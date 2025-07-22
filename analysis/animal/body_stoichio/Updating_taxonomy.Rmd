@@ -665,7 +665,7 @@ na_counts_dat <- na_count %>%
   summarise_all(~ sum(as.numeric(is.na(.))))
 
 na_counts_dat <- na_counts_dat[
-  apply(na_counts_dat[, -1], 1, function(x) !all(x == 0)), 
+  apply(na_counts_dat[, -1], 1, function(x) !all(x == 0)),
 ]
 
 # plotting the graph for NAs with bar graph
