@@ -620,18 +620,22 @@ test
 
 Now, we replace the Order back in original data with the new Order (order.y) from the merged_insect data
 ```{r}
+# Get the matching families
+fam_match <- match(stoichio_filt$Family, merged_insect_fam$Family)
+
 stoichio_filt$Order <-
   # If its not an NA in Order of merged_insect_fam data with a matching "Family",
-  ifelse(!is.na(merged_insect_fam$Order.y[match(stoichio_filt$Family, merged_insect_fam$Family)]),
+  ifelse(
+    !is.na(merged_insect_fam$Order.y[fam_match]),
     # then we take the Order of the merged_insect_fam data to replace,
-    merged_insect_fam$Order.y[match(stoichio_filt$Family, merged_insect_fam$Family)],
+    merged_insect_fam$Order.y[fam_match],
     # If NA,  we retain the original Order of stoichio_filt
     stoichio_filt$Order
   )
 
 # Repeat the same for "Class", but there were no replacement needed.
-stoichio_filt$Class <- ifelse(!is.na(merged_insect_fam$Class.y[match(stoichio_filt$Family, merged_insect_fam$Family)]),
-  merged_insect_fam$Class.y[match(stoichio_filt$Family, merged_insect_fam$Family)],
+stoichio_filt$Class <- ifelse(!is.na(merged_insect_fam$Class.y[fam_match]),
+  merged_insect_fam$Class.y[fam_match],
   stoichio_filt$Subclass
 )
 ```
