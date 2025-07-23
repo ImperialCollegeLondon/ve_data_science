@@ -37,6 +37,7 @@ ruff = "^0.9.3"
 shapely = "^2.1.1"
 tomli-w = "^1.2.0"
 xarray = {extras = ["io"], version = "^2025.7.1"}
+cdsapi = "^0.7.6"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

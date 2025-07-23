@@ -289,6 +289,24 @@ tomlkit = ["tomlkit (>=0.11.8)"]
 ujson = ["ujson (>=5.10.0)"]
 
 [[package]]
+name = "cdsapi"
+version = "0.7.6"
+description = "Climate Data Store API"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
+files = [
+    {file = "cdsapi-0.7.6-py2.py3-none-any.whl", hash = "sha256:d4e813509930d1a948929fda829e635cb2c4dd6457ea90e41c5cf9c7788e4e0c"},
+    {file = "cdsapi-0.7.6.tar.gz", hash = "sha256:f85ab5b34269fed30240d9fb99b513e01eb91010eb9d981039f2a2bfab35f375"},
+]
+
+[package.dependencies]
+ecmwf-datastores-client = "*"
+requests = ">=2.5.0"
+tqdm = "*"
+
+[[package]]
 name = "certifi"
 version = "2025.7.14"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -850,6 +868,28 @@ pyyaml = "*"
 [package.extras]
 docs = ["cloudpickle", "numpydoc", "pytest", "sphinx (>=4.0.0)"]
 test = ["cloudpickle", "pytest"]
+
+[[package]]
+name = "ecmwf-datastores-client"
+version = "0.2.0"
+description = "ECMWF Data Stores Service (DSS) API Python client"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
+files = [
+    {file = "ecmwf_datastores_client-0.2.0-py3-none-any.whl", hash = "sha256:db914e61fbd98c79314fc90f336a3ae484d8951bcb1deca8d075d3af9ab4ec95"},
+    {file = "ecmwf_datastores_client-0.2.0.tar.gz", hash = "sha256:143ac5eddfe66c338d907a3f35c703c6332a18b729754688dcf565a26a56acf4"},
+]
+
+[package.dependencies]
+attrs = "*"
+multiurl = ">=0.3.2"
+requests = "*"
+typing-extensions = "*"
+
+[package.extras]
+legacy = ["cdsapi (>=0.7.6)"]
 
 [[package]]
 name = "executing"
@@ -2022,6 +2062,25 @@ files = [
     {file = "mkdocs_material_extensions-1.3.1-py3-none-any.whl", hash = "sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31"},
     {file = "mkdocs_material_extensions-1.3.1.tar.gz", hash = "sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443"},
 ]
+
+[[package]]
+name = "multiurl"
+version = "0.3.6"
+description = "A package to download several URL as one, as well as supporting multi-part URLs"
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
+files = [
+    {file = "multiurl-0.3.6-py3-none-any.whl", hash = "sha256:7ce0666dcf9b9a39bf5ebf916fb7a90fbd249abb2e74c36d30f0184eee858115"},
+    {file = "multiurl-0.3.6.tar.gz", hash = "sha256:6bf6630f87f96ce18e2004f231b1457acd0d65beb90777dcb3e6564d96ee65c8"},
+]
+
+[package.dependencies]
+python-dateutil = "*"
+pytz = "*"
+requests = "*"
+tqdm = "*"
 
 [[package]]
 name = "nbclient"
@@ -3866,6 +3925,29 @@ files = [
 ]
 
 [[package]]
+name = "tqdm"
+version = "4.67.1"
+description = "Fast, Extensible Progress Meter"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
+files = [
+    {file = "tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2"},
+    {file = "tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2"},
+]
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+dev = ["nbval", "pytest (>=6)", "pytest-asyncio (>=0.24)", "pytest-cov", "pytest-timeout"]
+discord = ["requests"]
+notebook = ["ipywidgets (>=6)"]
+slack = ["slack-sdk"]
+telegram = ["requests"]
+
+[[package]]
 name = "traitlets"
 version = "5.14.3"
 description = "Traitlets Python configuration system"
@@ -4181,4 +4263,4 @@ test = ["coverage", "hypothesis", "mypy", "packaging", "pytest (<8.4)", "pytest-
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.13"
-content-hash = "091ac99af008160e75a9acd75088e9f0d288bf5a4a85a889e29c79de8cab240d"
+content-hash = "8e10b8806852183bd8d1fb640da8a0d76c9258125783bb4cdd4b07934f3f29e1"

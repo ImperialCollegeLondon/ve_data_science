@@ -31,44 +31,30 @@ dest_transform = Affine(
     utm50N_grid_details["min_y"],
 )
 
-
 # Set the source directory
 source_directory = Path("../../../data/primary/abiotic/era5_land_monthly/")
 
-downloaded_variables = [
-    "2m_temperature",
-    "2m_dewpoint_temperature",
-    "surface_pressure",
-    "10m_u_component_of_wind",
-    "total_precipitation",
-    "surface_runoff",
-]
+# Get the target file
+source_filename = source_directory / "ERA5_Maliau_2010_2020.nc"
 
-# Store dictionary for reprojected data
-reprojected_data = dict()
 
-for var in downloaded_variables:
-    # Get the target file
-    source_filename = source_directory / f"ERA5_{var}_Maliau_2010_2020.nc"
+# Open the ERA5 dataset in WGS84 and and set the CRS manually because it is not
+# set in the file. Do not decode times from CF to np.datetime64, because we'd have
+# to convert back to write the file.
+era5_data_WGS84 = xarray.open_dataset(
+    source_filename,
+    engine="rasterio",
+    decode_times=False,
+)
+era5_data_WGS84 = era5_data_WGS84.rio.write_crs(wgs84_crs)
 
-    # Open the ERA5 dataset in WGS84 and and set the CRS manually because it is not
-    # set in the file. Do not decode times from CF to np.datetime64, because we'd have
-    # to convert back to write the file.
-    era5_data = xarray.open_dataset(
-        source_filename,
-        engine="rasterio",
-        decode_times=False,
-    )
-    era5_data = era5_data.rio.write_crs(wgs84_crs)
+# Use the rasterio accessor tools to reproject the data
+era5_data_UTM50N = era5_data_WGS84.rio.reproject(
+    dst_crs=utm50N_crs,
+    shape=dest_shape,
+    transform=dest_transform,
+    resampling=Resampling.nearest,
+)
 
-    # Use the rasterio accessor tools to reproject the data
-    reprojected_data[var] = era5_data.rio.reproject(
-        dst_crs=utm50N_crs,
-        shape=dest_shape,
-        transform=dest_transform,
-        resampling=Resampling.nearest,
-    )
-
-# Merge the variables into a single Dataset and save to file
-era5_UTM50N = xarray.merge(reprojected_data.values())
-era5_UTM50N.to_netcdf(source_directory / "ERA5_Maliau_2010_2020_UTM50N.nc")
+# Save the reprojected data to file
+era5_data_UTM50N.to_netcdf(source_directory / "ERA5_Maliau_2010_2020_UTM50N.nc")
