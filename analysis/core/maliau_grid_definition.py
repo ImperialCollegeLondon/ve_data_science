@@ -63,6 +63,7 @@ grid_definition = dict(
     cell_ny=cell_ny,
     cell_x_bounds=cell_x_bounds,
     cell_y_bounds=cell_y_bounds,
+    res=res,
     core=dict(
         grid=dict(
             cell_area=res * res,

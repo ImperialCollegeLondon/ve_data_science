@@ -4,9 +4,7 @@ min_y = 521300
 max_x = 498800
 max_y = 525800
 cell_nx = 50
-cell_ny = [
-    50,
-]
+cell_ny = 50
 cell_x_bounds = [
     494300,
     494390,
@@ -113,13 +111,12 @@ cell_y_bounds = [
     525710,
     525800,
 ]
+res = 90
 
 [core.grid]
 cell_area = 8100
 cell_nx = 50
-cell_ny = [
-    50,
-]
+cell_ny = 50
 grid_type = "square"
 xoff = 494300
 yoff = 521300
