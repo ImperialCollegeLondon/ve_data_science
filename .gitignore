@@ -6,9 +6,10 @@
 *.geotiff
 *.xlsx
 *.xls
-*.csv
 *.dat
 *.txt
+*.rds
+*.RData
 
 # History files
 .Rhistory
@@ -51,9 +52,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# pkgdown site
-docs/
-
 # translation temp files
 po/*~
 
@@ -62,3 +60,6 @@ rsconnect/
 
 # Python noise
 __pycache__
+
+# notebook caching
+.ipynb_checkpoints

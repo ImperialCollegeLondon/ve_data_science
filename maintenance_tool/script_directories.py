@@ -1,9 +1,42 @@
 """Module to maintain scripts in the analysis directories."""
 
+import ast
 import re
+from dataclasses import field
 from pathlib import Path
+from typing import ClassVar
 
 import yaml
+from marshmallow import Schema, ValidationError
+from marshmallow_dataclass import dataclass
+from yaml.error import YAMLError
+
+
+@dataclass
+class ScriptFileDetails:
+    """Data class and schema for input and output file data."""
+
+    name: str
+    path: str
+    description: str
+
+
+@dataclass
+class ScriptMetadata:
+    """Data class and schema for required script metadata."""
+
+    title: str
+    description: str
+    author: list[str]
+    virtual_ecosystem_module: list[str]
+    status: str
+    package_dependencies: list[str]
+    usage_notes: str
+    input_files: list[ScriptFileDetails] = field(default_factory=list)
+    output_files: list[ScriptFileDetails] = field(default_factory=list)
+
+    # Type the Schema attribute
+    Schema: ClassVar[type[Schema]]
 
 
 def non_hidden_files(root):
@@ -16,8 +49,8 @@ def non_hidden_files(root):
                 yield from non_hidden_files(path)
 
 
-def read_script_metadata(file_path: Path) -> dict:
-    """Check VE data science script and notebook metadata.
+def validate_script_metadata(file_path: Path) -> ScriptMetadata:
+    """Validate VE data science script and notebook metadata.
 
     Checks that a script file or notebook contains expected metadata. It raises an
     error if the file is missing metadata, if the metadata is badly formatted or if
@@ -32,46 +65,157 @@ def read_script_metadata(file_path: Path) -> dict:
     Raises:
         ValueError: If the YAML block cannot be extracted from the file successfully.
         YAMLError: if the YAML block cannot be read correctly.
+        ValidationError: if the YAML contents does not match the ScriptMetadata schema.
 
     """
 
     if not file_path.exists():
         raise ValueError("File path not found.")
 
-    # For R Markdown files, can just use the standard YAML parser
     match file_path.suffix.lower():
         case ".rmd":
-            pass
-            # yaml <- rmarkdown::yaml_front_matter(file_path)
+            loader = read_markdown_notebook_metadata
         case ".r":
-            # Load the file contents
-            with open(file_path) as file:
-                content = file.readlines()
+            loader = read_r_script_metadata
+        case ".py":
+            loader = read_py_script_metadata
+        case ".md":
+            loader = read_markdown_notebook_metadata
 
-            # Locate the YAML document blocks
-            document_markers = [
-                idx for idx, val in enumerate(content) if val.startswith("#' ---")
-            ]
-            n_doc_markers = len(document_markers)
+    try:
+        yaml_content = loader(file_path=file_path)
+    except (ValueError, YAMLError):
+        raise
 
-            # Check there are two...
-            if n_doc_markers != 2:
-                raise ValueError(f"Found {n_doc_markers} not 2 YAML metadata markers.")
+    # This is because yaml imports empty maps as None - this might be more cleanly
+    # tackled with some custom logic in the schema. I think the tag has to be present,
+    # but might be empty.
+    for allowed_empty in ("input_files", "output_files"):
+        if allowed_empty in yaml_content and yaml_content[allowed_empty] is None:
+            yaml_content[allowed_empty] = []
 
-            # And that the first one is at the start of the file
-            if document_markers[0] != 0:
-                raise ValueError(
-                    "First YAML metadata markers is not at the file start."
-                )
+    try:
+        metadata = ScriptMetadata.Schema().load(yaml_content)
+    except ValidationError as excep:
+        raise ValueError(f"Could not validate metadata in {file_path}" + str(excep))
 
-            # Extract the block and strip the comments
-            yaml_block = content[document_markers[0] : document_markers[1]]
-            comment_re = re.compile("^#' ?")
-            yaml_block = [comment_re.sub("", line) for line in yaml_block]
+    return metadata
 
-            try:
-                yaml.safe_load("".join(yaml_block))
-            except yaml.error.YAMLError:
-                raise
 
-    return yaml
+def read_r_script_metadata(file_path: Path) -> dict:
+    """Read metadata from an R file.
+
+    The metadata should be provided as a set of commented lines at the start of the file
+    starting and ending with `#' ---`. The lines in between should be commented `#' `
+    and everything to the right of that terminal space is expected to be valid YAML.
+
+    It might be better to:
+    * Have this as a multiline comment, but R doesn't have such things.
+    * Have this as a named string in the file, but then we need to parse and evaluate
+      the code to get the contents.
+
+    Args:
+        file_path: The path of the R code file
+
+    """
+
+    # Load the file contents
+    with open(file_path) as file:
+        content = file.readlines()
+
+    # Locate the YAML document blocks
+    document_markers = [
+        idx for idx, val in enumerate(content) if val.startswith("#' ---")
+    ]
+    n_doc_markers = len(document_markers)
+
+    # Check there are two...
+    if n_doc_markers != 2:
+        raise ValueError(f"Found {n_doc_markers} not 2 YAML metadata markers.")
+
+    # And that the first one is at the start of the file
+    if document_markers[0] != 0:
+        raise ValueError("First YAML metadata markers is not at the file start.")
+
+    # Extract the block and strip the comments
+    yaml_block = content[document_markers[0] : document_markers[1]]
+    comment_re = re.compile("^#' ?")
+    yaml_block = [comment_re.sub("", line) for line in yaml_block]
+
+    try:
+        yaml_contents = yaml.safe_load("".join(yaml_block))
+    except YAMLError:
+        raise
+
+    return yaml_contents
+
+
+def read_py_script_metadata(file_path: Path) -> dict:
+    """Read metadata from a Python file.
+
+    The metadata should be provided within the body of the file docstring. It is parsed
+    using the ast module.
+
+    Args:
+        file_path: The path of the python code file
+
+    """
+
+    # Get the AST representation of the file and extract the docstring
+    with open(file_path) as file:
+        file_ast = ast.parse(file.read())
+        contents = ast.get_docstring(file_ast, clean=False)
+
+    if contents is None:
+        raise ValueError("Missing docstring in python script")
+
+    try:
+        yaml_contents = yaml.safe_load("".join(contents))
+    except YAMLError:
+        raise
+
+    return yaml_contents
+
+
+def read_markdown_notebook_metadata(file_path: Path) -> dict:
+    """Read metadata from an markdown document.
+
+    The metadata should be provided as a YAML block at the start of the markdown
+    document. This handles both MyST and R Markdown files, both of which already use
+    YAML frontmatter: the metadata for the repo must be in a separate `ve_data_science`
+    section of that YAML.
+
+    Args:
+        file_path: The path of the markdown file.
+
+    """
+
+    # Load the file contents
+    with open(file_path) as file:
+        content = file.readlines()
+
+    # Locate the YAML document blocks
+    document_markers = [idx for idx, val in enumerate(content) if val.startswith("---")]
+    n_doc_markers = len(document_markers)
+
+    # Check there are two...
+    if n_doc_markers != 2:
+        raise ValueError(f"Found {n_doc_markers} not 2 YAML metadata markers.")
+
+    # And that the first one is at the start of the file
+    if document_markers[0] != 0:
+        raise ValueError("First YAML metadata markers is not at the file start.")
+
+    # Extract the block
+    yaml_block = content[document_markers[0] : document_markers[1]]
+
+    try:
+        yaml_contents = yaml.safe_load("".join(yaml_block))
+    except YAMLError:
+        raise
+
+    # Look for and return the ve_data_science metadata
+    if "ve_data_science" not in yaml_contents:
+        raise ValueError(f"ve_data_science metadata not found in {file_path}")
+
+    return yaml_contents["ve_data_science"]

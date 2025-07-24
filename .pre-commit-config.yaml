@@ -13,7 +13,7 @@ repos:
     - id: debug-statements
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # This is python specific linting and formatting using ruff
-    rev: v0.9.3
+    rev: v0.9.10
     hooks:
     - id: ruff                                  # Run the linter.
       args: [--fix, --exit-non-zero-on-fix]
@@ -23,12 +23,13 @@ repos:
     rev: v0.44.0
     hooks:
     - id: markdownlint
+      exclude: .ipynb_checkpoints
   - repo: https://github.com/lorenzwalthert/precommit
     # These are R specific tools to format and lint the code and check for common errors
     # Note that this currently points to a specific GitHub commit to avoid an issue with
     # Rcpp: https://github.com/lorenzwalthert/precommit/issues/612 but should be updated
     # when that issue gets resolved in a published version.
-    rev: dcd2a60
+    rev: v0.4.3.9005
     hooks:
     - id: style-files
       args: [--style_pkg=styler, --style_fun=tidyverse_style]
