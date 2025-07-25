@@ -19,7 +19,7 @@
 #|
 #| input_files:
 #|   - name: referenced_file.csv
-#|     path: .
+#|     path: maintenance_tool/test/script_files
 #|     description: An input file
 #|
 #| output_files:

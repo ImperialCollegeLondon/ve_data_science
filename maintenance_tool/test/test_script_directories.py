@@ -60,3 +60,15 @@ def test_check_script_directory():
     success = check_script_directory(path)
 
     assert success
+
+
+def test_check_templates_directory():
+    """Test on the templates directory to make sure they are compliant."""
+
+    from maintenance_tool import REPOSITORY_ROOT
+    from maintenance_tool.script_directories import check_script_directory
+
+    path = REPOSITORY_ROOT / "templates"
+    success = check_script_directory(path, check_file_locations=False)
+
+    assert success

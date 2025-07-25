@@ -1,4 +1,5 @@
 """
+---
 title: Data downloader tools for ERA5
 
 description: |
@@ -35,6 +36,7 @@ usage_notes: |
 
    The Copernicus Climate Data Store provides comprehensive guidance on setting
    up and using their API: https://cds.climate.copernicus.eu/how-to-api
+---
 """  # noqa : D400
 
 a = 1

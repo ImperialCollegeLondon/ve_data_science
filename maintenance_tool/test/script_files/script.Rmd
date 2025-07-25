@@ -28,12 +28,12 @@ ve_data_science:
 
   input_files:
     - name: referenced_file.csv
-      path: .
+      path: maintenance_tool/test/script_files
       description: A referenced file
 
   output_files:
     - name: referenced_file.csv
-      path: .
+      path: maintenance_tool/test/script_files
       description: A referenced file
 
   package_dependencies:

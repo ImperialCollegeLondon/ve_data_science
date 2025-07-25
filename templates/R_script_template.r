@@ -1,41 +1,40 @@
-#' ---
-#' title: Descriptive name of the script
-#'
-#' description: |
-#'     Brief description of what the script does, its main purpose, and any important
-#'     scientific context. Keep it concise but informative.
-#'
-#'     This can include multiple paragraphs.
-#'
-#' VE_module: Animal, Plant, Abiotic, Soil, None, etc
-#'
-#' author:
-#'   - name: David Orme
-#'
-#' status: final or wip
-#'
-#'
-#' input_files:
-#'   - name: Input file name
-#'     path: Full file path on shared drive
-#'     description: |
-#'       Source (short citation) and a brief explanation of what this input file
-#'       contains and its use case in this script
-#'
-#' output_files:
-#'   - name: Output file name
-#'     path: Full file path on shared drive
-#'     description: |
-#'       What the output file contains and its significance, are they used in any other
-#'       scripts?
-#'
-#' package_dependencies:
-#'     - tools
-#'
-#' usage_notes: |
-#'   Any known issues or bugs? Future plans for script/extensions or improvements
-#'   planned that should be noted?
-#' ---
+#| ---
+#| title: Descriptive name of the script
+#|
+#| description: |
+#|     Brief description of what the script does, its main purpose, and any important
+#|     scientific context. Keep it concise but informative.
+#|
+#|     This can include multiple paragraphs.
+#|
+#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, None]
+#|
+#| author:
+#|   - David Orme
+#|
+#| status: final or wip
+#|
+#| input_files:
+#|   - name: Input file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       Source (short citation) and a brief explanation of what this input file
+#|       contains and its use case in this script
+#|
+#| output_files:
+#|   - name: Output file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       What the output file contains and its significance, are they used in any other
+#|       scripts?
+#|
+#| package_dependencies:
+#|     - tools
+#|
+#| usage_notes: |
+#|   Any known issues or bugs? Future plans for script/extensions or improvements
+#|   planned that should be noted?
+#| ---
 
 
 # An R Script template
@@ -47,14 +46,14 @@ library(tools)
 # [ROxygen2 format](https://roxygen2.r-lib.org/articles/rd.html).
 
 my_function <- function(value = 10) {
-  #' A function to return a value
-  #'
-  #' This function simply prints out the value passed to it and then returns the value.
-  #' It is just a simple example to give a template for the function description syntax.
-  #'
-  #' @param value A value to be used in the function
-  #'
-  #' @return Returns the original valu
+  #| A function to return a value
+  #|
+  #| This function simply prints out the value passed to it and then returns the value.
+  #| It is just a simple example to give a template for the function description syntax.
+  #|
+  #| @param value A value to be used in the function
+  #|
+  #| @return Returns the original valu
 
   # Print the value
   print(value)
@@ -64,4 +63,4 @@ my_function <- function(value = 10) {
 }
 
 # Now we can use the function.
-x <- my_function()
+my_value <- my_function()

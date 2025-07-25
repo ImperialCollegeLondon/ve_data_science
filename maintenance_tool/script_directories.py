@@ -11,7 +11,7 @@ from marshmallow import Schema, ValidationError
 from marshmallow_dataclass import dataclass
 from yaml.error import YAMLError
 
-from maintenance_tool import LOGGER
+from maintenance_tool import LOGGER, REPOSITORY_ROOT
 
 
 @dataclass
@@ -142,7 +142,8 @@ def read_r_script_metadata(file_path: Path) -> dict:
     if document_markers[0] != 0:
         raise ValueError("First YAML metadata markers is not at the file start.")
 
-    # Extract the block
+    # Extract the block. This intentionally omits the trailing document marker, which
+    # technically indicates the start of a second document.
     yaml_lines = content[document_markers[0] : document_markers[1]]
 
     # Check for consistent YAML marker use
@@ -152,7 +153,7 @@ def read_r_script_metadata(file_path: Path) -> dict:
 
     # Strip the comment line markers and compile into a YAML document - need to escape
     # pipe character in regex as it is used as a conditional
-    comment_re = re.compile("^#\| ?")
+    comment_re = re.compile("^#\\| ?")
     yaml_lines = [comment_re.sub("", line) for line in yaml_lines]
     yaml_document = "".join(yaml_lines)
 
@@ -183,8 +184,13 @@ def read_py_script_metadata(file_path: Path) -> dict:
     if contents is None:
         raise ValueError("Missing docstring in python script")
 
+    # Strip the trailing document marker, which technically indicates the start of a
+    # second YAML document
+    contents = re.sub("[\n-]+$", "\n", contents)
+
+    # Try and parse the YAML document
     try:
-        yaml_contents = yaml.safe_load("".join(contents))
+        yaml_contents = yaml.safe_load(contents)
     except YAMLError:
         raise
 
@@ -237,8 +243,9 @@ def read_markdown_notebook_metadata(file_path: Path) -> dict:
 
 def check_script_directory(
     directory: Path,
-    repository_root: Path = Path.cwd(),
-    ignore_files: list[str] = ["__init__.py"],
+    check_file_locations: bool = True,
+    repository_root: Path = REPOSITORY_ROOT,
+    ignore_files: list[str] = ["__init__.py", "README.md"],
 ) -> bool:
     """Validate a script directory.
 
@@ -301,25 +308,28 @@ def check_script_directory(
 
         LOGGER.info(f"   - {file.name} contains valid metadata")
 
-        # Validate any named input and output paths
-        inputs = [Path(file.path) / file.name for file in yaml_contents.input_files]
+        if check_file_locations:
+            # Validate any named input and output paths
+            inputs = [Path(file.path) / file.name for file in yaml_contents.input_files]
 
-        for file in inputs:
-            if not file.exists():
-                LOGGER.error(f"     X Input file not found: {file!s}")
-                return_value = False
-            else:
-                LOGGER.error(f"     - Input file found: {file!s}")
+            for file in inputs:
+                if not file.exists():
+                    LOGGER.error(f"     X Input file not found: {file!s}")
+                    return_value = False
+                else:
+                    LOGGER.error(f"     - Input file found: {file!s}")
 
-        outputs = [Path(file.path) / file.name for file in yaml_contents.output_files]
+            outputs = [
+                Path(file.path) / file.name for file in yaml_contents.output_files
+            ]
 
-        for file in outputs:
-            if not file.exists():
-                LOGGER.error(f"     X Output file not found: {file!s}")
-                return_value = False
-            else:
-                LOGGER.error(f"     - Output file found: {file!s}")
+            for file in outputs:
+                if not file.exists():
+                    LOGGER.error(f"     X Output file not found: {file!s}")
+                    return_value = False
+                else:
+                    LOGGER.error(f"     - Output file found: {file!s}")
 
-        # TODO - other validation? required packages in requirement/pyproject.toml
+            # TODO - other validation? required packages in requirement/pyproject.toml
 
     return return_value
