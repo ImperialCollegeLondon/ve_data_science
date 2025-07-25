@@ -115,18 +115,18 @@ comm <-
   summarise_at(vars(starts_with("MYC_")), sum)
 
 # turn community dataframe into matrix for modelling
-y <- t(as.matrix(comm[, -1]))
-colnames(y) <- comm$guild
+comm_matrix <- t(as.matrix(comm[, -1]))
+colnames(comm_matrix) <- comm$guild
 
 # generate offsets from total abundance per sample
 # for modelling abundances as relative abundances
-offset <- log(rowSums(y))
+offset <- log(rowSums(comm_matrix))
 
 # remove "other" groups because we are not interested in them
-y <- y[, -which(colnames(y) == "other")]
+comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 
 # reorder the columns of community matrix to facilitate model identifiability
-y <- y[, order(colMeans(y), decreasing = TRUE)]
+comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 
 
 
@@ -136,7 +136,7 @@ y <- y[, order(colMeans(y), decreasing = TRUE)]
 # species distribution model) using the negative binomial distribution with
 # log-link and two latent dimensions
 mod <- gllvm(
-  y = y,
+  y = comm_matrix,
   family = "negative.binomial",
   num.lv = 2,
   row.eff = "random",

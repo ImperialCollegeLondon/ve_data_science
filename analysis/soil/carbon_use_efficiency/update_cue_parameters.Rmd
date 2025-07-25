@@ -76,7 +76,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r Libraries}
 # load packages
 library(tidyverse)
@@ -121,14 +120,25 @@ dat_cue <-
 ```
 
 Currently, the temperature-dependent carbon use efficiency (CUE) function we used is
+
 $$
 \text{CUE} = \text{CUE}_\text{ref} + \text{CUE}_T \left(T - T_\text{ae-ref} \right) \,,
 $$
-where $T$ is temperature ($^\circ$C), $\text{CUE}_\text{ref}$ is the CUE at reference temperature $T_\text{ae-ref}$ (i.e., centered intercept), and $\text{CUE}_T$ is the temperature-dependence slope. This equation came from @abramoff_millennial_2018, who cited @xu-ri_terrestrial_2008, who then cited @Devevre2000 and used their empirical estimates. In @Devevre2000, CUE came from a single rice paddy study:
 
-> by soil microorganisms during rice straw decomposition was determined in a rice paddy soil, under aerobic and anaerobic (flooded) conditions at different temperatures (5, 15, and 25°C)
+where $T$ is temperature ($^\circ$C), $\text{CUE}_\text{ref}$ is the CUE at reference
+temperature $T_\text{ae-ref}$ (i.e., centered intercept), and $\text{CUE}_T$ is the
+temperature-dependence slope. This equation came from @abramoff_millennial_2018, who
+cited @xu-ri_terrestrial_2008, who then cited @Devevre2000 and used their empirical
+estimates. In @Devevre2000, CUE came from a single rice paddy study:
 
-The latest global study I could find is @Qiao2019. Mostly from US and Europe and not a lot of tropical studies (see map below; there are some misplaced coordinates but I think they are placeholder for missing data), but seems to be the most extensive to date. Their model is also identical to ours so should be easy to adapt.
+> by soil microorganisms during rice straw decomposition was determined in a rice paddy
+> soil, under aerobic and anaerobic (flooded) conditions at different temperatures
+> (5, 15, and 25°C)
+
+The latest global study I could find is @Qiao2019. Mostly from US and Europe and not a
+lot of tropical studies (see map below; there are some misplaced coordinates but I think
+they are placeholder for missing data), but seems to be the most extensive to date.
+Their model is also identical to ours so should be easy to adapt.
 
 ```{r Map, fig.height=3.5, fig.width=6}
 data("World")
@@ -146,25 +156,36 @@ ggplot() +
   theme_minimal()
 ```
 
-@Qiao2019 performed curve fitting and published their parameter estimates. However, they fitted a linear regression that could predict CUE out of bound (above 1 or below 0) under certain temperature. Our goal here is to refit a model on their compiled dataset, and constrain CUE to be bound between 0 and 1 using a generalised linear regression (GLM).
+@Qiao2019 performed curve fitting and published their parameter estimates. However, they
+fitted a linear regression that could predict CUE out of bound (above 1 or below 0)
+under certain temperature. Our goal here is to refit a model on their compiled dataset,
+and constrain CUE to be bound between 0 and 1 using a generalised linear regression
+(GLM).
 
-# Modelling
+## Modelling
 
 A beta-distribution GLM with logit link would do this. Our generative model is:
+
 \begin{equation*}
 \begin{aligned}
 \text{CUE}_{ij} &\sim \text{Beta}\left( \mu_{ij}, \phi \right) \\
-\text{logit}\left( \mu_{ij} \right) &= \text{CUE}_\text{ref} + \text{CUE}_T \left(T_{ij} - T_\text{ae-ref} \right) + \epsilon_j \,,
+\text{logit}\left( \mu_{ij} \right) &= \text{CUE}_\text{ref}
+    + \text{CUE}_T \left(T_{ij} - T_\text{ae-ref} \right) + \epsilon_j \,,
 \end{aligned}
 \end{equation*}
-where $\mu_{ij}$ is the linear predictor of CUE for observation $i$ in study $j$. The dataset contains multiple CUE values from the same study, so I controlled for non-independence within study using a random intercept term $\epsilon_j$.
 
-There are covariates that could potentially be included, such as biome and length of incubation. I have left them out for simplicity here, and because biome contains missing data. If needed, we could revisit these covariates.
+where $\mu_{ij}$ is the linear predictor of CUE for observation $i$ in study $j$. The
+dataset contains multiple CUE values from the same study, so I controlled for
+non-independence within study using a random intercept term $\epsilon_j$.
+
+There are covariates that could potentially be included, such as biome and length of
+incubation. I have left them out for simplicity here, and because biome contains missing
+data. If needed, we could revisit these covariates.
 
 The model was fitted with Bayesian inference using the `brms` package in `R`.
 
 ```{r Model}
-m <- brm(
+model <- brm(
   CUE ~ 1 + Temp_centered + (1 | Author),
   data = dat_cue,
   family = Beta(),
@@ -178,10 +199,10 @@ m <- brm(
 )
 ```
 
-# Results
+## Results
 
 ```{r Parameter estimates, include=FALSE}
-param <- fixef(m)
+param <- fixef(model)
 ```
 
 The posterior median of the parameters are:
@@ -189,9 +210,18 @@ The posterior median of the parameters are:
 - $\text{CUE}_T =$ `r round(param["Temp_centered", "Estimate"], 3)`
 - $\text{CUE}_\text{ref} =$ `r round(param["Intercept", "Estimate"], 3)`
 
-Note that the intercept $\text{CUE}_\text{ref}$ is in logit scale, in the original proportional scale it is `r round(plogis(param["Intercept", "Estimate"]), 3)`.
+Note that the intercept $\text{CUE}_\text{ref}$ is in logit scale, in the original
+proportional scale it is `r round(plogis(param["Intercept", "Estimate"]), 3)`.
 
-```{r Prediction, fig.height=5, fig.width=7, fig.cap="Fitted regressions through the Qiao et al. (2019) dataset. Line color denotes the three different models: black = the Abramoff Millenial model current used by VE; red = the fitted linear regression by Qiao et al. (2019); blue = our GLM fit. Dashed blue lines are the 90% credible intervals of our GLM."}
+```{r Prediction}
+#| fig.height: 5
+#| fig.width: 7
+#| fig.cap: >
+#|   Fitted regressions through the Qiao et al. (2019) dataset. Line color denotes the
+#|   three different models: black = the Abramoff Millenial model current used by VE;
+#|   red = the fitted linear regression by Qiao et al. (2019); blue = our GLM fit.
+#|   Dashed blue lines are the 90% credible intervals of our GLM.
+
 # counterfactual data
 newdat <-
   data.frame(
@@ -203,7 +233,7 @@ newdat <-
 # fitted line from our model
 cue_hat <-
   fitted(
-    m,
+    model,
     newdata = newdat,
     scale = "response",
     robust = TRUE,
