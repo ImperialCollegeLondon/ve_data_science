@@ -108,10 +108,10 @@ def read_r_script_metadata(file_path: Path) -> dict:
     """Read metadata from an R file.
 
     The metadata should be provided as a set of commented lines at the start of the file
-    starting and ending with `#' ---`. The lines in between should be commented `#' `
+    starting and ending with `#| ---`. The lines in between should be commented `#| `
     and everything to the right of that terminal space is expected to be valid YAML.
 
-    It might be better to:
+    It might be cleaner to:
     * Have this as a multiline comment, but R doesn't have such things.
     * Have this as a named string in the file, but then we need to parse and evaluate
       the code to get the contents.
@@ -125,27 +125,39 @@ def read_r_script_metadata(file_path: Path) -> dict:
     with open(file_path) as file:
         content = file.readlines()
 
+    yaml_document_marker = "#| ---\n"
+
     # Locate the YAML document blocks
     document_markers = [
-        idx for idx, val in enumerate(content) if val.startswith("#' ---")
+        idx for idx, val in enumerate(content) if val == yaml_document_marker
     ]
+
     n_doc_markers = len(document_markers)
 
-    # Check there are two...
-    if n_doc_markers != 2:
-        raise ValueError(f"Found {n_doc_markers} not 2 YAML metadata markers.")
+    # Do we have at least two markers?
+    if n_doc_markers < 2:
+        raise ValueError("YAML block not contained within document markers.")
 
     # And that the first one is at the start of the file
     if document_markers[0] != 0:
         raise ValueError("First YAML metadata markers is not at the file start.")
 
-    # Extract the block and strip the comments
-    yaml_block = content[document_markers[0] : document_markers[1]]
-    comment_re = re.compile("^#' ?")
-    yaml_block = [comment_re.sub("", line) for line in yaml_block]
+    # Extract the block
+    yaml_lines = content[document_markers[0] : document_markers[1]]
+
+    # Check for consistent YAML marker use
+    marked_correctly = [line.startswith("#| ") or line == "#|\n" for line in yaml_lines]
+    if not all(marked_correctly):
+        raise ValueError("Inconsistent use of YAML line comment within YAML block.")
+
+    # Strip the comment line markers and compile into a YAML document - need to escape
+    # pipe character in regex as it is used as a conditional
+    comment_re = re.compile("^#\| ?")
+    yaml_lines = [comment_re.sub("", line) for line in yaml_lines]
+    yaml_document = "".join(yaml_lines)
 
     try:
-        yaml_contents = yaml.safe_load("".join(yaml_block))
+        yaml_contents = yaml.safe_load(yaml_document)
     except YAMLError:
         raise
 
@@ -267,7 +279,7 @@ def check_script_directory(
     }
 
     # TODO - anything on other files?
-    other_files = actual_files - script_files
+    # other_files = actual_files - script_files
 
     LOGGER.info(
         f" - Found {len(actual_files)} files including {len(script_files)} script files"
