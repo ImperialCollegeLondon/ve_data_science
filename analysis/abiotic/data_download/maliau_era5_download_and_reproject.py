@@ -1,11 +1,65 @@
 # noqa: D100
+
+#' ---
+#' title: ERA5 data download and reproject for the Maliau site
+#'
+#' description: |
+#'   This file uses the `cdsapi_era5_downloader` function to download a 3x3 grid at 0.1°
+#'   resolution from 2010 to 2020 around the Maliau basin data sites
+#'
+#' author:
+#'   - name: Lelavathy
+#'   - name: David Orme
+#'
+#' virtual_ecosystem_module: abiotic, abiotic_simple, hydrology
+#'
+#' status: final
+#'
+#' input_files:
+#'   - name: maliau_grid_definition.toml
+#'     path: analysis/core
+#'     description: Site grid definition for Maliau
+
+#' output_files:
+#'   - name: ERA5_Maliau_2010_2020.nc
+#'     path: data/primary/abiotic/era5_land_monthly
+#'     description: 2010-2020 ERA5 data for Maliau in original 0.1° resolution.
+#'   - name: ERA5_Maliau_2010_2020_UTM50N.nc
+#'     path: data/primary/abiotic/era5_land_monthly
+#'     description: 2010-2020 ERA5 data for Maliau reprojected to 90m UTM50N grid.
+#'
+#' package_dependencies:
+#'   - cdsapi
+#'   - xarray
+#'   - tomllib
+#'   - rasterio
+#'   - rioxarray
+#'
+#' usage_notes: Run as `python maliau_era5_download_and_reproject.py`
+#'
+#' ---
+
 from pathlib import Path
 
 import tomllib
 import xarray
+from cdsapi_downloader import cdsapi_era5_downloader
 from rasterio import Affine
 from rasterio.crs import CRS
 from rasterio.warp import Resampling
+
+# Define output directory and filename
+output_dir = Path("../../../data/primary/abiotic/era5_land_monthly")
+output_dir.mkdir(parents=True, exist_ok=True)
+
+output_filename = output_dir / "ERA5_Maliau_2010_2020.nc"
+
+# Run the downloader tool
+cdsapi_era5_downloader(
+    years=list(range(2010, 2021)),
+    bbox=[4.6, 116.8, 4.8, 117.0],
+    outfile=output_filename,
+)
 
 # Define the projections to be used
 wgs84_crs = CRS.from_epsg(4326)

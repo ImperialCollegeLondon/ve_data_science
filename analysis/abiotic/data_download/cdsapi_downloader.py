@@ -4,9 +4,9 @@
 #' title: Data downloader tools for ERA5
 #'
 #' description: |
-#'   This file defines a Python function that can be used to automates the download of
-#'   ERA5-Land monthly averaged datasets. It uses the Copernicus Climate Data Store
-#    (CDS) API.
+#'   This file defines the `cdsapi_era5_downloader` Python function that automates the
+#'   download of ERA5-Land monthly averaged datasets. It uses the Copernicus Climate
+#'   Data Store (CDS) API.
 #'
 #' author:
 #'   - name: Lelavathy
@@ -17,35 +17,24 @@
 #' status: final
 #'
 #' input_files:
-#'   - name: None (direct API request)
-#'     path: Data retrieved via Copernicus Climate Data Store API
-#'     description: |
-#'       No local input files are required. Download parameters are defined within
-#'       the script and can be customized through command-line arguments.
 #'
 #' output_files:
-#'   - name: None (tool)
 #'
 #' package_dependencies:
 #'   - cdsapi
+#'   - xarray
 #'
 #' usage_notes: |
-#'   - **Copernicus Data Store (CDS) Registration & API Key Setup**
-#'     Register at [](https://cds.climate.copernicus.eu/) and configure your `.cdsapirc`
-#'     file in your home directory.
+#'   Copernicus Data Store (CDS) Registration & API Key Setup:
+#'   Register at [](https://cds.climate.copernicus.eu/) and configure your `.cdsapirc`
+#'   file in your home directory. The Copernicus Climate Data Store provides
+#'   comprehensive guidance on setting up and using their API at
+#'   https://cds.climate.copernicus.eu/how-to-api
 #'
-#'     Example `.cdsapirc`:
+#'   Example `.cdsapirc`:
 #'
-#'     ```ini
 #'     url: https://cds.climate.copernicus.eu/api
-#'     key: your-uid:your-api-key
-#'     verify: 1
-#'     ```
-#'
-#' 💡 Remark:
-#'    - The Copernicus Climate Data Store provides comprehensive guidance on setting
-#'       up and using their API: https://cds.climate.copernicus.eu/how-to-api
-#'
+#'     key: your-api-key
 #' ---
 
 
