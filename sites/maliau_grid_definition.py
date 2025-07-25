@@ -1,8 +1,34 @@
-"""Maliau grid definition.
-
-This script is used to generate
-
 """
+---
+title: Maliau site definition generator
+
+description: |
+  This file defines the site parameters for the Maliau basin and exports them to a TOML
+  file that can be read in by other scripts.
+
+author:
+  - name: David Orme
+
+virtual_ecosystem_module: all
+
+status: draft
+
+input_files:
+
+output_files:
+  - name: maliau_grid_definition.toml
+    path: sites
+    description: Site definition file for the Maliau Basin
+
+package_dependencies:
+  - pyproj
+  - tomli_w
+  - shapely
+
+usage_notes: Run as `python maliau_site_definition.py`
+
+---
+"""  # noqa: D205, D212, D400, D415
 
 import pyproj
 import tomli_w
@@ -30,17 +56,18 @@ maliau_prototype_utm50N.bounds
 
 # Round down the lower left corner to neat metre coordinates and add a cell to maintain
 # the approximate limits of the original grid
-min_x_utm50N = 494300
-min_y_utm50N = 521300
+ll_x_utm50N = 494300
+ll_y_utm50N = 521300
 cell_nx = 50
 cell_ny = 50
 res = 90
-max_x_utm50N = min_x_utm50N + cell_nx * res
-max_y_utm50N = min_y_utm50N + cell_ny * res
+# Calculate the upper right bounds
+ur_x_utm50N = ll_x_utm50N + cell_nx * res
+ur_y_utm50N = ll_y_utm50N + cell_ny * res
 
 # Create a polygon of those bounds and transform to WGS84 to identify what coords should
 # be used in any bounding box for latlong data download
-maliau_grid_bounds_utm50N = box(min_x_utm50N, min_y_utm50N, max_x_utm50N, max_y_utm50N)
+maliau_grid_bounds_utm50N = box(ll_x_utm50N, ll_y_utm50N, ur_x_utm50N, ur_y_utm50N)
 maliau_grid_bounds_wgs84 = transform(
     utm50N_to_wgs84.transform, maliau_grid_bounds_utm50N
 )
@@ -50,19 +77,21 @@ maliau_grid_bounds_wgs84.bounds
 
 # Write a definition file as TOMLI
 
-cell_x_bounds = [min_x_utm50N + res * idx for idx in range(cell_nx + 1)]
-cell_y_bounds = [min_y_utm50N + res * idx for idx in range(cell_ny + 1)]
+cell_x_centres = [(ll_x_utm50N + res / 2) + res * idx for idx in range(cell_nx)]
+cell_y_centres = [(ll_y_utm50N + res / 2) + res * idx for idx in range(cell_ny)]
 
 grid_definition = dict(
     epsg_code=32650,
-    min_x=min_x_utm50N,
-    min_y=min_y_utm50N,
-    max_x=max_x_utm50N,
-    max_y=max_y_utm50N,
+    ll_x=ll_x_utm50N,
+    ll_y=ll_y_utm50N,
+    ur_x=ur_x_utm50N,
+    ur_y=ur_y_utm50N,
+    bounds=maliau_grid_bounds_utm50N.bounds,
+    wgs84_bounds=maliau_grid_bounds_wgs84.bounds,
     cell_nx=cell_nx,
     cell_ny=cell_ny,
-    cell_x_bounds=cell_x_bounds,
-    cell_y_bounds=cell_y_bounds,
+    cell_x_centres=cell_x_centres,
+    cell_y_centres=cell_y_centres,
     res=res,
     core=dict(
         grid=dict(
@@ -70,11 +99,12 @@ grid_definition = dict(
             cell_nx=cell_nx,
             cell_ny=cell_ny,
             grid_type="square",
-            xoff=min_x_utm50N,
-            yoff=min_y_utm50N,
+            xoff=ll_x_utm50N + res / 2,
+            yoff=ll_y_utm50N + res / 2,
         )
     ),
 )
 
-with open("maliau_grid_definition.toml", "wb") as outfile:
+with open("maliau_grid_definition.toml", "ab") as outfile:
+    outfile.write(b"# Site definition file for Maliau Basin\n")
     tomli_w.dump(grid_definition, outfile)

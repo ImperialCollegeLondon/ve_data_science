@@ -1,42 +1,41 @@
-# noqa: D100
+"""
+---
+title: Data downloader tools for ERA5
 
-#' ---
-#' title: Data downloader tools for ERA5
-#'
-#' description: |
-#'   This file defines the `cdsapi_era5_downloader` Python function that automates the
-#'   download of ERA5-Land monthly averaged datasets. It uses the Copernicus Climate
-#'   Data Store (CDS) API.
-#'
-#' author:
-#'   - name: Lelavathy
-#'   - name: David Orme
-#'
-#' virtual_ecosystem_module: abiotic, abiotic_simple, hydrology
-#'
-#' status: final
-#'
-#' input_files:
-#'
-#' output_files:
-#'
-#' package_dependencies:
-#'   - cdsapi
-#'   - xarray
-#'
-#' usage_notes: |
-#'   Copernicus Data Store (CDS) Registration & API Key Setup:
-#'   Register at [](https://cds.climate.copernicus.eu/) and configure your `.cdsapirc`
-#'   file in your home directory. The Copernicus Climate Data Store provides
-#'   comprehensive guidance on setting up and using their API at
-#'   https://cds.climate.copernicus.eu/how-to-api
-#'
-#'   Example `.cdsapirc`:
-#'
-#'     url: https://cds.climate.copernicus.eu/api
-#'     key: your-api-key
-#' ---
+description: |
+  This file defines the `cdsapi_era5_downloader` Python function that automates the
+  download of ERA5-Land monthly averaged datasets. It uses the Copernicus Climate
+  Data Store (CDS) API.
 
+author:
+  - name: Lelavathy
+  - name: David Orme
+
+virtual_ecosystem_module: abiotic, abiotic_simple, hydrology
+
+status: final
+
+input_files:
+
+output_files:
+
+package_dependencies:
+  - cdsapi
+  - xarray
+
+usage_notes: |
+  Copernicus Data Store (CDS) Registration & API Key Setup:
+  Register at [](https://cds.climate.copernicus.eu/) and configure your `.cdsapirc`
+  file in your home directory. The Copernicus Climate Data Store provides
+  comprehensive guidance on setting up and using their API at
+  https://cds.climate.copernicus.eu/how-to-api
+
+  Example `.cdsapirc`:
+
+    url: https://cds.climate.copernicus.eu/api
+    key: your-api-key
+---
+"""  # noqa: D205, D212, D400, D415
 
 from pathlib import Path
 
