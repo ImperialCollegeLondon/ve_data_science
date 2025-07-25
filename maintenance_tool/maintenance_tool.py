@@ -10,6 +10,7 @@ from maintenance_tool.data_directories import (
     check_data_directory,
 )
 from maintenance_tool.globus import globus_sync
+from maintenance_tool.script_directories import check_script_directory
 
 
 def maintenance_tool_cli(args_list: list[str] | None = None) -> int:
@@ -43,6 +44,25 @@ def maintenance_tool_cli(args_list: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=desc, formatter_class=fmt)
 
     subparsers = parser.add_subparsers(dest="subcommand", metavar="")
+
+    check_script_directory_subparser = subparsers.add_parser(
+        "check_script_directory",
+        description="Check a script directory",
+        help="Check a script directory",
+    )
+
+    check_script_directory_subparser.add_argument(
+        "directory",
+        type=Path,
+        help="Path to the directory to check",
+    )
+
+    check_script_directory_subparser.add_argument(
+        "repository_root",
+        type=Path,
+        nargs="?",
+        help="Optional path to repository root.",
+    )
 
     check_data_directory_subparser = subparsers.add_parser(
         "check_data_directory",
@@ -100,6 +120,10 @@ def maintenance_tool_cli(args_list: list[str] | None = None) -> int:
     args = parser.parse_args(args=args_list)
 
     match args.subcommand:
+        case "check_script_directory":
+            root = Path.cwd() if args.repository_root is None else args.repository_root
+            check_script_directory(directory=args.directory, repository_root=root)
+
         case "check_data_directory":
             root = Path.cwd() if args.repository_root is None else args.repository_root
             check_data_directory(directory=args.directory, repository_root=root)

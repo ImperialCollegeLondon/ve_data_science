@@ -20,6 +20,7 @@ language_info:
   pygments_lexer: ipython3
   nbconvert_exporter: python
   file_extension: .py
+
 ve_data_science:
   title: "Updating carbon use efficiency parameters"
 
@@ -42,30 +43,14 @@ ve_data_science:
   status: final
 
   input_files:
-    - name: 41598_2019_42145_MOESM2_ESM.csv
-      path: data/primary/soil/carbon_use_efficiency/Qiao2019
-      description: |
-        The global carbon-use-efficiency (CUE) dataset was compiled by
-        Qiao et al. (2019) https://doi.org/10.1038/s41598-019-42145-6
-        They shared the data in the Supplementary ("Dataset 1")
-        The dataset also contains treatment temperature that is used as a
-        predictor of CUE in our analysis here.
-        The original data was published as a .xlsx file, which is currently
-        gitignored. I have saved it as a csv file so it can be pushed for
-        code checking, for now.
+    - name: referenced_file.csv
+      path: .
+      description: A referenced file
 
   output_files:
-    - name: update_cue_parameters.md
-      path: analysis/soil/carbon_use_efficiency
-      description: |
-        This is a RMarkdown report of my analysis, including the results.
-        Need to knitr from the RMarkdown file.
-        If you run the script, it will also save the GLM model object as follows.
-    - name: model_cue.rds
-      path: analysis/soil/carbon_use_efficiency
-      description: |
-        A Bayesian GLM model object in the class brms, which contains the
-        summary statistics, as well as the full posterior samples
+    - name: referenced_file.csv
+      path: .
+      description: A referenced file
 
   package_dependencies:
         - tidyverse

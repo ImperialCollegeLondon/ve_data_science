@@ -50,3 +50,13 @@ def test_validate_script_metadata(filename):
     metadata = validate_script_metadata(path / filename)
 
     assert isinstance(metadata, ScriptMetadata)
+
+
+def test_check_script_directory():
+    """Test the validation function."""
+    from maintenance_tool.script_directories import check_script_directory
+
+    path = resources.files("maintenance_tool.test.script_files")
+    success = check_script_directory(path)
+
+    assert success

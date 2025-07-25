@@ -18,11 +18,9 @@
 #' status: final
 #'
 #' input_files:
-#'   - name: None (direct API request)
-#'     path: Data retrieved via Copernicus Climate Data Store API
-#'     description: |
-#'       No local input files are required. Download parameters are defined within
-#'       the script and can be customized through command-line arguments.
+#'   - name: referenced_file.csv
+#'     path: .
+#'     description: An input file
 #'
 #' output_files:
 #'

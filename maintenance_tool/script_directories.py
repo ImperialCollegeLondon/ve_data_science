@@ -11,6 +11,8 @@ from marshmallow import Schema, ValidationError
 from marshmallow_dataclass import dataclass
 from yaml.error import YAMLError
 
+from maintenance_tool import LOGGER
+
 
 @dataclass
 class ScriptFileDetails:
@@ -219,3 +221,93 @@ def read_markdown_notebook_metadata(file_path: Path) -> dict:
         raise ValueError(f"ve_data_science metadata not found in {file_path}")
 
     return yaml_contents["ve_data_science"]
+
+
+def check_script_directory(
+    directory: Path,
+    repository_root: Path = Path.cwd(),
+    ignore_files: list[str] = ["__init__.py"],
+) -> bool:
+    """Validate a script directory.
+
+    This function checks that a directory contains script files that provide
+    valid metadata.
+
+    The function logs the validation process and returns True or False to indicate
+    success or failure of the validation.
+
+    Arg:
+        directory: A path to a data directory.
+        repository_root: The repository root, used to check paths in manifest.
+    """
+
+    LOGGER.info(f"Script checking {directory}")
+
+    if not directory.is_absolute():
+        directory = repository_root / directory
+
+    # Do we have a directory to validate
+    if not directory.exists():
+        LOGGER.error(" X Directory not found")
+        return False
+
+    if not directory.is_dir():
+        LOGGER.error(" X Directory path is a file not a directory")
+        return False
+
+    # Get the directory contents and partition into script files and other files
+    actual_files = {
+        f for f in directory.iterdir() if not f.name.startswith(".") and f.is_file()
+    }
+    script_files = {
+        f
+        for f in actual_files
+        if f.suffix.lower() in (".r", ".py", ".md", ".rmd")
+        and f.name not in ignore_files
+    }
+
+    # TODO - anything on other files?
+    other_files = actual_files - script_files
+
+    LOGGER.info(
+        f" - Found {len(actual_files)} files including {len(script_files)} script files"
+    )
+
+    # Check each of the script files, recording if the process has logged errors
+    return_value = True
+
+    for file in script_files:
+        # Validate the script metadata
+        try:
+            yaml_contents = validate_script_metadata(file_path=file)
+        except (ValueError, YAMLError, ValidationError) as excep:
+            LOGGER.error(
+                f"   X {file.name} did not pass metadata validation.\n" + str(excep)
+            )
+            return_value = False
+            continue
+
+        LOGGER.info(f"   - {file.name} contains valid metadata")
+
+        # Validate any named input and output paths
+        inputs = [Path(file.path) / file.name for file in yaml_contents.input_files]
+
+        for file in inputs:
+            if not file.exists():
+                LOGGER.error(f"     X Input file not found: {file!s}")
+                return_value = False
+            else:
+                LOGGER.error(f"     - Input file found: {file!s}")
+
+        outputs = [Path(file.path) / file.name for file in yaml_contents.output_files]
+
+        for file in outputs:
+            if not file.exists():
+                LOGGER.error(f"     X Output file not found: {file!s}")
+                return_value = False
+            else:
+                LOGGER.error(f"     - Output file found: {file!s}")
+
+        # TODO - other validation? required packages in requirement/pyproject.toml
+
+    return return_value
