@@ -66,7 +66,7 @@ wgs84_crs = CRS.from_epsg(4326)
 utm50N_crs = CRS.from_epsg(32650)
 
 # Load the destination grid details
-with open("../../core/maliau_grid_definition.toml", "rb") as maliau_grid_file:
+with open("../../../sites/maliau_grid_definition.toml", "rb") as maliau_grid_file:
     utm50N_grid_details = tomllib.load(maliau_grid_file)
 
 # Define the XY shape of the data in the destination dataset
