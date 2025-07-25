@@ -54,5 +54,5 @@ ve_data_science:
 # Background
 
 ```{r}
-a <- 1
+a_value <- 1
 ```

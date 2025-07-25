@@ -4,7 +4,7 @@
 #' description: |
 #'   This file defines a Python function that can be used to automates the download of
 #'   ERA5-Land monthly averaged datasets. It uses the Copernicus Climate Data Store
-#    (CDS) API.
+#'   (CDS) API.
 #'
 #' author:
 #'   - Lelavathy
@@ -40,4 +40,4 @@
 #'   up and using their API: https://cds.climate.copernicus.eu/how-to-api
 #' ---
 
-a <- 1
+a_value <- 1
