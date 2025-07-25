@@ -66,7 +66,7 @@ wgs84_crs = CRS.from_epsg(4326)
 utm50N_crs = CRS.from_epsg(32650)
 
 # Load the destination grid details
-with open("../../../sites/maliau_grid_definition.toml", "rb") as maliau_grid_file:
+with open("../../../sites/maliau_site_definition.toml", "rb") as maliau_grid_file:
     utm50N_grid_details = tomllib.load(maliau_grid_file)
 
 # Define the XY shape of the data in the destination dataset
@@ -79,24 +79,17 @@ dest_shape = (
 dest_transform = Affine(
     utm50N_grid_details["res"],
     0,
-    utm50N_grid_details["min_x"],
+    utm50N_grid_details["ll_x"],
     0,
     utm50N_grid_details["res"],
-    utm50N_grid_details["min_y"],
+    utm50N_grid_details["ll_y"],
 )
-
-# Set the source directory
-source_directory = Path("../../../data/primary/abiotic/era5_land_monthly/")
-
-# Get the target file
-source_filename = source_directory / "ERA5_Maliau_2010_2020.nc"
-
 
 # Open the ERA5 dataset in WGS84 and and set the CRS manually because it is not
 # set in the file. Do not decode times from CF to np.datetime64, because we'd have
 # to convert back to write the file.
 era5_data_WGS84 = xarray.open_dataset(
-    source_filename,
+    output_filename,
     engine="rasterio",
     decode_times=False,
 )
@@ -111,4 +104,4 @@ era5_data_UTM50N = era5_data_WGS84.rio.reproject(
 )
 
 # Save the reprojected data to file
-era5_data_UTM50N.to_netcdf(source_directory / "ERA5_Maliau_2010_2020_UTM50N.nc")
+era5_data_UTM50N.to_netcdf(output_dir / "ERA5_Maliau_2010_2020_UTM50N.nc")
