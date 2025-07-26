@@ -21,7 +21,7 @@ Each script file format has to include the YAML metadata in slightly different w
   both expect a block of YAML at the start of the notebook. This is called the
   'frontmatter' and is used to store notebook metadata. We simply add a new
   `ve_data_science` section into the frontmatter, that contains the expected script
-  metadata.
+  metadata. This is nested within its own section to avoid clashing with notebook YAML.
 
 * Python has a convenient mechanism where a string at the start of a script file is
   parsed as a file docstring. This is very easy to then import from a script file and so
