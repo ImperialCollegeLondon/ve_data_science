@@ -36,6 +36,7 @@ pyyaml = "^6.0.2"
 radian = "^0.6.13"
 ruff = "^0.9.3"
 xarray = "^2025.1.1"
+types-pyyaml = "^6.0.12.20250516"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
