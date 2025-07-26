@@ -1,11 +1,57 @@
 """Test the data_directories module."""
 
+from contextlib import nullcontext as does_not_raise
 from logging import ERROR, INFO
 from pathlib import Path
 
 import pytest
+from marshmallow.exceptions import ValidationError
 
 from .conftest import record_found_in_log
+
+
+@pytest.mark.parametrize(
+    argnames="input, outcome, messages",
+    argvalues=[
+        pytest.param(
+            {"name": "file.txt", "url": "https://file.txt"},
+            does_not_raise(),
+            None,
+            id="good_url",
+        ),
+        pytest.param(
+            {"name": "file.txt", "script": "script.py"},
+            does_not_raise(),
+            None,
+            id="good_script",
+        ),
+        pytest.param(
+            {"name": "file.txt", "url": "https://file.txt", "script": "script.py"},
+            pytest.raises(ValidationError),
+            (("_schema", ["file.txt: provide _one_ of url or script"]),),
+            id="bad_url_and_script",
+        ),
+        pytest.param(
+            {"naem": "file.txt", "script": "script.py"},
+            pytest.raises(ValidationError),
+            (
+                ("name", ["Missing data for required field."]),
+                ("naem", ["Unknown field."]),
+            ),
+            id="bad_key_typo",
+        ),
+    ],
+)
+def test_ManifestFile(input, outcome, messages):
+    """Test the ManifestFile dataclass."""
+    from maintenance_tool.data_directories import ManifestFile
+
+    with outcome as excep:
+        _ = ManifestFile.Schema().load(input)
+
+    if excep:
+        for msg_key, msg_list in messages:
+            assert excep.value.messages[msg_key] == msg_list
 
 
 @pytest.mark.parametrize(

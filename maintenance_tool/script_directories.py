@@ -37,7 +37,7 @@ class ScriptMetadata:
     input_files: list[ScriptFileDetails] = field(default_factory=list)
     output_files: list[ScriptFileDetails] = field(default_factory=list)
 
-    # Type the Schema attribute
+    # Type the Schema attribute to placate mypy
     Schema: ClassVar[type[Schema]]
 
 

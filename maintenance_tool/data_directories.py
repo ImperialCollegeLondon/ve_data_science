@@ -1,45 +1,25 @@
 """Module to maintain data directories."""
 
-from dataclasses import dataclass
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
+from typing import ClassVar
 
 import yaml
-from marshmallow import Schema, fields, validates_schema
+from marshmallow import Schema, validates_schema
 from marshmallow.exceptions import ValidationError
+from marshmallow_dataclass import dataclass
+from marshmallow_dataclass.typing import Url
 
 from maintenance_tool import LOGGER
 
 
-class ManifestFile(Schema):
-    """A validation schema for file details in data directory manifests."""
-
-    name = fields.String(required=True)
-    url = fields.Url()
-    script = fields.String()
-    md5 = fields.String()
-
-    @validates_schema
-    def validate_url_or_schema(self, data, **kwargs):
-        """Further validation of loaded data."""
-        if not (("url" in data) ^ ("script" in data)):
-            raise ValidationError(f"{data['name']}: provide _one_ of url or script")
-
-
-class ManifestSchema(Schema):
-    """A validation schema for data directory manifests."""
-
-    directory = fields.String(required=True)
-    files = fields.Nested(ManifestFile, many=True, required=True)
-
-
 @dataclass
-class ManifestFile2:
+class ManifestFile:
     """A dataclass for file details in data directory manifests."""
 
     name: str
-    url: str | None = None
+    url: Url | None = None
     script: str | None = None
     md5: str | None = None
 
@@ -51,11 +31,14 @@ class ManifestFile2:
 
 
 @dataclass
-class ManifestSchema2:
+class Manifest:
     """A validation schema for data directory manifests."""
 
     directory: str
-    files: tuple[ManifestFile2]
+    files: list[ManifestFile]
+
+    # Type the Schema attribute
+    Schema: ClassVar[type[Schema]]
 
 
 def check_data_directory(directory: Path, repository_root: Path = Path.cwd()) -> bool:
@@ -103,7 +86,7 @@ def check_data_directory(directory: Path, repository_root: Path = Path.cwd()) ->
 
     with open(directory / "MANIFEST.yaml") as manifest_io:
         try:
-            manifest = yaml.safe_load(manifest_io)
+            manifest_data: dict = yaml.safe_load(manifest_io)
         except yaml.error.YAMLError as excep:
             LOGGER.error(" - Cannot parse MANIFEST.yaml")
             LOGGER.error(excep)
@@ -111,7 +94,7 @@ def check_data_directory(directory: Path, repository_root: Path = Path.cwd()) ->
 
     # Does it conform to the Schema
     try:
-        manifest = ManifestSchema().load(data=manifest)
+        manifest: Manifest = Manifest.Schema().load(data=manifest_data)
     except ValidationError as excep:
         LOGGER.error(" - MANIFEST.yaml structure incorrect:")
         LOGGER.error(indent(pformat(excep.messages, indent=1, compact=True), "   "))
@@ -122,15 +105,15 @@ def check_data_directory(directory: Path, repository_root: Path = Path.cwd()) ->
     return_value = True
 
     # - Does the directory name match the entry in the manifest?
-    if (repository_root / manifest["directory"]) != directory:
+    if (repository_root / manifest.directory) != directory:
         LOGGER.error(
-            f" - MANIFEST.yaml directory name does not match: {manifest['directory']}"
+            f" - MANIFEST.yaml directory name does not match: {manifest.directory}"
         )
         return_value = False
 
     # - Does the manifest list all of the files?
     actual_files.remove("MANIFEST.yaml")
-    manifest_files = {entry["name"] for entry in manifest["files"]}
+    manifest_files = {entry.name for entry in manifest.files}
 
     if not manifest_files == actual_files:
         only_in_manifest = manifest_files.difference(actual_files)
