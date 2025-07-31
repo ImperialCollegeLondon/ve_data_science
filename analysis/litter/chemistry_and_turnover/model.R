@@ -52,6 +52,7 @@ library(tidyverse)
 library(readxl)
 library(greta)
 library(bayesplot)
+library(modelr)
 
 
 
@@ -70,7 +71,10 @@ chem_leaf <-
     P_mg.g:lignin_recalcitrants
   ) %>%
   mutate_at(vars(P_mg.g:lignin_recalcitrants), as.numeric) %>%
-  mutate(C.P = C_perc / (P_mg.g / 1000 * 100))
+  mutate(
+    C.P = C_perc / (P_mg.g / 1000 * 100),
+    lignin = lignin_recalcitrants * 0.625 / C_perc
+  )
 
 # litter decomposition
 litter_leaf <-
@@ -265,16 +269,19 @@ fM <- ilogit(logit_fM)
 log_r_lignin <- normal(-1, 0.5)
 r_lignin <- exp(log_r_lignin)
 
-log_ks <- normal(-2, 0.5, dim = max(type_id))
+# constrain ks_wood < ks_leaf < km
+log_ks <- zeros(max(type_id))
+log_ks[1] <- normal(-7, 0.5)
+log_ks_diff <- normal(1.5, 0.1)
+log_ks[2] <- log_ks[1] + exp(log_ks_diff)
 ks <- exp(log_ks)
 
-# constrain ks < km
-log_km_diff <- normal(1, 0.1, dim = max(type_id))
-log_km <- log_ks + exp(log_km_diff)
+log_km_diff <- normal(1, 0.1)
+log_km <- log_ks[2] + exp(log_km_diff)
 km <- exp(log_km)
 
 fm <- (fM - lignin * (sN * CN + sP * CP)) * type
-metabolic <- fm * exp(-km[type_id] * time)
+metabolic <- fm * exp(-km * time)
 structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin) * time))
 
 # random terms
@@ -305,7 +312,7 @@ mod <-
 
 draws <- mcmc(
   mod,
-  warmup = 3000,
+  warmup = 2000,
   sampler = hmc(15, 20)
 )
 
@@ -322,26 +329,75 @@ mcmc_intervals(draws)
 
 # Predictions -------------------------------------------------------------
 
-t_new <- seq(0, 24 * 7, length.out = 25)
+newdat <-
+  litter %>%
+  group_by(type) %>%
+  data_grid(
+    x0 = 1,
+    time = seq(0, 100 * 7, length.out = 50),
+    C.N = mean(C.N),
+    C.P = mean(C.P),
+    lignin = mean(lignin)
+  ) %>%
+  ungroup()
 
-type_new <- 0
-x0_new <- 1
-CN_new <- mean(CN[type == type_new])
-CP_new <- mean(CP[type == type_new])
-L_new <- mean(L[type == type_new])
-fm_new <- (fM - L_new * (sN * CN_new + sP * CP_new)) * type_new
-metabolic_new <- fm_new * exp(-km * t_new)
-structural_new <- (1 - fm_new) * exp(-(ks * exp(-r * L_new)) * t_new)
-log_mu_new <- log(x0_new) + log(metabolic_new + structural_new)
+x0_new <- newdat$x0
+log_x0_new <- log(x0_new)
 
+time_new <- newdat$time
+
+type_new <- ifelse(newdat$type == "leaf", 1, 0)
+type_id_new <- as.numeric(as.factor(type_new))
+
+CN_new <- newdat$C.N / 100
+CP_new <- newdat$C.P / 1000
+lignin_new <- newdat$lignin
+
+fm_new <- (fM - lignin_new * (sN * CN_new + sP * CP_new)) * type_new
+metabolic_new <- fm_new * exp(-km * time_new)
+structural_new <-
+  (1 - fm_new) * exp(-(ks[type_id_new] * exp(-r_lignin * lignin_new) * time_new))
+
+log_mu_new <- log_x0_new + log(metabolic_new + structural_new)
 mu_new <- exp(log_mu_new)
 
 mu_sim <- calculate(mu_new, values = draws, nsim = 100)
 
-matplot(t_new, t(mu_sim$mu_new[, , 1]),
-  type = "l",
-  lty = 1,
-  col = grey(0, 0.2),
-  ylim = c(0, 1)
-)
-points(t, xt)
+newdat <- newdat %>%
+  mutate(
+    mu_hat = apply(mu_sim$mu_new, 2, mean),
+    lower = apply(mu_sim$mu_new, 2, quantile, probs = 0.05),
+    upper = apply(mu_sim$mu_new, 2, quantile, probs = 0.95)
+  )
+
+ggplot(newdat) +
+  geom_ribbon(
+    aes(time,
+      ymin = lower, ymax = upper,
+      fill = type
+    ),
+    alpha = 0.4
+  ) +
+  geom_line(aes(time, mu_hat, colour = type),
+    linewidth = 1
+  ) +
+  scale_colour_viridis_d(
+    option = "turbo",
+    begin = 0.9, end = 0.1,
+    aesthetics = c("fill", "colour")
+  ) +
+  labs(
+    x = "Days",
+    y = "Proportion of remaining mass"
+  ) +
+  coord_cartesian(
+    ylim = c(0.5, 1),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+
+# Parameter estimate ------------------------------------------------------
+
+# remember to back scale
