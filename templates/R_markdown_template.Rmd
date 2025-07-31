@@ -71,5 +71,5 @@ my_function <- function(value = 10) {
 Now we can use the function.
 
 ```{r}
-x <- my_function()
+result <- my_function()
 ```

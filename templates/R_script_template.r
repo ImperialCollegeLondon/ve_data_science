@@ -64,4 +64,4 @@ my_function <- function(value = 10) {
 }
 
 # Now we can use the function.
-x <- my_function()
+my_value <- my_function()
