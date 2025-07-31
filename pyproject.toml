@@ -19,24 +19,21 @@ repository = "https://github.com/ImperialCollegeLondon/ve_data_science"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-globus-cli = "^3.32.0"
-globus-sdk = "3.46.0"
 ipython = "^8.32.0"
 jupyterlab = "^4.3.5"
 jupyterlab-myst = "^2.4.2"
 jupytext = "^1.16.7"
-marshmallow = "^3.26.1"
-marshmallow-dataclass = "^8.7.1"
 mkdocs = "^1.6.1"
 mkdocs-material = "^9.6.12"
 numpy = "^2.1"
 pre-commit = "^4.1.0"
-python = ">=3.10,<3.13"
+python = ">=3.11,<3.13"
 pyyaml = "^6.0.2"
 radian = "^0.6.13"
 ruff = "^0.9.3"
-xarray = "^2025.1.1"
 types-pyyaml = "^6.0.12.20250516"
+ve_data_science_tool = {git = "https://github.com/ImperialCollegeLondon/ve_data_science_tool.git", branch = "main"}
+xarray = "^2025.1.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
