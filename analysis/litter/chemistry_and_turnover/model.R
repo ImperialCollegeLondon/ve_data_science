@@ -269,15 +269,12 @@ log_ks <- normal(-2, 0.5, dim = max(type_id))
 ks <- exp(log_ks)
 
 # constrain ks < km
-# currently km has dim = 1 instead of 2 as ks
-# because wood does not have km
-# TODO the current coding is clunky, will need to generalise in the future
-log_km_diff <- normal(1, 0.1)
-log_km <- log_ks[2] + exp(log_km_diff)
+log_km_diff <- normal(1, 0.1, dim = max(type_id))
+log_km <- log_ks + exp(log_km_diff)
 km <- exp(log_km)
 
-fm <- (fM - lignin * (sN * CN + sP * CP)) * type
-metabolic <- fm * exp(-km * time)
+fm <- (fM - lignin * (sN * CN + sP * CP))
+metabolic <- fm * exp(-km[type_id] * time) * type
 structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin) * time))
 
 # random terms
@@ -311,7 +308,6 @@ draws <- mcmc(
   warmup = 2000,
   sampler = hmc(15, 20)
 )
-
 
 
 
