@@ -195,7 +195,6 @@ litter_wood <-
 
 
 
-
 # Combine litter dataset ======================================
 litter <-
   litter_leaf %>%
@@ -228,8 +227,6 @@ litter <-
 
 
 
-
-
 # Model -------------------------------------------------------------------
 
 # Data
@@ -237,13 +234,15 @@ xt <- litter$xt
 x0 <- litter$x0
 log_x0 <- log(x0)
 
-t <- litter$t
+time <- litter$t
 
 plot <- as.numeric(as.factor(litter$plot))
 n_plot <- max(plot)
 
 # indicator variable to let fm of non-leaves be zero
 type <- ifelse(litter$type == "leaf", 1, 0)
+# index for leaf (= 2) and wood (= 1)
+type_id <- as.numeric(as.factor(type))
 
 # C:N ratio
 CN <- litter$C.N / 100
@@ -252,7 +251,7 @@ CN <- litter$C.N / 100
 CP <- litter$C.P / 1000
 
 # lignin content
-L <- litter$lignin
+lignin <- litter$lignin
 
 # parameters and priors
 log_sN <- normal(-3, 0.5)
@@ -263,20 +262,23 @@ sP <- exp(log_sP)
 logit_fM <- normal(1.73, 0.5)
 fM <- ilogit(logit_fM)
 
-log_r <- normal(-1, 0.5)
-r <- exp(log_r)
+log_r_lignin <- normal(-1, 0.5)
+r_lignin <- exp(log_r_lignin)
 
-log_ks <- normal(-2, 0.5)
+log_ks <- normal(-2, 0.5, dim = max(type_id))
 ks <- exp(log_ks)
 
 # constrain ks < km
+# currently km has dim = 1 instead of 2 as ks
+# because wood does not have km
+# TODO the current coding is clunky, will need to generalise in the future
 log_km_diff <- normal(1, 0.1)
-log_km <- log_ks + exp(log_km_diff)
+log_km <- log_ks[2] + exp(log_km_diff)
 km <- exp(log_km)
 
-fm <- (fM - L * (sN * CN + sP * CP)) * type
-metabolic <- fm * exp(-km * t)
-structural <- (1 - fm) * exp(-(ks * exp(-r * L) * t))
+fm <- (fM - lignin * (sN * CN + sP * CP)) * type
+metabolic <- fm * exp(-km * time)
+structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin) * time))
 
 # random terms
 sd_plot <- exponential(1)
@@ -297,7 +299,7 @@ mod <-
   model(
     log_sN, log_sP,
     logit_fM,
-    log_r,
+    log_r_lignin,
     log_ks,
     log_km,
     sigma,
