@@ -273,8 +273,8 @@ log_km_diff <- normal(1, 0.1, dim = max(type_id))
 log_km <- log_ks + exp(log_km_diff)
 km <- exp(log_km)
 
-fm <- (fM - lignin * (sN * CN + sP * CP))
-metabolic <- fm * exp(-km[type_id] * time) * type
+fm <- (fM - lignin * (sN * CN + sP * CP)) * type
+metabolic <- fm * exp(-km[type_id] * time)
 structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin) * time))
 
 # random terms
@@ -305,7 +305,7 @@ mod <-
 
 draws <- mcmc(
   mod,
-  warmup = 2000,
+  warmup = 3000,
   sampler = hmc(15, 20)
 )
 
