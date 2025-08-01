@@ -1,70 +1,71 @@
-#' ---
-#' title: Plant stoichiometry
-#'
-#' description: |
-#'     This script focuses on collecting stoichiometric ratios and lignin content
-#'     for each of the biomass pools in the plant model:leaves, sapwood, roots
-#'     and reproductive tissue, which consists of propagules (fruits/seeds) and
-#'     non-propagules (flowers).
-#'     The script works with multiple datasets and ideally calculates the ratios
-#'     at PFT level. Species are linked to their PFT by working with the output
-#'     of the PFT species classification base script.
-#'     If PFT specific values are not available, values for tropical rain forests
-#'     in Sabah are aimed for.
-#'
-#' VE_module: Plant
-#'
-#' author:
-#'   - name: Arne Scheire
-#'
-#' status: final
-#'
-#'
-#' input_files:
-#'   - name: plant_functional_type_species_classification_base.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains a list of species and their respective PFT.
-#'       This CSV file can be loaded when working with other datasets
-#'       (particularly those related to updating T model parameters).
-#'       In a follow up script, the remaining species that have not been assigned
-#'       a PFT yet will be assigned into one based on
-#'       their species maximum height relative to the PFT maximum height.
-#'   - name: inagawa_nutrients_wood_density.xlsx
-#'     path: ../../../data/primary/plant/traits_data
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.8158811
-#'       Tree census data from the SAFE Project 2011–2020.
-#'       Nutrients and wood density in coarse root, trunk and branches in
-#'       Bornean tree species.
-#'   - name: both_tree_functional_traits.xlsx
-#'     path: ../../../data/primary/plant/traits_data
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.3247631
-#'       Functional traits of tree species in old-growth and selectively
-#'       logged forest.
-#'   - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
-#'     path: ../../../data/primary/plant/traits_data
-#'     description: |
-#'       https://doi.org/10.1111/1365-2745.12379
-#'       Element concentrations of litter fractions.
-#'
-#' output_files:
-#'   - name: plant_stoichiometry.csv
-#'     path: ../../../data/derived/plant/traits_data/plant_stoichiometry.csv
-#'     description: |
-#'       This CSV file contains a summary of stoichiometric ratios and lignin
-#'       content for different biomass pools for each PFT.
-#'
-#' package_dependencies:
-#'     - readxl
-#'     - dplyr
-#'     - ggplot2
-#'     - stringr
-#'
-#' usage_notes: |
-#'   This script can be expanded when additional biomass pools are added to the model.
-#' ---
+#| ---
+#| title: Plant stoichiometry
+#|
+#| description: |
+#|     This script focuses on collecting stoichiometric ratios and lignin content
+#|     for each of the biomass pools in the plant model:leaves, sapwood, roots
+#|     and reproductive tissue, which consists of propagules (fruits/seeds) and
+#|     non-propagules (flowers).
+#|     The script works with multiple datasets and ideally calculates the ratios
+#|     at PFT level. Species are linked to their PFT by working with the output
+#|     of the PFT species classification base script.
+#|     If PFT specific values are not available, values for tropical rain forests
+#|     in Sabah are aimed for.
+#|
+#| virtual_ecosystem_module:
+#|   - Plants
+#|
+#| author:
+#|   - Arne Scheire
+#|
+#| status: final
+#|
+#|
+#| input_files:
+#|   - name: plant_functional_type_species_classification_base.csv
+#|     path: ../../../data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains a list of species and their respective PFT.
+#|       This CSV file can be loaded when working with other datasets
+#|       (particularly those related to updating T model parameters).
+#|       In a follow up script, the remaining species that have not been assigned
+#|       a PFT yet will be assigned into one based on
+#|       their species maximum height relative to the PFT maximum height.
+#|   - name: inagawa_nutrients_wood_density.xlsx
+#|     path: ../../../data/primary/plant/traits_data
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.8158811
+#|       Tree census data from the SAFE Project 2011–2020.
+#|       Nutrients and wood density in coarse root, trunk and branches in
+#|       Bornean tree species.
+#|   - name: both_tree_functional_traits.xlsx
+#|     path: ../../../data/primary/plant/traits_data
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.3247631
+#|       Functional traits of tree species in old-growth and selectively
+#|       logged forest.
+#|   - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
+#|     path: ../../../data/primary/plant/traits_data
+#|     description: |
+#|       https://doi.org/10.1111/1365-2745.12379
+#|       Element concentrations of litter fractions.
+#|
+#| output_files:
+#|   - name: plant_stoichiometry.csv
+#|     path: ../../../data/derived/plant/traits_data/plant_stoichiometry.csv
+#|     description: |
+#|       This CSV file contains a summary of stoichiometric ratios and lignin
+#|       content for different biomass pools for each PFT.
+#|
+#| package_dependencies:
+#|     - readxl
+#|     - dplyr
+#|     - ggplot2
+#|     - stringr
+#|
+#| usage_notes: |
+#|   This script can be expanded when additional biomass pools are added to the model.
+#| ---
 
 
 # Load packages

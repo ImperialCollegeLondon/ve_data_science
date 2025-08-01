@@ -1,66 +1,66 @@
-#' ---
-#' title: Plant functional type cohort distribution
-#'
-#' description: |
-#'     This script calculates the PFT cohort distribution using the SAFE tree
-#'     census dataset. It provides two output files that contain the number of
-#'     individuals per DBH class for each PFT, based on the old growth plots.
-#'     The first output file contains a list of individuals in all three OG plots.
-#'     The second output file builds on top of this by providing a standardised
-#'     count per hectare.
-#'
-#' VE_module: Plant
-#'
-#' author:
-#'   - name: Arne Scheire
-#'
-#' status: final
-#'
-#'
-#' input_files:
-#'   - name: tree_census_11_20.xlsx
-#'     path: ../../../data/primary/plant/tree_census
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.14882506
-#'       Tree census data from the SAFE Project 2011–2020.
-#'       Data includes measurements of DBH and estimates of tree height for all
-#'       stems, fruiting and flowering estimates,
-#'       estimates of epiphyte and liana cover, and taxonomic IDs.
-#'   - name: plant_functional_type_species_classification_maximum_height.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains an updated list of species and their respective PFT.
-#'       It contains a) the base PFT species classification and b) for the remaining
-#'       species their PFT is assigned based on their maximum height relative to
-#'       the PFT maximum height. Species maximum height is also included in the
-#'       output file.
-#'
-#' output_files:
-#'   - name: plant_functional_type_cohort_distribution.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains an overview of the individuals in OG plots per
-#'       DBH class for each PFT.
-#'   - name: plant_functional_type_cohort_distribution_per_hectare.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains the number of individuals per DBH class for each PFT,
-#'       providing a standardised count per hectare.
-#'       The variable "plant_cohorts_n_corrected" is "plant_cohorts_n" but where
-#'       the trees with unknown PFT have been distributed evenly across the
-#'       existing PFTs.
-#'
-#' package_dependencies:
-#'     - readxl
-#'     - dplyr
-#'     - ggplot2
-#'     - tidyr
-#'
-#' usage_notes: |
-#'   This script applies the PFT species classification to the SAFE census dataset
-#'   in order to get the respective cohort distribution. However, the same approach
-#'   can be applied to different census datasets and other PFT species classifications.
-#' ---
+#| ---
+#| title: Plant functional type cohort distribution
+#|
+#| description: |
+#|     This script calculates the PFT cohort distribution using the SAFE tree
+#|     census dataset. It provides two output files that contain the number of
+#|     individuals per DBH class for each PFT, based on the old growth plots.
+#|     The first output file contains a list of individuals in all three OG plots.
+#|     The second output file builds on top of this by providing a standardised
+#|     count per hectare.
+#|
+#| virtual_ecosystem_module:
+#|   - Plants
+#|
+#| author:
+#|   - Arne Scheire
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: tree_census_11_20.xlsx
+#|     path: ../../../data/primary/plant/tree_census
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.14882506
+#|       Tree census data from the SAFE Project 2011–2020.
+#|       Data includes measurements of DBH and estimates of tree height for all
+#|       stems, fruiting and flowering estimates,
+#|       estimates of epiphyte and liana cover, and taxonomic IDs.
+#|   - name: plant_functional_type_species_classification_maximum_height.csv
+#|     path: ../../../data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains an updated list of species and their respective PFT.
+#|       It contains a) the base PFT species classification and b) for the remaining
+#|       species their PFT is assigned based on their maximum height relative to
+#|       the PFT maximum height. Species maximum height is also included in the
+#|       output file.
+#|
+#| output_files:
+#|   - name: plant_functional_type_cohort_distribution.csv
+#|     path: ../../../data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains an overview of the individuals in OG plots per
+#|       DBH class for each PFT.
+#|   - name: plant_functional_type_cohort_distribution_per_hectare.csv
+#|     path: ../../../data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains the number of individuals per DBH class for each PFT,
+#|       providing a standardised count per hectare.
+#|       The variable "plant_cohorts_n_corrected" is "plant_cohorts_n" but where
+#|       the trees with unknown PFT have been distributed evenly across the
+#|       existing PFTs.
+#|
+#| package_dependencies:
+#|     - readxl
+#|     - dplyr
+#|     - ggplot2
+#|     - tidyr
+#|
+#| usage_notes: |
+#|   This script applies the PFT species classification to the SAFE census dataset
+#|   in order to get the respective cohort distribution. However, the same approach
+#|   can be applied to different census datasets and other PFT species classifications.
+#| ---
 
 
 # Load packages

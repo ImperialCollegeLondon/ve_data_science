@@ -1,54 +1,55 @@
-#' ---
-#' title: Estimating relative abundance of soil fungi by guilds
-#'
-#' description: |
-#'     To quantify the relative abundance of different guilds of fungal species
-#'     (e.g., ectomycorrhizal, arbuscular mycorrhizal, saprotrophs) in the soil
-#'     I start with the SAFE dataset collected by Sam Robinson, Elias Dafydd
-#'     et al. Their original study assigned species into guilds using the
-#'     FunGuilds database, but I will be using the newer FungalTraits database.
-#'     I also focus on genus level, rather than species level. This should be
-#'     okay because congeners will belong to the same guilds.
-#'
-#' VE_module: Soil
-#'
-#' author:
-#'   - name: Hao Ran Lai
-#'
-#' status: final
-#'
-#' input_files:
-#'   - name: 13225_2020_466_MOESM4_ESM.xlsx
-#'     path: data/primary/soil/mycorrhizae/
-#'     description: |
-#'       Fungal trait database from FungalTraits (Polme et al. 2020)
-#'       Paper DOI: https://doi.org/10.1007/s13225-020-00466-2
-#'       Data available from their supplementary; I used Table S1 which
-#'       provides the genus-level traits; this dataset is for assigning
-#'       fungal genera into guilds
-#'   - name: Soil_Mycelial_Fungi_SAFE_Dataset.xlsx
-#'     path: data/primary/soil/mycorrhizae/
-#'     description: |
-#'       Fungal community data from SAFE collected by Robinson et al.
-#'       Available on Zenodo https://doi.org/10.5281/zenodo.13122106
-#'
-#' output_files:
-#'   - name: NA
-#'     path: NA
-#'     description: |
-#'       NA
-#'
-#' package_dependencies:
-#'     - tidyverse
-#'     - readxl
-#'     - gllvm
-#'     - corrplot
-#'     - gclus
-#'
-#' usage_notes: |
-#'   The control.start argument for the gllvm model is to run multiple fits
-#'   to ensure that we reach the global optimum
-#' ---
+#| ---
+#| title: Estimating relative abundance of soil fungi by guilds
+#|
+#| description: |
+#|     To quantify the relative abundance of different guilds of fungal species
+#|     (e.g., ectomycorrhizal, arbuscular mycorrhizal, saprotrophs) in the soil
+#|     I start with the SAFE dataset collected by Sam Robinson, Elias Dafydd
+#|     et al. Their original study assigned species into guilds using the
+#|     FunGuilds database, but I will be using the newer FungalTraits database.
+#|     I also focus on genus level, rather than species level. This should be
+#|     okay because congeners will belong to the same guilds.
+#|
+#| virtual_ecosystem_module:
+#|   - Soil
+#|
+#| author:
+#|   - Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: 13225_2020_466_MOESM4_ESM.xlsx
+#|     path: data/primary/soil/mycorrhizae/
+#|     description: |
+#|       Fungal trait database from FungalTraits (Polme et al. 2020)
+#|       Paper DOI: https://doi.org/10.1007/s13225-020-00466-2
+#|       Data available from their supplementary; I used Table S1 which
+#|       provides the genus-level traits; this dataset is for assigning
+#|       fungal genera into guilds
+#|   - name: Soil_Mycelial_Fungi_SAFE_Dataset.xlsx
+#|     path: data/primary/soil/mycorrhizae/
+#|     description: |
+#|       Fungal community data from SAFE collected by Robinson et al.
+#|       Available on Zenodo https://doi.org/10.5281/zenodo.13122106
+#|
+#| output_files:
+#|   - name: NA
+#|     path: NA
+#|     description: |
+#|       NA
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - gllvm
+#|     - corrplot
+#|     - gclus
+#|
+#| usage_notes: |
+#|   The control.start argument for the gllvm model is to run multiple fits
+#|   to ensure that we reach the global optimum
+#| ---
 
 
 # packages

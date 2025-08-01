@@ -1,62 +1,63 @@
-#' ---
-#' title: Plant functional type species classification maximum height
-#'
-#' description: |
-#'     This script classifies the remaining species (read: TaxaNames) that have
-#'     not been assigned a PFT yet (i.e., outside the base classification) into
-#'     a PFT based on their species maximum height relative to the PFT maximum
-#'     height.
-#'
-#' VE_module: Plant
-#'
-#' author:
-#'   - name: Arne Scheire
-#'
-#' status: final
-#'
-#'
-#' input_files:
-#'   - name: tree_census_11_20.xlsx
-#'     path: ../../../data/primary/plant/tree_census
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.14882506
-#'       Tree census data from the SAFE Project 2011–2020.
-#'       Data includes measurements of DBH and estimates of tree height for all
-#'       stems, fruiting and flowering estimates,
-#'       estimates of epiphyte and liana cover, and taxonomic IDs.
-#'   - name: plant_functional_type_species_classification_base.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains a list of species and their respective PFT.
-#'   - name: t_model_parameters.csv
-#'     path: ../../../data/derived/plant/traits_data/t_model_parameters.csv
-#'     description: |
-#'       This CSV file contains a summary of updated T model parameters, as well
-#'       as additional PFT traits for leaf and sapwood stoichiometry derived
-#'       from the same datasets.
-#'
-#' output_files:
-#'   - name: plant_functional_type_species_classification_maximum_height.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains an updated list of species and their respective PFT.
-#'       It contains a) the base PFT species classification and b) for the remaining
-#'       species their PFT is assigned based on their maximum height relative to
-#'       the PFT maximum height. Species maximum height is also included in the
-#'       output file.
-#'
-#' package_dependencies:
-#'     - readxl
-#'     - dplyr
-#'     - ggplot2
-#'     - tidyr
-#'
-#' usage_notes: |
-#'   If PFT species classification is updated in the future, the base script as
-#'   well as the t_model_parameters script will need to be updated prior to
-#'   running this script (because the output of this script relies heavily on
-#'   the PFT maximum height).
-#' ---
+#| ---
+#| title: Plant functional type species classification maximum height
+#|
+#| description: |
+#|     This script classifies the remaining species (read: TaxaNames) that have
+#|     not been assigned a PFT yet (i.e., outside the base classification) into
+#|     a PFT based on their species maximum height relative to the PFT maximum
+#|     height.
+#|
+#| virtual_ecosystem_module:
+#|   - Plants
+#|
+#| author:
+#|   - Arne Scheire
+#|
+#| status: final
+#|
+#|
+#| input_files:
+#|   - name: tree_census_11_20.xlsx
+#|     path: ../../../data/primary/plant/tree_census
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.14882506
+#|       Tree census data from the SAFE Project 2011–2020.
+#|       Data includes measurements of DBH and estimates of tree height for all
+#|       stems, fruiting and flowering estimates,
+#|       estimates of epiphyte and liana cover, and taxonomic IDs.
+#|   - name: plant_functional_type_species_classification_base.csv
+#|     path: ../../../data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains a list of species and their respective PFT.
+#|   - name: t_model_parameters.csv
+#|     path: ../../../data/derived/plant/traits_data/t_model_parameters.csv
+#|     description: |
+#|       This CSV file contains a summary of updated T model parameters, as well
+#|       as additional PFT traits for leaf and sapwood stoichiometry derived
+#|       from the same datasets.
+#|
+#| output_files:
+#|   - name: plant_functional_type_species_classification_maximum_height.csv
+#|     path: ../../../data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains an updated list of species and their respective PFT.
+#|       It contains a) the base PFT species classification and b) for the remaining
+#|       species their PFT is assigned based on their maximum height relative to
+#|       the PFT maximum height. Species maximum height is also included in the
+#|       output file.
+#|
+#| package_dependencies:
+#|     - readxl
+#|     - dplyr
+#|     - ggplot2
+#|     - tidyr
+#|
+#| usage_notes: |
+#|   If PFT species classification is updated in the future, the base script as
+#|   well as the t_model_parameters script will need to be updated prior to
+#|   running this script (because the output of this script relies heavily on
+#|   the PFT maximum height).
+#| ---
 
 
 # Load packages

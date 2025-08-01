@@ -1,48 +1,49 @@
-#' ---
-#' title: Estimating litter stocks from SAFE data
-#'
-#' description: |
-#'     This R script estimates litter stocks (leaf, wood, reproductive)
-#'     from SAFE data. It combines a dataset that measured
-#'     total aboveground litter stock and another dataset that
-#'     measured litter composition (can be converted to
-#'     proportions) to estimate litter stock per composition.
-#'     Belowground stock is still missing for now.
-#'
-#' VE_module: Litter
-#'
-#' author:
-#'   - name: Hao Ran Lai
-#'
-#' status: wip
-#'
-#' input_files:
-#'   - name: Ewers_LeafLitter.xlsx
-#'     path: data/primary/litter/
-#'     description: |
-#'       Wet and dry weight of leaf litterfall at SAFE vegetation plots by
-#'       Robert Ewers; downloaded from https://zenodo.org/records/1198587
-#'   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx
-#'     path: data/primary/litter/
-#'     description: |
-#'       Litter stock from SAFE carbon inventory by
-#'       Riutta et al.; downloaded from https://zenodo.org/records/4542881
-#'
-#' output_files:
-#'   - name: NA
-#'     path: NA
-#'     description: |
-#'       NA
-#'
-#' package_dependencies:
-#'     - tidyverse
-#'     - readxl
-#'     - glmmTMB
-#'
-#' usage_notes: |
-#'   If more data is needed for even more accurate parameterisation, see
-#'   Turner et al. (2019) https://zenodo.org/records/3265722
-#' ---
+#| ---
+#| title: Estimating litter stocks from SAFE data
+#|
+#| description: |
+#|     This R script estimates litter stocks (leaf, wood, reproductive)
+#|     from SAFE data. It combines a dataset that measured
+#|     total aboveground litter stock and another dataset that
+#|     measured litter composition (can be converted to
+#|     proportions) to estimate litter stock per composition.
+#|     Belowground stock is still missing for now.
+#|
+#| virtual_ecosystem_module:
+#|   - Litter
+#|
+#| author:
+#|   - Hao Ran Lai
+#|
+#| status: wip
+#|
+#| input_files:
+#|   - name: Ewers_LeafLitter.xlsx
+#|     path: data/primary/litter/
+#|     description: |
+#|       Wet and dry weight of leaf litterfall at SAFE vegetation plots by
+#|       Robert Ewers; downloaded from https://zenodo.org/records/1198587
+#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx
+#|     path: data/primary/litter/
+#|     description: |
+#|       Litter stock from SAFE carbon inventory by
+#|       Riutta et al.; downloaded from https://zenodo.org/records/4542881
+#|
+#| output_files:
+#|   - name: NA
+#|     path: NA
+#|     description: |
+#|       NA
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - glmmTMB
+#|
+#| usage_notes: |
+#|   If more data is needed for even more accurate parameterisation, see
+#|   Turner et al. (2019) https://zenodo.org/records/3265722
+#| ---
 
 library(tidyverse)
 library(readxl)

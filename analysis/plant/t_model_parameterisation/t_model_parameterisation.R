@@ -1,73 +1,74 @@
-#' ---
-#' title: Updating T model parameters
-#'
-#' description: |
-#'     This script focuses on updating the base values for the parameters in
-#'     the T model to values more closely aligned with the SAFE project.
-#'     The script works with multiple datasets and calculates values for the
-#'     T model, ideally at PFT level. Species are linked to their PFT by working
-#'     with the output of the PFT species classification base script.
-#'
-#' VE_module: Plant
-#'
-#' author:
-#'   - name: Arne Scheire
-#'
-#' status: final
-#'
-#'
-#' input_files:
-#'   - name: tree_census_11_20.xlsx
-#'     path: ../../../data/primary/plant/tree_census
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.14882506
-#'       Tree census data from the SAFE Project 2011–2020.
-#'       Data includes measurements of DBH and estimates of tree height for all
-#'       stems, fruiting and flowering estimates,
-#'       estimates of epiphyte and liana cover, and taxonomic IDs.
-#'   - name: plant_functional_type_species_classification_base.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains a list of species and their respective PFT.
-#'       This CSV file can be loaded when working with other datasets
-#'       (particularly those related to updating T model parameters).
-#'       In a follow up script, the remaining species that have not been assigned
-#'       a PFT yet will be assigned into one based on
-#'       their species maximum height relative to the PFT maximum height.
-#'   - name: inagawa_nutrients_wood_density.xlsx
-#'     path: ../../../data/primary/plant/traits_data
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.8158811
-#'       Tree census data from the SAFE Project 2011–2020.
-#'       Nutrients and wood density in coarse root, trunk and branches in
-#'       Bornean tree species.
-#'   - name: both_tree_functional_traits.xlsx
-#'     path: ../../../data/primary/plant/traits_data
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.3247631
-#'       Functional traits of tree species in old-growth and selectively
-#'       logged forest.
-#'
-#' output_files:
-#'   - name: t_model_parameters.csv
-#'     path: ../../../data/derived/plant/traits_data/t_model_parameters.csv
-#'     description: |
-#'       This CSV file contains a summary of updated T model parameters for each PFT.
-#'
-#' package_dependencies:
-#'     - readxl
-#'     - dplyr
-#'     - ggplot2
-#'     - stringr
-#'
-#' usage_notes: |
-#'   This script is intended to run entirely from start to finish in order to
-#'   preserve the flow and links between different datasets, so that the final
-#'   output file contains all necessary parts. The units are the same as the
-#'   ones in Li et al. (2014) unless specified otherwise in the script.
-#'   A summary of the unit for each variable can also be found at the end of
-#'   this script. Variable names have been matched with those used by the VE.
-#' ---
+#| ---
+#| title: Updating T model parameters
+#|
+#| description: |
+#|     This script focuses on updating the base values for the parameters in
+#|     the T model to values more closely aligned with the SAFE project.
+#|     The script works with multiple datasets and calculates values for the
+#|     T model, ideally at PFT level. Species are linked to their PFT by working
+#|     with the output of the PFT species classification base script.
+#|
+#| virtual_ecosystem_module:
+#|   - Plants
+#|
+#| author:
+#|   - Arne Scheire
+#|
+#| status: final
+#|
+#|
+#| input_files:
+#|   - name: tree_census_11_20.xlsx
+#|     path: ../../../data/primary/plant/tree_census
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.14882506
+#|       Tree census data from the SAFE Project 2011–2020.
+#|       Data includes measurements of DBH and estimates of tree height for all
+#|       stems, fruiting and flowering estimates,
+#|       estimates of epiphyte and liana cover, and taxonomic IDs.
+#|   - name: plant_functional_type_species_classification_base.csv
+#|     path: ../../../data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains a list of species and their respective PFT.
+#|       This CSV file can be loaded when working with other datasets
+#|       (particularly those related to updating T model parameters).
+#|       In a follow up script, the remaining species that have not been assigned
+#|       a PFT yet will be assigned into one based on
+#|       their species maximum height relative to the PFT maximum height.
+#|   - name: inagawa_nutrients_wood_density.xlsx
+#|     path: ../../../data/primary/plant/traits_data
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.8158811
+#|       Tree census data from the SAFE Project 2011–2020.
+#|       Nutrients and wood density in coarse root, trunk and branches in
+#|       Bornean tree species.
+#|   - name: both_tree_functional_traits.xlsx
+#|     path: ../../../data/primary/plant/traits_data
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.3247631
+#|       Functional traits of tree species in old-growth and selectively
+#|       logged forest.
+#|
+#| output_files:
+#|   - name: t_model_parameters.csv
+#|     path: ../../../data/derived/plant/traits_data/t_model_parameters.csv
+#|     description: |
+#|       This CSV file contains a summary of updated T model parameters for each PFT.
+#|
+#| package_dependencies:
+#|     - readxl
+#|     - dplyr
+#|     - ggplot2
+#|     - stringr
+#|
+#| usage_notes: |
+#|   This script is intended to run entirely from start to finish in order to
+#|   preserve the flow and links between different datasets, so that the final
+#|   output file contains all necessary parts. The units are the same as the
+#|   ones in Li et al. (2014) unless specified otherwise in the script.
+#|   A summary of the unit for each variable can also be found at the end of
+#|   this script. Variable names have been matched with those used by the VE.
+#| ---
 
 
 # Load packages
