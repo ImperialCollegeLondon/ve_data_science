@@ -23,6 +23,7 @@ repos:
     rev: v0.44.0
     hooks:
     - id: markdownlint
+      exclude: .ipynb_checkpoints
   - repo: https://github.com/lorenzwalthert/precommit
     # These are R specific tools to format and lint the code and check for common errors
     # Note that this currently points to a specific GitHub commit to avoid an issue with

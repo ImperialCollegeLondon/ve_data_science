@@ -19,18 +19,21 @@ repository = "https://github.com/ImperialCollegeLondon/ve_data_science"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-numpy = "~2.1" # Pinning numpy less than 2.2.0 until this resolves: https://github.com/numpy/numpy/issues/27957
-pre-commit = "^4.1.0"
-python = ">=3.10,<3.13"
-radian = "^0.6.13"
-ruff = "^0.9.3"
-xarray = "^2025.1.1"
 ipython = "^8.32.0"
 jupyterlab = "^4.3.5"
 jupyterlab-myst = "^2.4.2"
 jupytext = "^1.16.7"
 mkdocs = "^1.6.1"
 mkdocs-material = "^9.6.12"
+numpy = "^2.1"
+pre-commit = "^4.1.0"
+python = ">=3.11,<3.13"
+pyyaml = "^6.0.2"
+radian = "^0.6.13"
+ruff = "^0.9.3"
+types-pyyaml = "^6.0.12.20250516"
+ve_data_science_tool = {git = "https://github.com/ImperialCollegeLondon/ve_data_science_tool.git", branch = "main"}
+xarray = "^2025.1.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
@@ -57,3 +60,9 @@ ignore = [
   "D202", # Blank line after docstring is ok
   "D107", # Location of __init__ docstring in class not __init__"
 ]
+
+[tool.jupytext]
+# Stop jupytext from removing mystnb and other settings in MyST Notebook YAML headers
+notebook_metadata_filter = "settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version"
+# Also stop it from stripping cell metadata, except for specific ones to lose.
+cell_metadata_filter = "all,-trusted"
