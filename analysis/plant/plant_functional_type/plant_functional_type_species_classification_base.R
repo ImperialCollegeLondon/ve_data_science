@@ -35,7 +35,7 @@
 #|
 #| input_files:
 #|   - name: tree_census_11_20.xlsx
-#|     path: ../../../data/primary/plant/tree_census
+#|     path: data/primary/plant/tree_census
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.14882506
 #|       Tree census data from the SAFE Project 2011–2020.
@@ -45,7 +45,7 @@
 #|
 #| output_files:
 #|   - name: plant_functional_type_species_classification_base.csv
-#|     path: ../../../data/derived/plant/plant_functional_type
+#|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
 #|       This CSV file can be loaded when working with other datasets

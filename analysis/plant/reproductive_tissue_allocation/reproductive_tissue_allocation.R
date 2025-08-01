@@ -17,7 +17,7 @@
 #|
 #| input_files:
 #|   - name: SAFE_CarbonBalanceComponents.xlsx
-#|     path: ../../../data/primary/plant/carbon_balance_components
+#|     path: data/primary/plant/carbon_balance_components
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.7307449
 #|       Measured components of total carbon budget at the SAFE project.
@@ -25,20 +25,20 @@
 #|       investigated across a logging gradient from unlogged old-growth to
 #|       heavily logged.
 #|   - name: both_tree_functional_traits.xlsx
-#|     path: ../../../data/primary/plant/traits_data
+#|     path: data/primary/plant/traits_data
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.3247631
 #|       Functional traits of tree species in old-growth and selectively
 #|       logged forest.
 #|   - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
-#|     path: ../../../data/primary/plant/traits_data
+#|     path: data/primary/plant/traits_data
 #|     description: |
 #|       https://doi.org/10.1111/1365-2745.12379
 #|       Element concentrations of litter fractions.
 #|
 #| output_files:
 #|   - name: plant_reproductive_tissue_allocation.csv
-#|     path: ../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv # nolint
+#|     path: data/derived/plant/reproductive_tissue_allocation
 #|     description: |
 #|       This CSV file contains a summary of the ratios needed to calculate
 #|       reproductive tissue allocation, and to separate propagules from non-

@@ -22,10 +22,6 @@
 #|       https://doi.org/10.5281/zenodo.3929632
 #|
 #| output_files:
-#|   - name: NA
-#|     path: NA
-#|     description: |
-#|       NA
 #|
 #| package_dependencies:
 #|     - tidyverse

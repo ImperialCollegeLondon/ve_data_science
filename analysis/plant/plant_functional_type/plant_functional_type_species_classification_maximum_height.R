@@ -18,7 +18,7 @@
 #|
 #| input_files:
 #|   - name: tree_census_11_20.xlsx
-#|     path: ../../../data/primary/plant/tree_census
+#|     path: data/primary/plant/tree_census
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.14882506
 #|       Tree census data from the SAFE Project 2011–2020.
@@ -26,11 +26,11 @@
 #|       stems, fruiting and flowering estimates,
 #|       estimates of epiphyte and liana cover, and taxonomic IDs.
 #|   - name: plant_functional_type_species_classification_base.csv
-#|     path: ../../../data/derived/plant/plant_functional_type
+#|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
 #|   - name: t_model_parameters.csv
-#|     path: ../../../data/derived/plant/traits_data/t_model_parameters.csv
+#|     path: data/derived/plant/traits_data/t_model_parameters.csv
 #|     description: |
 #|       This CSV file contains a summary of updated T model parameters, as well
 #|       as additional PFT traits for leaf and sapwood stoichiometry derived
@@ -38,7 +38,7 @@
 #|
 #| output_files:
 #|   - name: plant_functional_type_species_classification_maximum_height.csv
-#|     path: ../../../data/derived/plant/plant_functional_type
+#|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains an updated list of species and their respective PFT.
 #|       It contains a) the base PFT species classification and b) for the remaining

@@ -30,10 +30,6 @@
 #|       Riutta et al.; downloaded from https://zenodo.org/records/4542881
 #|
 #| output_files:
-#|   - name: NA
-#|     path: NA
-#|     description: |
-#|       NA
 #|
 #| package_dependencies:
 #|     - tidyverse

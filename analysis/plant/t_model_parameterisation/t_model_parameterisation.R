@@ -19,7 +19,7 @@
 #|
 #| input_files:
 #|   - name: tree_census_11_20.xlsx
-#|     path: ../../../data/primary/plant/tree_census
+#|     path: data/primary/plant/tree_census
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.14882506
 #|       Tree census data from the SAFE Project 2011–2020.
@@ -27,7 +27,7 @@
 #|       stems, fruiting and flowering estimates,
 #|       estimates of epiphyte and liana cover, and taxonomic IDs.
 #|   - name: plant_functional_type_species_classification_base.csv
-#|     path: ../../../data/derived/plant/plant_functional_type
+#|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
 #|       This CSV file can be loaded when working with other datasets
@@ -36,14 +36,14 @@
 #|       a PFT yet will be assigned into one based on
 #|       their species maximum height relative to the PFT maximum height.
 #|   - name: inagawa_nutrients_wood_density.xlsx
-#|     path: ../../../data/primary/plant/traits_data
+#|     path: data/primary/plant/traits_data
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.8158811
 #|       Tree census data from the SAFE Project 2011–2020.
 #|       Nutrients and wood density in coarse root, trunk and branches in
 #|       Bornean tree species.
 #|   - name: both_tree_functional_traits.xlsx
-#|     path: ../../../data/primary/plant/traits_data
+#|     path: data/primary/plant/traits_data
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.3247631
 #|       Functional traits of tree species in old-growth and selectively
@@ -51,7 +51,7 @@
 #|
 #| output_files:
 #|   - name: t_model_parameters.csv
-#|     path: ../../../data/derived/plant/traits_data/t_model_parameters.csv
+#|     path: data/derived/plant/traits_data
 #|     description: |
 #|       This CSV file contains a summary of updated T model parameters for each PFT.
 #|

@@ -40,10 +40,6 @@
 #|       fungal genera into guilds
 #|
 #| output_files:
-#|   - name: NA
-#|     path: NA
-#|     description: |
-#|       NA
 #|
 #| package_dependencies:
 #|     - tidyverse
