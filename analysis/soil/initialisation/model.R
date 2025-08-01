@@ -4,10 +4,14 @@ library(sdmTMB)
 library(terra)
 library(sf)
 library(modelr)
+library(RcppTOML)
 
 
 
 # Data --------------------------------------------------------------------
+
+# Maliau metadata
+maliau <- parseTOML("sites/maliau_site_definition.toml")
 
 # https://zenodo.org/records/3906082
 gazetteer <- st_read("data/primary/soil/nutrient/gazetteer.geojson")
@@ -41,8 +45,13 @@ soil <-
     utm_crs = "epsg:32650",
     units = "km"
   ) %>%
-  ###
-  filter(X > 540)
+  ### Limit to Maliau ???
+  filter(
+    X > maliau$ll_x / 1000,
+    X < maliau$ur_x / 1000,
+    Y > maliau$ll_y / 1000,
+    Y < maliau$ur_y / 1000
+  )
 
 
 
@@ -54,11 +63,11 @@ mesh <- make_mesh(
   c("X", "Y"),
   fmesher_func = fmesher::fm_mesh_2d_inla,
   # minimum triangle edge length
-  cutoff = 0.01,
+  cutoff = 0.005,
   # inner and outer max triangle lengths
-  max.edge = c(0.5, 1),
+  max.edge = c(0.2, 0.5),
   # inner and outer border widths
-  offset = c(1, 4)
+  offset = c(0.5, 1)
 )
 plot(mesh)
 
@@ -91,8 +100,8 @@ summary(mod_bulk_density)
 dat_new <-
   soil %>%
   data_grid(
-    X = seq_range(X, n = 50),
-    Y = seq_range(Y, n = 50)
+    X = maliau$cell_x_centres / 1000,
+    Y = maliau$cell_y_centres / 1000
   )
 
 pred_pH <-
