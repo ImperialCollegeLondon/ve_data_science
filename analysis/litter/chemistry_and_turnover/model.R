@@ -30,10 +30,6 @@
 #'       Downloaded from https://zenodo.org/records/4899610
 #'
 #' output_files:
-#'   - name: NA
-#'     path: NA
-#'     description: |
-#'       NA
 #'
 #' package_dependencies:
 #'     - tidyverse
@@ -138,7 +134,7 @@ chem_wood <-
     C.N = C_total / N_total,
     C.P = C_total / (P_total / 1000 * 100)
   ) %>%
-  select(Tag, C.N, C.P)
+  select(Tag, C_total, C.N, C.P)
 
 # wood litter decomposition
 litter_wood_raw <-
@@ -192,9 +188,11 @@ litter_wood <-
     is.finite(C.P),
     !is.na(Density)
   ) %>%
-  # wood lignin
-  # fix at 23% for now, as a guess similar to Arne's plant stoichiometry scripts
-  mutate(lignin = 23)
+  # wood lignin C
+  # fix at 23% * 0.625 for now,
+  # as a guess similar to Arne's plant stoichiometry scripts
+  # then converted to lignin C per wood C
+  mutate(lignin = 23 * 0.625 / C_total)
 
 
 
