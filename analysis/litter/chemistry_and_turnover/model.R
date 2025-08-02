@@ -53,6 +53,7 @@ library(readxl)
 library(greta)
 library(bayesplot)
 library(modelr)
+library(tidybayes)
 
 
 
@@ -210,7 +211,7 @@ litter <-
     t = days,
     C.N,
     C.P,
-    lignin = lignin_recalcitrants
+    lignin
   ) %>%
   mutate(type = "leaf") %>%
   bind_rows(
@@ -255,7 +256,14 @@ CN <- litter$C.N / 100
 CP <- litter$C.P / 1000
 
 # lignin content
-lignin <- litter$lignin
+# measurement error model
+lignin_obs <- litter$lignin
+# guessing at about 30% lignin C per total C
+mu_lignin_true <- normal(-0.85, 1)
+sd_lignin_true <- exponential(1)
+logit_lignin_true <- normal(mu_lignin_true, sd_lignin_true, dim = length(lignin_obs))
+lignin_true <- ilogit(logit_lignin_true)
+sigma_lignin <- exponential(1)
 
 # parameters and priors
 log_sN <- normal(-3, 0.5)
@@ -280,9 +288,9 @@ log_km_diff <- normal(1, 0.1)
 log_km <- log_ks[2] + exp(log_km_diff)
 km <- exp(log_km)
 
-fm <- (fM - lignin * (sN * CN + sP * CP)) * type
+fm <- (fM - lignin_true * (sN * CN + sP * CP)) * type
 metabolic <- fm * exp(-km * time)
-structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin) * time))
+structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin_true) * time))
 
 # random terms
 sd_plot <- exponential(1)
@@ -297,6 +305,7 @@ sigma <- exponential(1)
 
 # likelihood
 distribution(xt) <- lognormal(log_mu, sigma)
+distribution(lignin_obs) <- normal(lignin_true, sigma_lignin)
 
 # model
 mod <-
@@ -307,7 +316,9 @@ mod <-
     log_ks,
     log_km,
     sigma,
-    sd_plot
+    sd_plot,
+    lignin_true,
+    sigma_lignin
   )
 
 draws <- mcmc(
@@ -321,8 +332,21 @@ draws <- mcmc(
 
 # Diagnostics ------------------------------------------------------------
 
-mcmc_trace(draws)
+mcmc_trace(draws, regex_pars = "log|sigma|sd_plot")
+mcmc_trace(draws, "lignin_true[1,1]")
 mcmc_intervals(draws)
+
+draws %>%
+  gather_draws(lignin_true[row, ]) %>%
+  median_qi() %>%
+  mutate(obs = lignin_obs) %>%
+  ggplot() +
+  geom_errorbar(aes(obs, ymin = .lower, ymax = .upper),
+    width = 0, colour = "grey"
+  ) +
+  geom_point(aes(obs, .value))
+
+
 
 
 
