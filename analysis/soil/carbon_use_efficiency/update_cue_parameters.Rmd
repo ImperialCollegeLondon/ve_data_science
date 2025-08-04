@@ -63,9 +63,8 @@ ve_data_science:
 output:
     github_document:
         html_preview: false
-
+        
 bibliography: ../../../bib/refs.bib
-
 
 ---
 
@@ -86,6 +85,7 @@ library(tidyverse)
 library(sf)
 library(tmap)
 library(brms)
+library(readxl)
 ```
 
 # Background
@@ -93,13 +93,13 @@ library(brms)
 ```{r Read data, message=FALSE, warning=FALSE}
 # inout folder
 in_path <-
-  "data/primary/soil/carbon_use_efficiency/Qiao2019/"
+  "data/primary/soil/carbon_use_efficiency/"
 
 dat_cue <-
-  read_csv(
+  read_xlsx(
     paste0(
       in_path,
-      "41598_2019_42145_MOESM2_ESM.csv"
+      "41598_2019_42145_MOESM2_ESM.xlsx"
     )
   ) %>%
   select(No_Wj,
