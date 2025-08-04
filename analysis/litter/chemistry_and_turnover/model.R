@@ -58,65 +58,46 @@ library(modelr)
 
 # litter chemistry
 chem_leaf <-
-  read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
+  read_xlsx("data/primary/litter/SAFE_Dataset.xlsx",
     sheet = 4,
-    skip = 7
+    skip = 9
   ) %>%
   select(
-    code,
-    P_mg.g:lignin_recalcitrants
+    location_name,
+    Pretreatment,
+    leaf_P, leaf_N, leaf_C, lig_rec,
   ) %>%
-  mutate_at(vars(P_mg.g:lignin_recalcitrants), as.numeric) %>%
   mutate(
-    C.P = C_perc / (P_mg.g / 1000 * 100),
-    lignin = lignin_recalcitrants * 0.625 / C_perc
-  )
+    C.P = leaf_C / (leaf_P / 1000 * 100),
+    C.N = leaf_C / leaf_N,
+    lignin = lig_rec * 0.625 / leaf_C * 100
+  ) %>%
+  group_by(location_name) %>%
+  summarise_at(vars(C.P, C.N, lignin), mean)
 
 # litter decomposition
 litter_leaf <-
-  read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
-    sheet = 5,
-    skip = 7
+  read_xlsx("data/primary/litter/SAFE_Dataset.xlsx",
+    sheet = 7,
+    skip = 9
   ) %>%
-  # filter replicate A because only these litter bag had chemistry measured
-  filter(replicate == "A") %>%
+  # filter home soil treatment group
+  # filter(home_away == "Home") %>%
   # long format for modelling
   select(
-    code,
-    plot,
-    litter_type,
-    mesh,
-    x0 = weight_t0,
-    weight_t1,
-    weight_t2,
-    weight_t3,
-    weight_t4,
-    weight_t5,
-    weight_t6 = t6_corrected
-  ) %>%
-  pivot_longer(
-    cols = weight_t1:weight_t6,
-    names_to = "time_step",
-    values_to = "xt",
-    names_prefix = "weight_t"
+    location_name,
+    Litter_Location,
+    days = Timepoint,
+    xt = Mass_Loss
   ) %>%
   mutate(
-    weeks = case_match(
-      time_step,
-      "1" ~ 2,
-      "2" ~ 4,
-      "3" ~ 6,
-      "4" ~ 8,
-      "5" ~ 13,
-      "6" ~ 24
-    ),
-    days = weeks * 7,
-    plot = as.character(plot),
+    x0 = 1,
+    days = as.numeric(str_remove(days, "d")),
+    xt = as.numeric(xt) / 100,
   ) %>%
+  filter(!is.na(xt)) %>%
   # join chemistry data
-  left_join(chem_leaf) %>%
-  # remove data without lignin content
-  filter(!is.na(lignin_recalcitrants))
+  left_join(chem_leaf)
 
 
 # Wood litter ================================================
@@ -188,11 +169,10 @@ litter_wood <-
     is.finite(C.P),
     !is.na(Density)
   ) %>%
-  # wood lignin C
-  # fix at 23% * 0.625 for now,
-  # as a guess similar to Arne's plant stoichiometry scripts
-  # then converted to lignin C per wood C
-  mutate(lignin = 23 * 0.625 / C_total)
+  # wood lignin [lignin C per deadwood C]
+  # lignin concentration = 29.475% and C percentage in lignin = 62.5%
+  # following Martin et al. (2021) DOI: 10.1038/s41467-021-21149-9
+  mutate(lignin = 29.475 * 0.625 / C_total * 100)
 
 
 
@@ -201,14 +181,14 @@ litter_wood <-
 litter <-
   litter_leaf %>%
   select(
-    id = code,
-    plot,
+    id = location_name,
+    plot = Litter_Location,
     x0,
     xt,
     t = days,
     C.N,
     C.P,
-    lignin = lignin_recalcitrants
+    lignin
   ) %>%
   mutate(type = "leaf") %>%
   bind_rows(
@@ -280,7 +260,7 @@ km <- exp(log_km)
 
 fm <- (fM - lignin * (sN * CN + sP * CP)) * type
 metabolic <- fm * exp(-km * time)
-structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin) * time))
+structural <- (1 - fm) * exp(-(ks[type_id] * exp(-r_lignin * lignin)) * time)
 
 # random terms
 sd_plot <- exponential(1)
@@ -322,6 +302,10 @@ draws <- mcmc(
 mcmc_trace(draws)
 mcmc_intervals(draws)
 
+fitted <- calculate(log_mu, values = draws, nsim = 100)
+fitted <- apply(fitted$log_mu, 2, median)
+plot(log(xt), fitted)
+abline(0, 1)
 
 
 
@@ -354,7 +338,7 @@ lignin_new <- newdat$lignin
 fm_new <- (fM - lignin_new * (sN * CN_new + sP * CP_new)) * type_new
 metabolic_new <- fm_new * exp(-km * time_new)
 structural_new <-
-  (1 - fm_new) * exp(-(ks[type_id_new] * exp(-r_lignin * lignin_new) * time_new))
+  (1 - fm_new) * exp(-(ks[type_id_new] * exp(-r_lignin * lignin_new)) * time_new)
 
 log_mu_new <- log_x0_new + log(metabolic_new + structural_new)
 mu_new <- exp(log_mu_new)
@@ -389,7 +373,7 @@ ggplot(newdat) +
     y = "Proportion of remaining mass"
   ) +
   coord_cartesian(
-    ylim = c(0.5, 1),
+    ylim = c(0, 1),
     expand = FALSE
   ) +
   theme_bw()
