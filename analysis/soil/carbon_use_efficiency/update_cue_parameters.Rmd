@@ -63,7 +63,7 @@ ve_data_science:
 output:
     github_document:
         html_preview: false
-        
+
 bibliography: ../../../bib/refs.bib
 
 ---
