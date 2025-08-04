@@ -37,7 +37,7 @@
 #|       Element concentrations of litter fractions.
 #|
 #| output_files:
-#|   - name: plant_reproductive_tissue_allocation.csv
+#|   - name: reproductive_tissue_allocation.csv
 #|     path: data/derived/plant/reproductive_tissue_allocation
 #|     description: |
 #|       This CSV file contains a summary of the ratios needed to calculate

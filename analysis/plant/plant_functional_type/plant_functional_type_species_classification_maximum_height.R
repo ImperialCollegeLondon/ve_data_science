@@ -30,7 +30,7 @@
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
 #|   - name: t_model_parameters.csv
-#|     path: data/derived/plant/traits_data/t_model_parameters.csv
+#|     path: data/derived/plant/traits_data
 #|     description: |
 #|       This CSV file contains a summary of updated T model parameters, as well
 #|       as additional PFT traits for leaf and sapwood stoichiometry derived
