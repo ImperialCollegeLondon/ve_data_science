@@ -37,6 +37,7 @@
 #|     - greta
 #|     - bayesplot
 #|     - modelr
+#|     - tidybayes
 #|
 #| usage_notes: |
 #|   There is also another dataset
@@ -53,6 +54,7 @@ library(readxl)
 library(greta)
 library(bayesplot)
 library(modelr)
+library(tidybayes)
 
 
 
@@ -359,7 +361,7 @@ mod <-
     lignin
   )
 
-# posterior draws
+# posterior draws (will take a few minutes)
 draws <- mcmc(
   mod,
   warmup = 2000,
@@ -384,6 +386,7 @@ mcmc_intervals(draws, regex_pars = "^lignin")
 
 # Predictions -------------------------------------------------------------
 
+# new data and parameters for counterfactual predictions
 newdat <-
   litter %>%
   group_by(type) %>%
@@ -425,6 +428,7 @@ newdat <- newdat %>%
     upper = apply(mu_sim$mu_new, 2, quantile, probs = 0.95)
   )
 
+# plot
 ggplot(newdat) +
   geom_ribbon(
     aes(time,
@@ -455,4 +459,45 @@ ggplot(newdat) +
 
 # Parameter estimate ------------------------------------------------------
 
-# remember to back scale
+# summarise the posterior
+param_summary <-
+  draws %>%
+  spread_draws(
+    log_sN,
+    log_sP,
+    logit_fM,
+    log_r_lignin,
+    log_ks[type, ],
+    log_km
+  ) %>%
+  pivot_wider(
+    names_from = type,
+    names_prefix = "log_ks",
+    values_from = log_ks
+  ) %>%
+  # back-transform parameters and back-scale when required
+  mutate(
+    sN = exp(log_sN) / 100,
+    sP = exp(log_sP) / 1000,
+    fM = plogis(logit_fM),
+    r = -exp(log_r_lignin),
+    km = exp(log_km),
+    ks = exp(log_ks2),
+    kw = exp(log_ks1),
+    .keep = "unused"
+  ) %>%
+  pivot_longer(
+    cols = sN:kw,
+    names_to = "Parameter",
+    values_to = "value"
+  ) %>%
+  # summarise posterior
+  group_by(Parameter) %>%
+  median_qi(value,
+    .width = 0.9
+  )
+
+write_csv(
+  param_summary,
+  "data/derived/litter/turnover/decay_parameters.csv"
+)
