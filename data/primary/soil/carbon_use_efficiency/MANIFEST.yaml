@@ -1,0 +1,10 @@
+directory: data/primary/soil/carbon_use_efficiency
+files:
+- md5: null
+  name: 41598_2019_42145_MOESM2_ESM.xlsx
+  script: null
+  url: https://static-content.springer.com/esm/art%3A10.1038%2Fs41598-019-42145-6/MediaObjects/41598_2019_42145_MOESM2_ESM.xlsx
+- md5: null
+  name: MANIFESTXXX.yaml
+  script: null
+  url: null

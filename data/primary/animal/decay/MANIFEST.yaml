@@ -1,0 +1,6 @@
+directory: data/primary/animal/decay
+files:
+- md5: null
+  name: Decay_rate.csv
+  script: null
+  url: null

@@ -1,0 +1,22 @@
+directory: data/derived/plant/plant_functional_type
+files:
+- md5: null
+  name: plant_functional_type_species_classification_base.csv
+  script: null
+  url: null
+- md5: null
+  name: morbilliviruses.fasta
+  script: null
+  url: null
+- md5: null
+  name: plant_functional_type_species_classification_maximum_height.csv
+  script: null
+  url: null
+- md5: null
+  name: plant_functional_type_cohort_distribution.csv
+  script: null
+  url: null
+- md5: null
+  name: plant_functional_type_cohort_distribution_per_hectare.csv
+  script: null
+  url: null

@@ -1,0 +1,22 @@
+directory: data/primary/litter
+files:
+- md5: null
+  name: Ewers_LeafLitter.xlsx
+  script: null
+  url: null
+- md5: null
+  name: more_data.csv
+  script: null
+  url: null
+- md5: null
+  name: SAFE_WoodDecomposition_Data_SAFEdatabase_2021-06-04.xlsx
+  script: null
+  url: null
+- md5: null
+  name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx
+  script: null
+  url: null
+- md5: null
+  name: Both_litter_decomposition_experiment.xlsx
+  script: null
+  url: null
