@@ -30,7 +30,12 @@
 #|       Downloaded from https://zenodo.org/records/4899610
 #|
 #| output_files:
-#|
+#|   - name: decay_parameters.csv
+#|     path: data/derived/litter/turnover/
+#|     description: |
+#|       Parameters for the litter decay model. Values are reported as
+#|       posterior median and the lower and upper bounds of the 90% credible
+#|       intervals.
 #| package_dependencies:
 #|     - tidyverse
 #|     - readxl
@@ -460,6 +465,8 @@ ggplot(newdat) +
 # Parameter estimate ------------------------------------------------------
 
 # summarise the posterior
+# Values are reported as median and the lower and upper bounds of the 90% credible
+# intervals.
 param_summary <-
   draws %>%
   spread_draws(
