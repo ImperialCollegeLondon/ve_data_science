@@ -1,67 +1,67 @@
-#' ---
-#' title: Plant allocation to reproductive tissues
-#'
-#' description: |
-#'     This script focuses on calculating the ratio that allows to derive
-#'     reproductive tissue carbon mass from foliage carbon mass.
-#'     It also calculates the ratio to separate reproductive tissue carbon mass
-#'     into propagule (fruits/seeds) and non-propagule (flowers) carbon mass.
-#'
-#' VE_module: Plant
-#'
-#' author:
-#'   - name: Arne Scheire
-#'
-#' status: final
-#'
-#'
-#' input_files:
-#'   - name: SAFE_CarbonBalanceComponents.xlsx
-#'     path: ../../../data/primary/plant/carbon_balance_components
-#'     description: |
-#'     https://doi.org/10.5281/zenodo.7307449
-#'     Measured components of total carbon budget at the SAFE project.
-#'     Values with standard errors for each 1-ha carbon plots for 11 plots
-#'     investigated across a logging gradient from unlogged old-growth to
-#'     heavily logged.
-#'   - name: both_tree_functional_traits.xlsx
-#'     path: ../../../data/primary/plant/traits_data
-#'     description: |
-#'     https://doi.org/10.5281/zenodo.3247631
-#'     Functional traits of tree species in old-growth and selectively
-#'     logged forest.
-#'   - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
-#'     path: ../../../data/primary/plant/traits_data
-#'     description: |
-#'     https://doi.org/10.1111/1365-2745.12379
-#'     Element concentrations of litter fractions.
-#'
-#' output_files:
-#'   - name: plant_reproductive_tissue_allocation.csv
-#'     path: ../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv # nolint
-#'     description: |
-#'       This CSV file contains a summary of the ratios needed to calculate
-#'       reproductive tissue allocation, and to separate propagules from non-
-#'       propagules.
-#'
-#' package_dependencies:
-#'     - readxl
-#'     - dplyr
-#'     - ggplot2
-#'
-#' usage_notes: |
-#'     The summary output file provides the ratio of reproductive tissue carbon
-#'     mass to leaf carbon mass, for a range of studies. At the moment, no decision
-#'     has been made yet which ratio to use or to use an average across studies.
-#'     The summary also provides the ratio between non-propagule and propagule
-#'     carbon mass, using one approach based on litter fall and one approach
-#'     based on estimated live organs.
-#'     If I had to pick, I would recommend using the ratio obtained from the SAFE
-#'     carbon balance components dataset, focusing on old growth plots, with the
-#'     Aoyagi reproductive tissue carbon content (so the ratio on row 3). With
-#'     regards to the ratio between non-propagule and propagule, I would recommend
-#'     the one based on litter fall.
-#' ---
+#| ---
+#| title: Plant allocation to reproductive tissues
+#|
+#| description: |
+#|     This script focuses on calculating the ratio that allows to derive
+#|     reproductive tissue carbon mass from foliage carbon mass.
+#|     It also calculates the ratio to separate reproductive tissue carbon mass
+#|     into propagule (fruits/seeds) and non-propagule (flowers) carbon mass.
+#|
+#| virtual_ecosystem_module:
+#|   - Plants
+#|
+#| author:
+#|   - Arne Scheire
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: SAFE_CarbonBalanceComponents.xlsx
+#|     path: data/primary/plant/carbon_balance_components
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.7307449
+#|       Measured components of total carbon budget at the SAFE project.
+#|       Values with standard errors for each 1-ha carbon plots for 11 plots
+#|       investigated across a logging gradient from unlogged old-growth to
+#|       heavily logged.
+#|   - name: both_tree_functional_traits.xlsx
+#|     path: data/primary/plant/traits_data
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.3247631
+#|       Functional traits of tree species in old-growth and selectively
+#|       logged forest.
+#|   - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
+#|     path: data/primary/plant/traits_data
+#|     description: |
+#|       https://doi.org/10.1111/1365-2745.12379
+#|       Element concentrations of litter fractions.
+#|
+#| output_files:
+#|   - name: reproductive_tissue_allocation.csv
+#|     path: data/derived/plant/reproductive_tissue_allocation
+#|     description: |
+#|       This CSV file contains a summary of the ratios needed to calculate
+#|       reproductive tissue allocation, and to separate propagules from non-
+#|       propagules.
+#|
+#| package_dependencies:
+#|     - readxl
+#|     - dplyr
+#|     - ggplot2
+#|
+#| usage_notes: |
+#|     The summary output file provides the ratio of reproductive tissue carbon
+#|     mass to leaf carbon mass, for a range of studies. At the moment, no decision
+#|     has been made yet which ratio to use or to use an average across studies.
+#|     The summary also provides the ratio between non-propagule and propagule
+#|     carbon mass, using one approach based on litter fall and one approach
+#|     based on estimated live organs.
+#|     If I had to pick, I would recommend using the ratio obtained from the SAFE
+#|     carbon balance components dataset, focusing on old growth plots, with the
+#|     Aoyagi reproductive tissue carbon content (so the ratio on row 3). With
+#|     regards to the ratio between non-propagule and propagule, I would recommend
+#|     the one based on litter fall.
+#| ---
 
 # Load packages
 
