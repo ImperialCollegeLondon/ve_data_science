@@ -1,6 +1,0 @@
-directory: data/derived
-files:
-- md5: null
-  name: data.csv
-  script: null
-  url: null
