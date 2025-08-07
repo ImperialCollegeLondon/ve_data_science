@@ -19,7 +19,7 @@
 #|
 #| input_files:
 #|   - name: tree_census_11_20.xlsx
-#|     path: ../../../data/primary/plant/tree_census
+#|     path: data/primary/plant/tree_census
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.14882506
 #|       Tree census data from the SAFE Project 2011–2020.
@@ -27,7 +27,7 @@
 #|       stems, fruiting and flowering estimates,
 #|       estimates of epiphyte and liana cover, and taxonomic IDs.
 #|   - name: plant_functional_type_species_classification_maximum_height.csv
-#|     path: ../../../data/derived/plant/plant_functional_type
+#|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains an updated list of species and their respective PFT.
 #|       It contains a) the base PFT species classification and b) for the remaining
@@ -37,12 +37,12 @@
 #|
 #| output_files:
 #|   - name: plant_functional_type_cohort_distribution.csv
-#|     path: ../../../data/derived/plant/plant_functional_type
+#|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains an overview of the individuals in OG plots per
 #|       DBH class for each PFT.
 #|   - name: plant_functional_type_cohort_distribution_per_hectare.csv
-#|     path: ../../../data/derived/plant/plant_functional_type
+#|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains the number of individuals per DBH class for each PFT,
 #|       standardised as a count per hectare.
