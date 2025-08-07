@@ -1,54 +1,51 @@
-#' ---
-#' title: Estimating relative abundance of soil fungi by guilds
-#'
-#' description: |
-#'     To quantify the relative abundance of different guilds of fungal species
-#'     (e.g., ectomycorrhizal, arbuscular mycorrhizal, saprotrophs) in the soil
-#'     I start with the SAFE dataset collected by Sam Robinson, Elias Dafydd
-#'     et al. Their original study assigned species into guilds using the
-#'     FunGuilds database, but I will be using the newer FungalTraits database.
-#'     I also focus on genus level, rather than species level. This should be
-#'     okay because congeners will belong to the same guilds.
-#'
-#' VE_module: Soil
-#'
-#' author:
-#'   - name: Hao Ran Lai
-#'
-#' status: final
-#'
-#' input_files:
-#'   - name: 13225_2020_466_MOESM4_ESM.xlsx
-#'     path: data/primary/soil/mycorrhizae/
-#'     description: |
-#'       Fungal trait database from FungalTraits (Polme et al. 2020)
-#'       Paper DOI: https://doi.org/10.1007/s13225-020-00466-2
-#'       Data available from their supplementary; I used Table S1 which
-#'       provides the genus-level traits; this dataset is for assigning
-#'       fungal genera into guilds
-#'   - name: Soil_Mycelial_Fungi_SAFE_Dataset.xlsx
-#'     path: data/primary/soil/mycorrhizae/
-#'     description: |
-#'       Fungal community data from SAFE collected by Robinson et al.
-#'       Available on Zenodo https://doi.org/10.5281/zenodo.13122106
-#'
-#' output_files:
-#'   - name: NA
-#'     path: NA
-#'     description: |
-#'       NA
-#'
-#' package_dependencies:
-#'     - tidyverse
-#'     - readxl
-#'     - gllvm
-#'     - corrplot
-#'     - gclus
-#'
-#' usage_notes: |
-#'   The control.start argument for the gllvm model is to run multiple fits
-#'   to ensure that we reach the global optimum
-#' ---
+#| ---
+#| title: Estimating relative abundance of soil fungi by guilds
+#|
+#| description: |
+#|     To quantify the relative abundance of different guilds of fungal species
+#|     (e.g., ectomycorrhizal, arbuscular mycorrhizal, saprotrophs) in the soil
+#|     I start with the SAFE dataset collected by Sam Robinson, Elias Dafydd
+#|     et al. Their original study assigned species into guilds using the
+#|     FunGuilds database, but I will be using the newer FungalTraits database.
+#|     I also focus on genus level, rather than species level. This should be
+#|     okay because congeners will belong to the same guilds.
+#|
+#| virtual_ecosystem_module:
+#|   - Soil
+#|
+#| author:
+#|   - Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: 13225_2020_466_MOESM4_ESM.xlsx
+#|     path: data/primary/soil/mycorrhizae/
+#|     description: |
+#|       Fungal trait database from FungalTraits (Polme et al. 2020)
+#|       Paper DOI: https://doi.org/10.1007/s13225-020-00466-2
+#|       Data available from their supplementary; I used Table S1 which
+#|       provides the genus-level traits; this dataset is for assigning
+#|       fungal genera into guilds
+#|   - name: Soil_Mycelial_Fungi_SAFE_Dataset.xlsx
+#|     path: data/primary/soil/mycorrhizae/
+#|     description: |
+#|       Fungal community data from SAFE collected by Robinson et al.
+#|       Available on Zenodo https://doi.org/10.5281/zenodo.13122106
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - gllvm
+#|     - corrplot
+#|     - gclus
+#|
+#| usage_notes: |
+#|   The control.start argument for the gllvm model is to run multiple fits
+#|   to ensure that we reach the global optimum
+#| ---
 
 
 # packages
@@ -115,18 +112,18 @@ comm <-
   summarise_at(vars(starts_with("MYC_")), sum)
 
 # turn community dataframe into matrix for modelling
-y <- t(as.matrix(comm[, -1]))
-colnames(y) <- comm$guild
+comm_matrix <- t(as.matrix(comm[, -1]))
+colnames(comm_matrix) <- comm$guild
 
 # generate offsets from total abundance per sample
 # for modelling abundances as relative abundances
-offset <- log(rowSums(y))
+offset <- log(rowSums(comm_matrix))
 
 # remove "other" groups because we are not interested in them
-y <- y[, -which(colnames(y) == "other")]
+comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 
 # reorder the columns of community matrix to facilitate model identifiability
-y <- y[, order(colMeans(y), decreasing = TRUE)]
+comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 
 
 
@@ -136,7 +133,7 @@ y <- y[, order(colMeans(y), decreasing = TRUE)]
 # species distribution model) using the negative binomial distribution with
 # log-link and two latent dimensions
 mod <- gllvm(
-  y = y,
+  y = comm_matrix,
   family = "negative.binomial",
   num.lv = 2,
   row.eff = "random",

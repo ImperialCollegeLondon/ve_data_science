@@ -1,41 +1,38 @@
-#' ---
-#' title: Estimating fungal-to-bacteria ratio from SAFE data
-#'
-#' description: |
-#'     This R script estimates fungal-to-bacteria ratio from SAFE data
-#'
-#' VE_module: Soil
-#'
-#' author:
-#'   - name: Hao Ran Lai
-#'
-#' status: final
-#'
-#' input_files:
-#'   - name: SAFE_Dataset.xlsx
-#'     path: data/primary/soil/fungal_bacteria_ratio
-#'     description: |
-#'       Soil and litter chemistry, soil microbial communities and
-#'       litter decomposition from tropical forest and oil palm dataset by
-#'       Elias Dafydd et al. from SAFE; downloaded from
-#'       https://doi.org/10.5281/zenodo.3929632
-#'
-#' output_files:
-#'   - name: NA
-#'     path: NA
-#'     description: |
-#'       NA
-#'
-#' package_dependencies:
-#'     - tidyverse
-#'     - readxl
-#'     - glmmTMB
-#'
-#' usage_notes: |
-#'   In the future, it is possible to get a numerically more accurate ratio
-#'   using bootstrap values from the point estimate AND covariances of the
-#'   predict function.
-#' ---
+#| ---
+#| title: Estimating fungal-to-bacteria ratio from SAFE data
+#|
+#| description: |
+#|     This R script estimates fungal-to-bacteria ratio from SAFE data
+#|
+#| virtual_ecosystem_module:
+#|   - Soil
+#|
+#| author:
+#|   - Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: SAFE_Dataset.xlsx
+#|     path: data/primary/soil/fungal_bacteria_ratio
+#|     description: |
+#|       Soil and litter chemistry, soil microbial communities and
+#|       litter decomposition from tropical forest and oil palm dataset by
+#|       Elias Dafydd et al. from SAFE; downloaded from
+#|       https://doi.org/10.5281/zenodo.3929632
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - glmmTMB
+#|
+#| usage_notes: |
+#|   In the future, it is possible to get a numerically more accurate ratio
+#|   using bootstrap values from the point estimate AND covariances of the
+#|   predict function.
+#| ---
 
 library(tidyverse)
 library(readxl)
