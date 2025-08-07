@@ -1,0 +1,14 @@
+directory: data/primary/abiotic/STRM_data_elevation
+files:
+- md5: null
+  name: SRTM_maliau_processed.tif
+  script: null
+  url: null
+- md5: null
+  name: SRTM_danum_processed.tif
+  script: null
+  url: null
+- md5: null
+  name: SRTM_UTM50N_processed.tif
+  script: null
+  url: null

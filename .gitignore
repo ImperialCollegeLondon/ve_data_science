@@ -1,4 +1,5 @@
 # Data files - we do not want to populate data files into this repository.
+*.csv
 *.nc
 *.ncdf
 *.tiff
