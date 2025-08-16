@@ -30,6 +30,10 @@
 #|       Riutta et al.; downloaded from https://zenodo.org/records/4542881
 #|
 #| output_files:
+#|     name: aboveground_stock_from_C_inventory.csv
+#|     path: data/derived/litter/stock/
+#|     description: |
+#|       Estimated aboveground litter stock from the input files
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -139,5 +143,14 @@ compo_hat <- compo_hat / sum(compo_hat)
 # Expected litter stock in kg C / m2
 stock_hat <- exp(fixef(mod_stock)$cond)
 
-# Expected litter stock by component
-stock_compo <- stock_hat * compo_hat
+# Expected litter stock by component in kg C / m2
+stock_compo <-
+  data.frame(
+    type = str_remove(names(compo_hat), "Type"),
+    stock = as.numeric(stock_hat * compo_hat)
+  )
+
+write_csv(
+  stock_compo,
+  "data/derived/litter/stock/aboveground_stock_from_C_inventory.csv"
+)
