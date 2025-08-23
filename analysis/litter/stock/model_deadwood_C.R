@@ -168,7 +168,7 @@ summary(mod_rho)
 
 
 
-# Simulate deadwood stock -------------------------------------------------
+# Estimate deadwood stock -------------------------------------------------
 
 # I think we can simply multiply the expected values together
 # expected total deadwood C mass =
