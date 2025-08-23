@@ -19,6 +19,9 @@ litter_root <-
   mutate(root_litter_input = Mortality_FR + Mortality_CR)
 
 # root nutrients
+# Zhang, X., Wang, W. The decomposition of fine and coarse roots: their global
+# patterns and controlling factors. Sci Rep 5, 9940 (2015).
+# https://doi.org/10.1038/srep09940
 nutrient_root <-
   read_xls("data/primary/litter/41598_2015_BFsrep09940_MOESM2_ESM.xls",
     sheet = 2
