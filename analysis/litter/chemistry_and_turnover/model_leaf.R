@@ -166,8 +166,6 @@ mod <- brm(
 
 summary(mod)
 
-write_rds(mod, "data/derived/litter/mod_leaf_litter_decay.rds")
-
 
 
 # Diagnostics ------------------------------------------------------------
