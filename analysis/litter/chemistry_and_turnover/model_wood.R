@@ -102,14 +102,14 @@ litter_wood <-
 
 # fit the wood decomposition model
 # here I linearised it in the linear predictor of a lognormal GLMM
-mod <- glmmTMB(
+mod_wood <- glmmTMB(
   Density2 ~ 0 + weeks + (0 + weeks | PlotCode),
   offset = log_Density,
   family = lognormal(),
   data = litter_wood
 )
-summary(mod)
-confint(mod)
+summary(mod_wood)
+confint(mod_wood)
 
 
 
@@ -124,7 +124,7 @@ newdat <-
     PlotCode = NA
   )
 newdat$estimate <-
-  predict(mod,
+  predict(mod_wood,
     newdata = newdat,
     type = "response",
     allow.new.levels = TRUE

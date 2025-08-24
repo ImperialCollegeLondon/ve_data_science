@@ -153,7 +153,7 @@ inits <- list(inits, inits, inits, inits)
 source("analysis/litter/chemistry_and_turnover/lognormal_natural.R")
 
 # fit the model
-mod <- brm(
+mod_leaf <- brm(
   form,
   family = lognormal_natural,
   stanvars = stanvar(scode = stan_lognormal_natural, block = "functions"),
@@ -164,15 +164,15 @@ mod <- brm(
   cores = 4
 )
 
-summary(mod)
+summary(mod_leaf)
 
 
 
 # Diagnostics ------------------------------------------------------------
 
 # trace plots and posterior summaries
-mcmc_trace(mod, regex_pars = "^b|^sd|^cor")
-mcmc_intervals(mod, regex_pars = "^b|^sd|^cor")
+mcmc_trace(mod_leaf, regex_pars = "^b|^sd|^cor")
+mcmc_intervals(mod_leaf, regex_pars = "^b|^sd|^cor")
 
 
 
@@ -193,7 +193,7 @@ newdat <-
 # prediction
 pred <-
   fitted(
-    mod,
+    mod_leaf,
     newdata = newdat,
     allow_new_levels = TRUE
   )
