@@ -34,7 +34,11 @@
 #|     - readxl
 #|     - glmmTMB
 #|
-#| usage_notes:
+#| usage_notes: |
+#|     For future reference, there is 10.1093/jpe/rtt041 but they did not
+#|     provide open data, and did not measure lignin. There is also
+#|     10.1111/1365-2435.14025 but their code is very, very dense and hard to
+#|     read; managing it would cost us too much time.
 #| ---
 
 library(tidyverse)
@@ -109,7 +113,7 @@ mod_wood <- glmmTMB(
   data = litter_wood
 )
 summary(mod_wood)
-confint(mod_wood)
+param_wood <- confint(mod_wood)
 
 
 
