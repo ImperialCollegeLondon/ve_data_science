@@ -8,7 +8,7 @@
 #   3. Performs unit conversions (K → °C, m → mm, Pa → kPa, J/m² → W/m²)
 #   4. Adds derived and required variables (relative humidity, constant CO₂, mean annual temperature)
 #   5. Interpolate the gridded ERA5-Land variables to the TOML grid latitude/longitude points (90X90m resolution)
-#   6. Write a VE-style NetCDF that uses x/y/time_index coordinates and variable names 
+#   6. Write a VE-style NetCDF that uses x/y/time_index coordinates and variable names
 #   7. Saves processed NetCDF output
 #
 #   The resulting dataset provides climate driver inputs to the Virtual Ecosystem.
@@ -58,16 +58,22 @@
 
 
 import numpy as np
-import xarray as xr
 import tomllib
+import xarray as xr
 from pyproj import Transformer
 
 # ---------------------------
 # File paths (edit here)
 # ---------------------------
-toml_file = r"C:....ve_data_analysis\abiotic\data_download\site\maliau_grid_definition.toml"
-era5_file = r"C:.....ve_data_science\data\primary\abiotic\era5_monthly_2010_2020_maliau.nc"
-output_file = r"C:....ve_data_science\data\derived\abiotic\processed_climate_data_maliau.nc"
+toml_file = (
+    r"C:....ve_data_analysis\abiotic\data_download\site\maliau_grid_definition.toml"
+)
+era5_file = (
+    r"C:.....ve_data_science\data\primary\abiotic\era5_monthly_2010_2020_maliau.nc"
+)
+output_file = (
+    r"C:....ve_data_science\data\derived\abiotic\processed_climate_data_maliau.nc"
+)
 
 # ---------------------------
 # 1. Load TOML site definition
@@ -118,8 +124,8 @@ dataset["d2m_C"] = dataset["d2m"] - 273.15
 # Relative humidity (RH) is not a standard output from ERA5-Land but can be calculated
 # from 2m dewpoint temperature (DPT) and 2m air temperature (T)
 dataset["rh2m"] = 100.0 * (
-    np.exp(17.625 * dataset["d2m_C"] / (243.04 + dataset["d2m_C"])) /
-    np.exp(17.625 * dataset["t2m_C"] / (243.04 + dataset["t2m_C"]))
+    np.exp(17.625 * dataset["d2m_C"] / (243.04 + dataset["d2m_C"]))
+    / np.exp(17.625 * dataset["t2m_C"] / (243.04 + dataset["t2m_C"]))
 )
 
 # The standard output unit for total precipitation in ERA5-Land is meters which we need
@@ -138,17 +144,19 @@ dataset["ssrd_Wm-2"] = dataset["ssrd"] / 2592000
 
 
 # In this step, we delete the initial temperature variables (K), precipitation (m), and
-# surface pressure(Pa), surface solar radiation downward (ssrd), 10m u compoenent wind speed (u10) and 
+# surface pressure(Pa), surface solar radiation downward (ssrd), 10m u compoenent wind speed (u10) and
 # rename the remaining variables according to the Virtual Ecosystem naming convention.
 dataset_cleaned = dataset.drop_vars(["d2m", "d2m_C", "t2m", "tp", "sp", "ssrd"])
-dataset_renamed = dataset_cleaned.rename({
-    "sp_kPa": "atmospheric_pressure_ref",
-    "tp_mm": "precipitation",
-    "t2m_C": "air_temperature_ref",
-    "rh2m": "relative_humidity_ref",
-    "u10": "wind_speed_ref",
-    "ssrd_Wm-2": "downward_shortwave_radiation",
-})
+dataset_renamed = dataset_cleaned.rename(
+    {
+        "sp_kPa": "atmospheric_pressure_ref",
+        "tp_mm": "precipitation",
+        "t2m_C": "air_temperature_ref",
+        "rh2m": "relative_humidity_ref",
+        "u10": "wind_speed_ref",
+        "ssrd_Wm-2": "downward_shortwave_radiation",
+    }
+)
 
 # ---------------------------
 # 4. Add required variables
@@ -163,7 +171,9 @@ dataset_renamed["atmospheric_co2_ref"] = xr.DataArray(
 )
 
 # Mean annual temperature is calculated from the full time series of air temperatures;
-dataset_renamed["mean_annual_temperature"] = dataset_renamed["air_temperature_ref"].mean(dim="time")
+dataset_renamed["mean_annual_temperature"] = dataset_renamed[
+    "air_temperature_ref"
+].mean(dim="time")
 
 # ---------------------------
 # 5. Interpolate to TOML grid (lat/lon from WGS84 grid)
@@ -173,23 +183,21 @@ dataset_renamed["mean_annual_temperature"] = dataset_renamed["air_temperature_re
 # We select method='nearest' to mimic original behaviour; this can be changed later.
 
 data_interp = dataset_renamed.interp(
-    latitude=("y", lat_grid[:, 0]),
-    longitude=("x", lon_grid[0, :]),
-    method="nearest"
+    latitude=("y", lat_grid[:, 0]), longitude=("x", lon_grid[0, :]), method="nearest"
 )
-#Note: 
-# The Virtual Ecosystem example data is run on a 90 x 90 m grid. 
+# Note:
+# The Virtual Ecosystem example data is run on a 90 x 90 m grid.
 # This means that some form of spatial downscaling has to be applied to the dataset, for example by spatially
-# interpolating coarser resolution climate data and including the effects of local topography. 
+# interpolating coarser resolution climate data and including the effects of local topography.
 # This is not yet implemented!
 
 # ---------------------------
 # 6. Reformat into VE-style dataset
 # ---------------------------
-#Reformat coords and dims into VE-style dataset:
+# Reformat coords and dims into VE-style dataset:
 #  - dims: y, x, time_index
 # - coords: x (from TOML), y (from TOML), time_index (0..T-1)
-   
+
 ny, nx = lat_grid.shape
 time_len = data_interp.sizes["time"]
 
@@ -197,13 +205,15 @@ time_len = data_interp.sizes["time"]
 dataset_xyt = (
     data_interp.rename_dims({"time": "time_index"})
     .drop_vars({"time"})
-    .assign_coords({
-        "x": cell_x,  # from TOML
-        "y": cell_y,
-        "time_index": np.arange(0, time_len),
-        "latitude": (("y", "x"), lat_grid),
-        "longitude": (("y", "x"), lon_grid),
-    })
+    .assign_coords(
+        {
+            "x": cell_x,  # from TOML
+            "y": cell_y,
+            "time_index": np.arange(0, time_len),
+            "latitude": (("y", "x"), lat_grid),
+            "longitude": (("y", "x"), lon_grid),
+        }
+    )
 )
 
 print(f"✅ Interpolated to TOML grid: nx = {nx}, ny = {ny}, resolution = {res} m")
@@ -212,6 +222,6 @@ print(f"✅ Interpolated to TOML grid: nx = {nx}, ny = {ny}, resolution = {res} 
 # 7. Save to NetCDF
 # ---------------------------
 # Once we confirmed that our dataset is complete and our calculations are correct, we
-# save it as a new netcdf file. 
+# save it as a new netcdf file.
 dataset_xyt.to_netcdf(output_file)
 print(f"💾 Saved processed dataset to: {output_file}")
