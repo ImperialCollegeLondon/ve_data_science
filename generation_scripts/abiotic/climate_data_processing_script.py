@@ -1,189 +1,134 @@
 # ---
-# title: VE Climate Data Preparation Script
+# title: VE Climate Data Downloader, Conversion, and Grid Reprojection for Maliau Basin
+
+# description: 
+#   This script prepares ERA5-Land climate data for the Virtual Ecosystem (VE) model. It performs the following steps:
 #
-# description: |
-# This script:
-#   1. Loads a TOML site definition that defines a projected grid
-#   2. Loads a monthly averaged ERA5-Land dataset in NetCDF format (e.g., era5_monthly_2010_2020_maliau.nc)
-#   3. Performs unit conversions (K → °C, m → mm, Pa → kPa, J/m² → W/m²)
-#   4. Adds derived and required variables (relative humidity, constant CO₂, mean annual temperature)
-#   5. Interpolate the gridded ERA5-Land variables to the TOML grid latitude/longitude points (90X90m resolution)
-#   6. Write a VE-style NetCDF that uses x/y/time_index coordinates and variable names
-#   7. Saves processed NetCDF output
+#     1. Loads a TOML site definition that specifies a projected grid (cell_nx, cell_ny, resolution, lower-left coordinates, EPSG code).
+#     2. Downloads (or loads) monthly ERA5-Land data (2010–2020) for the Maliau site using `cdsapi_era5_downloader`.
+#     3. Sets CRS and reprojects the ERA5 data from WGS84 to the target UTM50N grid.
+#     4. Performs unit conversions: temperature (K → °C), precipitation (m → mm), pressure (Pa → kPa), shortwave radiation (J/m² → W/m²).
+#     5. Derives additional variables: relative humidity, mean annual temperature, constant atmospheric CO₂.
+#     6. Renames variables to match VE naming conventions:
+#          - sp_kPa → atmospheric_pressure_ref
+#          - tp_mm → precipitation
+#          - t2m_C → air_temperature_ref
+#          - rh → relative_humidity_ref
+#          - u10 → wind_speed_ref
+#          - ssrd_Wm-2 → downward_shortwave_radiation
+#     7. Reformats the dataset into VE-style dimensions and coordinates (x, y, time_index) using the TOML grid.
+#     8. Saves processed NetCDF output ready for VE abiotic model use.
 #
-#   The resulting dataset provides climate driver inputs to the Virtual Ecosystem.
-#
-# virtual_ecosystem_module: Abiotic
-#
+# virtual_ecosystem_module: Abiotic, Hydrology
+
 # author:
-#   - Lelavathy (adapted from original script)
-#
-# status: wip
-#
+#   - name: Lelavathy & David
+# 
+# status: final
+
 # input_files:
-#   - name: TOML site definition
-#     path: C:\Users\User\OneDrive\Desktop\ve_model\ve_example\generation_scripts\maliau_grid_definition.toml
-#     description: |
-#       Site-specific TOML file defining projected grid cell centre coordinates
-#       (cell_x_centres, cell_y_centres), WGS84 bounds, EPSG code and grid
-#       resolution. Used to build the target 2D grid for interpolation.
+#   - name: maliau_grid_definition.toml
+#     path: "data/sites"
+#     description: Defines the target VE grid (cell_nx, cell_ny, resolution, lower-left coordinates, EPSG code) 
+#     for regridding ERA5 data.
+
+#output_files:
+#  - name: ERA5_Maliau_2010_2020.nc
+#    path: data/primary/abiotic/era5_land_monthly
+#    description: 2010-2020 ERA5 data for Maliau in original 0.1° resolution.
 #
-#   - name: ERA5-Land monthly NetCDF (2010–2020)
-#     path: C:\Users\User\OneDrive\Desktop\ve_model\ve_example\era5_monthly_data\2010_2020\ERA5_monthly_2010_2020_Maliau.nc
-#     description: |
-#       Monthly ERA5-Land variables (t2m, d2m, tp, sp, ssrd, u10 etc.)
-#       providing coarse-resolution climate forcing to be regridded to the
-#       Virtual Ecosystem site grid.
-#
-# output_files:
-#   - name: example_climate_from_toml_grid.nc
-#     path: C:\Users\User\OneDrive\Desktop\ve_model\ve_example\data\example_climate_from_toml_grid.nc
-#     description: |
-#       VE-style NetCDF containing variables renamed to Virtual Ecosystem
-#       conventions, with x, y, latitude, longitude, and time_index coordinates.
-#       Ready for ingestion by the VE data loader.
-#
+#  - name: ERA5_Maliau_2010_2020_UTM50N.nc
+#    path: data/primary/abiotic/era5_land_monthly
+#    description: 2010-2020 ERA5 data for Maliau reprojected to 90m UTM50N grid.
+
 # package_dependencies:
 #   - numpy
 #   - xarray
-#   - tomllib (Python 3.11+)
-#   - pyproj
+#   - tomllib
+#   - rasterio
+#   - rioxarray
+#   - cdsapi
 #
-# usage_notes: |
-#   - Uses nearest-neighbour interpolation (xarray.interp with method='nearest').
-#   - EPSG code in the TOML must be valid for pyproj (e.g. 32650).
-#   - Precipitation conversion assumes 30-day months (tp * 1000 * 30).
-#   - Spatial downscaling/topographic correction is not yet implemented.
+# usage_notes:
+#   - Interpolation to VE grid uses nearest-neighbour method.
+#   - Precipitation assumes 30-day months (tp * 1000 * 30).
+#   - CRS and projection are set using the TOML EPSG code.
+#   - Summary statistics are printed to verify variables after conversion and renaming.
+#
+# reference:
+# Muñoz Sabater, J. (2019): ERA5-Land monthly averaged data from 1950 to present. 
+# Copernicus Climate Change Service (C3S) Climate Data Store (CDS). 
+# DOI: 10.24381/cds.68d2bb30 (Last accessed on xx-xx-2025)
+#
 # ---
 
 
+from pathlib import Path
 import numpy as np
-import tomllib
+import xarray
 import xarray as xr
-from pyproj import Transformer
+import tomllib
+from cdsapi_downloader import cdsapi_era5_downloader
+from rasterio import Affine
+from rasterio.crs import CRS
+from rasterio.warp import Resampling
 
-# ---------------------------
-# File paths (edit here)
-# ---------------------------
-toml_file = (
-    r"C:....ve_data_analysis\abiotic\data_download\site\maliau_grid_definition.toml"
-)
-era5_file = (
-    r"C:.....ve_data_science\data\primary\abiotic\era5_monthly_2010_2020_maliau.nc"
-)
-output_file = (
-    r"C:....ve_data_science\data\derived\abiotic\processed_climate_data_maliau.nc"
-)
 
-# ---------------------------
-# 1. Load TOML site definition
-# ---------------------------
-# The TOML file is **site-specific**. It provides:
-#   - Projected grid cell centres (cell_x, cell_y)
-#   - EPSG code for the coordinate reference system (e.g., UTM zone)
-#   - WGS84 bounds (lat/lon extent of the study area)
-#   - Target resolution for VE grid cells
-# Each site should have its own TOML definition for correct alignment.
+# Define output directory and filename
+output_dir = Path("../../../data/primary/abiotic/era5_land_monthly")
+output_dir.mkdir(parents=True, exist_ok=True)
 
-with open(toml_file, "rb") as f:
-    site_config = tomllib.load(f)
+output_filename = output_dir / "ERA5_monthly_2010_2020_Maliau.nc"
 
-bounds_wgs84 = site_config["wgs84_bounds"]  # [lat_min, lon_min, lat_max, lon_max]
-epsg_code = site_config["epsg_code"]
-res = site_config["res"]
-
-cell_x = np.array(site_config["cell_x_centres"])
-cell_y = np.array(site_config["cell_y_centres"])
-
-# Build 2D meshgrid in projected CRS
-x_grid, y_grid = np.meshgrid(cell_x, cell_y)
-
-# Convert projected UTM grid → WGS84 lat/lon
-transformer = Transformer.from_crs(epsg_code, 4326, always_xy=True)
-lon_grid, lat_grid = transformer.transform(x_grid, y_grid)
-
-# ---------------------------
-# 2. Load ERA5-Land dataset
-# ---------------------------
-# This ERA5-Land dataset covers a large area of grid cells at a coarser resolution (~9 km).
-
-dataset = xr.open_dataset(era5_file)
-
-if "valid_time" in dataset.dims or "valid_time" in dataset.coords:
-    dataset = dataset.rename({"valid_time": "time"})
-
-# ---------------------------
-# 3. Unit conversions
-# ---------------------------
-# The standard output unit of ERA5-Land temperatures is Kelvin which we need to convert
-# to degree Celsius for the Virtual Ecosystem. This includes 2m air temperature and
-# 2m dewpoint temperature which are used to calculate relative humidity in next step.
-dataset["t2m_C"] = dataset["t2m"] - 273.15
-dataset["d2m_C"] = dataset["d2m"] - 273.15
-
-# Relative humidity (RH) is not a standard output from ERA5-Land but can be calculated
-# from 2m dewpoint temperature (DPT) and 2m air temperature (T)
-dataset["rh2m"] = 100.0 * (
-    np.exp(17.625 * dataset["d2m_C"] / (243.04 + dataset["d2m_C"]))
-    / np.exp(17.625 * dataset["t2m_C"] / (243.04 + dataset["t2m_C"]))
+# Run the downloader tool
+cdsapi_era5_downloader(
+    years=list(range(2010, 2021)),
+    bbox=[4.6, 116.8, 4.8, 117.0],
+    outfile=output_filename,
 )
 
-# The standard output unit for total precipitation in ERA5-Land is meters which we need
-# to convert to millimeters. Further, the data represents mean daily accumulated
-# precipitation for the 9x9km grid box, so the value has to be scaled to monthly (here
-# 30 days). TODO handle daily inputs
-dataset["tp_mm"] = dataset["tp"] * 1000 * 30
+# Define the projections to be used
+wgs84_crs = CRS.from_epsg(4326)
+utm50N_crs = CRS.from_epsg(32650)
 
-# The standard output unit for surface pressure in ERA5-Land is Pascal (Pa) which we
-# need to convert to Kilopascal (kPa) by dividing by 1000.
-dataset["sp_kPa"] = dataset["sp"] / 1000
+# Load the destination grid details
+with open("../../../sites/maliau_site_definition.toml", "rb") as maliau_grid_file:
+    utm50N_grid_details = tomllib.load(maliau_grid_file)
 
-# The standard output unit for surface solar radiation downward in ERA5-Land is J m-2
-# which need to be converted to W m-2 by dividing by the number of seconds in a month
-dataset["ssrd_Wm-2"] = dataset["ssrd"] / 2592000
-
-
-# In this step, we delete the initial temperature variables (K), precipitation (m), and
-# surface pressure(Pa), surface solar radiation downward (ssrd), 10m u compoenent wind speed (u10) and
-# rename the remaining variables according to the Virtual Ecosystem naming convention.
-dataset_cleaned = dataset.drop_vars(["d2m", "d2m_C", "t2m", "tp", "sp", "ssrd"])
-dataset_renamed = dataset_cleaned.rename(
-    {
-        "sp_kPa": "atmospheric_pressure_ref",
-        "tp_mm": "precipitation",
-        "t2m_C": "air_temperature_ref",
-        "rh2m": "relative_humidity_ref",
-        "u10": "wind_speed_ref",
-        "ssrd_Wm-2": "downward_shortwave_radiation",
-    }
+# Define the XY shape of the data in the destination dataset
+dest_shape = (
+    utm50N_grid_details["cell_nx"],
+    utm50N_grid_details["cell_ny"],
 )
 
-# ---------------------------
-# 4. Add required variables
-# ---------------------------
-# In addition to the variables from the ERA5-Land datasset, a time series of atmospheric
-# CO2 is needed. We add this here as a constant field.
-air_temp_shape = dataset_renamed["air_temperature_ref"].shape
-dataset_renamed["atmospheric_co2_ref"] = xr.DataArray(
-    400 * np.ones(air_temp_shape),
-    dims=dataset_renamed["air_temperature_ref"].dims,
-    coords=dataset_renamed["air_temperature_ref"].coords,
+# Define the affine matrix giving the coordinates of pixels in the destination dataset
+dest_transform = Affine(
+    utm50N_grid_details["res"],
+    0,
+    utm50N_grid_details["ll_x"],
+    0,
+    utm50N_grid_details["res"],
+    utm50N_grid_details["ll_y"],
 )
 
-# Mean annual temperature is calculated from the full time series of air temperatures;
-dataset_renamed["mean_annual_temperature"] = dataset_renamed[
-    "air_temperature_ref"
-].mean(dim="time")
+# Open the ERA5 dataset in WGS84 and and set the CRS manually because it is not
+# set in the file. Do not decode times from CF to np.datetime64, because we'd have
+# to convert back to write the file.
+era5_data_WGS84 = xarray.open_dataset(
+    output_filename,
+    engine="netcdf4",
+    decode_times=False,
+)
+era5_data_WGS84 = era5_data_WGS84.rio.write_crs(wgs84_crs)
 
-# ---------------------------
-# 5. Interpolate to TOML grid (lat/lon from WGS84 grid)
-# ---------------------------
-# Prepare input dims names used in dataset (assumes ERA5 dataset uses 'latitude' and 'longitude')
-# If dataset uses different names, xarray will raise an error.
-# We select method='nearest' to mimic original behaviour; this can be changed later.
+# Use the rasterio accessor tools to reproject the data
 
-data_interp = dataset_renamed.interp(
-    latitude=("y", lat_grid[:, 0]), longitude=("x", lon_grid[0, :]), method="nearest"
+era5_data_UTM50N = era5_data_WGS84.rio.reproject(
+    dst_crs=utm50N_crs,
+    shape=dest_shape,
+    transform=dest_transform,
+    resampling=Resampling.nearest,
+
 )
 # Note:
 # The Virtual Ecosystem example data is run on a 90 x 90 m grid.
@@ -192,36 +137,118 @@ data_interp = dataset_renamed.interp(
 # This is not yet implemented!
 
 # ---------------------------
+# 4. Unit conversions
+# ---------------------------
+dataset = era5_data_UTM50N
+
+# The standard output unit of 2m dewpoint temperature (d2m ) and 2m air temperature (t2m) is Kelvin (K)
+# which we need to convert to degree Celsius (C) for the Virtual Ecosystem. 
+dataset["t2m_C"] = dataset["t2m"] - 273.15
+dataset["d2m_C"] = dataset["d2m"] - 273.15
+
+# Relative humidity (rh) is not a standard output from ERA5-Land but can be calculated
+# from 2m dewpoint temperature (d2m in C) and 2m air temperature (t2m in C)
+dataset["rh"] = 100.0 * (
+    np.exp(17.625 * dataset["d2m_C"] / (243.04 + dataset["d2m_C"])) /
+    np.exp(17.625 * dataset["t2m_C"] / (243.04 + dataset["t2m_C"]))
+)
+
+# The standard output unit for total precipitation (tp) in ERA5-Land is meters (m) which we need
+# to convert to millimeters (mm). Further, the data represents mean daily accumulated
+# precipitation for the 9x9km grid box, so the value has to be scaled to monthly (here
+# 30 days). TODO handle daily inputs
+dataset["tp_mm"] = dataset["tp"] * 1000 * 30
+
+# The standard output unit for surface pressure (sp) in ERA5-Land is Pascal (Pa) which we
+# need to convert to kilopascal (kPa) by dividing by 1000.
+dataset["sp_kPa"] = dataset["sp"] / 1000
+
+# The standard output unit for surface solar radiation downward (ssrd) in ERA5-Land is Joule per square meter (Jm-2)
+# which need to be converted to Watts per square meter(Wm-2) by dividing by the number of seconds in a month
+dataset["ssrd_Wm-2"] = dataset["ssrd"] / 2592000
+
+# Rename variables to match the Virtual Ecosystem conventions.
+dataset_cleaned = dataset.drop_vars(["d2m", "d2m_C", "t2m", "tp", "sp", "ssrd"])
+dataset_renamed = dataset_cleaned.rename({
+    "sp_kPa": "atmospheric_pressure_ref",
+    "tp_mm": "precipitation",
+    "t2m_C": "air_temperature_ref",
+    "rh": "relative_humidity_ref",
+    "u10": "wind_speed_ref",
+    "ssrd_Wm-2": "downward_shortwave_radiation",
+})
+
+# ---------------------------
+# 5. Add constant variables
+# ---------------------------
+# In addition to the variables from the ERA5-Land datasset, a time series of atmospheric
+# CO2 is needed. We add this here as a constant field of 400ppm.
+air_temp_shape = dataset_renamed["air_temperature_ref"].shape
+dataset_renamed["atmospheric_co2_ref"] = xr.DataArray(
+    400 * np.ones(air_temp_shape),
+    dims=dataset_renamed["air_temperature_ref"].dims,
+    coords=dataset_renamed["air_temperature_ref"].coords,
+)
+
+# Mean annual temperature is calculated from the full time series of air temperatures
+time_dim = [dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim][0]
+dataset_renamed["mean_annual_temperature"] = dataset_renamed["air_temperature_ref"].mean(dim=time_dim)
+# Note:
+# In the future we plan to include a time series of mean annual data for every year.
+
+# ---------------------------
 # 6. Reformat into VE-style dataset
 # ---------------------------
 # Reformat coords and dims into VE-style dataset:
 #  - dims: y, x, time_index
-# - coords: x (from TOML), y (from TOML), time_index (0..T-1)
+#  - coords: x (from TOML), y (from TOML), time_index (0..time-1)
 
-ny, nx = lat_grid.shape
-time_len = data_interp.sizes["time"]
+cell_x = np.arange(utm50N_grid_details["cell_nx"])
+cell_y = np.arange(utm50N_grid_details["cell_ny"])
 
-# Rename only time -> time_index
+time_dim = [dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim][0]
+
 dataset_xyt = (
-    data_interp.rename_dims({"time": "time_index"})
-    .drop_vars({"time"})
-    .assign_coords(
-        {
-            "x": cell_x,  # from TOML
-            "y": cell_y,
-            "time_index": np.arange(0, time_len),
-            "latitude": (("y", "x"), lat_grid),
-            "longitude": (("y", "x"), lon_grid),
-        }
-    )
+    dataset_renamed.rename_dims({time_dim: "time_index"})
+    .assign_coords({
+        "x": cell_x,
+        "y": cell_y,
+        "time_index": np.arange(dataset_renamed.sizes[time_dim]),
+    })
 )
 
-print(f"✅ Interpolated to TOML grid: nx = {nx}, ny = {ny}, resolution = {res} m")
+print(
+    f"✅ Reformatted to VE-style TOML grid: "
+    f"cell_nx = {utm50N_grid_details['cell_nx']}, "
+    f"cell_ny = {utm50N_grid_details['cell_ny']}, "
+    f"resolution = {utm50N_grid_details['res']} m, "
+    f"time steps = {dataset_renamed.sizes[time_dim]}"
+)
 
 # ---------------------------
-# 7. Save to NetCDF
+# 7. Save the reprojected data to file
 # ---------------------------
 # Once we confirmed that our dataset is complete and our calculations are correct, we
 # save it as a new netcdf file.
-dataset_xyt.to_netcdf(output_file)
-print(f"💾 Saved processed dataset to: {output_file}")
+dataset_xyt.to_netcdf(output_dir /"ERA5_Maliau_2010_2020_UTM50N.nc")
+
+# Print summary statistics for key variables to check values
+vars_to_check = [
+    "air_temperature_ref",
+    "relative_humidity_ref",
+    "precipitation",
+    "wind_speed_ref",
+    "atmospheric_pressure_ref",
+    "downward_shortwave_radiation",
+    "atmospheric_co2_ref",
+    "mean_annual_temperature"
+]
+
+print("✅ Variable summary statistics:")
+for var in vars_to_check:
+    if var in dataset_renamed:
+        da = dataset_renamed[var]
+        print(f"{var}: min={da.min().item():.2f}, max={da.max().item():.2f}, mean={da.mean().item():.2f}")
+    else:
+        print(f"{var}: Not found in dataset")
+
