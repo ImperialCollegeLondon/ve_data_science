@@ -4,7 +4,16 @@ title: ERA5 data download and reproject for the Maliau site
 
 description: |
   This file uses the `cdsapi_era5_downloader` function to download a 3x3 grid at 0.1°
-  resolution from 2010 to 2020 around the Maliau basin data sites
+  resolution from 2010 to 2020 around the Maliau basin data sites.
+
+  It then uses the `rasterio` package to reproject and interpolate those values to the
+  90m resolution grid defined in the Maliau basin site definition file. The script
+  currently uses the `nearest` interpolation strategy to map values from the 0.1° cells
+  to 90m cells, but we may want to revisit this.
+
+  Muñoz Sabater, J. (2019): ERA5-Land monthly averaged data from 1950 to present.
+  Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
+  DOI: 10.24381/cds.68d2bb30 (Last accessed on xx-xx-2025)
 
 author:
   - name: Lelavathy
@@ -34,7 +43,8 @@ package_dependencies:
   - rasterio
   - rioxarray
 
-usage_notes: Run as `python maliau_era5_download_and_reproject.py`
+usage_notes: |
+  Run as `python maliau_era5_download_and_reproject.py`
 
 ---
 """  # noqa: D205, D212, D400, D415
@@ -96,6 +106,18 @@ era5_data_WGS84 = xarray.open_dataset(
 era5_data_WGS84 = era5_data_WGS84.rio.write_crs(wgs84_crs)
 
 # Use the rasterio accessor tools to reproject the data
+
+# NOTE: The reprojection is automatically applying downscaling to the 90m grid
+# definition. The interpolation mapping used here at the moment is the `nearest`
+# method of rasterio. Other methods are available:
+#
+# https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling
+#
+# We might want to use a different interpolation strategy to give a smooth surface -
+# something like a cubic interpolation or a spline - but it isn't clear to me right now
+# if we'd be better off doing that or simply taking the nearest value and then doing
+# something more scientifically informed from that baseline.
+
 era5_data_UTM50N = era5_data_WGS84.rio.reproject(
     dst_crs=utm50N_crs,
     shape=dest_shape,
