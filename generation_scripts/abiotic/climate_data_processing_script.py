@@ -53,12 +53,12 @@
 #
 <<<<<<< HEAD
 # References:
-# Muñoz-Sabater, J., et al. (2021). ERA5-Land: A state-of-the-art global reanalysis 
-# dataset for land applications. Earth System Science Data, 13(9), 4349–4383. 
+# Muñoz-Sabater, J., et al. (2021). ERA5-Land: A state-of-the-art global reanalysis
+# dataset for land applications. Earth System Science Data, 13(9), 4349–4383.
 # https://doi.org/10.5194/essd-13-4349-2021
 #
-# Muñoz-Sabater, J. (2019). ERA5-Land monthly averaged data from 1981 to present. 
-# Copernicus Climate Change Service (C3S) Climate Data Store (CDS). 
+# Muñoz-Sabater, J. (2019). ERA5-Land monthly averaged data from 1981 to present.
+# Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
 # https://doi.org/10.24381/cds.68d2bb30  (Last accessed: 11-09-2025)
 =======
 # reference:
