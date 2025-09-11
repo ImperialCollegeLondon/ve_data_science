@@ -49,18 +49,16 @@
 #   - rioxarray
 #   - cdsapi
 #
-# usage_notes:
-#   - Interpolation to VE grid uses nearest-neighbour method.
-#   - Precipitation assumes 30-day months (tp * 1000 * 30).
-#   - CRS and projection are set using the TOML EPSG code.
-#   - Summary statistics are printed to verify variables after conversion and renaming.
+# usage_notes:Run as `python climate_data_processing_script.py`
 #
-# reference:
-# Muñoz Sabater, J. (2019): ERA5-Land monthly averaged data from 1950 to present. 
+# References:
+# Muñoz-Sabater, J., et al. (2021). ERA5-Land: A state-of-the-art global reanalysis 
+# dataset for land applications. Earth System Science Data, 13(9), 4349–4383. 
+# https://doi.org/10.5194/essd-13-4349-2021
+#
+# Muñoz-Sabater, J. (2019). ERA5-Land monthly averaged data from 1981 to present. 
 # Copernicus Climate Change Service (C3S) Climate Data Store (CDS). 
-# DOI: 10.24381/cds.68d2bb30 (Last accessed on xx-xx-2025)
-#
-# ---
+# https://doi.org/10.24381/cds.68d2bb30  (Last accessed: 11-09-2025)
 
 
 from pathlib import Path
