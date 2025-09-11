@@ -1,7 +1,7 @@
 # ---
 # title: VE Climate Data Downloader, Conversion, and Grid Reprojection for Maliau Basin
 
-# description: 
+# description:
 #   This script prepares ERA5-Land climate data for the Virtual Ecosystem (VE) model. It performs the following steps:
 #
 #     1. Loads a TOML site definition that specifies a projected grid (cell_nx, cell_ny, resolution, lower-left coordinates, EPSG code).
@@ -23,16 +23,16 @@
 
 # author:
 #   - name: Lelavathy & David
-# 
+#
 # status: final
 
 # input_files:
 #   - name: maliau_grid_definition.toml
 #     path: "data/sites"
-#     description: Defines the target VE grid (cell_nx, cell_ny, resolution, lower-left coordinates, EPSG code) 
+#     description: Defines the target VE grid (cell_nx, cell_ny, resolution, lower-left coordinates, EPSG code)
 #     for regridding ERA5 data.
 
-#output_files:
+# output_files:
 #  - name: ERA5_Maliau_2010_2020.nc
 #    path: data/primary/abiotic/era5_land_monthly
 #    description: 2010-2020 ERA5 data for Maliau in original 0.1° resolution.
@@ -56,23 +56,23 @@
 #   - Summary statistics are printed to verify variables after conversion and renaming.
 #
 # reference:
-# Muñoz Sabater, J. (2019): ERA5-Land monthly averaged data from 1950 to present. 
-# Copernicus Climate Change Service (C3S) Climate Data Store (CDS). 
+# Muñoz Sabater, J. (2019): ERA5-Land monthly averaged data from 1950 to present.
+# Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
 # DOI: 10.24381/cds.68d2bb30 (Last accessed on xx-xx-2025)
 #
 # ---
 
 
 from pathlib import Path
+
 import numpy as np
+import tomllib
 import xarray
 import xarray as xr
-import tomllib
 from cdsapi_downloader import cdsapi_era5_downloader
 from rasterio import Affine
 from rasterio.crs import CRS
 from rasterio.warp import Resampling
-
 
 # Define output directory and filename
 output_dir = Path("../../../data/primary/abiotic/era5_land_monthly")
@@ -128,7 +128,6 @@ era5_data_UTM50N = era5_data_WGS84.rio.reproject(
     shape=dest_shape,
     transform=dest_transform,
     resampling=Resampling.nearest,
-
 )
 # Note:
 # The Virtual Ecosystem example data is run on a 90 x 90 m grid.
@@ -142,15 +141,15 @@ era5_data_UTM50N = era5_data_WGS84.rio.reproject(
 dataset = era5_data_UTM50N
 
 # The standard output unit of 2m dewpoint temperature (d2m ) and 2m air temperature (t2m) is Kelvin (K)
-# which we need to convert to degree Celsius (C) for the Virtual Ecosystem. 
+# which we need to convert to degree Celsius (C) for the Virtual Ecosystem.
 dataset["t2m_C"] = dataset["t2m"] - 273.15
 dataset["d2m_C"] = dataset["d2m"] - 273.15
 
 # Relative humidity (rh) is not a standard output from ERA5-Land but can be calculated
 # from 2m dewpoint temperature (d2m in C) and 2m air temperature (t2m in C)
 dataset["rh"] = 100.0 * (
-    np.exp(17.625 * dataset["d2m_C"] / (243.04 + dataset["d2m_C"])) /
-    np.exp(17.625 * dataset["t2m_C"] / (243.04 + dataset["t2m_C"]))
+    np.exp(17.625 * dataset["d2m_C"] / (243.04 + dataset["d2m_C"]))
+    / np.exp(17.625 * dataset["t2m_C"] / (243.04 + dataset["t2m_C"]))
 )
 
 # The standard output unit for total precipitation (tp) in ERA5-Land is meters (m) which we need
@@ -169,14 +168,16 @@ dataset["ssrd_Wm-2"] = dataset["ssrd"] / 2592000
 
 # Rename variables to match the Virtual Ecosystem conventions.
 dataset_cleaned = dataset.drop_vars(["d2m", "d2m_C", "t2m", "tp", "sp", "ssrd"])
-dataset_renamed = dataset_cleaned.rename({
-    "sp_kPa": "atmospheric_pressure_ref",
-    "tp_mm": "precipitation",
-    "t2m_C": "air_temperature_ref",
-    "rh": "relative_humidity_ref",
-    "u10": "wind_speed_ref",
-    "ssrd_Wm-2": "downward_shortwave_radiation",
-})
+dataset_renamed = dataset_cleaned.rename(
+    {
+        "sp_kPa": "atmospheric_pressure_ref",
+        "tp_mm": "precipitation",
+        "t2m_C": "air_temperature_ref",
+        "rh": "relative_humidity_ref",
+        "u10": "wind_speed_ref",
+        "ssrd_Wm-2": "downward_shortwave_radiation",
+    }
+)
 
 # ---------------------------
 # 5. Add constant variables
@@ -191,8 +192,12 @@ dataset_renamed["atmospheric_co2_ref"] = xr.DataArray(
 )
 
 # Mean annual temperature is calculated from the full time series of air temperatures
-time_dim = [dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim][0]
-dataset_renamed["mean_annual_temperature"] = dataset_renamed["air_temperature_ref"].mean(dim=time_dim)
+time_dim = [
+    dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim
+][0]
+dataset_renamed["mean_annual_temperature"] = dataset_renamed[
+    "air_temperature_ref"
+].mean(dim=time_dim)
 # Note:
 # In the future we plan to include a time series of mean annual data for every year.
 
@@ -206,15 +211,16 @@ dataset_renamed["mean_annual_temperature"] = dataset_renamed["air_temperature_re
 cell_x = np.arange(utm50N_grid_details["cell_nx"])
 cell_y = np.arange(utm50N_grid_details["cell_ny"])
 
-time_dim = [dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim][0]
+time_dim = [
+    dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim
+][0]
 
-dataset_xyt = (
-    dataset_renamed.rename_dims({time_dim: "time_index"})
-    .assign_coords({
+dataset_xyt = dataset_renamed.rename_dims({time_dim: "time_index"}).assign_coords(
+    {
         "x": cell_x,
         "y": cell_y,
         "time_index": np.arange(dataset_renamed.sizes[time_dim]),
-    })
+    }
 )
 
 print(
@@ -230,7 +236,7 @@ print(
 # ---------------------------
 # Once we confirmed that our dataset is complete and our calculations are correct, we
 # save it as a new netcdf file.
-dataset_xyt.to_netcdf(output_dir /"ERA5_Maliau_2010_2020_UTM50N.nc")
+dataset_xyt.to_netcdf(output_dir / "ERA5_Maliau_2010_2020_UTM50N.nc")
 
 # Print summary statistics for key variables to check values
 vars_to_check = [
@@ -241,14 +247,15 @@ vars_to_check = [
     "atmospheric_pressure_ref",
     "downward_shortwave_radiation",
     "atmospheric_co2_ref",
-    "mean_annual_temperature"
+    "mean_annual_temperature",
 ]
 
 print("✅ Variable summary statistics:")
 for var in vars_to_check:
     if var in dataset_renamed:
         da = dataset_renamed[var]
-        print(f"{var}: min={da.min().item():.2f}, max={da.max().item():.2f}, mean={da.mean().item():.2f}")
+        print(
+            f"{var}: min={da.min().item():.2f}, max={da.max().item():.2f}, mean={da.mean().item():.2f}"
+        )
     else:
         print(f"{var}: Not found in dataset")
-
