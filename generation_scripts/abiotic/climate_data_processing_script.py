@@ -1,6 +1,6 @@
 # ---
 # title: VE Climate Data Downloader, Conversion, and Grid Reprojection for Maliau Basin
-
+#
 # description:
 #   This script prepares ERA5-Land climate data for the Virtual Ecosystem (VE) model. It performs the following steps:
 #
@@ -20,18 +20,18 @@
 #     8. Saves processed NetCDF output ready for VE abiotic model use.
 #
 # virtual_ecosystem_module: Abiotic, Hydrology
-
+#
 # author:
 #   - name: Lelavathy & David
 #
 # status: final
-
+#
 # input_files:
 #   - name: maliau_grid_definition.toml
 #     path: "data/sites"
 #     description: Defines the target VE grid (cell_nx, cell_ny, resolution, lower-left coordinates, EPSG code)
 #     for regridding ERA5 data.
-
+#
 # output_files:
 #  - name: ERA5_Maliau_2010_2020.nc
 #    path: data/primary/abiotic/era5_land_monthly
@@ -40,7 +40,7 @@
 #  - name: ERA5_Maliau_2010_2020_UTM50N.nc
 #    path: data/primary/abiotic/era5_land_monthly
 #    description: 2010-2020 ERA5 data for Maliau reprojected to 90m UTM50N grid.
-
+#
 # package_dependencies:
 #   - numpy
 #   - xarray
@@ -51,7 +51,6 @@
 #
 # usage_notes:Run as `python climate_data_processing_script.py`
 #
-<<<<<<< HEAD
 # References:
 # Muñoz-Sabater, J., et al. (2021). ERA5-Land: A state-of-the-art global reanalysis
 # dataset for land applications. Earth System Science Data, 13(9), 4349–4383.
@@ -60,15 +59,8 @@
 # Muñoz-Sabater, J. (2019). ERA5-Land monthly averaged data from 1981 to present.
 # Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
 # https://doi.org/10.24381/cds.68d2bb30  (Last accessed: 11-09-2025)
-=======
-# reference:
-# Muñoz Sabater, J. (2019): ERA5-Land monthly averaged data from 1950 to present.
-# Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
-# DOI: 10.24381/cds.68d2bb30 (Last accessed on xx-xx-2025)
 #
-# ---
->>>>>>> 80021bb61874c2e35a373e9c35bd144421abd214
-
+#----
 
 from pathlib import Path
 
