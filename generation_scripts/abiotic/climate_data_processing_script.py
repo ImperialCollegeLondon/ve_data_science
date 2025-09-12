@@ -60,7 +60,7 @@
 # Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
 # https://doi.org/10.24381/cds.68d2bb30  (Last accessed: 11-09-2025)
 #
-#----
+# ----
 
 from pathlib import Path
 
