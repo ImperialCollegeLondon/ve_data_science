@@ -1,54 +1,66 @@
-#' ---
-#' title: Plant functional type cohort distribution
-#'
-#' description: |
-#'     This script calculates the PFT cohort distribution using the SAFE tree
-#'     census dataset. It provides an output file that contains the number of
-#'     individuals per DBH class for each PFT.
-#'
-#' VE_module: Plant
-#'
-#' author:
-#'   - name: Arne Scheire
-#'
-#' status: final
-#'
-#'
-#' input_files:
-#'   - name: tree_census_11_20.xlsx
-#'     path: ../../../data/primary/plant/tree_census
-#'     description: |
-#'       https://doi.org/10.5281/zenodo.14882506
-#'       Tree census data from the SAFE Project 2011–2020.
-#'       Data includes measurements of DBH and estimates of tree height for all
-#'       stems, fruiting and flowering estimates,
-#'       estimates of epiphyte and liana cover, and taxonomic IDs.
-#'   - name: plant_functional_type_species_classification_maximum_height.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains an updated list of species and their respective PFT.
-#'       It contains a) the base PFT species classification and b) for the remaining
-#'       species their PFT is assigned based on their maximum height relative to
-#'       the PFT maximum height. Species maximum height is also included in the
-#'       output file.
-#'
-#' output_files:
-#'   - name: plant_functional_type_cohort_distribution.csv
-#'     path: ../../../data/derived/plant/plant_functional_type
-#'     description: |
-#'       This CSV file contains the number of individuals per DBH class for each PFT.
-#'
-#' package_dependencies:
-#'     - readxl
-#'     - dplyr
-#'     - ggplot2
-#'     - tidyr
-#'
-#' usage_notes: |
-#'   This script applies the PFT species classification to the SAFE census dataset
-#'   in order to get the respective cohort distribution. However, the same approach
-#'   can be applied to different census datasets and other PFT species classifications.
-#' ---
+#| ---
+#| title: Plant functional type cohort distribution
+#|
+#| description: |
+#|     This script calculates the Plant Functional Type (PFT) cohort distribution
+#|     using the SAFE tree census dataset. The script processes data from
+#|     old-growth (OG) plots to generate a CSV file with the number of individuals
+#|     per Diameter at Breast Height (DBH) class for each PFT. It first compiles
+#|     a list of all trees across the three OG plots and then converts this to
+#|     individuals per hectare for standardised comparison.
+#|
+#| virtual_ecosystem_module:
+#|   - Plants
+#|
+#| author:
+#|   - Arne Scheire
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: tree_census_11_20.xlsx
+#|     path: data/primary/plant/tree_census
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.14882506
+#|       Tree census data from the SAFE Project 2011–2020.
+#|       Data includes measurements of DBH and estimates of tree height for all
+#|       stems, fruiting and flowering estimates,
+#|       estimates of epiphyte and liana cover, and taxonomic IDs.
+#|   - name: plant_functional_type_species_classification_maximum_height.csv
+#|     path: data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains an updated list of species and their respective PFT.
+#|       It contains a) the base PFT species classification and b) for the remaining
+#|       species their PFT is assigned based on their maximum height relative to
+#|       the PFT maximum height. Species maximum height is also included in the
+#|       output file.
+#|
+#| output_files:
+#|   - name: plant_functional_type_cohort_distribution.csv
+#|     path: data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains an overview of the individuals in OG plots per
+#|       DBH class for each PFT.
+#|   - name: plant_functional_type_cohort_distribution_per_hectare.csv
+#|     path: data/derived/plant/plant_functional_type
+#|     description: |
+#|       This CSV file contains the number of individuals per DBH class for each PFT,
+#|       standardised as a count per hectare.
+#|
+#| package_dependencies:
+#|     - readxl
+#|     - dplyr
+#|     - ggplot2
+#|     - tidyr
+#|
+#| usage_notes: |
+#|   This script applies the PFT species classification to the SAFE census dataset
+#|   in order to get the respective cohort distribution. However, the same approach
+#|   can be applied to different census datasets and other PFT species classifications.
+#|   Trees with unknown PFT have been distributed evenly across the existing PFTs,
+#|   this could be handled more precise by taking into account the relative abundance
+#|   of each PFT.
+#| ---
 
 
 # Load packages
@@ -139,9 +151,9 @@ ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_fina
 # At the moment, these trees will be excluded from the cohort distribution,
 # unless we change the abovementioned issue.
 
-# Additionally, the code below demonstrates the amount of trees that have no
-# height and DBH values, and because of this these trees will also be excluded
-# from the cohort distribution.
+# The code below demonstrates the amount of trees that have no PFT and/or DBH
+# values, and because of this these trees will be excluded from the cohort
+# distribution.
 
 ##########
 
@@ -162,11 +174,31 @@ plot(as.factor(data_taxa_without_PFT$Block),
 # OG1, OG2 and OG3 seem relatively good to use
 # A-F have quite a lot of missing values
 
+plot(as.factor(data_taxa_without_PFT$PlotID),
+  xlab = "Block", ylab = "Trees without PFT"
+)
+
+plot(
+  as.factor(data_taxa_without_PFT$PlotID[data_taxa_without_PFT$Block
+    %in% c("OG1", "OG2", "OG3")]), # nolint
+  xlab = "PlotID", ylab = "Trees without PFT"
+)
+
 # Remove trees without PFT assigned
 data_taxa_with_PFT <- drop_na(data_taxa, PFT_final) # nolint
 
 plot(as.factor(data_taxa_with_PFT$Block),
   xlab = "Block", ylab = "Trees with PFT"
+)
+
+plot(as.factor(data_taxa_with_PFT$PlotID),
+  xlab = "PlotID", ylab = "Trees with PFT"
+)
+
+plot(
+  as.factor(data_taxa_with_PFT$PlotID[data_taxa_with_PFT$Block
+    %in% c("OG1", "OG2", "OG3")]), # nolint
+  xlab = "PlotID", ylab = "Trees with PFT"
 )
 
 ##########
@@ -177,6 +209,11 @@ plot(as.factor(data_taxa_with_PFT$Block),
 
 # Block OG1 contains several plots, which are not connected to each other
 # Each plot (e.g., OG1_711) is 25mx25m
+
+# Note that when looking at plot level there are a few plots that have relatively
+# more trees measured and missing (e.g., 1 in OG1 and 4 in OG3)
+# Because the ratio between trees measured and missing in these plots is balanced
+# I think it's ok to still include these plots
 
 #####
 
@@ -198,6 +235,9 @@ ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_fina
   labs(x = "TreeID", y = "DBH (mm)")
 
 #####
+
+# The section below explores stem density to get an idea of the
+# representativeness of the OG plots relative to the literature
 
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 plot(as.factor(check$Block),
@@ -224,7 +264,7 @@ OG1_density <- OG1_trees / OG1_area * 10000 # from trees per m2 to per hectare #
 OG2_density <- OG2_trees / OG2_area * 10000 # from trees per m2 to per hectare # nolint
 OG3_density <- OG3_trees / OG3_area * 10000 # from trees per m2 to per hectare # nolint
 
-# Mean OG tree density per hectare
+# Mean OG tree density per hectare (558)
 mean(c(OG1_density, OG2_density, OG3_density))
 # Compare to 410-444-535-478-427-600 from Kenzo, Slik,
 # Mills, Saner papers (especially Slik appendix, many locations)
@@ -247,90 +287,93 @@ data_taxa <- data_taxa[
 
 # Use dividers of 0.1 m (100 mm)
 # Assign each tree into one of these DBH classes
-# The value for dbh represents the upper limit of the dbh class
+# The value for dbh represents the midpoint of the dbh class
 
 data_taxa$dbh <- NA
 
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 0.0 &
     data_taxa$DBH2011_mm_clean <= 100
-] <- 100
+] <- 50
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 100 &
     data_taxa$DBH2011_mm_clean <= 200
-] <- 200
+] <- 150
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 200 &
     data_taxa$DBH2011_mm_clean <= 300
-] <- 300
+] <- 250
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 300 &
     data_taxa$DBH2011_mm_clean <= 400
-] <- 400
+] <- 350
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 400 &
     data_taxa$DBH2011_mm_clean <= 500
-] <- 500
+] <- 450
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 500 &
     data_taxa$DBH2011_mm_clean <= 600
-] <- 600
+] <- 550
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 600 &
     data_taxa$DBH2011_mm_clean <= 700
-] <- 700
+] <- 650
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 700 &
     data_taxa$DBH2011_mm_clean <= 800
-] <- 800
+] <- 750
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 800 &
     data_taxa$DBH2011_mm_clean <= 900
-] <- 900
+] <- 850
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 900 &
     data_taxa$DBH2011_mm_clean <= 1000
-] <- 1000
+] <- 950
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1000 &
     data_taxa$DBH2011_mm_clean <= 1100
-] <- 1100
+] <- 1050
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1100 &
     data_taxa$DBH2011_mm_clean <= 1200
-] <- 1200
+] <- 1150
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1200 &
     data_taxa$DBH2011_mm_clean <= 1300
-] <- 1300
+] <- 1250
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1300 &
     data_taxa$DBH2011_mm_clean <= 1400
-] <- 1400
+] <- 1350
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1400 &
     data_taxa$DBH2011_mm_clean <= 1500
-] <- 1500
+] <- 1450
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1500 &
     data_taxa$DBH2011_mm_clean <= 1600
-] <- 1600
+] <- 1550
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1600 &
     data_taxa$DBH2011_mm_clean <= 1700
-] <- 1700
+] <- 1650
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1700 &
     data_taxa$DBH2011_mm_clean <= 1800
-] <- 1800
+] <- 1750
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1800 &
     data_taxa$DBH2011_mm_clean <= 1900
-] <- 1900
+] <- 1850
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 1900 &
     data_taxa$DBH2011_mm_clean <= 2000
-] <- 2000
+] <- 1950
+
+max(data_taxa$DBH2011_mm_clean)
+# Note that more classes will need to be added if DBH exceeds 2000 mm
 
 # Prepare data_taxa for saving
 
@@ -356,14 +399,119 @@ rownames(data_taxa) <- c(1:maxrows)
 
 # Subset and convert dbh to m
 
-data_taxa <- data_taxa[, c("Block", "Plot", "PlotID", "PFT_final", "DBH_class")]
+data_taxa <- data_taxa[, c("Block", "Plot", "PlotID", "PFT_name", "DBH_class")]
 data_taxa$DBH_class <- data_taxa$DBH_class / 1000
 
-# Save file
+# This cohort distribution is not standardised per hectare yet (see continued below)
+# This version is saved for plotting and exploration (see bottom of this script)
 
 write.csv(
   data_taxa,
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution.csv", # nolint
+  row.names = FALSE
+)
+
+################################################################################
+
+# Standardising OG cohort distribution per hectare
+
+check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
+plot(as.factor(check$Block),
+  xlab = "Block", ylab = "Trees in OG blocks"
+)
+unique(check$PlotID)
+
+OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
+OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9 # nolint
+OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9 # nolint
+
+OG1_area <- 9 * (25 * 25) # m2 # nolint
+OG2_area <- 9 * (25 * 25) # m2 # nolint
+OG3_area <- 9 * (25 * 25) # m2 # nolint
+
+total_OG_area <- OG1_area + OG2_area + OG3_area # m2 # nolint
+
+data_taxa$total_OG_area <- total_OG_area
+
+data_taxa <- data_taxa %>%
+  group_by(PFT_name, DBH_class) %>%
+  mutate(plant_cohorts_n = n()) %>%
+  ungroup()
+
+# Calculate the count of individuals with (un)known PFTs
+
+data_taxa$PFT_known <-
+  nrow(data_taxa[data_taxa$PFT_name
+    %in% c("emergent", "overstory", "pioneer", "understory"), ]) # nolint
+data_taxa$PFT_unknown <-
+  nrow(data_taxa[data_taxa$PFT_name %in% c("unknown"), ])
+data_taxa$PFT_total <- data_taxa$PFT_known + data_taxa$PFT_unknown
+
+# Correct plant_cohorts_n for trees with unknown PFT by evenly distributing trees
+# with unknown PFT across the known PFTs
+
+data_taxa$plant_cohorts_n_corrected <-
+  (data_taxa$plant_cohorts_n / data_taxa$PFT_known) * data_taxa$PFT_total
+
+###
+
+before <- data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n")]
+after <- data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n_corrected")]
+before <- unique(before)
+after <- unique(after)
+
+sum(before$plant_cohorts_n)
+sum(after$plant_cohorts_n_corrected[after$PFT_name %in% c("emergent", "overstory", "understory", "pioneer")]) # nolint
+
+after_check <-
+  data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n", "plant_cohorts_n_corrected")] # nolint
+data_taxa$plant_cohorts_n_corrected[data_taxa$PFT_name == "unknown"] <- 0
+
+###
+
+# Remove original plant_cohorts_n and rename plant_cohorts_n_corrected to
+# plant_cohorts_n, then remove the rows with unknown PFT
+
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n_corrected
+data_taxa <- data_taxa[, c(1:10)]
+data_taxa <- data_taxa[data_taxa$PFT_name != "unknown", ]
+
+# Divide plant_cohorts_n by total_OG_area to get individuals per m2
+# Then multiply by 10000 to get cohort distribution per hectare
+
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n / data_taxa$total_OG_area
+data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n * 10000
+
+# Clean up summary
+
+data_taxa <-
+  data_taxa[
+    ,
+    c("plant_cohorts_n", "PFT_name", "DBH_class")
+  ]
+data_taxa <- unique(data_taxa)
+
+data_taxa <- data_taxa[
+  order(
+    data_taxa$PFT_name, data_taxa$DBH_class
+  ),
+]
+
+# Rename variables to match VE
+names(data_taxa)
+colnames(data_taxa) <- c("plant_cohorts_n", "plant_cohorts_pft", "plant_cohorts_dbh")
+
+# Quick check of total stem density per hectare (to compare with literature)
+# Original stem density from SAFE census data was 558 per hectare
+# After distributing trees with unknown PFT across PFTs, the stem density is 560
+
+sum(data_taxa$plant_cohorts_n)
+
+# Save cohort distribution on a per hectare basis
+
+write.csv(
+  data_taxa,
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv", # nolint
   row.names = FALSE
 )
 
@@ -377,7 +525,6 @@ names(data)
 
 data$Block <- as.factor(data$Block)
 data$PlotID <- as.factor(data$PlotID)
-data$PFT_final <- as.factor(data$PFT_final)
 
 plots <- unique(data$PlotID)
 plots
@@ -390,7 +537,7 @@ nrow(data) / (25 * 25 * 27) * 10000 # average stem density per hectare
 # Plots
 
 # Plot using OG1, OG2 and OG3 - split up per Block (expressed as proportion %)
-ggplot(data, aes(x = Block, fill = PFT_final)) +
+ggplot(data, aes(x = Block, fill = PFT_name)) +
   geom_bar(position = "fill") + # Normalizes counts within each PlotID
   scale_y_continuous(labels = scales::percent_format()) + # Shows y-axis as percentages
   labs(
@@ -402,7 +549,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but absolute stack
-ggplot(data, aes(x = Block, fill = PFT_final)) +
+ggplot(data, aes(x = Block, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Block by PFT",
@@ -413,7 +560,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but bars not stacked
-ggplot(data, aes(x = Block, fill = PFT_final)) + # Use PFT to differentiate the bars
+ggplot(data, aes(x = Block, fill = PFT_name)) + # Use PFT to differentiate the bars
   geom_bar(stat = "count", position = "dodge") +
   labs(
     title = "Number of Trees per Block by PFT",
@@ -426,7 +573,7 @@ ggplot(data, aes(x = Block, fill = PFT_final)) + # Use PFT to differentiate the 
 ##########
 
 # Plot using OG1, OG2 and OG3 - split up per PlotID (expressed as proportion %)
-ggplot(data, aes(x = PlotID, fill = PFT_final)) +
+ggplot(data, aes(x = PlotID, fill = PFT_name)) +
   geom_bar(position = "fill") + # Normalizes counts within each PlotID
   scale_y_continuous(labels = scales::percent_format()) + # Shows y-axis as percentages
   labs(
@@ -438,7 +585,7 @@ ggplot(data, aes(x = PlotID, fill = PFT_final)) +
   theme_minimal()
 
 # Same figure but absolute stack
-ggplot(data, aes(x = PlotID, fill = PFT_final)) +
+ggplot(data, aes(x = PlotID, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Plot by PFT",
@@ -450,11 +597,11 @@ ggplot(data, aes(x = PlotID, fill = PFT_final)) +
 
 ##########
 
-# Barplot per DBH (should rescale this to per hectare and compare against other studies)
+# Barplot per DBH
 
 names(data)
 
-ggplot(data, aes(x = DBH_class, fill = PFT_final)) +
+ggplot(data, aes(x = DBH_class, fill = PFT_name)) +
   geom_bar(position = "stack") + # Stacked bars show absolute counts
   labs(
     title = "Number of Trees per Plot by PFT",

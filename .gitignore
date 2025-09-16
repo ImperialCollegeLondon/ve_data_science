@@ -52,11 +52,17 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# pkgdown site
-docs/
-
 # translation temp files
 po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Python noise
+__pycache__
+
+# notebook caching
+.ipynb_checkpoints
+
+# Mac .DS_store
+.DS_store
