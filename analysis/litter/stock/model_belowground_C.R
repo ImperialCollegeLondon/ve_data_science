@@ -102,9 +102,6 @@ names(decay_params) <- decay_params_df$Parameter
 # convert from MgC/ha/Year to kgC/m2/day
 I_root <- exp(fixef(mod_litter_root)$cond) * 1000 / 10000 / 365
 
-# root lignin (convert from proportion to percentage)
-L_root <- plogis(fixef(mod_lignin_root)$cond["lifeformEvergreen broadleaf"]) * 100
-
 # root C:N and C:P ratio
 C_root <- exp(fixef(mod_C_root)$cond["lifeformEvergreen broadleaf"])
 N_root <- exp(fixef(mod_N_root)$cond["lifeformEvergreen broadleaf"])
@@ -112,10 +109,18 @@ P_root <- exp(fixef(mod_P_root)$cond["lifeformEvergreen broadleaf"])
 CN_root <- C_root / N_root
 CP_root <- C_root / P_root
 
-# root metabolic fraction
+# root lignin (convert from proportion to percentage)
+L_root <- plogis(fixef(mod_lignin_root)$cond["lifeformEvergreen broadleaf"])
+# convert root lignin to g C in lignin / g C in dry mass
+# assuming 0.625 of lignin is carbon; see Arne's plant stoichiometry script
+L_root <- (L_root * 0.625) / (C_root / 1000)
+
+# root metabolic fraction (quite low?)
 fm_root <-
-  decay_params["fM"] -
-  L_root * (decay_params["sN"] * CN_root + decay_params["sP"] * CP_root)
+  plogis(
+    decay_params["logitfM"] -
+      L_root * (decay_params["sN"] * CN_root + decay_params["sP"] * CP_root)
+  )
 
 # input rate of metabolic and structural fractions
 I_metabolic <- I_root * fm_root
