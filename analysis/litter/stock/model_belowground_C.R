@@ -109,7 +109,7 @@ P_root <- exp(fixef(mod_P_root)$cond["lifeformEvergreen broadleaf"])
 CN_root <- C_root / N_root
 CP_root <- C_root / P_root
 
-# root lignin (convert from proportion to percentage)
+# root lignin
 L_root <- plogis(fixef(mod_lignin_root)$cond["lifeformEvergreen broadleaf"])
 # convert root lignin to g C in lignin / g C in dry mass
 # assuming 0.625 of lignin is carbon; see Arne's plant stoichiometry script
