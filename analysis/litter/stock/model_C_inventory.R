@@ -80,6 +80,10 @@ litter_compo <-
   # make sure weights are numeric
   mutate_at(vars(starts_with("WW") | starts_with("DW")), as.numeric) %>%
   mutate(
+    # month of collection (in case there is phenological trend)
+    # later: ok there were only four month (Apr - Jul) so I don't think it is
+    # worth including as a covariate
+    month = month(DateCollected),
     # calculate log number of day lapsed as offsets
     log_days = log(as.numeric(DateCollected - DateSet)),
     # pool leaf mass
@@ -89,7 +93,7 @@ litter_compo <-
   ) %>%
   # convert to long format for modelling
   select(
-    Plot, log_days,
+    Plot, log_days, month,
     DW.leaf, DW.wood, DW.reproduction, DW.other
   ) %>%
   pivot_longer(
