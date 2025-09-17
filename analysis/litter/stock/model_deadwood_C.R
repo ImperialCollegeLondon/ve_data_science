@@ -1,5 +1,5 @@
 #| ---
-#| title: Estimating deadwood stocks from SAFE data
+#| title: Estimating deadwood litter stocks from SAFE data
 #|
 #| description: |
 #|     This R script estimates deadwood litter stocks (kg C/m2) from SAFE data.
@@ -14,7 +14,7 @@
 #| author:
 #|   - Hao Ran Lai
 #|
-#| status: superseded
+#| status: final
 #|
 #| input_files:
 #|   - name: SAFE_DeadwoodSurvey_SAFEdatabase_2021-06-04.xlsx

@@ -2,12 +2,17 @@
 #| title: Estimating aboveground metabolic and structural stocks from SAFE data
 #|
 #| description: |
-#|     This R script estimates litter stocks (leaf, wood, reproductive)
-#|     from SAFE data. It combines a dataset that measured
-#|     total aboveground litter stock and another dataset that
-#|     measured litter composition (can be converted to
-#|     proportions) to estimate litter stock per composition.
-#|     Belowground stock is still missing for now.
+#|     This R script estimates aboveground litter stocks from SAFE data.
+#|     It combines a dataset that measure total aboveground litter stock and
+#|     another dataset that measured *physical* litter composition to estimate
+#|     litter stock per physical composition. After the litter pool was split
+#|     into leaf, reproductive, wood and other, they will be reassinged to
+#|     aboveground metabolic, aboveground structural and wood; Wood will be
+#|     added to deadwood in another script later; Reproductive is assumed to be
+#|     entirely aboveground metabolic; Other is assumed to be entirely
+#|     aboveground structural; Leaf is the only physical component that needs
+#|     to be further split into aboveground metabolic and structural --- we'll
+#|     use leaf nutrient data to do this.
 #|
 #| virtual_ecosystem_module:
 #|   - Litter
@@ -23,17 +28,19 @@
 #|     description: |
 #|       Wet and dry weight of leaf litterfall at SAFE vegetation plots by
 #|       Robert Ewers; downloaded from https://zenodo.org/records/1198587
-#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx
+#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11
 #|     path: data/primary/litter/
 #|     description: |
-#|       Litter stock from SAFE carbon inventory by
-#|       Riutta et al.; downloaded from https://zenodo.org/records/4542881
+#|       Total and partitioned soil respiration and below-ground carbon budget
+#|       in SAFE intensive carbon plots;
+#|       downloaded from https://doi.org/10.5281/zenodo.4542881
+#|   - name: Both_litter_decomposition_experiment.xlsx
+#|     path: data/primary/litter/
+#|     description: |
+#|       Leaf litter decomposition in old-growth and selectively logged forest
+#|       at SAFE; downloaded from https://doi.org/10.5281/zenodo.3247639
 #|
 #| output_files:
-#|     name: aboveground_stock_from_C_inventory.csv
-#|     path: data/derived/litter/stock/
-#|     description: |
-#|       Estimated aboveground litter stock from the input files
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -41,7 +48,7 @@
 #|     - glmmTMB
 #|
 #| usage_notes: |
-#|   If more data is needed for even more accurate parameterisation, see
+#|   If more data is needed for even more accurate parameterisation, consider
 #|   Turner et al. (2019) https://zenodo.org/records/3265722
 #| ---
 

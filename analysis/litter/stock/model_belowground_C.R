@@ -1,3 +1,47 @@
+#| ---
+#| title: Estimating belowground litter stocks from SAFE data
+#|
+#| description: |
+#|     This R script estimates belowground litter stock using the equilibrium
+#|     approach described in Issue #101. We take root litter input data from
+#|     SAFE and root decomposition data from a global study, and then combine
+#|     them to estimate the belowground litter stock at equilibrium. I expect
+#|     this equilibrium to be less accurate / more sensitive to data quality and
+#|     model specification compared to direct data on litter stock.
+#|     Unfortunately belowground litter stock is hard to come by, that's why we
+#|     are using this alternative estimation.
+#|
+#| virtual_ecosystem_module:
+#|   - Litter
+#|
+#| author:
+#|   - Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11
+#|     path: data/primary/litter/
+#|     description: |
+#|       Total and partitioned soil respiration and below-ground carbon budget
+#|       in SAFE intensive carbon plots;
+#|       downloaded from https://doi.org/10.5281/zenodo.4542881
+#|   - name: 41598_2015_BFsrep09940_MOESM2_ESM.xls
+#|     path: data/primary/litter/
+#|     description: |
+#|       Global root nutrients data downloaded from
+#|       https://doi.org/10.1038/srep09940
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - glmmTMB
+#|
+#| usage_notes:
+#| ---
+
 library(tidyverse)
 library(readxl)
 library(glmmTMB)
