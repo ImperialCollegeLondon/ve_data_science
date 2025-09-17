@@ -28,7 +28,7 @@
 #|     description: |
 #|       Wet and dry weight of leaf litterfall at SAFE vegetation plots by
 #|       Robert Ewers; downloaded from https://zenodo.org/records/1198587
-#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11
+#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx
 #|     path: data/primary/litter/
 #|     description: |
 #|       Total and partitioned soil respiration and below-ground carbon budget

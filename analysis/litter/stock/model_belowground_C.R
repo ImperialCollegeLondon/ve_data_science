@@ -20,7 +20,7 @@
 #| status: final
 #|
 #| input_files:
-#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11
+#|   - name: SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx
 #|     path: data/primary/litter/
 #|     description: |
 #|       Total and partitioned soil respiration and below-ground carbon budget
