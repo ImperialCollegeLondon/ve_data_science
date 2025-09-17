@@ -73,11 +73,18 @@ from rasterio import Affine
 from rasterio.crs import CRS
 from rasterio.warp import Resampling
 
-# Define output directory and filename
+# Define output directory and filename for the downloaded ERA5 data from the CDS
 output_dir = Path("../../../data/primary/abiotic/era5_land_monthly")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 output_filename = output_dir / "ERA5_monthly_2010_2020_Maliau.nc"
+
+# Define the output directory for the reprojected and unit-converted ERA5 data
+# (spatially interpolated) to be used in the VE model
+output_dir_reprojected = Path(".../../../data/derived/abiotic/era5_land_monthly")
+output_dir_reprojected.mkdir(parents=True, exist_ok=True)
+
+output_filename_reprojected = output_dir_reprojected / "ERA5_Maliau_2010_2020_UTM50N.nc"
 
 # Run the downloader tool
 cdsapi_era5_downloader(
@@ -128,6 +135,10 @@ era5_data_UTM50N = era5_data_WGS84.rio.reproject(
     transform=dest_transform,
     resampling=Resampling.nearest,
 )
+# The interpolation mapping used here at the moment is the `nearest`method of rasterio. 
+# Other methods are available:https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling
+# We might want to use a different interpolation strategy to give a smooth surface -
+
 # Note:
 # The Virtual Ecosystem example data is run on a 90 x 90 m grid.
 # This means that some form of spatial downscaling has to be applied to the dataset, for example by spatially
@@ -230,12 +241,12 @@ print(
     f"time steps = {dataset_renamed.sizes[time_dim]}"
 )
 
-# ---------------------------
+# ------------------------
 # 7. Save the reprojected data to file
-# ---------------------------
+# ------------------------
 # Once we confirmed that our dataset is complete and our calculations are correct, we
 # save it as a new netcdf file.
-dataset_xyt.to_netcdf(output_dir / "ERA5_Maliau_2010_2020_UTM50N.nc")
+dataset_xyt.to_netcdf(output_filename_reprojected)
 
 # Print summary statistics for key variables to check values
 vars_to_check = [
