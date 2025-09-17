@@ -5,7 +5,7 @@
 #   This script prepares ERA5-Land climate data for the Virtual Ecosystem (VE) model. It performs the following steps:
 #
 #     1. Loads a TOML site definition that specifies a projected grid (cell_nx, cell_ny, resolution, lower-left coordinates, EPSG code).
-#     2. Downloads (or loads) monthly ERA5-Land data (2010–2020) for the Maliau site using `cdsapi_era5_downloader`.
+#     2. Downloads (or loads) monthly averaged ERA5-Land data (2010–2020) for a 3×3 grid (0.1° resolution) covering the Maliau Basin sites using cdsapi_era5_downloader.
 #     3. Sets CRS and reprojects the ERA5 data from WGS84 to the target UTM50N grid.
 #     4. Performs unit conversions: temperature (K → °C), precipitation (m → mm), pressure (Pa → kPa), shortwave radiation (J/m² → W/m²).
 #     5. Derives additional variables: relative humidity, mean annual temperature, constant atmospheric CO₂.
