@@ -49,6 +49,7 @@ REQUIRED_VARIABLES = [
     "surface_pressure",  # abiotic variable
     "10m_u_component_of_wind",  # abiotic variable
     "total_precipitation",  # hydrological variable
+    "surface_solar_radiation_downwards", # plant variable
 ]
 
 
