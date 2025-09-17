@@ -38,8 +38,9 @@
 #    description: 2010-2020 ERA5 data for Maliau in original 0.1° resolution.
 #
 #  - name: ERA5_Maliau_2010_2020_UTM50N.nc
-#    path: data/primary/abiotic/era5_land_monthly
-#    description: 2010-2020 ERA5 data for Maliau reprojected to 90m UTM50N grid.
+#    path: data/derived/abiotic/era5_land_monthly
+#    description: ERA5 data (2010–2020), unit-converted and reprojected to the 90 m UTM Zone 50N grid for Maliau.
+#
 #
 # package_dependencies:
 #   - numpy
