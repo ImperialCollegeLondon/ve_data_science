@@ -77,14 +77,12 @@ from rasterio.warp import Resampling
 # Define output directory and filename for the downloaded ERA5 data from the CDS
 output_dir = Path("../../../data/primary/abiotic/era5_land_monthly")
 output_dir.mkdir(parents=True, exist_ok=True)
-
 output_filename = output_dir / "ERA5_monthly_2010_2020_Maliau.nc"
 
-# Define the output directory for the reprojected and unit-converted ERA5 data
+# Define the output directory and filename for the reprojected and unit-converted ERA5 data
 # (spatially interpolated) to be used in the VE model
 output_dir_reprojected = Path(".../../../data/derived/abiotic/era5_land_monthly")
 output_dir_reprojected.mkdir(parents=True, exist_ok=True)
-
 output_filename_reprojected = output_dir_reprojected / "ERA5_Maliau_2010_2020_UTM50N.nc"
 
 # Run the downloader tool
