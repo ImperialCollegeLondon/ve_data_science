@@ -33,7 +33,10 @@
 #|     - tidyverse
 #|     - glmmTMB
 #|
-#| usage_notes:
+#| usage_notes: |
+#|     Note that there is no output file. The outputs here will be combined
+#|     using the script
+#|     analysis/litter/chemistry_and_turnover/combined_parameters.R
 #| ---
 
 library(tidyverse)

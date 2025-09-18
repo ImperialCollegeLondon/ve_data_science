@@ -43,6 +43,9 @@
 #|   60-model-litter-chemistry-and-turnover-microcosm-dataset
 #|   but gave up because the leaf decomposition (in microcosm) was extremely
 #|   fast.
+#|   Also note that there is no output file. The outputs here will be combined
+#|   using the script
+#|   analysis/litter/chemistry_and_turnover/combined_parameters.R
 #| ---
 
 library(tidyverse)
