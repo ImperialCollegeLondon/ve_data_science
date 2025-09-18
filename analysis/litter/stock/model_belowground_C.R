@@ -31,6 +31,12 @@
 #|     description: |
 #|       Global root nutrients data downloaded from
 #|       https://doi.org/10.1038/srep09940
+#|   - name: decay_parameters.csv
+#|     path: data/derived/litter/turnover/
+#|     description: |
+#|       Litter decay parameters estimated from the models in
+#|       analysis/litter/chemistry_and_turnover. They are used to partition
+#|       litter pools into structural and metabolic pools.
 #|
 #| output_files:
 #|
@@ -39,7 +45,11 @@
 #|     - readxl
 #|     - glmmTMB
 #|
-#| usage_notes:
+#| usage_notes: |
+#|     The final belowground structural and metabolic stocks seem quite high
+#|     and low, respectively. While they are plausible, we should bear in mind
+#|     that they depend on the litter decay model parameters, which did NOT
+#|     account for covariates such as temperature and soil moisture.
 #| ---
 
 library(tidyverse)
