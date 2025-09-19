@@ -135,7 +135,8 @@ era5_data_UTM50N = era5_data_WGS84.rio.reproject(
     resampling=Resampling.nearest,
 )
 # The interpolation mapping used here at the moment is the `nearest`method of rasterio. 
-# Other methods are available:https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling
+# Other methods are available:
+# https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling
 # We might want to use a different interpolation strategy to give a smooth surface -
 
 # Note:
@@ -144,9 +145,8 @@ era5_data_UTM50N = era5_data_WGS84.rio.reproject(
 # interpolating coarser resolution climate data and including the effects of local topography.
 # This is not yet implemented!
 
-# ---------------------------
-# 4. Unit conversions
-# ---------------------------
+
+# Unit conversions
 dataset = era5_data_UTM50N
 
 # The standard output unit of 2m dewpoint temperature (d2m ) and 2m air temperature (t2m) is Kelvin (K)
@@ -188,9 +188,8 @@ dataset_renamed = dataset_cleaned.rename(
     }
 )
 
-# ---------------------------
-# 5. Add constant variables
-# ---------------------------
+
+# Add constant variables
 # In addition to the variables from the ERA5-Land datasset, a time series of atmospheric
 # CO2 is needed. We add this here as a constant field of 400ppm.
 air_temp_shape = dataset_renamed["air_temperature_ref"].shape
@@ -210,9 +209,7 @@ dataset_renamed["mean_annual_temperature"] = dataset_renamed[
 # Note:
 # In the future we plan to include a time series of mean annual data for every year.
 
-# ---------------------------
-# 6. Reformat into VE-style dataset
-# ---------------------------
+
 # Reformat coords and dims into VE-style dataset:
 #  - dims: y, x, time_index
 #  - coords: x (from TOML), y (from TOML), time_index (0..time-1)
@@ -240,9 +237,6 @@ print(
     f"time steps = {dataset_renamed.sizes[time_dim]}"
 )
 
-# ------------------------
-# 7. Save the reprojected data to file
-# ------------------------
 # Once we confirmed that our dataset is complete and our calculations are correct, we
 # save it as a new netcdf file.
 dataset_xyt.to_netcdf(output_filename_reprojected)
