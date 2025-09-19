@@ -29,7 +29,7 @@
 #     - The processed datafile can also be downloaded from its
 #       [Zenodo record](https://zenodo.org/records/3490488).
 #     - The dataset is then upscaled to match the required target resolution of 90 m of Virtual Ecosystem.
-#.
+# .
 #
 #
 # virtual_ecosystem_module: Abiotic, Hydrology
@@ -71,20 +71,21 @@
 #
 #   USGS (2017). Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global.
 #   https://doi.org/10.5066/F7PR7TFT (Last accessed: 18-09-2025)
-#   
+#
 # ---
 
 
+from pathlib import Path
+
 import numpy as np
-import xarray as xr
 import rasterio
+import tomllib
+import xarray as xr
 from rasterio.enums import Resampling
 from rasterio.warp import reproject
-from pathlib import Path
-import tomllib
 from scipy import ndimage
 
-# Define input directory and filename for the SRTM dataset for the SAFE Project area, 
+# Define input directory and filename for the SRTM dataset for the SAFE Project area,
 # covering the region 4°N 116°E to 5°N 117°E
 input_srtm = Path("../../../data/primary/abiotic/SRTM_UTM50N_processed.tif")
 
@@ -110,20 +111,17 @@ with rasterio.open(input_srtm) as src:
     data = src.read(1).astype(float)
     data = np.where(data < 0, np.nan, data)  # mask invalid
 
-# Prepare the target grid following the resolution and spatial extent we want for resampling the DEM. 
-# This grid will be used to reproject or resample the original SRTM data.
+    # Prepare the target grid following the resolution and spatial extent we want for resampling the DEM.
+    # This grid will be used to reproject or resample the original SRTM data.
     ny, nx = len(cell_y), len(cell_x)
     transform = rasterio.transform.from_origin(
-        west=min(cell_x) - res / 2,
-        north=max(cell_y) + res / 2,
-        xsize=res,
-        ysize=res
+        west=min(cell_x) - res / 2, north=max(cell_y) + res / 2, xsize=res, ysize=res
     )
     dst_data = np.empty((ny, nx), dtype=np.float32)
 
-# We use `bilinear`resampling method,  which averages values within a block of cells to 
-# compute the new cell value. This is smoother than nearest-neighbor, avoids artifacts, 
-# and is suitable for continuous data like elevation.
+    # We use `bilinear`resampling method,  which averages values within a block of cells to
+    # compute the new cell value. This is smoother than nearest-neighbor, avoids artifacts,
+    # and is suitable for continuous data like elevation.
 
     reproject(
         source=data,
@@ -132,19 +130,19 @@ with rasterio.open(input_srtm) as src:
         src_crs=src.crs,
         dst_transform=transform,
         dst_crs=f"EPSG:{epsg_code}",
-        resampling=Resampling.bilinear
+        resampling=Resampling.bilinear,
     )
-# The input SRTM DEM is provided at ~30 m resolution, but the Virtual Ecosystem 
-# model is designed to operate on a coarser 90 x 90 m grid. 
-# Therefore, the elevation data needs to be upscaled to match the target grid size. 
-# Here, we apply bilinear resampling to aggregate fine-resolution elevation values 
+# The input SRTM DEM is provided at ~30 m resolution, but the Virtual Ecosystem
+# model is designed to operate on a coarser 90 x 90 m grid.
+# Therefore, the elevation data needs to be upscaled to match the target grid size.
+# Here, we apply bilinear resampling to aggregate fine-resolution elevation values
 # into coarser 90 m cells, producing a smoother surface representation.
 # This is important to ensure that the elevation data aligns with the spatial resolution.
 
 # Note:
-# In future, we could also consider methods that explicitly capture terrain 
-# variability (e.g., variance-preserving aggregation) or preserve hydrological 
-# connectivity (e.g., flow-directed resampling). 
+# In future, we could also consider methods that explicitly capture terrain
+# variability (e.g., variance-preserving aggregation) or preserve hydrological
+# connectivity (e.g., flow-directed resampling).
 # This is not yet implemented!
 
 # Use the nodata value from the raster metadata to mask invalid data
@@ -152,27 +150,25 @@ nodata_val = src.nodata
 dst_data = np.where(dst_data == nodata_val, np.nan, dst_data)
 
 # Note:
-# Many DEM products (e.g., SRTM, ASTER, Copernicus DEM) use special placeholder 
-# values such as -9999 or -32768 to indicate missing data (nodata). These values 
-# are not real elevations and must be masked out. 
-# Instead of assuming all negative values are invalid (which would incorrectly 
-# remove genuine terrain below sea level), we read the official "nodata" value 
-# from the raster metadata (src.nodata) and replace only those flagged cells 
-# with NaN.This makes the script more general-purpose and safe for use in 
+# Many DEM products (e.g., SRTM, ASTER, Copernicus DEM) use special placeholder
+# values such as -9999 or -32768 to indicate missing data (nodata). These values
+# are not real elevations and must be masked out.
+# Instead of assuming all negative values are invalid (which would incorrectly
+# remove genuine terrain below sea level), we read the official "nodata" value
+# from the raster metadata (src.nodata) and replace only those flagged cells
+# with NaN.This makes the script more general-purpose and safe for use in
 # coastal or low-lying regions where valid elevations can be negative.
 
 
 # If NaNs remain, fill with nearest neighbor
-# This ensures the DEM is spatially continuous and can be used in hydrological 
+# This ensures the DEM is spatially continuous and can be used in hydrological
 # or other modeling workflows without gaps.
 if np.isnan(dst_data).any():
     mask = np.isnan(dst_data)
     filled_data = dst_data.copy()
 
     nearest_index = ndimage.distance_transform_edt(
-        mask,
-        return_distances=False,
-        return_indices=True
+        mask, return_distances=False, return_indices=True
     )
     filled_data[mask] = dst_data[tuple(nearest_index[:, mask])]
     dst_data = filled_data
@@ -190,14 +186,14 @@ dataset_xy = xr.Dataset(
     {
         "x": (("points",), x_flat.astype(np.float32)),
         "y": (("points",), y_flat.astype(np.float32)),
-        "elevation": (("points",), elev_flat.astype(np.float32))
+        "elevation": (("points",), elev_flat.astype(np.float32)),
     },
-    coords={"points": np.arange(len(x_flat))}
+    coords={"points": np.arange(len(x_flat))},
 )
 
 
-# Once we have reprojected, resampled, and validated the elevation dataset 
-# (with all invalid values handled), we save the final result as a NetCDF file.  
+# Once we have reprojected, resampled, and validated the elevation dataset
+# (with all invalid values handled), we save the final result as a NetCDF file.
 dataset_xy.to_netcdf(output_filename)
 
 print(f"✅ Saved resampled elevation ({res} m) to {output_filename}")
