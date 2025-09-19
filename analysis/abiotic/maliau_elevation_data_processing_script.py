@@ -8,10 +8,10 @@
 #   It performs the following steps:
 #
 #     1. Loads a TOML site definition that specifies the projected VE grid
-#        (cell_x, cell_y, resolution, EPSG code).
+#        (cell_x, cell_y, resolution, EPSG code) for Maliau Basin in UTM Zone 50N.
 #     2. Loads the processed 30 m SRTM DEM for the SAFE Project region
 #        (covering 4°N–5°N, 116°E–117°E).
-#     3. Defines the target VE grid in UTM Zone 50N based on the TOML file.
+#     3. Defines the target VE grid in UTM Zone 50N based on the maliau_site_definition.toml.
 #     4. Resamples the 30 m DEM to the target resolution of 90 m using bilinear resampling.
 #     5. Handles invalid values:
 #          - Sets negative values to NaN
