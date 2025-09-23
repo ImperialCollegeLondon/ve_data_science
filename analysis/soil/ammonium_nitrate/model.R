@@ -1,36 +1,42 @@
 #' ---
-#' title: Descriptive name of the script
+#' title: Estimate soil ammonium and nitrate for VE initialisation
 #'
 #' description: |
-#'     https://doi.org/10.5281/zenodo.3251900
+#'     This script fits models to a soil dataset from the SAFE project to
+#'     estimate soil ammonium and nitrate for initialising VE. These model
+#'     estimates expected nitrogen by land use type, while accounting for
+#'     spatial and temporal autocorrelations. I then predicted the soil
+#'     nitrogen values using forest land use type as the baseline; i.e., we
+#'     use forest baseline values for VE initialisation.
 #'
-#' VE_module: Animal, Plant, Abiotic, Soil, None, etc
+#' VE_module: Soil
 #'
 #' author:
-#'   - name: David Orme
+#'   - name: Hao Ran Lai
 #'
-#' status: final or wip
-#'
+#' status: final
 #'
 #' input_files:
-#'   - name: Input file name
-#'     path: Full file path on shared drive
+#'   - name: 3_GHG_jdrewer.xlsx
+#'     path: data/primary/soil/gas_flux
 #'     description: |
-#'       Source (short citation) and a brief explanation of what this input file
-#'       contains and its use case in this script
+#'       Soil greenhouse gas fluxes and associated parameters from forest and
+#'       oil palm in the SAFE landscape collected by Drewer et al. (2019);
+#'       downloaded from https://doi.org/10.5281/zenodo.3258117
 #'
 #' output_files:
-#'   - name: Output file name
-#'     path: Full file path on shared drive
-#'     description: |
-#'       What the output file contains and its significance, are they used in any other
-#'       scripts?
 #'
 #' package_dependencies:
-#'     - tools
+#'     - tidyverse
+#'     - readxl
+#'     - lubridate
+#'     - hms
+#'     - glmmTMB
 #'
 #' usage_notes: |
-#'   Soil depth
+#'   The soil cores in this dataset was collected from 0-10 cm soil depth. VE
+#'   soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties
+#'   hold until 25 cm. We may want to revisit this assumption later.
 #' ---
 
 
@@ -42,6 +48,9 @@ library(glmmTMB)
 
 
 
+# Data --------------------------------------------------------------------
+
+# soil bulk density dataset
 one_off <-
   read_excel("data/primary/soil/gas_flux/3_GHG_jdrewer.xlsx",
     sheet = 3,
@@ -50,8 +59,7 @@ one_off <-
   select(chamber_id, bulk_density) %>%
   mutate(chamber_id = as.character(chamber_id))
 
-
-
+# soil flux dataset to get ammonium and nitrate measurements
 flux <-
   read_excel("data/primary/soil/gas_flux/3_GHG_jdrewer.xlsx",
     sheet = 4,
@@ -64,14 +72,18 @@ flux <-
       rep("numeric", 8)
     )
   ) %>%
+  # join bulk density dataset
   left_join(one_off) %>%
+  # convert date and time to the right format to be used in modelling
   mutate(
     date = ymd(date),
     day_since = as.factor(date - min(date)),
     time = as_hms(time * 86400),
     hour = as.factor(hour(time))
   ) %>%
+  # placeholder variable for modelling
   mutate(group = 1) %>%
+  # final housekeeping
   rename(
     ammonium = `NH4-N`,
     nitrate = `NO3-N`
@@ -86,6 +98,10 @@ flux <-
 
 # Models ------------------------------------------------------------------
 
+# These model estimates expected nitrogen by land use type, while accounting
+# for spatial and temporal autocorrelations
+
+# ammonium model
 mod_ammonium <- glmmTMB(
   ammonium ~ 0 + landuse + (1 | site / chamber_id) + ar1(day_since + 0 | group),
   ziformula = ~ 0 + landuse,
@@ -94,6 +110,7 @@ mod_ammonium <- glmmTMB(
 )
 summary(mod_ammonium)
 
+# nitrate model
 mod_nitrate <- glmmTMB(
   nitrate ~ 0 + landuse + (1 | site / chamber_id) + ar1(day_since + 0 | group),
   ziformula = ~ 0 + landuse,
@@ -107,7 +124,7 @@ summary(mod_nitrate)
 
 # Predicted mean value for initialisation ---------------------------------
 
-# using forest land use as a baseline
+# counterfactual dataset using forest land use as a baseline
 newdat <- data.frame(
   landuse = "forest",
   site = NA,
@@ -116,6 +133,7 @@ newdat <- data.frame(
   group = NA
 )
 
+# predicted mean ammonium
 pred_ammonium <- predict(
   mod_ammonium,
   newdat,
@@ -123,6 +141,7 @@ pred_ammonium <- predict(
   type = "response"
 )
 
+# predicted mean nitrate
 pred_nitrate <- predict(
   mod_nitrate,
   newdat,
