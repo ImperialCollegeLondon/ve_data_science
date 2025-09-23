@@ -1,96 +1,65 @@
 library(tidyverse)
 library(readxl)
-library(sdmTMB)
-library(terra)
-library(sf)
-library(modelr)
-library(RcppTOML)
+library(tinyVAST)
+library(fmesher)
 
 
 
 # Data --------------------------------------------------------------------
 
-# Maliau metadata
-maliau <- parseTOML("sites/maliau_site_definition.toml")
-
-# https://zenodo.org/records/3906082
-gazetteer <- st_read("data/primary/soil/nutrient/gazetteer.geojson")
-
-crs <- st_crs(gazetteer)
+location <-
+  read_xlsx("data/primary/soil/nutrient/50-ha_soil_data.xlsx", sheet = 2)
 
 soil <-
-  read_xlsx("data/primary/soil/nutrient/SAFE_soil_nutrient_data.xlsx",
+  read_xlsx("data/primary/soil/nutrient/50-ha_soil_data.xlsx",
     sheet = 3,
-    skip = 5
+    skip = 10
   ) %>%
-  select(
-    location = plot_code,
-    pH,
-    bulk_density,
-    clay
-  ) %>%
-  left_join(
-    gazetteer %>%
-      st_drop_geometry() %>%
-      select(location, centroid_x, centroid_y)
-  ) %>%
-  ########## temporary fix #############
-  filter(!is.na(centroid_x)) %>%
-  #########################
-  sdmTMB::add_utm_columns(
-    .,
-    ll_names = c("centroid_x", "centroid_y"),
-    ll_crs = crs,
-    # UTM50N
-    utm_crs = "epsg:32650",
-    units = "km"
-  ) %>%
-  ### Limit to Maliau ???
-  filter(
-    X > maliau$ll_x / 1000,
-    X < maliau$ur_x / 1000,
-    Y > maliau$ll_y / 1000,
-    Y < maliau$ur_y / 1000
-  )
+  left_join(location, by = join_by("sample_ID" == "Location name"))
 
+in_dat <-
+  soil %>%
+  select(sample_ID:soil_pH_water, Longitude, Latitude) %>%
+  pivot_longer(
+    cols = soil_pH_water,
+    names_to = "soil_var",
+    values_to = "soil_val"
+  ) %>%
+  as.data.frame()
 
 
 
 # Model -------------------------------------------------------------------
 
-mesh <- make_mesh(
-  soil,
-  c("X", "Y"),
-  fmesher_func = fmesher::fm_mesh_2d_inla,
+# TODO add boundary from gazetteer
+
+mesh <- fm_mesh_2d(
+  soil[, c("Longitude", "Latitude")],
   # minimum triangle edge length
-  cutoff = 0.005,
+  cutoff = 0.00005,
   # inner and outer max triangle lengths
-  max.edge = c(0.2, 0.5),
+  # max.edge = c(0.0001, 0.001),  # nolint
   # inner and outer border widths
-  offset = c(0.5, 1)
+  offset = c(0.0001, 0.001)
 )
 plot(mesh)
 
-mod_pH <-
-  sdmTMB(
-    data = soil,
-    formula = pH ~ 1,
-    mesh = mesh,
-    spatial = "on"
+# Define sem, with just one variance for the single variable
+sem <- "
+  soil_pH_water <-> soil_pH_water, sd_pH
+"
+
+mod <-
+  tinyVAST(
+    data = in_dat,
+    formula = soil_val ~ 1,
+    spatial_domain = mesh,
+    space_columns = c("Longitude", "Latitude"),
+    space_term = sem,
+    variable_column = "soil_var"
   )
 
-summary(mod_pH)
-
-mod_bulk_density <-
-  sdmTMB(
-    data = soil,
-    formula = bulk_density ~ 1,
-    mesh = mesh,
-    family = gengamma(),
-    spatial = "on"
-  )
-
-summary(mod_bulk_density)
+summary(mod)
 
 
 
