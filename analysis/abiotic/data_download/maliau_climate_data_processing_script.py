@@ -134,7 +134,7 @@ era5_data_UTM50N = era5_data_WGS84.rio.reproject(
     transform=dest_transform,
     resampling=Resampling.nearest,
 )
-# The interpolation mapping used here at the moment is the `nearest`method of rasterio. 
+# The interpolation mapping used here at the moment is the `nearest`method of rasterio.
 # Other methods are available:
 # https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling
 # We might want to use a different interpolation strategy to give a smooth surface -

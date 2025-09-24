@@ -12,7 +12,7 @@
 #   resolution. In future, terrain-preserving or hydrologically explicit
 #   resampling approaches could also be considered.
 #
-#   This code demonstrates how that dataset is resampled and reformatted for use in the 
+#   This code demonstrates how that dataset is resampled and reformatted for use in the
 #   Virtual Ecosystem model.The workflow performs the following steps:
 #     1. Loads a TOML site definition that specifies the projected VE grid
 #        (cell_x, cell_y, resolution, EPSG code) for Maliau Basin in UTM Zone 50N.
@@ -26,12 +26,12 @@
 #     6. Reformats the elevation dataset into VE-style (x, y, elevation) layout.
 #     7. Saves processed NetCDF output ready for VE abiotic model use.
 #
-#   The SRTM DEM used here was originally obtained from the 
-#   Shuttle Radar Topography Mission ([SRTM](https://www2.jpl.nasa.gov/srtm/)) 
-#   and reprojected to  UTM Zone 50N for the SAFE Project area (covering 4°N–5°N, 116°E–117°E). 
-#   Documentation and preprocessing steps are described on the 
-#   [SAFE wiki](https://safeproject.net/dokuwiki/safe_gis/srtm) and 
-#   the  reprojected SAFE Project DEM (utm 50n) is available directly 
+#   The SRTM DEM used here was originally obtained from the
+#   Shuttle Radar Topography Mission ([SRTM](https://www2.jpl.nasa.gov/srtm/))
+#   and reprojected to  UTM Zone 50N for the SAFE Project area (covering 4°N–5°N, 116°E–117°E).
+#   Documentation and preprocessing steps are described on the
+#   [SAFE wiki](https://safeproject.net/dokuwiki/safe_gis/srtm) and
+#   the  reprojected SAFE Project DEM (utm 50n) is available directly
 #   [Zenodo record](https://zenodo.org/records/3490488).
 #
 #
@@ -45,7 +45,7 @@
 # virtual_ecosystem_module: Abiotic
 #
 # author:
-#   - name: Lelavathy 
+#   - name: Lelavathy
 #
 # status: final
 #
@@ -53,21 +53,21 @@
 #   - name: SRTM_UTM50N_processed.tif
 #     path: data/sites/
 #     description: 30 m resolution SRTM DEM for the SAFE Project region (4°N–5°N, 116°E–117°E),
-#                  reprojected to UTM Zone 50N. This reprojected dataset available via 
+#                  reprojected to UTM Zone 50N. This reprojected dataset available via
 #                  [Zenodo record](https://zenodo.org/records/3490488)
-#                  
+#
 #
 #   - name: maliau_site_definition.toml
 #     path: data/sites/
-#     description: Site definition file specifying the target VE grid for Maliau Basin. 
-#                  Contains x/y cell centres, grid resolution (90 m), and projection 
+#     description: Site definition file specifying the target VE grid for Maliau Basin.
+#                  Contains x/y cell centres, grid resolution (90 m), and projection
 #                  details in UTM Zone 50N (EPSG:32650).
 #
 # output_files:
 #   - name: elevation_Maliau_2010_2020_UTM50N.nc
 #     path: data/derived/abiotic/elevation_data/
-#     description: Elevation dataset resampled to a 90 m grid in UTM Zone 50N. 
-#                  Invalid values (nodata) filled using nearest-neighbour interpolation. 
+#     description: Elevation dataset resampled to a 90 m grid in UTM Zone 50N.
+#                  Invalid values (nodata) filled using nearest-neighbour interpolation.
 #                  Output formatted in VE style with flattened x, y, and elevation arrays.
 #
 # package_dependencies:
