@@ -19,7 +19,15 @@
 #     7. Reformats the dataset into VE-style dimensions and coordinates (x, y, time_index) using the TOML grid.
 #     8. Saves processed NetCDF output ready for VE abiotic model use.
 #
-# virtual_ecosystem_module: Abiotic, Hydrology
+#     References:
+#     Muñoz-Sabater, J., et al. (2021). ERA5-Land: A state-of-the-art global reanalysis
+#     dataset for land applications. Earth System Science Data, 13(9), 4349–4383.
+#     https://doi.org/10.5194/essd-13-4349-2021
+#
+#     Muñoz-Sabater, J. (2019). ERA5-Land monthly averaged data from 1981 to present.
+#     Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
+#     https://doi.org/10.24381/cds.68d2bb30  (Last accessed: 11-09-2025)
+#     virtual_ecosystem_module: Abiotic, Hydrology
 #
 # author:
 #   - name: Lelavathy & David
@@ -41,7 +49,6 @@
 #    path: data/derived/abiotic/era5_land_monthly
 #    description: ERA5 data (2010–2020), unit-converted and reprojected to the 90 m UTM Zone 50N grid for Maliau.
 #
-#
 # package_dependencies:
 #   - numpy
 #   - xarray
@@ -50,16 +57,9 @@
 #   - rioxarray
 #   - cdsapi
 #
-# usage_notes:Run as `python climate_data_processing_script.py`
+# usage_notes:Run as `python maliau_climate_data_processing_script.py`
 #
-# References:
-# Muñoz-Sabater, J., et al. (2021). ERA5-Land: A state-of-the-art global reanalysis
-# dataset for land applications. Earth System Science Data, 13(9), 4349–4383.
-# https://doi.org/10.5194/essd-13-4349-2021
 #
-# Muñoz-Sabater, J. (2019). ERA5-Land monthly averaged data from 1981 to present.
-# Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
-# https://doi.org/10.24381/cds.68d2bb30  (Last accessed: 11-09-2025)
 #
 # ----
 
