@@ -2,56 +2,73 @@
 # title: VE Elevation Data Preparation and Grid Reprojection for Maliau Basin
 #
 # description:
-#   Elevation data for `ve_run` example.
+#   This script prepares Shuttle Radar Topography Mission (SRTM) elevation data
+#   for use in the Virtual Ecosystem (VE) model. The VE hydrological module
+#   requires input elevation data aligned to a coarser 90 m grid, whereas the
+#   original SRTM product is provided at ~30 m resolution. To reconcile this,
+#   the elevation data is resampled to the target 90 m grid using bilinear
+#   aggregation, which smooths fine-scale terrain while preserving broad-scale
+#   patterns. This ensures alignment with the Virtual Ecosystem spatial
+#   resolution. In future, terrain-preserving or hydrologically explicit
+#   resampling approaches could also be considered.
 #
-#   This script prepares 30 m SRTM elevation data for the Virtual Ecosystem (VE) model.
-#   It performs the following steps:
-#
+#   This code demonstrates how that dataset is resampled and reformatted for use in the 
+#   Virtual Ecosystem model.The workflow performs the following steps:
 #     1. Loads a TOML site definition that specifies the projected VE grid
 #        (cell_x, cell_y, resolution, EPSG code) for Maliau Basin in UTM Zone 50N.
 #     2. Loads the processed 30 m SRTM DEM for the SAFE Project region
 #        (covering 4°N–5°N, 116°E–117°E).
-#     3. Defines the target VE grid in UTM Zone 50N based on the maliau_site_definition.toml.
+#     3. Defines the target VE grid in UTM Zone 50N based on maliau_site_definition.toml.
 #     4. Resamples the 30 m DEM to the target resolution of 90 m using bilinear resampling.
 #     5. Handles invalid values:
-#          - Sets negative values to NaN
+#          - Masks raster `nodata` values
 #          - Fills remaining NaNs using nearest-neighbour interpolation
 #     6. Reformats the elevation dataset into VE-style (x, y, elevation) layout.
 #     7. Saves processed NetCDF output ready for VE abiotic model use.
 #
-#   Notes:
-#     - This code creates an example elevation map from a digital elevation model
-#       ([SRTM](https://www2.jpl.nasa.gov/srtm/)) which is required to run the example
-#       hydrology model in `ve_run`.
-#     - The commented code is used to download an existing processed SRTM dataset for
-#       the SAFE Project area, covering the region 4°N 116°E to 5°N 117°E, see
-#       [SAFE wiki](https://safeproject.net/dokuwiki/safe_gis/srtm) for reference.
-#     - The processed datafile can also be downloaded from its
-#       [Zenodo record](https://zenodo.org/records/3490488).
-#     - The dataset is then upscaled to match the required target resolution of 90 m of Virtual Ecosystem.
-# .
+#   The SRTM DEM used here was originally obtained from the 
+#   Shuttle Radar Topography Mission ([SRTM](https://www2.jpl.nasa.gov/srtm/)) 
+#   and reprojected to  UTM Zone 50N for the SAFE Project area (covering 4°N–5°N, 116°E–117°E). 
+#   Documentation and preprocessing steps are described on the 
+#   [SAFE wiki](https://safeproject.net/dokuwiki/safe_gis/srtm) and 
+#   the  reprojected SAFE Project DEM (utm 50n) is available directly 
+#   [Zenodo record](https://zenodo.org/records/3490488).
 #
 #
-# virtual_ecosystem_module: Abiotic, Hydrology
+#   References:
+#   Farr, T. G., et al. (2007). The Shuttle Radar Topography Mission (SRTM).
+#   Reviews of Geophysics, 45(2). https://doi.org/10.1029/2005RG000183
+#
+#   USGS (2017). Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global.
+#   https://doi.org/10.5066/F7PR7TFT (Last accessed: 18-09-2025)
+#
+# virtual_ecosystem_module: Abiotic
 #
 # author:
-#   - name: Lelavathy & David
+#   - name: Lelavathy 
 #
 # status: final
 #
 # input_files:
 #   - name: SRTM_UTM50N_processed.tif
-#     path: data/primary/abiotic/
-#     description: 30 m SRTM DEM for the SAFE region
+#     path: data/sites/
+#     description: 30 m resolution SRTM DEM for the SAFE Project region (4°N–5°N, 116°E–117°E),
+#                  reprojected to UTM Zone 50N. This reprojected dataset available via 
+#                  [Zenodo record](https://zenodo.org/records/3490488)
+#                  
 #
 #   - name: maliau_site_definition.toml
 #     path: data/sites/
-#     description: Defines the target VE grid (x/y centres, resolution, EPSG code)
+#     description: Site definition file specifying the target VE grid for Maliau Basin. 
+#                  Contains x/y cell centres, grid resolution (90 m), and projection 
+#                  details in UTM Zone 50N (EPSG:32650).
 #
 # output_files:
 #   - name: elevation_Maliau_2010_2020_UTM50N.nc
 #     path: data/derived/abiotic/elevation_data/
-#     description: Elevation resampled to 90 m UTM50N grid, invalid values filled, formatted for VE.
+#     description: Elevation dataset resampled to a 90 m grid in UTM Zone 50N. 
+#                  Invalid values (nodata) filled using nearest-neighbour interpolation. 
+#                  Output formatted in VE style with flattened x, y, and elevation arrays.
 #
 # package_dependencies:
 #   - numpy
@@ -62,16 +79,8 @@
 #
 # usage_notes:
 #   Run as `python elevation_data_processing_script.py`.
-#   The script checks for negative/NaN elevation values and replaces them with
+#   The script checks for nodata/NaN elevation values and replaces them with
 #   nearest-neighbour values to ensure clean DEM input for VE hydrology.
-#
-# references:
-#   Farr, T. G., et al. (2007). The Shuttle Radar Topography Mission (SRTM).
-#   Reviews of Geophysics, 45(2). https://doi.org/10.1029/2005RG000183
-#
-#   USGS (2017). Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global.
-#   https://doi.org/10.5066/F7PR7TFT (Last accessed: 18-09-2025)
-#
 # ---
 
 
@@ -87,12 +96,12 @@ from scipy import ndimage
 
 # Define input directory and filename for the SRTM dataset for the SAFE Project area,
 # covering the region 4°N 116°E to 5°N 117°E
-input_srtm = Path("../../../data/primary/abiotic/SRTM_UTM50N_processed.tif")
+input_srtm = Path("../../../data/sites/SRTM_UTM50N_processed.tif")
 
 
 # Define the output directory and filename for the reprojected and spatially interpolated elevation data
 # to be used in the VE model
-output_dir = Path(".../../../data/derived/abiotic/elevation_data")
+output_dir = Path("../../../data/derived/abiotic/elevation_data")
 output_dir.mkdir(parents=True, exist_ok=True)
 output_filename = output_dir / "elevation_Maliau_2010_2020_UTM50N.nc"
 
@@ -132,12 +141,6 @@ with rasterio.open(input_srtm) as src:
         dst_crs=f"EPSG:{epsg_code}",
         resampling=Resampling.bilinear,
     )
-# The input SRTM DEM is provided at ~30 m resolution, but the Virtual Ecosystem
-# model is designed to operate on a coarser 90 x 90 m grid.
-# Therefore, the elevation data needs to be upscaled to match the target grid size.
-# Here, we apply bilinear resampling to aggregate fine-resolution elevation values
-# into coarser 90 m cells, producing a smoother surface representation.
-# This is important to ensure that the elevation data aligns with the spatial resolution.
 
 # Note:
 # In future, we could also consider methods that explicitly capture terrain
@@ -180,8 +183,12 @@ x_flat = x_flat.flatten()
 y_flat = y_flat.flatten()
 
 # Build an xarray Dataset with coordinates and elevation
-# - "points" dimension indexes each grid cell.
-# - Variables: x, y (coordinates), elevation (DEM value).
+# Each grid cell is flattened into a single row, indexed by the "points" dimension.
+#   - "points" acts as a simple index (0, 1, 2, …) for each grid cell.
+#   - Variables:
+#       * x: easting coordinate of the grid cell centre (UTM)
+#       * y: northing coordinate of the grid cell centre (UTM)
+#       * elevation: elevation value (m) at that grid cell
 dataset_xy = xr.Dataset(
     {
         "x": (("points",), x_flat.astype(np.float32)),
