@@ -78,7 +78,7 @@
 #   - scipy (ndimage)
 #
 # usage_notes:
-#   Run as `python elevation_data_processing_script.py`.
+#   Run as `python maliau_elevation_data_processing_script.py`.
 #   The script checks for nodata/NaN elevation values and replaces them with
 #   nearest-neighbour values to ensure clean DEM input for VE hydrology.
 # ---
