@@ -1,8 +1,7 @@
 library(tidyverse)
 library(readxl)
-library(tinyVAST)
-library(fmesher)
-
+library(autoFRK)
+library(CBFM)
 
 
 # Data --------------------------------------------------------------------
@@ -11,57 +10,73 @@ location <-
   read_xlsx("data/primary/soil/nutrient/50-ha_soil_data.xlsx", sheet = 2)
 
 soil <-
-  read_xlsx("data/primary/soil/nutrient/50-ha_soil_data.xlsx",
+  read_xlsx(
+    "data/primary/soil/nutrient/50-ha_soil_data.xlsx",
     sheet = 3,
     skip = 10
   ) %>%
+  mutate_at(vars(soil_pH_water:Mehlich_Ca_Mg), as.numeric) %>%
   left_join(location, by = join_by("sample_ID" == "Location name"))
 
-in_dat <-
-  soil %>%
-  select(sample_ID:soil_pH_water, Longitude, Latitude) %>%
-  pivot_longer(
-    cols = soil_pH_water,
-    names_to = "soil_var",
-    values_to = "soil_val"
-  ) %>%
-  as.data.frame()
+soil_vars <-
+  c(
+    "soil_pH_water",
+    "RB_PO4",
+    "RB_NH4",
+    "RB_NO3",
+    "Al_mg_kg",
+    "Ca_mg_kg",
+    "Fe_mg_kg",
+    "K_mg_kg",
+    "Mg_mg_kg",
+    "Mn_mg_kg",
+    "Na_mg_kg"
+  )
+soil_mat <- as.matrix(soil[, soil_vars])
+soil_mat[, -1] <- log(soil_mat[, -1])
+rownames(soil_mat) <- soil$sample_ID
 
+# TODO check if NA can pass model
+complete_cases <-
+  complete.cases(soil_mat) &
+    apply(soil_mat, 1, function(x) all(is.finite(x))) # nolint
+
+soil_mat <- soil_mat[complete_cases, ]
 
 
 # Model -------------------------------------------------------------------
 
-# TODO add boundary from gazetteer
+# Set up spatial basis functions for CBFM
+# Number of spatial basis functions to use
+num_basis <- 25
 
-mesh <- fm_mesh_2d(
-  soil[, c("Longitude", "Latitude")],
-  # minimum triangle edge length
-  cutoff = 0.00005,
-  # inner and outer max triangle lengths
-  # max.edge = c(0.0001, 0.001),  # nolint
-  # inner and outer border widths
-  offset = c(0.0001, 0.001)
-)
-plot(mesh)
+# basis functions
+basis_func <-
+  mrts(soil[complete_cases, c("Longitude", "Latitude")], num_basis) %>%
+  as.matrix() %>%
+  # Remove the first intercept column
+  {
+    .[, -(1)]
+  }
 
-# Define sem, with just one variance for the single variable
-sem <- "
-  soil_pH_water <-> soil_pH_water, sd_pH
-"
-
-mod <-
-  tinyVAST(
-    data = in_dat,
-    formula = soil_val ~ 1,
-    spatial_domain = mesh,
-    space_columns = c("Longitude", "Latitude"),
-    space_term = sem,
-    variable_column = "soil_var"
+# Fit CBFM
+tic <- proc.time()
+fitcbfm <-
+  CBFM(
+    y = soil_mat,
+    formula = ~1,
+    data = soil[complete_cases, ],
+    B_space = basis_func,
+    family = gaussian(),
+    control = list(trace = 1)
   )
+toc <- proc.time()
+toc - tic
 
-summary(mod)
+summary(fitcbfm) %>%
+  str()
 
-
+corrplot::corrplot(corB(fitcbfm), order = "FPC")
 
 
 # Prediction --------------------------------------------------------------
@@ -72,38 +87,3 @@ dat_new <-
     X = maliau$cell_x_centres / 1000,
     Y = maliau$cell_y_centres / 1000
   )
-
-pred_pH <-
-  predict(mod_pH,
-    newdata = dat_new,
-    type = "link"
-  )
-
-ggplot() +
-  geom_raster(
-    data = pred_pH,
-    aes(X, Y, fill = est)
-  ) +
-  geom_point(
-    data = soil,
-    aes(X, Y)
-  ) +
-  scale_fill_viridis_c() +
-  coord_fixed()
-
-pred_bulk_density <-
-  predict(mod_bulk_density,
-    newdata = dat_new,
-    type = "link"
-  )
-
-ggplot() +
-  geom_raster(
-    data = pred_bulk_density,
-    aes(X, Y, fill = est)
-  ) +
-  geom_point(
-    data = soil,
-    aes(X, Y)
-  ) +
-  coord_fixed()
