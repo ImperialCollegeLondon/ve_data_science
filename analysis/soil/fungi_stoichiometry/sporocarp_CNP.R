@@ -35,7 +35,9 @@
 #| usage_notes: |
 #|     The dataset covers only saprotrophic and EM fungi, but I think they are
 #|     good enough for us at this stage. There are not a lot of stoichiometry
-#|     specifically for the fruiting body in the literature.
+#|     specifically for the fruiting body in the literature. The dataset is also
+#|     from the temperate zone. If we revisit this, it is worth looking again
+#|     for any new tropical study.
 #| ---
 
 library(tidyverse)
