@@ -38,6 +38,7 @@
 #|     specifically for the fruiting body in the literature. The dataset is also
 #|     from the temperate zone. If we revisit this, it is worth looking again
 #|     for any new tropical study.
+#|     See also https://doi.org/10.3389/fmicb.2024.1379825
 #| ---
 
 library(tidyverse)
