@@ -75,42 +75,42 @@ dobert_2017_species_trait_data <- read.csv(
 
 # Convert abbreviations using info in Dobert et al., 2017 Supplementary Information
 
-#Column headings:
-#species.code: Unique code for each plant taxa
-#family: Plant family name
-#genus: Plant genus name 
-#species: Plant species name or unique identifier where species indeterminate
-#species.name: The genus and species name
-#tree: Distinction between tree (yes), no tree (no) or indeterminate (na)
-#woody: Distinction between woody (yes), non-woody (no) or indeterminate (na)
-#origin: Distinction between native (n) and exotic (e) plant species
-#pgf: Plant growth form: A = fern, B = graminoid, C = forb, D = herbaceous
-#climber, E = herbaceous shrub, F = tree sapling, G = woody climber, H = woody
-#shrub, na = indeterminate 
-#height: Maximum plant height (m)
-#sla: Specific leaf area (m2.kg-1) 
-#wood.dens: Wood density (g.cm-3)
-#dispersal: Predominant dispersal mode: J = animal, K = ant, L = ballistic,
-#M = bat, N = bird, O = primate, P = water, Q = wind, na = indeterminate
-#fruit: The type of fruit: R = achene, S = berry, T = berry-like, U = capsule,
-#V = caryopsis, W = drupe, X = follicle, Y = legume, Z = nut, a = samara,
-#b = schizocarp, na = indeterminate
-#seed: The number of seeds per fruit: 1 = 1, 2 = <4, 3 = <10, 4 = >10
-#reproduction: The reproduction strategy: s = seed, v = vegetative, sv = seed or
-#vegetative, na = indeterminate 
-#lifehistory: The lifehistory strategy: a = annual, abp = annual or biennial or
-#perennial, ap = annual or perennial, p = perennial, na = indeterminate
-#pollination: The pollination syndrome: c = bat, d = bee, e = beetle, f = bird,
-#g = butterfly, h = entomophilous.broad, i = entomophilous.narrow, j = fly,
-#k = moth, l = passive, m = self, n = thrip, o = wasp, p = wind, na = indeterminate 
+# Column headings:
+# species.code: Unique code for each plant taxa
+# family: Plant family name
+# genus: Plant genus name
+# species: Plant species name or unique identifier where species indeterminate
+# species.name: The genus and species name
+# tree: Distinction between tree (yes), no tree (no) or indeterminate (na)
+# woody: Distinction between woody (yes), non-woody (no) or indeterminate (na)
+# origin: Distinction between native (n) and exotic (e) plant species
+# pgf: Plant growth form: A = fern, B = graminoid, C = forb, D = herbaceous
+# climber, E = herbaceous shrub, F = tree sapling, G = woody climber, H = woody
+# shrub, na = indeterminate
+# height: Maximum plant height (m)
+# sla: Specific leaf area (m2.kg-1)
+# wood.dens: Wood density (g.cm-3)
+# dispersal: Predominant dispersal mode: J = animal, K = ant, L = ballistic,
+# M = bat, N = bird, O = primate, P = water, Q = wind, na = indeterminate
+# fruit: The type of fruit: R = achene, S = berry, T = berry-like, U = capsule,
+# V = caryopsis, W = drupe, X = follicle, Y = legume, Z = nut, a = samara,
+# b = schizocarp, na = indeterminate
+# seed: The number of seeds per fruit: 1 = 1, 2 = <4, 3 = <10, 4 = >10
+# reproduction: The reproduction strategy: s = seed, v = vegetative, sv = seed or
+# vegetative, na = indeterminate
+# lifehistory: The lifehistory strategy: a = annual, abp = annual or biennial or
+# perennial, ap = annual or perennial, p = perennial, na = indeterminate
+# pollination: The pollination syndrome: c = bat, d = bee, e = beetle, f = bird,
+# g = butterfly, h = entomophilous.broad, i = entomophilous.narrow, j = fly,
+# k = moth, l = passive, m = self, n = thrip, o = wasp, p = wind, na = indeterminate
 
 # First narrow down to trees
 dobert_2017_species_trait_data <-
-  dobert_2017_species_trait_data[dobert_2017_species_trait_data$tree=="yes",]
+  dobert_2017_species_trait_data[dobert_2017_species_trait_data$tree == "yes", ]
 
 # Remove columns tree, woody, origin and pgf
 dobert_2017_species_trait_data <-
-  dobert_2017_species_trait_data[,c(1:5, 10:18)]
+  dobert_2017_species_trait_data[, c(1:5, 10:18)]
 
 # Summarise dispersal type into biotic and abiotic
 unique(dobert_2017_species_trait_data$dispersal)
@@ -120,12 +120,17 @@ unique(dobert_2017_species_trait_data$dispersal)
 
 dobert_2017_species_trait_data$dispersal[
   dobert_2017_species_trait_data$dispersal %in% c(
-    "J","K","M","N","O")] <- "biotic"
+    "J", "K", "M", "N", "O"
+  )
+] <- "biotic"
 dobert_2017_species_trait_data$dispersal[
   dobert_2017_species_trait_data$dispersal %in% c(
-    "L","P","Q")] <- "abiotic"
+    "L", "P", "Q"
+  )
+] <- "abiotic"
 dobert_2017_species_trait_data$dispersal[
-  dobert_2017_species_trait_data$dispersal == "na"] <- NA
+  dobert_2017_species_trait_data$dispersal == "na"
+] <- NA
 
 # Summarise fruit type into fleshy and dry fruit
 unique(dobert_2017_species_trait_data$fruit)
@@ -136,12 +141,17 @@ unique(dobert_2017_species_trait_data$fruit)
 
 dobert_2017_species_trait_data$fruit[
   dobert_2017_species_trait_data$fruit %in% c(
-    "S","T","W")] <- "fleshy"
+    "S", "T", "W"
+  )
+] <- "fleshy"
 dobert_2017_species_trait_data$fruit[
   dobert_2017_species_trait_data$fruit %in% c(
-    "R","U","V","X","Y","Z","a","b")] <- "dry"
+    "R", "U", "V", "X", "Y", "Z", "a", "b"
+  )
+] <- "dry"
 dobert_2017_species_trait_data$fruit[
-  dobert_2017_species_trait_data$fruit == "na"] <- NA
+  dobert_2017_species_trait_data$fruit == "na"
+] <- NA
 
 # Summarise pollination type into biotic and abiotic
 unique(dobert_2017_species_trait_data$pollination)
@@ -152,26 +162,32 @@ unique(dobert_2017_species_trait_data$pollination)
 
 dobert_2017_species_trait_data$pollination[
   dobert_2017_species_trait_data$pollination %in% c(
-    "c","d","e","f","g","h","i","j","k","n","o")] <- "biotic"
+    "c", "d", "e", "f", "g", "h", "i", "j", "k", "n", "o"
+  )
+] <- "biotic"
 dobert_2017_species_trait_data$pollination[
   dobert_2017_species_trait_data$pollination %in% c(
-    "l","m","p")] <- "abiotic"
+    "l", "m", "p"
+  )
+] <- "abiotic"
 dobert_2017_species_trait_data$pollination[
-  dobert_2017_species_trait_data$pollination == "na"] <- NA
+  dobert_2017_species_trait_data$pollination == "na"
+] <- NA
 
 # Remove columns seed, reproduction and lifehistory
 dobert_2017_species_trait_data <-
-  dobert_2017_species_trait_data[,c(1:10, 14)]
+  dobert_2017_species_trait_data[, c(1:10, 14)]
 
 # Correct NA in height column
 dobert_2017_species_trait_data$height[
-  dobert_2017_species_trait_data$height == "na"] <- NA
+  dobert_2017_species_trait_data$height == "na"
+] <- NA
 
 # Remove rows with NA
 dobert_2017_species_trait_data <- na.omit(dobert_2017_species_trait_data)
 
 # Rearrange order of columns
-dobert_2017_species_trait_data <- dobert_2017_species_trait_data[,c(1:8,11,10,9)]
+dobert_2017_species_trait_data <- dobert_2017_species_trait_data[, c(1:8, 11, 10, 9)]
 
 ###
 
@@ -189,16 +205,18 @@ t_model_parameters <- read.csv(
 dobert_2017_species_trait_data$PFT_main <- NA
 
 dobert_2017_species_trait_data$PFT_main[
-  dobert_2017_species_trait_data$height>t_model_parameters$h_max[t_model_parameters$name=="overstory"]
+  dobert_2017_species_trait_data$height > t_model_parameters$h_max[t_model_parameters$name == "overstory"]
 ] <- "emergent"
 dobert_2017_species_trait_data$PFT_main[
-  dobert_2017_species_trait_data$height>t_model_parameters$h_max[
-    t_model_parameters$name=="understory"] &
-      dobert_2017_species_trait_data$height<t_model_parameters$h_max[
-        t_model_parameters$name=="overstory"]
+  dobert_2017_species_trait_data$height > t_model_parameters$h_max[
+    t_model_parameters$name == "understory"
+  ] &
+    dobert_2017_species_trait_data$height < t_model_parameters$h_max[
+      t_model_parameters$name == "overstory"
+    ]
 ] <- "overstory"
 dobert_2017_species_trait_data$PFT_main[
-  dobert_2017_species_trait_data$height<t_model_parameters$h_max[t_model_parameters$name=="understory"]
+  dobert_2017_species_trait_data$height < t_model_parameters$h_max[t_model_parameters$name == "understory"]
 ] <- "understory"
 
 ###
@@ -211,45 +229,55 @@ dobert_2017_species_trait_data$PFT_sub <- NA
 # For now, create a description of the new subPFTs
 # We'll use this description for now, but this will likely be refined/adjusted
 # depending on discussion with the needs of the animal model
-dobert_2017_species_trait_data$PFT_sub <- 
+dobert_2017_species_trait_data$PFT_sub <-
   paste(dobert_2017_species_trait_data$PFT_main,
-        dobert_2017_species_trait_data$pollination,
-        dobert_2017_species_trait_data$fruit,
-        dobert_2017_species_trait_data$dispersal,
-        sep = "_")
+    dobert_2017_species_trait_data$pollination,
+    dobert_2017_species_trait_data$fruit,
+    dobert_2017_species_trait_data$dispersal,
+    sep = "_"
+  )
 
 # Overwrite the pioneer individuals for Macaranga genus
 dobert_2017_species_trait_data$PFT_sub[
-  dobert_2017_species_trait_data$genus=="Macaranga"] <-
+  dobert_2017_species_trait_data$genus == "Macaranga"
+] <-
   paste("pioneer",
-        dobert_2017_species_trait_data$pollination[
-          dobert_2017_species_trait_data$genus=="Macaranga"],
-        dobert_2017_species_trait_data$fruit[
-          dobert_2017_species_trait_data$genus=="Macaranga"],
-        dobert_2017_species_trait_data$dispersal[
-          dobert_2017_species_trait_data$genus=="Macaranga"],
-        sep = "_")
+    dobert_2017_species_trait_data$pollination[
+      dobert_2017_species_trait_data$genus == "Macaranga"
+    ],
+    dobert_2017_species_trait_data$fruit[
+      dobert_2017_species_trait_data$genus == "Macaranga"
+    ],
+    dobert_2017_species_trait_data$dispersal[
+      dobert_2017_species_trait_data$genus == "Macaranga"
+    ],
+    sep = "_"
+  )
 
 ###
 
 # Check variable types and change if necessary
-dobert_2017_species_trait_data$height <- 
+dobert_2017_species_trait_data$height <-
   as.numeric(dobert_2017_species_trait_data$height)
-dobert_2017_species_trait_data$sla <- 
+dobert_2017_species_trait_data$sla <-
   as.numeric(dobert_2017_species_trait_data$sla)
-dobert_2017_species_trait_data$wood.dens <- 
+dobert_2017_species_trait_data$wood.dens <-
   as.numeric(dobert_2017_species_trait_data$wood.dens)
 
 # Save plant_functional_type_species_classification_dobert
 # Get same variables as maximum_height output
 # PFT_final, PFT_name, TaxaName, TaxaLevel, Species, Genus, Family, maximum_height
 plant_functional_type_species_classification_dobert <-
-  dobert_2017_species_trait_data[,
-                                 c("PFT_sub","species.name","species","genus",
-                                   "family","height")]
+  dobert_2017_species_trait_data[
+    ,
+    c(
+      "PFT_sub", "species.name", "species", "genus",
+      "family", "height"
+    )
+  ]
 
 colnames(plant_functional_type_species_classification_dobert) <-
-  c("PFT_name","TaxaName","Species","Genus","Family","maximum_height")
+  c("PFT_name", "TaxaName", "Species", "Genus", "Family", "maximum_height")
 
 # Write CSV file
 write.csv(
@@ -263,13 +291,15 @@ write.csv(
 # Now also save dobert_2017_species_trait_data_PFT so that it can be used for
 # other scripts
 dobert_2017_species_trait_data_PFT <-
-  dobert_2017_species_trait_data[,c(1:11,13)]
+  dobert_2017_species_trait_data[, c(1:11, 13)]
 
 names(dobert_2017_species_trait_data_PFT)
 
 colnames(dobert_2017_species_trait_data_PFT) <-
-  c("Species_code","Family","Genus","Species","TaxaName","maximum_height",
-    "sla","wood_density","Pollination","Fruit","Dispersal","PFT_name")
+  c(
+    "Species_code", "Family", "Genus", "Species", "TaxaName", "maximum_height",
+    "sla", "wood_density", "Pollination", "Fruit", "Dispersal", "PFT_name"
+  )
 
 # Write CSV file
 write.csv(
