@@ -31,9 +31,8 @@ functionality used for the project.
       need to use the SSH version, otherwise you can use HTTPS.
     * If you use the SSH version, your computer will need to communicate with github
       automatically to authenticate you when you make changes from your desktop. To do
-      this you need to generate a SSH key and add it to your account. Github has a
-      tutorial
-      [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+      this you need to generate a [SSH key and add it to your GitHub
+      account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 3. Decide where you want the repo to be stored on your local computer. Open a terminal
    window and navigate to this location (`cd FOLDERNAME` moves you into a folder, and
    `cd ..` moves you backwards.)
