@@ -3,7 +3,7 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     # These are generic hooks to keep files clean and tidy
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
     - id: trailing-whitespace
     - id: end-of-file-fixer
@@ -13,14 +13,14 @@ repos:
     - id: debug-statements
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # This is python specific linting and formatting using ruff
-    rev: v0.9.10
+    rev: v0.13.3
     hooks:
     - id: ruff                                  # Run the linter.
       args: [--fix, --exit-non-zero-on-fix]
     - id: ruff-format                           # Run the formatter.
   - repo: https://github.com/igorshubovych/markdownlint-cli
     # This is markdown linting
-    rev: v0.44.0
+    rev: v0.45.0
     hooks:
     - id: markdownlint
       exclude: .ipynb_checkpoints
@@ -29,7 +29,7 @@ repos:
     # Note that this currently points to a specific GitHub commit to avoid an issue with
     # Rcpp: https://github.com/lorenzwalthert/precommit/issues/612 but should be updated
     # when that issue gets resolved in a published version.
-    rev: v0.4.3.9005
+    rev: v0.4.3
     hooks:
     - id: style-files
       args: [--style_pkg=styler, --style_fun=tidyverse_style]
