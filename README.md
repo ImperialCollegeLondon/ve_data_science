@@ -33,4 +33,4 @@ As a brief overview, this involves setting up the following tools:
 You will also notice a large number of small files with odd names in the repo. These are
 mostly used to configure the system - you can see more details on the [what are these
 odd files wiki
-page](https://github.com/ImperialCollegeLondon/ve_data_science/wiki/What-are-all-those-odd-files%3F)
+page](https://imperialcollegelondon.github.io/ve_data_science/what_are_those_odd_files/)
