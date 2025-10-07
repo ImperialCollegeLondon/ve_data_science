@@ -5,14 +5,14 @@ used to store all the research and analysis being used to parameterise and run t
 Virtual Ecosystem model using `git` and GitHub to share all the code.
 
 For details on using GitHub and `git`, please see the Wiki page here: [GitHub
-overview](https://github.com/ImperialCollegeLondon/ve_data_science/wiki/Github-Overview)
+overview](https://imperialcollegelondon.github.io/ve_data_science/github_overview/)
 
 ## Getting started with the repository
 
 The repository uses a reasonably complex set of tools to help ensure code quality
 assurance (QA) and common code formatting. You will need to follow some steps to get
 these tools working: see the wiki page on [Getting
-Started](https://github.com/ImperialCollegeLondon/ve_data_science/wiki/Getting-started-with-the-repository)
+Started](https://imperialcollegelondon.github.io/ve_data_science/getting_started/)
 
 As a brief overview, this involves setting up the following tools:
 
