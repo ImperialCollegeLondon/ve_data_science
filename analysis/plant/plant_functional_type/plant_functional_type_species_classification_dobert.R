@@ -115,8 +115,8 @@ dobert_2017_species_trait_data <-
 # Summarise dispersal type into biotic and abiotic
 unique(dobert_2017_species_trait_data$dispersal)
 
-# "animal","ant","bat","bird","primate" <- "biotic"
-# "ballistic","water","wind" <- "abiotic"
+# "animal","ant","bat","bird","primate" = "biotic"
+# "ballistic","water","wind" = "abiotic"
 
 dobert_2017_species_trait_data$dispersal[
   dobert_2017_species_trait_data$dispersal %in% c(
@@ -135,9 +135,9 @@ dobert_2017_species_trait_data$dispersal[
 # Summarise fruit type into fleshy and dry fruit
 unique(dobert_2017_species_trait_data$fruit)
 
-# "berry","berry-like","drupe" <- "fleshy"
+# "berry","berry-like","drupe" = "fleshy"
 # "achene","capsule","caryopsis","follicle","legume","nut","samara",
-# "schizocarp" <- "dry"
+# "schizocarp" = "dry" # nolint
 
 dobert_2017_species_trait_data$fruit[
   dobert_2017_species_trait_data$fruit %in% c(
@@ -157,8 +157,8 @@ dobert_2017_species_trait_data$fruit[
 unique(dobert_2017_species_trait_data$pollination)
 
 # "bat","bee","beetle","bird","butterfly","entomophilous.broad",
-# "entomophilous.narrow","fly","moth","thrip","wasp" <- "biotic"
-# "passive","self","wind" <- "abiotic"
+# "entomophilous.narrow","fly","moth","thrip","wasp" = "biotic"
+# "passive","self","wind" = "abiotic"
 
 dobert_2017_species_trait_data$pollination[
   dobert_2017_species_trait_data$pollination %in% c(
@@ -177,6 +177,10 @@ dobert_2017_species_trait_data$pollination[
 # Remove columns seed, reproduction and lifehistory
 dobert_2017_species_trait_data <-
   dobert_2017_species_trait_data[, c(1:10, 14)]
+
+# Change variable type of height to numeric
+dobert_2017_species_trait_data$height <-
+  as.numeric(dobert_2017_species_trait_data$height)
 
 # Correct NA in height column
 dobert_2017_species_trait_data$height[
@@ -205,7 +209,9 @@ t_model_parameters <- read.csv(
 dobert_2017_species_trait_data$PFT_main <- NA
 
 dobert_2017_species_trait_data$PFT_main[
-  dobert_2017_species_trait_data$height > t_model_parameters$h_max[t_model_parameters$name == "overstory"]
+  dobert_2017_species_trait_data$height > t_model_parameters$h_max[
+    t_model_parameters$name == "overstory"
+  ]
 ] <- "emergent"
 dobert_2017_species_trait_data$PFT_main[
   dobert_2017_species_trait_data$height > t_model_parameters$h_max[
@@ -216,7 +222,9 @@ dobert_2017_species_trait_data$PFT_main[
     ]
 ] <- "overstory"
 dobert_2017_species_trait_data$PFT_main[
-  dobert_2017_species_trait_data$height < t_model_parameters$h_max[t_model_parameters$name == "understory"]
+  dobert_2017_species_trait_data$height < t_model_parameters$h_max[
+    t_model_parameters$name == "understory"
+  ]
 ] <- "understory"
 
 ###
@@ -267,7 +275,7 @@ dobert_2017_species_trait_data$wood.dens <-
 # Save plant_functional_type_species_classification_dobert
 # Get same variables as maximum_height output
 # PFT_final, PFT_name, TaxaName, TaxaLevel, Species, Genus, Family, maximum_height
-plant_functional_type_species_classification_dobert <-
+plant_functional_type_species_classification_dobert <- # nolint
   dobert_2017_species_trait_data[
     ,
     c(
@@ -276,7 +284,7 @@ plant_functional_type_species_classification_dobert <-
     )
   ]
 
-colnames(plant_functional_type_species_classification_dobert) <-
+colnames(plant_functional_type_species_classification_dobert) <- # nolint
   c("PFT_name", "TaxaName", "Species", "Genus", "Family", "maximum_height")
 
 # Write CSV file
@@ -290,12 +298,12 @@ write.csv(
 
 # Now also save dobert_2017_species_trait_data_PFT so that it can be used for
 # other scripts
-dobert_2017_species_trait_data_PFT <-
+dobert_2017_species_trait_data_PFT <- # nolint
   dobert_2017_species_trait_data[, c(1:11, 13)]
 
 names(dobert_2017_species_trait_data_PFT)
 
-colnames(dobert_2017_species_trait_data_PFT) <-
+colnames(dobert_2017_species_trait_data_PFT) <- # nolint
   c(
     "Species_code", "Family", "Genus", "Species", "TaxaName", "maximum_height",
     "sla", "wood_density", "Pollination", "Fruit", "Dispersal", "PFT_name"
