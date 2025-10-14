@@ -34,7 +34,7 @@ description: |
   The reprojected SAFE Project DEM (UTM Zone 50N) is also available from:
   https://zenodo.org/records/3490488
 
-  References:
+  References: -
   Farr, T. G., et al. (2007). The Shuttle Radar Topography Mission (SRTM).
   Reviews of Geophysics, 45(2). https://doi.org/10.1029/2005RG000183
 
@@ -101,8 +101,8 @@ from scipy import ndimage
 input_srtm = Path("../../../data/sites/SRTM_UTM50N_processed.tif")
 
 
-# Define the output directory and filename for the reprojected and spatially interpolated elevation data
-# to be used in the VE model
+# Define the output directory and filename for the reprojected and spatially 
+# interpolated elevation data to be used in the VE model
 output_dir = Path("../../../data/derived/abiotic/elevation_data")
 output_dir.mkdir(parents=True, exist_ok=True)
 output_filename = output_dir / "elevation_Maliau_2010_2020_UTM50N.nc"
@@ -122,17 +122,18 @@ with rasterio.open(input_srtm) as src:
     data = src.read(1).astype(float)
     data = np.where(data < 0, np.nan, data)  # mask invalid
 
-    # Prepare the target grid following the resolution and spatial extent we want for resampling the DEM.
-    # This grid will be used to reproject or resample the original SRTM data.
+    # Prepare the target grid following the resolution and spatial extent we want for 
+    # resampling the DEM. This grid will be used to reproject or resample 
+    # the original SRTM data.
     ny, nx = len(cell_y), len(cell_x)
     transform = rasterio.transform.from_origin(
         west=min(cell_x) - res / 2, north=max(cell_y) + res / 2, xsize=res, ysize=res
     )
     dst_data = np.empty((ny, nx), dtype=np.float32)
 
-    # We use `bilinear`resampling method,  which averages values within a block of cells to
-    # compute the new cell value. This is smoother than nearest-neighbor, avoids artifacts,
-    # and is suitable for continuous data like elevation.
+    # We use `bilinear`resampling method,  which averages values within a block of 
+    # cells to compute the new cell value. This is smoother than nearest-neighbor, 
+    # avoids artifacts, and is suitable for continuous data like elevation.
 
     reproject(
         source=data,
