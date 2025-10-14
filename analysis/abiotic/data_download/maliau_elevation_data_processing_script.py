@@ -34,7 +34,7 @@ description: |
   The reprojected SAFE Project DEM (UTM Zone 50N) is also available from:
   https://zenodo.org/records/3490488
 
-  References:
+References:
   Farr, T. G., et al. (2007). The Shuttle Radar Topography Mission (SRTM).
   Reviews of Geophysics, 45(2). https://doi.org/10.1029/2005RG000183
 
@@ -84,6 +84,7 @@ usage_notes: |
   nearest-neighbour values to ensure a clean DEM input for the VE hydrology
   model.
 ---
+
 """  # noqa: D400, D212, D205, D415
 
 from pathlib import Path
