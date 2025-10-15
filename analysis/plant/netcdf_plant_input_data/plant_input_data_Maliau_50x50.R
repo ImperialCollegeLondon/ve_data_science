@@ -31,7 +31,7 @@
 #|
 #| output_files:
 #|   - name: plant_input_data_Maliau_50x50.nc
-#|     path: data/derived/plant/other
+#|     path: data/derived/plant/netcdf_plant_input_data
 #|     description: |
 #|       This NetCDF file contains the plant input data for plant_pft_propagules,
 #|       downward_shortwave_radiation, subcanopy_vegetation_biomass,
