@@ -17,7 +17,7 @@ description: |
     1. Loads a TOML site definition specifying the projected VE grid
        (cell_x, cell_y, resolution, EPSG code) for Maliau Basin in UTM Zone 50N.
     2. Loads the processed 30 m SRTM DEM for the SAFE Project region
-       (covering 4N-5N, 116E-117E).
+       (covering 4°N 116°E to 5°N 117°E).
     3. Defines the target VE grid in UTM Zone 50N using maliau_site_definition.toml.
     4. Resamples the 30 m DEM to 90 m resolution using bilinear resampling.
     5. Handles invalid values:
@@ -27,18 +27,14 @@ description: |
     7. Saves the processed NetCDF output ready for VE abiotic model use.
 
   The SRTM DEM used here was obtained from the Shuttle Radar Topography Mission
-  and reprojected to UTM Zone 50N for the SAFE Project area (4N-5N, 116E-117E).
+  and reprojected to UTM Zone 50N for the SAFE Project area (4°N 116°E to 5°N 117°E).
   Documentation and preprocessing steps are described on the SAFE wiki:
   https://safeproject.net/dokuwiki/safe_gis/srtm
 
   The reprojected SAFE Project DEM (UTM Zone 50N) is also available from:
   https://zenodo.org/records/3490488
 
-<<<<<<< HEAD
   References: -
-=======
-References:
->>>>>>> c333a2bd8a57495c47c47d25abafefd64b25ec46
   Farr, T. G., et al. (2007). The Shuttle Radar Topography Mission (SRTM).
   Reviews of Geophysics, 45(2). https://doi.org/10.1029/2005RG000183
 
@@ -56,7 +52,7 @@ input_files:
   - name: SRTM_UTM50N_processed.tif
     path: data/sites/
     description: |
-      30 m SRTM DEM for the SAFE Project region (4N–5N, 116E–117E), reprojected
+      30 m SRTM DEM for the SAFE Project region (4°N 116°E to 5°N 117°E), reprojected
       to UTM Zone 50N. The dataset is available via:
       https://zenodo.org/records/3490488
 
@@ -106,7 +102,7 @@ from scipy import ndimage
 input_srtm = Path("../../../data/sites/SRTM_UTM50N_processed.tif")
 
 
-# Define the output directory and filename for the reprojected and spatially 
+# Define the output directory and filename for the reprojected and spatially
 # interpolated elevation data to be used in the VE model
 output_dir = Path("../../../data/derived/abiotic/elevation_data")
 output_dir.mkdir(parents=True, exist_ok=True)
@@ -127,8 +123,8 @@ with rasterio.open(input_srtm) as src:
     data = src.read(1).astype(float)
     data = np.where(data < 0, np.nan, data)  # mask invalid
 
-    # Prepare the target grid following the resolution and spatial extent we want for 
-    # resampling the DEM. This grid will be used to reproject or resample 
+    # Prepare the target grid following the resolution and spatial extent we want for
+    # resampling the DEM. This grid will be used to reproject or resample
     # the original SRTM data.
     ny, nx = len(cell_y), len(cell_x)
     transform = rasterio.transform.from_origin(
@@ -136,8 +132,8 @@ with rasterio.open(input_srtm) as src:
     )
     dst_data = np.empty((ny, nx), dtype=np.float32)
 
-    # We use `bilinear`resampling method,  which averages values within a block of 
-    # cells to compute the new cell value. This is smoother than nearest-neighbor, 
+    # We use `bilinear`resampling method,  which averages values within a block of
+    # cells to compute the new cell value. This is smoother than nearest-neighbor,
     # avoids artifacts, and is suitable for continuous data like elevation.
 
     reproject(
