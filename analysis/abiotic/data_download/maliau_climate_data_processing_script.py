@@ -44,10 +44,10 @@ description: |
     - For large variable downloads, it is recommended to run one variable at a time.
 
 
-virtual_ecosystem_module: Abiotic, Hydrology
+virtual_ecosystem_module: abiotic, hydrology
 
 author:
-  - Lelavathy Samikan
+  - Lelavathy
   - David Orme
 
 status: final
