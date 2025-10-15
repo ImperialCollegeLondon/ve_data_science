@@ -140,7 +140,7 @@ dim.def.nc(nc, "cell_id", length(cell_id_index))
 dim.def.nc(nc, "pft", length(pft_index))
 dim.def.nc(nc, "time", length(time_index))
 
-# Define variables (integer = NC_UINT, numeric = NC_FLOAT)
+# Define variables (integer = NC_UINT, numeric = NC_FLOAT, character = NC_STRING)
 # The arguments are: nc file name in R, data type, dimension names
 # Note that the order of dimensions is "flipped"
 var.def.nc(nc, "plant_pft_propagules", "NC_UINT", c("pft", "cell_id"))
