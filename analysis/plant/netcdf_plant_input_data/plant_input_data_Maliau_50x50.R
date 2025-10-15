@@ -116,10 +116,12 @@ downward_shortwave_radiation <-
   matrix(as.integer(2040), nrow = length(time_index), ncol = length(cell_id_index))
 
 # subcanopy_vegetation_biomass: cell_id only
+# Use fill value = 0.7
 subcanopy_vegetation_biomass <-
   as.numeric(matrix(0.07, nrow = 1, ncol = length(cell_id_index)))
 
 # subcanopy_seedbank_biomass: cell_id only
+# Use fill value = 0.7
 subcanopy_seedbank_biomass <-
   as.numeric(matrix(0.07, nrow = 1, ncol = length(cell_id_index)))
 
