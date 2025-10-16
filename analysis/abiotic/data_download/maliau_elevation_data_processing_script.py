@@ -41,7 +41,7 @@ description: |
   USGS (2017). Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global.
   https://doi.org/10.5066/F7PR7TFT (Accessed: 2025-09-18)
 
-virtual_ecosystem_module: abiotic
+virtual_ecosystem_module: hydrology
 
 author:
   - Lelavathy
