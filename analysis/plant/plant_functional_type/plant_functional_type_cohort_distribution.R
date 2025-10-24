@@ -222,9 +222,9 @@ plot(
 # Note that if these missing trees are within an acceptable range, we can also
 # use the distribution of PFT individuals and relate that to stem density.
 
-data_taxa <- drop_na(data_taxa, DBH2011_mm_clean)
-
 data_taxa <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
+
+data_taxa <- drop_na(data_taxa, DBH2011_mm_clean)
 
 ggplot(data_taxa, aes(x = TagStem_latest, y = HeightTotal_m_2011, color = PFT_final)) +
   geom_point() +
