@@ -217,12 +217,12 @@ dobert_2017_species_trait_data$PFT_main[
   dobert_2017_species_trait_data$height > t_model_parameters$h_max[
     t_model_parameters$name == "understory"
   ] &
-    dobert_2017_species_trait_data$height < t_model_parameters$h_max[
+    dobert_2017_species_trait_data$height <= t_model_parameters$h_max[
       t_model_parameters$name == "overstory"
     ]
 ] <- "overstory"
 dobert_2017_species_trait_data$PFT_main[
-  dobert_2017_species_trait_data$height < t_model_parameters$h_max[
+  dobert_2017_species_trait_data$height <= t_model_parameters$h_max[
     t_model_parameters$name == "understory"
   ]
 ] <- "understory"
