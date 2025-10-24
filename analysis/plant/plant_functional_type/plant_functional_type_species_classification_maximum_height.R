@@ -340,23 +340,26 @@ t_model_parameters <- read.csv(
 
 # Reassign species where PFT = 0 based on maximum height into PFT 1, 2, 3 or 4
 
+h_max_overstory <- t_model_parameters$h_max[t_model_parameters$name == "overstory"]
+h_max_understory <- t_model_parameters$h_max[t_model_parameters$name == "understory"]
+
 temp$PFT[
-  temp$PFT == "0" &
-    temp$maximum_height > t_model_parameters$Hm[t_model_parameters$PFT == "2"]
+  temp$PFT == 0 &
+    temp$maximum_height > h_max_overstory
 ] <- 1
+
 temp$PFT[
-  temp$PFT == "0" &
-    temp$maximum_height < t_model_parameters$Hm[t_model_parameters$PFT == "2"] &
-    temp$maximum_height > t_model_parameters$Hm[t_model_parameters$PFT == "3"]
+  temp$PFT == 0 &
+    temp$maximum_height <= h_max_overstory &
+    temp$maximum_height > h_max_understory
 ] <- 2
+
+# Note that for pioneers, all Macaranga species already have PFT 3,
+# so no further adjustment needed here
+
 temp$PFT[
-  temp$PFT == "0" &
-    temp$maximum_height < t_model_parameters$Hm[t_model_parameters$PFT == "3"] &
-    temp$maximum_height > t_model_parameters$Hm[t_model_parameters$PFT == "4"]
-] <- 3
-temp$PFT[
-  temp$PFT == "0" &
-    temp$maximum_height < t_model_parameters$Hm[t_model_parameters$PFT == "4"]
+  temp$PFT == 0 &
+    temp$maximum_height <= h_max_understory
 ] <- 4
 
 # Inspect
