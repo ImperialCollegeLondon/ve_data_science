@@ -13,7 +13,7 @@ repos:
     - id: debug-statements
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # This is python specific linting and formatting using ruff
-    rev: v0.14.1
+    rev: v0.14.2
     hooks:
     - id: ruff                                  # Run the linter.
       args: [--fix, --exit-non-zero-on-fix]
