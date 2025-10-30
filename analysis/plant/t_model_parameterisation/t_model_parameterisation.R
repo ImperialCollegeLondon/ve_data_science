@@ -1,5 +1,5 @@
 #| ---
-#| title: Updating T model parameters
+#| title: T model parameterisation
 #|
 #| description: |
 #|     This script focuses on updating the base values for the parameters in
@@ -30,11 +30,6 @@
 #|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
-#|       This CSV file can be loaded when working with other datasets
-#|       (particularly those related to updating T model parameters).
-#|       In a follow up script, the remaining species that have not been assigned
-#|       a PFT yet will be assigned into one based on
-#|       their species maximum height relative to the PFT maximum height.
 #|   - name: inagawa_nutrients_wood_density.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |
@@ -150,16 +145,6 @@ plot_data <- data_taxa[, c(
   "CanopyRadiusSouth_cm_2011", "CanopyRadiusWest_cm_2011", "HeightBranch_m_2011"
 )]
 
-# Note that measurements of height, dbh and crown radius are linked per row
-# So, even though crown radius is not required for height-diameter relationship,
-# using na.omit on the next line is OK.
-# Also note that a lot of rows have missing values, figure out why they were not
-# measured (maybe trees were dead?). If trees were actually there, they also
-# need to be included for stem distribution later on.
-
-plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
-
 plot_data$HeightTotal_m_2011 <- as.numeric(plot_data$HeightTotal_m_2011)
 plot_data$DBH2011_mm_clean <- as.numeric(plot_data$DBH2011_mm_clean)
 plot_data$CanopyRadiusNorth_cm_2011 <- as.numeric(plot_data$CanopyRadiusNorth_cm_2011)
@@ -169,6 +154,16 @@ plot_data$CanopyRadiusWest_cm_2011 <- as.numeric(plot_data$CanopyRadiusWest_cm_2
 plot_data$HeightBranch_m_2011 <- as.numeric(plot_data$HeightBranch_m_2011)
 
 plot_data$logging <- as.factor(plot_data$logging)
+
+# Note that measurements of height, dbh and crown radius are linked per row
+# So, even though crown radius is not required for height-diameter relationship,
+# using na.omit on the next line is OK.
+# Also note that a lot of rows have missing values, figure out why they were not
+# measured (maybe trees were dead?). If trees were actually there, they also
+# need to be included for stem distribution later on.
+
+plot_data <- na.omit(plot_data)
+unique(plot_data$PFT)
 
 plot_data$crown_radius <- rowMeans(cbind(
   plot_data$CanopyRadiusNorth_cm_2011,
@@ -331,7 +326,9 @@ data_taxa$a_SE[data_taxa$PFT == "3"] <-
 
 # PFT 4 (low data availability for height measurements)
 
-plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "4", ])
+plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[
+  plot_data$PFT == "4",
+])
 
 nls_model_4 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
   data = plot_data[plot_data$PFT == "4", ],
@@ -431,7 +428,8 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
 
 plot_data <- backup[backup$PFT == "2", ]
 
-# Decide whether or not to remove "outlier" above 200 here
+# Removed outliers
+plot_data <- plot_data[plot_data$crown_projected_area < 90, ]
 
 plot_data$piDH4a <- pi * plot_data$DBH2011_m *
   plot_data$HeightTotal_m_2011 / (4 * a_2)
@@ -459,9 +457,6 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
     x = "piDH/4a (m2)", y = "Crown projected area (m2)",
     title = "Crown-Diameter Relationship PFT2"
   )
-
-# With all: c is 1151.012
-# With "outlier" removed: c is 738.982
 
 data_taxa$c[data_taxa$PFT == "2"] <- c_2
 data_taxa$c_SE[data_taxa$PFT == "2"] <-
