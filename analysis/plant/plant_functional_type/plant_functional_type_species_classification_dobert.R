@@ -17,7 +17,7 @@
 #|
 #| input_files:
 #|   - name: dobert_2017_species_trait_data.csv
-#|     path: data/derived/plant/traits_data
+#|     path: data/primary/plant/traits_data
 #|     description: |
 #|       This CSV file contains a set of traits (e.g., maximum height, fruit,
 #|       dispersal, pollination type, etc.) for each species, measured across the
