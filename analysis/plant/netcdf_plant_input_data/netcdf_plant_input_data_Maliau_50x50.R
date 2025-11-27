@@ -28,6 +28,11 @@
 #|     description: |
 #|       This CSV file contains an overview of the individuals per
 #|       DBH class for each PFT, for each cell.
+#|   - name: subcanopy_parameters.csv
+#|     path: data/derived/plant/subcanopy
+#|     description: |
+#|       This CSV file contains the subcanopy parameters, which are part of the
+#|       plant model constants.
 #|
 #| output_files:
 #|   - name: plant_input_data_Maliau_50x50.nc
@@ -108,22 +113,32 @@ time_index <- generate_monthly_timestamps()
 # plant_pft_propagules: matrix of cell_id by pft (so 4 by 250)
 # Use fill value = 100
 plant_pft_propagules <-
-  matrix(as.integer(100), nrow = length(pft_index), ncol = length(cell_id_index))
+  matrix(as.integer(1000), nrow = length(pft_index), ncol = length(cell_id_index))
 
 # downward_shortwave_radiation: matrix of cell_id by time_index (so 132 by 250)
 # Use fill value = 2040
 downward_shortwave_radiation <-
   matrix(as.integer(2040), nrow = length(time_index), ncol = length(cell_id_index))
 
+# Load the subcanopy parameters
+subcanopy_parameters <- read.csv(
+  "../../../data/derived/plant/subcanopy/subcanopy_parameters.csv", # nolint
+  header = TRUE
+)
+
 # subcanopy_vegetation_biomass: cell_id only
-# Use fill value = 0.7
+# Use value from subcanopy_parameters
 subcanopy_vegetation_biomass <-
-  as.numeric(matrix(0.07, nrow = 1, ncol = length(cell_id_index)))
+  as.numeric(matrix(subcanopy_parameters$subcanopy_vegetation_biomass,
+    nrow = 1, ncol = length(cell_id_index)
+  ))
 
 # subcanopy_seedbank_biomass: cell_id only
-# Use fill value = 0.7
+# Use value from subcanopy_parameters
 subcanopy_seedbank_biomass <-
-  as.numeric(matrix(0.07, nrow = 1, ncol = length(cell_id_index)))
+  as.numeric(matrix(subcanopy_parameters$subcanopy_seedbank_biomass,
+    nrow = 1, ncol = length(cell_id_index)
+  ))
 
 # time: time_index only (use values calculated for time_index)
 time <-
