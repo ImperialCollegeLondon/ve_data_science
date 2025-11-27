@@ -1,5 +1,5 @@
 #| ---
-#| title: Plant input data Maliau 50x50
+#| title: NetCDF plant input data Maliau 50x50
 #|
 #| description: |
 #|     This script generates a NetCDF file that is part of the plant input data.
