@@ -37,7 +37,8 @@
 #|  - name: subcanopy_parameters.csv
 #|     path: data/derived/plant/subcanopy
 #|     description: |
-#|       This CSV file contains xx.
+#|       This CSV file contains the subcanopy parameters, which are part of the
+#|       plant model constants.
 #|
 #| output_files:
 #|   - name: plant_pft_definitions_Maliau_50x50.csv
@@ -57,7 +58,7 @@
 #|     - XX
 #|
 #| usage_notes: |
-#|   This script prepares the final/clean version of the plant input data for Maliau.
+#|   This script prepares the final version of the plant input data for Maliau.
 #| ---
 
 
@@ -127,7 +128,7 @@ plant_pft_definitions_Maliau_50x50 <- t_model_parameters # nolint
 # gpp_topslice ADD default
 
 
-# p_foliage_for_reproductive_tissue ADD from CSV
+# p_foliage_for_reproductive_tissue ADD from reproductive_tissue_allocation
 
 # deadwood_c_n_ratio ADD from stoichiometry
 # deadwood_c_p_ratio ADD from stoichiometry
@@ -152,7 +153,8 @@ plant_pft_definitions_Maliau_50x50$f_g <- 0.02 # nolint
 plant_pft_definitions_Maliau_50x50$gpp_topslice <- 0.1 # nolint
 
 # p_foliage_for_reproductive_tissue
-# Use Kitayama et al., 2015 reference in Aoyagi et al., 2018 (row 10)
+# Use Kitayama et al., 2015 reference in Aoyagi et al., 2018 (row 10) in
+# reproductive_tissue_allocation
 plant_pft_definitions_Maliau_50x50$p_foliage_for_reproductive_tissue <- 0.073545706 # nolint
 
 # deadwood_c_n_ratio
@@ -182,9 +184,7 @@ temp <- plant_stoichiometry[, c(
 plant_pft_definitions_Maliau_50x50 <- # nolint
   left_join(plant_pft_definitions_Maliau_50x50, temp, by = "name")
 
-# None of these variables need scaling according to any of the dimensions
-
-# Check variable data types and units
+# Write out summary of variable data types and units
 
 # Write CSV file
 
@@ -232,51 +232,49 @@ plant_constants_Maliau_50x50 <- subcanopy_parameters
 
 # Add missing ones
 
-# per_stem_annual_mortality_probability ADD from t_model_parameters
+# per_stem_annual_mortality_probability
 plant_constants_Maliau_50x50$per_stem_annual_mortality_probability <-
   unique(t_model_parameters$per_stem_annual_mortality_probability)
-# per_propagule_annual_recruitment_probability ADD from t_model_parameters
+# per_propagule_annual_recruitment_probability
 plant_constants_Maliau_50x50$per_propagule_annual_recruitment_probability <-
   unique(t_model_parameters$per_propagule_annual_recruitment_probability)
-# root_exudates ADD from t_model_parameters
+# root_exudates
 plant_constants_Maliau_50x50$root_exudates <-
   unique(t_model_parameters$root_exudates)
 
-# dsr_to_ppfd ADD default
+# dsr_to_ppfd
 plant_constants_Maliau_50x50$dsr_to_ppfd <- 2.04
 
-# stem_lignin ADD from plant_stoichiometry
+# stem_lignin
 plant_constants_Maliau_50x50$stem_lignin <-
   unique(plant_stoichiometry$stem_lignin)
-# senesced_leaf_lignin ADD from plant_stoichiometry
+# senesced_leaf_lignin
 plant_constants_Maliau_50x50$senesced_leaf_lignin <-
   unique(plant_stoichiometry$senesced_leaf_lignin[
     plant_stoichiometry$name == "emergent"
   ]) # Note that 1 value can only be assigned
-# leaf_lignin ADD from plant_stoichiometry
+# leaf_lignin
 plant_constants_Maliau_50x50$leaf_lignin <-
   unique(plant_stoichiometry$leaf_lignin[
     plant_stoichiometry$name == "emergent"
   ]) # Note that 1 value can only be assigned
-# plant_reproductive_tissue_lignin ADD from plant_stoichiometry
+# plant_reproductive_tissue_lignin
 plant_constants_Maliau_50x50$plant_reproductive_tissue_lignin <-
   unique(plant_stoichiometry$plant_reproductive_tissue_lignin)
-# root_lignin ADD from plant_stoichiometry
+# root_lignin
 plant_constants_Maliau_50x50$root_lignin <-
   unique(plant_stoichiometry$root_lignin)
 
-# propagule_mass_portion ADD from reproductive_tissue_allocation
+# propagule_mass_portion
 # Use propagule live organ carbon percentage (row 19; based on live organ estimates
-# in dipterocarp forest)
+# in dipterocarp forest) from reproductive_tissue_allocation
 plant_constants_Maliau_50x50$propagule_mass_portion <- 0.773915715
 
-# carbon_mass_per_propagule ADD from plant_stoichiometry
+# carbon_mass_per_propagule
 plant_constants_Maliau_50x50$carbon_mass_per_propagule <-
   unique(plant_stoichiometry$carbon_mass_per_propagule)
 
-# Check if any of these variables need scaling according to any of the dimensions
-
-# Check variable data types and units
+# Write out summary of variable data types and units
 
 # Write CSV file
 
@@ -292,9 +290,6 @@ write.csv(
 
 # Start from cohort_distribution
 plant_cohort_data_Maliau_50x50 <- cohort_distribution
-
-# Note that this data has already been scaled according to Maliau 50x50 grid
-# So procees straight to saving the CSV with the new name
 
 # Write CSV file
 
