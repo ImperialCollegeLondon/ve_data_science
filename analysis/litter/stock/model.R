@@ -46,7 +46,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Data --------------------------------------------------------------------
 
 # Litter stock data by Riutta et al.
