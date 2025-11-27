@@ -6,7 +6,8 @@
 #|     the T model to values more closely aligned with the SAFE project.
 #|     The script works with multiple datasets and calculates values for the
 #|     T model, ideally at PFT level. Species are linked to their PFT by working
-#|     with the output of the PFT species classification base script.
+#|     with the output of the PFT species classification base script. Some extra
+#|     traits that are part of the plant constants are also added.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -1244,6 +1245,20 @@ mean(SAFE_carbon_balance_components$NPP_to_GPP_with) # 0.4277772
 
 summary$root_exudates <- 0.047 * 0.4277772
 
+# Add mortality probability
+# Use value for non-drought year (1.59% per year) presented in Newbery and
+# Lingenfelder (2009; https://doi.org/10.1007/s11258-008-9533-8)
+
+summary$per_stem_annual_mortality_probability <- 0.0159
+
+# Add recruitment probability
+# Use value for establishment from seedbank per seed (2.5%) used in
+# Howlett and Davidson (2003; https://doi.org/10.1016/S0378-1127(03)00161-0),
+# who refer to the value (2.3% presumably) presented in
+# Kennedy and Swaine (1992; https://doi.org/10.1098/rstb.1992.0027)
+
+summary$per_propagule_annual_recruitment_probability <- 0.025
+
 ################################################################################
 
 # Prep summary output again, check variable names, etc.
@@ -1256,14 +1271,18 @@ summary <- summary[, c(
   "turnover_reproductive_organ", "turnover_fine_root",
   "respiration_fine_root", "respiration_leaf",
   "respiration_wood", "respiration_reproductive_organ", "yield_factor",
-  "fine_root_carbon_foliage_area", "root_exudates"
+  "fine_root_carbon_foliage_area", "root_exudates",
+  "per_stem_annual_mortality_probability",
+  "per_propagule_annual_recruitment_probability"
 )]
 
 colnames(summary) <- c(
   "PFT_name", "Hm", "a", "c", "WD", "SLA", "LAI",
   "LEC", "turnover_leaf", "turnover_RT", "turnover_root",
   "respiration_root", "respiration_leaf", "respiration_wood",
-  "respiration_reproductive_organ", "yield_factor", "zeta", "root_exudates"
+  "respiration_reproductive_organ", "yield_factor", "zeta", "root_exudates",
+  "per_stem_annual_mortality_probability",
+  "per_propagule_annual_recruitment_probability"
 )
 
 # Below I change the variable names to match those used by the model
@@ -1286,12 +1305,16 @@ colnames(summary) <- c(
 # yield_factor is yld (-)
 # zeta is zeta (kg C m-2)
 # root_exudates (-)
+# per_stem_annual_mortality_probability (-)
+# per_propagule_annual_recruitment_probability (-)
 
 colnames(summary) <- c(
   "name", "h_max", "a_hd", "ca_ratio", "rho_s", "sla", "lai",
   "par_ext", "tau_f", "tau_rt", "tau_r",
   "resp_r", "resp_f", "resp_s", "resp_rt",
-  "yld", "zeta", "root_exudates"
+  "yld", "zeta", "root_exudates",
+  "per_stem_annual_mortality_probability",
+  "per_propagule_annual_recruitment_probability"
 )
 
 ################################################################################
