@@ -94,9 +94,10 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # For the Maliau site, use 10 years (2010-2020) with monthly intervals and
 # express using days since origin (in this case 2010-01-01)
 generate_monthly_timestamps <- function(
-    start = "2010-01-01",
-    end = "2020-12-31",
-    origin = "2010-01-01") {
+  start = "2010-01-01",
+  end = "2020-12-31",
+  origin = "2010-01-01"
+) {
   time <- seq(as.Date(start), as.Date(end), by = "month")
   as.numeric(difftime(time, as.Date(origin), units = "days"))
 }
