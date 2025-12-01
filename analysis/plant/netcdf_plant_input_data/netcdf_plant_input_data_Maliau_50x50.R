@@ -92,15 +92,19 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # time_index
 # The time_index depends on the intended runtime of the simulation
 # For the Maliau site, use 10 years (2010-2020) with monthly intervals and
-# express using seconds since 1970-01-01 UTC (Unix epoch reference time)
-# Note that this matches the time_index used in the abiotic model
-generate_monthly_timestamps <-
-  function(start = "2010-01-01", end = "2020-12-31") {
-    time <- seq(as.Date(start), as.Date(end), by = "month")
-    as.numeric(as.POSIXct(time, tz = "UTC"))
-  }
+# express using days since origin (in this case 2010-01-01)
+generate_monthly_timestamps <- function(
+    start = "2010-01-01",
+    end = "2020-12-31",
+    origin = "2010-01-01") {
+  time <- seq(as.Date(start), as.Date(end), by = "month")
+  as.numeric(difftime(time, as.Date(origin), units = "days"))
+}
 
-time_index <- generate_monthly_timestamps()
+time <- generate_monthly_timestamps()
+time
+
+time_index <- 0:(length(time) - 1)
 
 #####
 
@@ -111,7 +115,8 @@ time_index <- generate_monthly_timestamps()
 # analysis scripts
 
 # plant_pft_propagules: matrix of cell_id by pft (so 4 by 250)
-# Use fill value = 100
+# Use fill value = 1000 using value reported in Metcalfe and Turner (1998;
+# https://www.jstor.org/stable/2559870)
 plant_pft_propagules <-
   matrix(as.integer(1000), nrow = length(pft_index), ncol = length(cell_id_index))
 
@@ -142,7 +147,7 @@ subcanopy_seedbank_biomass <-
 
 # time: time_index only (use values calculated for time_index)
 time <-
-  as.integer(matrix(time_index, nrow = 1, ncol = length(time_index)))
+  as.integer(matrix(time, nrow = 1, ncol = length(time_index)))
 
 #####
 
