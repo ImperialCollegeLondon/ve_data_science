@@ -97,8 +97,6 @@ dat_scaled <-
   )
 
 
-
-
 # Model -------------------------------------------------------------------
 
 # the soil nutrients (N, C and P) are highly collinear with one another
