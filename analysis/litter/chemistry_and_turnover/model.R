@@ -62,7 +62,6 @@ library(modelr)
 library(tidybayes)
 
 
-
 # Data --------------------------------------------------------------------
 
 # Leaf litter ================================================
@@ -224,8 +223,6 @@ litter_wood <-
   mutate(lignin = 29.475 * 0.625 / C_total * 100)
 
 
-
-
 # Combine litter dataset ======================================
 litter <-
   # leaf
@@ -257,8 +254,6 @@ litter <-
       ) %>%
       mutate(type = "wood")
   )
-
-
 
 
 # Model -------------------------------------------------------------------
@@ -374,8 +369,6 @@ draws <- mcmc(
 )
 
 
-
-
 # Diagnostics ------------------------------------------------------------
 
 # trace plots and posterior summaries
@@ -384,9 +377,6 @@ mcmc_intervals(draws)
 
 mcmc_trace(draws, "lignin[1,1]")
 mcmc_intervals(draws, regex_pars = "^lignin")
-
-
-
 
 
 # Predictions -------------------------------------------------------------
@@ -459,7 +449,6 @@ ggplot(newdat) +
     expand = FALSE
   ) +
   theme_bw()
-
 
 
 # Parameter estimate ------------------------------------------------------
