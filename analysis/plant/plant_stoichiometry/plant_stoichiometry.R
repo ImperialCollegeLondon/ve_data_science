@@ -205,6 +205,10 @@ summary$stem_lignin <- stem_lignin_C_of_stem_C
 
 # Leaf stoichiometry and lignin content
 
+# Note that the model separates "normal" leaves and "senesced" leaves
+# Here we first focus on the normal leaves (ak foliage), then we calculate
+# stoichiometry for senesced leaves. For lignin content values are the same.
+
 both_tree_functional_traits <- read_excel(
   "../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
   sheet = "Tree_functional_traits",
@@ -312,10 +316,6 @@ for (id in leaf_ratios) {
 
 # Because the ratios are calculated for each species, this allows calculation of
 # mean PFT values using the PFT species classification
-
-# Check with David if we also want to use the mean across species (i.e., to remain
-# a consistent approach similar to woody stoichiometry) or if it's fine to proceed
-# with PFT specific values.
 
 mean(temp$CN_leaf_mean)
 mean(temp$CP_leaf_mean)
@@ -505,6 +505,26 @@ summary$lignin_leaf_mean[summary$PFT == "4"] <-
   round(summary_stats[4, "Mean_lignin_leaf_mean"], 2)
 summary$lignin_leaf_mean_SD[summary$PFT == "4"] <-
   round(summary_stats[4, "SD_lignin_leaf_mean"], 2)
+
+# Now calculate stoichiometry for senesced leaves, using the nutrient resorption
+# efficiency for N (50.1%) and P (56.5%) in evergreen broadleaf forest,
+# as presented in Han et al. (2013; https://doi.org/10.1371/journal.pone.0083366)
+
+N_resorption_efficiency <- 50.1 / 100
+P_resorption_efficiency <- 56.5 / 100
+
+# Now add two new variables to summary and derive senesced CN and CP ratio
+
+summary$CN_senesced_leaf_mean <-
+  as.numeric(summary$CN_leaf_mean) / (1 - N_resorption_efficiency)
+
+summary$CP_senesced_leaf_mean <-
+  as.numeric(summary$CP_leaf_mean) / (1 - P_resorption_efficiency)
+
+# Also add in senesced leaf ligin, but use the same value as for foliage
+
+summary$lignin_senesced_leaf_mean <-
+  summary$lignin_leaf_mean
 
 ################################################################################
 
@@ -766,11 +786,15 @@ summary <- backup
 summary$CN_leaf_mean <- as.numeric(summary$CN_leaf_mean)
 summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
 summary$lignin_leaf_mean <- as.numeric(summary$lignin_leaf_mean)
+summary$CN_senesced_leaf_mean <- as.numeric(summary$CN_senesced_leaf_mean)
+summary$CP_senesced_leaf_mean <- as.numeric(summary$CP_senesced_leaf_mean)
+summary$lignin_senesced_leaf_mean <- as.numeric(summary$lignin_senesced_leaf_mean)
 
 names(summary)
 summary <- summary[, c(
   "PFT_name", "CN_sapwood_mean", "CP_sapwood_mean", "stem_lignin",
   "CN_leaf_mean", "CP_leaf_mean", "lignin_leaf_mean",
+  "CN_senesced_leaf_mean", "CP_senesced_leaf_mean", "lignin_senesced_leaf_mean",
   "reproductive_organ_CN", "reproductive_organ_CP",
   "mature_fruit_CN", "mature_fruit_CP", "mature_fruit_C_mass",
   "seed_C_mass", "seed_lignin",
@@ -784,7 +808,8 @@ rownames(summary) <- 1:nrow(summary) # nolint
 names(summary)
 colnames(summary) <- c(
   "name", "deadwood_c_n_ratio", "deadwood_c_p_ratio", "stem_lignin",
-  "leaf_turnover_c_n_ratio", "leaf_turnover_c_p_ratio", "leaf_lignin",
+  "foliage_c_n_ratio", "foliage_c_p_ratio", "leaf_lignin",
+  "leaf_turnover_c_n_ratio", "leaf_turnover_c_p_ratio", "senesced_leaf_lignin",
   "plant_reproductive_tissue_turnover_c_n_ratio",
   "plant_reproductive_tissue_turnover_c_p_ratio",
   "mature_fruit_c_n_ratio", "mature_fruit_c_p_ratio", "mature_fruit_c_mass",
