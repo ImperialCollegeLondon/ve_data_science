@@ -39,7 +39,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Data --------------------------------------------------------------------
 
 # subplot coordinates
