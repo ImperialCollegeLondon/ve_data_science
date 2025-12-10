@@ -94,8 +94,6 @@ flux <-
   mutate_at(vars(ammonium, nitrate), ~ . * bulk_density)
 
 
-
-
 # Models ------------------------------------------------------------------
 
 # These model estimates expected nitrogen by land use type, while accounting
@@ -118,8 +116,6 @@ mod_nitrate <- glmmTMB(
   data = flux
 )
 summary(mod_nitrate)
-
-
 
 
 # Predicted mean value for initialisation ---------------------------------
