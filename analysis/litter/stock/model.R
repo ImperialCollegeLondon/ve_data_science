@@ -46,7 +46,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Data --------------------------------------------------------------------
 
 # Litter stock data by Riutta et al.
@@ -96,8 +95,6 @@ litter_compo <-
   )
 
 
-
-
 # Model -------------------------------------------------------------------
 
 # Stock model
@@ -118,9 +115,6 @@ mod_compo <- glmmTMB(
 )
 
 summary(mod_compo)
-
-
-
 
 
 # Prediction --------------------------------------------------------------

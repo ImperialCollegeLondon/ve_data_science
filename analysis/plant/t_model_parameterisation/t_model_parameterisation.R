@@ -1,12 +1,13 @@
 #| ---
-#| title: Updating T model parameters
+#| title: T model parameterisation
 #|
 #| description: |
 #|     This script focuses on updating the base values for the parameters in
 #|     the T model to values more closely aligned with the SAFE project.
 #|     The script works with multiple datasets and calculates values for the
 #|     T model, ideally at PFT level. Species are linked to their PFT by working
-#|     with the output of the PFT species classification base script.
+#|     with the output of the PFT species classification base script. Some extra
+#|     traits that are part of the plant constants are also added.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -30,11 +31,6 @@
 #|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
-#|       This CSV file can be loaded when working with other datasets
-#|       (particularly those related to updating T model parameters).
-#|       In a follow up script, the remaining species that have not been assigned
-#|       a PFT yet will be assigned into one based on
-#|       their species maximum height relative to the PFT maximum height.
 #|   - name: inagawa_nutrients_wood_density.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |
@@ -48,6 +44,11 @@
 #|       https://doi.org/10.5281/zenodo.3247631
 #|       Functional traits of tree species in old-growth and selectively
 #|       logged forest.
+#|   - name: SAFE_CarbonBalanceComponents.xlsx
+#|     path: data/primary/plant/carbon_balance_components
+#|     description: |
+#|       https://doi.org/10.5281/zenodo.7307449
+#|       Components of the complete budget for SAFE intensive carbon plots.
 #|
 #| output_files:
 #|   - name: t_model_parameters.csv
@@ -150,16 +151,6 @@ plot_data <- data_taxa[, c(
   "CanopyRadiusSouth_cm_2011", "CanopyRadiusWest_cm_2011", "HeightBranch_m_2011"
 )]
 
-# Note that measurements of height, dbh and crown radius are linked per row
-# So, even though crown radius is not required for height-diameter relationship,
-# using na.omit on the next line is OK.
-# Also note that a lot of rows have missing values, figure out why they were not
-# measured (maybe trees were dead?). If trees were actually there, they also
-# need to be included for stem distribution later on.
-
-plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
-
 plot_data$HeightTotal_m_2011 <- as.numeric(plot_data$HeightTotal_m_2011)
 plot_data$DBH2011_mm_clean <- as.numeric(plot_data$DBH2011_mm_clean)
 plot_data$CanopyRadiusNorth_cm_2011 <- as.numeric(plot_data$CanopyRadiusNorth_cm_2011)
@@ -169,6 +160,16 @@ plot_data$CanopyRadiusWest_cm_2011 <- as.numeric(plot_data$CanopyRadiusWest_cm_2
 plot_data$HeightBranch_m_2011 <- as.numeric(plot_data$HeightBranch_m_2011)
 
 plot_data$logging <- as.factor(plot_data$logging)
+
+# Note that measurements of height, dbh and crown radius are linked per row
+# So, even though crown radius is not required for height-diameter relationship,
+# using na.omit on the next line is OK.
+# Also note that a lot of rows have missing values, figure out why they were not
+# measured (maybe trees were dead?). If trees were actually there, they also
+# need to be included for stem distribution later on.
+
+plot_data <- na.omit(plot_data)
+unique(plot_data$PFT)
 
 plot_data$crown_radius <- rowMeans(cbind(
   plot_data$CanopyRadiusNorth_cm_2011,
@@ -331,7 +332,9 @@ data_taxa$a_SE[data_taxa$PFT == "3"] <-
 
 # PFT 4 (low data availability for height measurements)
 
-plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "4", ])
+plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[
+  plot_data$PFT == "4",
+])
 
 nls_model_4 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
   data = plot_data[plot_data$PFT == "4", ],
@@ -431,7 +434,8 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
 
 plot_data <- backup[backup$PFT == "2", ]
 
-# Decide whether or not to remove "outlier" above 200 here
+# Removed outliers
+plot_data <- plot_data[plot_data$crown_projected_area < 90, ]
 
 plot_data$piDH4a <- pi * plot_data$DBH2011_m *
   plot_data$HeightTotal_m_2011 / (4 * a_2)
@@ -459,9 +463,6 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
     x = "piDH/4a (m2)", y = "Crown projected area (m2)",
     title = "Crown-Diameter Relationship PFT2"
   )
-
-# With all: c is 1151.012
-# With "outlier" removed: c is 738.982
 
 data_taxa$c[data_taxa$PFT == "2"] <- c_2
 data_taxa$c_SE[data_taxa$PFT == "2"] <-
@@ -1020,6 +1021,15 @@ summary$respiration_leaf <- (2.0 * 10^-3) * 365
 
 summary$respiration_wood <- (1.0 * 10^-3) * 365
 
+# Reproductive organ respiration
+# Using value given in Kinugasa et al. (2005; https://doi.org/10.1093/aob/mci152)
+# Respiratory costs are 39% of carbon allocated to reproductive tissues.
+# We need maintenance respiration only, which is 5% of carbon allocated to RT
+# (vs 34% for growth respiration).
+# We assume production of reproductive organs is consistent throughout the year.
+
+summary$respiration_reproductive_organ <- 0.05
+
 #####
 
 # Yield factor
@@ -1186,6 +1196,69 @@ niiyama_data <- niiyama_data[, c("PFT_name", "fine_root_carbon_foliage_area")]
 
 summary <- left_join(summary, niiyama_data, by = "PFT_name")
 
+# Add root exudates
+# Root exudate carbon as a fraction (4.7%) of annual NPP reported for tropical
+# rainforest in Aoki et al. (2013; https://doi.org/10.1007/s10021-012-9575-6)
+# To convert this as a fraction of GPP we use the SAFE Carbon Balance Components
+# dataset, which has the NPP and GPP for several plots at SAFE.
+
+SAFE_carbon_balance_components <- read_excel(
+  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx", # nolint
+  sheet = "Data",
+  col_names = FALSE
+)
+
+colnames(SAFE_carbon_balance_components) <- SAFE_carbon_balance_components[6, ]
+SAFE_carbon_balance_components <-
+  SAFE_carbon_balance_components[7:17, 2:65]
+SAFE_carbon_balance_components <-
+  SAFE_carbon_balance_components[
+    SAFE_carbon_balance_components$ForestType == "Old-growth",
+  ]
+names(SAFE_carbon_balance_components)
+SAFE_carbon_balance_components <- # units are Mg C ha-1 year-1
+  SAFE_carbon_balance_components[, c(
+    "TotalNPP_WithoutMycorrhiza",
+    "GPP_WithoutMycorrhiza",
+    "TotalNPP_WithMycorrhiza",
+    "GPP_WithMycorrhiza"
+  )]
+
+SAFE_carbon_balance_components$TotalNPP_WithoutMycorrhiza <-
+  as.numeric(SAFE_carbon_balance_components$TotalNPP_WithoutMycorrhiza)
+SAFE_carbon_balance_components$GPP_WithoutMycorrhiza <-
+  as.numeric(SAFE_carbon_balance_components$GPP_WithoutMycorrhiza)
+SAFE_carbon_balance_components$TotalNPP_WithMycorrhiza <-
+  as.numeric(SAFE_carbon_balance_components$TotalNPP_WithMycorrhiza)
+SAFE_carbon_balance_components$GPP_WithMycorrhiza <-
+  as.numeric(SAFE_carbon_balance_components$GPP_WithMycorrhiza)
+
+SAFE_carbon_balance_components$NPP_to_GPP_without <-
+  SAFE_carbon_balance_components$TotalNPP_WithoutMycorrhiza /
+    SAFE_carbon_balance_components$GPP_WithoutMycorrhiza # nolint
+SAFE_carbon_balance_components$NPP_to_GPP_with <-
+  SAFE_carbon_balance_components$TotalNPP_WithMycorrhiza /
+    SAFE_carbon_balance_components$GPP_WithMycorrhiza # nolint
+
+mean(SAFE_carbon_balance_components$NPP_to_GPP_without) # 0.4048004
+mean(SAFE_carbon_balance_components$NPP_to_GPP_with) # 0.4277772
+
+summary$root_exudates <- 0.047 * 0.4277772
+
+# Add mortality probability
+# Use value for non-drought year (1.59% per year) presented in Newbery and
+# Lingenfelder (2009; https://doi.org/10.1007/s11258-008-9533-8)
+
+summary$per_stem_annual_mortality_probability <- 0.0159
+
+# Add recruitment probability
+# Use value for establishment from seedbank per seed (2.5%) used in
+# Howlett and Davidson (2003; https://doi.org/10.1016/S0378-1127(03)00161-0),
+# who refer to the value (2.3% presumably) presented in
+# Kennedy and Swaine (1992; https://doi.org/10.1098/rstb.1992.0027)
+
+summary$per_propagule_annual_recruitment_probability <- 0.025
+
 ################################################################################
 
 # Prep summary output again, check variable names, etc.
@@ -1197,15 +1270,19 @@ summary <- summary[, c(
   "light_extinction_coefficient", "turnover_leaf",
   "turnover_reproductive_organ", "turnover_fine_root",
   "respiration_fine_root", "respiration_leaf",
-  "respiration_wood", "yield_factor",
-  "fine_root_carbon_foliage_area"
+  "respiration_wood", "respiration_reproductive_organ", "yield_factor",
+  "fine_root_carbon_foliage_area", "root_exudates",
+  "per_stem_annual_mortality_probability",
+  "per_propagule_annual_recruitment_probability"
 )]
 
 colnames(summary) <- c(
   "PFT_name", "Hm", "a", "c", "WD", "SLA", "LAI",
   "LEC", "turnover_leaf", "turnover_RT", "turnover_root",
   "respiration_root", "respiration_leaf", "respiration_wood",
-  "yield_factor", "zeta"
+  "respiration_reproductive_organ", "yield_factor", "zeta", "root_exudates",
+  "per_stem_annual_mortality_probability",
+  "per_propagule_annual_recruitment_probability"
 )
 
 # Below I change the variable names to match those used by the model
@@ -1227,12 +1304,17 @@ colnames(summary) <- c(
 # respiration_wood is resp_s (year-1)
 # yield_factor is yld (-)
 # zeta is zeta (kg C m-2)
+# root_exudates (-)
+# per_stem_annual_mortality_probability (-)
+# per_propagule_annual_recruitment_probability (-)
 
 colnames(summary) <- c(
   "name", "h_max", "a_hd", "ca_ratio", "rho_s", "sla", "lai",
   "par_ext", "tau_f", "tau_rt", "tau_r",
-  "resp_r", "resp_f", "resp_s",
-  "yld", "zeta"
+  "resp_r", "resp_f", "resp_s", "resp_rt",
+  "yld", "zeta", "root_exudates",
+  "per_stem_annual_mortality_probability",
+  "per_propagule_annual_recruitment_probability"
 )
 
 ################################################################################
