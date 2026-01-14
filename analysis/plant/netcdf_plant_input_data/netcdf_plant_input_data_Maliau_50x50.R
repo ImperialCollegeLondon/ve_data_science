@@ -91,7 +91,7 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 
 # time_index
 # The time_index depends on the intended runtime of the simulation
-# For the Maliau site, use 10 years (2010-2020) with monthly intervals and
+# For the Maliau site, use 11 years (2010-2020) with monthly intervals and
 # express using days since origin (in this case 2010-01-01)
 generate_monthly_timestamps <- function(
   start = "2010-01-01",
@@ -168,16 +168,18 @@ var.def.nc(nc, "plant_pft_propagules", "NC_UINT", c("pft", "cell_id"))
 var.def.nc(nc, "downward_shortwave_radiation", "NC_UINT", c("time", "cell_id"))
 var.def.nc(nc, "subcanopy_vegetation_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "subcanopy_seedbank_biomass", "NC_FLOAT", "cell_id")
-var.def.nc(nc, "time", "NC_UINT", "time")
+var.def.nc(nc, "cell_id", "NC_UINT", "cell_id")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
+var.def.nc(nc, "time", "NC_UINT", "time")
 
 # Write the data to variables
 var.put.nc(nc, "plant_pft_propagules", plant_pft_propagules)
 var.put.nc(nc, "downward_shortwave_radiation", downward_shortwave_radiation)
 var.put.nc(nc, "subcanopy_vegetation_biomass", subcanopy_vegetation_biomass)
 var.put.nc(nc, "subcanopy_seedbank_biomass", subcanopy_seedbank_biomass)
-var.put.nc(nc, "time", time)
+var.put.nc(nc, "cell_id", cell_id_index)
 var.put.nc(nc, "pft", pft_index)
+var.put.nc(nc, "time", time)
 
 # Sync data to file and close.
 sync.nc(nc)
@@ -194,8 +196,9 @@ ncvar_get(plant_input_data_Maliau_50x50, "downward_shortwave_radiation")
 ncvar_get(plant_input_data_Maliau_50x50, "subcanopy_vegetation_biomass")
 ncvar_get(plant_input_data_Maliau_50x50, "subcanopy_seedbank_biomass")
 
-ncvar_get(plant_input_data_Maliau_50x50, "time")
+ncvar_get(plant_input_data_Maliau_50x50, "cell_id")
 ncvar_get(plant_input_data_Maliau_50x50, "pft")
+ncvar_get(plant_input_data_Maliau_50x50, "time")
 
 # Close
 nc_close(plant_input_data_Maliau_50x50)
