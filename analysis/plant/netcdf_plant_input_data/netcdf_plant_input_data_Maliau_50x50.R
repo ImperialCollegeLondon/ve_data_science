@@ -92,7 +92,11 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # time_index
 # The time_index depends on the intended runtime of the simulation
 # For the Maliau site, use 11 years (2010-2020) with monthly intervals and
-# express using days since origin (in this case 2010-01-01)
+# express:
+# -using days since origin (in this case 2010-01-01)
+# -converting these days since origin to actual dates
+
+# Old approach
 generate_monthly_timestamps <- function(
   start = "2010-01-01",
   end = "2020-12-31",
@@ -106,6 +110,46 @@ time <- generate_monthly_timestamps()
 time
 
 time_index <- 0:(length(time) - 1)
+time_index
+
+# New approach (suggested by David, following current implementation of time in VE)
+generate_timestamps <- function(
+  start = "2010-01-01",
+  end = "2020-12-31",
+  interval_in_days = 30.4375
+) {
+  # Get the start and end as datetime objects and find the runtime as a difftime
+  start <- as.POSIXct(start)
+  end <- as.POSIXct(end)
+  interval <- as.difftime(interval_in_days, units = "days")
+  config_runtime <- (end - start)
+
+  # Check the difftimes use the same units
+  stopifnot(
+    attr(config_runtime, "units") == "days" &&
+      attr(interval, "units") == "days"
+  )
+
+  # Get the time sequence, which can extend the actual runtime to fit the last iteration
+  n_updates <- ceiling(unclass(config_runtime) / unclass(interval))
+  time_indices <- seq(0, n_updates - 1)
+  diffs <- interval * time_indices
+  # interval_starts <- start + diffs # not used for now # nolint
+
+  # Converts start datetimes to dates, which truncates to day
+  # interval_starts <- as.Date(interval_starts) # not used for now # nolint
+  diffs <- as.numeric(diffs) # copy of line above
+
+  # return(list(interval_starts=interval_starts, time_indices=time_indices)) # not used for now # nolint
+  return(list(diffs = diffs, time_indices = time_indices)) # copy of line above
+}
+
+time_dim_and_coords <- generate_timestamps()
+time_index <- time_dim_and_coords$time_indices
+time_index
+# time <- time_dim_and_coords$interval_starts # not used for now # nolint
+time <- time_dim_and_coords$diffs # copy of line above
+time
 
 #####
 
@@ -146,10 +190,6 @@ subcanopy_seedbank_biomass <-
     nrow = 1, ncol = length(cell_id_index)
   ))
 
-# time: time_index only (use values calculated for time_index)
-time <-
-  as.integer(matrix(time, nrow = 1, ncol = length(time_index)))
-
 #####
 
 # Open NetCDF file
@@ -170,7 +210,8 @@ var.def.nc(nc, "subcanopy_vegetation_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "subcanopy_seedbank_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "cell_id", "NC_UINT", "cell_id")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
-var.def.nc(nc, "time", "NC_UINT", "time")
+# var.def.nc(nc, "time", "NC_UINT", "time") # not used for now # nolint
+var.def.nc(nc, "time", "NC_DOUBLE", "time") # copy of line above
 
 # Write the data to variables
 var.put.nc(nc, "plant_pft_propagules", plant_pft_propagules)
