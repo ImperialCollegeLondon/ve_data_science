@@ -47,7 +47,7 @@
 #|     - ncdf4
 #|
 #| usage_notes: |
-#|   For now the data in this script are generated manually, using the base values
+#|   Some of the data in this script are generated manually, using the base values
 #|   from the VE example. These values should be updated according to values that
 #|   more closely represent the Maliau site.
 #|   This script can be used as a base to prepare the input data for other
@@ -93,26 +93,10 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # The time_index depends on the intended runtime of the simulation
 # For the Maliau site, use 11 years (2010-2020) with monthly intervals and
 # express:
-# -using days since origin (in this case 2010-01-01)
+# -using days since origin (in this case 2010-01-01) OR
 # -converting these days since origin to actual dates
 
-# Old approach
-generate_monthly_timestamps <- function(
-  start = "2010-01-01",
-  end = "2020-12-31",
-  origin = "2010-01-01"
-) {
-  time <- seq(as.Date(start), as.Date(end), by = "month")
-  as.numeric(difftime(time, as.Date(origin), units = "days"))
-}
-
-time <- generate_monthly_timestamps()
-time
-
-time_index <- 0:(length(time) - 1)
-time_index
-
-# New approach (suggested by David, following current implementation of time in VE)
+# Approach suggested by David, following current implementation of time in VE
 generate_timestamps <- function(
   start = "2010-01-01",
   end = "2020-12-31",
@@ -137,7 +121,7 @@ generate_timestamps <- function(
   interval_starts <- start + diffs
 
   # Converts start datetimes to dates, which truncates to day
-  interval_starts <- as.Date(interval_starts)
+  interval_starts <- as.Date(format(interval_starts, "%Y-%m-%d"))
 
   return(list(interval_starts = interval_starts, time_indices = time_indices))
 }
