@@ -287,6 +287,7 @@ write.csv(
 ##########
 
 # Prepare plant_cohort_data_Maliau_50x50
+# Note that the base cohort distribution is already prepared on a per hectare basis
 
 # Start from cohort_distribution
 plant_cohort_data_Maliau_50x50 <- cohort_distribution
