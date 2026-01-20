@@ -134,22 +134,23 @@ generate_timestamps <- function(
   n_updates <- ceiling(unclass(config_runtime) / unclass(interval))
   time_indices <- seq(0, n_updates - 1)
   diffs <- interval * time_indices
-  # interval_starts <- start + diffs # not used for now # nolint
+  interval_starts <- start + diffs
 
   # Converts start datetimes to dates, which truncates to day
-  # interval_starts <- as.Date(interval_starts) # not used for now # nolint
-  diffs <- as.numeric(diffs) # copy of line above
+  interval_starts <- as.Date(interval_starts)
 
-  # return(list(interval_starts=interval_starts, time_indices=time_indices)) # not used for now # nolint
-  return(list(diffs = diffs, time_indices = time_indices)) # copy of line above
+  return(list(interval_starts = interval_starts, time_indices = time_indices))
 }
 
-time_dim_and_coords <- generate_timestamps()
-time_index <- time_dim_and_coords$time_indices
-time_index
-# time <- time_dim_and_coords$interval_starts # not used for now # nolint
-time <- time_dim_and_coords$diffs # copy of line above
-time
+timestamps <- generate_timestamps()
+time_index <- timestamps$time_indices
+interval_starts <- timestamps$interval_starts
+
+# Define the time unit (do not use start of simulation as reference date, as this
+# gives -1 for the first index)
+time_unit <- "days since 2010-01-01"
+# RNetCDF::utinvcal.nc can convert POSIXct to the specified time unit
+time <- utinvcal.nc(time_unit, as.POSIXct(interval_starts))
 
 #####
 
@@ -210,8 +211,12 @@ var.def.nc(nc, "subcanopy_vegetation_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "subcanopy_seedbank_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "cell_id", "NC_UINT", "cell_id")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
-# var.def.nc(nc, "time", "NC_UINT", "time") # not used for now # nolint
-var.def.nc(nc, "time", "NC_DOUBLE", "time") # copy of line above
+var.def.nc(nc, "time", "NC_DOUBLE", "time")
+
+# For time, also need to add the attributes so that the actual dates can be
+# calculated from days since reference date
+att.put.nc(nc, "time", "long_name", "NC_CHAR", "time")
+att.put.nc(nc, "time", "units", "NC_CHAR", time_unit)
 
 # Write the data to variables
 var.put.nc(nc, "plant_pft_propagules", plant_pft_propagules)
