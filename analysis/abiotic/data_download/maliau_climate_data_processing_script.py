@@ -18,6 +18,7 @@ description: |
          - Precipitation (m → mm)
          - Pressure (Pa → kPa)
          - Shortwave radiation (J/m² → W/m²)
+         - Downward long wave radiation (J/m² → W/m²)
     5. Derives relative humidity, mean annual temperature, and constant atmospheric CO₂.
     6. Renames variables to VE-standard names:
          - sp_kPa → atmospheric_pressure_ref
@@ -26,6 +27,7 @@ description: |
          - rh → relative_humidity_ref
          - u10 → wind_speed_ref
          - ssrd_Wm-2 → downward_shortwave_radiation
+         - strd_WM-2 → downward_longwave_radiation
     7. Reformats datasets to VE-style grid dimensions (x, y, time_index).
     8. Saves processed NetCDF outputs for use in the VE Abiotic model.
 
@@ -60,13 +62,13 @@ input_files:
       lower-left coordinates, EPSG code) for regridding ERA5-Land data.
 
 output_files:
-  - name: ERA5_Maliau_2010_2020.nc
+  - name: era5_monthly_2010_2020_maliau.nc
     path: data/primary/abiotic/era5_land_monthly
     description: |
       ERA5-Land monthly averaged data (2010-2020) for Maliau Basin in original 0.1°
       resolution, downloaded from the Copernicus Climate Data Store (CDS).
 
-  - name: ERA5_Maliau_2010_2020_UTM50N.nc
+  - name: era5_maliau_2010_2020_90m.nc
     path: data/derived/abiotic/era5_land_monthly
     description: |
       Processed ERA5-Land data (2010-2020), reprojected to UTM Zone 50N, converted
@@ -102,13 +104,13 @@ from rasterio.warp import Resampling
 # Define output directory and filename for the downloaded ERA5 data from the CDS
 output_dir = Path("../../../data/primary/abiotic/era5_land_monthly")
 output_dir.mkdir(parents=True, exist_ok=True)
-output_filename = output_dir / "ERA5_monthly_2010_2020_Maliau.nc"
+output_filename = output_dir / "era5_monthly_2010_2020_maliau.nc"
 
 # Define the output directory and filename for the reprojected and unit-converted
 # ERA5 data (spatially interpolated) to be used in the VE model
 output_dir_reprojected = Path(".../../../data/derived/abiotic/era5_land_monthly")
 output_dir_reprojected.mkdir(parents=True, exist_ok=True)
-output_filename_reprojected = output_dir_reprojected / "ERA5_Maliau_2010_2020_UTM50N.nc"
+output_filename_reprojected = output_dir_reprojected / "eRA5_maliau_2010_2020_90m.nc"
 
 # Run the downloader tool
 cdsapi_era5_downloader(
@@ -195,8 +197,7 @@ dataset["rh"] = 100.0 * (
 dataset["tp_mm"] = dataset["tp"] * 1000 * 30
 
 # The standard output unit for surface pressure (sp) in ERA5-Land is Pascal (Pa) which
-# we
-# need to convert to kilopascal (kPa) by dividing by 1000.
+# weneed to convert to kilopascal (kPa) by dividing by 1000.
 dataset["sp_kPa"] = dataset["sp"] / 1000
 
 # The standard output unit for surface solar radiation downward (ssrd) in ERA5-Land is
@@ -204,8 +205,13 @@ dataset["sp_kPa"] = dataset["sp"] / 1000
 # (Wm-2) by dividing by the number of seconds in a month
 dataset["ssrd_Wm-2"] = dataset["ssrd"] / 2592000
 
+# The standard output unit for surface thermal radiation downward (strd) in ERA5-Land is
+# Joule per square meter (Jm-2) which need to be converted to Watts per square meter
+# (Wm-2) by dividing by the number of seconds in a month
+dataset["strd_Wm-2"] = dataset["strd"] / 2592000
+
 # Rename variables to match the Virtual Ecosystem conventions.
-dataset_cleaned = dataset.drop_vars(["d2m", "d2m_C", "t2m", "tp", "sp", "ssrd"])
+dataset_cleaned = dataset.drop_vars(["d2m", "d2m_C", "t2m", "tp", "sp", "ssrd", "strd"])
 dataset_renamed = dataset_cleaned.rename(
     {
         "sp_kPa": "atmospheric_pressure_ref",
@@ -214,9 +220,9 @@ dataset_renamed = dataset_cleaned.rename(
         "rh": "relative_humidity_ref",
         "u10": "wind_speed_ref",
         "ssrd_Wm-2": "downward_shortwave_radiation",
+        "strd_Wm-2": "downward_longwave_radiation",
     }
 )
-
 
 # Add constant variables
 # In addition to the variables from the ERA5-Land datasset, a time series of atmospheric
@@ -285,7 +291,7 @@ vars_to_check = [
     "wind_speed_ref",
     "atmospheric_pressure_ref",
     "downward_shortwave_radiation",
-    "atmospheric_co2_ref",
+    "downward_longwave_radiationatmospheric_co2_ref",
     "mean_annual_temperature",
 ]
 
