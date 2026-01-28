@@ -17,8 +17,8 @@ description: |
          - Temperature (K → °C)
          - Precipitation (m → mm)
          - Pressure (Pa → kPa)
-         - Shortwave radiation (J/m² → W/m²)
-         - Downward long wave radiation (J/m² → W/m²)
+         - Downward shortwave radiation (J/m² → W/m²)
+         - Downward longwave radiation (J/m² → W/m²)
     5. Derives relative humidity, mean annual temperature, and constant atmospheric CO₂.
     6. Renames variables to VE-standard names:
          - sp_kPa → atmospheric_pressure_ref
@@ -291,7 +291,7 @@ vars_to_check = [
     "wind_speed_ref",
     "atmospheric_pressure_ref",
     "downward_shortwave_radiation",
-    "downward_longwave_radiationatmospheric_co2_ref",
+    "downward_longwave_radiation,atmospheric_co2_ref",
     "mean_annual_temperature",
 ]
 
