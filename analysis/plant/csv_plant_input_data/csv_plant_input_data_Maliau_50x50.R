@@ -55,7 +55,7 @@
 #|       This CSV file contains the plant constants for Maliau.
 #|
 #| package_dependencies:
-#|     - XX
+#|     - tidyverse
 #|
 #| usage_notes: |
 #|   This script prepares the final version of the plant input data for Maliau.
