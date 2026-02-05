@@ -82,7 +82,7 @@ cohort_distribution <- read.csv(
 # Define the dimensions for these axes
 
 # cell_id
-n_cells <- max(cohort_distribution$plant_cohorts_cell_id)
+n_cells <- length(unique(cohort_distribution$plant_cohorts_cell_id))
 cell_id_index <- unique(cohort_distribution$plant_cohorts_cell_id)
 
 # pft
