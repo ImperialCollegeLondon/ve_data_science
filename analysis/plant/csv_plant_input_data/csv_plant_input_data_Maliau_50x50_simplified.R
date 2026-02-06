@@ -3,7 +3,8 @@
 #|
 #| description: |
 #|     This script generates the final versions of the CSV files that are used as
-#|     the plant input data.
+#|     the plant input data. This version is called simplified because it
+#|     simplifies the PFTs from 4 to 2 (overstory and understory only).
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -41,15 +42,15 @@
 #|       plant model constants.
 #|
 #| output_files:
-#|   - name: plant_pft_definitions_Maliau_50x50.csv
+#|   - name: plant_pft_definitions_Maliau_50x50_simplified.csv
 #|     path: data/derived/plant/csv_plant_input_data
 #|     description: |
 #|       This CSV file contains the plant pft definitions for Maliau.
-#|   - name: plant_cohort_data_Maliau_50x50.csv
+#|   - name: plant_cohort_data_Maliau_50x50_simplified.csv
 #|     path: data/derived/plant/csv_plant_input_data
 #|     description: |
 #|       This CSV file contains the plant cohort distribution for Maliau.
-#|   - name: plant_constants_Maliau_50x50.csv
+#|   - name: plant_constants_Maliau_50x50_simplified.csv
 #|     path: data/derived/plant/csv_plant_input_data
 #|     description: |
 #|       This CSV file contains the plant constants for Maliau.
@@ -100,6 +101,18 @@ subcanopy_parameters <- read.csv(
 # Start from t_model_parameters
 
 plant_pft_definitions_Maliau_50x50 <- t_model_parameters # nolint
+
+# Exclude root_exudates, per_stem_annual_mortality_probability and
+# per_propagule_annual_recruitment_probability
+
+plant_pft_definitions_Maliau_50x50 <- subset( # nolint
+  plant_pft_definitions_Maliau_50x50,
+  select = -c(
+    root_exudates,
+    per_stem_annual_mortality_probability,
+    per_propagule_annual_recruitment_probability
+  )
+)
 
 # Variables required:
 # name OK
@@ -184,13 +197,19 @@ temp <- plant_stoichiometry[, c(
 plant_pft_definitions_Maliau_50x50 <- # nolint
   left_join(plant_pft_definitions_Maliau_50x50, temp, by = "name")
 
+# Subset to simplified PFTs (overstory and understory only)
+plant_pft_definitions_Maliau_50x50 <- # nolint
+  plant_pft_definitions_Maliau_50x50[
+    plant_pft_definitions_Maliau_50x50$name %in% c("overstory", "understory"),
+  ]
+
 # Write out summary of variable data types and units
 
 # Write CSV file
 
 write.csv(
   plant_pft_definitions_Maliau_50x50,
-  "../../../data/derived/plant/csv_plant_input_data/plant_pft_definitions_Maliau_50x50.csv", # nolint
+  "../../../data/derived/plant/csv_plant_input_data/plant_pft_definitions_Maliau_50x50_simplified.csv", # nolint
   row.names = FALSE
 )
 
@@ -280,22 +299,60 @@ plant_constants_Maliau_50x50$carbon_mass_per_propagule <-
 
 write.csv(
   plant_constants_Maliau_50x50,
-  "../../../data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv",
+  "../../../data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50_simplified.csv", # nolint
   row.names = FALSE
 )
 
 ##########
 
 # Prepare plant_cohort_data_Maliau_50x50
-# Note that the base cohort distribution is already prepared on a per hectare basis
 
 # Start from cohort_distribution
 plant_cohort_data_Maliau_50x50 <- cohort_distribution
 
+# Replace emergent and pioneer with overstory
+plant_cohort_data_Maliau_50x50$plant_cohorts_n_simplified <-
+  plant_cohort_data_Maliau_50x50$plant_cohorts_n
+plant_cohort_data_Maliau_50x50$plant_cohorts_pft_simplified <-
+  plant_cohort_data_Maliau_50x50$plant_cohorts_pft
+
+plant_cohort_data_Maliau_50x50$plant_cohorts_pft_simplified[
+  plant_cohort_data_Maliau_50x50$plant_cohorts_pft %in% c("emergent", "pioneer")
+] <- "overstory"
+
+# Calculate new count of individuals per DBH
+plant_cohort_data_Maliau_50x50_simplified <- plant_cohort_data_Maliau_50x50 %>% # nolint
+  group_by(
+    plant_cohorts_cell_id,
+    plant_cohorts_pft_simplified,
+    plant_cohorts_dbh
+  ) %>%
+  summarise(
+    plant_cohorts_n_simplified = sum(plant_cohorts_n, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Rename simplified variables to match original names (with updated values)
+plant_cohort_data_Maliau_50x50_simplified <- # nolint
+  plant_cohort_data_Maliau_50x50_simplified[, c(
+    "plant_cohorts_cell_id",
+    "plant_cohorts_n_simplified",
+    "plant_cohorts_pft_simplified",
+    "plant_cohorts_dbh"
+  )]
+
+colnames(plant_cohort_data_Maliau_50x50_simplified) <- # nolint
+  c(
+    "plant_cohorts_cell_id",
+    "plant_cohorts_n",
+    "plant_cohorts_pft",
+    "plant_cohorts_dbh"
+  )
+
 # Write CSV file
 
 write.csv(
-  plant_cohort_data_Maliau_50x50,
-  "../../../data/derived/plant/csv_plant_input_data/plant_cohort_data_Maliau_50x50.csv",
+  plant_cohort_data_Maliau_50x50_simplified,
+  "../../../data/derived/plant/csv_plant_input_data/plant_cohort_data_Maliau_50x50_simplified.csv", # nolint
   row.names = FALSE
 )
