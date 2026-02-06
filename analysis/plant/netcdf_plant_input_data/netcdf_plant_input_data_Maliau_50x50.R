@@ -184,18 +184,19 @@ nc <-
 # Define dimensions
 dim.def.nc(nc, "cell_id", length(cell_id_index))
 dim.def.nc(nc, "pft", length(pft_index))
-dim.def.nc(nc, "time", length(time_index))
+dim.def.nc(nc, "time_index", length(time_index))
 
 # Define variables (integer = NC_UINT, numeric = NC_FLOAT, character = NC_STRING)
 # The arguments are: nc file name in R, data type, dimension names
 # Note that the order of dimensions is "flipped"
 var.def.nc(nc, "plant_pft_propagules", "NC_UINT", c("pft", "cell_id"))
-var.def.nc(nc, "downward_shortwave_radiation", "NC_UINT", c("time", "cell_id"))
+var.def.nc(nc, "downward_shortwave_radiation", "NC_UINT", c("time_index", "cell_id"))
 var.def.nc(nc, "subcanopy_vegetation_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "subcanopy_seedbank_biomass", "NC_FLOAT", "cell_id")
+var.def.nc(nc, "time", "NC_DOUBLE", "time_index")
 var.def.nc(nc, "cell_id", "NC_UINT", "cell_id")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
-var.def.nc(nc, "time", "NC_DOUBLE", "time")
+var.def.nc(nc, "time_index", "NC_INT", "time_index")
 
 # For time, also need to add the attributes so that the actual dates can be
 # calculated from days since reference date
@@ -207,9 +208,10 @@ var.put.nc(nc, "plant_pft_propagules", plant_pft_propagules)
 var.put.nc(nc, "downward_shortwave_radiation", downward_shortwave_radiation)
 var.put.nc(nc, "subcanopy_vegetation_biomass", subcanopy_vegetation_biomass)
 var.put.nc(nc, "subcanopy_seedbank_biomass", subcanopy_seedbank_biomass)
+var.put.nc(nc, "time", time)
 var.put.nc(nc, "cell_id", cell_id_index)
 var.put.nc(nc, "pft", pft_index)
-var.put.nc(nc, "time", time)
+var.put.nc(nc, "time_index", time_index)
 
 # Sync data to file and close.
 sync.nc(nc)
@@ -225,10 +227,11 @@ ncvar_get(plant_input_data_Maliau_50x50, "plant_pft_propagules")
 ncvar_get(plant_input_data_Maliau_50x50, "downward_shortwave_radiation")
 ncvar_get(plant_input_data_Maliau_50x50, "subcanopy_vegetation_biomass")
 ncvar_get(plant_input_data_Maliau_50x50, "subcanopy_seedbank_biomass")
+ncvar_get(plant_input_data_Maliau_50x50, "time")
 
 ncvar_get(plant_input_data_Maliau_50x50, "cell_id")
 ncvar_get(plant_input_data_Maliau_50x50, "pft")
-ncvar_get(plant_input_data_Maliau_50x50, "time")
+ncvar_get(plant_input_data_Maliau_50x50, "time_index")
 
 # Close
 nc_close(plant_input_data_Maliau_50x50)
