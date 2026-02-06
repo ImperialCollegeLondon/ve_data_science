@@ -102,6 +102,18 @@ subcanopy_parameters <- read.csv(
 
 plant_pft_definitions_Maliau_50x50 <- t_model_parameters # nolint
 
+# Exclude root_exudates, per_stem_annual_mortality_probability and
+# per_propagule_annual_recruitment_probability
+
+plant_pft_definitions_Maliau_50x50 <- subset( # nolint
+  plant_pft_definitions_Maliau_50x50,
+  select = -c(
+    root_exudates,
+    per_stem_annual_mortality_probability,
+    per_propagule_annual_recruitment_probability
+  )
+)
+
 # Variables required:
 # name OK
 # a_hd OK
