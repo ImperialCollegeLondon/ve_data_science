@@ -189,12 +189,12 @@ dim.def.nc(nc, "time_index", length(time_index))
 # Define variables (integer = NC_UINT, numeric = NC_FLOAT, character = NC_STRING)
 # The arguments are: nc file name in R, data type, dimension names
 # Note that the order of dimensions is "flipped"
-var.def.nc(nc, "plant_pft_propagules", "NC_UINT", c("pft", "cell_id"))
-var.def.nc(nc, "downward_shortwave_radiation", "NC_UINT", c("time_index", "cell_id"))
+var.def.nc(nc, "plant_pft_propagules", "NC_INT", c("pft", "cell_id"))
+var.def.nc(nc, "downward_shortwave_radiation", "NC_DOUBLE", c("time_index", "cell_id"))
 var.def.nc(nc, "subcanopy_vegetation_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "subcanopy_seedbank_biomass", "NC_FLOAT", "cell_id")
 var.def.nc(nc, "time", "NC_DOUBLE", "time_index")
-var.def.nc(nc, "cell_id", "NC_UINT", "cell_id")
+var.def.nc(nc, "cell_id", "NC_INT", "cell_id")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
 var.def.nc(nc, "time_index", "NC_UINT", "time_index")
 
