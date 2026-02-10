@@ -125,22 +125,22 @@ utm50N_crs = CRS.from_epsg(32650)
 
 # Load the destination grid details
 with open("../../../sites/maliau_site_definition.toml", "rb") as maliau_grid_file:
-    utm50N_grid_details = tomllib.load(maliau_grid_file)
+    site_config = tomllib.load(maliau_grid_file)
 
 # Define the XY shape of the data in the destination dataset
 dest_shape = (
-    utm50N_grid_details["cell_nx"],
-    utm50N_grid_details["cell_ny"],
+    site_config["cell_nx"],
+    site_config["cell_ny"],
 )
 
 # Define the affine matrix giving the coordinates of pixels in the destination dataset
 dest_transform = Affine(
-    utm50N_grid_details["res"],
+    site_config["res"],
     0,
-    utm50N_grid_details["ll_x"],
+    site_config["ll_x"],
     0,
-    utm50N_grid_details["res"],
-    utm50N_grid_details["ll_y"],
+    site_config["res"],
+    site_config["ll_y"],
 )
 
 # Open the ERA5 dataset in WGS84 and and set the CRS manually because it is not
@@ -248,34 +248,69 @@ dataset_renamed["mean_annual_temperature"] = dataset_renamed[
 # Note:
 # In the future we plan to include a time series of mean annual data for every year.
 
+# Reformat x, y and time_index dimensions into VE-style dataset:
+# This section converts the reprojected climate dataset into the
+# Virtual Ecosystem (VE) spatial layout, using x and y as physical
+# spatial dimensions and time_index as the temporal dimension.
+cell_x = np.array(site_config["cell_x_centres"])  # UTM eastings
+cell_y = np.array(site_config["cell_y_centres"])  # UTM northings
+epsg_code = site_config["epsg_code"]
+res = site_config["res"]  # target resolution (90 m)
 
-# Reformat coords and dims into VE-style dataset:
-#  - dims: y, x, time_index
-#  - coords: x (from TOML), y (from TOML), time_index (0..time-1)
 
-cell_x = np.arange(utm50N_grid_details["cell_nx"])
-cell_y = np.arange(utm50N_grid_details["cell_ny"])
+# The original grid coordinates (cell_x, cell_y) represent projected UTM
+# cell-centre positions. To ensure consistency with VE inputs, these coordinates are
+# converted to distances relative to the grid origin (cell centre based).
+# This results in regularly spaced x and y coordinates starting at 0 and increasing by
+# the grid resolution.
+x = cell_x - cell_x[0]
+y = cell_y - cell_y[0]
 
-# Get the time dimension name (e.g., 'time' or similar)
+# Identify the existing time dimension name in the dataset (e.g. 'time'),
+# allowing the script to remain robust to different NetCDF conventions.
 time_dim = next(
     dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim
 )
 
+# Rename the time dimension to "time_index" and assign spatial
+# coordinates (x, y) as explicit coordinate variables.
+n_time = dataset_renamed.sizes[time_dim]
+
 dataset_xyt = dataset_renamed.rename_dims({time_dim: "time_index"}).assign_coords(
     {
-        "x": cell_x,
-        "y": cell_y,
-        "time_index": np.arange(dataset_renamed.sizes[time_dim]),
+        "x": x.astype(np.float32),
+        "y": y.astype(np.float32),
+        "time_index": np.arange(n_time, dtype=np.int32),
     }
 )
+
+
+# Explicitly enforce dimension order as (x, y, time_index).
+dataset_xyt = dataset_xyt.transpose("x", "y", "time_index")
+
+# Print a concise summary to confirm that the dataset has been
+# successfully reformatted to the VE grid and time structure,
+# including grid size, resolution, and number of time steps.
+print(
+    f"✅ Reformatted to VE-style TOML grid: "
+    f"cell_nx = {site_config['cell_nx']}, "
+    f"cell_ny = {site_config['cell_ny']}, "
+    f"resolution = {site_config['res']} m, "
+    f"time steps = {dataset_renamed.sizes[time_dim]}"
+)
+
+# Once we confirmed that our dataset is complete and our calculations are correct, we
+# save it as a new netcdf file.
+dataset_xyt.to_netcdf(output_filename_reprojected)
+
 
 # Print a summary of the reprojected dataset
 
 print(
     f"✅ Reformatted to VE-style TOML grid: "
-    f"cell_nx = {utm50N_grid_details['cell_nx']}, "
-    f"cell_ny = {utm50N_grid_details['cell_ny']}, "
-    f"resolution = {utm50N_grid_details['res']} m, "
+    f"cell_nx = {site_config['cell_nx']}, "
+    f"cell_ny = {site_config['cell_ny']}, "
+    f"resolution = {site_config['res']} m, "
     f"time steps = {dataset_renamed.sizes[time_dim]}"
 )
 
@@ -291,7 +326,8 @@ vars_to_check = [
     "wind_speed_ref",
     "atmospheric_pressure_ref",
     "downward_shortwave_radiation",
-    "downward_longwave_radiation,atmospheric_co2_ref",
+    "downward_longwave_radiation",
+    "atmospheric_co2_ref",
     "mean_annual_temperature",
 ]
 
