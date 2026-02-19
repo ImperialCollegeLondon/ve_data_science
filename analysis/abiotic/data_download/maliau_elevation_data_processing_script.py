@@ -181,27 +181,42 @@ if np.isnan(dst_data).any():
     dst_data = filled_data
 
 # After cleaning and resampling, we prepare the DEM in a structured dataset format.
-elev_flat = dst_data.flatten()
-x_flat, y_flat = np.meshgrid(cell_x, cell_y)
-x_flat = x_flat.flatten()
-y_flat = y_flat.flatten()
+# The original grid coordinates (cell_x, cell_y) represent projected UTM
+# cell-centre positions. To ensure consistency with VE inputs, these coordinates are
+# converted to distances relative to the grid origin (cell centre based).
+# This results in regularly spaced x and y coordinates starting at 0 and increasing by
+# the grid resolution.
 
-# Build an xarray Dataset with coordinates and elevation
-# Each grid cell is flattened into a single row, indexed by the "points" dimension.
-#   - "points" acts as a simple index (0, 1, 2, …) for each grid cell.
-#   - Variables:
-#       * x: easting coordinate of the grid cell centre (UTM)
-#       * y: northing coordinate of the grid cell centre (UTM)
-#       * elevation: elevation value (m) at that grid cell
+# Convert projected coordinates to distance from grid origin
+x = cell_x - cell_x[0]
+y = cell_y - cell_y[0]
+
+# This ensures that spatial positions are defined consistently and
+# independently of absolute map coordinates.
+
+# Explicit uniqueness and ordering of spatial coordinates
+x_unique = np.sort(np.unique(x))
+y_unique = np.sort(np.unique(y))
+
+# The unique and ordered x and y coordinate vectors define the spatial
+# dimensions of the dataset. Elevation values are stored as a 2D array with
+# dimensions (x, y). Because rasterio reads raster data in (y, x) order,
+# the array is transposed to (x, y)
+elevation_matrix = dst_data.T.astype(np.float32)
+
+
+# Build xarray Dataset with x and y as spatial dimensions
+# The resulting dataset contains:
+#   - Dimensions: x and y in metres (distance from grid origin)
+#   - Variable: elevation in meters
+
 dataset_xy = xr.Dataset(
-    {
-        "x": (("points",), x_flat.astype(np.float32)),
-        "y": (("points",), y_flat.astype(np.float32)),
-        "elevation": (("points",), elev_flat.astype(np.float32)),
+    {"elevation": (("x", "y"), elevation_matrix)},
+    coords={
+        "x": x_unique.astype(np.float32),
+        "y": y_unique.astype(np.float32),
     },
-    coords={"points": np.arange(len(x_flat))},
 )
-
 
 # Once we have reprojected, resampled, and validated the elevation dataset
 # (with all invalid values handled), we save the final result as a NetCDF file.
