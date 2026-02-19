@@ -47,10 +47,10 @@ library(ggplot2)
 library(tidyr)
 
 # Extract grid info from sites definition
-print("Grid cells = 50 x 50 = 250")
-print("Each cell is a square with area = 8100 m2")
-print("This means we need to scale the cohort data from 10000 m2 to 8100 m2")
-print("Then multiply the base cohort distribution by 250, one for each cell")
+print("Grid cells = 50 x 50 = 2500")
+print("Each cell is a square with area = 10000 m2")
+print("This means we do not need to rescale the cohort data from 10000 m2")
+print("Then multiply the base cohort distribution by 2500, one for each cell")
 
 # Load base cohort distribution per hectare
 base_cohort_distribution <- read.csv("../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv") # nolint
@@ -61,8 +61,10 @@ base_cohort_distribution$plant_cohorts_cell_id <-
   as.integer(base_cohort_distribution$plant_cohorts_cell_id)
 
 # Scale plant_cohorts_n from 10000 to 8100
-base_cohort_distribution$plant_cohorts_n_scaled <-
-  base_cohort_distribution$plant_cohorts_n / 10000 * 8100
+# base_cohort_distribution$plant_cohorts_n_scaled <- # only used when scaling # nolint
+#  base_cohort_distribution$plant_cohorts_n / 10000 * 8100 # only used when scaling # nolint
+base_cohort_distribution$plant_cohorts_n_scaled <- # replace this line with the one above when scaling # nolint
+  base_cohort_distribution$plant_cohorts_n
 
 # Round up/down as decimal individuals do not exist
 base_cohort_distribution$plant_cohorts_n_scaled_rounded <-
@@ -75,7 +77,7 @@ base_cohort_distribution <-
     "plant_cohorts_pft", "plant_cohorts_dbh"
   )]
 
-cell_id <- 1:249 # we start from 1 here because the first cohort (0) is the base
+cell_id <- 1:2499 # we start from 1 here because the first cohort (0) is the base
 
 for (i in cell_id) {
   base_x <-
