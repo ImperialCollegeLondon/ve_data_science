@@ -56,8 +56,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
-
 # Data --------------------------------------------------------------------
 
 filepath <- "data/primary/soil/mycorrhizae/"
@@ -97,9 +95,6 @@ myco <-
       select(sample_ID, latitude, longitude, ITS_total)
   ) %>%
   mutate(lat_dev = abs(latitude))
-
-
-
 
 
 # Model -------------------------------------------------------------------
