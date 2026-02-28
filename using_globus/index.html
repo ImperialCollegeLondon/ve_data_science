@@ -1,0 +1,806 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mydomain.org/mysite/using_globus/">
+      
+      
+        <link rel="prev" href="../uploading_r_scripts/">
+      
+      
+        <link rel="next" href="../what_are_those_odd_files/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Using GLOBUS - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#using-globus" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Using GLOBUS
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Virtual Ecosystem data science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started with the ve_data_science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Github Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R Script to a GitHub Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using GLOBUS
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using GLOBUS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#globus-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GLOBUS Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-collections-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Collections tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-file-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The File Manager
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The File Manager">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-manager-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Manager actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#globus-connect-personal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Globus Connect Personal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Globus Connect Personal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-globus-transfer-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The GLOBUS Transfer system
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What are all those odd files?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#globus-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GLOBUS Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-collections-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Collections tab
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-file-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The File Manager
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The File Manager">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-manager-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Manager actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#globus-connect-personal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Globus Connect Personal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Globus Connect Personal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-globus-transfer-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The GLOBUS Transfer system
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="using-globus">Using GLOBUS</h1>
+<p>We are using the <a href="https://www.globus.org/">GLOBUS system</a> to curate the data used in the
+Virtual Ecosystem data science repository.</p>
+<ul>
+<li>All paths to data files within the repository should be relative paths to a data file
+  location in the <code>data</code>  directory.</li>
+<li>However, to avoid adding large and/or binary data files to the GitHub repository
+  itself, the contents of the <code>data</code> directory are managed using GLOBUS.</li>
+</ul>
+<p>At any point, we should be able to re-run analyses by cloning the code from the GitHub
+repository and then populating the <code>data</code> directory using GLOBUS.</p>
+<h2 id="globus-overview">GLOBUS Overview</h2>
+<p>GLOBUS is a web-based system that provides access to data files.</p>
+<ul>
+<li>
+<p>GLOBUS does not store the files itself - it is not cloud storage - but it
+  provides configured connections to data in existing networked storage.</p>
+</li>
+<li>
+<p>GLOBUS also manages access privileges and authentication to connect to data: users
+  register with GLOBUS and can then be granted access to data sets</p>
+</li>
+</ul>
+<p>A single data repository is called <strong>a collection</strong>. A collection is basically just a
+configured connection to a particular set of files. Individual users can then be given
+access to collections. Users can also be made part of a group and that group can be
+given access to collections.</p>
+<p>For the VE Data Science team, we are using GLOBUS to connect to a collection of files
+hosted on the Imperial College London Research Data Store.</p>
+<p>Once you have logged into the GLOBUS web application, you will end up on a page with a
+set of different tabs on the left hand side.</p>
+<div class="admonition info">
+<p class="admonition-title">Access permissions</p>
+<p>Globus frequently requests extra authentication steps. This is usually when you are
+accessing a new part of the GLOBUS functionality. It will typically take you to a
+page with a prompt like "Session reauthentication required (Globus Transfer)". The
+page will then also show your login ID email - this is actually a clickable link to
+start the authentication for the action and should just complete and take you to the
+page you were trying to access.</p>
+</div>
+<h2 id="the-collections-tab">The Collections tab</h2>
+<p>The Collections tab is used to provide an overview of the data collections that you have
+access to.</p>
+<ul>
+<li>
+<p>Start by opening the Collections tab and then clicking the "Shared with you" Button.
+  The URL
+  <a href="https://app.globus.org/collections?scope=shared-with-me">https://app.globus.org/collections?scope=shared-with-me</a> should take you straight to this page.</p>
+</li>
+<li>
+<p>You should see the "Virtual Ecosystem data science" collection.</p>
+</li>
+<li>If you click on that link, you'll see an unfriendly overview page with collection
+  details.</li>
+<li>You should also see a button marked "Open in File Manager" - click this!</li>
+</ul>
+<h2 id="the-file-manager">The File Manager</h2>
+<p>The File Manager tab is used to view the files and folders within a collection and to
+interact with the data repository. You can access the tab from a particular collection
+(as above), from the tab button on the left or directly using the URL
+<a href="https://app.globus.org/file-manager">https://app.globus.org/file-manager</a></p>
+<p>Once you have opened a collection in the pane then you should be able to see the files
+and folders in the collection and can open folders to explore the data.</p>
+<div class="admonition alert">
+<p class="admonition-title">Collection paths</p>
+<p>When you open the VE Data Science collection, you will see that it shows a path at the
+top: <code>ve_data_science/data</code>. This is because the collection shares <em>all</em> of the files
+in our Research Data Store. This includes a clone of the <code>ve_data_science</code> repo but
+also some other data resources. We are managing access to the files using a GLOBUS
+group ('VE Data Science team') that only has access to the files under the
+<code>ve_data_science/data</code> path, so you can't see the other data on that drive.</p>
+</div>
+<h3 id="file-manager-actions">File Manager actions</h3>
+<p>The bar in the centre of the file manager provides action buttons to work with files and
+folders.</p>
+<ul>
+<li><strong>New Folder</strong>, <strong>Rename</strong> and <strong>Delete Selected</strong> can be used with any selected
+   folder or file in the collection.</li>
+</ul>
+<p>You'd need a very good reason to rename or delete files in the collection and this
+   should be done through GitHub and not GLOBUS. If you change the names or files or
+   folders then this will <strong>break any existing scripts that use those files</strong>, so if you
+   want to change or delete file paths, you should create a PR that explains the
+   rationale for the changes and also updates any affected scripts.</p>
+<ul>
+<li><strong>Download</strong> and <strong>Upload</strong> can be used with single files and folders: these allow you
+  to drop a single file or folder from any location into a folder in the collection or
+  download a file or folder</li>
+</ul>
+<p>These tools may be all you need for day to day work - if you have a few files to upload
+this may well be what you want to do. However, if you want to upload a more complex
+set of files or download a large number of files, this is going to be a problem.</p>
+<p>This is where the <strong>Transfer or Sync to...</strong> option comes in - it allows files and
+folders to be copied between <strong>two collections</strong>. To do so, you need to configure your
+own computer as a collection.</p>
+<h2 id="globus-connect-personal">Globus Connect Personal</h2>
+<p>The Globus Connect Personal application
+<a href="https://www.globus.org/globus-connect-personal">https://www.globus.org/globus-connect-personal</a>
+is a local application that you install to your computer that sets up a GLOBUS
+collection on your computer.</p>
+<ul>
+<li>Download and install the program.</li>
+<li>When you open it for the first time, it will ask you to log in with your GLOBUS
+  credentials:</li>
+<li>This will first take you to the GLOBUS website to authorise your GLOBUS account
+    to create and manage a collection.</li>
+<li>It will then ask for the collection details to create on your computer.</li>
+<li>It will then start the Globus Connect Personal application.</li>
+</ul>
+<p>If you now go to the web application and look at the collections administered by you,
+you should see the a new Private Mapped Connection:</p>
+<p><a href="https://app.globus.org/collections?scope=administered-by-me">https://app.globus.org/collections?scope=administered-by-me</a></p>
+<p>In the File Manager tab of the web application, you can now select your personal
+collection and use the File Manager action buttons to manage your files and transfer
+folders between the two collections.</p>
+<div class="admonition warning">
+<p class="admonition-title">Local file access permissions</p>
+<p>By default, Globus Connect Personal (GCP) has access to your home directory. Only you
+have access to the collection, but you can also configure GCP to only be able to
+access a subset of files. Under the <code>GCP &gt; Preferences</code> settings, you can select the
+Access tab and specify which files GCP can access <em>and</em> whether GCP is allowed to
+write to those folders.</p>
+<p>Within the GLOBUS web application, you can also check the visibility of your local
+collection through the Collections tab: click your local collection and then explore
+the visibility options to check if other users can see the existence of your
+collection.</p>
+</div>
+<h3 id="the-globus-transfer-system">The GLOBUS Transfer system</h3>
+<p>Transfer is used to copy files from a source collection to a destination collection.
+Here, you could be uploading a folder from your personal collection (source) to the RDS
+repo (destination) or downloading data from the RDS (source) to your local collection
+(destination) for analysis. Or possibly doing both to synchronise the two folders!</p>
+<p>To transfer files or folders between collections:</p>
+<ul>
+<li>Select the files or folders on the source collection</li>
+<li>In the destination folder, open the location where the selected data will be
+  transferred. <strong>Do not_ select the folders or files on the destination</strong> but instead
+  make sure you have the location that you want to copy to open.</li>
+</ul>
+<p>For example, if you are synchronising the <code>data/derived</code> data folder, you will need to
+  select the <code>derived</code> folder in the source collection, but just have the <code>data</code> folder
+  open in the destination. If you do not do this then the data will be transfered <em>into</em>
+  the selected folder.</p>
+<ul>
+<li>Press the "Start button" above the source collection. GLOBUS will schedule and run the
+  transfer in the background: you can open the activity monitor link to see the progress
+  of the transfer.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
