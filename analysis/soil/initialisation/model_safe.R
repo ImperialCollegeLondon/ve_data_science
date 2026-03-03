@@ -14,8 +14,14 @@ maliau <-
   parseTOML("data/sites/maliau_site_definition.toml")
 
 # TODO update path to match abiotic module input
+# elevation
 elev <-
   rast("data/primary/abiotic/STRM_data_elevation/SRTM_UTM50N_processed.tif")
+# TODO climate
+
+# TODO vegetation
+vege <- 
+  rast("data/primary/soil/nutrient/Danum_acd.tif")
 
 extra_locations <-
   tribble(
@@ -59,10 +65,15 @@ soil_vars <-
     "plot_mean_o_horizon"
   )
 soil_mat <- as.matrix(soil[, soil_vars])
+# TODO non-Gaussian families to avoid log-transformation of responses
+# though pH is tricky
 soil_mat[, -c(1, 2)] <- log(soil_mat[, -c(1, 2)])
 rownames(soil_mat) <- soil$plot_code
 
 # TODO scale covariates
+soil_scaled <- 
+    soil %>% 
+    mutate(elevation = as.numeric(scale(elevation)))
 
 # Model -------------------------------------------------------------------
 
@@ -85,11 +96,11 @@ fitcbfm <-
   CBFM(
     y = soil_mat,
     formula = ~ 1 + elevation,
-    data = soil,
+    data = soil_scaled,
     B_space = basis_func,
     family = gaussian(),
     control = list(trace = 1),
-    G_control = list(rank = 2)
+    G_control = list(rank = 4)
   )
 toc <- proc.time()
 toc - tic
