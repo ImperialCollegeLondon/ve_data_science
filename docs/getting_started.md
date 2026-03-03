@@ -72,10 +72,7 @@ to use.
     This command can take quite a long time to run - among other things, it is installing
     a separate version of R just to be used for file checking!
 
-6. If you do not have R 4.4.2 installed, you will now need to install it. We are using
-   a system called `renv` to ensure that the project team uses the same versions of the R
-   and all the required packages, so if you have an older version of R then you will need
-   to upgrade it.
+6. If you do not have R 4.4 installed, you will now need to install it.
 
 7. You now need to configure VSCode to work with R. This involves changing some of the
-   settings so that it
+   settings so that it [TBD]

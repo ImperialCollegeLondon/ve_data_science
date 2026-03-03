@@ -72,41 +72,76 @@
 1,"emergent","Artocarpus tamaran","species","tamaran","Artocarpus","Moraceae",9
 1,"emergent","Parartocarpus bracteatus","species","bracteatus","Parartocarpus","Moraceae",9
 1,"emergent","Neolamarckia cadamba","species","cadamba","Neolamarckia","Rubiaceae",34
+2,"overstory","Buchanania","genus","NA","Buchanania","Anacardiaceae",17
+2,"overstory","Buchanania sessifolia","species","sessifolia","Buchanania","Anacardiaceae",17
 2,"overstory","Gluta wallichii","species","wallichii","Gluta","Anacardiaceae",23
+2,"overstory","Cyathocalyx magnifructus","species","magnifructus","Cyathocalyx","Annonaceae",17
+2,"overstory","Meiogyne virgata","species","virgata","Meiogyne","Annonaceae",20
 2,"overstory","Xylopia ferruginea","species","ferruginea","Xylopia","Annonaceae",23
 2,"overstory","Xylopia sumatrana","species","sumatrana","Xylopia","Annonaceae",25
 2,"overstory","Dacryodes","genus","NA","Dacryodes","Burseraceae",23
 2,"overstory","Dacryodes rostrata","species","rostrata","Dacryodes","Burseraceae",23
 2,"overstory","Santiria","genus","NA","Santiria","Burseraceae",23
 2,"overstory","Santiria laevigata","species","laevigata","Santiria","Burseraceae",23
+2,"overstory","Trema","genus","NA","Trema","Cannabaceae",19
+2,"overstory","Trema tomentosum","species","tomentosum","Trema","Cannabaceae",19
 2,"overstory","Lophopetalum","genus","NA","Lophopetalum","Celastraceae",22
 2,"overstory","Dillenia borneensis","species","borneensis","Dillenia","Dilleniaceae",23
+2,"overstory","Dipterocarpus applanatus","species","applanatus","Dipterocarpus","Dipterocarpaceae",20
+2,"overstory","Dryobalanops keithii","species","keithii","Dryobalanops","Dipterocarpaceae",20
+2,"overstory","Hopea","genus","NA","Hopea","Dipterocarpaceae",19
+2,"overstory","Hopea dryobalanoides","species","dryobalanoides","Hopea","Dipterocarpaceae",19
+2,"overstory","Hopea ferruginea","species","ferruginea","Hopea","Dipterocarpaceae",17
 2,"overstory","Hopea nervosa","species","nervosa","Hopea","Dipterocarpaceae",13
 2,"overstory","Shorea xanthophylla","species","xanthophylla","Shorea","Dipterocarpaceae",9
 2,"overstory","Vatica","genus","NA","Vatica","Dipterocarpaceae",27
 2,"overstory","Vatica albiramis","species","albiramis","Vatica","Dipterocarpaceae",27
 2,"overstory","Vatica dulitensis","species","dulitensis","Vatica","Dipterocarpaceae",21
+2,"overstory","Vatica sarawakensis","species","sarawakensis","Vatica","Dipterocarpaceae",18
 2,"overstory","Diospyros","genus","NA","Diospyros","Ebenaceae",23
 2,"overstory","Blumeodendron tokbrai","species","tokbrai","Blumeodendron","Euphorbiaceae",22
+2,"overstory","Endospermum","genus","NA","Endospermum","Euphorbiaceae",19
+2,"overstory","Endospermum diadenum","species","diadenum","Endospermum","Euphorbiaceae",19
+2,"overstory","Hancea subpeltata","species","subpeltata","Hancea","Euphorbiaceae",17
+2,"overstory","Homalanthus populneus","species","populneus","Homalanthus","Euphorbiaceae",20
 2,"overstory","Cassia javanica","species","javanica","Cassia","Fabaceae",21
 2,"overstory","Cynometra","genus","NA","Cynometra","Fabaceae",25
 2,"overstory","Sympetalandra borneensis","species","borneensis","Sympetalandra","Fabaceae",22
 2,"overstory","Lithocarpus blumeanus","species","blumeanus","Lithocarpus","Fagaceae",23
 2,"overstory","Lithocarpus echinifer","species","echinifer","Lithocarpus","Fagaceae",25
 2,"overstory","Lithocarpus turbinatus","species","turbinatus","Lithocarpus","Fagaceae",21
+2,"overstory","Lithocarpus urceolaris","species","urceolaris","Lithocarpus","Fagaceae",17
 2,"overstory","Quercus argentata","species","argentata","Quercus","Fagaceae",22
 2,"overstory","Quercus elmeri","species","elmeri","Quercus","Fagaceae",24
+2,"overstory","Callicarpa","genus","NA","Callicarpa","Lamiaceae",17
+2,"overstory","Teijsmanniodendron","genus","NA","Teijsmanniodendron","Lamiaceae",20
+2,"overstory","Teijsmanniodendron bogoriense","species","bogoriense","Teijsmanniodendron","Lamiaceae",20
+2,"overstory","Teijsmanniodendron simplicifolium","species","simplicifolium","Teijsmanniodendron","Lamiaceae",19
+2,"overstory","Actinodaphne sesquipedalis","species","sesquipedalis","Actinodaphne","Lauraceae",18
+2,"overstory","Beilschmiedia","genus","NA","Beilschmiedia","Lauraceae",17
+2,"overstory","Beilschmiedia lucidula","species","lucidula","Beilschmiedia","Lauraceae",17
+2,"overstory","Beilschmiedia micrantha","species","micrantha","Beilschmiedia","Lauraceae",17
+2,"overstory","Cinnamomum","genus","NA","Cinnamomum","Lauraceae",17
+2,"overstory","Cinnamomum javanicum","species","javanicum","Cinnamomum","Lauraceae",17
 2,"overstory","Eusideroxylon zwageri","species","zwageri","Eusideroxylon","Lauraceae",27
 2,"overstory","Litsea","genus","NA","Litsea","Lauraceae",25
 2,"overstory","Litsea angulata","species","angulata","Litsea","Lauraceae",25
+2,"overstory","Litsea ficoidea","species","ficoidea","Litsea","Lauraceae",20
 2,"overstory","Barringtonia","genus","NA","Barringtonia","Lecythidaceae",23
 2,"overstory","Durio","genus","NA","Durio","Malvaceae",24
 2,"overstory","Durio graveolens","species","graveolens","Durio","Malvaceae",24
 2,"overstory","Durio oxleyanus","species","oxleyanus","Durio","Malvaceae",22
 2,"overstory","Microcos","genus","NA","Microcos","Malvaceae",23
 2,"overstory","Pentace laxiflora","species","laxiflora","Pentace","Malvaceae",26
+2,"overstory","Pterospermum","genus","NA","Pterospermum","Malvaceae",17
+2,"overstory","Pterygota alata","species","alata","Pterygota","Malvaceae",17
+2,"overstory","Scaphium","genus","NA","Scaphium","Malvaceae",19
+2,"overstory","Scaphium macropodum","species","macropodum","Scaphium","Malvaceae",19
 2,"overstory","Sterculia","genus","NA","Sterculia","Malvaceae",25
+2,"overstory","Chisocheton","genus","NA","Chisocheton","Meliaceae",20
+2,"overstory","Chisocheton ceramicus","species","ceramicus","Chisocheton","Meliaceae",20
 2,"overstory","Lansium","genus","NA","Lansium","Meliaceae",21
+2,"overstory","Reinwardtiodendron humile","species","humile","Reinwardtiodendron","Meliaceae",18
 2,"overstory","Ficus","genus","NA","Ficus","Moraceae",24
 2,"overstory","Syzygium","genus","NA","Syzygium","Myrtaceae",25
 2,"overstory","Syzygium grande","species","grande","Syzygium","Myrtaceae",21
@@ -116,18 +151,28 @@
 2,"overstory","Tristaniopsis obovata","species","obovata","Tristaniopsis","Myrtaceae",23
 2,"overstory","Tristaniopsis whiteana","species","whiteana","Tristaniopsis","Myrtaceae",22
 2,"overstory","Ochanostachys amentacea","species","amentacea","Ochanostachys","Olacaceae",21
+2,"overstory","Adinandra","genus","NA","Adinandra","Pentaphylacaceae",19
+2,"overstory","Trigonopleura malayana","species","malayana","Trigonopleura","Peraceae",18
 2,"overstory","Aporosa","genus","NA","Aporosa","Phyllanthaceae",21
 2,"overstory","Baccaurea","genus","NA","Baccaurea","Phyllanthaceae",26
 2,"overstory","Baccaurea minor","species","minor","Baccaurea","Phyllanthaceae",26
 2,"overstory","Glochidion","genus","NA","Glochidion","Phyllanthaceae",21
 2,"overstory","Glochidion glomerulatum","species","glomerulatum","Glochidion","Phyllanthaceae",21
+2,"overstory","Glochidion rubrum","species","rubrum","Glochidion","Phyllanthaceae",17
 2,"overstory","Xanthophyllum","genus","NA","Xanthophyllum","Polygalaceae",24
+2,"overstory","Ardisia","genus","NA","Ardisia","Primulaceae",18
+2,"overstory","Ardisia purpurea","species","purpurea","Ardisia","Primulaceae",18
 2,"overstory","Drypetes","genus","NA","Drypetes","Putranjivaceae",25
 2,"overstory","Drypetes castilloi","species","castilloi","Drypetes","Putranjivaceae",25
+2,"overstory","Drypetes longifolia","species","longifolia","Drypetes","Putranjivaceae",18
+2,"overstory","Drypetes macrostigma","species","macrostigma","Drypetes","Putranjivaceae",17
+2,"overstory","Ziziphus","genus","NA","Ziziphus","Rhamnaceae",18
 2,"overstory","Carallia brachiata","species","brachiata","Carallia","Rhizophoraceae",22
 2,"overstory","Nauclea","genus","NA","Nauclea","Rubiaceae",25
 2,"overstory","Maclurodendron porteri","species","porteri","Maclurodendron","Rutaceae",23
+2,"overstory","Melicope","genus","NA","Melicope","Rutaceae",18
 2,"overstory","Nephelium","genus","NA","Nephelium","Sapindaceae",21
+2,"overstory","Paranephelium","genus","NA","Paranephelium","Sapindaceae",18
 2,"overstory","Palaquium","genus","NA","Palaquium","Sapotaceae",22
 2,"overstory","Palaquium beccarianum","species","beccarianum","Palaquium","Sapotaceae",8
 2,"overstory","Palaquium dasyphyllum","species","dasyphyllum","Palaquium","Sapotaceae",15
@@ -139,22 +184,6 @@
 2,"overstory","Payena acuminata","species","acuminata","Payena","Sapotaceae",22
 2,"overstory","Payena ferruginea","species","ferruginea","Payena","Sapotaceae",13
 2,"overstory","Octomeles sumatrana","species","sumatrana","Octomeles","Tetramelaceae",27
-3,"pioneer","Buchanania","genus","NA","Buchanania","Anacardiaceae",17
-3,"pioneer","Buchanania sessifolia","species","sessifolia","Buchanania","Anacardiaceae",17
-3,"pioneer","Cyathocalyx magnifructus","species","magnifructus","Cyathocalyx","Annonaceae",17
-3,"pioneer","Meiogyne virgata","species","virgata","Meiogyne","Annonaceae",20
-3,"pioneer","Trema","genus","NA","Trema","Cannabaceae",19
-3,"pioneer","Trema tomentosum","species","tomentosum","Trema","Cannabaceae",19
-3,"pioneer","Dipterocarpus applanatus","species","applanatus","Dipterocarpus","Dipterocarpaceae",20
-3,"pioneer","Dryobalanops keithii","species","keithii","Dryobalanops","Dipterocarpaceae",20
-3,"pioneer","Hopea","genus","NA","Hopea","Dipterocarpaceae",19
-3,"pioneer","Hopea dryobalanoides","species","dryobalanoides","Hopea","Dipterocarpaceae",19
-3,"pioneer","Hopea ferruginea","species","ferruginea","Hopea","Dipterocarpaceae",17
-3,"pioneer","Vatica sarawakensis","species","sarawakensis","Vatica","Dipterocarpaceae",18
-3,"pioneer","Endospermum","genus","NA","Endospermum","Euphorbiaceae",19
-3,"pioneer","Endospermum diadenum","species","diadenum","Endospermum","Euphorbiaceae",19
-3,"pioneer","Hancea subpeltata","species","subpeltata","Hancea","Euphorbiaceae",17
-3,"pioneer","Homalanthus populneus","species","populneus","Homalanthus","Euphorbiaceae",20
 3,"pioneer","Macaranga","genus","NA","Macaranga","Euphorbiaceae",26
 3,"pioneer","Macaranga brevipetiolata","species","brevipetiolata","Macaranga","Euphorbiaceae",7
 3,"pioneer","Macaranga conifera","species","conifera","Macaranga","Euphorbiaceae",21
@@ -164,35 +193,6 @@
 3,"pioneer","Macaranga motleyana","species","motleyana","Macaranga","Euphorbiaceae",9
 3,"pioneer","Macaranga pearsonii","species","pearsonii","Macaranga","Euphorbiaceae",26
 3,"pioneer","Macaranga winkleri","species","winkleri","Macaranga","Euphorbiaceae",15
-3,"pioneer","Lithocarpus urceolaris","species","urceolaris","Lithocarpus","Fagaceae",17
-3,"pioneer","Callicarpa","genus","NA","Callicarpa","Lamiaceae",17
-3,"pioneer","Teijsmanniodendron","genus","NA","Teijsmanniodendron","Lamiaceae",20
-3,"pioneer","Teijsmanniodendron bogoriense","species","bogoriense","Teijsmanniodendron","Lamiaceae",20
-3,"pioneer","Teijsmanniodendron simplicifolium","species","simplicifolium","Teijsmanniodendron","Lamiaceae",19
-3,"pioneer","Actinodaphne sesquipedalis","species","sesquipedalis","Actinodaphne","Lauraceae",18
-3,"pioneer","Beilschmiedia","genus","NA","Beilschmiedia","Lauraceae",17
-3,"pioneer","Beilschmiedia lucidula","species","lucidula","Beilschmiedia","Lauraceae",17
-3,"pioneer","Beilschmiedia micrantha","species","micrantha","Beilschmiedia","Lauraceae",17
-3,"pioneer","Cinnamomum","genus","NA","Cinnamomum","Lauraceae",17
-3,"pioneer","Cinnamomum javanicum","species","javanicum","Cinnamomum","Lauraceae",17
-3,"pioneer","Litsea ficoidea","species","ficoidea","Litsea","Lauraceae",20
-3,"pioneer","Pterospermum","genus","NA","Pterospermum","Malvaceae",17
-3,"pioneer","Pterygota alata","species","alata","Pterygota","Malvaceae",17
-3,"pioneer","Scaphium","genus","NA","Scaphium","Malvaceae",19
-3,"pioneer","Scaphium macropodum","species","macropodum","Scaphium","Malvaceae",19
-3,"pioneer","Chisocheton","genus","NA","Chisocheton","Meliaceae",20
-3,"pioneer","Chisocheton ceramicus","species","ceramicus","Chisocheton","Meliaceae",20
-3,"pioneer","Reinwardtiodendron humile","species","humile","Reinwardtiodendron","Meliaceae",18
-3,"pioneer","Adinandra","genus","NA","Adinandra","Pentaphylacaceae",19
-3,"pioneer","Trigonopleura malayana","species","malayana","Trigonopleura","Peraceae",18
-3,"pioneer","Glochidion rubrum","species","rubrum","Glochidion","Phyllanthaceae",17
-3,"pioneer","Ardisia","genus","NA","Ardisia","Primulaceae",18
-3,"pioneer","Ardisia purpurea","species","purpurea","Ardisia","Primulaceae",18
-3,"pioneer","Drypetes longifolia","species","longifolia","Drypetes","Putranjivaceae",18
-3,"pioneer","Drypetes macrostigma","species","macrostigma","Drypetes","Putranjivaceae",17
-3,"pioneer","Ziziphus","genus","NA","Ziziphus","Rhamnaceae",18
-3,"pioneer","Melicope","genus","NA","Melicope","Rutaceae",18
-3,"pioneer","Paranephelium","genus","NA","Paranephelium","Sapindaceae",18
 4,"understory","Hydnocarpus","genus","NA","Hydnocarpus","Achariaceae",12
 4,"understory","Hydnocarpus anomalus","species","anomalus","Hydnocarpus","Achariaceae",11
 4,"understory","Hydnocarpus polypetalus","species","polypetalus","Hydnocarpus","Achariaceae",12
