@@ -1,3 +1,40 @@
+#| ---
+#| title: Descriptive name of the script
+#|
+#| description: |
+#|     Brief description of what the script does, its main purpose, and any important
+#|     scientific context. Keep it concise but informative.
+#|
+#|     This can include multiple paragraphs.
+#|
+#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, None]
+#|
+#| author:
+#|   - David Orme
+#|
+#| status: final or wip
+#|
+#| input_files:
+#|   - name: Input file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       Source (short citation) and a brief explanation of what this input file
+#|       contains and its use case in this script
+#|
+#| output_files:
+#|   - name: Output file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       What the output file contains and its significance, are they used in any other
+#|       scripts?
+#|
+#| package_dependencies:
+#|     - tools
+#|
+#| usage_notes: |
+#|   Any known issues or bugs? Future plans for script/extensions or improvements
+#|   planned that should be noted?
+#| ---
 
 library(tidyverse)
 library(glmmTMB)
