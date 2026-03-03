@@ -18,7 +18,11 @@ maliau <-
 elev <-
   rast("data/primary/abiotic/STRM_data_elevation/SRTM_UTM50N_processed.tif")
 # TODO climate
-
+tp <- 
+  rast("data/primary/abiotic/era5_land_monthly/ERA5_monthly_2010_2020_SAFE_big.nc",
+       subds = "tp") %>% 
+  mean(., na.rm = TRUE) %>%
+  project(., crs(elev))
 # TODO vegetation
 vege <- 
   rast("data/primary/soil/nutrient/Danum_acd.tif")
@@ -51,7 +55,9 @@ soil <-
     skip = 5
   ) %>%
   left_join(location, by = join_by("plot_code" == "location")) %>%
-  mutate(elevation = extract(elev, .[, c("X", "Y")])[, "SRTM_UTM50N_processed"])
+  mutate(
+    elevation = extract(elev, .[, c("X", "Y")])[, "SRTM_UTM50N_processed"],
+    tp = extract(tp, .[, c("X", "Y")])[, "mean"])
 
 soil_vars <-
   c(
@@ -72,8 +78,8 @@ rownames(soil_mat) <- soil$plot_code
 
 # TODO scale covariates
 soil_scaled <- 
-    soil %>% 
-    mutate(elevation = as.numeric(scale(elevation)))
+  soil %>% 
+  mutate_at(vars(elevation, tp), ~ as.numeric(scale(.)))
 
 # Model -------------------------------------------------------------------
 
@@ -95,12 +101,12 @@ tic <- proc.time()
 fitcbfm <-
   CBFM(
     y = soil_mat,
-    formula = ~ 1 + elevation,
+    formula = ~ 1 + elevation + tp,
     data = soil_scaled,
     B_space = basis_func,
     family = gaussian(),
     control = list(trace = 1),
-    G_control = list(rank = 4)
+    G_control = list(rank = 2)
   )
 toc <- proc.time()
 toc - tic
@@ -123,12 +129,17 @@ maliau_grid <-
     Y = maliau$cell_y_centres
   )
 
-maliau_elev <-
+maliau_dat <-
   maliau_grid %>%
-  mutate(elevation = extract(elev, .[, c("X", "Y")])$SRTM_UTM50N_processed)
+  mutate(elevation = extract(elev, .[, c("X", "Y")])$SRTM_UTM50N_processed,
+         tp = extract(tp, .[, c("X", "Y")])[, "mean"]) %>% 
+  mutate(elevation = (elevation - mean(soil$elevation)) / sd(soil$elevation),
+         tp = (tp - mean(soil$tp)) / sd(soil$tp))
 
+# this should not be recreated???
 maliau_basis <-
-  mrts(maliau_grid[, c("X", "Y")], num_basis) %>%
+  mrts(soil[, c("X", "Y")], num_basis) %>%
+  predict(newx = maliau_grid[, c("X", "Y")]) %>% 
   as.matrix() %>%
   {
     .[, -(1)]
@@ -136,12 +147,12 @@ maliau_basis <-
 
 maliau_pred <- predict(
   fitcbfm,
-  newdata = maliau_elev,
+  newdata = maliau_dat,
   new_B_space = maliau_basis
 )
 
 maliau_pred_rast <-
-  cbind(maliau_elev, maliau_pred) %>%
+  cbind(maliau_dat, maliau_pred) %>%
   rast()
 
 plot(maliau_pred_rast)
