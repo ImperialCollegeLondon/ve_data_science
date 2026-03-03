@@ -101,7 +101,6 @@ litter_wood <-
   mutate(log_Density = log(Density))
 
 
-
 # Model -------------------------------------------------------------------
 
 # fit the wood decomposition model
@@ -114,8 +113,6 @@ mod_wood <- glmmTMB(
 )
 summary(mod_wood)
 param_wood <- confint(mod_wood)
-
-
 
 
 # Prediction --------------------------------------------------------------

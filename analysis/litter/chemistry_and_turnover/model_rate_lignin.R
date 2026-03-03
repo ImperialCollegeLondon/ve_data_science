@@ -99,9 +99,6 @@ geffen_2010 <-
   left_join(geffen_2010_traits)
 
 
-
-
-
 # Model -------------------------------------------------------------------
 
 mod_k_lignin <- glmmTMB(

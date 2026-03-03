@@ -52,7 +52,6 @@ library(bayesplot)
 library(modelr)
 
 
-
 # Data --------------------------------------------------------------------
 
 # clean up data
@@ -106,7 +105,6 @@ litter_s <-
     CP = as.numeric(scale(CP)),
     time = time / 365.25
   )
-
 
 
 # Model -------------------------------------------------------------------
@@ -167,13 +165,11 @@ mod_leaf <- brm(
 summary(mod_leaf)
 
 
-
 # Diagnostics ------------------------------------------------------------
 
 # trace plots and posterior summaries
 mcmc_trace(mod_leaf, regex_pars = "^b|^sd|^cor")
 mcmc_intervals(mod_leaf, regex_pars = "^b|^sd|^cor")
-
 
 
 # Predictions -------------------------------------------------------------

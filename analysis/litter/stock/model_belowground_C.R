@@ -94,7 +94,6 @@ nutrient_root <-
   mutate(lignin = lignin / 100)
 
 
-
 # Models ------------------------------------------------------------------
 
 # root litter input model
@@ -139,7 +138,6 @@ mod_P_root <-
     family = lognormal,
     data = nutrient_root %>% filter(!is.na(C))
   )
-
 
 
 # Estimate belowground C --------------------------------------------------

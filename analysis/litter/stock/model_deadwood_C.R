@@ -45,7 +45,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Data --------------------------------------------------------------------
 
 # deadwood volume
@@ -129,8 +128,6 @@ deadwood_rho <-
   )
 
 
-
-
 # Model -------------------------------------------------------------------
 
 # volume model
@@ -163,9 +160,6 @@ mod_rho <-
     family = lognormal()
   )
 summary(mod_rho)
-
-
-
 
 
 # Estimate deadwood stock -------------------------------------------------
