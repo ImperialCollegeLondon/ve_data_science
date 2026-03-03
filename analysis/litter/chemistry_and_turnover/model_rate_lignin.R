@@ -6,7 +6,7 @@
 #|     the exponential decay (Olson) model. There is not a lot of good dataset
 #|     that measured both decomposition *and* lignin; when they do, they don't
 #|     share the data openly (older studies). For our current goals, I found
-#|     Geffen et al. (2010) which fitting the right model and provided species
+#|     Geffen et al. (2010) which fitted the right model and provided species
 #|     lignin values. They published the k values (rate parameters), so I fitted
 #|     a relationship between k and lignin content. Ideally we would estimate k
 #|     from raw data but they did not share any raw data. We will have to settle
