@@ -39,7 +39,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Data --------------------------------------------------------------------
 
 # subplot coordinates
@@ -95,8 +94,6 @@ dat_scaled <-
     vars(moisture, soil_pH, soil_N, soil_C, soil_P),
     ~ as.numeric(scale(.))
   )
-
-
 
 
 # Model -------------------------------------------------------------------

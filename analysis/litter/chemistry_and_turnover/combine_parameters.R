@@ -45,7 +45,6 @@
 library(tidybayes)
 
 
-
 # Source modelling codes --------------------------------------------------
 
 # leaf litter model (takes a while to fit Bayesian inference)
@@ -56,7 +55,6 @@ source("analysis/litter/chemistry_and_turnover/model_wood.R")
 
 # lignin model
 source("analysis/litter/chemistry_and_turnover/model_rate_lignin.R")
-
 
 
 # Combine parameter estimates ---------------------------------------------

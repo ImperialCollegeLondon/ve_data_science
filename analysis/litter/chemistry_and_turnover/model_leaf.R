@@ -43,9 +43,6 @@
 #|   60-model-litter-chemistry-and-turnover-microcosm-dataset
 #|   but gave up because the leaf decomposition (in microcosm) was extremely
 #|   fast.
-#|   Also note that there is no output file. The outputs here will be combined
-#|   using the script
-#|   analysis/litter/chemistry_and_turnover/combined_parameters.R
 #| ---
 
 library(tidyverse)
@@ -53,7 +50,6 @@ library(readxl)
 library(brms)
 library(bayesplot)
 library(modelr)
-
 
 
 # Data --------------------------------------------------------------------
@@ -109,7 +105,6 @@ litter_s <-
     CP = as.numeric(scale(CP)),
     time = time / 365.25
   )
-
 
 
 # Model -------------------------------------------------------------------
@@ -170,13 +165,11 @@ mod_leaf <- brm(
 summary(mod_leaf)
 
 
-
 # Diagnostics ------------------------------------------------------------
 
 # trace plots and posterior summaries
 mcmc_trace(mod_leaf, regex_pars = "^b|^sd|^cor")
 mcmc_intervals(mod_leaf, regex_pars = "^b|^sd|^cor")
-
 
 
 # Predictions -------------------------------------------------------------

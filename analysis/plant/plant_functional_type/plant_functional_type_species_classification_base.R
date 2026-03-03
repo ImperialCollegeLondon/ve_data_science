@@ -2,8 +2,7 @@
 #| title: Plant functional type species classification base
 #|
 #| description: |
-#|     This script classifies species into plant functional types (PFTs).
-#|     At the moment, these PFTs only contain trees.
+#|     This script classifies tree species into plant functional types (PFTs).
 #|     This classification is predominantly based on the one provided by
 #|     Kohler and Huth (1998; DOI https://doi.org/10.1016/S0304-3800(98)00066-0)
 #|     and contains the following PFTs:
@@ -11,15 +10,12 @@
 #|     -overstory trees
 #|     -understory trees
 #|     -pioneer trees
-#|     For the understory PFT, the species list is expanded by also including
+#|     For the understory PFT, the species list is expanded to also include
 #|     the species listed in group 9 (small shade trees) in
-#|     Phillips et al. (2000; DOI https://doi.org/10.1016/S0378-1127(00)00666-6).
-#|     This combined PFT species classification is then applied to the
-#|     SAFE census dataset.
+#|     Phillips et al. (2002; DOI https://doi.org/10.1016/S0378-1127(00)00666-6).
+#|     This PFT species classification is then applied to the SAFE census dataset.
 #|     The output of this script generates a CSV file containing a list of
 #|     species and their respective PFT.
-#|     This CSV file can then be loaded when working with other datasets
-#|     (particularly those related to updating T model parameters).
 #|     In a follow up script, the remaining species that have not been assigned
 #|     a PFT yet will be assigned into one based on their species maximum height
 #|     relative to the PFT maximum height.
@@ -48,19 +44,13 @@
 #|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
-#|       This CSV file can be loaded when working with other datasets
-#|       (particularly those related to updating T model parameters).
-#|       In a follow up script, the remaining species that have not been assigned
-#|       a PFT yet will be assigned into one based on
-#|       their species maximum height relative to the PFT maximum height.
 #|
 #| package_dependencies:
 #|     - readxl
 #|
 #| usage_notes: |
-#|   If PFT species classification is updated in the future,
+#|   If the PFT species classification is updated in the future,
 #|   this script should be the starting point.
-#|   File directories still need to be converted to relative paths.
 #| ---
 
 

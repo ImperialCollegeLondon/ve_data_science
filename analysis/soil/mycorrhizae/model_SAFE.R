@@ -56,7 +56,6 @@ library(corrplot)
 library(gclus)
 
 
-
 # Data --------------------------------------------------------------------
 
 # read data from the file path
@@ -124,7 +123,6 @@ comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 
 # reorder the columns of community matrix to facilitate model identifiability
 comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
-
 
 
 # Model -------------------------------------------------------------------
