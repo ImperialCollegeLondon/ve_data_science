@@ -38,7 +38,7 @@
 #|     description: |
 #|       glmmTMB model to predict nitrogen content in POM and MAOM from total
 #|       soil nitrogen
-#|       
+#|
 #| package_dependencies:
 #|     - tidyverse
 #|     - glmmTMB
@@ -63,9 +63,10 @@ sayer <-
 bulk <-
   sayer %>%
   filter(frac == "total") %>%
-  select(treatm:bulkD, 
-         C_total = mgCgsoilBD, 
-         N_total = mgNgsoilBD)
+  select(treatm:bulkD,
+    C_total = mgCgsoilBD,
+    N_total = mgNgsoilBD
+  )
 
 # the fraction measurements will be the response variables
 frac <-
