@@ -18,13 +18,6 @@
 #| status: wip
 #|
 #| input_files:
-#|   - name: Input file name
-#|     path: Full file path on shared drive
-#|     description: |
-#|       Source (short citation) and a brief explanation of what this input file
-#|       contains and its use case in this script
-#|
-#| output_files:
 #|   - name: SayerEtAl2021_GLiMP_SoilCN_Fractions.csv
 #|     path: data/primary/soil/nutrient
 #|     description: |
@@ -34,6 +27,11 @@
 #|       Obtained from https://doi.org/10.6084/m9.figshare.31440067
 #|       Refer to metadata for more info: SayerEtAl2021_Metadata.docx
 #|
+#| output_files:
+#|   - name: 
+#|     path: 
+#|     description: |
+#|       
 #| package_dependencies:
 #|     - tidyverse
 #|     - glmmTMB
