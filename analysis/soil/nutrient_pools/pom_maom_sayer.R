@@ -28,9 +28,16 @@
 #|       Refer to metadata for more info: SayerEtAl2021_Metadata.docx
 #|
 #| output_files:
-#|   - name: 
-#|     path: 
+#|   - name: model_C_POM_MAOM.rds
+#|     path: data/derived/soil/nutrient_pools
 #|     description: |
+#|       glmmTMB model to predict carbon content in POM and MAOM from total
+#|       soil carbon
+#|   - name: model_N_POM_MAOM.rds
+#|     path: data/derived/soil/nutrient_pools
+#|     description: |
+#|       glmmTMB model to predict nitrogen content in POM and MAOM from total
+#|       soil nitrogen
 #|       
 #| package_dependencies:
 #|     - tidyverse
@@ -96,3 +103,5 @@ mod_N <- glmmTMB(
 summary(mod_N)
 
 # save the model as outputs later for downstream predictions
+write_rds(mod_C, "data/derived/soil/nutrient_pools/model_C_POM_MAOM.rds")
+write_rds(mod_N, "data/derived/soil/nutrient_pools/model_N_POM_MAOM.rds")
