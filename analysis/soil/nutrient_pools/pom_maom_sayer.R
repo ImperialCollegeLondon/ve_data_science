@@ -37,8 +37,7 @@
 #|     - glmmTMB
 #|
 #| usage_notes: |
-#|   Will need to save the model output object for downstream prediction
-#|   later.
+#|   Use the saved model output objects for downstream prediction later.
 #| ---
 
 library(tidyverse)
@@ -94,4 +93,4 @@ mod_N <- glmmTMB(
 )
 summary(mod_N)
 
-# TODO save the model as outputs later for downstream predictions
+# save the model as outputs later for downstream predictions
