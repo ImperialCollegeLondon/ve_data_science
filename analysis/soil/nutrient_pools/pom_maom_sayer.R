@@ -56,7 +56,9 @@ sayer <-
 bulk <-
   sayer %>%
   filter(frac == "total") %>%
-  select(treatm:bulkD, C_total = mgCgsoilBD, N_total = mgNgsoilBD)
+  select(treatm:bulkD, 
+         C_total = mgCgsoilBD, 
+         N_total = mgNgsoilBD)
 
 # the fraction measurements will be the response variables
 frac <-
