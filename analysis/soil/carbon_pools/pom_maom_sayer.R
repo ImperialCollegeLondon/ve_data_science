@@ -32,6 +32,7 @@
 #|       fractionalisation. Data were collected from a litter-manipulation
 #|       study at BCI Panama.
 #|       Obtained from https://doi.org/10.6084/m9.figshare.31440067
+#|       Refer to metadata for more info: SayerEtAl2021_Metadata.docx
 #|
 #| package_dependencies:
 #|     - tidyverse
