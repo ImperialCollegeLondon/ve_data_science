@@ -57,8 +57,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
-
 # Data --------------------------------------------------------------------
 
 # root litter inputs
