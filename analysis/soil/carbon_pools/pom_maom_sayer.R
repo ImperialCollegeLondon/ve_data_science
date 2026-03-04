@@ -1,18 +1,21 @@
 #| ---
-#| title: Descriptive name of the script
+#| title: Models for predicting POM and MAOM carbon/nitrogen content from total
+#|     soil carbon/nitrogen
 #|
 #| description: |
-#|     Brief description of what the script does, its main purpose, and any important
-#|     scientific context. Keep it concise but informative.
+#|     To predict POM and MAOM carbon/nitrogen content from total soil
+#|     carbon/nitrogen for the initialisation project. Current I am using the
+#|     soil campaign dataset from SAFE to generate initial data, but the
+#|     campaign only collected total soil C or total N. I am going to use
+#|     a dataset from BCI Panama to estimate C/N fraction in POM and MAOM, so
+#|     we can predict POM and MAOM C/N fractions post-hoc from the soil
+#|     campaign model.
 #|
-#|     This can include multiple paragraphs.
+#| virtual_ecosystem_module: Soil
 #|
-#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, None]
+#| author: Hao Ran Lai
 #|
-#| author:
-#|   - David Orme
-#|
-#| status: final or wip
+#| status: wip
 #|
 #| input_files:
 #|   - name: Input file name
@@ -22,18 +25,21 @@
 #|       contains and its use case in this script
 #|
 #| output_files:
-#|   - name: Output file name
-#|     path: Full file path on shared drive
+#|   - name: SayerEtAl2021_GLiMP_SoilCN_Fractions.csv
+#|     path: data/primary/soil/nutrient
 #|     description: |
-#|       What the output file contains and its significance, are they used in any other
-#|       scripts?
+#|       Soil carbon and nitrogen content in POM and MAOM measured through
+#|       fractionalisation. Data were collected from a litter-manipulation
+#|       study at BCI Panama.
+#|       Obtained from https://doi.org/10.6084/m9.figshare.31440067
 #|
 #| package_dependencies:
-#|     - tools
+#|     - tidyverse
+#|     - glmmTMB
 #|
 #| usage_notes: |
-#|   Any known issues or bugs? Future plans for script/extensions or improvements
-#|   planned that should be noted?
+#|   Will need to save the model output object for downstream prediction
+#|   later.
 #| ---
 
 library(tidyverse)
@@ -42,28 +48,36 @@ library(glmmTMB)
 
 # Data --------------------------------------------------------------------
 
-sayer <- 
+sayer <-
   read_csv(
     "data/primary/soil/nutrient/SayerEtAl2021_GLiMP_SoilCN_Fractions.csv"
-  ) 
+  )
 
-bulk <- 
-  sayer %>% 
-  filter(frac == "total") %>% 
+# split raw data into total bulk vs. fraction measurements
+# the bulk subset data will be used as offset terms in the regression
+bulk <-
+  sayer %>%
+  filter(frac == "total") %>%
   select(treatm:bulkD, C_total = mgCgsoilBD, N_total = mgNgsoilBD)
 
-frac <- 
-  sayer %>% 
-  filter(frac != "total") %>% 
-  group_by(treatm, block, plot, class) %>% 
-  summarise(C = sum(mgCgsoilBD),
-            N = sum(mgNgsoilBD)) %>% 
+# the fraction measurements will be the response variables
+frac <-
+  sayer %>%
+  filter(frac != "total") %>%
+  group_by(treatm, block, plot, class) %>%
+  summarise(
+    C = sum(mgCgsoilBD),
+    N = sum(mgNgsoilBD)
+  ) %>%
   left_join(bulk)
-  
-
 
 
 # Model -------------------------------------------------------------------
+
+# Model fraction carbon and nitrogen as a function of fraction class (POM vs
+# MAOM) and litter treatment, with block as a random intercept. The contrast
+# of the categorical variables just so happen to anchor the baseline intercept
+# to control treatment. Use log total nutrient content as offset.
 
 mod_C <- glmmTMB(
   C ~ 0 + class + treatm + (1 | block),
@@ -80,3 +94,5 @@ mod_N <- glmmTMB(
   data = frac
 )
 summary(mod_N)
+
+# TODO save the model as outputs later for downstream predictions
