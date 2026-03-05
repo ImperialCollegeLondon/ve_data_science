@@ -1,16 +1,50 @@
-
+#| ---
+#| title: Estimate carbon fraction per mass in fungi
+#|
+#| description: |
+#|     This R script estimates carbon fraction per mass in fungi from a global
+#|     database. Bacteria were included in the database but all of them do not
+#|     have C fraction data.
+#|
+#| virtual_ecosystem_module:
+#|   - Soil
+#|
+#| author:
+#|   - Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: Global_heterotroph_stoichio_v5.csv
+#|     path: data/primary/animal/body_stoichiometry
+#|     description: |
+#|       Dataset of stoichiometric traits of heterotrophs by Andrieux et al.
+#|       2021 https://doi.org/10.1111/geb.13265
+#|       Downloaded from https://doi.org/10.6084/m9.figshare.13366310
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - rgbif
+#|     - glmmTMB
+#|
+#| usage_notes: |
+#|   To be used in the post-hoc prediction of Maliau scenario
+#| ---
 
 library(tidyverse)
 library(rgbif)
 library(glmmTMB)
 
 
-
 # Stoichiometry database
-stoich <- 
-  read_delim("data/primary/animal/body_stoichiometry/Global_heterotroph_stoichio_v5.csv") |> 
-  filter(Group == "Microbe",
-         !is.na(C_mean))
+stoich <-
+  read_delim("data/primary/animal/body_stoichiometry/Global_heterotroph_stoichio_v5.csv") |>
+  filter(
+    Group == "Microbe",
+    !is.na(C_mean)
+  )
 
 # add kingdom to the database taxa using GBIF backbone
 query <-
@@ -21,14 +55,14 @@ query <-
     genus = Genus,
     species = Species
   ) |>
-  pmap(name_backbone, .progress = TRUE) |> 
+  pmap(name_backbone, .progress = TRUE) |>
   bind_rows()
-C_frac <- 
-  query |> 
-  select(kingdom) |> 
-  bind_cols(stoich) |> 
-  filter(!is.na(kingdom)) |> 
-  select(kingdom, C_mean) |> 
+C_frac <-
+  query |>
+  select(kingdom) |>
+  bind_cols(stoich) |>
+  filter(!is.na(kingdom)) |>
+  select(kingdom, C_mean) |>
   # convert C fraction from percentage to proportion
   mutate(C_mean = C_mean / 100)
 
@@ -39,7 +73,7 @@ C_frac <-
 # Model to estimate C fraction for fungi
 # this is a very crude model ignoring phylogenetic dependence!
 mod <- glmmTMB(
-  C_mean ~ 1, 
+  C_mean ~ 1,
   family = beta_family(),
   data = C_frac
 )
