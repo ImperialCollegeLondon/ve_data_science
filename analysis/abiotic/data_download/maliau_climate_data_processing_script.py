@@ -28,7 +28,7 @@ description: |
          - u10 → wind_speed_ref
          - ssrd_Wm-2 → downward_shortwave_radiation
          - strd_WM-2 → downward_longwave_radiation
-    7. Reformats datasets to VE-style grid dimensions (x, y, time_index).
+    7. Reformats datasets to VE-style grid dimensions (cell_id, time_index).
     8. Saves processed NetCDF outputs for use in the VE Abiotic model.
 
 
@@ -55,7 +55,7 @@ author:
 status: final
 
 input_files:
-  - name: maliau_grid_definition.toml
+  - name: maliau_grid_definition_90m.toml
     path: data/sites
     description: |
       Defines the target VE grid structure (cell_nx, cell_ny, resolution,
