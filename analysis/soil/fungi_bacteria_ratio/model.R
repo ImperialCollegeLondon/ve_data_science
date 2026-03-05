@@ -107,8 +107,7 @@ dat_scaled <-
 # so I only included soil pH and moisture in the model (which are not very
 # correlated with one another)
 mod <- glmmTMB(
-  PLFA ~ 0 + Group * (soil_pH + moisture) +
-    (1 | Plot_ID),
+  PLFA ~ 0 + Group * (soil_pH + moisture) + Plot_ID,
   dispformula = ~ 0 + Group,
   family = lognormal(link = "log"),
   data = dat_scaled
@@ -121,12 +120,11 @@ newdat <- data.frame(
   Group = unique(plfa$Group),
   soil_pH = 0,
   moisture = 0,
-  Plot_ID = NA
+  Plot_ID = "OG"
 )
 yhat <-
   predict(mod,
     newdata = newdat,
-    allow.new.levels = TRUE,
     type = "response",
     cov.fit = TRUE
   )
