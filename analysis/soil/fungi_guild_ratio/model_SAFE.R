@@ -146,7 +146,7 @@ X <- X[rownames(comm_matrix), , drop = FALSE]
 # log-link and two latent dimensions
 mod <- gllvm(
   y = comm_matrix,
-  X = X,
+  X = X[, -1],
   family = "negative.binomial",
   num.lv = 2,
   row.eff = "random",
