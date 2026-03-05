@@ -69,11 +69,16 @@ filepath <- "data/primary/soil/fungi/"
 trait <-
   read_excel(paste0(filepath, "13225_2020_466_MOESM4_ESM.xlsx"))
 
+# site info from the SAFE dataset
+site <-
+  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+            sheet = 4,
+            skip = 9)
+
 # taxonomic info from the SAFE dataset
 taxo <-
   read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
-    sheet = 3
-  )
+            sheet = 3)
 
 # community data from the SAFE dataset
 comm <-
@@ -128,6 +133,11 @@ comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 # reorder the columns of community matrix to facilitate model identifiability
 comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 
+# site covariate matrix
+X <- model.matrix(~ Type, data = site)
+rownames(X) <- site$Sample_ID
+X <- X[rownames(comm_matrix), , drop = FALSE]
+
 
 # Model -------------------------------------------------------------------
 
@@ -136,6 +146,7 @@ comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 # log-link and two latent dimensions
 mod <- gllvm(
   y = comm_matrix,
+  X = X,
   family = "negative.binomial",
   num.lv = 2,
   row.eff = "random",
