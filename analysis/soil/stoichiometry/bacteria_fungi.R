@@ -27,7 +27,7 @@
 #|     path: data/derived/soil/nutrient_pools
 #|     description: |
 #|       Estimated C fraction in fungi and assumed C fraction in bacteria
-#|       
+#|
 #| package_dependencies:
 #|     - tidyverse
 #|     - rgbif

@@ -32,7 +32,7 @@
 #|     description: |
 #|       Carbon fraction per mass of microbes
 #| output_files:
-#|       
+#|
 #| package_dependencies:
 #|     - tidyverse
 #|
@@ -47,17 +47,16 @@ library(tidyverse)
 # Derived quantities ------------------------------------------------------
 
 # Fungal to bacteria ratio
-fungal_bacteria_ratio <- 
+fungal_bacteria_ratio <-
   read_rds("data/derived/soil/nutrient_pools/fungal_bacteria_ratio.rds")
 
 # Fungal guild composition / relative abundance
-fungi_rel_abun <- 
+fungi_rel_abun <-
   read_rds("data/derived/soil/nutrient_pools/fungi_rel_abun.rds")
 
 # Fungal and bacterial carbon fraction
-C_fraction_microbe <- 
+C_fraction_microbe <-
   read_rds("data/derived/soil/nutrient_pools/C_fraction_microbe.rds")
-
 
 
 # Calculation -------------------------------------------------------------
@@ -82,10 +81,12 @@ microbe_ratio <- c(
 )
 
 # lastly convert biomass ratios to carbon ratios
-microbe_ratio <- 
-  microbe_ratio * 
-  c(rep(C_fraction_microbe["fungi"], 3), 
-    C_fraction_microbe["bacteria"])
+microbe_ratio <-
+  microbe_ratio *
+    c(
+      rep(C_fraction_microbe["fungi"], 3),
+      C_fraction_microbe["bacteria"]
+    )
 # re-normalise again so the values sum to one
 # this will be used to split total microbial carbon into each pool
 microbe_ratio <- microbe_ratio / sum(microbe_ratio)

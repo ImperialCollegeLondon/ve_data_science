@@ -26,7 +26,7 @@
 #|     path: data/derived/soil/nutrient_pools
 #|     description: |
 #|       Fungal and bacteria ratio
-#|       
+#|
 #| package_dependencies:
 #|     - tidyverse
 #|     - readxl
@@ -133,5 +133,7 @@ yhat <-
 fungal_bacteria_ratio <- yhat$fit[1] / yhat$fit[2]
 
 # save output
-write_rds(fungal_bacteria_ratio, 
-          "data/derived/soil/nutrient_pools/fungal_bacteria_ratio.rds")
+write_rds(
+  fungal_bacteria_ratio,
+  "data/derived/soil/nutrient_pools/fungal_bacteria_ratio.rds"
+)

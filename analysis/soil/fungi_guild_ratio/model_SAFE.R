@@ -72,13 +72,15 @@ trait <-
 # site info from the SAFE dataset
 site <-
   read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
-            sheet = 4,
-            skip = 9)
+    sheet = 4,
+    skip = 9
+  )
 
 # taxonomic info from the SAFE dataset
 taxo <-
   read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
-            sheet = 3)
+    sheet = 3
+  )
 
 # community data from the SAFE dataset
 comm <-
@@ -134,7 +136,7 @@ comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 
 # site covariate matrix
-X <- model.matrix(~ Type, data = site)
+X <- model.matrix(~Type, data = site)
 rownames(X) <- site$Sample_ID
 X <- X[rownames(comm_matrix), , drop = FALSE]
 
