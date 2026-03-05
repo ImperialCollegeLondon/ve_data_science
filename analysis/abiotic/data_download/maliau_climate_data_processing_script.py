@@ -110,7 +110,7 @@ output_filename = output_dir / "era5_monthly_2010_2020_maliau.nc"
 # ERA5 data (spatially interpolated) to be used in the VE model
 output_dir_reprojected = Path(".../../../data/derived/abiotic/era5_land_monthly")
 output_dir_reprojected.mkdir(parents=True, exist_ok=True)
-output_filename_reprojected = output_dir_reprojected / "eRA5_maliau_2010_2020_90m.nc"
+output_filename_reprojected = output_dir_reprojected / "era5_maliau_2010_2020_90m.nc"
 
 # Run the downloader tool
 cdsapi_era5_downloader(
@@ -124,7 +124,7 @@ wgs84_crs = CRS.from_epsg(4326)
 utm50N_crs = CRS.from_epsg(32650)
 
 # Load the destination grid details
-with open("../../../sites/maliau_site_definition.toml", "rb") as maliau_grid_file:
+with open("../../../sites/maliau_grid_definition_90m.toml", "rb") as maliau_grid_file:
     site_config = tomllib.load(maliau_grid_file)
 
 # Define the XY shape of the data in the destination dataset
@@ -235,8 +235,6 @@ dataset_renamed["atmospheric_co2_ref"] = xr.DataArray(
 )
 
 # Mean annual temperature is calculated from the full time series of air temperatures
-
-# Mean annual temperature is calculated from the full time series of air temperatures
 time_dim = next(
     dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim
 )
@@ -248,75 +246,116 @@ dataset_renamed["mean_annual_temperature"] = dataset_renamed[
 # Note:
 # In the future we plan to include a time series of mean annual data for every year.
 
-# Reformat x, y and time_index dimensions into VE-style dataset:
-# This section converts the reprojected climate dataset into the
-# Virtual Ecosystem (VE) spatial layout, using x and y as physical
-# spatial dimensions and time_index as the temporal dimension.
+# Reformat dataset to Virtual Ecosystem (VE) 1D grid structure
+# This section converts the reprojected climate dataset from
+# a 2D spatial grid (x, y) into the VE cell-based format.
+# The dataset is flattened so that each spatial grid cell is
+# represented by a unique `cell_id`, while `time_index`
+# represents the temporal dimension.
+#
+# Final dataset structure:
+#   Dimensions:
+#       cell_id      → unique grid cell identifier (row-major order)
+#       time_index   → sequential time steps
+#
+#   Coordinates per cell_id:
+#       x                   → distance from grid origin (m)
+#       y                   → distance from grid origin (m)
+#       longitude_UTM50N    → UTM Zone 50N easting coordinate (m)
+#       latitude_UTM50N     → UTM Zone 50N northing coordinate (m)
+#
+# This format matches the spatial input requirements of the
+# Virtual Ecosystem (VE) model.
+
+# Read the grid centre coordinates from the site configuration
+# file. These represent the UTM Zone 50N easting (cell_x) and
+# northing (cell_y) coordinates of each grid cell centre.
 cell_x = np.array(site_config["cell_x_centres"])  # UTM eastings
 cell_y = np.array(site_config["cell_y_centres"])  # UTM northings
-epsg_code = site_config["epsg_code"]
-res = site_config["res"]  # target resolution (90 m)
 
+nx = len(cell_x)
+ny = len(cell_y)
 
 # The original grid coordinates (cell_x, cell_y) represent projected UTM
 # cell-centre positions. To ensure consistency with VE inputs, these coordinates are
 # converted to distances relative to the grid origin (cell centre based).
 # This results in regularly spaced x and y coordinates starting at 0 and increasing by
 # the grid resolution.
-x = cell_x - cell_x[0]
-y = cell_y - cell_y[0]
+x_dist = (cell_x - cell_x[0]).astype(np.float32)
+y_dist = (cell_y - cell_y[0]).astype(np.float32)
 
-# Identify the existing time dimension name in the dataset (e.g. 'time'),
-# allowing the script to remain robust to different NetCDF conventions.
+# ERA5 NetCDF files may store the temporal dimension under
+# different names (e.g., "time"). This section identifies the
+# time dimension automatically and renames it to `time_index`
+# to match the Virtual Ecosystem input convention.
 time_dim = next(
     dim for dim in dataset_renamed["air_temperature_ref"].dims if "time" in dim
 )
 
-# Rename the time dimension to "time_index" and assign spatial
-# coordinates (x, y) as explicit coordinate variables.
-n_time = dataset_renamed.sizes[time_dim]
+dataset_xyt = dataset_renamed.rename_dims({time_dim: "time_index"})
 
-dataset_xyt = dataset_renamed.rename_dims({time_dim: "time_index"}).assign_coords(
-    {
-        "x": x.astype(np.float32),
-        "y": y.astype(np.float32),
-        "time_index": np.arange(n_time, dtype=np.int32),
-    }
-)
-
-
-# Explicitly enforce dimension order as (x, y, time_index).
+# The dataset is then reordered so that the dimensions follow
+# the standard VE order: (x, y, time_index).
 dataset_xyt = dataset_xyt.transpose("x", "y", "time_index")
 
-# Print a concise summary to confirm that the dataset has been
-# successfully reformatted to the VE grid and time structure,
-# including grid size, resolution, and number of time steps.
-print(
-    f"✅ Reformatted to VE-style TOML grid: "
-    f"cell_nx = {site_config['cell_nx']}, "
-    f"cell_ny = {site_config['cell_ny']}, "
-    f"resolution = {site_config['res']} m, "
-    f"time steps = {dataset_renamed.sizes[time_dim]}"
+# Create unique identifiers for each grid cell in the 2D spatial grid.
+# Cell IDs follow the Virtual Ecosystem row-major ordering convention,
+# starting from the top-left cell and increasing left-to-right across rows.
+cell_ids = np.arange(nx * ny, dtype=np.int32).reshape(ny, nx)
+
+# Flip the grid vertically so that numbering begins at the top-left
+# grid cell rather than the bottom-left, ensuring consistency with
+# the Virtual Ecosystem spatial indexing convention.
+cell_ids = np.flipud(cell_ids)
+
+# Assign the generated cell identifiers as coordinates of the dataset.
+# The IDs are aligned with the existing (y, x) spatial dimensions so
+# each grid cell is linked to its corresponding VE cell_id.g
+dataset_xyt = dataset_xyt.assign_coords(cell_id=(("y", "x"), cell_ids))
+
+# Convert the 2D spatial grid (y, x) into a 1D structure required
+# by the Virtual Ecosystem model by stacking both spatial dimensions
+# into a single dimension called `cell_id`
+dataset_flat = dataset_xyt.stack(cell_id=("y", "x"))
+
+# Remove the MultiIndex created during stacking to simplify the dataset
+# structure and retain only the single `cell_id` coordinate used by
+# the Virtual Ecosystem cell-based grid format.
+dataset_flat = dataset_flat.reset_index("cell_id", drop=True)
+
+# Reassign sequential cell_id values explicitly to ensure that
+# identifiers are stored correctly and preserved when exporting
+# the dataset to NetCDF format.
+dataset_flat = dataset_flat.assign_coords(
+    cell_id=("cell_id", np.arange(nx * ny, dtype=np.int32))
 )
 
-# Once we confirmed that our dataset is complete and our calculations are correct, we
-# save it as a new netcdf file.
-dataset_xyt.to_netcdf(output_filename_reprojected)
-
-
-# Print a summary of the reprojected dataset
-
-print(
-    f"✅ Reformatted to VE-style TOML grid: "
-    f"cell_nx = {site_config['cell_nx']}, "
-    f"cell_ny = {site_config['cell_ny']}, "
-    f"resolution = {site_config['res']} m, "
-    f"time steps = {dataset_renamed.sizes[time_dim]}"
+# Attach spatial coordinates to each grid cell, including distance-
+# based grid coordinates (x, y) and the original UTM projected
+# coordinates of the cell centres.
+dataset_flat = dataset_flat.assign_coords(
+    x=("cell_id", np.tile(x_dist, ny)),
+    y=("cell_id", np.repeat(y_dist[::-1], nx)),
+    longitude_UTM50N=("cell_id", np.tile(cell_x, ny)),
+    latitude_UTM50N=("cell_id", np.repeat(cell_y[::-1], nx)),
+    time_index=np.arange(dataset_flat.dims["time_index"]),
 )
 
-# Once we confirmed that our dataset is complete and our calculations are correct, we
-# save it as a new netcdf file.
-dataset_xyt.to_netcdf(output_filename_reprojected)
+# Reorder dataset dimensions so that spatial cells appear first
+# followed by the temporal dimension, matching the expected
+# input format of the Virtual Ecosystem model.
+dataset_flat = dataset_flat.transpose("cell_id", "time_index")
+
+# Print the dataset dimensions and coordinate names to verify
+# that the dataset has been correctly transformed into the
+# Virtual Ecosystem cell-based structure.
+print("✅ Final dimensions:", dataset_flat.dims)
+print("✅ Final coordinates:", list(dataset_flat.coords))
+
+# Save the processed dataset as a NetCDF file after confirming
+# that the spatial structure and variable transformations are
+# correct and ready for VE model input.
+dataset_flat.to_netcdf(output_filename_reprojected)
 
 # Print summary statistics for key variables to check values
 vars_to_check = [
