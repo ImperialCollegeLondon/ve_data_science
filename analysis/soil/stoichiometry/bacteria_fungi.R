@@ -23,7 +23,11 @@
 #|       Downloaded from https://doi.org/10.6084/m9.figshare.13366310
 #|
 #| output_files:
-#|
+#|   - name: C_fraction_microbe.rds
+#|     path: data/derived/soil/nutrient_pools
+#|     description: |
+#|       Estimated C fraction in fungi and assumed C fraction in bacteria
+#|       
 #| package_dependencies:
 #|     - tidyverse
 #|     - rgbif
@@ -78,5 +82,11 @@ mod <- glmmTMB(
   data = C_frac
 )
 
-# estimated C fraction in fungi
-plogis(fixef(mod)$cond)
+# estimated C fraction in fungi and assumed C fraction in bacteria
+C_frac <- c(
+  fungi = as.numeric(plogis(fixef(mod)$cond)),
+  bacteria = 0.5
+)
+
+# save output
+write_rds(C_frac, "data/derived/soil/nutrient_pools/C_fraction_microbe.rds")

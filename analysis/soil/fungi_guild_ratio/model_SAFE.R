@@ -34,6 +34,10 @@
 #|       Available on Zenodo https://doi.org/10.5281/zenodo.13122106
 #|
 #| output_files:
+#|   - name: fungi_rel_abun.rds
+#|     path: data/derived/soil/nutrient_pools
+#|     description: |
+#|       Relative abundance of fungal guilds
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -146,6 +150,9 @@ summary(mod)
 # count per unit sample)
 rel_abun <- plogis(mod$params$beta0)
 rel_abun
+
+# save output
+write_rds(rel_abun, "data/derived/soil/nutrient_pools/fungi_rel_abun.rds")
 
 # model-based ordination plot for curiosity
 ordiplot(mod, biplot = TRUE)

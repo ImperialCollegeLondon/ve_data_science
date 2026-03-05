@@ -22,7 +22,11 @@
 #|       https://doi.org/10.5281/zenodo.3929632
 #|
 #| output_files:
-#|
+#|   - name: fungal_bacteria_ratio.rds
+#|     path: data/derived/soil/nutrient_pools
+#|     description: |
+#|       Fungal and bacteria ratio
+#|       
 #| package_dependencies:
 #|     - tidyverse
 #|     - readxl
@@ -128,4 +132,8 @@ yhat <-
   )
 
 # calculate (predicted) fungal-to-bacterial ratio using their predicted biomass
-yhat$fit[1] / yhat$fit[2]
+fungal_bacteria_ratio <- yhat$fit[1] / yhat$fit[2]
+
+# save output
+write_rds(fungal_bacteria_ratio, 
+          "data/derived/soil/nutrient_pools/fungal_bacteria_ratio.rds")
