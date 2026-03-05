@@ -20,7 +20,7 @@
 #|
 #| input_files:
 #|   - name: 13225_2020_466_MOESM4_ESM.xlsx
-#|     path: data/primary/soil/mycorrhizae/
+#|     path: data/primary/soil/fungi/
 #|     description: |
 #|       Fungal trait database from FungalTraits (Polme et al. 2020)
 #|       Paper DOI: https://doi.org/10.1007/s13225-020-00466-2
@@ -28,7 +28,7 @@
 #|       provides the genus-level traits; this dataset is for assigning
 #|       fungal genera into guilds
 #|   - name: Soil_Mycelial_Fungi_SAFE_Dataset.xlsx
-#|     path: data/primary/soil/mycorrhizae/
+#|     path: data/primary/soil/fungi/
 #|     description: |
 #|       Fungal community data from SAFE collected by Robinson et al.
 #|       Available on Zenodo https://doi.org/10.5281/zenodo.13122106
@@ -59,7 +59,7 @@ library(gclus)
 # Data --------------------------------------------------------------------
 
 # read data from the file path
-filepath <- "data/primary/soil/mycorrhizae/"
+filepath <- "data/primary/soil/fungi/"
 
 # trait / guild data from the FungalTraits database
 trait <-
