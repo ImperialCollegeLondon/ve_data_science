@@ -23,8 +23,10 @@ description: |
     5. Handles invalid values:
          - Masks raster nodata values
          - Fills remaining NaNs using nearest-neighbour interpolation
-    6. Reformats the elevation dataset into VE-style (x, y, elevation) layout.
-    7. Saves the processed NetCDF output ready for VE abiotic model use.
+    6. Reformats the elevation data from a 2D spatial grid into the VE 1D grid
+       structure, where dimension is represented by a unique cell_id,
+       with corresponding coordinates stored as x and y variables.
+    7. Saves the processed NetCDF output ready for VE hydrology module use.
 
   The SRTM DEM used here was obtained from the Shuttle Radar Topography Mission
   and reprojected to UTM Zone 50N for the SAFE Project area (4°N 116°E to 5°N 117°E).
@@ -50,13 +52,13 @@ status: final
 
 input_files:
   - name: SRTM_UTM50N_processed.tif
-    path: data/sites/
+    path: data/primary/
     description: |
       30 m SRTM DEM for the SAFE Project region (4°N 116°E to 5°N 117°E), reprojected
       to UTM Zone 50N. The dataset is available via:
       https://zenodo.org/records/3490488
 
-  - name: maliau_site_definition.toml
+  - name: maliau_grid_definition_90m.toml
     path: data/sites/
     description: |
       Site definition file specifying the target VE grid for Maliau Basin.
@@ -64,7 +66,7 @@ input_files:
       in UTM Zone 50N (EPSG:32650).
 
 output_files:
-  - name: elevation_Maliau_2010_2020_UTM50N.nc
+  - name: elevation_maliau_2010_2020_90m.nc
     path: data/derived/abiotic/elevation_data/
     description: |
       Elevation dataset resampled to a 90 m grid in UTM Zone 50N. Invalid values
@@ -106,7 +108,7 @@ input_srtm = Path("../../../data/primary/SRTM_UTM50N_processed.tif")
 # interpolated elevation data to be used in the VE model
 output_dir = Path("../../../data/derived/abiotic/elevation_data")
 output_dir.mkdir(parents=True, exist_ok=True)
-output_filename = output_dir / "elevation_maliau_2010_2020_UTM50N.nc"
+output_filename = output_dir / "elevation_maliau_2010_2020_90m.nc"
 
 # Load the destination grid details
 with open("../../../sites/maliau_grid_definition_90m.toml", "rb") as f:
