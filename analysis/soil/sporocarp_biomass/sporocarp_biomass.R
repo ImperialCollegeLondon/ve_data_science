@@ -47,4 +47,4 @@ ci <- 35 / 1e4
 # example code to simulate values across Maliau grids
 # this is just to demonstrate the idea, real action will take place in a
 # downstream analysis
-runif(100, alday-ci, alday+ci)
+runif(100, alday - ci, alday + ci)
