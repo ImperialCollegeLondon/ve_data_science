@@ -2,44 +2,40 @@
 #| title: Descriptive name of the script
 #|
 #| description: |
-#|     Brief description of what the script does, its main purpose, and any important
-#|     scientific context. Keep it concise but informative.
 #|
-#|     This can include multiple paragraphs.
 #|
-#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, None]
+#| virtual_ecosystem_module: Litter
 #|
-#| author:
-#|   - David Orme
+#| author: Hao Ran Lai
 #|
 #| status: final or wip
 #|
 #| input_files:
-#|   - name: Input file name
-#|     path: Full file path on shared drive
+  #|   - name: Input file name
+  #|     path: Full file path on shared drive
 #|     description: |
-#|       Source (short citation) and a brief explanation of what this input file
-#|       contains and its use case in this script
+#|
 #|
 #| output_files:
-#|   - name: Output file name
-#|     path: Full file path on shared drive
+  #|   - name: Output file name
+  #|     path: Full file path on shared drive
 #|     description: |
-#|       What the output file contains and its significance, are they used in any other
-#|       scripts?
+#|
 #|
 #| package_dependencies:
-#|     - tools
-#|
-#| usage_notes: |
-#|   Any known issues or bugs? Future plans for script/extensions or improvements
-#|   planned that should be noted?
-#| ---
+  #|     - tidyverse
+  #|
+  #| usage_notes: |
+  #|
+  #| ---
 
-library(tidyverse)
+  library(tidyverse)
 library(readxl)
+library(glmmTMB)
 
 
+
+# Parameters --------------------------------------------------------------
 
 decay_param <- read_csv("data/derived/litter/turnover/decay_parameters.csv")
 logitfM <- decay_param$value[decay_param$Parameter == "logitfM"]
@@ -54,11 +50,12 @@ r_century <- 5
 
 
 
+# Data --------------------------------------------------------------------
 
 litter <-
   read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
-    sheet = 3,
-    skip = 7
+            sheet = 3,
+            skip = 7
   ) |>
   # convert lignin from mass/mass to g C/g C
   # the lignin C content = 62.5% comes from
@@ -80,3 +77,27 @@ litter <-
     C.P_metabolic = C.P / (r_century + fm * (1 - r_century)),
     C.N_structural = r_century * C.N_metabolic,
     C.P_structural = r_century * C.P_metabolic)
+
+
+
+# Model -------------------------------------------------------------------
+
+# litter_type as covariate to predict for Maliau
+
+mod_C.N_met_above <- glmmTMB(
+  C.N_metabolic ~ 0 + litter_type,
+  family = lognormal,
+  data = litter
+)
+
+mod_C.P_met_above <- glmmTMB(
+  C.P_metabolic ~ 0 + litter_type,
+  family = lognormal,
+  data = litter
+)
+
+mod_lignin_above <- glmmTMB(
+  lignin ~ 0 + litter_type,
+  family = beta_family(),
+  data = litter
+)
