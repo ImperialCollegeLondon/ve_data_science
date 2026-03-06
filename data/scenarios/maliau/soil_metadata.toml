@@ -3,16 +3,16 @@
 title = "Soil and litter metadata"
 
 [pH]
-script-path = ""
+script-path = "analysis/soil/initialisation/model_safe.R"
 
 [clay_fraction]
-script-path = ""
+script-path = "analysis/soil/initialisation/model_safe.R"
 
 [soil_c_pool_lmwc]
 script-path = ""
 
 [soil_c_pool_maom]
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_bacteria]
 script-path = ""
@@ -27,7 +27,7 @@ script-path = ""
 script-path = ""
 
 [soil_c_pool_pom]
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_necromass]
 script-path = ""
@@ -54,10 +54,10 @@ script-path = ""
 script-path = ""
 
 [soil_n_pool_particulate]
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_n_pool_maom]
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_n_pool_necromass]
 script-path = ""
@@ -84,19 +84,34 @@ script-path = ""
 script-path = ""
 
 [litter_pool_above_metabolic]
-script-path = ""
+script-path = '''
+analysis/litter/stock/model_aboveground_C.R
+analysis/litter/stock/combine_stocks.R
+'''
 
 [litter_pool_above_structural]
-script-path = ""
+script-path = '''
+analysis/litter/stock/model_aboveground_C.R
+analysis/litter/stock/combine_stocks.R
+'''
 
 [litter_pool_woody]
-script-path = ""
+script-path = '''
+analysis/litter/stock/model_deadwood_C.R
+analysis/litter/stock/combine_stocks.R
+'''
 
 [litter_pool_below_metabolic]
-script-path = ""
+script-path = '''
+analysis/litter/stock/model_belowground_C.R
+analysis/litter/stock/combine_stocks.R
+'''
 
 [litter_pool_below_structural]
-script-path = ""
+script-path = '''
+analysis/litter/stock/model_belowground_C.R
+analysis/litter/stock/combine_stocks.R
+'''
 
 [fungal_fruiting_bodies]
 script-path = ""
