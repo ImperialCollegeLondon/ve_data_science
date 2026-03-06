@@ -134,9 +134,9 @@ comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 
 # site covariate matrix
-X <- model.matrix(~ Type, data = site)
-rownames(X) <- site$Sample_ID
-X <- X[rownames(comm_matrix), , drop = FALSE]
+env <- model.matrix(~ Type, data = site)
+rownames(env) <- site$Sample_ID
+env <- env[rownames(comm_matrix), , drop = FALSE]
 
 
 # Model -------------------------------------------------------------------
@@ -146,7 +146,7 @@ X <- X[rownames(comm_matrix), , drop = FALSE]
 # log-link and two latent dimensions
 mod <- gllvm(
   y = comm_matrix,
-  X = X[, -1],
+  X = env[, -1],
   family = "negative.binomial",
   num.lv = 2,
   row.eff = "random",
