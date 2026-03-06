@@ -136,7 +136,7 @@ comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 
 # site covariate matrix
-env <- model.matrix(~ Type, data = site)
+env <- model.matrix(~Type, data = site)
 rownames(env) <- site$Sample_ID
 env <- env[rownames(comm_matrix), , drop = FALSE]
 

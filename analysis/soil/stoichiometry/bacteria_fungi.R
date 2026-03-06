@@ -124,5 +124,7 @@ C_frac_est <- c(
 names(C_frac_est) <- str_remove(names(C_frac_est), "guild")
 
 # save output
-write_rds(C_frac_est,
-          "data/derived/soil/nutrient_pools/C_fraction_microbe.rds")
+write_rds(
+  C_frac_est,
+  "data/derived/soil/nutrient_pools/C_fraction_microbe.rds"
+)
