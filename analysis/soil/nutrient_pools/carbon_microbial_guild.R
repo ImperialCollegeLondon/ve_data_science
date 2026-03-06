@@ -82,11 +82,10 @@ microbe_ratio <- c(
 
 # lastly convert biomass ratios to carbon ratios
 microbe_ratio <-
-  microbe_ratio *
-    c(
-      rep(C_fraction_microbe["fungi"], 3),
-      C_fraction_microbe["bacteria"]
-    )
+  microbe_ratio * c(
+    rep(C_fraction_microbe["fungi"], 3),
+    C_fraction_microbe["bacteria"]
+  )
 # re-normalise again so the values sum to one
 # this will be used to split total microbial carbon into each pool
 microbe_ratio <- microbe_ratio / sum(microbe_ratio)
