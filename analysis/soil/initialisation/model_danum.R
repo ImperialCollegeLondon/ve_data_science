@@ -1,3 +1,36 @@
+#| ---
+#| title: Spatial model of the Danum Valley 50-Ha Plot Soil Nutrient Data
+#|
+#| description: |
+#|     This R script analyses the Danum Valley 50-Ha Plot Soil Nutrient Data
+#|     to explore soil covariance and spatial patterns. Currently only for
+#|     curiosity and cross-referencing.
+#|
+#| virtual_ecosystem_module: Soil
+#|
+#| author: Hao Ran Lai
+#|
+#| status: wip
+#|
+#| input_files:
+#|   - name: 50-ha_soil_data.xlsx
+#|     path: data/primary/soil/nutrient
+#|     description: |
+#|       Danum Valley 50-Ha Plot Soil Nutrient Data between 2016 and 2018
+#|       https://zenodo.org/records/16005736
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - autoFRK
+#|     - CBFM
+#|
+#| usage_notes: |
+#|     The CBFM needs to be installed from https://github.com/fhui28/CBFM
+#| ---
+
 library(tidyverse)
 library(readxl)
 library(autoFRK)
