@@ -27,7 +27,7 @@
 #|     path: data/derived/soil/nutrient_pools
 #|     description: |
 #|       Estimated C fraction in fungi and assumed C fraction in bacteria
-#|       
+#|
 #| package_dependencies:
 #|     - tidyverse
 #|     - rgbif
@@ -38,13 +38,24 @@
 #| ---
 
 library(tidyverse)
+library(readxl)
 library(rgbif)
 library(glmmTMB)
 
+# fungal guild database
+trait <-
+  read_excel("data/primary/soil/fungi/13225_2020_466_MOESM4_ESM.xlsx") |>
+  select(
+    family = Family,
+    genus = GENUS,
+    guild = primary_lifestyle
+  )
 
 # Stoichiometry database
 stoich <-
-  read_delim("data/primary/animal/body_stoichiometry/Global_heterotroph_stoichio_v5.csv") |>
+  read_delim(
+    "data/primary/animal/body_stoichiometry/Global_heterotroph_stoichio_v5.csv"
+  ) |>
   filter(
     Group == "Microbe",
     !is.na(C_mean)
@@ -63,10 +74,33 @@ query <-
   bind_rows()
 C_frac <-
   query |>
-  select(kingdom) |>
+  # add guild info
+  left_join(trait) |>
+  # add guild and kingdom info
   bind_cols(stoich) |>
-  filter(!is.na(kingdom)) |>
-  select(kingdom, C_mean) |>
+  # remove taxa without established taxonomy and trait
+  filter(
+    !is.na(kingdom),
+    !is.na(guild)
+  ) |>
+  # rename / merge guilds into coarser groups that we want
+  # and then sum their abundances
+  mutate(guild = case_when(
+    guild == "arbuscular_mycorrhizal" ~ "AM",
+    guild == "ectomycorrhizal" ~ "EM",
+    str_detect(guild, "saprotroph") ~ "saprotroph",
+    str_detect(guild, "pathogen") ~ "pathogen",
+    str_detect(guild, "parasite") ~ "parasite",
+    str_detect(guild, "endophyte") ~ "endophyte",
+    str_detect(guild, "lichenized") ~ "lichenized",
+    str_detect(guild, "epiphyte") ~ "epiphyte",
+    .default = "other"
+  )) |>
+  # FIXME if bacteria are added back in the future, need to manually
+  # assign them a "guild" name, i.e., "bacteria" to keep this part working
+  # next, only keep guild of interest
+  filter(guild %in% c("AM", "EM", "saprotroph")) |>
+  select(kingdom, guild, C_mean) |>
   # convert C fraction from percentage to proportion
   mutate(C_mean = C_mean / 100)
 
@@ -77,7 +111,7 @@ C_frac <-
 # Model to estimate C fraction for fungi
 # this is a very crude model ignoring phylogenetic dependence!
 mod <- glmmTMB(
-  C_mean ~ 1,
+  C_mean ~ 0 + guild,
   family = beta_family(),
   data = C_frac
 )
