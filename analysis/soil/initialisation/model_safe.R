@@ -21,18 +21,14 @@ topo <-
   rast("data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif")
 
 # Climate
-# tp <- 
-#   rast("data/primary/abiotic/era5_land_monthly/ERA5_monthly_2010_2020_SAFE_big.nc",
-#        subds = "tp") %>% 
-#   mean(., na.rm = TRUE) %>%
-#   project(., crs(elev))
+# Not included now
 
 # Hydrology
-hydro <- 
+hydro <-
   rast("data/primary/abiotic/SRTM_hydrology/SRTM_Log_Flow_Accum.tif")
 
 # LiDAR
-acd <- 
+acd <-
   merge(
     rast("data/primary/plant/remote_biomass/Danum_acd.tif"),
     rast("data/primary/plant/remote_biomass/Maliau_acd.tif"),
@@ -82,7 +78,7 @@ soil <-
     hydro = extract(hydro, .[, c("X", "Y")])[, "SRTM_Log_Flow_Accum"],
     acd = extract(acd, .[, c("X", "Y")])[, "Danum_acd"],
     evi = extract(evi, .[, c("X", "Y")])[, "EVI"]
-  ) %>% 
+  ) %>%
   drop_na(elev, topo, hydro, acd, evi)
 
 soil_vars <-
@@ -103,9 +99,9 @@ soil_mat[, -c(1, 2)] <- log(soil_mat[, -c(1, 2)])
 rownames(soil_mat) <- soil$plot_code
 
 # TODO scale covariates
-soil_scaled <- 
-  soil %>% 
-  mutate_at(vars(elev, topo, hydro, acd, evi), 
+soil_scaled <-
+  soil %>%
+  mutate_at(vars(elev, topo, hydro, acd, evi),
             ~as.numeric(scale(.)))
 
 
@@ -165,10 +161,10 @@ maliau_dat <-
     elev = extract(elev, .[, c("X", "Y")])[, "SRTM_UTM50N_processed"],
     topo = extract(topo, .[, c("X", "Y")])[, "SRTM_UTM50N_TRI_Wilson2007"],
     hydro = extract(hydro, .[, c("X", "Y")])[, "SRTM_Log_Flow_Accum"],
-    # acd = extract(acd, .[, c("X", "Y")])[, "Danum_acd"],
+    # acd = extract(acd, .[, c("X", "Y")])[, "Danum_acd"],  # nolint
     acd = mean(soil$acd),
     evi = extract(evi, .[, c("X", "Y")])[, "EVI"]
-  ) %>% 
+  ) %>%
   mutate(elev = (elev - mean(soil$elev)) / sd(soil$elev),
          topo = (topo - mean(soil$topo)) / sd(soil$topo),
          hydro = (hydro - mean(soil$hydro)) / sd(soil$hydro),
@@ -177,7 +173,7 @@ maliau_dat <-
 
 maliau_basis <-
   mrts(soil[, c("X", "Y")], num_basis) %>%
-  predict(newx = maliau_grid[, c("X", "Y")]) %>% 
+  predict(newx = maliau_grid[, c("X", "Y")]) %>%
   as.matrix() %>%
   {
     .[, -(1)]
