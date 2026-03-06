@@ -72,13 +72,15 @@ trait <-
 # site info from the SAFE dataset
 site <-
   read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
-            sheet = 4,
-            skip = 9)
+    sheet = 4,
+    skip = 9
+  )
 
 # taxonomic info from the SAFE dataset
 taxo <-
   read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
-            sheet = 3)
+    sheet = 3
+  )
 
 # community data from the SAFE dataset
 comm <-
