@@ -117,10 +117,12 @@ mod <- glmmTMB(
 )
 
 # estimated C fraction in fungi and assumed C fraction in bacteria
-C_frac <- c(
-  fungi = as.numeric(plogis(fixef(mod)$cond)),
+C_frac_est <- c(
+  plogis(fixef(mod)$cond),
   bacteria = 0.5
 )
+names(C_frac_est) <- str_remove(names(C_frac_est), "guild")
 
 # save output
-write_rds(C_frac, "data/derived/soil/nutrient_pools/C_fraction_microbe.rds")
+write_rds(C_frac_est,
+          "data/derived/soil/nutrient_pools/C_fraction_microbe.rds")
