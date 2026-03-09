@@ -6,7 +6,7 @@
 #|     the exponential decay (Olson) model. There is not a lot of good dataset
 #|     that measured both decomposition *and* lignin; when they do, they don't
 #|     share the data openly (older studies). For our current goals, I found
-#|     Geffen et al. (2010) which fitting the right model and provided species
+#|     Geffen et al. (2010) which fitted the right model and provided species
 #|     lignin values. They published the k values (rate parameters), so I fitted
 #|     a relationship between k and lignin content. Ideally we would estimate k
 #|     from raw data but they did not share any raw data. We will have to settle
@@ -33,10 +33,7 @@
 #|     - tidyverse
 #|     - glmmTMB
 #|
-#| usage_notes: |
-#|     Note that there is no output file. The outputs here will be combined
-#|     using the script
-#|     analysis/litter/chemistry_and_turnover/combined_parameters.R
+#| usage_notes:
 #| ---
 
 library(tidyverse)
@@ -100,9 +97,6 @@ geffen_2010 <-
   mutate(k = k / 365.25) %>%
   # join nutrient data
   left_join(geffen_2010_traits)
-
-
-
 
 
 # Model -------------------------------------------------------------------

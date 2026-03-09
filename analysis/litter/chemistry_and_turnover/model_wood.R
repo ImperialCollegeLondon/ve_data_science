@@ -22,6 +22,12 @@
 #|       Downloaded from https://zenodo.org/records/4899610
 #|
 #| output_files:
+#|   - name: decay_parameters.csv
+#|     path: data/derived/litter/turnover/
+#|     description: |
+#|       Parameters for the litter decay model. Values are reported as
+#|       posterior median and the lower and upper bounds of the 90% credible
+#|       intervals.
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -33,9 +39,6 @@
 #|     provide open data, and did not measure lignin. There is also
 #|     10.1111/1365-2435.14025 but their code is very, very dense and hard to
 #|     read; managing it would cost us too much time.
-#|     Also note that there is no output file. The outputs here will be combined
-#|     using the script
-#|     analysis/litter/chemistry_and_turnover/combined_parameters.R
 #| ---
 
 library(tidyverse)
@@ -98,7 +101,6 @@ litter_wood <-
   mutate(log_Density = log(Density))
 
 
-
 # Model -------------------------------------------------------------------
 
 # fit the wood decomposition model
@@ -111,8 +113,6 @@ mod_wood <- glmmTMB(
 )
 summary(mod_wood)
 param_wood <- confint(mod_wood)
-
-
 
 
 # Prediction --------------------------------------------------------------
