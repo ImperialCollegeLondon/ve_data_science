@@ -20,7 +20,7 @@
 #|
 #| input_files:
 #|   - name: 13225_2020_466_MOESM4_ESM.xlsx
-#|     path: data/primary/soil/mycorrhizae/
+#|     path: data/primary/soil/fungi/
 #|     description: |
 #|       Fungal trait database from FungalTraits (Polme et al. 2020)
 #|       Paper DOI: https://doi.org/10.1007/s13225-020-00466-2
@@ -28,12 +28,16 @@
 #|       provides the genus-level traits; this dataset is for assigning
 #|       fungal genera into guilds
 #|   - name: Soil_Mycelial_Fungi_SAFE_Dataset.xlsx
-#|     path: data/primary/soil/mycorrhizae/
+#|     path: data/primary/soil/fungi/
 #|     description: |
 #|       Fungal community data from SAFE collected by Robinson et al.
 #|       Available on Zenodo https://doi.org/10.5281/zenodo.13122106
 #|
 #| output_files:
+#|   - name: fungi_rel_abun.rds
+#|     path: data/derived/soil/nutrient_pools
+#|     description: |
+#|       Relative abundance of fungal guilds
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -59,11 +63,18 @@ library(gclus)
 # Data --------------------------------------------------------------------
 
 # read data from the file path
-filepath <- "data/primary/soil/mycorrhizae/"
+filepath <- "data/primary/soil/fungi/"
 
 # trait / guild data from the FungalTraits database
 trait <-
   read_excel(paste0(filepath, "13225_2020_466_MOESM4_ESM.xlsx"))
+
+# site info from the SAFE dataset
+site <-
+  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+    sheet = 4,
+    skip = 9
+  )
 
 # taxonomic info from the SAFE dataset
 taxo <-
@@ -124,6 +135,11 @@ comm_matrix <- comm_matrix[, -which(colnames(comm_matrix) == "other")]
 # reorder the columns of community matrix to facilitate model identifiability
 comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 
+# site covariate matrix
+env <- model.matrix(~Type, data = site)
+rownames(env) <- site$Sample_ID
+env <- env[rownames(comm_matrix), , drop = FALSE]
+
 
 # Model -------------------------------------------------------------------
 
@@ -132,6 +148,7 @@ comm_matrix <- comm_matrix[, order(colMeans(comm_matrix), decreasing = TRUE)]
 # log-link and two latent dimensions
 mod <- gllvm(
   y = comm_matrix,
+  X = env[, -1],
   family = "negative.binomial",
   num.lv = 2,
   row.eff = "random",
@@ -146,6 +163,9 @@ summary(mod)
 # count per unit sample)
 rel_abun <- plogis(mod$params$beta0)
 rel_abun
+
+# save output
+write_rds(rel_abun, "data/derived/soil/nutrient_pools/fungi_rel_abun.rds")
 
 # model-based ordination plot for curiosity
 ordiplot(mod, biplot = TRUE)
