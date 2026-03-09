@@ -42,7 +42,6 @@
 #|     - readxl
 #|     - dplyr
 #|     - ggplot2
-#|     - stringr
 #|
 #| usage_notes: |
 #|   This script can be used for different simulations, just need to change the
@@ -142,7 +141,7 @@ for (i in 1:length(cohort_id)) { # nolint
   ] <- cohort_id_simple[i]
 }
 
-# The loop below just give a broad indication if the n individuals per cohort
+# The loop below just gives a broad indication if the n individuals per cohort
 # changed during the simulation
 for (i in cohort_id_simple) {
   recruits <- max(plants_cohort_data$n_individuals[plants_cohort_data$cohort_id == i]) -
