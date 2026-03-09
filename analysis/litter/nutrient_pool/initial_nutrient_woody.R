@@ -55,9 +55,11 @@ nutrient_deadwood <-
   mutate(P_total = P_total / 1e3) |>
   # convert to long format for modelling
   select(Block, PlotCode, ends_with("_total")) |>
-  pivot_longer(cols = ends_with("_total"),
-               names_to = "Type",
-               values_to = "Nutrient") |>
+  pivot_longer(
+    cols = ends_with("_total"),
+    names_to = "Type",
+    values_to = "Nutrient"
+  ) |>
   # remove a few zero P values, assuming that these are below detection
   # threshold and not true zeros
   filter(Nutrient > 0)
@@ -70,11 +72,10 @@ nutrient_deadwood <-
 #     little reabsorption into the plant biomass prior to senescence
 # Table III provides mean and CV for 599 species
 lignin_mean <- 0.291
-lignin_cv   <- 0.14
+lignin_cv <- 0.14
 # calculate standard deviation from mean and CV
-lignin_sd   <- lignin_mean * lignin_cv
+lignin_sd <- lignin_mean * lignin_cv
 # mean and sd will be used downstream to simulate lignin distribution in Maliau
-
 
 
 # Model -------------------------------------------------------------------

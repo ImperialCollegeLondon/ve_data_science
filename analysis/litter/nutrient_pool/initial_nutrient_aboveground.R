@@ -57,14 +57,13 @@ sP <- decay_param$value[decay_param$Parameter == "sP"]
 r_century <- 5
 
 
-
 # Data --------------------------------------------------------------------
 
 # Litter data from SAFE
 litter <-
   read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
-            sheet = 3,
-            skip = 7
+    sheet = 3,
+    skip = 7
   ) |>
   # convert lignin from mass/mass to g C/g C
   # the lignin C content = 62.5% comes from
@@ -85,8 +84,8 @@ litter <-
     C.N_metabolic = C.N / (r_century + fm * (1 - r_century)),
     C.P_metabolic = C.P / (r_century + fm * (1 - r_century)),
     C.N_structural = r_century * C.N_metabolic,
-    C.P_structural = r_century * C.P_metabolic)
-
+    C.P_structural = r_century * C.P_metabolic
+  )
 
 
 # Model -------------------------------------------------------------------
