@@ -22,6 +22,10 @@
 #|       https://doi.org/10.5281/zenodo.3929632
 #|
 #| output_files:
+#|   - name: fungal_bacteria_ratio.rds
+#|     path: data/derived/soil/nutrient_pools
+#|     description: |
+#|       Fungal and bacteria ratio
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -103,8 +107,7 @@ dat_scaled <-
 # so I only included soil pH and moisture in the model (which are not very
 # correlated with one another)
 mod <- glmmTMB(
-  PLFA ~ 0 + Group * (soil_pH + moisture) +
-    (1 | Plot_ID),
+  PLFA ~ 0 + Group * (soil_pH + moisture) + Plot_ID,
   dispformula = ~ 0 + Group,
   family = lognormal(link = "log"),
   data = dat_scaled
@@ -117,15 +120,20 @@ newdat <- data.frame(
   Group = unique(plfa$Group),
   soil_pH = 0,
   moisture = 0,
-  Plot_ID = NA
+  Plot_ID = "OG"
 )
 yhat <-
   predict(mod,
     newdata = newdat,
-    allow.new.levels = TRUE,
     type = "response",
     cov.fit = TRUE
   )
 
 # calculate (predicted) fungal-to-bacterial ratio using their predicted biomass
-yhat$fit[1] / yhat$fit[2]
+fungal_bacteria_ratio <- yhat$fit[1] / yhat$fit[2]
+
+# save output
+write_rds(
+  fungal_bacteria_ratio,
+  "data/derived/soil/nutrient_pools/fungal_bacteria_ratio.rds"
+)

@@ -194,9 +194,10 @@ rownames(soil_mat) <- soil$plot_code
 # scale covariates
 soil_scaled <-
   soil %>%
-  mutate_at(vars(elev, topo, hydro, acd, evi),
-            ~as.numeric(scale(.)))
-
+  mutate_at(
+    vars(elev, topo, hydro, acd, evi),
+    ~ as.numeric(scale(.))
+  )
 
 
 # Model -------------------------------------------------------------------
@@ -253,11 +254,13 @@ maliau_dat <-
     acd = mean(soil$acd),
     evi = extract(evi, .[, c("X", "Y")])[, "EVI"]
   ) %>%
-  mutate(elev = (elev - mean(soil$elev)) / sd(soil$elev),
-         topo = (topo - mean(soil$topo)) / sd(soil$topo),
-         hydro = (hydro - mean(soil$hydro)) / sd(soil$hydro),
-         acd = (acd - mean(soil$acd)) / sd(soil$acd),
-         evi = (evi - mean(soil$evi)) / sd(soil$evi))
+  mutate(
+    elev = (elev - mean(soil$elev)) / sd(soil$elev),
+    topo = (topo - mean(soil$topo)) / sd(soil$topo),
+    hydro = (hydro - mean(soil$hydro)) / sd(soil$hydro),
+    acd = (acd - mean(soil$acd)) / sd(soil$acd),
+    evi = (evi - mean(soil$evi)) / sd(soil$evi)
+  )
 
 maliau_basis <-
   mrts(soil[, c("X", "Y")], num_basis) %>%
