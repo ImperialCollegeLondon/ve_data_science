@@ -1,3 +1,36 @@
+#| ---
+#| title: Models to predict woody litter nutrient composition for Maliau
+#|
+#| description: |
+#|     This script builds a predictive model of woody litter C, N and P for
+#|     the Maliau initialisation project. For woody litter lignin, empirical
+#|     data are scarce; I will use a long-term tropical hardwood data compiled
+#|     by CIRAD (https://dx.doi.org/10.19182/bft2019.342.a31809).
+#|
+#| virtual_ecosystem_module: Litter
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: SAFE_WoodDecomposition_Data_SAFEdatabase_2021-06-04.xlsx
+#|     path: data/primary/litter
+#|     description: |
+#|         Deadwood decay and traits in the SAFE landscape.
+#|         Downloaded from https://zenodo.org/records/4899610
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - glmmTMB
+#|
+#| usage_notes: |
+#|
+#| ---
+
 library(tidyverse)
 library(readxl)
 library(glmmTMB)
