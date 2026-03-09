@@ -124,6 +124,7 @@ acd <-
     rast("data/primary/plant/remote_biomass/Maliau_acd.tif"),
     rast("data/primary/plant/remote_biomass/SAFE_acd.tif")
   )
+names(acd) <- "acd"
 
 # Biomass
 evi <-
@@ -165,7 +166,7 @@ soil <-
     elev = extract(elev, .[, c("X", "Y")])[, "SRTM_UTM50N_processed"],
     topo = extract(topo, .[, c("X", "Y")])[, "SRTM_UTM50N_TRI_Wilson2007"],
     hydro = extract(hydro, .[, c("X", "Y")])[, "SRTM_Log_Flow_Accum"],
-    acd = extract(acd, .[, c("X", "Y")])[, "Danum_acd"],
+    acd = extract(acd, .[, c("X", "Y")])[, "acd"],
     evi = extract(evi, .[, c("X", "Y")])[, "EVI"]
   ) %>%
   drop_na(elev, topo, hydro, acd, evi)
@@ -248,7 +249,7 @@ maliau_dat <-
     elev = extract(elev, .[, c("X", "Y")])[, "SRTM_UTM50N_processed"],
     topo = extract(topo, .[, c("X", "Y")])[, "SRTM_UTM50N_TRI_Wilson2007"],
     hydro = extract(hydro, .[, c("X", "Y")])[, "SRTM_Log_Flow_Accum"],
-    # acd = extract(acd, .[, c("X", "Y")])[, "Danum_acd"],  # nolint
+    # acd = extract(acd, .[, c("X", "Y")])[, "acd"],  # nolint
     acd = mean(soil$acd),
     evi = extract(evi, .[, c("X", "Y")])[, "EVI"]
   ) %>%
