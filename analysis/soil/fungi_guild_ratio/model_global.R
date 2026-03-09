@@ -19,19 +19,19 @@
 #|
 #| input_files:
 #|   - name: GlobalFungi_5_genus_abundance_ITS1_ITS2.txt
-#|     path: data/primary/soil/mycorrhizae/
+#|     path: data/primary/soil/fungi/
 #|     description: |
 #|       Global fungal community dataset from https://globalfungi.com/
 #|       Download from the "Data download" tab, I kept the original filename
 #|       It contains sequences assigned to fungal genera and samples
 #|       based on the ITS1 + ITS2 sequences.
 #|   - name: GlobalFungi_5_sample_metadata.txt
-#|     path: data/primary/soil/mycorrhizae/
+#|     path: data/primary/soil/fungi/
 #|     description: |
 #|       Metadata from the https://globalfungi.com/ database mainly to
 #|       retrieve the ITS total abundance to use as offset terms
 #|   - name: 13225_2020_466_MOESM4_ESM.xlsx
-#|     path: data/primary/soil/mycorrhizae/
+#|     path: data/primary/soil/fungi/
 #|     description: |
 #|       Fungal trait database from FungalTraits (Polme et al. 2020)
 #|       Paper DOI: https://doi.org/10.1007/s13225-020-00466-2
@@ -58,7 +58,7 @@ library(glmmTMB)
 
 # Data --------------------------------------------------------------------
 
-filepath <- "data/primary/soil/mycorrhizae/"
+filepath <- "data/primary/soil/fungi/"
 
 comm <-
   read_delim(paste0(filepath, "GlobalFungi_5_genus_abundance_ITS1_ITS2.txt"))
