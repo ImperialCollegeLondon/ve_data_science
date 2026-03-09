@@ -15,16 +15,31 @@ script-path = ""
 script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_bacteria]
-script-path = ""
+script-path = '''
+analysis/soil/nutrient_pools/carbon_microbial_guild.R
+analysis/soil/nutrient_pools/carbon_microbial.R
+'''
 
 [soil_c_pool_saprotrophic_fungi]
-script-path = ""
+script-path =
+script-path = '''
+analysis/soil/nutrient_pools/carbon_microbial_guild.R
+analysis/soil/nutrient_pools/carbon_microbial.R
+'''
 
 [soil_c_pool_arbuscular_mycorrhiza]
-script-path = ""
+script-path =
+script-path = '''
+analysis/soil/nutrient_pools/carbon_microbial_guild.R
+analysis/soil/nutrient_pools/carbon_microbial.R
+'''
 
 [soil_c_pool_ectomycorrhiza]
-script-path = ""
+script-path =
+script-path = '''
+analysis/soil/nutrient_pools/carbon_microbial_guild.R
+analysis/soil/nutrient_pools/carbon_microbial.R
+'''
 
 [soil_c_pool_pom]
 script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
@@ -45,10 +60,10 @@ script-path = ""
 script-path = ""
 
 [soil_n_pool_ammonium]
-script-path = ""
+script-path = "analysis/soil/ammonium_nitrate/model.R"
 
 [soil_n_pool_nitrate]
-script-path = ""
+script-path = "analysis/soil/ammonium_nitrate/model.R"
 
 [soil_n_pool_don]
 script-path = ""
@@ -114,7 +129,7 @@ analysis/litter/stock/combine_stocks.R
 '''
 
 [fungal_fruiting_bodies]
-script-path = ""
+script-path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
 
 [lignin_above_structural]
 script-path = ""
