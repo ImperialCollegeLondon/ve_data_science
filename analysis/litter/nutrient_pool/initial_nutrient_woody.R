@@ -104,3 +104,11 @@ predict_nutrient_deadwood <-
 
 # for deadwood lignin, an example simulation is as follows
 lignin_sim <- rnorm(1000, lignin_mean, lignin_sd)
+# convert lignin from mass/mass to g C/g C
+# the lignin C content = 62.5% comes from
+# Martin et al. (2021) DOI: 10.1038/s41467-021-21149-9
+C_perc <-
+  predict_nutrient_deadwood$estimate[predict_nutrient_deadwood$Type == "C_total"]
+# FIXME C_perc needs to incorporate prediction uncertainty after fixing the
+#       prediction intervals TODO above
+lignin_sim <- lignin_sim * 0.625 / (C_perc/100)
