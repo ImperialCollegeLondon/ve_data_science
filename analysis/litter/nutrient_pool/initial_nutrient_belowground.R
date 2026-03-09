@@ -78,7 +78,6 @@ lignin_mean <- 22
 lignin_sd <- 7.3
 
 
-
 # Root resorption efficiency ----------------------------------------------
 
 # as green roots become belowground litter, they resorb N and P
@@ -90,8 +89,6 @@ N_resorption_mean <- 19.45
 N_resorption_sd <- 1.46
 P_resorption_mean <- 24.74
 P_resorption_sd <- 2.10
-
-
 
 
 # Simulate initial belowground litter nutrients ---------------------------
@@ -116,13 +113,17 @@ init_sim <-
   # Martin et al. (2021) DOI: 10.1038/s41467-021-21149-9
   mutate(lignin = lignin * 0.625 / C) |>
   # convert N and P to litter content using resorption efficiencies
-  mutate(N_resorption = rnorm(n_sim, N_resorption_mean, N_resorption_sd),
-         P_resorption = rnorm(n_sim, P_resorption_mean, P_resorption_sd),
-         N = N * N_resorption / 100,
-         P = P * P_resorption / 100) |>
+  mutate(
+    N_resorption = rnorm(n_sim, N_resorption_mean, N_resorption_sd),
+    P_resorption = rnorm(n_sim, P_resorption_mean, P_resorption_sd),
+    N = N * N_resorption / 100,
+    P = P * P_resorption / 100
+  ) |>
   # calculate C:N and C:P ratios
-  mutate(CN = C / N,
-         CP = C / P) |>
+  mutate(
+    CN = C / N,
+    CP = C / P
+  ) |>
   # calculate metabolic fraction
   mutate(fm = plogis(
     logitfM - lignin * (sN * CN + sP * CP)
@@ -137,7 +138,8 @@ init_sim <-
     CP_structural = r_century * CP_metabolic
   ) |>
   select(CN_metabolic,
-         CP_metabolic,
-         CN_structural,
-         CP_structural,
-         lignin_structural = lignin)
+    CP_metabolic,
+    CN_structural,
+    CP_structural,
+    lignin_structural = lignin
+  )
