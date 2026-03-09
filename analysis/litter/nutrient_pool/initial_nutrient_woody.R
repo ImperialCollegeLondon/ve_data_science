@@ -111,4 +111,4 @@ C_perc <-
   predict_nutrient_deadwood$estimate[predict_nutrient_deadwood$Type == "C_total"]
 # FIXME C_perc needs to incorporate prediction uncertainty after fixing the
 #       prediction intervals TODO above
-lignin_sim <- lignin_sim * 0.625 / (C_perc/100)
+lignin_sim <- lignin_sim * 0.625 / (C_perc / 100)
