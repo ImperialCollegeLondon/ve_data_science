@@ -1,35 +1,41 @@
 #| ---
-#| title: Descriptive name of the script
+#| title: Models to predict aboveground litter nutrient composition for Maliau
 #|
 #| description: |
-#|
+#|     This script uses previously inferred litter decay parameters to split
+#|     SAFE aboveground litter data into structural and metabolic pools, then
+#|     builds a predictive model for the Maliau initialisation project.
 #|
 #| virtual_ecosystem_module: Litter
 #|
 #| author: Hao Ran Lai
 #|
-#| status: final or wip
+#| status: final
 #|
 #| input_files:
-  #|   - name: Input file name
-  #|     path: Full file path on shared drive
+#|   - name: decay_parameters.csv
+#|     path: data/derived/litter/turnover
 #|     description: |
-#|
+#|         Litter decay parameters to split field-collected litter into
+#|         structural and metabolic pools
+#|   - name: Both_litter_decomposition_experiment.xlsx
+#|     path: data/primary/litter
+#|     description: |
+#|         Leaf litter decomposition in old-growth and selectively logged
+#|         forest in SAFE. Downloaded from https://zenodo.org/records/3247639
 #|
 #| output_files:
-  #|   - name: Output file name
-  #|     path: Full file path on shared drive
-#|     description: |
-#|
 #|
 #| package_dependencies:
-  #|     - tidyverse
-  #|
-  #| usage_notes: |
-  #|
-  #| ---
+#|     - tidyverse
+#|     - readxl
+#|     - glmmTMB
+#|
+#| usage_notes: |
+#|
+#| ---
 
-  library(tidyverse)
+library(tidyverse)
 library(readxl)
 library(glmmTMB)
 
@@ -37,6 +43,8 @@ library(glmmTMB)
 
 # Parameters --------------------------------------------------------------
 
+# Fitted litter decay parameters from a previous PR (#104)
+# they are used to split litter into structural and metabolic pools
 decay_param <- read_csv("data/derived/litter/turnover/decay_parameters.csv")
 logitfM <- decay_param$value[decay_param$Parameter == "logitfM"]
 sN <- decay_param$value[decay_param$Parameter == "sN"]
@@ -52,6 +60,7 @@ r_century <- 5
 
 # Data --------------------------------------------------------------------
 
+# Litter data from SAFE
 litter <-
   read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
             sheet = 3,
@@ -82,22 +91,28 @@ litter <-
 
 # Model -------------------------------------------------------------------
 
+# Models to predict aboveground litter nutrient composition for Maliau
 # litter_type as covariate to predict for Maliau
 
+# C:N model
 mod_C.N_met_above <- glmmTMB(
   C.N_metabolic ~ 0 + litter_type,
   family = lognormal,
   data = litter
 )
 
+# C:P model
 mod_C.P_met_above <- glmmTMB(
   C.P_metabolic ~ 0 + litter_type,
   family = lognormal,
   data = litter
 )
 
+# lignin model
 mod_lignin_above <- glmmTMB(
   lignin ~ 0 + litter_type,
   family = beta_family(),
   data = litter
 )
+
+# TODO predict for Maliau
