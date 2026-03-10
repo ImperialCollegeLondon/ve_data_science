@@ -182,7 +182,6 @@ if np.isnan(dst_data).any():
     filled_data[mask] = dst_data[tuple(nearest_index[:, mask])]
     dst_data = filled_data
 
-# Reformat DEM to Virtual Ecosystem (VE) 1D grid structure
 # The original grid coordinates (cell_x, cell_y) represent projected
 # UTMcell-centre positions. To ensure consistency with VE inputs, these
 # coordinates are converted to distances relative to the grid origin
