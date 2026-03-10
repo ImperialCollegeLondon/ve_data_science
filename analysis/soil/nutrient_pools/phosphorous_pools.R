@@ -72,9 +72,11 @@ p_pools <-
     soil_p_pool_secondary = Pi_OH + Occl_Pi,
     soil_p_pool_primary = Ca_Pi
   ) |>
-  pivot_longer(cols = everything(),
-               names_to = "fraction",
-               values_to = "amount") |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "fraction",
+    values_to = "amount"
+  ) |>
   # convert amount to proportions, which will be used to split predicted
   # total P into separate pools
   mutate(prop = amount / T_P)
