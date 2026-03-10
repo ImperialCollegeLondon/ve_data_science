@@ -1,4 +1,29 @@
-
+#| ---
+#| title: Estimate soil phosphorous pool fractions
+#|
+#| description: |
+#|     This R script estimates soil phosphorous pool fractions to split predicted
+#|     phosphorous into separate pools. It maps field measured physical pools
+#|     into the slightly more abstract pools of VE. See comments below for
+#|     more details and assumptions.
+#|
+#| VE_module: Soil
+#|
+#| author:
+#|   - name: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|
+#| usage_notes: |
+#|
+#| ---
 
 library(tidyverse)
 
