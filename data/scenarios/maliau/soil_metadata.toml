@@ -132,40 +132,40 @@ analysis/litter/stock/combine_stocks.R
 script-path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
 
 [lignin_above_structural]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [lignin_woody]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [lignin_below_structural]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_n_ratio_above_metabolic]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_n_ratio_above_structural]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_n_ratio_woody]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [c_n_ratio_below_metabolic]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_n_ratio_below_structural]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_p_ratio_above_metabolic]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_p_ratio_above_structural]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_p_ratio_woody]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [c_p_ratio_below_metabolic]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_p_ratio_below_structural]
-script-path = ""
+script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
