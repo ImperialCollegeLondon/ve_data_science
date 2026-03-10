@@ -183,100 +183,65 @@ if np.isnan(dst_data).any():
     dst_data = filled_data
 
 # Reformat DEM to Virtual Ecosystem (VE) 1D grid structure
-# This section converts the processed elevation dataset from
-# a 2D spatial grid (x, y) into the VE cell-based format.
-# The elevation grid is flattened so that each spatial grid cell
-# is represented by a unique `cell_id`.
+# The original grid coordinates (cell_x, cell_y) represent projected
+# UTMcell-centre positions. To ensure consistency with VE inputs, these
+# coordinates are converted to distances relative to the grid origin
+# (cell centre based).This results in regularly spaced x and y coordinates
+# starting at 0 and increasing by the grid resolution.
+
 #
 # Final dataset structure:
 #   Dimensions:
-#       cell_id      → unique grid cell identifier (row-major order)
-#
-#   Coordinates per cell_id:
 #       x                   → distance from grid origin (m)
 #       y                   → distance from grid origin (m)
+#
+#   Coordinates:
 #       longitude_UTM50N    → UTM Zone 50N easting coordinate (m)
 #       latitude_UTM50N     → UTM Zone 50N northing coordinate (m)
 #
 #   Variables:
 #       elevation           → surface elevation of each grid cell (m)
 
-
-# Convert the absolute UTM coordinates into distances relative to the grid origin.
-# This ensures the grid coordinates start at zero, which simplifies indexing
-# and maintains consistency with the VE grid coordinate convention.
+# Convert projected coordinates to distance from grid origin
 x = cell_x - cell_x[0]
 y = cell_y - cell_y[0]
 
-# Extract the unique x and y coordinate values and sort them in ascending order.
+# Store original UTM coordinates from TOML as spatial references
+longitude_UTM50N = cell_x.astype(np.float32)  # UTM Easting (m)
+latitude_UTM50N = cell_y.astype(np.float32)  # UTM Northing (m)
+
+# This ensures that spatial positions are defined consistently and
+# independently of absolute map coordinates.
+
+# Explicit uniqueness and ordering of spatial coordinates
 x_unique = np.sort(np.unique(x))
 y_unique = np.sort(np.unique(y))
 
-# RasterIO reads raster arrays with dimensions ordered as (y, x).
-# Since the VE grid and some R-based workflows expect (x, y) ordering,
-# we transpose the raster to align with that coordinate orientation.
+# The unique and ordered x and y coordinate vectors define the spatial
+# dimensions of the dataset. Elevation values are stored as a 2D array with
+# dimensions (x, y). Because rasterio reads raster data in (y, x) order,
+# the array is transposed to (x, y)
 elevation_matrix = dst_data.T.astype(np.float32)
 
 
-# Determine the grid size from the elevation matrix dimensions.
-ny, nx = elevation_matrix.shape
+# Build xarray Dataset with x and y as spatial dimensions
+# The resulting dataset contains:
+#   - Dimensions: x and y in metres (distance from grid origin)
+#   - Coordinates: UTM Easting and Northing from the TOML grid definition
+#   - Variable: elevation in meters
 
-# The elevation matrix was previously transposed to match (x, y) ordering.
-# Here we transpose it back so that indexing follows the conventional
-# raster format where array indices correspond to [row (y), column (x)].
-elev = elevation_matrix.T  # back to (ny, nx)
-
-
-# The numbering follows row-major ordering, starting at the top-left
-# cell and increasing from left to right across each row.
-cell_ids = np.arange(nx * ny, dtype=np.int32).reshape(ny, nx)
-
-# No vertical flipping is required here.
-# The affine transform from the reprojection step already ensures that
-# the first row corresponds to the northernmost (top) part of the grid.
-
-# Convert the 2D cell_id grid into a 1D array.
-cell_id_flat = cell_ids.flatten()
-
-# Flatten the elevation grid to align with the 1D cell_id structure.
-elevation_flat = elev.flatten().astype(np.float32)
-
-# Compute the x and y distances again as float32 arrays.
-x_dist = (cell_x - cell_x[0]).astype(np.float32)
-y_dist = (cell_y - cell_y[0]).astype(np.float32)
-
-# Important note regarding the y coordinate orientation:
-# y_dist begins at zero at the southern boundary of the grid.
-# However, VE uses a top-left origin, so the y ordering must be reversed.
-
-# Expand the x and coordinate values so that each row of the grid
-# receives the same sequence of x distances.
-x_per_cell = np.tile(x_dist, ny)
-y_per_cell = np.repeat(y_dist[::-1], nx)
-
-# Generate the longitude and latitude values (UTM eastings) for each cell.
-# These coordinates represent the absolute UTM positions of
-# grid cell centres across the full grid extent.
-lon_per_cell = np.tile(cell_x, ny)
-lat_per_cell = np.repeat(cell_y[::-1], nx)
-
-# Construct the final xarray Dataset using a single cell_id dimension.
-# All spatial variables (elevation, coordinates, and positions)
-# are aligned with the flattened grid cell identifiers.
-dataset_cell = xr.Dataset(
-    {"elevation": ("cell_id", elevation_flat)},
+dataset_xy = xr.Dataset(
+    {"elevation": (("x", "y"), elevation_matrix)},
     coords={
-        "cell_id": ("cell_id", cell_id_flat),
-        "x": ("cell_id", x_per_cell),
-        "y": ("cell_id", y_per_cell),
-        "longitude_UTM50N": ("cell_id", lon_per_cell),
-        "latitude_UTM50N": ("cell_id", lat_per_cell),
+        "x": x_unique.astype(np.float32),
+        "y": y_unique.astype(np.float32),
+        "longitude_UTM50N": ("x", longitude_UTM50N),
+        "latitude_UTM50N": ("y", latitude_UTM50N),
     },
 )
 
-# Once the elevation dataset has been reprojected, resampled,
-# and validated, it is exported to a NetCDF file. This format
-# is required by the VE model for spatial inputs.
-dataset_cell.to_netcdf(output_filename)
+# Once we have reprojected, resampled, and validated the elevation dataset
+# (with all invalid values handled), we save the final result as a NetCDF file.
+dataset_xy.to_netcdf(output_filename)
 
-print(f"✅ Saved VE-style elevation (cell_id structure) to {output_filename}")
+print(f"✅ Saved resampled elevation ({res} m) to {output_filename}")
