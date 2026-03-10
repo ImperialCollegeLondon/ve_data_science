@@ -34,9 +34,9 @@
 # values are in units [microgram / gram]
 
 doc_mean <- (117.6 + 102.2) / 2
-doc_sd   <- sqrt(11.2^2 + 7.8^2) / 2
+doc_sd <- sqrt(11.2^2 + 7.8^2) / 2
 don_mean <- (50.7 + 63.5) / 2
-don_sd   <- sqrt(14^2 + 8.8^2) / 2
+don_sd <- sqrt(14^2 + 8.8^2) / 2
 
 # Placeholder code to simulate DOC and DON across grids
 # then convert units to kg/m^3 assuming a bulk density of 1400.0 kg/m^3
