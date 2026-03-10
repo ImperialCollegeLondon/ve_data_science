@@ -19,7 +19,9 @@
 #| package_dependencies:
 #|
 #| usage_notes: |
-#|
+#|     DOC is used as an imperfect proxy for LMWC for now. We think this is a
+#|     reasonable placeholder value because the goal now is only to get as
+#|     close to the initial value as possible.
 #| ---
 
 
