@@ -23,8 +23,10 @@ description: |
     5. Handles invalid values:
          - Masks raster nodata values
          - Fills remaining NaNs using nearest-neighbour interpolation
-    6. Reformats the elevation dataset into VE-style (x, y, elevation) layout.
-    7. Saves the processed NetCDF output ready for VE abiotic model use.
+    6. Reformats the elevation data from a 2D spatial grid into the VE 1D grid
+       structure, where dimension is represented by a unique cell_id,
+       with corresponding coordinates stored as x and y variables.
+    7. Saves the processed NetCDF output ready for VE hydrology module use.
 
   The SRTM DEM used here was obtained from the Shuttle Radar Topography Mission
   and reprojected to UTM Zone 50N for the SAFE Project area (4°N 116°E to 5°N 117°E).
@@ -50,13 +52,13 @@ status: final
 
 input_files:
   - name: SRTM_UTM50N_processed.tif
-    path: data/sites/
+    path: data/primary/
     description: |
       30 m SRTM DEM for the SAFE Project region (4°N 116°E to 5°N 117°E), reprojected
       to UTM Zone 50N. The dataset is available via:
       https://zenodo.org/records/3490488
 
-  - name: maliau_site_definition.toml
+  - name: maliau_grid_definition_90m.toml
     path: data/sites/
     description: |
       Site definition file specifying the target VE grid for Maliau Basin.
@@ -64,7 +66,7 @@ input_files:
       in UTM Zone 50N (EPSG:32650).
 
 output_files:
-  - name: elevation_Maliau_2010_2020_UTM50N.nc
+  - name: elevation_maliau_2010_2020_90m.nc
     path: data/derived/abiotic/elevation_data/
     description: |
       Elevation dataset resampled to a 90 m grid in UTM Zone 50N. Invalid values
@@ -99,17 +101,17 @@ from scipy import ndimage
 
 # Define input directory and filename for the SRTM dataset for the SAFE Project area,
 # covering the region 4°N 116°E to 5°N 117°E
-input_srtm = Path("../../../data/sites/SRTM_UTM50N_processed.tif")
+input_srtm = Path("../../../data/primary/SRTM_UTM50N_processed.tif")
 
 
 # Define the output directory and filename for the reprojected and spatially
 # interpolated elevation data to be used in the VE model
 output_dir = Path("../../../data/derived/abiotic/elevation_data")
 output_dir.mkdir(parents=True, exist_ok=True)
-output_filename = output_dir / "elevation_Maliau_2010_2020_UTM50N.nc"
+output_filename = output_dir / "elevation_maliau_2010_2020_90m.nc"
 
 # Load the destination grid details
-with open("../../../sites/maliau_site_definition.toml", "rb") as f:
+with open("../../../sites/maliau_grid_definition_90m.toml", "rb") as f:
     site_config = tomllib.load(f)
 
 cell_x = np.array(site_config["cell_x_centres"])  # UTM eastings
@@ -180,16 +182,32 @@ if np.isnan(dst_data).any():
     filled_data[mask] = dst_data[tuple(nearest_index[:, mask])]
     dst_data = filled_data
 
-# After cleaning and resampling, we prepare the DEM in a structured dataset format.
-# The original grid coordinates (cell_x, cell_y) represent projected UTM
-# cell-centre positions. To ensure consistency with VE inputs, these coordinates are
-# converted to distances relative to the grid origin (cell centre based).
-# This results in regularly spaced x and y coordinates starting at 0 and increasing by
-# the grid resolution.
+# The original grid coordinates (cell_x, cell_y) represent projected
+# UTMcell-centre positions. To ensure consistency with VE inputs, these
+# coordinates are converted to distances relative to the grid origin
+# (cell centre based).This results in regularly spaced x and y coordinates
+# starting at 0 and increasing by the grid resolution.
+
+#
+# Final dataset structure:
+#   Dimensions:
+#       x                   → distance from grid origin (m)
+#       y                   → distance from grid origin (m)
+#
+#   Coordinates:
+#       longitude_UTM50N    → UTM Zone 50N easting coordinate (m)
+#       latitude_UTM50N     → UTM Zone 50N northing coordinate (m)
+#
+#   Variables:
+#       elevation           → surface elevation of each grid cell (m)
 
 # Convert projected coordinates to distance from grid origin
 x = cell_x - cell_x[0]
 y = cell_y - cell_y[0]
+
+# Store original UTM coordinates from TOML as spatial references
+longitude_UTM50N = cell_x.astype(np.float32)  # UTM Easting (m)
+latitude_UTM50N = cell_y.astype(np.float32)  # UTM Northing (m)
 
 # This ensures that spatial positions are defined consistently and
 # independently of absolute map coordinates.
@@ -208,6 +226,7 @@ elevation_matrix = dst_data.T.astype(np.float32)
 # Build xarray Dataset with x and y as spatial dimensions
 # The resulting dataset contains:
 #   - Dimensions: x and y in metres (distance from grid origin)
+#   - Coordinates: UTM Easting and Northing from the TOML grid definition
 #   - Variable: elevation in meters
 
 dataset_xy = xr.Dataset(
@@ -215,6 +234,8 @@ dataset_xy = xr.Dataset(
     coords={
         "x": x_unique.astype(np.float32),
         "y": y_unique.astype(np.float32),
+        "longitude_UTM50N": ("x", longitude_UTM50N),
+        "latitude_UTM50N": ("y", latitude_UTM50N),
     },
 )
 
