@@ -1,8 +1,11 @@
 #| ---
-#| title:
+#| title: Compile initial litter data for the Maliau scenario
 #|
 #| description: |
-#|     This R script
+#|     This R script compiles initial litter data for the Maliau scenario
+#|     from various data analyses into a single netCDF file.
+#|     See the metadata in data/scenarios/maliau/soil_litter_metadata.toml
+#|     for specific file paths that analysed each variable.
 #|
 #| virtual_ecosystem_module: Litter
 #|
@@ -11,11 +14,27 @@
 #| status: final
 #|
 #| input_files:
-#|   - name:
-#|     path:
+#|   - name: soil_litter_metadata.toml
+#|     path: data/scenarios/maliau
 #|     description: |
+#|         Metadata for soil and litter data analyses, currently including
+#|         file paths and units
+#|   - name: maliau_grid_definition_100m.toml
+#|     path: data/derived/site
+#|     description: |
+#|         Metadata for Maliau grids, primarily to define the data generation
+#|         area
+#|   - name: litter_stock.csv
+#|     path: data/derived/litter/stock
+#|     description: |
+#|         Estimated litter stock (aboveground/belowground metabolic and
+#|         structural, and woody)
 #|
 #| output_files:
+#|   - name: litter_maliau.nc
+#|     path: data/scenarios/maliau/maliau_1/data
+#|     description: |
+#|         Litter input data for the Maliau scenario meant for ve_run.
 #|
 #| package_dependencies:
 #|     - tidyverse
