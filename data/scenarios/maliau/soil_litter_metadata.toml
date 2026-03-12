@@ -3,169 +3,212 @@
 title = "Soil and litter metadata"
 
 [pH]
+unit = "pH"
 script-path = "analysis/soil/initialisation/model_safe.R"
 
 [clay_fraction]
+unit = "-"
 script-path = "analysis/soil/initialisation/model_safe.R"
 
 [soil_c_pool_lmwc]
+unit = "kg C m^-3"
 script-path = ""
 
 [soil_c_pool_maom]
+unit = "kg C m^-3"
 script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_bacteria]
+unit = "kg C m^-3"
 script-path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_saprotrophic_fungi]
-script-path =
+unit = "kg C m^-3"
 script-path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_arbuscular_mycorrhiza]
-script-path =
+unit = "kg C m^-3"
 script-path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_ectomycorrhiza]
-script-path =
+unit = "kg C m^-3"
 script-path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_pom]
+unit = "kg C m^-3"
 script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_necromass]
+unit = "kg C m^-3"
 script-path = ""
 
 [soil_enzyme_pom_bacteria]
+unit = "kg C m^-3"
 script-path = ""
 
 [soil_enzyme_maom_bacteria]
+unit = "kg C m^-3"
 script-path = ""
 
 [soil_enzyme_pom_fungi]
+unit = "kg C m^-3"
 script-path = ""
 
 [soil_enzyme_maom_fungi]
+unit = "kg C m^-3"
 script-path = ""
 
 [soil_n_pool_ammonium]
+unit = "kg N m^-3"
 script-path = "analysis/soil/ammonium_nitrate/model.R"
 
 [soil_n_pool_nitrate]
+unit = "kg N m^-3"
 script-path = "analysis/soil/ammonium_nitrate/model.R"
 
 [soil_n_pool_don]
+unit = "kg N m^-3"
 script-path = ""
 
 [soil_n_pool_particulate]
+unit = "kg N m^-3"
 script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_n_pool_maom]
+unit = "kg N m^-3"
 script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_n_pool_necromass]
+unit = "kg N m^-3"
 script-path = ""
 
 [soil_p_pool_dop]
+unit = "kg P m^-3"
 script-path = ""
 
 [soil_p_pool_particulate]
+unit = "kg P m^-3"
 script-path = ""
 
 [soil_p_pool_maom]
+unit = "kg P m^-3"
 script-path = ""
 
 [soil_p_pool_necromass]
+unit = "kg P m^-3"
 script-path = ""
 
 [soil_p_pool_primary]
+unit = "kg P m^-3"
 script-path = ""
 
 [soil_p_pool_secondary]
+unit = "kg P m^-3"
 script-path = ""
 
 [soil_p_pool_labile]
+unit = "kg P m^-3"
 script-path = ""
 
 [litter_pool_above_metabolic]
+unit = "kg C m^-2"
 script-path = '''
 analysis/litter/stock/model_aboveground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_above_structural]
+unit = "kg C m^-2"
 script-path = '''
 analysis/litter/stock/model_aboveground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_woody]
+unit = "kg C m^-2"
 script-path = '''
 analysis/litter/stock/model_deadwood_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_below_metabolic]
+unit = "kg C m^-2"
 script-path = '''
 analysis/litter/stock/model_belowground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_below_structural]
+unit = "kg C m^-2"
 script-path = '''
 analysis/litter/stock/model_belowground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [fungal_fruiting_bodies]
+unit = "kg C m^-2"
 script-path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
 
 [lignin_above_structural]
+unit = "kg lignin C (kg C)^-1"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [lignin_woody]
+unit = "kg lignin C (kg C)^-1"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [lignin_below_structural]
+unit = "kg lignin C (kg C)^-1"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_n_ratio_above_metabolic]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_n_ratio_above_structural]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_n_ratio_woody]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [c_n_ratio_below_metabolic]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_n_ratio_below_structural]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_p_ratio_above_metabolic]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_p_ratio_above_structural]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_p_ratio_woody]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [c_p_ratio_below_metabolic]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_p_ratio_below_structural]
+unit = "-"
 script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
