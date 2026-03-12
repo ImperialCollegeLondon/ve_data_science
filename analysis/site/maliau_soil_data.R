@@ -37,6 +37,7 @@
 #|
 #| package_dependencies:
 #|     - tidyverse
+#|     - RcppTOML
 #|     - ncdf4
 #|
 #| usage_notes: |
@@ -45,6 +46,7 @@
 #| ---
 
 library(tidyverse)
+library(RcppTOML)
 library(ncdf4)
 
 set.seed(20260313)
@@ -79,4 +81,7 @@ dat <-
   )
 
 
-#
+
+# Spatial prediction from SAFE soil campaign ------------------------------
+
+
