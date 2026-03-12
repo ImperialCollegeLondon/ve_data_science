@@ -186,8 +186,6 @@ soil_vars <-
 
 # create the soil response variable input matrix
 soil_mat <- as.matrix(soil[, soil_vars])
-# TODO non-Gaussian families to avoid log-transformation of responses
-# though pH is tricky
 soil_mat[, -c(1, 2)] <- log(soil_mat[, -c(1, 2)])
 rownames(soil_mat) <- soil$plot_code
 
@@ -228,58 +226,11 @@ fitcbfm <-
   )
 
 # some exploratory statistics
-coef(fitcbfm)
+# nolint start
 
-corrplot::corrplot(corB(fitcbfm), order = "FPC", diag = FALSE, type = "lower")
-corrplot::corrplot(corX(fitcbfm), order = "FPC", diag = FALSE, type = "lower")
+# coef(fitcbfm)
 
+# corrplot::corrplot(corB(fitcbfm), order = "FPC", diag = FALSE, type = "lower")
+# corrplot::corrplot(corX(fitcbfm), order = "FPC", diag = FALSE, type = "lower")
 
-# Prediction --------------------------------------------------------------
-
-# set up the Maliau grid as new data
-maliau_grid <-
-  soil %>%
-  data_grid(
-    X = maliau$cell_x_centres,
-    Y = maliau$cell_y_centres
-  )
-
-maliau_dat <-
-  maliau_grid %>%
-  mutate(
-    elev = extract(elev, .[, c("X", "Y")])[, "SRTM_UTM50N_processed"],
-    topo = extract(topo, .[, c("X", "Y")])[, "SRTM_UTM50N_TRI_Wilson2007"],
-    hydro = extract(hydro, .[, c("X", "Y")])[, "SRTM_Log_Flow_Accum"],
-    # acd = extract(acd, .[, c("X", "Y")])[, "acd"],  # nolint
-    acd = mean(soil$acd),
-    evi = extract(evi, .[, c("X", "Y")])[, "EVI"]
-  ) %>%
-  mutate(
-    elev = (elev - mean(soil$elev)) / sd(soil$elev),
-    topo = (topo - mean(soil$topo)) / sd(soil$topo),
-    hydro = (hydro - mean(soil$hydro)) / sd(soil$hydro),
-    acd = (acd - mean(soil$acd)) / sd(soil$acd),
-    evi = (evi - mean(soil$evi)) / sd(soil$evi)
-  )
-
-maliau_basis <-
-  mrts(soil[, c("X", "Y")], num_basis) %>%
-  predict(newx = maliau_grid[, c("X", "Y")]) %>%
-  as.matrix() %>%
-  {
-    .[, -(1)]
-  }
-
-# predict onto the Maliau grids
-maliau_pred <- predict(
-  fitcbfm,
-  newdata = maliau_dat,
-  new_B_space = maliau_basis
-)
-
-# convert to raster and then plot it
-maliau_pred_rast <-
-  cbind(maliau_dat, maliau_pred) %>%
-  rast()
-
-plot(maliau_pred_rast)
+# nolint end
