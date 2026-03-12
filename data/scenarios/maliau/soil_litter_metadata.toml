@@ -10,7 +10,7 @@ script-path = "analysis/soil/initialisation/model_safe.R"
 
 [soil_c_pool_lmwc]
 unit = "kg C m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/doc_don.R"
 
 [soil_c_pool_maom]
 unit = "kg C m^-3"
@@ -50,7 +50,7 @@ script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_necromass]
 unit = "kg C m^-3"
-script-path = ""
+script-path = "analysis/soil/necromass/necromass.R"
 
 [soil_enzyme_pom_bacteria]
 unit = "kg C m^-3"
@@ -78,7 +78,7 @@ script-path = "analysis/soil/ammonium_nitrate/model.R"
 
 [soil_n_pool_don]
 unit = "kg N m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/doc_don.R"
 
 [soil_n_pool_particulate]
 unit = "kg N m^-3"
@@ -90,35 +90,35 @@ script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_n_pool_necromass]
 unit = "kg N m^-3"
-script-path = ""
+script-path = "analysis/soil/necromass/necromass.R"
 
 [soil_p_pool_dop]
 unit = "kg P m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_particulate]
 unit = "kg P m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_maom]
 unit = "kg P m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_necromass]
 unit = "kg P m^-3"
-script-path = ""
+script-path = "analysis/soil/necromass/necromass.R"
 
 [soil_p_pool_primary]
 unit = "kg P m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_secondary]
 unit = "kg P m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_labile]
 unit = "kg P m^-3"
-script-path = ""
+script-path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [litter_pool_above_metabolic]
 unit = "kg C m^-2"
