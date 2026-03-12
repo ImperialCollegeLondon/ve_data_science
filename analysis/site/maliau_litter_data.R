@@ -151,6 +151,7 @@ source("analysis/litter/nutrient_pool/initial_nutrient_aboveground.R")
 
 # predictions, added directly to the dataset
 # NB: the [1, ] index is to extract a Maliau sample site
+# nolint start
 dat <-
   dat |>
   mutate(
@@ -163,8 +164,9 @@ dat <-
     c_p_ratio_above_structural =
       r_century * c_p_ratio_above_metabolic,
     lignin_above_structural =
-      as.numeric(simulate(mod_lignin_above, nsim = n_sim)[1, ]),
+      as.numeric(simulate(mod_lignin_above, nsim = n_sim)[1, ])
   )
+# nolint end
 
 
 # Second, belowground litter including:
@@ -253,6 +255,7 @@ lignin_sim <-
   lignin_sim * 0.625 / (nutrient_deadwood_sim[, "C_total"] / 100)
 
 # add to the dataset
+# nolint start
 dat <-
   dat |>
   mutate(
@@ -262,13 +265,14 @@ dat <-
       nutrient_deadwood_sim[, "C_total"] / nutrient_deadwood_sim[, "P_total"],
     lignin_woody = lignin_sim
   )
+# nolint end
 
 
 # Write data to netCDF ----------------------------------------------------
 
 # collect litter metadata
 litter_meta_df <-
-  reshape2::melt(lapply(litter_meta, function(x) x$unit)) |>
+  reshape2::melt(lapply(litter_meta, function(meta) meta$unit)) |>
   select(
     variable = L1,
     unit = value
