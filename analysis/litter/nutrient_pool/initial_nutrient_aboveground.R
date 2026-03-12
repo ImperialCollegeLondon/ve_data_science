@@ -113,5 +113,3 @@ mod_lignin_above <- glmmTMB(
   family = beta_family(),
   data = litter
 )
-
-# TODO predict for Maliau
