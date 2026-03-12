@@ -1,7 +1,5 @@
 # Metadata for the initial values of soil and litter modules
 
-title = "Soil and litter metadata"
-
 [pH]
 unit = "pH"
 script-path = "analysis/soil/initialisation/model_safe.R"
