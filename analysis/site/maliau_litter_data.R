@@ -60,11 +60,9 @@ library(ncdf4)
 set.seed(20260312)
 
 
-
 # Litter metadata ---------------------------------------------------------
 
 litter_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
-
 
 
 # Maliau site metadata ----------------------------------------------------
@@ -73,7 +71,6 @@ maliau <- parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
-
 
 
 # Set up dataframe --------------------------------------------------------
@@ -86,9 +83,10 @@ dat <-
     cell_y = maliau$cell_y_centres
   ) |>
   # calculate displacements
-  mutate(x = cell_x - min(cell_x),
-         y = cell_y - min(cell_y))
-
+  mutate(
+    x = cell_x - min(cell_x),
+    y = cell_y - min(cell_y)
+  )
 
 
 # Litter stock ------------------------------------------------------------
@@ -137,8 +135,6 @@ colnames(litter_stocks_sim) <- c(
 
 # add to dataset
 dat <- bind_cols(dat, litter_stocks_sim)
-
-
 
 
 # Litter nutrient contents ------------------------------------------------
@@ -220,10 +216,10 @@ below_litter_sim <-
     c_p_ratio_below_structural = r_century * c_p_ratio_below_metabolic
   ) |>
   select(c_n_ratio_below_metabolic,
-         c_p_ratio_below_metabolic,
-         c_n_ratio_below_structural,
-         c_p_ratio_below_structural,
-         lignin_below_structural = lignin
+    c_p_ratio_below_metabolic,
+    c_n_ratio_below_structural,
+    c_p_ratio_below_structural,
+    lignin_below_structural = lignin
   )
 
 # add to the dataset
@@ -268,15 +264,15 @@ dat <-
   )
 
 
-
-
 # Write data to netCDF ----------------------------------------------------
 
 # collect litter metadata
 litter_meta_df <-
   reshape2::melt(lapply(litter_meta, function(x) x$unit)) |>
-  select(variable = L1,
-         unit = value) |>
+  select(
+    variable = L1,
+    unit = value
+  ) |>
   filter(variable %in% names(dat)[-(1:4)])
 
 # convert dataframe to arrays
@@ -309,9 +305,11 @@ ydim <-
 vardef <- vector("list", nrow(litter_meta_df))
 for (i in seq_along(vardef)) {
   vardef[[i]] <-
-    ncvar_def(litter_meta_df$variable[i],
-              litter_meta_df$unit[i],
-              list(xdim, ydim))
+    ncvar_def(
+      litter_meta_df$variable[i],
+      litter_meta_df$unit[i],
+      list(xdim, ydim)
+    )
 }
 
 # create netCDF file and put arrays
