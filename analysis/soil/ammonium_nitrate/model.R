@@ -1,43 +1,43 @@
-#' ---
-#' title: Estimate soil ammonium and nitrate for VE initialisation
-#'
-#' description: |
-#'     This script fits models to a soil dataset from the SAFE project to
-#'     estimate soil ammonium and nitrate for initialising VE. These model
-#'     estimates expected nitrogen by land use type, while accounting for
-#'     spatial and temporal autocorrelations. I then predicted the soil
-#'     nitrogen values using forest land use type as the baseline; i.e., we
-#'     use forest baseline values for VE initialisation.
-#'
-#' VE_module: Soil
-#'
-#' author:
-#'   - name: Hao Ran Lai
-#'
-#' status: final
-#'
-#' input_files:
-#'   - name: 3_GHG_jdrewer.xlsx
-#'     path: data/primary/soil/gas_flux
-#'     description: |
-#'       Soil greenhouse gas fluxes and associated parameters from forest and
-#'       oil palm in the SAFE landscape collected by Drewer et al. (2019);
-#'       downloaded from https://doi.org/10.5281/zenodo.3258117
-#'
-#' output_files:
-#'
-#' package_dependencies:
-#'     - tidyverse
-#'     - readxl
-#'     - lubridate
-#'     - hms
-#'     - glmmTMB
-#'
-#' usage_notes: |
-#'   The soil cores in this dataset was collected from 0-10 cm soil depth. VE
-#'   soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties
-#'   hold until 25 cm. We may want to revisit this assumption later.
-#' ---
+#| ---
+#| title: Estimate soil ammonium and nitrate for VE initialisation
+#|
+#| description: |
+#|     This script fits models to a soil dataset from the SAFE project to
+#|     estimate soil ammonium and nitrate for initialising VE. These model
+#|     estimates expected nitrogen by land use type, while accounting for
+#|     spatial and temporal autocorrelations. I then predicted the soil
+#|     nitrogen values using forest land use type as the baseline; i.e., we
+#|     use forest baseline values for VE initialisation.
+#|
+#| VE_module: Soil
+#|
+#| author:
+#|   - name: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: 3_GHG_jdrewer.xlsx
+#|     path: data/primary/soil/gas_flux
+#|     description: |
+#|       Soil greenhouse gas fluxes and associated parameters from forest and
+#|       oil palm in the SAFE landscape collected by Drewer et al. (2019);
+#|       downloaded from https://doi.org/10.5281/zenodo.3258117
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - lubridate
+#|     - hms
+#|     - glmmTMB
+#|
+#| usage_notes: |
+#|   The soil cores in this dataset was collected from 0-10 cm soil depth. VE
+#|   soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties
+#|   hold until 25 cm. We may want to revisit this assumption later.
+#| ---
 
 
 library(tidyverse)
