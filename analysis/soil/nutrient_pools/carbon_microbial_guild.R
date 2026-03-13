@@ -57,6 +57,13 @@ fungi_rel_abun <-
 # Fungal and bacterial carbon fraction
 C_fraction_microbe <-
   read_rds("data/derived/soil/nutrient_pools/C_fraction_microbe.rds")
+# AM fungi don't have carbon value, so we assume it to have the average of
+# EM and saprotroph
+C_fraction_microbe <- c(
+  C_fraction_microbe,
+  AM = mean(C_fraction_microbe["EM"], C_fraction_microbe["saprotroph"])
+)
+
 
 
 # Calculation -------------------------------------------------------------
@@ -81,11 +88,7 @@ microbe_ratio <- c(
 )
 
 # lastly convert biomass ratios to carbon ratios
-microbe_ratio <-
-  microbe_ratio * c(
-    rep(C_fraction_microbe["fungi"], 3),
-    C_fraction_microbe["bacteria"]
-  )
+microbe_ratio <- microbe_ratio * C_fraction_microbe[names(microbe_ratio)]
 # re-normalise again so the values sum to one
 # this will be used to split total microbial carbon into each pool
 microbe_ratio <- microbe_ratio / sum(microbe_ratio)
