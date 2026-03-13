@@ -146,4 +146,19 @@ plot(maliau_pred_rast)
 
 # Split SAFE campaign variables into specific pools -----------------------
 
+# soil_c_pool_lmwc
+# using DOC as a proxy
+# then convert units to kg/m^3 using bulk density from SAFE converted to kg/m^3
+# NB: the LWMC values are in the same order of magnitude as POM C, which is
+#     possible although we expected LMWC to be lower; I am letting this pass
+#     for now for the purpose of initialisation
+
+source("analysis/soil/nutrient_pools/doc_don.R")
+
+dat <-
+  dat |>
+  mutate(soil_c_pool_lmwc = rnorm(n_sim, doc_mean, doc_sd),
+         soil_c_pool_lmwc = soil_c_pool_lmwc  / 1e6 * (bulk_density * 1e3))
+
+
 

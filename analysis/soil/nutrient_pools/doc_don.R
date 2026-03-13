@@ -37,14 +37,3 @@ doc_mean <- (117.6 + 102.2) / 2
 doc_sd <- sqrt(11.2^2 + 7.8^2) / 2
 don_mean <- (50.7 + 63.5) / 2
 don_sd <- sqrt(14^2 + 8.8^2) / 2
-
-# Placeholder code to simulate DOC and DON across grids
-# then convert units to kg/m^3 assuming a bulk density of 941.6 kg/m^3 (from SAFE)
-
-n_sim <- 100
-
-doc_sim <- rnorm(n_sim, doc_mean, doc_sd)
-doc_sim <- doc_sim / 1e6 * 941.6
-
-don_sim <- rnorm(n_sim, don_mean, don_sd)
-don_sim <- don_sim / 1e6 * 941.6
