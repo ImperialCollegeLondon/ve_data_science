@@ -55,4 +55,4 @@ C_mic_maliau <- crop(C_mic, maliau_ext)
 # NB: it only contains one grid so the mean is just itself
 # then divide by 100 because the author multiplied the ratio by 100
 # the final unit is [%]
-C_mic_perc_maliau <- values(mean(C_mic_maliau)) / 100
+C_mic_perc_maliau <- as.numeric(values(mean(C_mic_maliau))) / 100
