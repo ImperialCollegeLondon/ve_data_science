@@ -107,6 +107,7 @@ dat <-
 source("analysis/soil/initialisation/model_safe.R")
 
 # extract covariates to the Maliau region of interest
+# nolint start
 dat <-
   dat |>
   mutate(
@@ -128,6 +129,7 @@ dat <-
   # we need to fill in two NA grids in the EVI layer,
   # I think they are due to rivers / water bodies
   fill(evi)
+# nolint end
 
 # new basis functions for the Maliau region
 maliau_basis <-
@@ -184,6 +186,7 @@ dat <-
 # Both are predicted from control plots from a tropical forest in BCI
 source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
 
+# nolint start
 dat <-
   dat |>
   mutate(
@@ -228,6 +231,7 @@ dat <-
               allow.new.levels = TRUE,
               type = "response")
   )
+# nolint end
 
 
 # soil_c_pool_lmwc
@@ -326,12 +330,12 @@ flux_forest_idx <- which(flux$landuse == "forest")[1]
 
 # simulate ammonium and nitrate
 # 1 mg N cm-3 = 1 kg N m-3 so no conversion needed
-ammonium_sim <-
-  as.numeric(
-    glmmTMB:::simulate.glmmTMB(mod_ammonium, nsim = n_sim)[flux_forest_idx, ])
-nitrate_sim <-
-  as.numeric(
-    glmmTMB:::simulate.glmmTMB(mod_nitrate, nsim = n_sim)[flux_forest_idx, ])
+ammonium_sim <- as.numeric(
+  glmmTMB:::simulate.glmmTMB(mod_ammonium, nsim = n_sim)[flux_forest_idx, ]
+)
+nitrate_sim <- as.numeric(
+  glmmTMB:::simulate.glmmTMB(mod_nitrate, nsim = n_sim)[flux_forest_idx, ]
+)
 
 # add to dataset
 dat <-
@@ -341,9 +345,44 @@ dat <-
 
 
 
-# Soil enzymatic pools ----------------------------------------------------
+# Fungal fruiting body biomass:
+# fungal_fruiting_bodies
+source("analysis/soil/sporocarp_biomass/sporocarp_biomass.R")
+
+# simulate and add directly to dataset
+dat <-
+  dat |>
+  mutate(
+    fungal_fruiting_bodies = rnorm(
+      n_sim, sporocarp_biomass_mean, sporocarp_biomass_sd
+    )
+  )
 
 
+
+# Soil enzymatic pools, including
+# soil_enzyme_maom_bacteria
+# soil_enzyme_maom_fungi
+# soil_enzyme_pom_bacteria
+# soil_enzyme_pom_fungi
+# These are notoriously hard to find empirical data for, and will be the only
+# set of variables currently relying on crude guesstimates
+source("analysis/soil/enzyme/enzyme_concentration.R")
+
+# simulate total soil enzyme concentration [mg C / g soil]
+soil_enzyme <- exp(rnorm(n_sim, enzyme_conc_mean, enzyme_conc_sd))
+# raise the values by one order of magnitude following MEND guesstimate
+soil_enzyme <- soil_enzyme * MEND_factor
+# convert to unit [kg C / kg soil]
+soil_enzyme <- soil_enzyme / 1e3
+
+# split total enzyme equally among the four enzyme groups; add to dataset
+dat <-
+  dat |>
+  mutate(soil_enzyme_maom_bacteria = soil_enzyme * 0.25,
+         soil_enzyme_maom_fungi = soil_enzyme * 0.25,
+         soil_enzyme_pom_bacteria = soil_enzyme * 0.25,
+         soil_enzyme_pom_fungi = soil_enzyme * 0.25)
 
 
 
@@ -353,24 +392,99 @@ dat <-
 
 dat <-
   dat |>
-  mutate_at(vars(soil_c_pool_pom,
-                 soil_c_pool_maom,
-                 soil_c_pool_lmwc,
-                 soil_c_pool_saprotrophic_fungi,
-                 soil_c_pool_ectomycorrhiza,
-                 soil_c_pool_arbuscular_mycorrhiza,
-                 soil_c_pool_bacteria,
-                 soil_c_pool_necromass,
-                 soil_n_pool_particulate,
-                 soil_n_pool_maom,
-                 soil_n_pool_don,
-                 soil_n_pool_necromass,
-                 soil_p_pool_dop,
-                 soil_p_pool_labile,
-                 soil_p_pool_particulate,
-                 soil_p_pool_maom,
-                 soil_p_pool_secondary,
-                 soil_p_pool_primary,
-                 soil_p_pool_necromass
-                 ),
-            ~ . * (bulk_density * 1e3))
+  mutate_at(vars(
+    soil_c_pool_pom,
+    soil_c_pool_maom,
+    soil_c_pool_lmwc,
+    soil_c_pool_saprotrophic_fungi,
+    soil_c_pool_ectomycorrhiza,
+    soil_c_pool_arbuscular_mycorrhiza,
+    soil_c_pool_bacteria,
+    soil_c_pool_necromass,
+    soil_enzyme_maom_bacteria,
+    soil_enzyme_maom_fungi,
+    soil_enzyme_pom_bacteria,
+    soil_enzyme_pom_fungi,
+    soil_n_pool_particulate,
+    soil_n_pool_maom,
+    soil_n_pool_don,
+    soil_n_pool_necromass,
+    soil_p_pool_dop,
+    soil_p_pool_labile,
+    soil_p_pool_particulate,
+    soil_p_pool_maom,
+    soil_p_pool_secondary,
+    soil_p_pool_primary,
+    soil_p_pool_necromass
+  ),
+  ~ . * (bulk_density * 1e3))
+
+
+
+# Write data to netCDF ----------------------------------------------------
+
+# collect soil metadata
+soil_meta_df <-
+  reshape2::melt(lapply(soil_meta, function(meta) meta$unit)) |>
+  select(
+    variable = L1,
+    unit = value
+  ) |>
+  filter(variable %in% names(dat))
+
+# convert dataframe to arrays
+soil_vars <- soil_meta_df$variable
+array_list <- vector("list", length(soil_vars))
+names(array_list) <- soil_vars
+for (i in soil_vars) {
+  array_list[[i]] <-
+    array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
+}
+
+# path and file name of netCDF
+ncpath <- "data/scenarios/maliau/maliau_1/data/"
+ncname <- "soil_maliau"
+ncfname <- paste(ncpath, ncname, ".nc", sep = "")
+
+# create and write the netCDF file -- ncdf4 version
+# define dimensions
+xdim <-
+  ncdim_def(
+    "x", "m",
+    as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
+  )
+ydim <-
+  ncdim_def(
+    "y", "m",
+    as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
+  )
+# define variables
+vardef <- vector("list", nrow(soil_meta_df))
+for (i in seq_along(vardef)) {
+  vardef[[i]] <-
+    ncvar_def(
+      soil_meta_df$variable[i],
+      soil_meta_df$unit[i],
+      list(xdim, ydim)
+    )
+}
+
+# create netCDF file and put arrays
+ncout <- nc_create(ncfname, vardef, force_v4 = TRUE)
+
+# put variables
+for (i in seq_along(soil_vars)) {
+  ncvar_put(ncout, vardef[[i]], array_list[[i]])
+}
+
+# add global attributes
+ncatt_put(
+  ncout, 0, "description",
+  "Soil data for the Maliau scenario"
+)
+
+# Get a summary of the created file:
+ncout
+
+# close the file, writing data to disk
+nc_close(ncout)
