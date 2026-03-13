@@ -3,9 +3,14 @@
 title: Data downloader tools for ERA5
 
 description: |
-  This file defines the `cdsapi_era5_downloader` Python function that automates the
-  download of ERA5-Land monthly averaged datasets. It uses the Copernicus Climate
-  Data Store (CDS) API.
+ This file defines the cdsapi_era5_downloader Python function, which automates
+ the download of ERA5-Land monthly averaged datasets. It uses the Copernicus Climate
+ Data Store (CDS) API.
+
+ reference:
+ Muñoz-Sabater, J. (2019). ERA5-Land monthly averaged data from 1981 to present.
+ Copernicus Climate Change Service (C3S) Climate Data Store (CDS).
+ https://doi.org/10.24381/cds.68d2bb30  (Last accessed: 11-09-2025)
 
 author:
   - name: Lelavathy
@@ -49,6 +54,8 @@ REQUIRED_VARIABLES = [
     "surface_pressure",  # abiotic variable
     "10m_u_component_of_wind",  # abiotic variable
     "total_precipitation",  # hydrological variable
+    "surface_solar_radiation_downwards",  # plant variable # abiotic variable
+    "surface_thermal_radiation_downwards",  # abiotic variable
 ]
 
 
