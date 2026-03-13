@@ -79,8 +79,10 @@ frac <-
   ) %>%
   left_join(bulk) |>
   # convert total C and N from mg/g to g/g to match SAFE data
-  mutate_at(vars(C, N, C_total, N_total),
-            ~ . / 1e3)
+  mutate_at(
+    vars(C, N, C_total, N_total),
+    ~ . / 1e3
+  )
 
 
 # Model -------------------------------------------------------------------

@@ -48,7 +48,7 @@
 # I will simply split them equally
 
 enzyme_conc_mean <- log(2e-4)
-enzyme_conc_sd   <- 1.8
+enzyme_conc_sd <- 1.8
 
 # scaling factor in MEND to raise the Tabatabai values by
 # one order of magnitude; I will use a factor of 10 for simplicity here

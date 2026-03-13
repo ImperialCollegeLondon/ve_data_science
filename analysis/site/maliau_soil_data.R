@@ -155,8 +155,6 @@ dat <- bind_cols(dat, maliau_pred)
 plot(rast(dat))
 
 
-
-
 # Soil variables that can be used as is -----------------------------------
 
 # There are soil variables collected from the SAFE soil campaign that can be
@@ -167,12 +165,13 @@ plot(rast(dat))
 
 dat <-
   dat |>
-  rename(pH = pH,
-         clay_fraction = clay) |>
+  rename(
+    pH = pH,
+    clay_fraction = clay
+  ) |>
   mutate(clay_fraction = clay_fraction / 100)
 
 # The remaining total C, N and P will be split into separate pools
-
 
 
 # Split SAFE campaign variables into specific pools -----------------------
@@ -192,44 +191,56 @@ dat <-
   mutate(
     soil_c_pool_pom =
       predict(mod_C,
-              newdata =
-                dat |>
-                select(C_total = total_carbon) |>
-                mutate(class = "POM",
-                       treatm = "CT",
-                       block = NA),
-              allow.new.levels = TRUE,
-              type = "response"),
+        newdata =
+          dat |>
+            select(C_total = total_carbon) |>
+            mutate(
+              class = "POM",
+              treatm = "CT",
+              block = NA
+            ),
+        allow.new.levels = TRUE,
+        type = "response"
+      ),
     soil_c_pool_maom =
       predict(mod_C,
-              newdata =
-                dat |>
-                select(C_total = total_carbon) |>
-                mutate(class = "MAOM",
-                       treatm = "CT",
-                       block = NA),
-              allow.new.levels = TRUE,
-              type = "response"),
+        newdata =
+          dat |>
+            select(C_total = total_carbon) |>
+            mutate(
+              class = "MAOM",
+              treatm = "CT",
+              block = NA
+            ),
+        allow.new.levels = TRUE,
+        type = "response"
+      ),
     soil_n_pool_particulate =
       predict(mod_N,
-              newdata =
-                dat |>
-                select(N_total = total_nitrogen) |>
-                mutate(class = "POM",
-                       treatm = "CT",
-                       block = NA),
-              allow.new.levels = TRUE,
-              type = "response"),
+        newdata =
+          dat |>
+            select(N_total = total_nitrogen) |>
+            mutate(
+              class = "POM",
+              treatm = "CT",
+              block = NA
+            ),
+        allow.new.levels = TRUE,
+        type = "response"
+      ),
     soil_n_pool_maom =
       predict(mod_N,
-              newdata =
-                dat |>
-                select(N_total = total_nitrogen) |>
-                mutate(class = "MAOM",
-                       treatm = "CT",
-                       block = NA),
-              allow.new.levels = TRUE,
-              type = "response")
+        newdata =
+          dat |>
+            select(N_total = total_nitrogen) |>
+            mutate(
+              class = "MAOM",
+              treatm = "CT",
+              block = NA
+            ),
+        allow.new.levels = TRUE,
+        type = "response"
+      )
   )
 # nolint end
 
@@ -245,15 +256,19 @@ source("analysis/soil/nutrient_pools/doc_don.R")
 
 dat <-
   dat |>
-  mutate(soil_c_pool_lmwc = rnorm(n_sim, doc_mean, doc_sd),
-         soil_c_pool_lmwc = soil_c_pool_lmwc / 1e6)
+  mutate(
+    soil_c_pool_lmwc = rnorm(n_sim, doc_mean, doc_sd),
+    soil_c_pool_lmwc = soil_c_pool_lmwc / 1e6
+  )
 
 # soil_n_pool_don
 # values are quite high compared to POM and MAOM, worth checking later
 dat <-
   dat |>
-  mutate(soil_n_pool_don = rnorm(n_sim, don_mean, don_sd),
-         soil_n_pool_don = soil_n_pool_don / 1e6)
+  mutate(
+    soil_n_pool_don = rnorm(n_sim, don_mean, don_sd),
+    soil_n_pool_don = soil_n_pool_don / 1e6
+  )
 
 
 # Microbial C fractions, including:
@@ -271,10 +286,12 @@ source("analysis/soil/nutrient_pools/carbon_microbial_guild.R")
 soil_c_pool_microbe_guild <-
   sapply(microbe_ratio, function(ratio) ratio * soil_c_pool_microbe)
 colnames(soil_c_pool_microbe_guild) <-
-  c("soil_c_pool_saprotrophic_fungi",
+  c(
+    "soil_c_pool_saprotrophic_fungi",
     "soil_c_pool_ectomycorrhiza",
     "soil_c_pool_arbuscular_mycorrhiza",
-    "soil_c_pool_bacteria")
+    "soil_c_pool_bacteria"
+  )
 
 # add to dataset
 dat <- bind_cols(dat, soil_c_pool_microbe_guild)
@@ -290,9 +307,11 @@ source("analysis/soil/necromass/necromass.R")
 
 dat <-
   dat |>
-  mutate(soil_c_pool_necromass = total_carbon * necromass_C,
-         soil_n_pool_necromass = total_carbon * necromass_N,
-         soil_p_pool_necromass = total_carbon * necromass_P)
+  mutate(
+    soil_c_pool_necromass = total_carbon * necromass_C,
+    soil_n_pool_necromass = total_carbon * necromass_N,
+    soil_p_pool_necromass = total_carbon * necromass_P
+  )
 
 
 # Soil phosphorous pools
@@ -310,8 +329,6 @@ dat <- bind_cols(dat, p_fractions)
 
 # NB: at this point, soil_p_pool_necromass seems very higher (even than the
 #     total phosphorous amount). This is definitely worth checking later.
-
-
 
 
 # Variables that scale / are predicted independently from SAFE -----------
@@ -340,9 +357,10 @@ nitrate_sim <- as.numeric(
 # add to dataset
 dat <-
   dat |>
-  mutate(soil_n_pool_ammonium = ammonium_sim,
-         soil_n_pool_nitrate  = nitrate_sim)
-
+  mutate(
+    soil_n_pool_ammonium = ammonium_sim,
+    soil_n_pool_nitrate = nitrate_sim
+  )
 
 
 # Fungal fruiting body biomass:
@@ -357,7 +375,6 @@ dat <-
       n_sim, sporocarp_biomass_mean, sporocarp_biomass_sd
     )
   )
-
 
 
 # Soil enzymatic pools, including
@@ -379,11 +396,12 @@ soil_enzyme <- soil_enzyme / 1e3
 # split total enzyme equally among the four enzyme groups; add to dataset
 dat <-
   dat |>
-  mutate(soil_enzyme_maom_bacteria = soil_enzyme * 0.25,
-         soil_enzyme_maom_fungi = soil_enzyme * 0.25,
-         soil_enzyme_pom_bacteria = soil_enzyme * 0.25,
-         soil_enzyme_pom_fungi = soil_enzyme * 0.25)
-
+  mutate(
+    soil_enzyme_maom_bacteria = soil_enzyme * 0.25,
+    soil_enzyme_maom_fungi = soil_enzyme * 0.25,
+    soil_enzyme_pom_bacteria = soil_enzyme * 0.25,
+    soil_enzyme_pom_fungi = soil_enzyme * 0.25
+  )
 
 
 # Convert from per-mass to per-volume basis -------------------------------
@@ -392,33 +410,34 @@ dat <-
 
 dat <-
   dat |>
-  mutate_at(vars(
-    soil_c_pool_pom,
-    soil_c_pool_maom,
-    soil_c_pool_lmwc,
-    soil_c_pool_saprotrophic_fungi,
-    soil_c_pool_ectomycorrhiza,
-    soil_c_pool_arbuscular_mycorrhiza,
-    soil_c_pool_bacteria,
-    soil_c_pool_necromass,
-    soil_enzyme_maom_bacteria,
-    soil_enzyme_maom_fungi,
-    soil_enzyme_pom_bacteria,
-    soil_enzyme_pom_fungi,
-    soil_n_pool_particulate,
-    soil_n_pool_maom,
-    soil_n_pool_don,
-    soil_n_pool_necromass,
-    soil_p_pool_dop,
-    soil_p_pool_labile,
-    soil_p_pool_particulate,
-    soil_p_pool_maom,
-    soil_p_pool_secondary,
-    soil_p_pool_primary,
-    soil_p_pool_necromass
-  ),
-  ~ . * (bulk_density * 1e3))
-
+  mutate_at(
+    vars(
+      soil_c_pool_pom,
+      soil_c_pool_maom,
+      soil_c_pool_lmwc,
+      soil_c_pool_saprotrophic_fungi,
+      soil_c_pool_ectomycorrhiza,
+      soil_c_pool_arbuscular_mycorrhiza,
+      soil_c_pool_bacteria,
+      soil_c_pool_necromass,
+      soil_enzyme_maom_bacteria,
+      soil_enzyme_maom_fungi,
+      soil_enzyme_pom_bacteria,
+      soil_enzyme_pom_fungi,
+      soil_n_pool_particulate,
+      soil_n_pool_maom,
+      soil_n_pool_don,
+      soil_n_pool_necromass,
+      soil_p_pool_dop,
+      soil_p_pool_labile,
+      soil_p_pool_particulate,
+      soil_p_pool_maom,
+      soil_p_pool_secondary,
+      soil_p_pool_primary,
+      soil_p_pool_necromass
+    ),
+    ~ . * (bulk_density * 1e3)
+  )
 
 
 # Write data to netCDF ----------------------------------------------------

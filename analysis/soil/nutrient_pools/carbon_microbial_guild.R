@@ -65,7 +65,6 @@ C_fraction_microbe <- c(
 )
 
 
-
 # Calculation -------------------------------------------------------------
 
 # the goal is to convert abundance ratios of fungal guilds and bacteria to
