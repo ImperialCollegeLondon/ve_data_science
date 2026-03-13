@@ -232,7 +232,7 @@ dat <-
 
 # soil_c_pool_lmwc
 # using DOC as a proxy
-# then convert units to kg/m^3 using bulk density from SAFE converted to kg/m^3
+# then convert units from [microgram / gram] to [kg/kg]
 # NB: the LWMC values are in the same order of magnitude as POM C, which is
 #     possible although we expected LMWC to be lower; I am letting this pass
 #     for now for the purpose of initialisation
@@ -242,14 +242,14 @@ source("analysis/soil/nutrient_pools/doc_don.R")
 dat <-
   dat |>
   mutate(soil_c_pool_lmwc = rnorm(n_sim, doc_mean, doc_sd),
-         soil_c_pool_lmwc = soil_c_pool_lmwc  / 1e6 * (bulk_density * 1e3))
+         soil_c_pool_lmwc = soil_c_pool_lmwc / 1e6)
 
 # soil_n_pool_don
 # values are quite high compared to POM and MAOM, worth checking later
 dat <-
   dat |>
   mutate(soil_n_pool_don = rnorm(n_sim, don_mean, don_sd),
-         soil_n_pool_don = soil_n_pool_don  / 1e6 * (bulk_density * 1e3))
+         soil_n_pool_don = soil_n_pool_don / 1e6)
 
 
 # Microbial C fractions, including:
@@ -266,7 +266,7 @@ soil_c_pool_microbe <- dat$total_carbon * C_mic_perc_maliau / 100
 source("analysis/soil/nutrient_pools/carbon_microbial_guild.R")
 soil_c_pool_microbe_guild <-
   sapply(microbe_ratio, function(ratio) ratio * soil_c_pool_microbe)
-names(soil_c_pool_microbe_guild) <-
+colnames(soil_c_pool_microbe_guild) <-
   c("soil_c_pool_saprotrophic_fungi",
     "soil_c_pool_ectomycorrhiza",
     "soil_c_pool_arbuscular_mycorrhiza",
@@ -333,7 +333,11 @@ nitrate_sim <-
   as.numeric(
     glmmTMB:::simulate.glmmTMB(mod_nitrate, nsim = n_sim)[flux_forest_idx, ])
 
-
+# add to dataset
+dat <-
+  dat |>
+  mutate(soil_n_pool_ammonium = ammonium_sim,
+         soil_n_pool_nitrate  = nitrate_sim)
 
 
 
@@ -344,5 +348,29 @@ nitrate_sim <-
 
 
 # Convert from per-mass to per-volume basis -------------------------------
+# The SAFE soil dataset measured nutrients in mass [nutrient] / kg soil
+# we need to convert this to mass [nutrient] / m^3 soil using bulk density
 
-
+dat <-
+  dat |>
+  mutate_at(vars(soil_c_pool_pom,
+                 soil_c_pool_maom,
+                 soil_c_pool_lmwc,
+                 soil_c_pool_saprotrophic_fungi,
+                 soil_c_pool_ectomycorrhiza,
+                 soil_c_pool_arbuscular_mycorrhiza,
+                 soil_c_pool_bacteria,
+                 soil_c_pool_necromass,
+                 soil_n_pool_particulate,
+                 soil_n_pool_maom,
+                 soil_n_pool_don,
+                 soil_n_pool_necromass,
+                 soil_p_pool_dop,
+                 soil_p_pool_labile,
+                 soil_p_pool_particulate,
+                 soil_p_pool_maom,
+                 soil_p_pool_secondary,
+                 soil_p_pool_primary,
+                 soil_p_pool_necromass
+                 ),
+            ~ . * (bulk_density * 1e3))
