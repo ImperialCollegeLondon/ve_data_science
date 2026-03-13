@@ -105,7 +105,6 @@ mod_ammonium <- glmmTMB(
   family = lognormal,
   data = flux
 )
-summary(mod_ammonium)
 
 # nitrate model
 mod_nitrate <- glmmTMB(
@@ -114,34 +113,3 @@ mod_nitrate <- glmmTMB(
   family = lognormal,
   data = flux
 )
-summary(mod_nitrate)
-
-
-# Predicted mean value for initialisation ---------------------------------
-
-# counterfactual dataset using forest land use as a baseline
-newdat <- data.frame(
-  landuse = "forest",
-  site = NA,
-  chamber_id = NA,
-  day_since = NA,
-  group = NA
-)
-
-# predicted mean ammonium
-pred_ammonium <- predict(
-  mod_ammonium,
-  newdat,
-  allow.new.levels = TRUE,
-  type = "response"
-)
-
-# predicted mean nitrate
-pred_nitrate <- predict(
-  mod_nitrate,
-  newdat,
-  allow.new.levels = TRUE,
-  type = "response"
-)
-
-# 1 mg N cm-3 = 1 kg N m-3 so no conversion needed

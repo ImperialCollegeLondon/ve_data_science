@@ -318,6 +318,20 @@ dat <- bind_cols(dat, p_fractions)
 
 source("analysis/soil/ammonium_nitrate/model.R")
 
+# find the row index of a SAFE forest site to approximate Maliau
+# (though note them are OG)
+# we will use the first site because it does not matter which site for the
+# simulation purpose (they have the same fixed effects)
+flux_forest_idx <- which(flux$landuse == "forest")[1]
+
+# simulate ammonium and nitrate
+# 1 mg N cm-3 = 1 kg N m-3 so no conversion needed
+ammonium_sim <-
+  as.numeric(
+    glmmTMB:::simulate.glmmTMB(mod_ammonium, nsim = n_sim)[flux_forest_idx, ])
+nitrate_sim <-
+  as.numeric(
+    glmmTMB:::simulate.glmmTMB(mod_nitrate, nsim = n_sim)[flux_forest_idx, ])
 
 
 
