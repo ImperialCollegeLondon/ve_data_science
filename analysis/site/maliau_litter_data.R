@@ -182,11 +182,13 @@ source("analysis/litter/nutrient_pool/initial_nutrient_belowground.R")
 # simulate predictions
 below_litter_sim <-
   # first generate random C, N, P and lignin values
+  # using abs(rnorm(...)) to generate half-Normal random variates so that
+  # nutrient values are positive bound
   data.frame(
-    C = rnorm(n_sim, C_mean, C_sd),
-    N = rnorm(n_sim, N_mean, N_sd),
-    P = rnorm(n_sim, P_mean, P_sd),
-    lignin = rnorm(n_sim, lignin_mean, lignin_sd)
+    C = abs(rnorm(n_sim, C_mean, C_sd)),
+    N = abs(rnorm(n_sim, N_mean, N_sd)),
+    P = abs(rnorm(n_sim, P_mean, P_sd)),
+    lignin = abs(rnorm(n_sim, lignin_mean, lignin_sd))
   ) |>
   # convert lignin from mass/mass to g C/g C
   # the lignin C content = 62.5% comes from
@@ -194,8 +196,8 @@ below_litter_sim <-
   mutate(lignin = lignin * 0.625 / C) |>
   # convert N and P to litter content using resorption efficiencies
   mutate(
-    N_resorption = rnorm(n_sim, N_resorption_mean, N_resorption_sd),
-    P_resorption = rnorm(n_sim, P_resorption_mean, P_resorption_sd),
+    N_resorption = abs(rnorm(n_sim, N_resorption_mean, N_resorption_sd)),
+    P_resorption = abs(rnorm(n_sim, P_resorption_mean, P_resorption_sd)),
     N = N * N_resorption / 100,
     P = P * P_resorption / 100
   ) |>
@@ -247,7 +249,7 @@ nutrient_deadwood_sim <-
 colnames(nutrient_deadwood_sim) <- nutrient_deadwood$Type[deadwood_maliau_idx]
 
 # simulate deadwood lignin
-lignin_sim <- rnorm(n_sim, lignin_mean, lignin_sd)
+lignin_sim <- abs(rnorm(n_sim, lignin_mean, lignin_sd))
 # convert lignin from mass/mass to g C/g C
 # the lignin C content = 62.5% comes from
 # Martin et al. (2021) DOI: 10.1038/s41467-021-21149-9
