@@ -33,18 +33,13 @@
 #| ---
 
 # Maximum sporocarp biomass from a Mediterranean study (Alday et al. 2017)
-# DOI 10.1038/srep45824
+# https://doi.org/10.1038/srep45824
 # unit is kg ha^-1
-alday <- 255
+sporocarp_biomass_mean <- 255
 
 # convert unit to kg m^-2
 # = 0.0255 kg m^-2
-alday <- alday / 1e4
+sporocarp_biomass_mean <- sporocarp_biomass_mean / 1e4
 
-# confidence interval range to simulate spatial variation across Maliau grids
-ci <- 35 / 1e4
-
-# example code to simulate values across Maliau grids
-# this is just to demonstrate the idea, real action will take place in a
-# downstream analysis
-runif(100, alday - ci, alday + ci)
+# standard error to simulate spatial variation across Maliau grids
+sporocarp_biomass_sd <- 35 / 1e4

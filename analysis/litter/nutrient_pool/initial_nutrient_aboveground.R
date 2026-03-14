@@ -40,7 +40,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Parameters --------------------------------------------------------------
 
 # Fitted litter decay parameters from a previous PR (#104)

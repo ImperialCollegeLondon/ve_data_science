@@ -14,7 +14,7 @@
 #|
 #| input_files:
 #|   - name: maliau_grid_definition_100m.toml
-#|     path: data/sites
+#|     path: data/derived/site
 #|     description: |
 #|       Maliau grid definition TOML file to define extent
 #|   - name: cmicsoc_ratio.asc
@@ -41,7 +41,7 @@ library(RcppTOML)
 library(terra)
 
 # Maliau basin extent
-maliau <- parseTOML("data/sites/maliau_grid_definition_100m.toml")
+maliau <- parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
 maliau_ext <- ext(maliau$bounds, xy = TRUE)
 
 # Microbial to soil carbon ratio map
@@ -55,4 +55,4 @@ C_mic_maliau <- crop(C_mic, maliau_ext)
 # NB: it only contains one grid so the mean is just itself
 # then divide by 100 because the author multiplied the ratio by 100
 # the final unit is [%]
-values(mean(C_mic_maliau)) / 100
+C_mic_perc_maliau <- as.numeric(values(mean(C_mic_maliau))) / 100
