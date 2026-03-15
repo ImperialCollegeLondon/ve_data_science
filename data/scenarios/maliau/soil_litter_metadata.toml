@@ -1,212 +1,228 @@
 # Metadata for the initial values of soil and litter modules
 
+# unit: the unit of variable
+# description: brief description of the variable
+# script_path: the directory of the analysis script used to estimate the
+#              initial value
+# source: data sources, with DOI / URL
+# source_type: Maliau = data source includes Maliau; SAFE = data source from SAFE but excludes Maliau; tropical; forest; global
+# comment: assumptions, decisions, TODOs
+
 [pH]
 unit = "pH"
-script-path = "analysis/soil/initialisation/model_safe.R"
+description = "Soil pH"
+script_path = "analysis/soil/initialisation/model_safe.R"
+source = "SAFE soil campaign 2024. DOI pending."
+source_type = "Maliau"
+comment = ""
 
 [clay_fraction]
 unit = "-"
-script-path = "analysis/soil/initialisation/model_safe.R"
+description = "The fraction of clay in soil"
+script_path = "analysis/soil/initialisation/model_safe.R"
+source = "SAFE soil campaign 2024. DOI pending."
+source_type = "Maliau"
+comment = ""
 
 [soil_c_pool_lmwc]
 unit = "kg C m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/doc_don.R"
 
 [soil_c_pool_maom]
 unit = "kg C m^-3"
-script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
+script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_bacteria]
 unit = "kg C m^-3"
-script-path = '''
+script_path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_saprotrophic_fungi]
 unit = "kg C m^-3"
-script-path = '''
+script_path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_arbuscular_mycorrhiza]
 unit = "kg C m^-3"
-script-path = '''
+script_path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_ectomycorrhiza]
 unit = "kg C m^-3"
-script-path = '''
+script_path = '''
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 '''
 
 [soil_c_pool_pom]
 unit = "kg C m^-3"
-script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
+script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_c_pool_necromass]
 unit = "kg C m^-3"
-script-path = ""
+script_path = "analysis/soil/necromass/necromass.R"
 
 [soil_enzyme_pom_bacteria]
 unit = "kg C m^-3"
-script-path = ""
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 
 [soil_enzyme_maom_bacteria]
 unit = "kg C m^-3"
-script-path = ""
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 
 [soil_enzyme_pom_fungi]
 unit = "kg C m^-3"
-script-path = ""
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 
 [soil_enzyme_maom_fungi]
 unit = "kg C m^-3"
-script-path = ""
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 
 [soil_n_pool_ammonium]
 unit = "kg N m^-3"
-script-path = "analysis/soil/ammonium_nitrate/model.R"
+script_path = "analysis/soil/ammonium_nitrate/model.R"
 
 [soil_n_pool_nitrate]
 unit = "kg N m^-3"
-script-path = "analysis/soil/ammonium_nitrate/model.R"
+script_path = "analysis/soil/ammonium_nitrate/model.R"
 
 [soil_n_pool_don]
 unit = "kg N m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/doc_don.R"
 
 [soil_n_pool_particulate]
 unit = "kg N m^-3"
-script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
+script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_n_pool_maom]
 unit = "kg N m^-3"
-script-path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
+script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
 
 [soil_n_pool_necromass]
 unit = "kg N m^-3"
-script-path = ""
+script_path = "analysis/soil/necromass/necromass.R"
 
 [soil_p_pool_dop]
 unit = "kg P m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_particulate]
 unit = "kg P m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_maom]
 unit = "kg P m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_necromass]
 unit = "kg P m^-3"
-script-path = ""
+script_path = "analysis/soil/necromass/necromass.R"
 
 [soil_p_pool_primary]
 unit = "kg P m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_secondary]
 unit = "kg P m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [soil_p_pool_labile]
 unit = "kg P m^-3"
-script-path = ""
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
 
 [litter_pool_above_metabolic]
 unit = "kg C m^-2"
-script-path = '''
+script_path = '''
 analysis/litter/stock/model_aboveground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_above_structural]
 unit = "kg C m^-2"
-script-path = '''
+script_path = '''
 analysis/litter/stock/model_aboveground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_woody]
 unit = "kg C m^-2"
-script-path = '''
+script_path = '''
 analysis/litter/stock/model_deadwood_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_below_metabolic]
 unit = "kg C m^-2"
-script-path = '''
+script_path = '''
 analysis/litter/stock/model_belowground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [litter_pool_below_structural]
 unit = "kg C m^-2"
-script-path = '''
+script_path = '''
 analysis/litter/stock/model_belowground_C.R
 analysis/litter/stock/combine_stocks.R
 '''
 
 [fungal_fruiting_bodies]
 unit = "kg C m^-2"
-script-path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
+script_path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
 
 [lignin_above_structural]
 unit = "kg lignin C (kg C)^-1"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [lignin_woody]
 unit = "kg lignin C (kg C)^-1"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [lignin_below_structural]
 unit = "kg lignin C (kg C)^-1"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_n_ratio_above_metabolic]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_n_ratio_above_structural]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_n_ratio_woody]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [c_n_ratio_below_metabolic]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_n_ratio_below_structural]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_p_ratio_above_metabolic]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_p_ratio_above_structural]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
 
 [c_p_ratio_woody]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
 
 [c_p_ratio_below_metabolic]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 
 [c_p_ratio_below_structural]
 unit = "-"
-script-path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
