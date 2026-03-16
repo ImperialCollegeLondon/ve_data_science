@@ -224,13 +224,3 @@ fitcbfm <-
     control = list(trace = 1),
     G_control = list(rank = 2)
   )
-
-# some exploratory statistics
-# nolint start
-
-# coef(fitcbfm)
-
-# corrplot::corrplot(corB(fitcbfm), order = "FPC", diag = FALSE, type = "lower")
-# corrplot::corrplot(corX(fitcbfm), order = "FPC", diag = FALSE, type = "lower")
-
-# nolint end
