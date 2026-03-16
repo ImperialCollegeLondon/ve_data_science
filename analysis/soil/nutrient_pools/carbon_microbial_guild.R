@@ -4,7 +4,7 @@
 #| description: |
 #|     This R script takes outputs from
 #|     1. analysis/soil/fungi_bacteria_ratio/model.R
-#|     2. analysis/soil/initialisation/model_SAFE.R
+#|     2. analysis/soil/fungi_guild_ratio/model_SAFE.R
 #|     3. analysis/soil/stoichiometry/bacteria_fungi.R
 #|     and combine them to calculate how soil microbial carbon (extracted
 #|     from analysis/soil/nutrient_pools/carbon_microbial.R) should be split
