@@ -41,5 +41,5 @@ sporocarp_biomass_mean <- 255
 # = 0.0255 kg m^-2
 sporocarp_biomass_mean <- sporocarp_biomass_mean / 1e4
 
-# standard error to simulate spatial variation across Maliau grids
+# standard deviation to simulate spatial variation across Maliau grids
 sporocarp_biomass_sd <- 35 / 1e4
