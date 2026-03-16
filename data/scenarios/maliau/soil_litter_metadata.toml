@@ -10,7 +10,7 @@
 
 [pH]
 unit = "pH"
-description = "Soil pH. Predicted from a spatial model fitted to the SAFE data campaign."
+description = "Soil pH. Predicted by a spatial model fitted to the SAFE data campaign."
 script_path = "analysis/soil/initialisation/model_safe.R"
 source = "SAFE soil campaign 2024. DOI pending."
 source_type = "Maliau"
@@ -18,7 +18,7 @@ comment = ""
 
 [clay_fraction]
 unit = "-"
-description = "The fraction of clay in soil. Predicted from a spatial model fitted to the SAFE data campaign."
+description = "The fraction of clay in soil. Predicted by a spatial model fitted to the SAFE data campaign."
 script_path = "analysis/soil/initialisation/model_safe.R"
 source = "SAFE soil campaign 2024. DOI pending."
 source_type = "Maliau"
@@ -26,79 +26,95 @@ comment = ""
 
 [soil_c_pool_lmwc]
 unit = "kg C m^-3"
-description = ""
+description = "Soil low molecular weight carbon pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path = "analysis/soil/nutrient_pools/doc_don.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Montano et al. (2007) https://doi.org/10.1007/s11104-007-9281-x"
+source_type = "Mexican tropical deciduous forest; rainy season data."
+comment = "The system was a Mexican tropical deciduous forest; we took the rainy season values to approximate moist tropical forests (e.g., Maliau Basin). DOC was used as an imperfect proxy for LMWC for now. This should be a reasonable placeholder value because the goal now is only to get as close to the initial value as possible."
 
 [soil_c_pool_maom]
 unit = "kg C m^-3"
-description = ""
+description = "Soil mineral associated organic matter pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
-source = ""
-source_type = ""
+source = "Sayer et al. (2021) https://doi.org/10.1007/s10533-020-00747-7"
+source_type = "Mature lowland tropical forest on Gigante Peninsula, Panama"
 comment = ""
 
 [soil_c_pool_bacteria]
 unit = "kg C m^-3"
-description = ""
+description = "Soil bacterial biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
+Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
+Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil_c_pool_saprotrophic_fungi]
 unit = "kg C m^-3"
-description = ""
+description = "Soil saprotrophic fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
+Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
+Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil_c_pool_arbuscular_mycorrhiza]
 unit = "kg C m^-3"
-description = ""
+description = "Soil arbuscular mycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
+Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
+Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil_c_pool_ectomycorrhiza]
 unit = "kg C m^-3"
-description = ""
+description = "Soil ectomycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
+Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
+Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil_c_pool_pom]
 unit = "kg C m^-3"
-description = ""
+description = "Soil particulate organic matter carbon pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
-source = ""
-source_type = ""
+source = "Sayer et al. (2021) https://doi.org/10.1007/s10533-020-00747-7"
+source_type = "Mature lowland tropical forest on Gigante Peninsula, Panama"
 comment = ""
 
 [soil_c_pool_necromass]
 unit = "kg C m^-3"
-description = ""
+description = "Necrotic soil carbon pool. Estimated with amino sugar biomarkers and then scaled with total soil carbon."
 script_path = "analysis/soil/necromass/necromass.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Li et al. (2023) https://doi.org/10.1016/j.scitotenv.2023.163204"
+source_type = "Pasoh forest reserve, Malaysia"
+comment = "Soil microbial necromass was very data poor. We used amino sugar as biomarker, though this only capture cell wall residues and may underestimate true necromass."
 
 [soil_enzyme_pom_bacteria]
 unit = "kg C m^-3"
