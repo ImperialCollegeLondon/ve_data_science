@@ -43,10 +43,10 @@ comment = ""
 [soil_c_pool_bacteria]
 unit = "kg C m^-3"
 description = ""
-script_path = '''
+script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -54,10 +54,10 @@ comment = ""
 [soil_c_pool_saprotrophic_fungi]
 unit = "kg C m^-3"
 description = ""
-script_path = '''
+script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -65,10 +65,10 @@ comment = ""
 [soil_c_pool_arbuscular_mycorrhiza]
 unit = "kg C m^-3"
 description = ""
-script_path = '''
+script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -76,10 +76,10 @@ comment = ""
 [soil_c_pool_ectomycorrhiza]
 unit = "kg C m^-3"
 description = ""
-script_path = '''
+script_path= [
 analysis/soil/nutrient_pools/carbon_microbial_guild.R
 analysis/soil/nutrient_pools/carbon_microbial.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -239,10 +239,10 @@ comment = ""
 [litter_pool_above_metabolic]
 unit = "kg C m^-2"
 description = ""
-script_path = '''
+script_path= [
 analysis/litter/stock/model_aboveground_C.R
 analysis/litter/stock/combine_stocks.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -250,10 +250,10 @@ comment = ""
 [litter_pool_above_structural]
 unit = "kg C m^-2"
 description = ""
-script_path = '''
+script_path= [
 analysis/litter/stock/model_aboveground_C.R
 analysis/litter/stock/combine_stocks.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -261,10 +261,10 @@ comment = ""
 [litter_pool_woody]
 unit = "kg C m^-2"
 description = ""
-script_path = '''
+script_path= [
 analysis/litter/stock/model_deadwood_C.R
 analysis/litter/stock/combine_stocks.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -272,10 +272,10 @@ comment = ""
 [litter_pool_below_metabolic]
 unit = "kg C m^-2"
 description = ""
-script_path = '''
+script_path= [
 analysis/litter/stock/model_belowground_C.R
 analysis/litter/stock/combine_stocks.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
@@ -283,10 +283,10 @@ comment = ""
 [litter_pool_below_structural]
 unit = "kg C m^-2"
 description = ""
-script_path = '''
+script_path= [
 analysis/litter/stock/model_belowground_C.R
 analysis/litter/stock/combine_stocks.R
-'''
+]
 source = ""
 source_type = ""
 comment = ""
