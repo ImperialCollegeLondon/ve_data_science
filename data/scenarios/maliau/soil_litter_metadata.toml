@@ -254,66 +254,85 @@ comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE p
 
 [fungal_fruiting_bodies]
 unit = "kg C m^-2"
-description = ""
+description = "Density of fungal fruiting bodies growing from the litter and soil"
 script_path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Alday et al. (2017) https://doi.org/10.1038/srep45824"
+source_type = "Mediterranean Scots Pine (P. sylvestris) forest stands"
+comment = "This is a very crude estimation of sporocarp biomass for the initialisation of Maliau scenario. It had been extremely hard to find reliable value from tropical forests, so I had to rely on a Mediterranean study(!) by Alday et al. (2017). The author did not share data, and their main figure was hard to extract data from (data point obscured by regression lines). We took the reported maximum biomass in the main text; using the max value from a Mediterranean study is somewhat justifiable for our tropical rainforest scenario because the former has a much drier climate than the latter, so I assume that their maximum would approximate our mean."
 
 [litter_pool_above_metabolic]
 unit = "kg C m^-2"
-description = ""
+description = "Above ground metabolic litter pool"
 script_path= [
-analysis/litter/stock/model_aboveground_C.R
-analysis/litter/stock/combine_stocks.R
+"analysis/litter/stock/model_aboveground_C.R",
+"analysis/litter/stock/combine_stocks.R"
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Ewers (2018) https://zenodo.org/records/1198587",
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Both et al. (2019) https://zenodo.org/records/3247639"
+]
+source_type = "SAFE"
+comment = "Estimated from SAFE data. It combines a dataset that measure total aboveground litter stock and another dataset that measured *physical* litter composition to estimate litter stock per physical composition. After the litter pool was split into leaf, reproductive, wood and other, they are reassigned to aboveground metabolic, aboveground structural and wood. Reproductive is assumed to be entirely aboveground metabolic; Other is assumed to be entirely aboveground structural; Leaf is the only physical component that was further split into aboveground metabolic and structural using leaf nutrient data."
 
 [litter_pool_above_structural]
 unit = "kg C m^-2"
-description = ""
+description = "Above ground structural litter pool"
 script_path= [
-analysis/litter/stock/model_aboveground_C.R
-analysis/litter/stock/combine_stocks.R
+"analysis/litter/stock/model_aboveground_C.R",
+"analysis/litter/stock/combine_stocks.R"
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Ewers (2018) https://zenodo.org/records/1198587",
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Both et al. (2019) https://zenodo.org/records/3247639"
+]
+source_type = "SAFE"
+comment = "Estimated from SAFE data. It combines a dataset that measure total aboveground litter stock and another dataset that measured *physical* litter composition to estimate litter stock per physical composition. After the litter pool was split into leaf, reproductive, wood and other, they are reassigned to aboveground metabolic, aboveground structural and wood. Reproductive is assumed to be entirely aboveground metabolic; Other is assumed to be entirely aboveground structural; Leaf is the only physical component that was further split into aboveground metabolic and structural using leaf nutrient data."
 
 [litter_pool_woody]
 unit = "kg C m^-2"
-description = ""
+description = "Woody litter pool"
 script_path= [
-analysis/litter/stock/model_deadwood_C.R
-analysis/litter/stock/combine_stocks.R
+"analysis/litter/stock/model_deadwood_C.R",
+"analysis/litter/stock/combine_stocks.R"
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Terhi et al. (2021) https://zenodo.org/records/4899610",
+"Ewers et al. (2021) https://zenodo.org/records/4899608",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE"
+comment = "Estimated through a few hoops: first estimate deadwood count per area, then estimate deadwood volume distribution, then deadwood density distribution, and then combine their expected value with deadwood carbon content from a global study (Martin et al. 2021) to get deadwood stock."
 
 [litter_pool_below_metabolic]
 unit = "kg C m^-2"
-description = ""
+description = "Below ground metabolic litter pool"
 script_path= [
-analysis/litter/stock/model_belowground_C.R
-analysis/litter/stock/combine_stocks.R
+"analysis/litter/stock/model_belowground_C.R",
+"analysis/litter/stock/combine_stocks.R"
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Zhang and Wang (2015) https://doi.org/10.1038/srep09940"
+]
+source_type = "SAFE and global"
+comment = "Estimated by finding the equilibrium belowground litter stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach."
+
 
 [litter_pool_below_structural]
 unit = "kg C m^-2"
-description = ""
+description = "Below ground structural litter pool"
 script_path= [
-analysis/litter/stock/model_belowground_C.R
-analysis/litter/stock/combine_stocks.R
+"analysis/litter/stock/model_belowground_C.R",
+"analysis/litter/stock/combine_stocks.R"
 ]
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Zhang and Wang (2015) https://doi.org/10.1038/srep09940"
+]
+source_type = "SAFE and global"
+comment = "Estimated by finding the equilibrium belowground litter stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach."
 
 [lignin_above_structural]
 unit = "kg lignin C (kg C)^-1"
