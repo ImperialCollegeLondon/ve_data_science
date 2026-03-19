@@ -194,60 +194,68 @@ description = "Amount of nitrogen contained in the necromass pool. Estimated wit
 script_path = "analysis/soil/necromass/necromass.R"
 source = "Li et al. (2023) https://doi.org/10.1016/j.scitotenv.2023.163204"
 source_type = "Pasoh forest reserve, Malaysia"
-comment = "Soil microbial necromass was very data poor. We used amino sugar as biomarker, though this only capture cell wall residues and may underestimate true necromass."
+comment = "Soil microbial necromass was very data poor. We used amino sugar as biomarker, though this only capture cell wall residues and may underestimate true necromass. First we estimated the C pool, and then scaled it to get N and P pools using microbe stoichiometry."
 
 [soil_p_pool_dop]
 unit = "kg P m^-3"
-description = ""
+description = "Dissolved organic phosphorus pool"
 script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
 
 [soil_p_pool_particulate]
 unit = "kg P m^-3"
-description = ""
+description = "Particulate organic phosphorus pool"
 script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x. The Imai et al. dataset has Po_OH, which can be a proxy of P in POM + MAOM so we need another ratio to split this value into the POM and MAOM pool P pool fractionalisation data is very very scarce, I will rely on a study in the Amazon (Hoosbeek et al. 2023) https://doi.org/10.1007/s10342-023-01577-6 In their Figure 3, they showed results of P in three soil fractions: free light (fLF), occluded light (oLF) and mineral associated heavy (maHF). According to the method paper they cited (Six et al. 2002), the fLF fraction seems to be a proxy for POM, and I'll use oLF + maHF as a proxy for MAOM. Now the challenge is that their figure is poor in resolution so value extraction is not easy. I will eyeball it, which should be fine given that we are trying to estimate initial values, not really constants / parameters. I eyeballed the proportion of P in POM to be 5% and the rest (95%) in MAOM."
 
 [soil_p_pool_maom]
 unit = "kg P m^-3"
-description = ""
+description = "Amount of phosphorus contained in the mineral associated organic matter pool"
 script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x. The Imai et al. dataset has Po_OH, which can be a proxy of P in POM + MAOM so we need another ratio to split this value into the POM and MAOM pool P pool fractionalisation data is very very scarce, I will rely on a study in the Amazon (Hoosbeek et al. 2023) https://doi.org/10.1007/s10342-023-01577-6 In their Figure 3, they showed results of P in three soil fractions: free light (fLF), occluded light (oLF) and mineral associated heavy (maHF). According to the method paper they cited (Six et al. 2002), the fLF fraction seems to be a proxy for POM, and I'll use oLF + maHF as a proxy for MAOM. Now the challenge is that their figure is poor in resolution so value extraction is not easy. I will eyeball it, which should be fine given that we are trying to estimate initial values, not really constants / parameters. I eyeballed the proportion of P in POM to be 5% and the rest (95%) in MAOM."
 
 [soil_p_pool_necromass]
 unit = "kg P m^-3"
-description = ""
+description = "Amount of phosphorus contained in the necromass pool. Estimated with amino sugar biomarkers and then scaled with total soil phosphorous."
 script_path = "analysis/soil/necromass/necromass.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Li et al. (2023) https://doi.org/10.1016/j.scitotenv.2023.163204"
+source_type = "Pasoh forest reserve, Malaysia"
+comment = "Soil microbial necromass was very data poor. We used amino sugar as biomarker, though this only capture cell wall residues and may underestimate true necromass. First we estimated the C pool, and then scaled it to get N and P pools using microbe stoichiometry."
 
 [soil_p_pool_primary]
 unit = "kg P m^-3"
-description = ""
+description = "Amount of phosphorus in a primary mineral form"
 script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
 
 [soil_p_pool_secondary]
 unit = "kg P m^-3"
-description = ""
+description = "Amount of inorganic phosphorus that is associated with secondary minerals"
 script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
 
 [soil_p_pool_labile]
 unit = "kg P m^-3"
-description = ""
+description = "Amount of inorganic phosphorus that is in a labile form"
 script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
+
+[fungal_fruiting_bodies]
+unit = "kg C m^-2"
+description = ""
+script_path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
 source = ""
 source_type = ""
 comment = ""
@@ -303,14 +311,6 @@ script_path= [
 analysis/litter/stock/model_belowground_C.R
 analysis/litter/stock/combine_stocks.R
 ]
-source = ""
-source_type = ""
-comment = ""
-
-[fungal_fruiting_bodies]
-unit = "kg C m^-2"
-description = ""
-script_path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
 source = ""
 source_type = ""
 comment = ""
