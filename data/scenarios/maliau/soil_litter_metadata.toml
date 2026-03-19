@@ -118,35 +118,35 @@ comment = "Soil microbial necromass was very data poor. We used amino sugar as b
 
 [soil_enzyme_pom_bacteria]
 unit = "kg C m^-3"
-description = ""
+description = "Amount of bacterial enzyme class which breaks down particulate organic matter"
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
 
 [soil_enzyme_maom_bacteria]
 unit = "kg C m^-3"
-description = ""
+description = "Amount of bacterial enzyme class which breaks down mineral associated organic matter"
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
 
 [soil_enzyme_pom_fungi]
 unit = "kg C m^-3"
-description = ""
+description = "Amount of fungal enzyme class which breaks down particulate organic matter"
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
 
 [soil_enzyme_maom_fungi]
 unit = "kg C m^-3"
-description = ""
+description = "Amount of fungal enzyme class which breaks down mineral associated organic matter"
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
 
 [soil_n_pool_ammonium]
 unit = "kg N m^-3"
