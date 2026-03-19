@@ -118,7 +118,7 @@ comment = "Soil microbial necromass was very data poor. We used amino sugar as b
 
 [soil_enzyme_pom_bacteria]
 unit = "kg C m^-3"
-description = "Amount of bacterial enzyme class which breaks down particulate organic matter"
+description = "Amount of bacterial enzyme class which breaks down particulate organic matter. Best guess from first principle."
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
 source_type = "First principle"
@@ -126,7 +126,7 @@ comment = "Soil enzyme concentrations are currently best guesses based on the ME
 
 [soil_enzyme_maom_bacteria]
 unit = "kg C m^-3"
-description = "Amount of bacterial enzyme class which breaks down mineral associated organic matter"
+description = "Amount of bacterial enzyme class which breaks down mineral associated organic matter. Best guess from first principle."
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
 source_type = "First principle"
@@ -134,7 +134,7 @@ comment = "Soil enzyme concentrations are currently best guesses based on the ME
 
 [soil_enzyme_pom_fungi]
 unit = "kg C m^-3"
-description = "Amount of fungal enzyme class which breaks down particulate organic matter"
+description = "Amount of fungal enzyme class which breaks down particulate organic matter. Best guess from first principle."
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
 source_type = "First principle"
@@ -142,7 +142,7 @@ comment = "Soil enzyme concentrations are currently best guesses based on the ME
 
 [soil_enzyme_maom_fungi]
 unit = "kg C m^-3"
-description = "Amount of fungal enzyme class which breaks down mineral associated organic matter"
+description = "Amount of fungal enzyme class which breaks down mineral associated organic matter. Best guess from first principle."
 script_path = "analysis/soil/enzyme/enzyme_concentration.R"
 source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
 source_type = "First principle"
@@ -150,51 +150,51 @@ comment = "Soil enzyme concentrations are currently best guesses based on the ME
 
 [soil_n_pool_ammonium]
 unit = "kg N m^-3"
-description = ""
+description = "Amount of nitrogen contained in the soil ammonium (NH4+) pool. Measured by the static chamber method at SAFE."
 script_path = "analysis/soil/ammonium_nitrate/model.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Drewer et al. (2019) https://doi.org/10.5281/zenodo.3258117"
+source_type = "SAFE"
+comment = "The soil cores in this dataset was collected from 0-10 cm soil depth. VE soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties hold until 25 cm. We may want to revisit this assumption later."
 
 [soil_n_pool_nitrate]
 unit = "kg N m^-3"
-description = ""
+description = "Amount of nitrogen contained in the soil nitrate (NO3-) pool. Measured by the static chamber method at SAFE."
 script_path = "analysis/soil/ammonium_nitrate/model.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Drewer et al. (2019) https://doi.org/10.5281/zenodo.3258117"
+source_type = "SAFE"
+comment = "The soil cores in this dataset was collected from 0-10 cm soil depth. VE soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties hold until 25 cm. We may want to revisit this assumption later."
 
 [soil_n_pool_don]
 unit = "kg N m^-3"
-description = ""
+description = "Dissolved organic nitrogen pool"
 script_path = "analysis/soil/nutrient_pools/doc_don.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Montano et al. (2007) https://doi.org/10.1007/s11104-007-9281-x"
+source_type = "Mexican tropical deciduous forest; rainy season data."
+comment = "The system was a Mexican tropical deciduous forest; we took the rainy season values to approximate moist tropical forests (e.g., Maliau Basin)."
 
 [soil_n_pool_particulate]
 unit = "kg N m^-3"
-description = ""
+description = "Particulate organic nitrogen pool. Scaled from the total nitrogen pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
-source = ""
-source_type = ""
+source = "Sayer et al. (2021) https://doi.org/10.1007/s10533-020-00747-7"
+source_type = "Mature lowland tropical forest on Gigante Peninsula, Panama"
 comment = ""
 
 [soil_n_pool_maom]
 unit = "kg N m^-3"
-description = ""
+description = "Amount of nitrogen contained in the mineral associated organic matter pool. Scaled from the total nitrogen pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path = "analysis/soil/nutrient_pools/pom_maom_sayer.R"
-source = ""
-source_type = ""
+source = "Sayer et al. (2021) https://doi.org/10.1007/s10533-020-00747-7"
+source_type = "Mature lowland tropical forest on Gigante Peninsula, Panama"
 comment = ""
 
 [soil_n_pool_necromass]
 unit = "kg N m^-3"
-description = ""
+description = "Amount of nitrogen contained in the necromass pool. Estimated with amino sugar biomarkers and then scaled with total soil nitrogen."
 script_path = "analysis/soil/necromass/necromass.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Li et al. (2023) https://doi.org/10.1016/j.scitotenv.2023.163204"
+source_type = "Pasoh forest reserve, Malaysia"
+comment = "Soil microbial necromass was very data poor. We used amino sugar as biomarker, though this only capture cell wall residues and may underestimate true necromass."
 
 [soil_p_pool_dop]
 unit = "kg P m^-3"
