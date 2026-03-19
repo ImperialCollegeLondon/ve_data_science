@@ -4,12 +4,17 @@
 *.tiff
 *.tif
 *.geotiff
+*.jpg
+*.jpeg
+*.png
 *.xlsx
 *.xls
 *.dat
 *.txt
 *.rds
 *.RData
+data/primary
+
 
 # History files
 .Rhistory
