@@ -1,4 +1,4 @@
-# Metadata for the initial values of soil and litter modules
+# Metadata for the initial values of soil and litter modules for the Maliau scenario
 
 # unit: the unit of variable
 # description: brief description of the variable
@@ -44,13 +44,13 @@ comment = ""
 unit = "kg C m^-3"
 description = "Soil bacterial biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-analysis/soil/nutrient_pools/carbon_microbial_guild.R
-analysis/soil/nutrient_pools/carbon_microbial.R
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
-Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
-Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
-Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
 source_type = "Global and SAFE"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
@@ -59,13 +59,13 @@ comment = "To scale microbial carbon from total carbon, first we obtained a glob
 unit = "kg C m^-3"
 description = "Soil saprotrophic fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-analysis/soil/nutrient_pools/carbon_microbial_guild.R
-analysis/soil/nutrient_pools/carbon_microbial.R
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
-Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
-Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
-Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
 source_type = "Global and SAFE"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
@@ -74,13 +74,13 @@ comment = "To scale microbial carbon from total carbon, first we obtained a glob
 unit = "kg C m^-3"
 description = "Soil arbuscular mycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-analysis/soil/nutrient_pools/carbon_microbial_guild.R
-analysis/soil/nutrient_pools/carbon_microbial.R
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
-Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
-Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
-Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
 source_type = "Global and SAFE"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
@@ -89,13 +89,13 @@ comment = "To scale microbial carbon from total carbon, first we obtained a glob
 unit = "kg C m^-3"
 description = "Soil ectomycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-analysis/soil/nutrient_pools/carbon_microbial_guild.R
-analysis/soil/nutrient_pools/carbon_microbial.R
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
-Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070 ,
-Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106 ,
-Andrieux et al. (2021) https://doi.org/10.1111/geb.13265
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
 source_type = "Global and SAFE"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
