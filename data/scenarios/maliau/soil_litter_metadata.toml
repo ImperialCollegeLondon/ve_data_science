@@ -319,7 +319,6 @@ source = [
 source_type = "SAFE and global"
 comment = "Estimated by finding the equilibrium belowground litter stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach."
 
-
 [litter_pool_below_structural]
 unit = "kg C m^-2"
 description = "Below ground structural litter pool"
@@ -336,27 +335,35 @@ comment = "Estimated by finding the equilibrium belowground litter stock. We too
 
 [lignin_above_structural]
 unit = "kg lignin C (kg C)^-1"
-description = ""
+description = "Proportion of above ground structural pool which is lignin"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE, global and first principle"
+comment = "Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [lignin_woody]
 unit = "kg lignin C (kg C)^-1"
-description = ""
+description = "Proportion of dead wood pool which is lignin"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
-source = ""
-source_type = ""
-comment = ""
+source = "Gérard et al. (2019) https://dx.doi.org/10.19182/bft2019.342.a31809"
+source_type = "Tropical region"
+comment = "For woody litter lignin, empirical data are scarce; we used a long-term tropical hardwood data compiled by CIRAD (Gérard et al. 2019)."
 
 [lignin_below_structural]
 unit = "kg lignin C (kg C)^-1"
-description = ""
+description = "Proportion of below ground structural pool which is lignin"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
+"Wang et al. (2025) https://doi.org/10.1111/nph.70001"
+]
+source_type = "Lowland tropical rain forest in Sabah and first principle"
+comment = "Estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [c_n_ratio_above_metabolic]
 unit = "-"
