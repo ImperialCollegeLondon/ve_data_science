@@ -357,6 +357,46 @@ comment = "For woody litter lignin, empirical data are scarce; we used a long-te
 unit = "kg lignin C (kg C)^-1"
 description = "Proportion of below ground structural pool which is lignin"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+source = "White et al. (2000) https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2"
+source_type = "Global"
+comment = "There is a lack of data for root lignin so we used a global study."
+
+[c_n_ratio_above_metabolic]
+unit = "-"
+description = "Carbon nitrogen ratio of above ground metabolic pool"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+source = [
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE, global and first principle"
+comment = "Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
+
+[c_n_ratio_above_structural]
+unit = "-"
+description = "Carbon nitrogen ratio of above ground structural pool"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+source = [
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE, global and first principle"
+comment = "Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
+
+[c_n_ratio_woody]
+unit = "-"
+description = "Carbon nitrogen ratio of woody litter pool"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
+source = "Terhi et al. (2021) https://zenodo.org/records/4899610"
+source_type = "SAFE"
+comment = ""
+
+[c_n_ratio_below_metabolic]
+unit = "-"
+description = "Carbon nitrogen ratio of below ground metabolic pool"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
 source = [
 "Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
 "Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
@@ -365,82 +405,70 @@ source = [
 source_type = "Lowland tropical rain forest in Sabah and first principle"
 comment = "Estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
-[c_n_ratio_above_metabolic]
-unit = "-"
-description = ""
-script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
-source = ""
-source_type = ""
-comment = ""
-
-[c_n_ratio_above_structural]
-unit = "-"
-description = ""
-script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
-source = ""
-source_type = ""
-comment = ""
-
-[c_n_ratio_woody]
-unit = "-"
-description = ""
-script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
-source = ""
-source_type = ""
-comment = ""
-
-[c_n_ratio_below_metabolic]
-unit = "-"
-description = ""
-script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
-source = ""
-source_type = ""
-comment = ""
-
 [c_n_ratio_below_structural]
 unit = "-"
-description = ""
+description = "Carbon nitrogen ratio of below ground structural pool"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
+"Wang et al. (2025) https://doi.org/10.1111/nph.70001"
+]
+source_type = "Lowland tropical rain forest in Sabah and first principle"
+comment = "Estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [c_p_ratio_above_metabolic]
 unit = "-"
-description = ""
+description = "Carbon phosphorous ratio of above ground metabolic pool"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE, global and first principle"
+comment = "Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [c_p_ratio_above_structural]
 unit = "-"
-description = ""
+description = "Carbon phosphorous ratio of above ground structural pool"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE, global and first principle"
+comment = "Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [c_p_ratio_woody]
 unit = "-"
-description = ""
+description = "Carbon phosphorous ratio of woody litter pool"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
-source = ""
-source_type = ""
+source = "Terhi et al. (2021) https://zenodo.org/records/4899610"
+source_type = "SAFE"
 comment = ""
 
 [c_p_ratio_below_metabolic]
 unit = "-"
-description = ""
+description = "Carbon phosphorous ratio of below ground metabolic pool"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
+"Wang et al. (2025) https://doi.org/10.1111/nph.70001"
+]
+source_type = "Lowland tropical rain forest in Sabah and first principle"
+comment = "Estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [c_p_ratio_below_structural]
 unit = "-"
-description = ""
+description = "Carbon phosphorous ratio of below ground structural pool"
 script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
-source = ""
-source_type = ""
-comment = ""
+source = [
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
+"Wang et al. (2025) https://doi.org/10.1111/nph.70001"
+]
+source_type = "Lowland tropical rain forest in Sabah and first principle"
+comment = "Estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
