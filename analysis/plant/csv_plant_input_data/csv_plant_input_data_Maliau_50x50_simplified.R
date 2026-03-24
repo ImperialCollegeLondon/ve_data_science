@@ -218,7 +218,12 @@ write.csv(
 # Prepare plant_constants_Maliau_50x50
 
 # Start from subcanopy_parameters
-plant_constants_Maliau_50x50 <- subcanopy_parameters
+plant_constants_Maliau_50x50 <- subset(subcanopy_parameters,
+  select = -c(
+    subcanopy_vegetation_biomass,
+    subcanopy_seedbank_biomass
+  )
+)
 
 # Variables required:
 # subcanopy_extinction_coef OK
