@@ -293,12 +293,14 @@ data$subcanopy_vegetation_lignin <- 0.121875 / 0.41747
 ##################################################
 
 # Add seedbank turnover (i.e., seeds lost from soil seed bank)
+# based on (Dalling et al. (1998; https://doi.org/10.2307/176953))
 # Calculated as 1-fraction seeds expected to still be viable after one year
 
 data$subcanopy_seedbank_turnover <- 1 - 0.68
 
 # Add subcanopy sprout rate (as the fraction of viable seeds within 1 year, while
 # assuming all of these will sprout)
+# based on (Dalling et al. (1998; https://doi.org/10.2307/176953))
 
 data$subcanopy_sprout_rate <- 0.68
 
