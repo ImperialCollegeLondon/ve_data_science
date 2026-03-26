@@ -1,5 +1,5 @@
 #| ---
-#| title: Tree carbon cycling validation
+#| title: Tree nutrient uptake validation
 #|
 #| description: |
 #|     This script focuses on validating the tree nutrient uptake outputs
