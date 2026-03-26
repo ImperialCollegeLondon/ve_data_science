@@ -117,14 +117,16 @@ data_taxa <- data_taxa[data_taxa$Block %in%
 # Note that the name/path need to be updated depending on which simulation is used
 
 plants_cohort_data <- read.csv( # nolint
-  "../../../data/scenarios/maliau/maliau_1_timestep_10/out/plants_cohort_data.csv", # nolint
+  "../../../data/scenarios/maliau/maliau_1/out/plants_cohort_data.csv", # nolint
   header = TRUE
 )
 
+names(plants_cohort_data)
+
 plants_cohort_data <-
   plants_cohort_data[, c(
-    "cohort_id", "n_individuals", "dbh", "stem_height",
-    "time", "pft_names", "cell_id"
+    "cohort_id", "n_individuals", "dbh", "stem_height", "delta_dbh",
+    "time_index", "pft_names", "cell_id"
   )]
 
 # focus on cell_id = 0 only to reduce processing time
@@ -141,13 +143,6 @@ for (i in 1:length(cohort_id)) { # nolint
   ] <- cohort_id_simple[i]
 }
 
-time <- unique(plants_cohort_data$time)
-time_simple <- 0:(length(time) - 1)
-for (i in 1:length(time)) { # nolint
-  plants_cohort_data$time[plants_cohort_data$time == time[i]] <- time_simple[i]
-}
-plants_cohort_data$time <- as.numeric(plants_cohort_data$time)
-
 plants_cohort_data$setup <- "no"
 plants_cohort_data$setup[1:34] <- "yes"
 
@@ -162,34 +157,34 @@ plants_cohort_data$setup[1:34] <- "yes"
 # the reported values to dbh later on when comparing to dbh growth from VE outputs.
 # It looks like the RGR values are already converted to DBH growth.
 
-for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time == 0])) {
+for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == 0])) {
   plants_cohort_data$dbh_growth[
-    plants_cohort_data$time == 0 & plants_cohort_data$cohort_id == j
+    plants_cohort_data$time_index == 0 & plants_cohort_data$cohort_id == j
   ] <-
     (plants_cohort_data$dbh[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "no"
     ] - plants_cohort_data$dbh[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "yes"
     ]) * 12 # Convert to yearly values
 
   plants_cohort_data$relative_dbh_growth[
-    plants_cohort_data$time == 0 & plants_cohort_data$cohort_id == j
+    plants_cohort_data$time_index == 0 & plants_cohort_data$cohort_id == j
   ] <-
     (((plants_cohort_data$dbh[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "no"
     ] - plants_cohort_data$dbh[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "yes"
     ]) * 1000) / # Convert to mm values
       plants_cohort_data$dbh[ # nolint
-        plants_cohort_data$time == 0 & # nolint
+        plants_cohort_data$time_index == 0 & # nolint
           plants_cohort_data$cohort_id == j & # nolint
           plants_cohort_data$setup == "yes"
       ]) * 12 # Convert to yearly values # nolint
@@ -204,29 +199,37 @@ for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time == 0])) {
 initial_cohorts_setup <-
   unique(plants_cohort_data$cohort_id[plants_cohort_data$setup == "yes"])
 initial_cohorts_t0 <- unique(plants_cohort_data$cohort_id[
-  plants_cohort_data$setup == "no" & plants_cohort_data$time == 0
+  plants_cohort_data$setup == "no" & plants_cohort_data$time_index == 0
 ])
 recruits_cohorts_t0 <- setdiff(initial_cohorts_t0, initial_cohorts_setup)
 plants_cohort_data$dbh_growth[
-  plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time == 0
+  plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time_index == 0 # nolint
 ] <-
   (plants_cohort_data$dbh[
-    plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time == 0
+    plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time_index == 0 # nolint
   ]) * 12 # Convert to yearly values
 # Note relative growth for recruits cannot be calculated (cannot divide by 0)
 
+# Note that the above can be replaced by:
+# - multiplying delta_dbh * 12 (to get yearly dbh growth)
+# - multiplying delta_dbh by 1000 to get mm, then divide by dbh (m) then multiply
+#   by 12 to get relative dbh growth (mm m-1 year-1)
+# However, this is not possible for the first timestep (as delta_dbh values = NA)
+# Therefore, I'll leave the script as it is. Using delta_dbh might be easier
+# when all cells are going to be evaluated (compared to having to loop)
+
 # Now repeat the above for height_growth
 
-for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time == 0])) {
+for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == 0])) {
   plants_cohort_data$height_growth[
-    plants_cohort_data$time == 0 & plants_cohort_data$cohort_id == j
+    plants_cohort_data$time_index == 0 & plants_cohort_data$cohort_id == j
   ] <-
     (plants_cohort_data$stem_height[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "no"
     ] - plants_cohort_data$stem_height[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "yes"
     ]) * 12 # Convert to yearly values
@@ -241,14 +244,14 @@ for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time == 0])) {
 initial_cohorts_setup <-
   unique(plants_cohort_data$cohort_id[plants_cohort_data$setup == "yes"])
 initial_cohorts_t0 <- unique(plants_cohort_data$cohort_id[
-  plants_cohort_data$setup == "no" & plants_cohort_data$time == 0
+  plants_cohort_data$setup == "no" & plants_cohort_data$time_index == 0
 ])
 recruits_cohorts_t0 <- setdiff(initial_cohorts_t0, initial_cohorts_setup)
 plants_cohort_data$height_growth[
-  plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time == 0
+  plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time_index == 0 # nolint
 ] <-
   (plants_cohort_data$stem_height[
-    plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time == 0
+    plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time_index == 0 # nolint
   ]) * 12 # Convert to yearly values
 
 #####
@@ -261,35 +264,35 @@ plants_cohort_data <- plants_cohort_data[-c(1:34), ]
 # Remember to convert to yearly values
 
 for (j in unique(plants_cohort_data$cohort_id)) {
-  for (i in 1:max(plants_cohort_data$time)) {
+  for (i in 1:max(plants_cohort_data$time_index)) {
     plants_cohort_data$dbh_growth[
-      plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+      plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
     ] <-
       (plants_cohort_data$dbh[
-        plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
       ] - plants_cohort_data$dbh[
-        plants_cohort_data$time == (i - 1) & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == (i - 1) & plants_cohort_data$cohort_id == j
       ]) * 12 # Convert to yearly values
 
     plants_cohort_data$relative_dbh_growth[
-      plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+      plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
     ] <-
       (((plants_cohort_data$dbh[
-        plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
       ] - plants_cohort_data$dbh[
-        plants_cohort_data$time == (i - 1) & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == (i - 1) & plants_cohort_data$cohort_id == j
       ]) * 1000) / # Convert to mm values
         plants_cohort_data$dbh[ # nolint
-          plants_cohort_data$time == (i - 1) & plants_cohort_data$cohort_id == j
+          plants_cohort_data$time_index == (i - 1) & plants_cohort_data$cohort_id == j
         ]) * 12 # Convert to yearly values
 
     plants_cohort_data$height_growth[
-      plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+      plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
     ] <-
       (plants_cohort_data$stem_height[
-        plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
       ] - plants_cohort_data$stem_height[
-        plants_cohort_data$time == (i - 1) & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == (i - 1) & plants_cohort_data$cohort_id == j
       ]) * 12 # Convert to yearly values
   }
 }
@@ -297,25 +300,25 @@ for (j in unique(plants_cohort_data$cohort_id)) {
 # Do the same for recruits
 # Note: relative_dbh_growth cannot be calculated for recruits (cannot divide by 0)
 
-for (i in 1:max(plants_cohort_data$time)) {
+for (i in 1:max(plants_cohort_data$time_index)) {
   initial_cohorts_t <-
-    unique(plants_cohort_data$cohort_id[plants_cohort_data$time == i])
+    unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == i])
   initial_cohorts_t_previous <-
-    unique(plants_cohort_data$cohort_id[plants_cohort_data$time == (i - 1)])
+    unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == (i - 1)])
   recruits_cohorts <- setdiff(initial_cohorts_t, initial_cohorts_t_previous)
 
   plants_cohort_data$dbh_growth[
-    plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time == i
+    plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time_index == i # nolint
   ] <-
     (plants_cohort_data$dbh[
-      plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time == i
+      plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time_index == i # nolint
     ]) * 12 # Convert to yearly values
 
   plants_cohort_data$height_growth[
-    plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time == i
+    plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time_index == i # nolint
   ] <-
     (plants_cohort_data$stem_height[
-      plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time == i
+      plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time_index == i # nolint
     ]) * 12 # Convert to yearly values
 }
 
