@@ -1,0 +1,10 @@
+# Template for running a batch set of jobs on the HPC.
+
+config_paths = ["paths"]
+site_directory = "/rds/projects/blah/dir"
+
+[jobs.scenario_one]
+soil.constants.groundwater_storage = 0.2
+
+[jobs.scenario_two]
+soil.constants.groundwater_storage = 0.5
