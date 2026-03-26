@@ -8,7 +8,8 @@
 # the batch file
 
 # Setup the environment
-module load
+module load miniforge/3
+conda activate /rds/general/project/virtual_rainforest/live/ve_data_science/hpc_jobs/virtual_ecosystem_py314
 
 # Send job details to the Python code to run the job
 python hpc_ve_run_batch.py $VE_BATCH $PBS_ARRAY_INDEX
