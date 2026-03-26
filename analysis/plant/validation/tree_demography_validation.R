@@ -117,14 +117,16 @@ data_taxa <- data_taxa[data_taxa$Block %in%
 # Note that the name/path need to be updated depending on which simulation is used
 
 plants_cohort_data <- read.csv( # nolint
-  "../../../data/scenarios/maliau/maliau_1_timestep_10/out/plants_cohort_data.csv", # nolint
+  "../../../data/scenarios/maliau/maliau_1/out/plants_cohort_data.csv", # nolint
   header = TRUE
 )
+
+names(plants_cohort_data)
 
 plants_cohort_data <-
   plants_cohort_data[, c(
     "cohort_id", "n_individuals", "dbh",
-    "time", "pft_names", "cell_id"
+    "time_index", "pft_names", "cell_id"
   )]
 
 # focus on cell_id = 0 only to reduce processing time
@@ -158,13 +160,6 @@ for (i in cohort_id_simple) {
 # Note that this value can never be positive (new recruits are always given a
 # new cohort_id - and so are never merged into existing cohorts)
 
-time <- unique(plants_cohort_data$time)
-time_simple <- 0:(length(time) - 1)
-for (i in 1:length(time)) { # nolint
-  plants_cohort_data$time[plants_cohort_data$time == time[i]] <- time_simple[i]
-}
-plants_cohort_data$time <- as.numeric(plants_cohort_data$time)
-
 plants_cohort_data$setup <- "no"
 plants_cohort_data$setup[1:34] <- "yes"
 
@@ -175,17 +170,17 @@ plants_cohort_data$mortality <- 0
 # First need to calculate mortality in first timestep
 # Need to use the individuals from setup as initial n individuals
 
-for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time == 0])) {
+for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == 0])) {
   plants_cohort_data$mortality[
-    plants_cohort_data$time == 0 & plants_cohort_data$cohort_id == j
+    plants_cohort_data$time_index == 0 & plants_cohort_data$cohort_id == j
   ] <-
     plants_cohort_data$n_individuals[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "yes"
     ] -
     plants_cohort_data$n_individuals[
-      plants_cohort_data$time == 0 &
+      plants_cohort_data$time_index == 0 &
         plants_cohort_data$cohort_id == j & # nolint
         plants_cohort_data$setup == "no"
     ]
@@ -199,47 +194,47 @@ for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time == 0])) {
 initial_cohorts_setup <-
   unique(plants_cohort_data$cohort_id[plants_cohort_data$setup == "yes"])
 initial_cohorts_t0 <- unique(plants_cohort_data$cohort_id[
-  plants_cohort_data$setup == "no" & plants_cohort_data$time == 0
+  plants_cohort_data$setup == "no" & plants_cohort_data$time_index == 0
 ])
 recruits_cohorts_t0 <- setdiff(initial_cohorts_t0, initial_cohorts_setup)
 plants_cohort_data$recruits[
-  plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time == 0
+  plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time_index == 0 # nolint
 ] <-
   plants_cohort_data$n_individuals[
-    plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time == 0
+    plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time_index == 0 # nolint
   ]
 
 # Only now the setup rows 1:34 can be deleted
 plants_cohort_data <- plants_cohort_data[-c(1:34), ]
 
 for (j in unique(plants_cohort_data$cohort_id)) {
-  for (i in 1:max(plants_cohort_data$time)) {
+  for (i in 1:max(plants_cohort_data$time_index)) {
     plants_cohort_data$mortality[
-      plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+      plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
     ] <-
       plants_cohort_data$n_individuals[
-        plants_cohort_data$time == (i - 1) & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == (i - 1) & plants_cohort_data$cohort_id == j
       ] -
       plants_cohort_data$n_individuals[
-        plants_cohort_data$time == i & plants_cohort_data$cohort_id == j
+        plants_cohort_data$time_index == i & plants_cohort_data$cohort_id == j
       ]
   }
 }
 
 # Do the same for recruits
 
-for (i in 1:max(plants_cohort_data$time)) {
+for (i in 1:max(plants_cohort_data$time_index)) {
   initial_cohorts_t <-
-    unique(plants_cohort_data$cohort_id[plants_cohort_data$time == i])
+    unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == i])
   initial_cohorts_t_previous <-
-    unique(plants_cohort_data$cohort_id[plants_cohort_data$time == (i - 1)])
+    unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == (i - 1)])
 
   recruits_cohorts <- setdiff(initial_cohorts_t, initial_cohorts_t_previous)
   plants_cohort_data$recruits[
-    plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time == i
+    plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time_index == i # nolint
   ] <-
     plants_cohort_data$n_individuals[
-      plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time == i
+      plants_cohort_data$cohort_id %in% recruits_cohorts & plants_cohort_data$time_index == i # nolint
     ]
 }
 
@@ -250,16 +245,16 @@ plants_cohort_data$recruits[is.na(plants_cohort_data$recruits)] <- 0
 
 # Now calculate mortality rate per timestep
 # Do this for each cohort and for total stem density
-for (i in unique(plants_cohort_data$time)) {
-  plants_cohort_data$mortality_rate[plants_cohort_data$time == i] <-
-    plants_cohort_data$mortality[plants_cohort_data$time == i] /
-      plants_cohort_data$n_individuals[plants_cohort_data$time == i] # nolint
+for (i in unique(plants_cohort_data$time_index)) {
+  plants_cohort_data$mortality_rate[plants_cohort_data$time_index == i] <-
+    plants_cohort_data$mortality[plants_cohort_data$time_index == i] /
+      plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] # nolint
 }
 
-for (i in unique(plants_cohort_data$time)) {
-  plants_cohort_data$mortality_rate_total[plants_cohort_data$time == i] <-
-    sum(plants_cohort_data$mortality[plants_cohort_data$time == i]) /
-      sum(plants_cohort_data$n_individuals[plants_cohort_data$time == i]) # nolint
+for (i in unique(plants_cohort_data$time_index)) {
+  plants_cohort_data$mortality_rate_total[plants_cohort_data$time_index == i] <-
+    sum(plants_cohort_data$mortality[plants_cohort_data$time_index == i]) /
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i]) # nolint
 }
 
 # Convert monthly mortality probability to yearly to compare with input data
@@ -271,7 +266,7 @@ plants_cohort_data$mortality_rate_total_annual <-
 
 # At cohort level mortality is higher than expected
 # This is likely elevated when cohort individuals is smaller
-plot(mortality_rate_annual ~ time,
+plot(mortality_rate_annual ~ time_index,
   data = plants_cohort_data[plants_cohort_data$mortality_rate_annual > 0, ]
 )
 abline(h = 0.1)
@@ -284,7 +279,7 @@ abline(h = mean_CI[1], col = "red", lty = "dashed")
 abline(h = mean_CI[3], col = "red", lty = "dashed")
 
 # At total level mortality is slightly lower than expected based on input (0.1)
-plot(mortality_rate_total_annual ~ time,
+plot(mortality_rate_total_annual ~ time_index,
   data = plants_cohort_data[plants_cohort_data$mortality_rate_total_annual > 0, ]
 )
 abline(h = 0.1)
@@ -305,17 +300,17 @@ abline(h = mean_CI[3], col = "red", lty = "dashed")
 # Then compare this to existing studies
 
 # Calculate recruitment relative to total stem density
-for (i in unique(plants_cohort_data$time)) {
-  plants_cohort_data$recruitment_rate_total[plants_cohort_data$time == i] <-
-    sum(plants_cohort_data$recruits[plants_cohort_data$time == i]) /
-      sum(plants_cohort_data$n_individuals[plants_cohort_data$time == i]) # nolint
+for (i in unique(plants_cohort_data$time_index)) {
+  plants_cohort_data$recruitment_rate_total[plants_cohort_data$time_index == i] <-
+    sum(plants_cohort_data$recruits[plants_cohort_data$time_index == i]) /
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i]) # nolint
 }
 
 # Convert recruits to annual values
 plants_cohort_data$recruits_annual <-
   plants_cohort_data$recruits * 12
 
-plot(plants_cohort_data$recruits_annual ~ plants_cohort_data$time)
+plot(plants_cohort_data$recruits_annual ~ plants_cohort_data$time_index)
 
 ##########
 
