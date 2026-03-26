@@ -47,4 +47,4 @@ qsub
 "
 
 
-qsub -J 1-$NJOBS -o $OUTPUT_FILES -v VE_BATCH=$1 hpc_ve_run.sh
+qsub -J 1-$NJOBS -o $OUTPUT_FILES -v VE_BATCH=$1 hpc_ve_run_batch.sh
