@@ -14,8 +14,15 @@ if [ ! -f $1 ]; then
     exit 1
 fi
 
-# Count the number of job description lines in the input file and strip whitespace
-NJOBS=$(grep '\[\[jobs\]\]' $1 | wc -l | xargs)
+# Use python to get the number of jobs - using module here to check for the HPC
+# environment where we need to explicitly load python via a module.
+if command -v module >/dev/null 2>&1
+then
+    module load miniforge/3
+    conda activate /rds/general/project/virtual_rainforest/live/ve_data_science/hpc_jobs/virtual_ecosystem_py314
+fi
+
+NJOBS=`python hpc_ve_run_job_spec.py job_config.toml`
 
 # Use a folder in the batch file location as the output directory and use this as
 # canary for previous outputs to the same location.
