@@ -15,7 +15,9 @@ job_array_index = int(sys.argv[1])
 with open(batch_file, "rb") as batch:
     batch_job_spec = tomllib.load(batch)
 
-# TODO:
+# Should probably validate the config file here with a simple pydantic model.
+
+
 # 1. Stage the site directory to the runner location to avoid multiple reading problem
 #    This could also be done from the shell script but the TOML is easier to parse in
 #    here
@@ -23,18 +25,14 @@ local_dir = os.getcwd()
 site_dir = shutil.copytree(batch_job_spec["site_directory"], local_dir)
 os.chdir(site_dir)
 
-# 2. Extract the job from the jobs spec by index and do any formatting required
-#   TODO - Currently comes in as a dictionary. If tomllib does not preserve dictionary
-#          order on load this would shuffle jobs. Might be easier as an array in TOML
-#          but the syntax is clumsier
+# 2. Extract the job from the jobs spec by index
 job_spec = batch_job_spec["jobs"][job_array_index]
 
-# 3. Setup the output directory for the job - basically make sure job_spec is a dict
-#    that ve_run can use.
+# 3. Build into args for ve_run function
+config_paths = [*batch_job_spec["common_config_paths"], *job_spec["config_paths"]]
+cli_config = job_spec["config"]  # Might need more work
 
+# 3. Start the run
+ve_run(config_paths=config_paths, cli_config=cli_config)
 
-# 4. Start the run
-
-ve_run(config_paths=batch_job_spec["config_paths"], cli_config=job_spec)
-
-# 5. Stage the model outputs back to scenario directory.
+# 4. Stage the model outputs back to scenario directory.

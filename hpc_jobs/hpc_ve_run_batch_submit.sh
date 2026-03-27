@@ -15,7 +15,7 @@ if [ ! -f $1 ]; then
 fi
 
 # Count the number of job description lines in the input file and strip whitespace
-NJOBS=$(grep '\[jobs\.' $1 | wc -l | xargs)
+NJOBS=$(grep '\[\[jobs\]\]' $1 | wc -l | xargs)
 
 # Use a folder in the batch file location as the output directory and use this as
 # canary for previous outputs to the same location.
@@ -35,7 +35,7 @@ SCRIPT_NAME=${SCRIPT_NAME//.toml/}
 OUTPUT_FILES="$PBS_OUT_DIR/${SCRIPT_NAME}_^array_index^.out"
 
 # Inform on what is about to happen
-echo -e "Submitting $NJOBS jobs in:
+echo "Submitting $NJOBS jobs in:
 $1
 
 Executing:
