@@ -321,6 +321,36 @@ plants_cohort_data$recruits_annual <-
 
 plot(plants_cohort_data$recruits_annual ~ plants_cohort_data$time_index)
 
+# Now sum across PFTs to get total annual recruitment per cell
+for (j in unique(plants_cohort_data$cell_id)) {
+  for (i in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$recruits_total_annual[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j] <- # nolint
+      sum(plants_cohort_data$recruits_annual[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j]) # nolint
+  }
+}
+
+#####
+
+# Compare this to recruitment for Danum Valley (Lingenfelder and Newbery, 2009)
+# Need to check what counts as a recruit (already passed the seedling stage?)
+
+recruits_1996 <- 295
+recruits_2001 <- 157
+
+recruitment_rate_total_1996 <- 295 / 2158
+recruitment_rate_total_2001 <- 157 / 2078
+
+# Compare to VE:
+# Recruitment in VE seems too low, but this may be caused by the seedbank being
+# too low (see issue #246)
+
+# Also note that VE recruitment technically represents germinated seeds
+# There is no selection filter to account for seedling/sapling mortality
+# The same mortality probability of adult trees is used for seedlings
+
+unique(plants_cohort_data$recruits_total_annual)
+unique(plants_cohort_data$recruitment_rate_total)
+
 ##########
 
 # To do:
@@ -442,4 +472,5 @@ Rmisc::CI(
   ci = 0.95
 )
 
-# Note that the VE simulation used the mortality probability (0.0159)
+# Note that the VE simulation used the mortality probability (0.0159) and this
+# seems to match Maliau census data very well
