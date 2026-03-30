@@ -3,8 +3,9 @@
 #|
 #| description: |
 #|     This R script extracts the (mean) microbial carbon to soil carbon ratio
-#|     from a map by Serna-Chavez et al. (2013) Glob. Eco. Biogeog. It will be
-#|     used for post-hoc prediction of soil initialisation data in Maliau.
+#|     from a map by Serna-Chavez et al. (2013) Glob. Eco. Biogeog.
+#|     https://doi.org/10.1111/geb.12070 It will be used for post-hoc
+#|     prediction of soil initialisation data in Maliau.
 #|
 #| virtual_ecosystem_module: Soil
 #|
@@ -20,7 +21,8 @@
 #|   - name: cmicsoc_ratio.asc
 #|     path: data/primary/soil/microbes
 #|     description: |
-#|       ASCII map of microbe:soil carbon ratio.
+#|       ASCII map of microbe:soil carbon ratio. Downloaded from
+#|       https://onlinelibrary.wiley.com/doi/10.1111/geb.12070
 #|
 #| output_files:
 #|   - name:
