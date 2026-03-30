@@ -218,7 +218,12 @@ write.csv(
 # Prepare plant_constants_Maliau_50x50
 
 # Start from subcanopy_parameters
-plant_constants_Maliau_50x50 <- subcanopy_parameters
+plant_constants_Maliau_50x50 <- subset(subcanopy_parameters,
+  select = -c(
+    subcanopy_vegetation_biomass,
+    subcanopy_seedbank_biomass
+  )
+)
 
 # Variables required:
 # subcanopy_extinction_coef OK
@@ -242,7 +247,6 @@ plant_constants_Maliau_50x50 <- subcanopy_parameters
 # dsr_to_ppfd ADD default
 # stem_lignin ADD from plant_stoichiometry
 # senesced_leaf_lignin ADD from plant_stoichiometry
-# leaf_lignin ADD from plant_stoichiometry
 # plant_reproductive_tissue_lignin ADD from plant_stoichiometry
 # root_lignin ADD from plant_stoichiometry
 # root_exudates ADD from t_model_parameters
@@ -270,11 +274,6 @@ plant_constants_Maliau_50x50$stem_lignin <-
 # senesced_leaf_lignin
 plant_constants_Maliau_50x50$senesced_leaf_lignin <-
   unique(plant_stoichiometry$senesced_leaf_lignin[
-    plant_stoichiometry$name == "emergent"
-  ]) # Note that 1 value can only be assigned
-# leaf_lignin
-plant_constants_Maliau_50x50$leaf_lignin <-
-  unique(plant_stoichiometry$leaf_lignin[
     plant_stoichiometry$name == "emergent"
   ]) # Note that 1 value can only be assigned
 # plant_reproductive_tissue_lignin
