@@ -129,22 +129,26 @@ plants_cohort_data <-
     "time_index", "pft_names", "cell_id"
   )]
 
-# focus on cell_id = 0 only to reduce processing time
-plants_cohort_data <- plants_cohort_data[plants_cohort_data$cell_id == 0, ]
+# Subset to desired number of cells (substantially speeds up processing)
+# The code works for all cells but this takes very long to run
+
+plants_cohort_data <- plants_cohort_data[plants_cohort_data$cell_id %in% c(0:10), ]
+
+# check how many unique cohorts in the simulation
 
 cohort_id <- unique(plants_cohort_data$cohort_id)
 length(cohort_id)
 
-cohort_id_simple <- 0:(length(cohort_id) - 1)
-
-for (i in 1:length(cohort_id)) { # nolint
-  plants_cohort_data$cohort_id[
-    plants_cohort_data$cohort_id == cohort_id[i]
-  ] <- cohort_id_simple[i]
-}
-
 plants_cohort_data$setup <- "no"
-plants_cohort_data$setup[1:34] <- "yes"
+
+# Here need to manually check how many setup rows there are
+# Basically check within time_index = 0 where cell_id resets to 0
+# For all cell_id's the setup rows are 85000, which is 2500 cells * 34 unique
+# cohorts per cell (e.g., cell_id = 0)
+# However, this takes very long to run, so for now just use cell_id 0:10 example
+# plants_cohort_data$setup[1:85000] <- "yes" # nolint
+
+plants_cohort_data$setup[1:374] <- "yes"
 
 # Calculate change in dbh and height from setup to end of first timestep (0)
 
@@ -215,8 +219,7 @@ plants_cohort_data$dbh_growth[
 # - multiplying delta_dbh by 1000 to get mm, then divide by dbh (m) then multiply
 #   by 12 to get relative dbh growth (mm m-1 year-1)
 # However, this is not possible for the first timestep (as delta_dbh values = NA)
-# Therefore, I'll leave the script as it is. Using delta_dbh might be easier
-# when all cells are going to be evaluated (compared to having to loop)
+# Therefore, I'll leave the script as it is
 
 # Now repeat the above for height_growth
 
@@ -256,8 +259,9 @@ plants_cohort_data$height_growth[
 
 #####
 
-# Only now the setup rows 1:34 can be deleted
-plants_cohort_data <- plants_cohort_data[-c(1:34), ]
+# Only now the setup rows can be deleted
+
+plants_cohort_data <- plants_cohort_data[plants_cohort_data$setup == "no", ]
 
 # Now calculate dbh_growth, relative_dbh_growth and height_growth for all other
 # non-setup rows
@@ -577,6 +581,47 @@ Rmisc::CI(data$relative_dbh_growth_11_19[
 
 #####
 
+# Now, for the periods with good growth data in Maliau census dataset,
+# calculate the growth during those periods
+# We will then compare the growth in specific periods with the corresponding
+# growth for the timesteps in the VE outputs
+
+# Periods to focus on:
+# 2011 - 2014 (already calculated, see above)
+# 2014 - 2015
+# 2015 - 2016
+# 2016 - 2017
+# 2017 - 2019
+
+# Note that preferably we'd look at this per PFT, but the available tree per
+# growth period is rather low, so not sure how meaningful this is
+# For now focus on detecting any climate-growth relationships across periods
+
+data$dbh_growth_14_15 <- data$DBH2015_mm_clean - data$DBH2014_mm_clean
+unique(data$dbh_growth_14_15)
+mean(data$dbh_growth_14_15, na.rm = TRUE)
+
+data$dbh_growth_15_16 <- data$DBH2016_mm_clean - data$DBH2015_mm_clean
+unique(data$dbh_growth_15_16)
+mean(data$dbh_growth_15_16, na.rm = TRUE)
+
+data$dbh_growth_16_17 <- data$DBH2017_mm_clean - data$DBH2016_mm_clean
+unique(data$dbh_growth_16_17)
+mean(data$dbh_growth_16_17, na.rm = TRUE)
+
+data$dbh_growth_17_19 <- data$DBH2019_mm_clean - data$DBH2017_mm_clean
+unique(data$dbh_growth_17_19)
+mean(data$dbh_growth_17_19, na.rm = TRUE)
+
+#####
+
 # Then compare relative_dbh_growth from VE outputs with relative_dbh_growth_11_14
 # (and other time periods) from SAFE tree census dataset, as well as with the
 # values in the Newbery and Lingenfelder (2009) paper
+
+# Note: rerun this script / analysis with the full Maliau simulation data,
+# so that we can compare growth in specific years (i.e., during drought years)
+
+# Once we have the results from the full run, plot VE dbh growth for the periods
+# with good Maliau census growth data (see above for periods)
+# This way we can test dbh growth more detailed compared to just using the mean
