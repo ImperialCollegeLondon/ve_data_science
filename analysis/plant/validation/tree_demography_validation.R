@@ -129,27 +129,15 @@ plants_cohort_data <-
     "time_index", "pft_names", "cell_id"
   )]
 
-# focus on cell_id = 0 only to reduce processing time
-plants_cohort_data <- plants_cohort_data[plants_cohort_data$cell_id == 0, ]
+# Subset to desired number of cells (substantially speeds up processing)
+# The code works for all cells but this takes very long to run
+
+plants_cohort_data <- plants_cohort_data[plants_cohort_data$cell_id %in% c(0:10), ]
+
+# check how many unique cohorts in the simulation
 
 cohort_id <- unique(plants_cohort_data$cohort_id)
 length(cohort_id)
-
-cohort_id_simple <- 0:(length(cohort_id) - 1)
-
-for (i in 1:length(cohort_id)) { # nolint
-  plants_cohort_data$cohort_id[
-    plants_cohort_data$cohort_id == cohort_id[i]
-  ] <- cohort_id_simple[i]
-}
-
-# The loop below just gives a broad indication if the n individuals per cohort
-# changed during the simulation
-for (i in cohort_id_simple) {
-  recruits <- max(plants_cohort_data$n_individuals[plants_cohort_data$cohort_id == i]) -
-    min(plants_cohort_data$n_individuals[plants_cohort_data$cohort_id == i])
-  print(recruits)
-}
 
 # For timestep = 0 need to use the values for setup to calculate the difference
 # with timestep = 0 (at the end of the timestep) to get mortality and recruits
@@ -161,13 +149,21 @@ for (i in cohort_id_simple) {
 # new cohort_id - and so are never merged into existing cohorts)
 
 plants_cohort_data$setup <- "no"
-plants_cohort_data$setup[1:34] <- "yes"
+
+# Here need to manually check how many setup rows there are
+# Basically check within time_index = 0 where cell_id resets to 0
+# For all cell_id's the setup rows are 85000, which is 2500 cells * 34 unique
+# cohorts per cell (e.g., cell_id = 0)
+# However, this takes very long to run, so for now just use cell_id 0:10 example
+# plants_cohort_data$setup[1:85000] <- "yes" # nolint
+
+plants_cohort_data$setup[1:374] <- "yes"
 
 plants_cohort_data$mortality <- 0
 
 # Widely used formula (Sheil et al. 1995) for annual mortality
 
-# First need to calculate mortality in first timestep
+# First need to calculate mortality per cohort in first timestep
 # Need to use the individuals from setup as initial n individuals
 
 for (j in unique(plants_cohort_data$cohort_id[plants_cohort_data$time_index == 0])) {
@@ -204,8 +200,9 @@ plants_cohort_data$recruits[
     plants_cohort_data$cohort_id %in% recruits_cohorts_t0 & plants_cohort_data$time_index == 0 # nolint
   ]
 
-# Only now the setup rows 1:34 can be deleted
-plants_cohort_data <- plants_cohort_data[-c(1:34), ]
+# Only now the setup rows can be deleted
+
+plants_cohort_data <- plants_cohort_data[plants_cohort_data$setup == "no", ]
 
 for (j in unique(plants_cohort_data$cohort_id)) {
   for (i in 1:max(plants_cohort_data$time_index)) {
@@ -243,18 +240,26 @@ plants_cohort_data$recruits[is.na(plants_cohort_data$recruits)] <- 0
 
 #####
 
-# Now calculate mortality rate per timestep
+# Now calculate mortality rate per timestep per cell_id
 # Do this for each cohort and for total stem density
+# Only do this where n_individuals > 0 as cannot divide by 0
+# So far this only applies to when all individuals died during setup
 for (i in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$mortality_rate[plants_cohort_data$time_index == i] <-
-    plants_cohort_data$mortality[plants_cohort_data$time_index == i] /
-      plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] # nolint
+  plants_cohort_data$mortality_rate[plants_cohort_data$time_index == i & plants_cohort_data$n_individuals > 0] <- # nolint
+    plants_cohort_data$mortality[plants_cohort_data$time_index == i & plants_cohort_data$n_individuals > 0] / # nolint
+      plants_cohort_data$n_individuals[plants_cohort_data$time_index == i & plants_cohort_data$n_individuals > 0] # nolint
 }
 
-for (i in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$mortality_rate_total[plants_cohort_data$time_index == i] <-
-    sum(plants_cohort_data$mortality[plants_cohort_data$time_index == i]) /
-      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i]) # nolint
+plants_cohort_data$mortality_rate[plants_cohort_data$n_individuals == 0 & plants_cohort_data$mortality > 0] <- 1 # nolint
+plants_cohort_data$mortality_rate[plants_cohort_data$n_individuals == 0 & plants_cohort_data$mortality == 0] <- 0 # nolint
+
+# Here need to subset per cell_id
+for (j in unique(plants_cohort_data$cell_id)) {
+  for (i in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$mortality_rate_total[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j] <- # nolint
+      sum(plants_cohort_data$mortality[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j]) / # nolint
+        sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j]) # nolint
+  }
 }
 
 # Convert monthly mortality probability to yearly to compare with input data
@@ -278,7 +283,7 @@ abline(h = mean_CI[2], col = "red")
 abline(h = mean_CI[1], col = "red", lty = "dashed")
 abline(h = mean_CI[3], col = "red", lty = "dashed")
 
-# At total level mortality is slightly lower than expected based on input (0.1)
+# At total level mortality is slightly lower than expected based on input (0.0159)
 plot(mortality_rate_total_annual ~ time_index,
   data = plants_cohort_data[plants_cohort_data$mortality_rate_total_annual > 0, ]
 )
@@ -300,11 +305,15 @@ abline(h = mean_CI[3], col = "red", lty = "dashed")
 # Then compare this to existing studies
 
 # Calculate recruitment relative to total stem density
-for (i in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$recruitment_rate_total[plants_cohort_data$time_index == i] <-
-    sum(plants_cohort_data$recruits[plants_cohort_data$time_index == i]) /
-      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i]) # nolint
+for (j in unique(plants_cohort_data$cell_id)) {
+  for (i in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$recruitment_rate_total[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j] <- # nolint
+      sum(plants_cohort_data$recruits[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j]) / # nolint
+        sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i & plants_cohort_data$cell_id == j]) # nolint
+  }
 }
+
+plot(plants_cohort_data$recruitment_rate_total ~ plants_cohort_data$time_index)
 
 # Convert recruits to annual values
 plants_cohort_data$recruits_annual <-
@@ -320,10 +329,6 @@ plot(plants_cohort_data$recruits_annual ~ plants_cohort_data$time_index)
 # - compare mean (+-95% CI) recruits_annual with validation data
 # - compare mean (+-95% CI) recruitment_rate_total with validation data
 
-# Currently SAFE tree census is not used yet (same for PFT species classification)
-
-# Note that values calculated are for cell_id = 0 only, but need to check other
-# cells too
 # Need to write out the units in the script (cell area = 10000 m2)
 
 ##########
@@ -437,7 +442,4 @@ Rmisc::CI(
   ci = 0.95
 )
 
-# Note that the VE simulation used the old mortality probability (0.1), which
-# is higher than the calibrated value of 0.0159
-# So need to rerun the simulation using the new constants and rerun this script
-# to compare values again
+# Note that the VE simulation used the mortality probability (0.0159)
