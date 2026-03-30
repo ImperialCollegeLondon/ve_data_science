@@ -44,7 +44,7 @@ comment = ""
 unit = "kg C m^-3"
 description = "Soil bacterial biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
 "analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
@@ -59,7 +59,7 @@ comment = "To scale microbial carbon from total carbon, first we obtained a glob
 unit = "kg C m^-3"
 description = "Soil saprotrophic fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
 "analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
@@ -74,7 +74,7 @@ comment = "To scale microbial carbon from total carbon, first we obtained a glob
 unit = "kg C m^-3"
 description = "Soil arbuscular mycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
 "analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
@@ -89,7 +89,7 @@ comment = "To scale microbial carbon from total carbon, first we obtained a glob
 unit = "kg C m^-3"
 description = "Soil ectomycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
 script_path= [
-"analysis/soil/nutrient_pools/carbon_microbial_guild.R".
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
 "analysis/soil/nutrient_pools/carbon_microbial.R"
 ]
 source = [
