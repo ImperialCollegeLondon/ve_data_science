@@ -83,7 +83,6 @@ pft <- ncvar_get(all_continuous_data, "pft")
 layers <- ncvar_get(all_continuous_data, "layers")
 
 groundwater_layers <- all_continuous_data$dim$groundwater_layers$vals
-# dim_0 <- all_continuous_data$dim$dim_0$vals # nolint
 # string9 <- all_continuous_data$dim$string9$vals # nolint
 
 # Look at vars
@@ -130,9 +129,9 @@ plant_ammonium_uptake[1, ]
 plant_ammonium_uptake_long <- # nolint
   melt(plant_ammonium_uptake, value.name = "plant_ammonium_uptake")
 
-# Subset to cell_id = 0 only
+# Subset to cell_id = 0:10 only
 plant_ammonium_uptake_long <- # nolint
-  plant_ammonium_uptake_long[plant_ammonium_uptake_long$cell_id == 0, ]
+  plant_ammonium_uptake_long[plant_ammonium_uptake_long$cell_id %in% c(0:10), ]
 
 # Note that the unit of plant_ammonium_uptake is kg N m-2 day-1
 # so convert this value later on to match the validation dataset
@@ -154,9 +153,9 @@ plant_nitrate_uptake[1, ]
 plant_nitrate_uptake_long <- # nolint
   melt(plant_nitrate_uptake, value.name = "plant_nitrate_uptake")
 
-# Subset to cell_id = 0 only
+# Subset to cell_id = 0:10 only
 plant_nitrate_uptake_long <- # nolint
-  plant_nitrate_uptake_long[plant_nitrate_uptake_long$cell_id == 0, ]
+  plant_nitrate_uptake_long[plant_nitrate_uptake_long$cell_id %in% c(0:10), ]
 
 # Note that the unit of plant_nitrate_uptake is kg N m-2 day-1
 # so convert this value later on to match the validation dataset
@@ -178,9 +177,9 @@ plant_phosphorus_uptake[1, ]
 plant_phosphorus_uptake_long <- # nolint
   melt(plant_phosphorus_uptake, value.name = "plant_phosphorus_uptake")
 
-# Subset to cell_id = 0 only
+# Subset to cell_id = 0:10 only
 plant_phosphorus_uptake_long <- # nolint
-  plant_phosphorus_uptake_long[plant_phosphorus_uptake_long$cell_id == 0, ]
+  plant_phosphorus_uptake_long[plant_phosphorus_uptake_long$cell_id %in% c(0:10), ]
 
 # Note that the unit of plant_phosphorus_uptake is kg N m-2 day-1
 # so convert this value later on to match the validation dataset
