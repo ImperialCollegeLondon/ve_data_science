@@ -76,7 +76,6 @@ pft <- ncvar_get(all_continuous_data, "pft")
 layers <- ncvar_get(all_continuous_data, "layers")
 
 groundwater_layers <- all_continuous_data$dim$groundwater_layers$vals
-# dim_0 <- all_continuous_data$dim$dim_0$vals # nolint
 # string9 <- all_continuous_data$dim$string9$vals # nolint
 
 # Look at vars
@@ -142,22 +141,26 @@ plants_cohort_data <-
     "foliage_turnover", "fine_root_turnover", "reproductive_tissue_turnover"
   )]
 
-# focus on cell_id = 0 only to reduce processing time
-plants_cohort_data <- plants_cohort_data[plants_cohort_data$cell_id == 0, ]
+# Subset to desired number of cells (substantially speeds up processing)
+# The code works for all cells but this takes very long to run
+
+plants_cohort_data <- plants_cohort_data[plants_cohort_data$cell_id %in% c(0:10), ]
+
+# check how many unique cohorts in the simulation
 
 cohort_id <- unique(plants_cohort_data$cohort_id)
 length(cohort_id)
 
-cohort_id_simple <- 0:(length(cohort_id) - 1)
-
-for (i in 1:length(cohort_id)) { # nolint
-  plants_cohort_data$cohort_id[
-    plants_cohort_data$cohort_id == cohort_id[i]
-  ] <- cohort_id_simple[i]
-}
-
 plants_cohort_data$setup <- "no"
-plants_cohort_data$setup[1:34] <- "yes"
+
+# Here need to manually check how many setup rows there are
+# Basically check within time_index = 0 where cell_id resets to 0
+# For all cell_id's the setup rows are 85000, which is 2500 cells * 34 unique
+# cohorts per cell (e.g., cell_id = 0)
+# However, this takes very long to run, so for now just use cell_id 0:10 example
+# plants_cohort_data$setup[1:85000] <- "yes" # nolint
+
+plants_cohort_data$setup[1:374] <- "yes"
 
 # Exclude the setup rows for now until the issue with duplicated time_index = 0
 # is solved
@@ -380,32 +383,50 @@ plants_cohort_data$foliage_mass_cohort <-
 plants_cohort_data$reproductive_tissue_mass_cohort <-
   plants_cohort_data$reproductive_tissue_mass * plants_cohort_data$n_individuals
 
-for (j in unique(plants_cohort_data$time_index)) {
-  for (i in unique(plants_cohort_data$pft_names)) {
-    plants_cohort_data$tree_mass_pft[
-      plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-    ] <-
-      sum(plants_cohort_data$tree_mass_cohort[
-        plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-      ])
-    plants_cohort_data$stem_mass_pft[
-      plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-    ] <-
-      sum(plants_cohort_data$stem_mass_cohort[
-        plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-      ])
-    plants_cohort_data$foliage_mass_pft[
-      plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-    ] <-
-      sum(plants_cohort_data$foliage_mass_cohort[
-        plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-      ])
-    plants_cohort_data$reproductive_tissue_mass_pft[
-      plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-    ] <-
-      sum(plants_cohort_data$reproductive_tissue_mass_cohort[
-        plants_cohort_data$pft_names == i & plants_cohort_data$time_index == j
-      ])
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (j in unique(plants_cohort_data$time_index)) {
+    for (i in unique(plants_cohort_data$pft_names)) {
+      plants_cohort_data$tree_mass_pft[
+        plants_cohort_data$pft_names == i &
+          plants_cohort_data$time_index == j &
+          plants_cohort_data$cell_id == k
+      ] <-
+        sum(plants_cohort_data$tree_mass_cohort[
+          plants_cohort_data$pft_names == i &
+            plants_cohort_data$time_index == j &
+            plants_cohort_data$cell_id == k
+        ])
+      plants_cohort_data$stem_mass_pft[
+        plants_cohort_data$pft_names == i &
+          plants_cohort_data$time_index == j &
+          plants_cohort_data$cell_id == k
+      ] <-
+        sum(plants_cohort_data$stem_mass_cohort[
+          plants_cohort_data$pft_names == i &
+            plants_cohort_data$time_index == j &
+            plants_cohort_data$cell_id == k
+        ])
+      plants_cohort_data$foliage_mass_pft[
+        plants_cohort_data$pft_names == i &
+          plants_cohort_data$time_index == j &
+          plants_cohort_data$cell_id == k
+      ] <-
+        sum(plants_cohort_data$foliage_mass_cohort[
+          plants_cohort_data$pft_names == i &
+            plants_cohort_data$time_index == j &
+            plants_cohort_data$cell_id == k
+        ])
+      plants_cohort_data$reproductive_tissue_mass_pft[
+        plants_cohort_data$pft_names == i &
+          plants_cohort_data$time_index == j &
+          plants_cohort_data$cell_id == k
+      ] <-
+        sum(plants_cohort_data$reproductive_tissue_mass_cohort[
+          plants_cohort_data$pft_names == i &
+            plants_cohort_data$time_index == j &
+            plants_cohort_data$cell_id == k
+        ])
+    }
   }
 }
 
@@ -434,93 +455,97 @@ legend("top",
 # - very interesting to compare the dbh vs dbh + height allometric equation;
 #   they give very different results
 
-for (j in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$tree_mass_cell[
-    plants_cohort_data$time_index == j
-  ] <-
-    sum(plants_cohort_data$tree_mass_cohort[
-      plants_cohort_data$time_index == j
-    ])
-  plants_cohort_data$stem_mass_cell[
-    plants_cohort_data$time_index == j
-  ] <-
-    sum(plants_cohort_data$stem_mass_cohort[
-      plants_cohort_data$time_index == j
-    ])
-  plants_cohort_data$foliage_mass_cell[
-    plants_cohort_data$time_index == j
-  ] <-
-    sum(plants_cohort_data$foliage_mass_cohort[
-      plants_cohort_data$time_index == j
-    ])
-  plants_cohort_data$reproductive_tissue_mass_cell[
-    plants_cohort_data$time_index == j
-  ] <-
-    sum(plants_cohort_data$reproductive_tissue_mass_cohort[
-      plants_cohort_data$time_index == j
-    ])
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (j in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$tree_mass_cell[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$tree_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+      ])
+    plants_cohort_data$stem_mass_cell[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$stem_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+      ])
+    plants_cohort_data$foliage_mass_cell[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$foliage_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+      ])
+    plants_cohort_data$reproductive_tissue_mass_cell[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$reproductive_tissue_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+      ])
+  }
 }
 
 plot(plants_cohort_data$tree_mass_cell ~ plants_cohort_data$time_index, pch = 16)
 
 # Calculate for trees >10 cm dbh and for 1 < dbh < 10 cm
-for (j in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$tree_mass_cell_large[
-    plants_cohort_data$time_index == j &
-      plants_cohort_data$dbh > (10 / 100)
-  ] <-
-    sum(plants_cohort_data$tree_mass_cohort[
-      plants_cohort_data$time_index == j &
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (j in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$tree_mass_cell_large[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
         plants_cohort_data$dbh > (10 / 100)
-    ])
-  plants_cohort_data$tree_mass_cell_small[
-    plants_cohort_data$time_index == j &
-      plants_cohort_data$dbh > (1 / 100) &
-      plants_cohort_data$dbh < (10 / 100)
-  ] <-
-    sum(plants_cohort_data$tree_mass_cohort[
-      plants_cohort_data$time_index == j &
+    ] <-
+      sum(plants_cohort_data$tree_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
+          plants_cohort_data$dbh > (10 / 100)
+      ])
+    plants_cohort_data$tree_mass_cell_small[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
         plants_cohort_data$dbh > (1 / 100) &
         plants_cohort_data$dbh < (10 / 100)
-    ])
+    ] <-
+      sum(plants_cohort_data$tree_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
+          plants_cohort_data$dbh > (1 / 100) &
+          plants_cohort_data$dbh < (10 / 100)
+      ])
 
-  plants_cohort_data$stem_mass_cell_large[
-    plants_cohort_data$time_index == j &
-      plants_cohort_data$dbh > (10 / 100)
-  ] <-
-    sum(plants_cohort_data$stem_mass_cohort[
-      plants_cohort_data$time_index == j &
+    plants_cohort_data$stem_mass_cell_large[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
         plants_cohort_data$dbh > (10 / 100)
-    ])
-  plants_cohort_data$stem_mass_cell_small[
-    plants_cohort_data$time_index == j &
-      plants_cohort_data$dbh > (1 / 100) &
-      plants_cohort_data$dbh < (10 / 100)
-  ] <-
-    sum(plants_cohort_data$stem_mass_cohort[
-      plants_cohort_data$time_index == j &
+    ] <-
+      sum(plants_cohort_data$stem_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
+          plants_cohort_data$dbh > (10 / 100)
+      ])
+    plants_cohort_data$stem_mass_cell_small[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
         plants_cohort_data$dbh > (1 / 100) &
         plants_cohort_data$dbh < (10 / 100)
-    ])
+    ] <-
+      sum(plants_cohort_data$stem_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
+          plants_cohort_data$dbh > (1 / 100) &
+          plants_cohort_data$dbh < (10 / 100)
+      ])
 
-  plants_cohort_data$foliage_mass_cell_large[
-    plants_cohort_data$time_index == j &
-      plants_cohort_data$dbh > (10 / 100)
-  ] <-
-    sum(plants_cohort_data$foliage_mass_cohort[
-      plants_cohort_data$time_index == j &
+    plants_cohort_data$foliage_mass_cell_large[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
         plants_cohort_data$dbh > (10 / 100)
-    ])
-  plants_cohort_data$foliage_mass_cell_small[
-    plants_cohort_data$time_index == j &
-      plants_cohort_data$dbh > (1 / 100) &
-      plants_cohort_data$dbh < (10 / 100)
-  ] <-
-    sum(plants_cohort_data$foliage_mass_cohort[
-      plants_cohort_data$time_index == j &
+    ] <-
+      sum(plants_cohort_data$foliage_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
+          plants_cohort_data$dbh > (10 / 100)
+      ])
+    plants_cohort_data$foliage_mass_cell_small[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
         plants_cohort_data$dbh > (1 / 100) &
         plants_cohort_data$dbh < (10 / 100)
-    ])
+    ] <-
+      sum(plants_cohort_data$foliage_mass_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k &
+          plants_cohort_data$dbh > (1 / 100) &
+          plants_cohort_data$dbh < (10 / 100)
+      ])
+  }
 }
 
 # Note that this is carbon mass, so actual biomass will be much higher
@@ -558,19 +583,22 @@ safe_carbon$AbovegroundBiomassCarbonStock[
 # Also take into account stem density when comparing, as this may explain why
 # VE outputs could show lower carbon mass
 # May need to try out different simulations with varying tree density
-for (i in unique(plants_cohort_data$time_index)) {
-  print(sum(plants_cohort_data$n_individuals[
-    plants_cohort_data$time_index == i
-  ]))
-  print(sum(plants_cohort_data$n_individuals[
-    plants_cohort_data$time_index == i & plants_cohort_data$dbh > (10 / 100)
-  ]))
-  print(sum(plants_cohort_data$n_individuals[
-    plants_cohort_data$time_index == i &
-      plants_cohort_data$dbh > (1 / 100) &
-      plants_cohort_data$dbh < (10 / 100)
-  ]))
-  print("-")
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (i in unique(plants_cohort_data$time_index)) {
+    print(sum(plants_cohort_data$n_individuals[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ]))
+    print(sum(plants_cohort_data$n_individuals[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k &
+        plants_cohort_data$dbh > (10 / 100)
+    ]))
+    print(sum(plants_cohort_data$n_individuals[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k &
+        plants_cohort_data$dbh > (1 / 100) &
+        plants_cohort_data$dbh < (10 / 100)
+    ]))
+    print("-")
+  }
 }
 
 # Note that Kenzo et al., 2015 report average stem density for primary mixed
@@ -624,10 +652,18 @@ abline(a = 0, b = 1)
 
 names(plants_cohort_data)
 
-for (i in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$whole_crown_gpp_cell[plants_cohort_data$time_index == i] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$whole_crown_gpp[plants_cohort_data$time_index == i]) # nolint
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (i in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$whole_crown_gpp_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[
+        plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+      ] *
+        plants_cohort_data$whole_crown_gpp[
+          plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+        ])
+  }
 }
 
 # This is the kg C fixed by trees for the entire cell (1 hectare) per month
@@ -662,9 +698,11 @@ plant_symbiote_carbon_supply[1, ]
 plant_symbiote_carbon_supply_long <- # nolint
   melt(plant_symbiote_carbon_supply, value.name = "plant_symbiote_carbon_supply")
 
-# Subset to cell_id = 0 only
+# Subset to cell_id = 0:10 only
 plant_symbiote_carbon_supply_long <- # nolint
-  plant_symbiote_carbon_supply_long[plant_symbiote_carbon_supply_long$cell_id == 0, ]
+  plant_symbiote_carbon_supply_long[
+    plant_symbiote_carbon_supply_long$cell_id %in% c(0:10),
+  ]
 
 # Note that the unit of plant_symbiote_carbon_supply is kg C m-2 day-1
 # So need to multiply this by cell area and timestep duration
@@ -688,6 +726,7 @@ points(plant_symbiote_carbon_supply_long$time_index,
 )
 
 # Calculate mean fraction of GPP that was donated
+# Note this is not per cell, just a quick check using mean
 for (i in 0:(length(time_index) - 1)) {
   print(format(mean(plant_symbiote_carbon_supply_long$plant_symbiote_carbon_supply[
     plant_symbiote_carbon_supply_long$time_index == i
@@ -702,6 +741,7 @@ for (i in 0:(length(time_index) - 1)) {
 # Compare this with expected value reported in Riutta et al. (2018)
 # L.K. Kho, Y. Malhi, & S. Tan, (unpublished analysis) estimate an allocation to
 # mycorrhizae of 1.3–1.4 Mg C ha-1 year-1.
+# Note this is not per cell, just a quick check using mean
 mean(plant_symbiote_carbon_supply_long$plant_symbiote_carbon_supply) * 12 / 1000
 
 ###
@@ -723,9 +763,11 @@ root_carbohydrate_exudation[1, ]
 root_carbohydrate_exudation_long <- # nolint
   melt(root_carbohydrate_exudation, value.name = "root_carbohydrate_exudation")
 
-# Subset to cell_id = 0 only
+# Subset to cell_id = 0:10 only
 root_carbohydrate_exudation_long <- # nolint
-  root_carbohydrate_exudation_long[root_carbohydrate_exudation_long$cell_id == 0, ]
+  root_carbohydrate_exudation_long[
+    root_carbohydrate_exudation_long$cell_id %in% c(0:10),
+  ]
 
 # Note that the unit of root_carbohydrate_exudation is kg C m-2 day-1
 # So need to multiply this by cell area and timestep duration
@@ -749,12 +791,13 @@ points(root_carbohydrate_exudation_long$time_index,
 )
 
 # Calculate mean fraction of GPP that was donated
+# Note this is not per cell, just a quick check using mean
 for (i in 0:(length(time_index) - 1)) {
   print(format(mean(root_carbohydrate_exudation_long$root_carbohydrate_exudation[
     root_carbohydrate_exudation_long$time_index == i
   ]) / mean(plants_cohort_data$whole_crown_gpp_cell[
     plants_cohort_data$time_index == i
-  ]), scientific = FALSE)) # Convert back to monthly kg values
+  ]), scientific = FALSE))
 }
 
 # root_carbohydrate_exudation also doesn't seem to be a major carbon sink
@@ -770,14 +813,21 @@ mean(root_carbohydrate_exudation_long$root_carbohydrate_exudation)
 plants_cohort_data$npp_cohort <-
   plants_cohort_data$npp * plants_cohort_data$n_individuals
 
-for (j in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$npp_cell[plants_cohort_data$time_index == j] <-
-    sum(plants_cohort_data$npp_cohort[plants_cohort_data$time_index == j])
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (j in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$npp_cell[
+      plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$npp_cohort[
+        plants_cohort_data$time_index == j & plants_cohort_data$cell_id == k
+      ])
+  }
 }
 
 unique(plants_cohort_data$npp_cell)
 mean(unique(plants_cohort_data$npp_cell))
 
+# Note this is not per cell, just a quick check using mean
 format((mean(plant_symbiote_carbon_supply_long$plant_symbiote_carbon_supply) +
   mean(root_carbohydrate_exudation_long$root_carbohydrate_exudation)) / # nolint
   mean(unique(plants_cohort_data$npp_cell)), scientific = FALSE) # nolint
@@ -791,35 +841,42 @@ names(plants_cohort_data)
 
 # Units are kg C
 
-for (i in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$sapwood_respiration_cell[
-    plants_cohort_data$time_index == i
-  ] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$sapwood_respiration[
-        plants_cohort_data$time_index == i
-      ])
-  plants_cohort_data$foliar_respiration_cell[
-    plants_cohort_data$time_index == i
-  ] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$foliar_respiration[
-        plants_cohort_data$time_index == i
-      ])
-  plants_cohort_data$fine_root_respiration_cell[
-    plants_cohort_data$time_index == i
-  ] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$fine_root_respiration[
-        plants_cohort_data$time_index == i
-      ])
-  plants_cohort_data$reproductive_tissue_respiration_cell[
-    plants_cohort_data$time_index == i
-  ] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$reproductive_tissue_respiration[
-        plants_cohort_data$time_index == i
-      ])
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (i in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$sapwood_respiration_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i &
+        plants_cohort_data$cell_id == k] * # nolint
+        plants_cohort_data$sapwood_respiration[
+          plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+        ])
+    plants_cohort_data$foliar_respiration_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i &
+        plants_cohort_data$cell_id == k] * # nolint
+        plants_cohort_data$foliar_respiration[
+          plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+        ])
+    plants_cohort_data$fine_root_respiration_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i &
+        plants_cohort_data$cell_id == k] * # nolint
+        plants_cohort_data$fine_root_respiration[
+          plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+        ])
+    plants_cohort_data$reproductive_tissue_respiration_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i &
+        plants_cohort_data$cell_id == k] * # nolint
+        plants_cohort_data$reproductive_tissue_respiration[
+          plants_cohort_data$time_index == i &
+            plants_cohort_data$cell_id == k
+        ])
+  }
 }
 
 plants_cohort_data$total_respiration_cell <-
@@ -866,26 +923,34 @@ names(plants_cohort_data)
 
 # Units are kg C
 
-for (i in unique(plants_cohort_data$time_index)) {
-  plants_cohort_data$foliage_turnover_cell[
-    plants_cohort_data$time_index == i
-  ] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$foliage_turnover[plants_cohort_data$time_index == i]) # nolint
-  plants_cohort_data$fine_root_turnover_cell[
-    plants_cohort_data$time_index == i
-  ] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$fine_root_turnover[
-        plants_cohort_data$time_index == i
-      ])
-  plants_cohort_data$reproductive_tissue_turnover_cell[
-    plants_cohort_data$time_index == i
-  ] <-
-    sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i] *
-      plants_cohort_data$reproductive_tissue_turnover[
-        plants_cohort_data$time_index == i
-      ])
+for (k in unique(plants_cohort_data$cell_id)) {
+  for (i in unique(plants_cohort_data$time_index)) {
+    plants_cohort_data$foliage_turnover_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i &
+        plants_cohort_data$cell_id == k] * # nolint
+        plants_cohort_data$foliage_turnover[plants_cohort_data$time_index == i & # nolint
+          plants_cohort_data$cell_id == k]) # nolint
+    plants_cohort_data$fine_root_turnover_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i &
+        plants_cohort_data$cell_id == k] * # nolint
+        plants_cohort_data$fine_root_turnover[
+          plants_cohort_data$time_index == i &
+            plants_cohort_data$cell_id == k
+        ])
+    plants_cohort_data$reproductive_tissue_turnover_cell[
+      plants_cohort_data$time_index == i & plants_cohort_data$cell_id == k
+    ] <-
+      sum(plants_cohort_data$n_individuals[plants_cohort_data$time_index == i &
+        plants_cohort_data$cell_id == k] * # nolint
+        plants_cohort_data$reproductive_tissue_turnover[
+          plants_cohort_data$time_index == i &
+            plants_cohort_data$cell_id == k
+        ])
+  }
 }
 
 plants_cohort_data$total_turnover_cell <-
@@ -950,7 +1015,7 @@ stem_turnover_cnp_long <-
   melt(stem_turnover_cnp, value.name = "stem_turnover_cnp")
 stem_turnover_cnp_long <-
   stem_turnover_cnp_long[
-    stem_turnover_cnp_long$element == "C" & stem_turnover_cnp_long$cell_id == 0,
+    stem_turnover_cnp_long$element == "C" & stem_turnover_cnp_long$cell_id %in% c(0:10),
   ]
 
 # foliage_turnover_cnp
@@ -971,7 +1036,8 @@ foliage_turnover_cnp_long <-
   melt(foliage_turnover_cnp, value.name = "foliage_turnover_cnp")
 foliage_turnover_cnp_long <-
   foliage_turnover_cnp_long[
-    foliage_turnover_cnp_long$element == "C" & foliage_turnover_cnp_long$cell_id == 0,
+    foliage_turnover_cnp_long$element == "C" &
+      foliage_turnover_cnp_long$cell_id %in% c(0:10), # nolint
   ]
 
 # root_turnover_cnp
@@ -991,7 +1057,7 @@ root_turnover_cnp[1, 1, ]
 root_turnover_cnp_long <- melt(root_turnover_cnp, value.name = "root_turnover_cnp")
 root_turnover_cnp_long <-
   root_turnover_cnp_long[
-    root_turnover_cnp_long$element == "C" & root_turnover_cnp_long$cell_id == 0,
+    root_turnover_cnp_long$element == "C" & root_turnover_cnp_long$cell_id %in% c(0:10),
   ]
 
 # plant_reproductive_tissue_turnover
@@ -1013,7 +1079,7 @@ plant_reproductive_tissue_turnover_long <- # nolint
   ) # nolint
 plant_reproductive_tissue_turnover_long <- # nolint
   plant_reproductive_tissue_turnover_long[ # nolint
-    plant_reproductive_tissue_turnover_long$cell_id == 0, # nolint
+    plant_reproductive_tissue_turnover_long$cell_id %in% c(0:10), # nolint
   ]
 
 ###
