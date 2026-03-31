@@ -43,7 +43,7 @@
 #|     - terra
 #|     - autoFRK
 #|     - CBFM
-#|     - ncdf4
+#|     - RNetCDF
 #|     - glmmTMB
 #|     - biogas
 #|     - lubridate
@@ -62,7 +62,7 @@ library(sf)
 library(terra)
 library(autoFRK)
 library(CBFM)
-library(ncdf4)
+library(RNetCDF)
 library(glmmTMB)
 library(biogas)
 library(lubridate)
@@ -463,20 +463,28 @@ for (i in soil_vars) {
 # path and file name of netCDF
 ncpath <- "data/scenarios/maliau/maliau_1/data/"
 ncname <- "soil_maliau"
-ncfname <- paste(ncpath, ncname, ".nc", sep = "")
+ncfname <- paste0(ncpath, ncname, ".nc")
 
-# create and write the netCDF file -- ncdf4 version
+# create netCDF file
+ncout <- create.nc(ncfname, format = "netcdf4")
+
 # define dimensions
-xdim <-
-  ncdim_def(
-    "x", "m",
-    as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
-  )
-ydim <-
-  ncdim_def(
-    "y", "m",
-    as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
-  )
+dim.def.nc(ncout, "x", maliau$cell_nx)
+dim.def.nc(ncout, "y", maliau$cell_ny)
+dim.def.nc(ncout, "element", 3)
+var.def.nc(ncout, "x", "NC_FLOAT", "x")
+var.def.nc(ncout, "y", "NC_FLOAT", "y")
+var.def.nc(ncout, "element", "NC_STRING", "element")
+att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
+att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
+var.put.nc(ncout, "x",
+           as.double(maliau$cell_x_centres - min(maliau$cell_x_centres)))
+var.put.nc(ncout, "y",
+           as.double(maliau$cell_y_centres - min(maliau$cell_y_centres)))
+var.put.nc(ncout, "element", c("C", "N", "P"))
+
+close.nc(ncout)
+
 # define variables
 vardef <- vector("list", nrow(soil_meta_df))
 for (i in seq_along(vardef)) {
@@ -487,9 +495,6 @@ for (i in seq_along(vardef)) {
       list(xdim, ydim)
     )
 }
-
-# create netCDF file and put arrays
-ncout <- nc_create(ncfname, vardef, force_v4 = TRUE)
 
 # put variables
 for (i in seq_along(soil_vars)) {
