@@ -25,7 +25,7 @@ source_type = "Maliau"
 comment = ""
 
 [soil_cnp_pool_lmwc]
-unit = "kg C m^-3"
+unit = "kg m^-3"
 description = "Soil carbon, nitrogen and phosphorous pools in low molecular weight organic matter."
 script_path = [
 "analysis/soil/nutrient_pools/doc_don.R" ,
@@ -39,7 +39,7 @@ source_type = "For C and N, Mexican tropical deciduous forest; rainy season data
 comment = "For C and N, the system was a Mexican tropical deciduous forest; we took the rainy season values to approximate moist tropical forests (e.g., Maliau Basin). DOC was used as an imperfect proxy for LMWC for now. This should be a reasonable placeholder value because the goal now is only to get as close to the initial value as possible. For P, we mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
 
 [soil_cnp_pool_maom]
-unit = "kg C m^-3"
+unit = "kg m^-3"
 description = "Soil mineral associated organic carbon, nitrogen and phosphorous pools."
 script_path = [
 "analysis/soil/nutrient_pools/pom_maom_sayer.R" ,
@@ -113,7 +113,7 @@ source_type = "Global and SAFE"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil_cnp_pool_pom]
-unit = "kg C m^-3"
+unit = "kg m^-3"
 description = "Soil carbon, nitrogen and phosphorous in particulate organic matter."
 script_path = [
 "analysis/soil/nutrient_pools/pom_maom_sayer.R" ,
@@ -127,7 +127,7 @@ source_type = "For C and N, mature lowland tropical forest on Gigante Peninsula,
 comment = "For P, we mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x. The Imai et al. dataset has Po_OH, which can be a proxy of P in POM + MAOM so we need another ratio to split this value into the POM and MAOM pool P pool fractionalisation data is very very scarce, I will rely on a study in the Amazon (Hoosbeek et al. 2023) https://doi.org/10.1007/s10342-023-01577-6 In their Figure 3, they showed results of P in three soil fractions: free light (fLF), occluded light (oLF) and mineral associated heavy (maHF). According to the method paper they cited (Six et al. 2002), the fLF fraction seems to be a proxy for POM, and I'll use oLF + maHF as a proxy for MAOM. Now the challenge is that their figure is poor in resolution so value extraction is not easy. I will eyeball it, which should be fine given that we are trying to estimate initial values, not really constants / parameters. I eyeballed the proportion of P in POM to be 5% and the rest (95%) in MAOM."
 
 [soil_cnp_pool_necromass]
-unit = "kg C m^-3"
+unit = "kg m^-3"
 description = "Necrotic soil carbon, nitrogen and phosphorous pools"
 script_path = "analysis/soil/necromass/necromass.R"
 source = "Li et al. (2023) https://doi.org/10.1016/j.scitotenv.2023.163204"
