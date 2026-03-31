@@ -437,6 +437,18 @@ dat <-
       soil_p_pool_necromass
     ),
     ~ . * (bulk_density * 1e3)
+  ) |>
+  # special treatment for CNP triplets
+  mutate(
+    soil_cnp_pool_lmwc =
+      pmap(list(soil_c_pool_lmwc, soil_n_pool_don, soil_p_pool_dop), c),
+    soil_cnp_pool_maom =
+      pmap(list(soil_c_pool_maom, soil_n_pool_maom, soil_p_pool_maom), c),
+    soil_cnp_pool_pom =
+      pmap(list(soil_c_pool_pom, soil_n_pool_particulate, soil_p_pool_particulate), c),
+    soil_cnp_pool_necromass =
+      pmap(list(soil_c_pool_necromass, soil_n_pool_necromass, soil_p_pool_necromass), c),
+    .keep = "unused"
   )
 
 
@@ -450,15 +462,6 @@ soil_meta_df <-
     unit = value
   ) |>
   filter(variable %in% names(dat))
-
-# convert dataframe to arrays
-soil_vars <- soil_meta_df$variable
-array_list <- vector("list", length(soil_vars))
-names(array_list) <- soil_vars
-for (i in soil_vars) {
-  array_list[[i]] <-
-    array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
-}
 
 # path and file name of netCDF
 ncpath <- "data/scenarios/maliau/maliau_1/data/"
@@ -483,32 +486,47 @@ var.put.nc(ncout, "y",
            as.double(maliau$cell_y_centres - min(maliau$cell_y_centres)))
 var.put.nc(ncout, "element", c("C", "N", "P"))
 
-close.nc(ncout)
-
 # define variables
-vardef <- vector("list", nrow(soil_meta_df))
-for (i in seq_along(vardef)) {
-  vardef[[i]] <-
-    ncvar_def(
-      soil_meta_df$variable[i],
-      soil_meta_df$unit[i],
-      list(xdim, ydim)
-    )
+soil_vars <- soil_meta_df$variable
+for (i in soil_vars) {
+  if (str_detect(i, "_cnp_")) {
+    var.def.nc(ncout, i, "NC_DOUBLE", c("x", "y", "element"))
+  } else {
+    var.def.nc(ncout, i, "NC_DOUBLE", c("x", "y"))
+  }
+  # add units
+  # more metadata can be added here
+  att.put.nc(ncout, i, "units", "NC_CHAR",
+             soil_meta_df$unit[soil_meta_df$variable == i])
 }
 
-# put variables
-for (i in seq_along(soil_vars)) {
-  ncvar_put(ncout, vardef[[i]], array_list[[i]])
+# convert dataframe to arrays
+array_list <- vector("list", length(soil_vars))
+names(array_list) <- soil_vars
+for (i in soil_vars) {
+  if (str_detect(i, "_cnp_")) {
+    triplet_tmp <- do.call(rbind, dat[[i]])
+    array_list[[i]] <-
+      array(triplet_tmp, dim = c(maliau$cell_nx, maliau$cell_ny, 3))
+  } else {
+    array_list[[i]] <-
+      array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
+  }
+}
+
+# put variables from arrays to netCDF
+for (i in soil_vars) {
+  var.put.nc(ncout, i, array_list[[i]])
 }
 
 # add global attributes
-ncatt_put(
-  ncout, 0, "description",
+att.put.nc(
+  ncout, "NC_GLOBAL", "description", "NC_CHAR",
   "Soil data for the Maliau scenario"
 )
 
-# Get a summary of the created file:
-ncout
+# Get a summary of the created file
+print.nc(ncout)
 
 # close the file, writing data to disk
-nc_close(ncout)
+close.nc(ncout)
