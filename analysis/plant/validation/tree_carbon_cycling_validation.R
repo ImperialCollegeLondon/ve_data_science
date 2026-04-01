@@ -433,7 +433,7 @@ for (k in unique(plants_cohort_data$cell_id)) {
 plot(plants_cohort_data$tree_mass_pft ~ plants_cohort_data$time_index,
   col = as.factor(plants_cohort_data$pft_names), pch = 16
 )
-legend("top",
+legend("topright",
   legend = levels(as.factor(plants_cohort_data$pft_names)),
   col = 1:length(unique(plants_cohort_data$pft_names)), # nolint
   pch = 16
