@@ -42,7 +42,7 @@
 #|     - RcppTOML
 #|     - readxl
 #|     - glmmTMB
-#|     - ncdf4
+#|     - RNetCDF
 #|     - reshape2
 #|
 #| usage_notes: |
@@ -55,7 +55,7 @@ library(mvtnorm)
 library(RcppTOML)
 library(readxl)
 library(glmmTMB)
-library(ncdf4)
+library(RNetCDF)
 
 set.seed(20260312)
 
