@@ -349,7 +349,10 @@ recruitment_rate_total_2001 <- 157 / 2078
 # The same mortality probability of adult trees is used for seedlings
 
 unique(plants_cohort_data$recruits_total_annual)
+mean(unique(plants_cohort_data$recruits_total_annual))
+
 unique(plants_cohort_data$recruitment_rate_total)
+mean(unique(plants_cohort_data$recruitment_rate_total))
 
 ##########
 
@@ -472,5 +475,21 @@ Rmisc::CI(
   ci = 0.95
 )
 
+# Note that cell_id's / timesteps where mortality_rate_total_annual = 0 should
+# not be excluded when calculating the mean, so use the mean calculated below
+
+names(plants_cohort_data)
+temp <- plants_cohort_data[, c("cell_id", "time_index", "mortality_rate_total_annual")]
+temp <- unique(temp)
+
+Rmisc::CI(
+  temp$mortality_rate_total_annual,
+  ci = 0.95
+)
+
 # Note that the VE simulation used the mortality probability (0.0159) and this
-# seems to match Maliau census data very well
+# seems to match Maliau census data very well when mortality_rate_total_annual
+# = 0 is excluded
+# However, when mortality_rate_total_annual = 0 is included then the mean
+# mortality is 0.01268095 (which matches the mortality probability but is
+# lower than the calculated mortality from the Maliau census dataset)
