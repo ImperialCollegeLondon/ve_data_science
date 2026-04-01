@@ -334,6 +334,9 @@ for (i in 1:max(plants_cohort_data$time_index)) {
 # are too unrealistic for now, so just plot the dbh_growth to get an idea of how
 # this fluctuates over time
 
+# Note that absolute growth rates are available for small trees in
+# Lingenfelder and Newbery (2009) Table 5
+
 # diameter equals gbh divided by pi, then divide by 100 to convert to m
 (10 / pi) / 100
 (50 / pi) / 100
@@ -405,9 +408,28 @@ data <- data[
     "Dead_year_IND", "PFT_name",
     "DBH2011_mm_clean", "DBH2012_mm_clean", "DBH2012B_mm_clean", "DBH2013_mm_clean",
     "DBH2014_mm_clean", "DBH2014B_mm_clean", "DBH2015_mm_clean", "DBH2016_mm_clean",
-    "DBH2017_mm_clean", "DBH2018_mm_clean", "DBH2019_mm_clean", "DBH2020_mm_clean"
+    "DBH2017_mm_clean", "DBH2018_mm_clean", "DBH2019_mm_clean", "DBH2020_mm_clean",
+    "Date_2011", "Date_2012", "Date_2012B", "Date_2013", "Date_2014", "Date_2014B",
+    "Date_2015", "Date_2016", "Date_2017", "Date_2018", "Date_2019", "Date_2020"
   )
 ]
+
+# Convert date columns to numeric
+
+data$Date_2011 <- as.numeric(data$Date_2011)
+data$Date_2012 <- as.numeric(data$Date_2012)
+data$Date_2012B <- as.numeric(data$Date_2012B)
+data$Date_2013 <- as.numeric(data$Date_2013)
+data$Date_2014 <- as.numeric(data$Date_2014)
+data$Date_2014B <- as.numeric(data$Date_2014B)
+data$Date_2015 <- as.numeric(data$Date_2015)
+data$Date_2016 <- as.numeric(data$Date_2016)
+data$Date_2017 <- as.numeric(data$Date_2017)
+data$Date_2018 <- as.numeric(data$Date_2018)
+data$Date_2019 <- as.numeric(data$Date_2019)
+data$Date_2020 <- as.numeric(data$Date_2020)
+
+# Focus on OG plots only
 
 data <- data[data$Block %in% c("OG1", "OG2", "OG3"), ]
 
@@ -426,7 +448,7 @@ data <- data[data$FirstRecord_year_IND == "2011", ]
 
 data <- data[data$Dead_year_IND == "NA", ]
 
-# Now calculate dbh_growth for different periods
+# Now calculate dbh_growth for different periods, but standardise to year-1
 # Again, split this up according to dbh size classes
 # Use the same approach as earlier
 
@@ -446,12 +468,17 @@ data$DBH2019_mm_clean <- as.numeric(data$DBH2019_mm_clean)
 
 #####
 # 2011 - 2014 (GOOD)
-data$dbh_growth_11_14 <- data$DBH2014_mm_clean - data$DBH2011_mm_clean
-unique(data$DBH2014_mm_clean)
+data$period_length <- data$Date_2014 - data$Date_2011
+
+data$dbh_growth_11_14 <-
+  (data$DBH2014_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365
+unique(data$dbh_growth_11_14)
+mean(data$dbh_growth_11_14, na.rm = TRUE)
 
 data$relative_dbh_growth_11_14 <-
-  (data$DBH2014_mm_clean - data$DBH2011_mm_clean) / ((data$DBH2011_mm_clean / 1000) * 4)
+  ((data$DBH2014_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365) / (data$DBH2011_mm_clean / 1000) # nolint
 unique(data$relative_dbh_growth_11_14)
+mean(data$relative_dbh_growth_11_14, na.rm = TRUE)
 
 Rmisc::CI(data$dbh_growth_11_14[
   data$DBH2011_mm_clean > (0.03183099 * 1000) &
@@ -473,12 +500,17 @@ Rmisc::CI(data$relative_dbh_growth_11_14[
 
 #####
 # 2011 - 2015 (GOOD)
-data$dbh_growth_11_15 <- data$DBH2015_mm_clean - data$DBH2011_mm_clean
-unique(data$DBH2015_mm_clean)
+data$period_length <- data$Date_2015 - data$Date_2011
+
+data$dbh_growth_11_15 <-
+  (data$DBH2015_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365
+unique(data$dbh_growth_11_15)
+mean(data$dbh_growth_11_15, na.rm = TRUE)
 
 data$relative_dbh_growth_11_15 <-
-  (data$DBH2015_mm_clean - data$DBH2011_mm_clean) / ((data$DBH2011_mm_clean / 1000) * 5)
+  ((data$DBH2015_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365) / (data$DBH2011_mm_clean / 1000) # nolint
 unique(data$relative_dbh_growth_11_15)
+mean(data$relative_dbh_growth_11_15, na.rm = TRUE)
 
 Rmisc::CI(data$dbh_growth_11_15[
   data$DBH2011_mm_clean > (0.03183099 * 1000) &
@@ -500,12 +532,17 @@ Rmisc::CI(data$relative_dbh_growth_11_15[
 
 #####
 # 2011 - 2016 (GOOD)
-data$dbh_growth_11_16 <- data$DBH2016_mm_clean - data$DBH2011_mm_clean
-unique(data$DBH2016_mm_clean)
+data$period_length <- data$Date_2016 - data$Date_2011
+
+data$dbh_growth_11_16 <-
+  (data$DBH2016_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365
+unique(data$dbh_growth_11_16)
+mean(data$dbh_growth_11_16, na.rm = TRUE)
 
 data$relative_dbh_growth_11_16 <-
-  (data$DBH2016_mm_clean - data$DBH2011_mm_clean) / ((data$DBH2011_mm_clean / 1000) * 6)
+  ((data$DBH2016_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365) / (data$DBH2011_mm_clean / 1000) # nolint
 unique(data$relative_dbh_growth_11_16)
+mean(data$relative_dbh_growth_11_16, na.rm = TRUE)
 
 Rmisc::CI(data$dbh_growth_11_16[
   data$DBH2011_mm_clean > (0.03183099 * 1000) &
@@ -527,12 +564,17 @@ Rmisc::CI(data$relative_dbh_growth_11_16[
 
 #####
 # 2011 - 2017 (GOOD)
-data$dbh_growth_11_17 <- data$DBH2017_mm_clean - data$DBH2011_mm_clean
-unique(data$DBH2017_mm_clean)
+data$period_length <- data$Date_2017 - data$Date_2011
+
+data$dbh_growth_11_17 <-
+  (data$DBH2017_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365
+unique(data$dbh_growth_11_17)
+mean(data$dbh_growth_11_17, na.rm = TRUE)
 
 data$relative_dbh_growth_11_17 <-
-  (data$DBH2017_mm_clean - data$DBH2011_mm_clean) / ((data$DBH2011_mm_clean / 1000) * 7)
+  ((data$DBH2017_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365) / (data$DBH2011_mm_clean / 1000) # nolint
 unique(data$relative_dbh_growth_11_17)
+mean(data$relative_dbh_growth_11_17, na.rm = TRUE)
 
 Rmisc::CI(data$dbh_growth_11_17[
   data$DBH2011_mm_clean > (0.03183099 * 1000) &
@@ -554,12 +596,17 @@ Rmisc::CI(data$relative_dbh_growth_11_17[
 
 #####
 # 2011 - 2019 (GOOD)
-data$dbh_growth_11_19 <- data$DBH2019_mm_clean - data$DBH2011_mm_clean
-unique(data$DBH2019_mm_clean)
+data$period_length <- data$Date_2019 - data$Date_2011
+
+data$dbh_growth_11_19 <-
+  (data$DBH2019_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365
+unique(data$dbh_growth_11_19)
+mean(data$dbh_growth_11_19, na.rm = TRUE)
 
 data$relative_dbh_growth_11_19 <-
-  (data$DBH2019_mm_clean - data$DBH2011_mm_clean) / ((data$DBH2011_mm_clean / 1000) * 9)
+  ((data$DBH2019_mm_clean - data$DBH2011_mm_clean) / data$period_length * 365) / (data$DBH2011_mm_clean / 1000) # nolint
 unique(data$relative_dbh_growth_11_19)
+mean(data$relative_dbh_growth_11_19, na.rm = TRUE)
 
 Rmisc::CI(data$dbh_growth_11_19[
   data$DBH2011_mm_clean > (0.03183099 * 1000) &
@@ -583,6 +630,12 @@ Rmisc::CI(data$relative_dbh_growth_11_19[
 
 # Now, for the periods with good growth data in Maliau census dataset,
 # calculate the growth during those periods
+
+# This is slightly different from the approach above (above we calculated the
+# mean growth rate from 2011 to 201x). What we do here is calculate mean growth
+# for shorter periods (1-2 years) which should track the climate-growth
+# relationship more closely
+
 # We will then compare the growth in specific periods with the corresponding
 # growth for the timesteps in the VE outputs
 
@@ -594,8 +647,7 @@ Rmisc::CI(data$relative_dbh_growth_11_19[
 # 2017 - 2019
 
 # Note that preferably we'd look at this per PFT, but the available tree per
-# growth period is rather low, so not sure how meaningful this is
-# For now focus on detecting any climate-growth relationships across periods
+# growth period is rather low
 
 data$dbh_growth_14_15 <- data$DBH2015_mm_clean - data$DBH2014_mm_clean
 unique(data$dbh_growth_14_15)
