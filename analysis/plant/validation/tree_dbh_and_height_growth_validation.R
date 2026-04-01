@@ -27,6 +27,10 @@
 #|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains a list of species and their respective PFT.
+#|   - name: all_continuous_data.nc
+#|     path: data/scenarios/maliau/maliau_1/out
+#|     description: |
+#|       All continuous data obtained from VE simulation.
 #|   - name: plants_cohort_data.csv
 #|     path: data/scenarios/maliau/maliau_1\out
 #|     description: |
@@ -55,6 +59,8 @@
 library(readxl)
 library(dplyr)
 library(ggplot2)
+library(ncdf4)
+library(reshape2)
 
 # Load SAFE tree census data and clean up a bit
 
@@ -112,6 +118,47 @@ data_taxa <- data_taxa[data_taxa$Block %in%
     "LFE", "LF1", "LF2", "LF3", "A", "B", "C", "D",
     "E", "F", "VJR", "OG1", "OG2", "OG3"
   ), ]
+
+###
+
+# Load all continuous NetCDF data
+all_continuous_data <-
+  nc_open("../../../data/scenarios/maliau/maliau_1/out/all_continuous_data.nc")
+
+# Look at dims
+names(all_continuous_data$dim)
+
+time_index <- ncvar_get(all_continuous_data, "time_index")
+cell_id <- ncvar_get(all_continuous_data, "cell_id")
+element <- ncvar_get(all_continuous_data, "element")
+pft <- ncvar_get(all_continuous_data, "pft")
+layers <- ncvar_get(all_continuous_data, "layers")
+
+groundwater_layers <- all_continuous_data$dim$groundwater_layers$vals
+# string9 <- all_continuous_data$dim$string9$vals # nolint
+
+# Look at vars
+names(all_continuous_data$var)
+
+# Define layer_color for plotting later on
+cell_color <- hcl.colors(length(cell_id), palette = "Zissou 1")
+cell_color <- setNames(cell_color, as.character(cell_id))
+
+element_color <- hcl.colors(length(element), palette = "Zissou 1")
+element_color <- setNames(element_color, as.character(element))
+
+pft_color <- hcl.colors(length(pft), palette = "Zissou 1")
+pft_color <- setNames(pft_color, as.character(pft))
+
+layer_color <- hcl.colors(length(layers), palette = "Zissou 1")
+layer_color <- setNames(layer_color, as.character(layers))
+
+groundwater_layer_color <-
+  hcl.colors(length(groundwater_layers), palette = "Zissou 1")
+groundwater_layer_color <-
+  setNames(groundwater_layer_color, as.character(groundwater_layers))
+
+###
 
 # Load plants cohort data
 # Note that the name/path need to be updated depending on which simulation is used
@@ -719,3 +766,66 @@ abline(h = mean(data$relative_dbh_growth_14_15, na.rm = TRUE))
 abline(h = mean(data$relative_dbh_growth_15_16, na.rm = TRUE))
 abline(h = mean(data$relative_dbh_growth_16_17, na.rm = TRUE))
 abline(h = mean(data$relative_dbh_growth_17_19, na.rm = TRUE))
+
+### -----------------------------------------------------------------------------
+
+# leaf_area_index
+leaf_area_index <-
+  ncvar_get(all_continuous_data, "leaf_area_index")
+sapply(all_continuous_data$var[["leaf_area_index"]]$dim, `[`, c("name", "len")) # nolint
+
+# Add dimension names
+dimnames(leaf_area_index) <- list(
+  cell_id = cell_id,
+  layers = layers,
+  time_index = time_index
+)
+
+leaf_area_index[1, , ]
+
+# Convert to long format
+leaf_area_index_long <- # nolint
+  melt(leaf_area_index, value.name = "leaf_area_index")
+
+# Subset to cell_id = 0:10 only
+leaf_area_index_long <- # nolint
+  leaf_area_index_long[leaf_area_index_long$cell_id %in% c(0:10), ]
+
+#####
+
+# Calculate mean LAI for canopy layer
+
+temp_canopy <- leaf_area_index_long[leaf_area_index_long$layers == 1, ]
+plot(temp_canopy$leaf_area_index ~ temp$time_index)
+
+for (i in unique(temp_canopy$time_index)) {
+  print(mean(temp_canopy$leaf_area_index[temp_canopy$time_index == i], na.rm = TRUE))
+}
+
+mean(temp_canopy$leaf_area_index)
+
+# Note: need to think about how to handle LAi across multiple canopy layers
+# Do they need to be summed?
+
+# Compare this to LAI for Balai Ringin from Kenzo et al. (2015)
+
+canopy_lai_tall <- 3.6
+canopy_lai_small <- 2.2
+canopy_lai_total <- 5.8
+
+#####
+
+# Calculate mean LAI for herbaceous layer
+
+temp_herb <- leaf_area_index_long[leaf_area_index_long$layers == 11, ]
+plot(temp_herb$leaf_area_index ~ temp_herb$time_index)
+
+for (i in unique(temp_herb$time_index)) {
+  print(mean(temp_herb$leaf_area_index[temp_herb$time_index == i], na.rm = TRUE))
+}
+
+mean(temp_herb$leaf_area_index)
+
+# Compare this to LAI for herbaceous vegetation in Kawahara et al. (1981)
+
+herb_lai <- 0.8
