@@ -341,59 +341,70 @@ litter_meta_df <-
   ) |>
   filter(variable %in% names(dat)[-(1:4)])
 
-# convert dataframe to arrays
-litter_vars <- litter_meta_df$variable
-array_list <- vector("list", length(litter_vars))
-names(array_list) <- litter_vars
-for (i in litter_vars) {
-  array_list[[i]] <-
-    array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
-}
-
 # path and file name of netCDF
 ncpath <- "data/scenarios/maliau/maliau_1/data/"
 ncname <- "litter_maliau"
-ncfname <- paste(ncpath, ncname, ".nc", sep = "")
+ncfname <- paste0(ncpath, ncname, ".nc")
 
-# create and write the netCDF file -- ncdf4 version
+# create netCDF file
+ncout <- create.nc(ncfname, format = "netcdf4")
+
 # define dimensions
-xdim <-
-  ncdim_def(
-    "x", "m",
-    as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
-  )
-ydim <-
-  ncdim_def(
-    "y", "m",
-    as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
-  )
+dim.def.nc(ncout, "x", maliau$cell_nx)
+dim.def.nc(ncout, "y", maliau$cell_ny)
+dim.def.nc(ncout, "element", 3)
+var.def.nc(ncout, "x", "NC_FLOAT", "x")
+var.def.nc(ncout, "y", "NC_FLOAT", "y")
+var.def.nc(ncout, "element", "NC_STRING", "element")
+att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
+att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
+var.put.nc(ncout, "x",
+           as.double(maliau$cell_x_centres - min(maliau$cell_x_centres)))
+var.put.nc(ncout, "y",
+           as.double(maliau$cell_y_centres - min(maliau$cell_y_centres)))
+var.put.nc(ncout, "element", c("C", "N", "P"))
+
 # define variables
-vardef <- vector("list", nrow(litter_meta_df))
-for (i in seq_along(vardef)) {
-  vardef[[i]] <-
-    ncvar_def(
-      litter_meta_df$variable[i],
-      litter_meta_df$unit[i],
-      list(xdim, ydim)
-    )
+litter_vars <- litter_meta_df$variable
+for (i in litter_vars) {
+  if (str_detect(i, "_cnp")) {
+    var.def.nc(ncout, i, "NC_DOUBLE", c("x", "y", "element"))
+  } else {
+    var.def.nc(ncout, i, "NC_DOUBLE", c("x", "y"))
+  }
+  # add units
+  # more metadata can be added here
+  att.put.nc(ncout, i, "units", "NC_CHAR",
+             litter_meta_df$unit[litter_meta_df$variable == i])
 }
 
-# create netCDF file and put arrays
-ncout <- nc_create(ncfname, vardef, force_v4 = TRUE)
+# convert dataframe to arrays
+array_list <- vector("list", length(litter_vars))
+names(array_list) <- litter_vars
+for (i in litter_vars) {
+  if (str_detect(i, "_cnp")) {
+    triplet_tmp <- do.call(rbind, dat[[i]])
+    array_list[[i]] <-
+      array(triplet_tmp, dim = c(maliau$cell_nx, maliau$cell_ny, 3))
+  } else {
+    array_list[[i]] <-
+      array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
+  }
+}
 
-# put variables
-for (i in seq_along(litter_vars)) {
-  ncvar_put(ncout, vardef[[i]], array_list[[i]])
+# put variables from arrays to netCDF
+for (i in litter_vars) {
+  var.put.nc(ncout, i, array_list[[i]])
 }
 
 # add global attributes
-ncatt_put(
-  ncout, 0, "description",
+att.put.nc(
+  ncout, "NC_GLOBAL", "description", "NC_CHAR",
   "Litter data for the Maliau scenario"
 )
 
-# Get a summary of the created file:
-ncout
+# Get a summary of the created file
+print.nc(ncout)
 
 # close the file, writing data to disk
-nc_close(ncout)
+close.nc(ncout)
