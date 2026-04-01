@@ -646,24 +646,55 @@ Rmisc::CI(data$relative_dbh_growth_11_19[
 # 2016 - 2017
 # 2017 - 2019
 
-# Note that preferably we'd look at this per PFT, but the available tree per
-# growth period is rather low
+# Note that preferably we'd look at this per PFT, but the available trees per
+# growth period is rather low so just focus across trees
 
-data$dbh_growth_14_15 <- data$DBH2015_mm_clean - data$DBH2014_mm_clean
+data$period_length <- data$Date_2015 - data$Date_2014
+data$dbh_growth_14_15 <-
+  (data$DBH2015_mm_clean - data$DBH2014_mm_clean) / data$period_length * 365
 unique(data$dbh_growth_14_15)
 mean(data$dbh_growth_14_15, na.rm = TRUE)
 
-data$dbh_growth_15_16 <- data$DBH2016_mm_clean - data$DBH2015_mm_clean
+data$relative_dbh_growth_14_15 <-
+  ((data$DBH2015_mm_clean - data$DBH2014_mm_clean) / data$period_length * 365) / (data$DBH2014_mm_clean / 1000) # nolint
+unique(data$relative_dbh_growth_14_15)
+mean(data$relative_dbh_growth_14_15, na.rm = TRUE)
+
+
+data$period_length <- data$Date_2016 - data$Date_2015
+data$dbh_growth_15_16 <-
+  (data$DBH2016_mm_clean - data$DBH2015_mm_clean) / data$period_length * 365
 unique(data$dbh_growth_15_16)
 mean(data$dbh_growth_15_16, na.rm = TRUE)
 
-data$dbh_growth_16_17 <- data$DBH2017_mm_clean - data$DBH2016_mm_clean
+data$relative_dbh_growth_15_16 <-
+  ((data$DBH2016_mm_clean - data$DBH2015_mm_clean) / data$period_length * 365) / (data$DBH2015_mm_clean / 1000) # nolint
+unique(data$relative_dbh_growth_15_16)
+mean(data$relative_dbh_growth_15_16, na.rm = TRUE)
+
+
+data$period_length <- data$Date_2017 - data$Date_2016
+data$dbh_growth_16_17 <-
+  (data$DBH2017_mm_clean - data$DBH2016_mm_clean) / data$period_length * 365
 unique(data$dbh_growth_16_17)
 mean(data$dbh_growth_16_17, na.rm = TRUE)
 
-data$dbh_growth_17_19 <- data$DBH2019_mm_clean - data$DBH2017_mm_clean
+data$relative_dbh_growth_16_17 <-
+  ((data$DBH2017_mm_clean - data$DBH2016_mm_clean) / data$period_length * 365) / (data$DBH2016_mm_clean / 1000) # nolint
+unique(data$relative_dbh_growth_16_17)
+mean(data$relative_dbh_growth_16_17, na.rm = TRUE)
+
+
+data$period_length <- data$Date_2019 - data$Date_2017
+data$dbh_growth_17_19 <-
+  (data$DBH2019_mm_clean - data$DBH2017_mm_clean) / data$period_length * 365
 unique(data$dbh_growth_17_19)
 mean(data$dbh_growth_17_19, na.rm = TRUE)
+
+data$relative_dbh_growth_17_19 <-
+  ((data$DBH2019_mm_clean - data$DBH2017_mm_clean) / data$period_length * 365) / (data$DBH2017_mm_clean / 1000) # nolint
+unique(data$relative_dbh_growth_17_19)
+mean(data$relative_dbh_growth_17_19, na.rm = TRUE)
 
 #####
 
@@ -671,9 +702,20 @@ mean(data$dbh_growth_17_19, na.rm = TRUE)
 # (and other time periods) from SAFE tree census dataset, as well as with the
 # values in the Newbery and Lingenfelder (2009) paper
 
-# Note: rerun this script / analysis with the full Maliau simulation data,
-# so that we can compare growth in specific years (i.e., during drought years)
+plot(plants_cohort_data$dbh_growth ~ plants_cohort_data$time_index,
+  ylim = c(-0.2, 3.5)
+)
+abline(h = 0)
+abline(h = mean(data$dbh_growth_14_15, na.rm = TRUE))
+abline(h = mean(data$dbh_growth_15_16, na.rm = TRUE))
+abline(h = mean(data$dbh_growth_16_17, na.rm = TRUE))
+abline(h = mean(data$dbh_growth_17_19, na.rm = TRUE))
 
-# Once we have the results from the full run, plot VE dbh growth for the periods
-# with good Maliau census growth data (see above for periods)
-# This way we can test dbh growth more detailed compared to just using the mean
+plot(plants_cohort_data$relative_dbh_growth ~ plants_cohort_data$time_index,
+  ylim = c(-800, 20)
+)
+abline(h = 0)
+abline(h = mean(data$relative_dbh_growth_14_15, na.rm = TRUE))
+abline(h = mean(data$relative_dbh_growth_15_16, na.rm = TRUE))
+abline(h = mean(data$relative_dbh_growth_16_17, na.rm = TRUE))
+abline(h = mean(data$relative_dbh_growth_17_19, na.rm = TRUE))
