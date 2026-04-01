@@ -89,14 +89,14 @@ dat <-
   )
 
 
-# Litter stock ------------------------------------------------------------
+# Litter carbon stock -----------------------------------------------------
 
-# Including:
-# litter_pool_above_metabolic
-# litter_pool_above_structural
-# litter_pool_woody
-# litter_pool_below_metabolic
-# litter_pool_below_structural
+# This section is about the "C" part in:
+# litter_pool_above_metabolic_cnp
+# litter_pool_above_structural_cnp
+# litter_pool_woody_cnp
+# litter_pool_below_metabolic_cnp
+# litter_pool_below_structural_cnp
 
 # Litter stock means are straightforward, but not their variances. This is
 # because we modelled physical litter types (e.g., leaf, root, twig) but then
@@ -111,40 +111,39 @@ dat <-
 # to their observed physical counterparts at SAFE. Then I assume the same also
 # applies to the woody and belowground pools.
 
-litter_stocks <- read_csv("data/derived/litter/stock/litter_stock.csv")
+litter_stocks_c <- read_csv("data/derived/litter/stock/litter_stock.csv")
 
 # retrieve stock means and then calculate SDs
 # they are in log scales to generate stocks with a lognormal distribution
 # to keep them positively bound
-litter_stocks_meanlog <- log(litter_stocks$stock)
-litter_stocks_sdlog <- abs(litter_stocks_meanlog / 10)
+litter_stocks_c_meanlog <- log(litter_stocks_c$stock)
+litter_stocks_c_sdlog <- abs(litter_stocks_c_meanlog / 10)
 
 # simulate litter stocks
-litter_stocks_sim <- mapply(
+litter_stocks_c_sim <- mapply(
   function(mean, sd) rlnorm(n_sim, mean, sd),
-  mean = litter_stocks_meanlog,
-  sd = litter_stocks_sdlog
+  mean = litter_stocks_c_meanlog,
+  sd = litter_stocks_c_sdlog
 )
-colnames(litter_stocks_sim) <- c(
-  "litter_pool_above_metabolic",
-  "litter_pool_above_structural",
-  "litter_pool_below_metabolic",
-  "litter_pool_below_structural",
-  "litter_pool_woody"
+colnames(litter_stocks_c_sim) <- c(
+  "litter_pool_above_metabolic_c",
+  "litter_pool_above_structural_c",
+  "litter_pool_below_metabolic_c",
+  "litter_pool_below_structural_c",
+  "litter_pool_woody_c"
 )
 
 # add to dataset
-dat <- bind_cols(dat, litter_stocks_sim)
+dat <- bind_cols(dat, litter_stocks_c_sim)
 
 
-# Litter nutrient contents ------------------------------------------------
+# Litter N and P stocks ---------------------------------------------------
 
 # First, aboveground litter including:
 # lignin_above_structural
-# c_n_ratio_above_metabolic
-# c_n_ratio_above_structural
-# c_p_ratio_above_metabolic
-# c_p_ratio_above_structural
+# And the "N" and "P" parts of:
+# litter_pool_above_metabolic_cnp
+# litter_pool_above_structural_cnp
 
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_aboveground.R")
@@ -165,16 +164,26 @@ dat <-
       r_century * c_p_ratio_above_metabolic,
     lignin_above_structural =
       as.numeric(simulate(mod_lignin_above, nsim = n_sim)[1, ])
+  ) |>
+  # calculate litter N and P stocks from C stock and C:N & C:P ratios
+  mutate(
+    litter_pool_above_metabolic_n =
+      litter_pool_above_metabolic_c / c_n_ratio_above_metabolic,
+    litter_pool_above_structural_n =
+      litter_pool_above_structural_c / c_n_ratio_above_structural,
+    litter_pool_above_metabolic_p =
+      litter_pool_above_metabolic_c / c_p_ratio_above_metabolic,
+    litter_pool_above_structural_p =
+      litter_pool_above_structural_c / c_p_ratio_above_structural
   )
 # nolint end
 
 
 # Second, belowground litter including:
 # lignin_below_structural
-# c_n_ratio_below_metabolic
-# c_n_ratio_below_structural
-# c_p_ratio_below_metabolic
-# c_p_ratio_below_structural
+# And the "N" and "P" parts of:
+# litter_pool_below_metabolic_cnp
+# litter_pool_below_structural_cnp
 
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_belowground.R")
@@ -227,13 +236,25 @@ below_litter_sim <-
   )
 
 # add to the dataset
-dat <- bind_cols(dat, below_litter_sim)
+dat <-
+  bind_cols(dat, below_litter_sim) |>
+  # calculate litter N and P stocks from C stock and C:N & C:P ratios
+  mutate(
+    litter_pool_below_metabolic_n =
+      litter_pool_below_metabolic_c / c_n_ratio_below_metabolic,
+    litter_pool_below_structural_n =
+      litter_pool_below_structural_c / c_n_ratio_below_structural,
+    litter_pool_below_metabolic_p =
+      litter_pool_below_metabolic_c / c_p_ratio_below_metabolic,
+    litter_pool_below_structural_p =
+      litter_pool_below_structural_c / c_p_ratio_below_structural
+  )
 
 
 # Third, woody litter including:
 # lignin_woody
-# c_n_ratio_woody
-# c_p_ratio_woody
+# And the "N" and "P" parts of:
+# litter_pool_woody_cnp
 
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_woody.R")
@@ -266,8 +287,47 @@ dat <-
     c_p_ratio_woody =
       nutrient_deadwood_sim[, "C_total"] / nutrient_deadwood_sim[, "P_total"],
     lignin_woody = lignin_sim
+  ) |>
+  # calculate litter N and P stocks from C stock and C:N & C:P ratios
+  mutate(
+    litter_pool_woody_n = litter_pool_woody_c / c_n_ratio_woody,
+    litter_pool_woody_p = litter_pool_woody_c / c_p_ratio_woody
   )
 # nolint end
+
+
+# Combine litter C, N and P stocks into triplets
+dat <-
+  dat |>
+  mutate(
+    litter_pool_above_metabolic_cnp =
+      pmap(list(litter_pool_above_metabolic_c,
+                litter_pool_above_metabolic_n,
+                litter_pool_above_metabolic_p),
+           c),
+    litter_pool_below_metabolic_cnp =
+      pmap(list(litter_pool_below_metabolic_c,
+                litter_pool_below_metabolic_n,
+                litter_pool_below_metabolic_p),
+           c),
+    litter_pool_above_structural_cnp =
+      pmap(list(litter_pool_above_structural_c,
+                litter_pool_above_structural_n,
+                litter_pool_above_structural_p),
+           c),
+    litter_pool_below_structural_cnp =
+      pmap(list(litter_pool_below_structural_c,
+                litter_pool_below_structural_n,
+                litter_pool_below_structural_p),
+           c),
+    litter_pool_woody_cnp =
+      pmap(list(litter_pool_woody_c,
+                litter_pool_woody_n,
+                litter_pool_woody_p),
+           c),
+    .keep = "unused"
+  )
+
 
 
 # Write data to netCDF ----------------------------------------------------
