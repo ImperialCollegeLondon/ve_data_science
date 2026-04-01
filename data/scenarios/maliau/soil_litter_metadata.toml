@@ -284,7 +284,7 @@ source = [
 source_type = "SAFE, lowland tropical rain forest in Sabah, global dataset, and first principle"
 comment = "First we estimated the equilibrium belowground litter carbon stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach. Then, belowground litter nitrogen and phosphorous stocks were estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
-[litter_pool_below_structural]
+[litter_pool_below_structural_cnp]
 unit = "kg C m^-2"
 description = "Below ground structural litter carbon, nitrogen and phosphorous pools"
 script_path= [
