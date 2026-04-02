@@ -368,9 +368,9 @@ var.put.nc(ncout, "element", c("C", "N", "P"))
 litter_vars <- litter_meta_df$variable
 for (i in litter_vars) {
   if (str_detect(i, "_cnp")) {
-    var.def.nc(ncout, i, "NC_DOUBLE", c("x", "y", "element"))
+    var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y", "element")))
   } else {
-    var.def.nc(ncout, i, "NC_DOUBLE", c("x", "y"))
+    var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y")))
   }
   # add units
   # more metadata can be added here
@@ -385,10 +385,10 @@ for (i in litter_vars) {
   if (str_detect(i, "_cnp")) {
     triplet_tmp <- do.call(rbind, dat[[i]])
     array_list[[i]] <-
-      array(triplet_tmp, dim = c(maliau$cell_nx, maliau$cell_ny, 3))
+      array(triplet_tmp, dim = rev(c(maliau$cell_nx, maliau$cell_ny, 3)))
   } else {
     array_list[[i]] <-
-      array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
+      array(dat[[i]], dim = rev(c(maliau$cell_nx, maliau$cell_ny)))
   }
 }
 
