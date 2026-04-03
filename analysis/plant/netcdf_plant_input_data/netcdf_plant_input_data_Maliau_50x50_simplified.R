@@ -76,8 +76,6 @@ cohort_distribution <- read.csv(
 # -plant_pft_propagules: cell_id and pft
 # -subcanopy_vegetation_biomass: cel_id
 # -subcanopy_seedbank_biomass: cell_id
-# -downward_shortwave_radiation: cell_id and time_index
-# -time: time_index
 
 # Define the dimensions for these axes
 
