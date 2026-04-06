@@ -301,33 +301,52 @@ dat <-
   dat |>
   mutate(
     litter_pool_above_metabolic_cnp =
-      pmap(list(litter_pool_above_metabolic_c,
-                litter_pool_above_metabolic_n,
-                litter_pool_above_metabolic_p),
-           c),
+      pmap(
+        list(
+          litter_pool_above_metabolic_c,
+          litter_pool_above_metabolic_n,
+          litter_pool_above_metabolic_p
+        ),
+        c
+      ),
     litter_pool_below_metabolic_cnp =
-      pmap(list(litter_pool_below_metabolic_c,
-                litter_pool_below_metabolic_n,
-                litter_pool_below_metabolic_p),
-           c),
+      pmap(
+        list(
+          litter_pool_below_metabolic_c,
+          litter_pool_below_metabolic_n,
+          litter_pool_below_metabolic_p
+        ),
+        c
+      ),
     litter_pool_above_structural_cnp =
-      pmap(list(litter_pool_above_structural_c,
-                litter_pool_above_structural_n,
-                litter_pool_above_structural_p),
-           c),
+      pmap(
+        list(
+          litter_pool_above_structural_c,
+          litter_pool_above_structural_n,
+          litter_pool_above_structural_p
+        ),
+        c
+      ),
     litter_pool_below_structural_cnp =
-      pmap(list(litter_pool_below_structural_c,
-                litter_pool_below_structural_n,
-                litter_pool_below_structural_p),
-           c),
+      pmap(
+        list(
+          litter_pool_below_structural_c,
+          litter_pool_below_structural_n,
+          litter_pool_below_structural_p
+        ),
+        c
+      ),
     litter_pool_woody_cnp =
-      pmap(list(litter_pool_woody_c,
-                litter_pool_woody_n,
-                litter_pool_woody_p),
-           c),
+      pmap(
+        list(
+          litter_pool_woody_c,
+          litter_pool_woody_n,
+          litter_pool_woody_p
+        ),
+        c
+      ),
     .keep = "unused"
   )
-
 
 
 # Write data to netCDF ----------------------------------------------------
@@ -358,10 +377,14 @@ var.def.nc(ncout, "y", "NC_FLOAT", "y")
 var.def.nc(ncout, "element", "NC_STRING", "element")
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
 att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
-var.put.nc(ncout, "x",
-           as.double(maliau$cell_x_centres - min(maliau$cell_x_centres)))
-var.put.nc(ncout, "y",
-           as.double(maliau$cell_y_centres - min(maliau$cell_y_centres)))
+var.put.nc(
+  ncout, "x",
+  as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
+)
+var.put.nc(
+  ncout, "y",
+  as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
+)
 var.put.nc(ncout, "element", c("C", "N", "P"))
 
 # define variables
@@ -374,8 +397,10 @@ for (i in litter_vars) {
   }
   # add units
   # more metadata can be added here
-  att.put.nc(ncout, i, "units", "NC_CHAR",
-             litter_meta_df$unit[litter_meta_df$variable == i])
+  att.put.nc(
+    ncout, i, "units", "NC_CHAR",
+    litter_meta_df$unit[litter_meta_df$variable == i]
+  )
 }
 
 # convert dataframe to arrays
