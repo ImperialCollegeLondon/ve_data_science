@@ -294,7 +294,7 @@ data_taxa$dbh <- NA
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 0.0 &
     data_taxa$DBH2011_mm_clean <= 100
-] <- 50
+] <- 100
 data_taxa$dbh[
   data_taxa$DBH2011_mm_clean > 100 &
     data_taxa$DBH2011_mm_clean <= 200
