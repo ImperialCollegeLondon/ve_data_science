@@ -57,8 +57,10 @@ base_cohort_distribution <- read.csv("../../../data/derived/plant/plant_function
 
 # Add individuals with dbh <10 cm (as these are not included in the Maliau census)
 # Use the value reported in Kenzo et al. (2015) for Balai Ringin site,
+# DOI: https://doi.org/10.1007/s10310-014-0465-y
 # then distribute these across 3 dbh classes following the size distribution in
 # Lee et al. (2002), then spread evenly across PFTs.
+# DOI: https://www.jstor.org/stable/43594474
 
 dbh_1_2 <- (((2 - 1) / 2) + 1) / 100
 dbh_2_5 <- (((5 - 2) / 2) + 2) / 100
