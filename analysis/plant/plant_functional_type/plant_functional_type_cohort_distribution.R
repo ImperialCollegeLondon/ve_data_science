@@ -289,91 +289,20 @@ data_taxa <- data_taxa[
 # Assign each tree into one of these DBH classes
 # The value for dbh represents the midpoint of the dbh class
 
-data_taxa$dbh <- NA
+# Use 2000 mm as expected max dbh
+max_dbh <- 2000
 
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 0.0 &
-    data_taxa$DBH2011_mm_clean <= 100
-] <- 100
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 100 &
-    data_taxa$DBH2011_mm_clean <= 200
-] <- 150
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 200 &
-    data_taxa$DBH2011_mm_clean <= 300
-] <- 250
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 300 &
-    data_taxa$DBH2011_mm_clean <= 400
-] <- 350
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 400 &
-    data_taxa$DBH2011_mm_clean <= 500
-] <- 450
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 500 &
-    data_taxa$DBH2011_mm_clean <= 600
-] <- 550
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 600 &
-    data_taxa$DBH2011_mm_clean <= 700
-] <- 650
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 700 &
-    data_taxa$DBH2011_mm_clean <= 800
-] <- 750
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 800 &
-    data_taxa$DBH2011_mm_clean <= 900
-] <- 850
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 900 &
-    data_taxa$DBH2011_mm_clean <= 1000
-] <- 950
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1000 &
-    data_taxa$DBH2011_mm_clean <= 1100
-] <- 1050
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1100 &
-    data_taxa$DBH2011_mm_clean <= 1200
-] <- 1150
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1200 &
-    data_taxa$DBH2011_mm_clean <= 1300
-] <- 1250
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1300 &
-    data_taxa$DBH2011_mm_clean <= 1400
-] <- 1350
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1400 &
-    data_taxa$DBH2011_mm_clean <= 1500
-] <- 1450
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1500 &
-    data_taxa$DBH2011_mm_clean <= 1600
-] <- 1550
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1600 &
-    data_taxa$DBH2011_mm_clean <= 1700
-] <- 1650
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1700 &
-    data_taxa$DBH2011_mm_clean <= 1800
-] <- 1750
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1800 &
-    data_taxa$DBH2011_mm_clean <= 1900
-] <- 1850
-data_taxa$dbh[
-  data_taxa$DBH2011_mm_clean > 1900 &
-    data_taxa$DBH2011_mm_clean <= 2000
-] <- 1950
-
-max(data_taxa$DBH2011_mm_clean)
-# Note that more classes will need to be added if DBH exceeds 2000 mm
+# Use 100 mm as the lower limit of Maliau census data, then use bins of 100 mm,
+# using the midpoint to refer to them
+# The cut function will place a dbh into bin = 150 if the dbh is greater than
+# 100 and smaller than or equal to 200
+dbh_intervals <- c(0, seq(100, max_dbh + 100, 100))
+dbh_midpoints <- c(100, seq(150, max_dbh + 50, 100))
+data_taxa$dbh <- cut(data_taxa$DBH2011_mm_clean,
+  breaks = dbh_intervals,
+  labels = dbh_midpoints
+)
+data_taxa$dbh <- as.numeric(as.character(data_taxa$dbh))
 
 # Prepare data_taxa for saving
 
