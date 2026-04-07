@@ -290,7 +290,10 @@ data_taxa <- data_taxa[
 # The value for dbh represents the midpoint of the dbh class
 
 # Use 2000 mm as expected max dbh
+max(data_taxa$DBH2011_mm_clean)
 max_dbh <- 2000
+
+data_taxa$dbh <- NA
 
 # Use 100 mm as the lower limit of Maliau census data, then use bins of 100 mm,
 # using the midpoint to refer to them
