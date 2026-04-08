@@ -954,6 +954,8 @@ summary$SLA_SD <- as.numeric(summary$SLA_SD)
 
 ################################################################################
 
+backup_halfway <- summary
+
 # Below we add the remaining T model parameters. Most of these are not PFT
 # specific (for now).
 
@@ -1256,8 +1258,13 @@ summary$per_stem_annual_mortality_probability <- 0.0159
 # Howlett and Davidson (2003; https://doi.org/10.1016/S0378-1127(03)00161-0),
 # who refer to the value (2.3% presumably) presented in
 # Kennedy and Swaine (1992; https://doi.org/10.1098/rstb.1992.0027)
+# Then correct for seedling mortality by multiplying by seedling survival rate
+# 0.9006739 (0.84^(12/20) from Kuusipalo et al., 1996;
+# DOI: https://doi.org/10.1016/0378-1127(95)03654-7).
 
-summary$per_propagule_annual_recruitment_probability <- 0.025
+seedling_survival_rate <- 0.84^(12 / 20) # converted to per year
+
+summary$per_propagule_annual_recruitment_probability <- 0.023 * seedling_survival_rate
 
 ################################################################################
 
