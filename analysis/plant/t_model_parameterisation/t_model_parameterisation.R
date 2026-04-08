@@ -954,8 +954,6 @@ summary$SLA_SD <- as.numeric(summary$SLA_SD)
 
 ################################################################################
 
-backup_halfway <- summary
-
 # Below we add the remaining T model parameters. Most of these are not PFT
 # specific (for now).
 
