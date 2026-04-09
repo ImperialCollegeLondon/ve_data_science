@@ -104,11 +104,11 @@ base_cohort_distribution[final_row + 9, ] <- c(trees_5_10 / 3, "understory", dbh
 # between 1 and 10 cm dbh. Currently, the cohort distribution also has a
 # dbh class of 10 cm with very few individuals. This is because the Maliau
 # census data had a lower dbh limit of 10 cm, and therefore these few individuals
-# are likely some sporadic recordings that were close to this lower limit.
-# Because above we account for all seedlings/saplings below dbh 10 cm, I think
-# we can exclude the dbh class of 10 cm from the Maliau census data.
-# If we do not exlude them, then we'd also be "counting them twice" since they
-# should also be included in the seedling/sapling density reported by Kenzo et al.
+# are likely sporadic recordings that were close to (but below) this lower limit.
+# Because the approach above accounts for all seedlings/saplings below dbh 10 cm,
+# I think we can exclude the dbh class of 10 cm from the Maliau census data.
+# If we do not exlude them, then we'd be "counting them twice" since they
+# should already be included in the seedling/sapling density reported by Kenzo et al.
 
 base_cohort_distribution <-
   base_cohort_distribution[base_cohort_distribution$plant_cohorts_dbh != 0.1, ]
