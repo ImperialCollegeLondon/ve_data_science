@@ -110,13 +110,16 @@ source("analysis/soil/initialisation/model_safe.R")
 dat <-
   dat |>
   mutate(
-    elev = terra::extract(elev, pick("cell_x", "cell_y"))[,
+    elev = terra::extract(elev, pick("cell_x", "cell_y"))[
+      ,
       "SRTM_UTM50N_processed"
     ],
-    topo = terra::extract(topo, pick("cell_x", "cell_y"))[,
+    topo = terra::extract(topo, pick("cell_x", "cell_y"))[
+      ,
       "SRTM_UTM50N_TRI_Wilson2007"
     ],
-    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
+    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[
+      ,
       "SRTM_Log_Flow_Accum"
     ],
     # set acd to mean because there is no full data coverage
