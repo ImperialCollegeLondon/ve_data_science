@@ -93,11 +93,6 @@ dat <-
   expand_grid(
     cell_x = maliau$cell_x_centres,
     cell_y = maliau$cell_y_centres
-  ) |>
-  # calculate displacements
-  mutate(
-    x = cell_x - min(cell_x),
-    y = cell_y - min(cell_y)
   )
 
 
@@ -111,16 +106,13 @@ source("analysis/soil/initialisation/model_safe.R")
 dat <-
   dat |>
   mutate(
-    elev = terra::extract(elev, pick("cell_x", "cell_y"))[
-      ,
+    elev = terra::extract(elev, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_processed"
     ],
-    topo = terra::extract(topo, pick("cell_x", "cell_y"))[
-      ,
+    topo = terra::extract(topo, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_TRI_Wilson2007"
     ],
-    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[
-      ,
+    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
       "SRTM_Log_Flow_Accum"
     ],
     # set acd to mean because there is no full data coverage
@@ -492,16 +484,8 @@ var.def.nc(ncout, "y", "NC_FLOAT", "y")
 var.def.nc(ncout, "element", "NC_STRING", "element")
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
 att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
-var.put.nc(
-  ncout,
-  "x",
-  as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
-)
-var.put.nc(
-  ncout,
-  "y",
-  as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
-)
+var.put.nc(ncout, "x", as.double(maliau$cell_x_centres))
+var.put.nc(ncout, "y", as.double(maliau$cell_y_centres))
 var.put.nc(ncout, "element", c("C", "N", "P"))
 
 # define variables
