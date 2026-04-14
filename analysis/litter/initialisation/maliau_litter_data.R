@@ -154,30 +154,33 @@ source("analysis/litter/nutrient_pool/initial_nutrient_aboveground.R")
 dat <-
   dat |>
   mutate(
-    c_n_ratio_above_metabolic =
-      as.numeric(simulate(mod_C.N_met_above, nsim = n_sim)[1, ]),
-    c_n_ratio_above_structural =
-      r_century * c_n_ratio_above_metabolic,
-    c_p_ratio_above_metabolic =
-      as.numeric(simulate(mod_C.P_met_above, nsim = n_sim)[1, ]),
-    c_p_ratio_above_structural =
-      r_century * c_p_ratio_above_metabolic,
-    lignin_above_structural =
-      as.numeric(simulate(mod_lignin_above, nsim = n_sim)[1, ])
+    c_n_ratio_above_metabolic = as.numeric(simulate(
+      mod_C.N_met_above,
+      nsim = n_sim
+    )[1, ]),
+    c_n_ratio_above_structural = r_century * c_n_ratio_above_metabolic,
+    c_p_ratio_above_metabolic = as.numeric(simulate(
+      mod_C.P_met_above,
+      nsim = n_sim
+    )[1, ]),
+    c_p_ratio_above_structural = r_century * c_p_ratio_above_metabolic,
+    lignin_above_structural = as.numeric(simulate(
+      mod_lignin_above,
+      nsim = n_sim
+    )[1, ])
   ) |>
   # calculate litter N and P stocks from C stock and C:N & C:P ratios
   mutate(
-    litter_pool_above_metabolic_n =
-      litter_pool_above_metabolic_c / c_n_ratio_above_metabolic,
-    litter_pool_above_structural_n =
-      litter_pool_above_structural_c / c_n_ratio_above_structural,
-    litter_pool_above_metabolic_p =
-      litter_pool_above_metabolic_c / c_p_ratio_above_metabolic,
-    litter_pool_above_structural_p =
-      litter_pool_above_structural_c / c_p_ratio_above_structural
+    litter_pool_above_metabolic_n = litter_pool_above_metabolic_c /
+      c_n_ratio_above_metabolic,
+    litter_pool_above_structural_n = litter_pool_above_structural_c /
+      c_n_ratio_above_structural,
+    litter_pool_above_metabolic_p = litter_pool_above_metabolic_c /
+      c_p_ratio_above_metabolic,
+    litter_pool_above_structural_p = litter_pool_above_structural_c /
+      c_p_ratio_above_structural
   )
 # nolint end
-
 
 # Second, belowground litter including:
 # lignin_below_structural
@@ -216,9 +219,11 @@ below_litter_sim <-
     CP = C / P
   ) |>
   # calculate metabolic fraction
-  mutate(fm = plogis(
-    logitfM - lignin * (sN * CN + sP * CP)
-  )) |>
+  mutate(
+    fm = plogis(
+      logitfM - lignin * (sN * CN + sP * CP)
+    )
+  ) |>
   # calculate metabolic and structural nutrients
   # see rearranged equation on the litter theory documentation
   # nolint https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
@@ -228,7 +233,8 @@ below_litter_sim <-
     c_n_ratio_below_structural = r_century * c_n_ratio_below_metabolic,
     c_p_ratio_below_structural = r_century * c_p_ratio_below_metabolic
   ) |>
-  select(c_n_ratio_below_metabolic,
+  select(
+    c_n_ratio_below_metabolic,
     c_p_ratio_below_metabolic,
     c_n_ratio_below_structural,
     c_p_ratio_below_structural,
@@ -240,14 +246,14 @@ dat <-
   bind_cols(dat, below_litter_sim) |>
   # calculate litter N and P stocks from C stock and C:N & C:P ratios
   mutate(
-    litter_pool_below_metabolic_n =
-      litter_pool_below_metabolic_c / c_n_ratio_below_metabolic,
-    litter_pool_below_structural_n =
-      litter_pool_below_structural_c / c_n_ratio_below_structural,
-    litter_pool_below_metabolic_p =
-      litter_pool_below_metabolic_c / c_p_ratio_below_metabolic,
-    litter_pool_below_structural_p =
-      litter_pool_below_structural_c / c_p_ratio_below_structural
+    litter_pool_below_metabolic_n = litter_pool_below_metabolic_c /
+      c_n_ratio_below_metabolic,
+    litter_pool_below_structural_n = litter_pool_below_structural_c /
+      c_n_ratio_below_structural,
+    litter_pool_below_metabolic_p = litter_pool_below_metabolic_c /
+      c_p_ratio_below_metabolic,
+    litter_pool_below_structural_p = litter_pool_below_structural_c /
+      c_p_ratio_below_structural
   )
 
 
@@ -282,10 +288,10 @@ lignin_sim <-
 dat <-
   dat |>
   mutate(
-    c_n_ratio_woody =
-      nutrient_deadwood_sim[, "C_total"] / nutrient_deadwood_sim[, "N_total"],
-    c_p_ratio_woody =
-      nutrient_deadwood_sim[, "C_total"] / nutrient_deadwood_sim[, "P_total"],
+    c_n_ratio_woody = nutrient_deadwood_sim[, "C_total"] /
+      nutrient_deadwood_sim[, "N_total"],
+    c_p_ratio_woody = nutrient_deadwood_sim[, "C_total"] /
+      nutrient_deadwood_sim[, "P_total"],
     lignin_woody = lignin_sim
   ) |>
   # calculate litter N and P stocks from C stock and C:N & C:P ratios
@@ -295,56 +301,50 @@ dat <-
   )
 # nolint end
 
-
 # Combine litter C, N and P stocks into triplets
 dat <-
   dat |>
   mutate(
-    litter_pool_above_metabolic_cnp =
-      pmap(
-        list(
-          litter_pool_above_metabolic_c,
-          litter_pool_above_metabolic_n,
-          litter_pool_above_metabolic_p
-        ),
-        c
+    litter_pool_above_metabolic_cnp = pmap(
+      list(
+        litter_pool_above_metabolic_c,
+        litter_pool_above_metabolic_n,
+        litter_pool_above_metabolic_p
       ),
-    litter_pool_below_metabolic_cnp =
-      pmap(
-        list(
-          litter_pool_below_metabolic_c,
-          litter_pool_below_metabolic_n,
-          litter_pool_below_metabolic_p
-        ),
-        c
+      c
+    ),
+    litter_pool_below_metabolic_cnp = pmap(
+      list(
+        litter_pool_below_metabolic_c,
+        litter_pool_below_metabolic_n,
+        litter_pool_below_metabolic_p
       ),
-    litter_pool_above_structural_cnp =
-      pmap(
-        list(
-          litter_pool_above_structural_c,
-          litter_pool_above_structural_n,
-          litter_pool_above_structural_p
-        ),
-        c
+      c
+    ),
+    litter_pool_above_structural_cnp = pmap(
+      list(
+        litter_pool_above_structural_c,
+        litter_pool_above_structural_n,
+        litter_pool_above_structural_p
       ),
-    litter_pool_below_structural_cnp =
-      pmap(
-        list(
-          litter_pool_below_structural_c,
-          litter_pool_below_structural_n,
-          litter_pool_below_structural_p
-        ),
-        c
+      c
+    ),
+    litter_pool_below_structural_cnp = pmap(
+      list(
+        litter_pool_below_structural_c,
+        litter_pool_below_structural_n,
+        litter_pool_below_structural_p
       ),
-    litter_pool_woody_cnp =
-      pmap(
-        list(
-          litter_pool_woody_c,
-          litter_pool_woody_n,
-          litter_pool_woody_p
-        ),
-        c
+      c
+    ),
+    litter_pool_woody_cnp = pmap(
+      list(
+        litter_pool_woody_c,
+        litter_pool_woody_n,
+        litter_pool_woody_p
       ),
+      c
+    ),
     .keep = "unused"
   )
 
@@ -378,11 +378,13 @@ var.def.nc(ncout, "element", "NC_STRING", "element")
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
 att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
 var.put.nc(
-  ncout, "x",
+  ncout,
+  "x",
   as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
 )
 var.put.nc(
-  ncout, "y",
+  ncout,
+  "y",
   as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
 )
 var.put.nc(ncout, "element", c("C", "N", "P"))
@@ -398,7 +400,10 @@ for (i in litter_vars) {
   # add units
   # more metadata can be added here
   att.put.nc(
-    ncout, i, "units", "NC_CHAR",
+    ncout,
+    i,
+    "units",
+    "NC_CHAR",
     litter_meta_df$unit[litter_meta_df$variable == i]
   )
 }
@@ -424,7 +429,10 @@ for (i in litter_vars) {
 
 # add global attributes
 att.put.nc(
-  ncout, "NC_GLOBAL", "description", "NC_CHAR",
+  ncout,
+  "NC_GLOBAL",
+  "description",
+  "NC_CHAR",
   "Litter data for the Maliau scenario"
 )
 
