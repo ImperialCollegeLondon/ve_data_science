@@ -108,7 +108,9 @@ elev <-
 
 # Topography
 topo <-
-  rast("data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif")
+  rast(
+    "data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif"
+  )
 
 # Climate
 # Not included now
@@ -136,10 +138,10 @@ maliau <-
 # fill in missing coordinates
 extra_locations <-
   tribble(
-    ~location, ~lat, ~lon,
-    "OG3_DW1", 4.733986, 116.970434,
-    "OG3_DW2", 4.7341235, 116.967075,
-    "OG3_DW3", 4.734606, 116.965199
+    ~location , ~lat      , ~lon       ,
+    "OG3_DW1" , 4.733986  , 116.970434 ,
+    "OG3_DW2" , 4.7341235 , 116.967075 ,
+    "OG3_DW3" , 4.734606  , 116.965199
   ) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 # tidy up location info
