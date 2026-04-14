@@ -132,7 +132,7 @@ evi <-
 
 # Location details
 maliau <-
-  parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
 # fill in missing coordinates
 extra_locations <-
   tribble(

@@ -78,7 +78,8 @@ soil_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau <- parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
+maliau <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
