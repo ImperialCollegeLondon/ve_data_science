@@ -110,16 +110,13 @@ source("analysis/soil/initialisation/model_safe.R")
 dat <-
   dat |>
   mutate(
-    elev = terra::extract(elev, pick("cell_x", "cell_y"))[
-      ,
+    elev = terra::extract(elev, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_processed"
     ],
-    topo = terra::extract(topo, pick("cell_x", "cell_y"))[
-      ,
+    topo = terra::extract(topo, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_TRI_Wilson2007"
     ],
-    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[
-      ,
+    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
       "SRTM_Log_Flow_Accum"
     ],
     # set acd to mean because there is no full data coverage
@@ -523,6 +520,8 @@ for (i in soil_vars) {
 }
 
 # convert dataframe to arrays
+# note that I am explicitly using rev() to reverse the order of the element
+# dimension here in R so in Python it is ordered in the 'right' way
 array_list <- vector("list", length(soil_vars))
 names(array_list) <- soil_vars
 for (i in soil_vars) {

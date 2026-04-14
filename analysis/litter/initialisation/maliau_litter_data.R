@@ -390,6 +390,8 @@ var.put.nc(
 var.put.nc(ncout, "element", c("C", "N", "P"))
 
 # define variables
+# note that I am explicitly using rev() to reverse the order of the element
+# dimension here in R so in Python it is ordered in the 'right' way
 litter_vars <- litter_meta_df$variable
 for (i in litter_vars) {
   if (str_detect(i, "_cnp")) {
