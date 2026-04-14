@@ -75,8 +75,6 @@ cohort_distribution <- read.csv(
 # -plant_pft_propagules: cell_id and pft
 # -subcanopy_vegetation_biomass: cel_id
 # -subcanopy_seedbank_biomass: cell_id
-# -downward_shortwave_radiation: cell_id and time_index
-# -time: time_index
 
 # Define the dimensions for these axes
 
@@ -98,10 +96,14 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # analysis scripts
 
 # plant_pft_propagules: matrix of cell_id by pft (so 4 by 250)
-# Use fill value = 1000 using value reported in Metcalfe and Turner (1998;
+# Use fill value = 1000 m-2 using value reported in Metcalfe and Turner (1998;
 # https://www.jstor.org/stable/2559870)
+# Then scale this according to the cell area used (here 10000 m2)
+# Then divide this number by the amount of PFTs (assuming equal distribution)
 plant_pft_propagules <-
-  matrix(as.integer(1000), nrow = length(pft_index), ncol = length(cell_id_index))
+  matrix(as.integer(1000 * 10000 / 4),
+    nrow = length(pft_index), ncol = length(cell_id_index)
+  )
 
 # Load the subcanopy parameters
 subcanopy_parameters <- read.csv(

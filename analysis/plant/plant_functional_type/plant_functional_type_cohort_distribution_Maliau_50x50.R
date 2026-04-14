@@ -55,6 +55,60 @@ print("Then multiply the base cohort distribution by 2500, one for each cell")
 # Load base cohort distribution per hectare
 base_cohort_distribution <- read.csv("../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv") # nolint
 
+# Add individuals with dbh <10 cm (as these are not included in the Maliau census)
+# Use the value reported in Kenzo et al. (2015) for Balai Ringin site,
+# DOI: https://doi.org/10.1007/s10310-014-0465-y
+# then distribute these across 3 dbh classes following the size distribution in
+# Lee et al. (2002), then spread evenly across PFTs.
+# DOI: https://www.jstor.org/stable/43594474
+
+dbh_1_2 <- (((2 - 1) / 2) + 1) / 100
+dbh_2_5 <- (((5 - 2) / 2) + 2) / 100
+dbh_5_10 <- (((10 - 5) / 2) + 5) / 100
+
+total_percent <- 41.15 + 37.59 + 12.11
+
+percent_1_2 <- 41.15 / total_percent * 100
+percent_2_5 <- 37.59 / total_percent * 100
+percent_5_10 <- 12.11 / total_percent * 100
+
+kenzo_trees_below_10 <- 5000
+
+trees_1_2 <- kenzo_trees_below_10 * percent_1_2 / 100
+trees_2_5 <- kenzo_trees_below_10 * percent_2_5 / 100
+trees_5_10 <- kenzo_trees_below_10 * percent_5_10 / 100
+
+# Now add these to base_cohort_distribution (and spread evenly across PFTs)
+nrow(base_cohort_distribution)
+
+base_cohort_distribution[32, ] <- c(trees_1_2 / 4, "emergent", dbh_1_2)
+base_cohort_distribution[33, ] <- c(trees_1_2 / 4, "overstory", dbh_1_2)
+base_cohort_distribution[34, ] <- c(trees_1_2 / 4, "understory", dbh_1_2)
+base_cohort_distribution[35, ] <- c(trees_1_2 / 4, "pioneer", dbh_1_2)
+
+base_cohort_distribution[36, ] <- c(trees_2_5 / 4, "emergent", dbh_2_5)
+base_cohort_distribution[37, ] <- c(trees_2_5 / 4, "overstory", dbh_2_5)
+base_cohort_distribution[38, ] <- c(trees_2_5 / 4, "understory", dbh_2_5)
+base_cohort_distribution[39, ] <- c(trees_2_5 / 4, "pioneer", dbh_2_5)
+
+base_cohort_distribution[40, ] <- c(trees_5_10 / 4, "emergent", dbh_5_10)
+base_cohort_distribution[41, ] <- c(trees_5_10 / 4, "overstory", dbh_5_10)
+base_cohort_distribution[42, ] <- c(trees_5_10 / 4, "understory", dbh_5_10)
+base_cohort_distribution[43, ] <- c(trees_5_10 / 4, "pioneer", dbh_5_10)
+
+# Reorder by dbh within PFT
+base_cohort_distribution <-
+  base_cohort_distribution[order(
+    base_cohort_distribution$plant_cohorts_pft,
+    base_cohort_distribution$plant_cohorts_dbh
+  ), ]
+
+# Change to numeric
+base_cohort_distribution$plant_cohorts_n <-
+  as.numeric(base_cohort_distribution$plant_cohorts_n)
+base_cohort_distribution$plant_cohorts_dbh <-
+  as.numeric(base_cohort_distribution$plant_cohorts_dbh)
+
 # Add plant_cohorts_cell_id, start counting from 0
 base_cohort_distribution$plant_cohorts_cell_id <- 0
 base_cohort_distribution$plant_cohorts_cell_id <-
