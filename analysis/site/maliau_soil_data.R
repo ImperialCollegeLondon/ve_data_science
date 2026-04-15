@@ -100,6 +100,7 @@ dat <-
   )
 
 
+
 # Spatial prediction from SAFE soil campaign ------------------------------
 
 # script that fits a spatial model to the SAFE data
