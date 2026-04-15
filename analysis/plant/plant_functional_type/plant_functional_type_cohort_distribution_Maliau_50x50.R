@@ -78,23 +78,40 @@ trees_1_2 <- kenzo_trees_below_10 * percent_1_2 / 100
 trees_2_5 <- kenzo_trees_below_10 * percent_2_5 / 100
 trees_5_10 <- kenzo_trees_below_10 * percent_5_10 / 100
 
-# Now add these to base_cohort_distribution (and spread evenly across PFTs)
-nrow(base_cohort_distribution)
+# Now add these to base_cohort_distribution (and distribute these across PFTs)
+# Note that for primary forest we only spread the seedlings across
+# emergent, overstory and understory but not pioneer because of the findings by
+# Miyamoto et al. (2024; DOI https://doi.org/10.3759/tropics.MS23-09)
+# that reported 0 recruits for pioneers in Maliau
+final_row <- nrow(base_cohort_distribution)
 
-base_cohort_distribution[32, ] <- c(trees_1_2 / 4, "emergent", dbh_1_2)
-base_cohort_distribution[33, ] <- c(trees_1_2 / 4, "overstory", dbh_1_2)
-base_cohort_distribution[34, ] <- c(trees_1_2 / 4, "understory", dbh_1_2)
-base_cohort_distribution[35, ] <- c(trees_1_2 / 4, "pioneer", dbh_1_2)
+base_cohort_distribution[final_row + 1, ] <- c(trees_1_2 / 3, "emergent", dbh_1_2)
+base_cohort_distribution[final_row + 2, ] <- c(trees_1_2 / 3, "overstory", dbh_1_2)
+base_cohort_distribution[final_row + 3, ] <- c(trees_1_2 / 3, "understory", dbh_1_2)
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_1_2) # nolint
 
-base_cohort_distribution[36, ] <- c(trees_2_5 / 4, "emergent", dbh_2_5)
-base_cohort_distribution[37, ] <- c(trees_2_5 / 4, "overstory", dbh_2_5)
-base_cohort_distribution[38, ] <- c(trees_2_5 / 4, "understory", dbh_2_5)
-base_cohort_distribution[39, ] <- c(trees_2_5 / 4, "pioneer", dbh_2_5)
+base_cohort_distribution[final_row + 4, ] <- c(trees_2_5 / 3, "emergent", dbh_2_5)
+base_cohort_distribution[final_row + 5, ] <- c(trees_2_5 / 3, "overstory", dbh_2_5)
+base_cohort_distribution[final_row + 6, ] <- c(trees_2_5 / 3, "understory", dbh_2_5)
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_2_5) # nolint
 
-base_cohort_distribution[40, ] <- c(trees_5_10 / 4, "emergent", dbh_5_10)
-base_cohort_distribution[41, ] <- c(trees_5_10 / 4, "overstory", dbh_5_10)
-base_cohort_distribution[42, ] <- c(trees_5_10 / 4, "understory", dbh_5_10)
-base_cohort_distribution[43, ] <- c(trees_5_10 / 4, "pioneer", dbh_5_10)
+base_cohort_distribution[final_row + 7, ] <- c(trees_5_10 / 3, "emergent", dbh_5_10)
+base_cohort_distribution[final_row + 8, ] <- c(trees_5_10 / 3, "overstory", dbh_5_10)
+base_cohort_distribution[final_row + 9, ] <- c(trees_5_10 / 3, "understory", dbh_5_10)
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_5_10) # nolint
+
+# Note that above we technically account for all seedlings/saplings with a dbh
+# between 1 and 10 cm dbh. Currently, the cohort distribution also has a
+# dbh class of 10 cm with very few individuals. This is because the Maliau
+# census data had a lower dbh limit of 10 cm, and therefore these few individuals
+# are likely sporadic recordings that were close to (but below) this lower limit.
+# Because the approach above accounts for all seedlings/saplings below dbh 10 cm,
+# I think we can exclude the dbh class of 10 cm from the Maliau census data.
+# If we do not exlude them, then we'd be "counting them twice" since they
+# should already be included in the seedling/sapling density reported by Kenzo et al.
+
+base_cohort_distribution <-
+  base_cohort_distribution[base_cohort_distribution$plant_cohorts_dbh != 0.1, ]
 
 # Reorder by dbh within PFT
 base_cohort_distribution <-
