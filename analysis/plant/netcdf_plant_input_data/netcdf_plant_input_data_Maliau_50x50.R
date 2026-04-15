@@ -97,7 +97,7 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # First estimate the germinated recruits prior to seedling mortality for
 # emergent, overstory and understory as recruits per hectare per year
 # (from Kuusipalo et al., 1996; DOI: https://doi.org/10.1016/0378-1127(95)03654-7)
-# divided by seedling survival 0.8993 (0.84^(12/20) from Kuusipalo et al., 1996;
+# divided by seedling survival 0.9007 (0.84^(12/20) from Kuusipalo et al., 1996;
 # DOI: https://doi.org/10.1016/0378-1127(95)03654-7).
 # Next, divide this number by the germination rate 0.0115
 # (0.023 / 2 to get yearly rate from Kennedy, D. N., & Swaine, M. D., 1992;
