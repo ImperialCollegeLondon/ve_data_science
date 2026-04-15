@@ -5,14 +5,11 @@
 #|     This script generates a NetCDF file that is part of the plant input data.
 #|     It contains the variables:
 #|     -plant_pft_propagules
-#|     -downward_shortwave_radiation
 #|     -subcanopy_vegetation_biomass
 #|     -subcanopy_seedbank_biomass
-#|     -time
 #|     And contains the dimensions:
 #|     -cell_id
 #|     -pft
-#|     -time_index
 #|     This simplified version only changes the pft dimension.
 #|
 #| virtual_ecosystem_module:
@@ -100,7 +97,7 @@ pft_index <- c("overstory", "understory")
 # First estimate the germinated recruits prior to seedling mortality for
 # overstory and understory as recruits per hectare per year
 # (from Kuusipalo et al., 1996; DOI: https://doi.org/10.1016/0378-1127(95)03654-7)
-# divided by seedling survival 0.8993 (0.84^(12/20) from Kuusipalo et al., 1996;
+# divided by seedling survival 0.9007 (0.84^(12/20) from Kuusipalo et al., 1996;
 # DOI: https://doi.org/10.1016/0378-1127(95)03654-7).
 # Next, divide this number by the germination rate 0.0115
 # (0.023 / 2 to get yearly rate from Kennedy, D. N., & Swaine, M. D., 1992;
