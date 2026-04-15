@@ -5,14 +5,11 @@
 #|     This script generates a NetCDF file that is part of the plant input data.
 #|     It contains the variables:
 #|     -plant_pft_propagules
-#|     -downward_shortwave_radiation
 #|     -subcanopy_vegetation_biomass
 #|     -subcanopy_seedbank_biomass
-#|     -time
 #|     And contains the dimensions:
 #|     -cell_id
 #|     -pft
-#|     -time_index
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -95,7 +92,7 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # happen when more detailed data for these variables are prepared through
 # analysis scripts
 
-# plant_pft_propagules: matrix of cell_id by pft (so 4 by 250)
+# plant_pft_propagules: matrix of cell_id by pft (so 4 by 2500)
 
 # First estimate the germinated recruits prior to seedling mortality for
 # emergent, overstory and understory as recruits per hectare per year
@@ -109,6 +106,20 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # Then distribute this number across the 3 PFTs, assuming no initial seedbank
 # for pioneers in primary forest (based on findings by Miyamoto et al., 2024;
 # DOI: https://doi.org/10.3759/tropics.MS23-09).
+# Note that 0 pioneers found by Miyamoto et al. was based on a 50x50m plot.
+# If that plot is really mature and closed-canopy, then 0 pioneer recruits
+# >5cm dbh is believable although throughout the Maliau landscape some cells
+# are going to have canopy gaps, and then there will be non-zero pioneer recruits
+# >5cm dbh. This does not break the line of reasoning here but it is something
+# we'll need to consider when implementing variation across cells later.
+# Also note that canopy gaps will be much smaller than the cell area used so
+# to account for this within cells we'd have to increase the overall
+# pioneer seedbank for a specific cell that is expected to have more canopy gaps.
+# This would also require the recruitment probability in these cells to
+# be different, and preferably PFT specific (at the moment this is a constant).
+# Note: for pioneers in logged forest, we can use fill value = 1000 m-2 using
+# value from Metcalfe and Turner (1998; https://www.jstor.org/stable/2559870)
+# Then scale this according to the cell area used (here 10000 m2)
 
 # First set up the empty structure, we will then add the propagules per PFT
 
@@ -153,10 +164,6 @@ plant_pft_propagules[1, ] <- seedbank_emergent
 plant_pft_propagules[2, ] <- seedbank_overstory
 plant_pft_propagules[3, ] <- seedbank_pioneer
 plant_pft_propagules[4, ] <- seedbank_understory
-
-# Note: for pioneers in logged forest, we can use fill value = 1000 m-2 using
-# value from Metcalfe and Turner (1998; https://www.jstor.org/stable/2559870)
-# Then scale this according to the cell area used (here 10000 m2)
 
 #####
 
