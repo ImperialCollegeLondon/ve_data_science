@@ -36,8 +36,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
-
 # Data --------------------------------------------------------------------
 
 # N, C and P from SAFE deadwood survey
