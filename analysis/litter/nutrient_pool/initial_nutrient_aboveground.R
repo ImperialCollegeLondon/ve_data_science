@@ -40,7 +40,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Parameters --------------------------------------------------------------
 
 # Fitted litter decay parameters from a previous PR (#104)
@@ -113,5 +112,3 @@ mod_lignin_above <- glmmTMB(
   family = beta_family(),
   data = litter
 )
-
-# TODO predict for Maliau

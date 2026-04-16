@@ -50,7 +50,6 @@ sP <- decay_param$value[decay_param$Parameter == "sP"]
 r_century <- 5
 
 
-
 # Fine root stoichiometry -------------------------------------------------
 
 # This section is mostly adapted from Arne Scheire's code stored
@@ -89,57 +88,3 @@ N_resorption_mean <- 19.45
 N_resorption_sd <- 1.46
 P_resorption_mean <- 24.74
 P_resorption_sd <- 2.10
-
-
-# Simulate initial belowground litter nutrients ---------------------------
-
-# Trying to incorporate SD to include prediction uncertainty
-# this also serves to generate spatial variation
-
-set.seed(777)
-
-n_sim <- 100
-
-init_sim <-
-  # first generate random C, N, P and lignin values
-  data.frame(
-    C = rnorm(n_sim, C_mean, C_sd),
-    N = rnorm(n_sim, N_mean, N_sd),
-    P = rnorm(n_sim, P_mean, P_sd),
-    lignin = rnorm(n_sim, lignin_mean, lignin_sd)
-  ) |>
-  # convert lignin from mass/mass to g C/g C
-  # the lignin C content = 62.5% comes from
-  # Martin et al. (2021) DOI: 10.1038/s41467-021-21149-9
-  mutate(lignin = lignin * 0.625 / C) |>
-  # convert N and P to litter content using resorption efficiencies
-  mutate(
-    N_resorption = rnorm(n_sim, N_resorption_mean, N_resorption_sd),
-    P_resorption = rnorm(n_sim, P_resorption_mean, P_resorption_sd),
-    N = N * N_resorption / 100,
-    P = P * P_resorption / 100
-  ) |>
-  # calculate C:N and C:P ratios
-  mutate(
-    CN = C / N,
-    CP = C / P
-  ) |>
-  # calculate metabolic fraction
-  mutate(fm = plogis(
-    logitfM - lignin * (sN * CN + sP * CP)
-  )) |>
-  # calculate metabolic and structural nutrients
-  # see rearranged equation on the litter theory documentation
-  # nolint https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
-  mutate(
-    CN_metabolic = CN / (r_century + fm * (1 - r_century)),
-    CP_metabolic = CP / (r_century + fm * (1 - r_century)),
-    CN_structural = r_century * CN_metabolic,
-    CP_structural = r_century * CP_metabolic
-  ) |>
-  select(CN_metabolic,
-    CP_metabolic,
-    CN_structural,
-    CP_structural,
-    lignin_structural = lignin
-  )

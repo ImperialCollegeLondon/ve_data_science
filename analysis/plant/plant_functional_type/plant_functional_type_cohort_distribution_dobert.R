@@ -1,5 +1,5 @@
 #| ---
-#| title: Plant functional type cohort distribution dobert
+#| title: Plant functional type cohort distribution dobert - OUTDATED
 #|
 #| description: |
 #|     This script calculates the Plant Functional Type (PFT) cohort distribution
@@ -59,6 +59,8 @@
 #|     - tidyr
 #|
 #| usage_notes: |
+#|   This script is outdated since the PFT species classification got expanded!
+#|   Need to rewrite this, if we do decide to utilise this script.
 #|   This script applies the PFT species classification obtained from Dobert
 #|   to the SAFE census dataset in order to get the respective cohort distribution.
 #|   However, the same approach can be applied to different census datasets and

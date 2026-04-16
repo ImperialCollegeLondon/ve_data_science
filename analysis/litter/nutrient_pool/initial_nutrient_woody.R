@@ -79,35 +79,9 @@ lignin_sd <- lignin_mean * lignin_cv
 # Model -------------------------------------------------------------------
 
 # predictive model for deadwood C, N and P (g/g)
-# TODO currently predicting C, N and P separately rather than as C:N and C:P ratios
 mod_nutrient_deadwood <-
   glmmTMB(
     Nutrient ~ 0 + Type * Block + (1 | PlotCode),
     family = lognormal(),
     data = nutrient_deadwood
   )
-
-predict_nutrient_deadwood <-
-  data.frame(
-    Type = c("C_total", "N_total", "P_total"),
-    Block = "OG",
-    PlotCode = NA
-  ) |>
-  mutate(estimate = predict(
-    mod_nutrient_deadwood,
-    newdata_nutrient_deadwood,
-    # TODO prediction intervals
-    type = "response",
-    allow.new.levels = TRUE
-  ))
-
-# for deadwood lignin, an example simulation is as follows
-lignin_sim <- rnorm(1000, lignin_mean, lignin_sd)
-# convert lignin from mass/mass to g C/g C
-# the lignin C content = 62.5% comes from
-# Martin et al. (2021) DOI: 10.1038/s41467-021-21149-9
-C_perc <-
-  predict_nutrient_deadwood$estimate[predict_nutrient_deadwood$Type == "C_total"]
-# FIXME C_perc needs to incorporate prediction uncertainty after fixing the
-#       prediction intervals TODO above
-lignin_sim <- lignin_sim * 0.625 / (C_perc / 100)

@@ -77,16 +77,7 @@ names(data)
 
 ##########
 
-data_taxa <- data[data$TaxaName %in% c(
-  "Dipterocarpus caudiferus", "Dryobalanops lanceolata",
-  "Heritiera simplicifolia", "Hopea nervosa", "Pentace laxiflora"
-) |
-  data$Genus %in% c(
-    "Parashorea", "Shorea", "Artocarpus", "Parartocarpus",
-    "Pentace", "Castanopsis", "Ganua", "Madhuca", "Palaquium",
-    "Payena", "Macaranga", "Eugenia", "Hydnocarpus",
-    "Gonystylus", "Madhuca", "Kayea"
-  ), ]
+data_taxa <- data
 
 unique(data_taxa$TaxaName)
 
@@ -104,15 +95,16 @@ data_taxa$PFT <- NA
 data_taxa$PFT[data_taxa$Genus %in%
   c(
     "Parashorea", "Shorea", "Artocarpus",
-    "Parartocarpus", "Pentace", "Castanopsis"
+    "Parartocarpus", "Pentace", "Castanopsis",
+    "Nothaphoebe"
   )] <- 1
 data_taxa$PFT[data_taxa$Genus %in%
   c(
-    "Ganua", "Madhuca", "Palaquium", "Payena"
+    "Ganua", "Madhuca", "Palaquium", "Payena", "Litsea"
   )] <- 2
 data_taxa$PFT[data_taxa$Genus %in%
   c(
-    "Macaranga"
+    "Macaranga", "Melicope", "Neonauclea", "Octomeles", "Trema", "Leea"
   )] <- 3
 data_taxa$PFT[data_taxa$Genus %in%
   c(
@@ -126,18 +118,118 @@ data_taxa$PFT[data_taxa$Genus %in%
     "Gonystylus", "Madhuca", "Kayea"
   )] <- 4
 
+# Below we add specific species to PFT species classification, based on:
+# - Okuda et al. 2003
+# - Bischoff et al. 2005
+# - Manokaran et al. 1987
+# - Lee et al. 2002
+# - Burghouts et al. 1994
+
 data_taxa$PFT[data_taxa$TaxaName %in%
   c(
     "Dipterocarpus caudiferus", "Dryobalanops lanceolata",
-    "Heritiera simplicifolia"
+    "Heritiera simplicifolia",
+    "Shorea maxwelliana", "Shorea acuminata", "Shorea macroptera",
+    "Neobalanocarpus heimii", "Shorea pauciflora", "Shorea leprosula",
+    "Dipterocarpus cornutus", "Dipterocarpus sublamellatus",
+    "Dipterocarpus crinitus", "Sindora coriacea", "Shorea lepidota",
+    "Koompassia malaccensis", "Shorea parvifolia", "Dyera costulata",
+    "Heritiera simplicifolia", "Quercus argentata", "Dipterocarpus costulatus",
+    "Intsia palembanica", "Shorea ovalis", "Pentaspadon motleyi",
+    "Triomma malaccensis", "Shorea bracteolata", "Dialium platysepalum",
+    "Atuna excelsa", "Anisoptera laevis", "Parashorea densiflora",
+    "Myristica maingayi",
+    "Dipterocarpus verrucosus",
+    "Koompassia excelsa", "Parashorea malaanonan",
+    "Shorea argentifolia", "Shorea fallax",
+    "Shorea johorensis"
   )] <- 1
+
 data_taxa$PFT[data_taxa$TaxaName %in%
   c(
     "Shorea xanthophylla", "Hopea nervosa",
-    "Pentace laxiflora"
+    "Pentace laxiflora",
+    "Xerospermum noronhianum", "Ixonanthes icosandra",
+    "Pimelodendron griffithianum", "Dacryodes rostrata",
+    "Xanthophyllum eurhynchum", "Mesua ferrea", "Millettia atropurpurea",
+    "Lithocarpus curtisii", "Canarium littorale", "Vatica bella",
+    "Dacryodes costata", "Gymnacranthera forbesii",
+    "Teijsmanniodendron coriaceum", "Hopea mengerawan",
+    "Scaphium macropodum", "Anisophyllea corneri", "Artocarpus maingayi",
+    "Santiria laevigata",
+    "Castanopsis schefferiana", "Monocarpia marginalis", "Parkia speciosa",
+    "Artocarpus scortechinii", "Dacryodes rugosa",
+    "Sarcotheca griffithii", "Ochanostachys amentacea",
+    "Neoscortechinia kingii", "Pometia pinnata", "Nephelium costatum",
+    "Lithocarpus wallichianus", "Xylopia ferruginea",
+    "Lithocarpus rassa", "Santiria tomentosa",
+    "Shorea multiflora", "Artocarpus rigidus", "Sandoricum koetjape",
+    "Knema scortechinii", "Dillenia reticulata", "Santiria apiculata",
+    "Trigoniastrum hypoleucum",
+    "Aglaia elliptica", "Canarium odontophyllum",
+    "Drypetes macrophylla", "Durio zibethinus",
+    "Eugenia lineata", "Ficus calophylla",
+    "Litsea ochracea", "Madhuca korthalsii",
+    "Microcos crassifolia", "Palaquium eriocalyx",
+    "Polyalthia sumatrana", "Syzygium malaccensis",
+    "Teijsmanniodendron bogoriense"
   )] <- 2
 
+data_taxa$PFT[data_taxa$TaxaName %in%
+  c(
+    "Alstonia angustiloba", "Dillenia borneensis",
+    "Dillenia excelsa", "Endospermum peltatum",
+    "Glochidion elmeri", "Glochidion lancisepalum",
+    "Glochidion rubrum", "Homalanthus populneus",
+    "Macaranga conifera", "Macaranga gigantea",
+    "Macaranga hypoleuca", "Macaranga triloba",
+    "Macaranga winkleri", "Melicope confusa",
+    "Melicope glabra", "Melicope incana",
+    "Melicope luna-akenda", "Neolamarckia cadamba",
+    "Neonauclea gigantea", "Vitex pubescens",
+    "Duabanga moluccana"
+  )] <- 3
+
+data_taxa$PFT[data_taxa$TaxaName %in%
+  c(
+    "Gironniera parvifolia", "Scaphocalyx spathacea",
+    "Alangium ebenaceum", "Aporusa bracteosa",
+    "Knema furfuracea", "Aporusa aurea",
+    "Knema patentinervia", "Archidendron bubalinum",
+    "Lepisanthes senegalensis", "Aporusa prainiana",
+    "Barringtonia macrostachya", "Aidia wallichiana",
+    "Macaranga lowii", "Memecylon minutiflorum",
+    "Oncodostigma monosperma", "Payena lucida",
+    "Diospyros apiculata", "Croton argyratus",
+    "Porterandia anisophylla", "Diospyros venosa",
+    "Canarium patentinervium", "Xylopia malayana",
+    "Drypetes pendula", "Antidesma cuspidatum",
+    "Xylopia caudata", "Grewia miqueliana",
+    "Buchanania sessifolia",
+    "Gironniera nervosa",
+    "Mallotus wrayi", "Urophyllum corymbosum",
+    "Rinorea bengalensis", "Fordia splendidissima",
+    "Aporosa sarawakensis", "Cleistanthus pubens",
+    "Drypetes myrmecophila", "Polyalthia glabrescens",
+    "Ficus stolonifera", "Aporosa benthamiana",
+    "Hopea mesuoides", "Cleistanthus beccarianus",
+    "Anisophyllea disticha", "Agrostistachys longifolia",
+    "Casearia grewiaefolia", "Antidesma linearifolium",
+    "Fagraea spicata",
+    "Dimorphocalyx denticulatus", "Koilodepas longifolium",
+    "Drypetes xanthophylloides", "Hydnocarpus borneensis",
+    "Semecarpus rufovelutinus", "Croton oblongus",
+    "Trigonostemon capillipes", "Vatica micrantha",
+    "Diospyros mindanensis",
+    "Baccaurea sarawakensis", "Xanthophyllum velutinum",
+    "Dillenia sumatrana"
+  )] <- 4
+
 unique(data_taxa$PFT)
+
+# Exclude where PFT is NA
+
+data_taxa <- data_taxa[!is.na(data_taxa$PFT), ]
 
 ##########
 
