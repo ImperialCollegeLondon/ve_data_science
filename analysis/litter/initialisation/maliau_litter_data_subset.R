@@ -18,7 +18,7 @@
 #|     description: |
 #|         Full input data for the Maliau scenario. This file is not
 #|         pushed but instead transferred via Globus
-#|   - name: maliau_grid_definition_100m.toml
+#|   - name: maliau_grid_definition_100m_10x10.toml
 #|     path: data/derived/site
 #|     description: |
 #|         Metadata for Maliau grids, primarily to define the data generation
