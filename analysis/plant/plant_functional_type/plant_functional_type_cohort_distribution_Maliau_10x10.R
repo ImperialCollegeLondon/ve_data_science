@@ -1,5 +1,5 @@
 #| ---
-#| title: Plant functional type cohort distribution Maliau 50x50
+#| title: Plant functional type cohort distribution Maliau 10x10
 #|
 #| description: |
 #|     This script loads the PFT cohort distribution per hectare and scales it
@@ -22,7 +22,7 @@
 #|       standardised as a count per hectare.
 #|
 #| output_files:
-#|   - name: plant_functional_type_cohort_distribution_Maliau_50x50.csv
+#|   - name: plant_functional_type_cohort_distribution_Maliau_10x10.csv
 #|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains an overview of the individuals per
@@ -47,10 +47,10 @@ library(ggplot2)
 library(tidyr)
 
 # Extract grid info from sites definition
-print("Grid cells = 50 x 50 = 2500")
+print("Grid cells = 10 x 10 = 100")
 print("Each cell is a square with area = 10000 m2")
 print("This means we do not need to rescale the cohort data from 10000 m2")
-print("Then multiply the base cohort distribution by 2500, one for each cell")
+print("Then multiply the base cohort distribution by 100, one for each cell")
 
 # Load base cohort distribution per hectare
 base_cohort_distribution <- read.csv("../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv") # nolint
@@ -148,7 +148,7 @@ base_cohort_distribution <-
     "plant_cohorts_pft", "plant_cohorts_dbh"
   )]
 
-cell_id <- 1:2499 # we start from 1 here because the first cohort (0) is the base
+cell_id <- 1:99 # we start from 1 here because the first cohort (0) is the base
 
 for (i in cell_id) {
   base_x <-
@@ -168,6 +168,6 @@ colnames(base_cohort_distribution) <-
 # Save scaled cohort distribution
 write.csv(
   base_cohort_distribution,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_10x10.csv", # nolint
   row.names = FALSE
 )
