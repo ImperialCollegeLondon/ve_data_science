@@ -26,7 +26,7 @@
 #|     path: data/primary/litter/
 #|     description: |
 #|       Deadwood decay and traits in the SAFE landscape, used to obtain
-#|       deadwood densities; downloaded from https://zenodo.org/records/4899608
+#|       deadwood densities; downloaded from https://zenodo.org/records/4899610
 #|
 #| output_files:
 #|

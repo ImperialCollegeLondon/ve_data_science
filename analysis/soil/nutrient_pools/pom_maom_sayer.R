@@ -15,7 +15,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: SayerEtAl2021_GLiMP_SoilCN_Fractions.csv
@@ -77,7 +77,12 @@ frac <-
     C = sum(mgCgsoilBD),
     N = sum(mgNgsoilBD)
   ) %>%
-  left_join(bulk)
+  left_join(bulk) |>
+  # convert total C and N from mg/g to g/g to match SAFE data
+  mutate_at(
+    vars(C, N, C_total, N_total),
+    ~ . / 1e3
+  )
 
 
 # Model -------------------------------------------------------------------
@@ -93,7 +98,6 @@ mod_C <- glmmTMB(
   family = lognormal,
   data = frac
 )
-summary(mod_C)
 
 mod_N <- glmmTMB(
   N ~ 0 + class + treatm + (1 | block),
@@ -101,8 +105,3 @@ mod_N <- glmmTMB(
   family = lognormal,
   data = frac
 )
-summary(mod_N)
-
-# save the model as outputs later for downstream predictions
-write_rds(mod_C, "data/derived/soil/nutrient_pools/model_C_POM_MAOM.rds")
-write_rds(mod_N, "data/derived/soil/nutrient_pools/model_N_POM_MAOM.rds")

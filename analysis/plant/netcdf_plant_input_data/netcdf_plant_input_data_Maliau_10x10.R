@@ -1,5 +1,5 @@
 #| ---
-#| title: NetCDF plant input data Maliau 50x50
+#| title: NetCDF plant input data Maliau 10x10
 #|
 #| description: |
 #|     This script generates a NetCDF file that is part of the plant input data.
@@ -20,7 +20,7 @@
 #| status: final
 #|
 #| input_files:
-#|   - name: plant_functional_type_cohort_distribution_Maliau_50x50.csv
+#|   - name: plant_functional_type_cohort_distribution_Maliau_10x10.csv
 #|     path: data/derived/plant/plant_functional_type
 #|     description: |
 #|       This CSV file contains an overview of the individuals per
@@ -32,7 +32,7 @@
 #|       plant model constants.
 #|
 #| output_files:
-#|   - name: plant_input_data_Maliau_50x50.nc
+#|   - name: plant_input_data_Maliau_10x10.nc
 #|     path: data/derived/plant/netcdf_plant_input_data
 #|     description: |
 #|       This NetCDF file contains the plant input data for plant_pft_propagules,
@@ -60,7 +60,7 @@ library(ncdf4)
 
 # Load the Maliau cohort distribution
 cohort_distribution <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_10x10.csv", # nolint
   header = TRUE
 )
 
@@ -92,7 +92,7 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # happen when more detailed data for these variables are prepared through
 # analysis scripts
 
-# plant_pft_propagules: matrix of cell_id by pft (so 4 by 2500)
+# plant_pft_propagules: matrix of cell_id by pft (so 4 by 100)
 
 # First estimate the germinated recruits prior to seedling mortality for
 # emergent, overstory and understory as recruits per hectare per year
@@ -191,7 +191,7 @@ subcanopy_seedbank_biomass <-
 
 # Open NetCDF file
 nc <-
-  create.nc("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50.nc", format = "netcdf4") # nolint
+  create.nc("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_10x10.nc", format = "netcdf4") # nolint
 
 # Define dimensions
 dim.def.nc(nc, "cell_id", length(cell_id_index))
@@ -219,16 +219,16 @@ close.nc(nc)
 
 # Load data file and check it
 # Here we use NCDF4 for exploration in RStudio (as RNetCDF cannot do this)
-plant_input_data_Maliau_50x50 <-
-  nc_open("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50.nc") # nolint
+plant_input_data_Maliau_10x10 <-
+  nc_open("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_10x10.nc") # nolint
 
-names(plant_input_data_Maliau_50x50$var)
-ncvar_get(plant_input_data_Maliau_50x50, "plant_pft_propagules")
-ncvar_get(plant_input_data_Maliau_50x50, "subcanopy_vegetation_biomass")
-ncvar_get(plant_input_data_Maliau_50x50, "subcanopy_seedbank_biomass")
+names(plant_input_data_Maliau_10x10$var)
+ncvar_get(plant_input_data_Maliau_10x10, "plant_pft_propagules")
+ncvar_get(plant_input_data_Maliau_10x10, "subcanopy_vegetation_biomass")
+ncvar_get(plant_input_data_Maliau_10x10, "subcanopy_seedbank_biomass")
 
-ncvar_get(plant_input_data_Maliau_50x50, "cell_id")
-ncvar_get(plant_input_data_Maliau_50x50, "pft")
+ncvar_get(plant_input_data_Maliau_10x10, "cell_id")
+ncvar_get(plant_input_data_Maliau_10x10, "pft")
 
 # Close
-nc_close(plant_input_data_Maliau_50x50)
+nc_close(plant_input_data_Maliau_10x10)
