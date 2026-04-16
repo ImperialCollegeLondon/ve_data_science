@@ -1,0 +1,331 @@
+# Metadata for the initial values of soil and litter modules for the Maliau scenario
+
+# unit: the unit of variable
+# description: brief description of the variable
+# script_path: the directory of the analysis script used to estimate the
+#              initial value
+# source: data sources, with DOI / URL
+# source_type: Maliau = data source includes Maliau; SAFE = data source from SAFE but excludes Maliau; tropical; forest; global
+# comment: assumptions, decisions, TODOs
+
+[pH]
+unit = "pH"
+description = "Soil pH. Predicted by a spatial model fitted to the SAFE data campaign."
+script_path = "analysis/soil/initialisation/model_safe.R"
+source = "SAFE soil campaign 2024. DOI pending."
+source_type = "Maliau"
+comment = ""
+
+[clay_fraction]
+unit = "-"
+description = "The fraction of clay in soil. Predicted by a spatial model fitted to the SAFE data campaign."
+script_path = "analysis/soil/initialisation/model_safe.R"
+source = "SAFE soil campaign 2024. DOI pending."
+source_type = "Maliau"
+comment = ""
+
+[soil_cnp_pool_lmwc]
+unit = "kg m^-3"
+description = "Soil carbon, nitrogen and phosphorous pools in low molecular weight organic matter."
+script_path = [
+"analysis/soil/nutrient_pools/doc_don.R" ,
+"analysis/soil/nutrient_pools/phosphorous_pools.R"
+]
+source = [
+"Montano et al. (2007) https://doi.org/10.1007/s11104-007-9281-x" ,
+"Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+]
+source_type = "For C and N, Mexican tropical deciduous forest; rainy season data. For P, Lowland tropical rainforest of Deramakot, Borneo."
+comment = "For C and N, the system was a Mexican tropical deciduous forest; we took the rainy season values to approximate moist tropical forests (e.g., Maliau Basin). DOC was used as an imperfect proxy for LMWC for now. This should be a reasonable placeholder value because the goal now is only to get as close to the initial value as possible. For P, we mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
+
+[soil_cnp_pool_maom]
+unit = "kg m^-3"
+description = "Soil mineral associated organic carbon, nitrogen and phosphorous pools."
+script_path = [
+"analysis/soil/nutrient_pools/pom_maom_sayer.R" ,
+"analysis/soil/nutrient_pools/phosphorous_pools.R"
+]
+source = [
+"Sayer et al. (2021) https://doi.org/10.1007/s10533-020-00747-7" ,
+"Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+]
+source_type = "For C and N, wature lowland tropical forest on Gigante Peninsula, Panama. For P, lowland tropical rainforest of Deramakot, Borneo."
+comment = "For P, we mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x. The Imai et al. dataset has Po_OH, which can be a proxy of P in POM + MAOM so we need another ratio to split this value into the POM and MAOM pool P pool fractionalisation data is very very scarce, I will rely on a study in the Amazon (Hoosbeek et al. 2023) https://doi.org/10.1007/s10342-023-01577-6 In their Figure 3, they showed results of P in three soil fractions: free light (fLF), occluded light (oLF) and mineral associated heavy (maHF). According to the method paper they cited (Six et al. 2002), the fLF fraction seems to be a proxy for POM, and I'll use oLF + maHF as a proxy for MAOM. Now the challenge is that their figure is poor in resolution so value extraction is not easy. I will eyeball it, which should be fine given that we are trying to estimate initial values, not really constants / parameters. I eyeballed the proportion of P in POM to be 5% and the rest (95%) in MAOM."
+
+[soil_c_pool_bacteria]
+unit = "kg C m^-3"
+description = "Soil bacterial biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
+script_path= [
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
+"analysis/soil/nutrient_pools/carbon_microbial.R"
+]
+source = [
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
+
+[soil_c_pool_saprotrophic_fungi]
+unit = "kg C m^-3"
+description = "Soil saprotrophic fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
+script_path= [
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
+"analysis/soil/nutrient_pools/carbon_microbial.R"
+]
+source = [
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
+
+[soil_c_pool_arbuscular_mycorrhiza]
+unit = "kg C m^-3"
+description = "Soil arbuscular mycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
+script_path= [
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
+"analysis/soil/nutrient_pools/carbon_microbial.R"
+]
+source = [
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
+
+[soil_c_pool_ectomycorrhiza]
+unit = "kg C m^-3"
+description = "Soil ectomycorrhizal fungal biomass (carbon) pool. Scaled from the total carbon pool predicted by a spatial model fitted to the SAFE data campaign."
+script_path= [
+"analysis/soil/nutrient_pools/carbon_microbial_guild.R",
+"analysis/soil/nutrient_pools/carbon_microbial.R"
+]
+source = [
+"Serna-Chavez et al. (2013) https://doi.org/10.1111/geb.12070" ,
+"Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
+"Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
+]
+source_type = "Global and SAFE"
+comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
+
+[soil_cnp_pool_pom]
+unit = "kg m^-3"
+description = "Soil carbon, nitrogen and phosphorous in particulate organic matter."
+script_path = [
+"analysis/soil/nutrient_pools/pom_maom_sayer.R" ,
+"analysis/soil/nutrient_pools/phosphorous_pools.R"
+]
+source = [
+"Sayer et al. (2021) https://doi.org/10.1007/s10533-020-00747-7" ,
+"Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+]
+source_type = "For C and N, mature lowland tropical forest on Gigante Peninsula, Panama. For P, lowland tropical rainforest of Deramakot, Borneo"
+comment = "For P, we mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x. The Imai et al. dataset has Po_OH, which can be a proxy of P in POM + MAOM so we need another ratio to split this value into the POM and MAOM pool P pool fractionalisation data is very very scarce, I will rely on a study in the Amazon (Hoosbeek et al. 2023) https://doi.org/10.1007/s10342-023-01577-6 In their Figure 3, they showed results of P in three soil fractions: free light (fLF), occluded light (oLF) and mineral associated heavy (maHF). According to the method paper they cited (Six et al. 2002), the fLF fraction seems to be a proxy for POM, and I'll use oLF + maHF as a proxy for MAOM. Now the challenge is that their figure is poor in resolution so value extraction is not easy. I will eyeball it, which should be fine given that we are trying to estimate initial values, not really constants / parameters. I eyeballed the proportion of P in POM to be 5% and the rest (95%) in MAOM."
+
+[soil_cnp_pool_necromass]
+unit = "kg m^-3"
+description = "Necrotic soil carbon, nitrogen and phosphorous pools"
+script_path = "analysis/soil/necromass/necromass.R"
+source = "Li et al. (2023) https://doi.org/10.1016/j.scitotenv.2023.163204"
+source_type = "Pasoh forest reserve, Malaysia"
+comment = "Soil microbial necromass was very data poor. We used amino sugar as biomarker, though this only capture cell wall residues and may underestimate true necromass. First we estimated the C pool, and then scaled it to get N and P pools using microbe stoichiometry."
+
+[soil_enzyme_pom_bacteria]
+unit = "kg C m^-3"
+description = "Amount of bacterial enzyme class which breaks down particulate organic matter. Best guess from first principle."
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
+
+[soil_enzyme_maom_bacteria]
+unit = "kg C m^-3"
+description = "Amount of bacterial enzyme class which breaks down mineral associated organic matter. Best guess from first principle."
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
+
+[soil_enzyme_pom_fungi]
+unit = "kg C m^-3"
+description = "Amount of fungal enzyme class which breaks down particulate organic matter. Best guess from first principle."
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
+
+[soil_enzyme_maom_fungi]
+unit = "kg C m^-3"
+description = "Amount of fungal enzyme class which breaks down mineral associated organic matter. Best guess from first principle."
+script_path = "analysis/soil/enzyme/enzyme_concentration.R"
+source = "Wang et al. (2013) https://doi.org/10.1890/12-0681.1"
+source_type = "First principle"
+comment = "Soil enzyme concentrations are currently best guesses based on the MEND model (Wang et al. 2013). I have not been able to find enzyme concentration or biomass stock in the soil. Most, if not all, studies reported enzyme *activity* levels instead of biomass. While it is possible to use enzyme activity level to estimate enzyme stock using Michaelis-Menten kinetics, there are other unknowns in this approach, e.g., rate constants and substrate concentrations. These initial variables are certainty worth revisiting."
+
+[soil_n_pool_ammonium]
+unit = "kg N m^-3"
+description = "Amount of nitrogen contained in the soil ammonium (NH4+) pool. Measured by the static chamber method at SAFE."
+script_path = "analysis/soil/ammonium_nitrate/model.R"
+source = "Drewer et al. (2019) https://doi.org/10.5281/zenodo.3258117"
+source_type = "SAFE"
+comment = "The soil cores in this dataset was collected from 0-10 cm soil depth. VE soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties hold until 25 cm. We may want to revisit this assumption later."
+
+[soil_n_pool_nitrate]
+unit = "kg N m^-3"
+description = "Amount of nitrogen contained in the soil nitrate (NO3-) pool. Measured by the static chamber method at SAFE."
+script_path = "analysis/soil/ammonium_nitrate/model.R"
+source = "Drewer et al. (2019) https://doi.org/10.5281/zenodo.3258117"
+source_type = "SAFE"
+comment = "The soil cores in this dataset was collected from 0-10 cm soil depth. VE soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties hold until 25 cm. We may want to revisit this assumption later."
+
+[soil_p_pool_primary]
+unit = "kg P m^-3"
+description = "Amount of phosphorus in a primary mineral form"
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
+
+[soil_p_pool_secondary]
+unit = "kg P m^-3"
+description = "Amount of inorganic phosphorus that is associated with secondary minerals"
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
+
+[soil_p_pool_labile]
+unit = "kg P m^-3"
+description = "Amount of inorganic phosphorus that is in a labile form"
+script_path = "analysis/soil/nutrient_pools/phosphorous_pools.R"
+source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
+source_type = "Lowland tropical rainforest of Deramakot, Borneo"
+comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
+
+[fungal_fruiting_bodies]
+unit = "kg C m^-2"
+description = "Density of fungal fruiting bodies growing from the litter and soil"
+script_path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
+source = "Alday et al. (2017) https://doi.org/10.1038/srep45824"
+source_type = "Mediterranean Scots Pine (P. sylvestris) forest stands"
+comment = "This is a very crude estimation of sporocarp biomass for the initialisation of Maliau scenario. It had been extremely hard to find reliable value from tropical forests, so I had to rely on a Mediterranean study(!) by Alday et al. (2017). The author did not share data, and their main figure was hard to extract data from (data point obscured by regression lines). We took the reported maximum biomass in the main text; using the max value from a Mediterranean study is somewhat justifiable for our tropical rainforest scenario because the former has a much drier climate than the latter, so I assume that their maximum would approximate our mean."
+
+[litter_pool_above_metabolic_cnp]
+unit = "kg m^-2"
+description = "Above ground metabolic litter carbon, nitrogen and phosphorous pools"
+script_path= [
+"analysis/litter/stock/model_aboveground_C.R",
+"analysis/litter/stock/combine_stocks.R",
+"analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+]
+source = [
+"Ewers (2018) https://zenodo.org/records/1198587",
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE, global and first principle"
+comment = "First we estimated aboveground litter carbon stock from SAFE datasets: one that measured total aboveground litter stock and another dataset that measured *physical* litter composition to estimate litter stock per physical composition. After the litter pool was split into leaf, reproductive, wood and other, they are reassigned to aboveground metabolic, aboveground structural and wood. Reproductive litter is assumed to be entirely aboveground metabolic; 'Other' is assumed to be entirely aboveground structural; Leaf is the only physical component that was further split into aboveground metabolic and structural using leaf nutrient data. Then, we took the ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) from Kirschbaum and Paul (2002; since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio). The C:N and C:P ratios are then used to derive the aboveground litter nitrogen and phosphorous stocks."
+
+[litter_pool_above_structural_cnp]
+unit = "kg m^-2"
+description = "Above ground structural litter carbon, nitrogen and phosphorous pools"
+script_path= [
+"analysis/litter/stock/model_aboveground_C.R",
+"analysis/litter/stock/combine_stocks.R",
+"analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+]
+source = [
+"Ewers (2018) https://zenodo.org/records/1198587",
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE"
+comment = "First we estimated aboveground litter carbon stock from SAFE datasets: one that measured total aboveground litter stock and another dataset that measured *physical* litter composition to estimate litter stock per physical composition. After the litter pool was split into leaf, reproductive, wood and other, they are reassigned to aboveground metabolic, aboveground structural and wood. Reproductive litter is assumed to be entirely aboveground metabolic; 'Other' is assumed to be entirely aboveground structural; Leaf is the only physical component that was further split into aboveground metabolic and structural using leaf nutrient data. Then, we took the ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) from Kirschbaum and Paul (2002; since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio). The C:N and C:P ratios are then used to derive the aboveground litter nitrogen and phosphorous stocks."
+
+[litter_pool_woody_cnp]
+unit = "kg m^-2"
+description = "Woody litter carbon, nitrogen and phosphorous pools"
+script_path= [
+"analysis/litter/stock/model_deadwood_C.R",
+"analysis/litter/stock/combine_stocks.R",
+"analysis/litter/nutrient_pool/initial_nutrient_woody.R"
+]
+source = [
+"Terhi et al. (2021) https://zenodo.org/records/4899610",
+"Ewers et al. (2021) https://zenodo.org/records/4899608",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE"
+comment = "Estimated through a few hoops: first estimate deadwood count per area, then estimate deadwood volume distribution, then deadwood density distribution, and then combine their expected value with deadwood carbon content from a global study (Martin et al. 2021) to get deadwood carbon stock. Finally, the C:N and C:P ratios are used to derive the woody litter nitrogen and phosphorous stocks."
+
+[litter_pool_below_metabolic_cnp]
+unit = "kg m^-2"
+description = "Below ground metabolic litter carbon, nitrogen and phosphorous pools"
+script_path= [
+"analysis/litter/stock/model_belowground_C.R",
+"analysis/litter/stock/combine_stocks.R",
+"analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+]
+source = [
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Zhang and Wang (2015) https://doi.org/10.1038/srep09940",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
+"Wang et al. (2025) https://doi.org/10.1111/nph.70001"
+]
+source_type = "SAFE, lowland tropical rain forest in Sabah, global dataset, and first principle"
+comment = "First we estimated the equilibrium belowground litter carbon stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach. Then, belowground litter nitrogen and phosphorous stocks were estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
+
+[litter_pool_below_structural_cnp]
+unit = "kg m^-2"
+description = "Below ground structural litter carbon, nitrogen and phosphorous pools"
+script_path= [
+"analysis/litter/stock/model_belowground_C.R",
+"analysis/litter/stock/combine_stocks.R",
+"analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+]
+source = [
+"Terhi et al. (2021) https://zenodo.org/records/4542881",
+"Zhang and Wang (2015) https://doi.org/10.1038/srep09940",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
+"Wang et al. (2025) https://doi.org/10.1111/nph.70001"
+]
+source_type = "SAFE, lowland tropical rain forest in Sabah, global dataset, and first principle"
+comment = "First we estimated the equilibrium belowground litter carbon stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach. Then, belowground litter nitrogen and phosphorous stocks were estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
+
+[lignin_above_structural]
+unit = "kg lignin C (kg C)^-1"
+description = "Proportion of above ground structural pool which is lignin"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_aboveground.R"
+source = [
+"Both et al. (2019) https://zenodo.org/records/3247639",
+"Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
+"Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
+]
+source_type = "SAFE, global and first principle"
+comment = "Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
+
+[lignin_woody]
+unit = "kg lignin C (kg C)^-1"
+description = "Proportion of dead wood pool which is lignin"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_woody.R"
+source = "Gérard et al. (2019) https://dx.doi.org/10.19182/bft2019.342.a31809"
+source_type = "Tropical region"
+comment = "For woody litter lignin, empirical data are scarce; we used a long-term tropical hardwood data compiled by CIRAD (Gérard et al. 2019)."
+
+[lignin_below_structural]
+unit = "kg lignin C (kg C)^-1"
+description = "Proportion of below ground structural pool which is lignin"
+script_path = "analysis/litter/nutrient_pool/initial_nutrient_belowground.R"
+source = "White et al. (2000) https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2"
+source_type = "Global"
+comment = "There is a lack of data for root lignin so we used a global study."

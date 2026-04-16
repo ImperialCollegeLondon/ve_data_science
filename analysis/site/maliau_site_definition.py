@@ -16,8 +16,8 @@ status: draft
 input_files:
 
 output_files:
-  - name: maliau_grid_definition.toml
-    path: sites
+  - name: maliau_grid_definition_90m.toml
+    path: data/derived/sites
     description: Site definition file for the Maliau Basin
 
 package_dependencies:
@@ -105,6 +105,6 @@ grid_definition = dict(
     ),
 )
 
-with open("maliau_grid_definition.toml", "ab") as outfile:
+with open("data/derived/sites/maliau_grid_definition_90m.toml", "ab") as outfile:
     outfile.write(b"# Site definition file for Maliau Basin\n")
     tomli_w.dump(grid_definition, outfile)

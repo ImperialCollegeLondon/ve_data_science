@@ -68,6 +68,9 @@ plant_stoich <- read_csv("data/derived/plant/traits_data/plant_stoichiometry.csv
 lignin_leaf <- mean(plant_stoich$leaf_lignin)
 lignin_wood <- mean(plant_stoich$stem_lignin)
 
+# FIXME there is a newer wood lignin tailored for tropics in the initialisation
+# script analysis/litter/nutrient_pool/initial_nutrient_woody.R
+
 # summarise the posterior
 # Values are reported as median and the lower and upper bounds of the 90%
 # credible intervals
