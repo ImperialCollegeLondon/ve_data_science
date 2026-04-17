@@ -5,8 +5,6 @@ library(reticulate)
 use_virtualenv("../ve.sandbox/ve_release")
 
 
-
-
 # List initial state variables from Virtual Ecosystem ---------------------
 
 # Import the model class
@@ -35,9 +33,9 @@ ve_vars_init <- c(
   unique()
 
 
-
 # Maliau input data -------------------------------------------------------
 
+# function to extract the range of input data
 get_maliau_range <- function(nc_path) {
   data_maliau <- nc_open(nc_path)
   vars_tmp <- intersect(ve_vars_init, names(data_maliau$var))
@@ -55,10 +53,9 @@ maliau_range <- rbind(soil_range, litter_range)
 maliau_vars_init <- rownames(maliau_range)
 
 
-
 # Set up Sobol matrix -----------------------------------------------------
 
-n_sample <- 1000
+n_sample <- 100
 
 mat <- sobol_matrices(
   N = n_sample,
