@@ -78,7 +78,8 @@ soil_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau <- parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
+maliau <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
@@ -92,11 +93,6 @@ dat <-
   expand_grid(
     cell_x = maliau$cell_x_centres,
     cell_y = maliau$cell_y_centres
-  ) |>
-  # calculate displacements
-  mutate(
-    x = cell_x - min(cell_x),
-    y = cell_y - min(cell_y)
   )
 
 
@@ -491,16 +487,8 @@ var.def.nc(ncout, "y", "NC_FLOAT", "y")
 var.def.nc(ncout, "element", "NC_STRING", "element")
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
 att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
-var.put.nc(
-  ncout,
-  "x",
-  as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
-)
-var.put.nc(
-  ncout,
-  "y",
-  as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
-)
+var.put.nc(ncout, "x", as.double(maliau$cell_x_centres))
+var.put.nc(ncout, "y", as.double(maliau$cell_y_centres))
 var.put.nc(ncout, "element", c("C", "N", "P"))
 
 # define variables
