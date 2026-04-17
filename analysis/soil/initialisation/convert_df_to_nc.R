@@ -63,7 +63,7 @@ convert_df_to_nc <- function(
   # note that I am explicitly using rev() to reverse the order of the element
   # dimension here in R so in Python it is ordered in the 'right' way
   for (i in seq_along(variables)) {
-    if (str_detect(variables[i], "_cnp_")) {
+    if (str_detect(variables[i], "_cnp")) {
       var.def.nc(ncout, variables[i], "NC_DOUBLE", rev(c("x", "y", "element")))
       triplet_tmp <- do.call(rbind, data[[variables[i]]])
       array_tmp <- array(triplet_tmp, dim = rev(c(n_x, n_y, n_element)))
