@@ -4,8 +4,8 @@
 #| description: |
 #|     This R script estimates soil necromass C, N and P stocks using amino
 #|     sugar biomarkers measured at Pasoh forest reserve, Malaysia. First we
-#|     estimate the C pool, and then scale it get N and P pools using microbe
-#|     stoichiometry.
+#|     estimate the C pool, and then scale it to get N and P pools using
+#|     microbe stoichiometry.
 #|
 #| virtual_ecosystem_module: Litter
 #|

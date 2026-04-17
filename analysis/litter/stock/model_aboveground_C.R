@@ -6,7 +6,7 @@
 #|     It combines a dataset that measure total aboveground litter stock and
 #|     another dataset that measured *physical* litter composition to estimate
 #|     litter stock per physical composition. After the litter pool was split
-#|     into leaf, reproductive, wood and other, they will be reassinged to
+#|     into leaf, reproductive, wood and other, they will be reassigned to
 #|     aboveground metabolic, aboveground structural and wood; Wood will be
 #|     added to deadwood in another script later; Reproductive is assumed to be
 #|     entirely aboveground metabolic; Other is assumed to be entirely

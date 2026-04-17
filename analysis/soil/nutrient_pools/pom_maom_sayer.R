@@ -15,7 +15,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: SayerEtAl2021_GLiMP_SoilCN_Fractions.csv
