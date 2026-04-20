@@ -43,8 +43,8 @@ library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
-source("analysis/soil/initialisation/subset_nc.R")
 source("analysis/soil/initialisation/convert_array_to_nc.R")
+source("analysis/soil/initialisation/subset_nc.R")
 
 
 # Maliau site metadata ----------------------------------------------------
