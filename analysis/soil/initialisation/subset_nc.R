@@ -13,6 +13,14 @@
 
 subset_nc <- function(nc, ll_x, ll_y, ur_x, ur_y, ...) {
   # filter data to region of interest
+  subset_array(nc, ll_x, ll_y, ur_x, ur_y)
+
+  # convert arrays back to netCDF
+  convert_array_to_nc(array = data_subset_array, ...)
+}
+
+subset_array <- function(nc, ll_x, ll_y, ur_x, ur_y) {
+  # filter data to region of interest
   data_subset <-
     tidync(nc) |>
     hyper_filter(
@@ -44,7 +52,4 @@ subset_nc <- function(nc, ll_x, ll_y, ur_x, ur_y, ...) {
       hyper_array(drop = FALSE)
     data_subset_array[[var]] <- data_subset_array[[var]][[1]]
   }
-
-  # convert arrays back to netCDF
-  convert_array_to_nc(array = data_subset_array, ...)
 }
