@@ -129,5 +129,5 @@ cell_area = 10000
 cell_nx = 50
 cell_ny = 50
 grid_type = "square"
-xoff = 494350.0
-yoff = 521350.0
+xoff = 494300
+yoff = 521300
