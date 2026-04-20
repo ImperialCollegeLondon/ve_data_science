@@ -42,6 +42,8 @@ library(tidyverse)
 library(RcppTOML)
 library(RNetCDF)
 library(tidync)
+library(purrr)
+source("analysis/soil/initialisation/convert_array_to_nc.R")
 
 
 # Maliau site metadata ----------------------------------------------------
@@ -71,80 +73,22 @@ litter_subset_2D <-
   litter_subset |>
   activate("D1,D0") |>
   hyper_array()
-litter_subset_x <-
-  litter_subset |>
-  activate("D0") |>
-  hyper_array()
-litter_subset_y <-
-  litter_subset |>
-  activate("D1") |>
-  hyper_array()
-litter_subset_element <-
-  litter_subset |>
-  activate("D2") |>
-  hyper_array()
+litter_subset_array <- c(litter_subset_3D, litter_subset_2D)
 
 
 # Output subset data -----------------------------------------------------
 
-# path and file name of netCDF
-ncpath <- "data/scenarios/maliau/maliau_2/data/"
-ncname <- "litter_maliau"
-ncfname <- paste0(ncpath, ncname, ".nc")
+ncout <-
+  convert_array_to_nc(
+    array = litter_subset_array,
+    filename = "data/scenarios/maliau/maliau_2/data/litter_maliau.nc",
+    description = "Litter data for the Maliau 2 scenario",
+    close.nc = FALSE
+  )
 
-# create netCDF file
-ncout <- create.nc(ncfname, format = "netcdf4")
-
-# define dimensions
-dim.def.nc(ncout, "x", maliau_subset$cell_nx)
-dim.def.nc(ncout, "y", maliau_subset$cell_ny)
-dim.def.nc(ncout, "element", 3)
-var.def.nc(ncout, "x", "NC_FLOAT", "x")
-var.def.nc(ncout, "y", "NC_FLOAT", "y")
-var.def.nc(ncout, "element", "NC_STRING", "element")
+# add units
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
 att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
-var.put.nc(ncout, "x", litter_subset_x$x)
-var.put.nc(ncout, "y", litter_subset_y$y)
-var.put.nc(ncout, "element", litter_subset_element$element)
-
-# define and put variables
-for (i in names(litter_subset_2D)) {
-  var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y")))
-  var.put.nc(ncout, i, litter_subset_2D[[i]])
-  # add units
-  # more metadata can be added here
-  att.put.nc(
-    ncout,
-    i,
-    "units",
-    "NC_CHAR",
-    litter_subset$attribute$value[litter_subset$attribute$variable == i]$units
-  )
-}
-
-for (i in names(litter_subset_3D)) {
-  var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y", "element")))
-  var.put.nc(ncout, i, litter_subset_3D[[i]])
-  # add units
-  # more metadata can be added here
-  att.put.nc(
-    ncout,
-    i,
-    "units",
-    "NC_CHAR",
-    litter_subset$attribute$value[litter_subset$attribute$variable == i]$units
-  )
-}
-
-# add global attributes
-att.put.nc(
-  ncout,
-  "NC_GLOBAL",
-  "description",
-  "NC_CHAR",
-  "Litter data for the Maliau 2 scenario"
-)
 
 # Get a summary of the created file
 print.nc(ncout)
