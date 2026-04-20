@@ -67,6 +67,7 @@ library(glmmTMB)
 library(biogas)
 library(lubridate)
 library(hms)
+source("analysis/soil/initialisation/convert_df_to_nc.R")
 
 set.seed(20260313)
 
@@ -74,11 +75,13 @@ set.seed(20260313)
 # Soil metadata ---------------------------------------------------------
 
 soil_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
+soil_meta <- soil_meta$soil
 
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau <- parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
+maliau <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
@@ -92,11 +95,6 @@ dat <-
   expand_grid(
     cell_x = maliau$cell_x_centres,
     cell_y = maliau$cell_y_centres
-  ) |>
-  # calculate displacements
-  mutate(
-    x = cell_x - min(cell_x),
-    y = cell_y - min(cell_y)
   )
 
 
@@ -110,16 +108,13 @@ source("analysis/soil/initialisation/model_safe.R")
 dat <-
   dat |>
   mutate(
-    elev = terra::extract(elev, pick("cell_x", "cell_y"))[
-      ,
+    elev = terra::extract(elev, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_processed"
     ],
-    topo = terra::extract(topo, pick("cell_x", "cell_y"))[
-      ,
+    topo = terra::extract(topo, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_TRI_Wilson2007"
     ],
-    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[
-      ,
+    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
       "SRTM_Log_Flow_Accum"
     ],
     # set acd to mean because there is no full data coverage
@@ -441,7 +436,7 @@ dat <-
     ),
     ~ . * (bulk_density * 1e3)
   ) |>
-  # special treatment for CNP triplets
+  # combine C, N and P columns into a single list column
   mutate(
     soil_cnp_pool_lmwc = pmap(
       list(soil_c_pool_lmwc, soil_n_pool_don, soil_p_pool_dop),
@@ -452,11 +447,19 @@ dat <-
       c
     ),
     soil_cnp_pool_pom = pmap(
-      list(soil_c_pool_pom, soil_n_pool_particulate, soil_p_pool_particulate),
+      list(
+        soil_c_pool_pom,
+        soil_n_pool_particulate,
+        soil_p_pool_particulate
+      ),
       c
     ),
     soil_cnp_pool_necromass = pmap(
-      list(soil_c_pool_necromass, soil_n_pool_necromass, soil_p_pool_necromass),
+      list(
+        soil_c_pool_necromass,
+        soil_n_pool_necromass,
+        soil_p_pool_necromass
+      ),
       c
     ),
     .keep = "unused"
@@ -465,95 +468,22 @@ dat <-
 
 # Write data to netCDF ----------------------------------------------------
 
-# collect soil metadata
+# collect soil metadata to get variable names and units
 soil_meta_df <-
   reshape2::melt(lapply(soil_meta, function(meta) meta$unit)) |>
   select(
     variable = L1,
     unit = value
-  ) |>
-  filter(variable %in% names(dat))
-
-# path and file name of netCDF
-ncpath <- "data/scenarios/maliau/maliau_1/data/"
-ncname <- "soil_maliau"
-ncfname <- paste0(ncpath, ncname, ".nc")
-
-# create netCDF file
-ncout <- create.nc(ncfname, format = "netcdf4")
-
-# define dimensions
-dim.def.nc(ncout, "x", maliau$cell_nx)
-dim.def.nc(ncout, "y", maliau$cell_ny)
-dim.def.nc(ncout, "element", 3)
-var.def.nc(ncout, "x", "NC_FLOAT", "x")
-var.def.nc(ncout, "y", "NC_FLOAT", "y")
-var.def.nc(ncout, "element", "NC_STRING", "element")
-att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
-att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
-var.put.nc(
-  ncout,
-  "x",
-  as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
-)
-var.put.nc(
-  ncout,
-  "y",
-  as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
-)
-var.put.nc(ncout, "element", c("C", "N", "P"))
-
-# define variables
-soil_vars <- soil_meta_df$variable
-for (i in soil_vars) {
-  if (str_detect(i, "_cnp_")) {
-    var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y", "element")))
-  } else {
-    var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y")))
-  }
-  # add units
-  # more metadata can be added here
-  att.put.nc(
-    ncout,
-    i,
-    "units",
-    "NC_CHAR",
-    soil_meta_df$unit[soil_meta_df$variable == i]
   )
-}
 
-# convert dataframe to arrays
-# note that I am explicitly using rev() to reverse the order of the element
-# dimension here in R so in Python it is ordered in the 'right' way
-array_list <- vector("list", length(soil_vars))
-names(array_list) <- soil_vars
-for (i in soil_vars) {
-  if (str_detect(i, "_cnp_")) {
-    triplet_tmp <- do.call(rbind, dat[[i]])
-    array_list[[i]] <-
-      array(triplet_tmp, dim = rev(c(maliau$cell_nx, maliau$cell_ny, 3)))
-  } else {
-    array_list[[i]] <-
-      array(dat[[i]], dim = rev(c(maliau$cell_nx, maliau$cell_ny)))
-  }
-}
-
-# put variables from arrays to netCDF
-for (i in soil_vars) {
-  var.put.nc(ncout, i, array_list[[i]])
-}
-
-# add global attributes
-att.put.nc(
-  ncout,
-  "NC_GLOBAL",
-  "description",
-  "NC_CHAR",
-  "Soil data for the Maliau scenario"
+# convert data to netCDF
+convert_df_to_nc(
+  data = dat,
+  filename = "data/scenarios/maliau/maliau_1/data/soil_maliau.nc",
+  x = maliau$cell_x_centres,
+  y = maliau$cell_y_centres,
+  element = c("C", "N", "P"),
+  variables = soil_meta_df$variable,
+  units = soil_meta_df$unit,
+  description = "Soil data for the Maliau scenario"
 )
-
-# Get a summary of the created file
-print.nc(ncout)
-
-# close the file, writing data to disk
-close.nc(ncout)

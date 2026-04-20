@@ -108,7 +108,9 @@ elev <-
 
 # Topography
 topo <-
-  rast("data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif")
+  rast(
+    "data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif"
+  )
 
 # Climate
 # Not included now
@@ -132,7 +134,7 @@ evi <-
 
 # Location details
 maliau <-
-  parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
 # fill in missing coordinates
 extra_locations <-
   tribble(
