@@ -44,6 +44,7 @@ library(RNetCDF)
 library(tidync)
 library(purrr)
 source("analysis/soil/initialisation/convert_array_to_nc.R")
+source("analysis/soil/initialisation/subset_nc.R")
 
 
 # Maliau site metadata ----------------------------------------------------
@@ -59,32 +60,16 @@ ur_y <- maliau_subset$ur_y
 
 # Subset input data ------------------------------------------------------
 
-litter_subset <-
-  tidync("data/scenarios/maliau/maliau_1/data/litter_maliau.nc") |>
-  hyper_filter(
-    x = x > ll_x & x < ur_x,
-    y = y > ll_y & y < ur_y
-  )
-litter_subset_3D <-
-  litter_subset |>
-  activate("D2,D1,D0") |>
-  hyper_array()
-litter_subset_2D <-
-  litter_subset |>
-  activate("D1,D0") |>
-  hyper_array()
-litter_subset_array <- c(litter_subset_3D, litter_subset_2D)
-
-
-# Output subset data -----------------------------------------------------
-
-ncout <-
-  convert_array_to_nc(
-    array = litter_subset_array,
-    filename = "data/scenarios/maliau/maliau_2/data/litter_maliau.nc",
-    description = "Litter data for the Maliau 2 scenario",
-    close.nc = FALSE
-  )
+ncout <- subset_nc(
+  nc = "data/scenarios/maliau/maliau_1/data/litter_maliau.nc",
+  ll_x = ll_x,
+  ll_y = ll_y,
+  ur_x = ur_x,
+  ur_y = ur_y,
+  filename = "data/scenarios/maliau/maliau_2/data/litter_maliau.nc",
+  description = "Litter data for the Maliau 2 scenario",
+  close.nc = FALSE
+)
 
 # add units
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
