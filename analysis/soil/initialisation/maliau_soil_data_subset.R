@@ -43,6 +43,7 @@ library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
+source("analysis/soil/initialisation/subset_nc.R")
 source("analysis/soil/initialisation/convert_array_to_nc.R")
 
 
@@ -59,45 +60,16 @@ ur_y <- maliau_subset$ur_y
 
 # Subset input data ------------------------------------------------------
 
-soil_subset <-
-  tidync("data/scenarios/maliau/maliau_1/data/soil_maliau.nc") |>
-  hyper_filter(
-    x = x > ll_x & x < ur_x,
-    y = y > ll_y & y < ur_y
-  )
-
-non_vars <- c(
-  "x",
-  "y",
-  "element",
-  "cell_id",
-  "pft",
-  "time_index",
-  "valid_time",
-  "expver"
+ncout <- subset_nc(
+  nc = "data/scenarios/maliau/maliau_1/data/soil_maliau.nc",
+  ll_x = ll_x,
+  ll_y = ll_y,
+  ur_x = ur_x,
+  ur_y = ur_y,
+  filename = "data/scenarios/maliau/maliau_2/data/soil_maliau.nc",
+  description = "Soil data for the Maliau 2 scenario",
+  close.nc = FALSE
 )
-
-soil_vars <- setdiff(soil_subset$variable$name, non_vars)
-soil_subset_array <- vector("list", length(soil_vars))
-names(soil_subset_array) <- soil_vars
-for (var in soil_vars) {
-  soil_subset_array[[var]] <-
-    soil_subset |>
-    activate(var) |>
-    hyper_array(drop = FALSE)
-  soil_subset_array[[var]] <- soil_subset_array[[var]][[1]]
-}
-
-
-# Output subset data -----------------------------------------------------
-
-ncout <-
-  convert_array_to_nc(
-    array = soil_subset_array,
-    filename = "data/scenarios/maliau/maliau_2/data/soil_maliau.nc",
-    description = "Soil data for the Maliau 2 scenario",
-    close.nc = FALSE
-  )
 
 # add units
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
