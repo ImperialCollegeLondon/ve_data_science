@@ -1,3 +1,19 @@
+#' Convert a list of input arrays to netCDF used by the Virtual Ecosystem
+#'
+#' Generate input data in netCDF format for the Virtual Ecosystem from a list
+#' of arrays. In principle this function should work across modules.
+#'
+#' @param array A *list* of arrays containing the input variables.
+#' @param filename Filename of the netCDF output.
+#' @param description Optional. A character string describing the data. If
+#'   this is supplied, it will be used in the description field in the global
+#'   attribute of the output netCDF file.
+#' @param close.nc Logical. Whether to close the netCDF connection. Defaults to
+#'   TRUE. Set to FALSE to add additional data manually before closing the
+#'   connection.
+#'
+#' @returns A netCDF file written to disk as per filename when close.nc is TRUE.
+
 convert_array_to_nc <- function(
   array,
   filename,
