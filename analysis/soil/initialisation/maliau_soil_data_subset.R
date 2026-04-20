@@ -65,15 +65,28 @@ soil_subset <-
     x = x > ll_x & x < ur_x,
     y = y > ll_y & y < ur_y
   )
-soil_subset_3D <-
-  soil_subset |>
-  activate("D2,D1,D0") |>
-  hyper_array()
-soil_subset_2D <-
-  soil_subset |>
-  activate("D1,D0") |>
-  hyper_array()
-soil_subset_array <- c(soil_subset_3D, soil_subset_2D)
+
+non_vars <- c(
+  "x",
+  "y",
+  "element",
+  "cell_id",
+  "pft",
+  "time_index",
+  "valid_time",
+  "expver"
+)
+
+soil_vars <- setdiff(soil_subset$variable$name, non_vars)
+soil_subset_array <- vector("list", length(soil_vars))
+names(soil_subset_array) <- soil_vars
+for (var in soil_vars) {
+  soil_subset_array[[var]] <-
+    soil_subset |>
+    activate(var) |>
+    hyper_array(drop = FALSE)
+  soil_subset_array[[var]] <- soil_subset_array[[var]][[1]]
+}
 
 
 # Output subset data -----------------------------------------------------
