@@ -7,7 +7,8 @@ description: |
   them as multiple scenarios within a single TOML file.
 
   Each scenario (e.g., maliau_1, maliau_2) is defined by a user-specified geographic
-  bounding box (WGS84), grid resolution (meters), and grid dimensions (cell_nx, cell_ny).
+  bounding box (WGS84), grid resolution (meters), and grid dimensions
+  (cell_nx, cell_ny).
 
   The workflow:
     1. Converts geographic coordinates (WGS84) to UTM Zone 50N
@@ -79,6 +80,7 @@ from shapely.ops import transform
 
 
 def get_all_configs():
+    """Return predefined grid configurations."""
     return {
         "maliau_1": {
             "cell_nx": 50,
@@ -96,6 +98,7 @@ def get_all_configs():
 
 
 def get_grid_config(grid_name: str):
+    """Return the configuration dictionary for a given grid scenario."""
     configs = get_all_configs()
     if grid_name not in configs:
         raise ValueError(f"Invalid grid_name: {grid_name}")
@@ -116,6 +119,7 @@ def get_grid_config(grid_name: str):
 
 
 def build_grid_definition(config):
+    """Build a grid definition dictionary from a given configuration."""
     # Extract parameters
     cell_nx = config["cell_nx"]  # Number of grid cells in X direction
     cell_ny = config["cell_ny"]  # Number of grid cells in Y direction
@@ -124,8 +128,10 @@ def build_grid_definition(config):
         "bbox"
     ]  # Bounding box in WGS84 geographic coordinates
 
-    # Define projection systems and transformation functions between WGS84 and UTM Zone50N
-    # - WGS84 (EPSG:4326): Geographic coordinate system using latitude and longitude (deg)
+    # Define projection systems and transformation functions between WGS84
+    # and UTM Zone50N
+    # - WGS84 (EPSG:4326): Geographic coordinate system using latitude
+    #   and longitude (deg)
     # - UTM Zone 50N (EPSG:32650): Projected coordinate system in meters
     wgs84 = pyproj.Proj("epsg:4326")
     utm50 = pyproj.Proj("epsg:32650")
@@ -205,6 +211,7 @@ def build_grid_definition(config):
 
 
 def write_all_scenarios(data, output_path):
+    """Write all grid scenarios to a TOML file."""
     with open(output_path, "wb") as f:
         f.write(b"[Scenario]\n")
 
@@ -235,9 +242,8 @@ def write_all_scenarios(data, output_path):
 # Generate and write a grid scenario to the TOML file.
 # Loads existing scenarios, prevents overwriting, and ensures
 # a complete VE-compatible TOML structure.
-
-
 def run(grid_name):
+    """Generate and save a grid scenario to the TOML file."""
     # Output file path
     output_path = "../../../data/derived/sites/maliau_grid_definition.toml"
 
