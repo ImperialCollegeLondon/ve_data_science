@@ -5,6 +5,7 @@ library(tidync)
 library(purrr)
 source("analysis/soil/initialisation/convert_array_to_nc.R")
 source("analysis/soil/initialisation/subset_nc.R")
+source("analysis/soil/sensitivity/cell_id_to_xy.R")
 
 
 # Maliau site metadata ----------------------------------------------------
@@ -81,8 +82,17 @@ for (j in seq_along(ur_y)) {
   )
 
   # plant
+  # needs a special treatment to convert them from cell_id-based to xy-based
+  # to be used in the same functions above
+  cell_id_to_xy(
+    nc = "data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_10x10.nc",
+    x = maliau_subset$cell_x_centres,
+    y = maliau_subset$cell_y_centres,
+    filename = "data/scenarios/runtime_per_cell/data/plant_input_data_maliau_10x10_xy.nc",
+    return = TRUE
+  )
   subset_nc(
-    nc = "data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc",
+    nc = "data/scenarios/runtime_per_cell/data/plant_input_data_maliau_10x10_xy.nc",
     ll_x = ll_x,
     ll_y = ll_y,
     ur_x = ur_x,
@@ -94,3 +104,35 @@ for (j in seq_along(ur_y)) {
     )
   )
 }
+
+# Subset plant cohort
+# NB: For plant I could match cell_id to the netCDF subsets in the loop above
+# but I decided to simply fix the plant cohort to the same so we remove an
+# extra moving part from this exercise (though as of now plant cohorts are the
+# same across cells)
+plant_cohort <-
+  read_csv(
+    "data/scenarios/maliau/maliau_2/data/plant_cohort_data_maliau_10x10.csv"
+  ) |>
+  filter(plant_cohorts_cell_id == 0)
+write_csv(
+  plant_cohort,
+  "data/scenarios/runtime_per_cell/data/plant_cohort_data_maliau.csv"
+)
+
+# Copy over the remaining input data that do not require to vary cell number
+copy_dir <- "data/scenarios/maliau/maliau_2/data/"
+paste_dir <- "data/scenarios/runtime_per_cell/data/"
+files_to_copy <- c(
+  "animal_functional_groups_Maliau_level1.csv",
+  "plant_constants_Maliau_10x10.csv",
+  "plant_pft_definitions_maliau_10x10.csv"
+)
+file.copy(paste0(copy_dir, files_to_copy), paste_dir)
+
+
+# Generate config files --------------------------------------------------
+
+config_template <- parseTOML(
+  "data/scenarios/maliau/maliau_2/config/data_config.toml"
+)
