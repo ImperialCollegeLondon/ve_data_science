@@ -61,7 +61,6 @@
 #|   This script prepares the final version of the plant input data for Maliau.
 #| ---
 
-
 # Load packages
 
 library(tidyverse)
@@ -104,7 +103,8 @@ plant_pft_definitions_Maliau_10x10 <- t_model_parameters # nolint
 # Exclude root_exudates, per_stem_annual_mortality_probability and
 # per_propagule_annual_recruitment_probability
 
-plant_pft_definitions_Maliau_10x10 <- subset( # nolint
+plant_pft_definitions_Maliau_10x10 <- subset(
+  # nolint
   plant_pft_definitions_Maliau_10x10,
   select = -c(
     root_exudates,
@@ -138,7 +138,6 @@ plant_pft_definitions_Maliau_10x10 <- subset( # nolint
 # q_m ADD default
 # z_max_prop ADD default
 # gpp_topslice ADD default
-
 
 # p_foliage_for_reproductive_tissue ADD from reproductive_tissue_allocation
 
@@ -211,7 +210,8 @@ write.csv(
 # Prepare plant_constants_Maliau_10x10
 
 # Start from subcanopy_parameters
-plant_constants_Maliau_10x10 <- subset(subcanopy_parameters,
+plant_constants_Maliau_10x10 <- subset(
+  subcanopy_parameters,
   select = -c(
     subcanopy_vegetation_biomass,
     subcanopy_seedbank_biomass

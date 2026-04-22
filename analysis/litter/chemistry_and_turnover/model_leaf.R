@@ -114,9 +114,9 @@ litter_s <-
 # sampled efficiency
 form <-
   bf(xt ~ eta) +
-  # nlf(eta ~ log(metabolic + structural)) +        # nolint
-  # nlf(metabolic ~ fm * exp(-km * time)) +         # nolint
-  # nlf(structural ~ (1 - fm) * exp(-ks * time)) +  # nolint
+  # nlf(eta ~ log(metabolic + structural)) +
+  # nlf(metabolic ~ fm * exp(-km * time)) +
+  # nlf(structural ~ (1 - fm) * exp(-ks * time)) +
   nlf(eta ~ log_x0 + log_sum_exp(logmetabolic, logstructural)) +
   nlf(logmetabolic ~ log(fm) - km * time) +
   nlf(logstructural ~ log1m(fm) - ks * time) +

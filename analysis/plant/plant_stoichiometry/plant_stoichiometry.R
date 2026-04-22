@@ -67,7 +67,6 @@
 #|   This script can be expanded when additional biomass pools are added to the model.
 #| ---
 
-
 # Load packages
 
 library(readxl)
@@ -77,12 +76,14 @@ library(stringr)
 
 # Load PFT species classification base and clean up a bit
 
-PFT_species_classification_base <- read.csv( # nolint
+PFT_species_classification_base <- read.csv(
+  # nolint
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[ # nolint
+PFT_species_classification_base <- PFT_species_classification_base[
+  # nolint
   ,
   c("PFT", "PFT_name", "TaxaName")
 ]
@@ -237,15 +238,23 @@ data <- data[, c(1:9, 86, 10:85)]
 ##########
 
 names(data)
-temp <- data[
-  , c(
-    "species", "C_perc", "N_perc", "total_P_mg.g",
-    "lignin_recalcitrants_perc", "dry_weight_g_mean"
+temp <- data[,
+  c(
+    "species",
+    "C_perc",
+    "N_perc",
+    "total_P_mg.g",
+    "lignin_recalcitrants_perc",
+    "dry_weight_g_mean"
   )
 ]
 colnames(temp) <- c(
-  "species", "C_total", "N_total", "P_total",
-  "lignin", "dry_weight"
+  "species",
+  "C_total",
+  "N_total",
+  "P_total",
+  "lignin",
+  "dry_weight"
 )
 
 temp$C_total <- as.numeric(temp$C_total)
@@ -311,7 +320,9 @@ leaf_ratios <- unique(temp$species)
 for (id in leaf_ratios) {
   data$CN_leaf_mean[data$species == id] <- temp$CN_leaf_mean[temp$species == id]
   data$CP_leaf_mean[data$species == id] <- temp$CP_leaf_mean[temp$species == id]
-  data$lignin_leaf_mean[data$species == id] <- temp$lignin_leaf_mean[temp$species == id]
+  data$lignin_leaf_mean[data$species == id] <- temp$lignin_leaf_mean[
+    temp$species == id
+  ]
 }
 
 # Because the ratios are calculated for each species, this allows calculation of
@@ -326,12 +337,16 @@ mean(temp$lignin_leaf_mean)
 # Link leaf stoichiometry dataset to base PFT species classification
 
 # Match by species first
-data1 <- left_join(data, PFT_species_classification_base,
+data1 <- left_join(
+  data,
+  PFT_species_classification_base,
   by = c("species" = "TaxaName")
 )
 
 # Match by genus only for rows where PFT is still NA
-data2 <- left_join(data, PFT_species_classification_base,
+data2 <- left_join(
+  data,
+  PFT_species_classification_base,
   by = c("genus" = "TaxaName")
 )
 
@@ -347,8 +362,14 @@ data$PFT_name <- ifelse(!is.na(data1$PFT_name), data1$PFT_name, data2$PFT_name)
 names(data)
 
 plot_data <- data[, c(
-  "location", "forest_type", "sample_code", "PFT",
-  "PFT_name", "species", "CN_leaf_mean", "CP_leaf_mean",
+  "location",
+  "forest_type",
+  "sample_code",
+  "PFT",
+  "PFT_name",
+  "species",
+  "CN_leaf_mean",
+  "CP_leaf_mean",
   "lignin_leaf_mean"
 )]
 plot_data <- na.omit(plot_data)
@@ -358,18 +379,26 @@ plot_data$forest_type <- as.factor(plot_data$forest_type)
 
 # CN_leaf_mean
 
-ggplot(plot_data, aes(
-  x = sample_code, y = CN_leaf_mean,
-  color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = sample_code,
+    y = CN_leaf_mean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "CN_leaf_mean") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = CN_leaf_mean,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = CN_leaf_mean,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "CN_leaf_mean") +
@@ -408,18 +437,26 @@ summary$CN_leaf_mean_SD[summary$PFT == "4"] <-
 
 # CP_leaf_mean
 
-ggplot(plot_data, aes(
-  x = sample_code, y = CP_leaf_mean,
-  color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = sample_code,
+    y = CP_leaf_mean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "CP_leaf_mean") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = CP_leaf_mean,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = CP_leaf_mean,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "CP_leaf_mean") +
@@ -458,18 +495,26 @@ summary$CP_leaf_mean_SD[summary$PFT == "4"] <-
 
 # lignin_leaf_mean
 
-ggplot(plot_data, aes(
-  x = sample_code,
-  y = lignin_leaf_mean, color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = sample_code,
+    y = lignin_leaf_mean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "lignin_leaf_mean") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = lignin_leaf_mean,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = lignin_leaf_mean,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "lignin_leaf_mean") +
@@ -542,12 +587,33 @@ kitayama_litter_stoichiometry <- read_excel(
 
 colnames(kitayama_litter_stoichiometry) <- kitayama_litter_stoichiometry[2, ]
 
-kitayama_litter_stoichiometry_C <- kitayama_litter_stoichiometry[c(28:36), c(1, 2, 3)] # nolint
-colnames(kitayama_litter_stoichiometry_C) <- c("site", "leaf_C", "reproductive_organ_C") # nolint
-kitayama_litter_stoichiometry_N <- kitayama_litter_stoichiometry[c(15:23), c(1, 2, 3)] # nolint
-colnames(kitayama_litter_stoichiometry_N) <- c("site", "leaf_N", "reproductive_organ_N") # nolint
-kitayama_litter_stoichiometry_P <- kitayama_litter_stoichiometry[c(3:11), c(1, 2, 3)] # nolint
-colnames(kitayama_litter_stoichiometry_P) <- c("site", "leaf_P", "reproductive_organ_P") # nolint
+kitayama_litter_stoichiometry_C <- kitayama_litter_stoichiometry[
+  c(28:36),
+  c(1, 2, 3)
+] # nolint
+colnames(kitayama_litter_stoichiometry_C) <- c(
+  "site",
+  "leaf_C",
+  "reproductive_organ_C"
+) # nolint
+kitayama_litter_stoichiometry_N <- kitayama_litter_stoichiometry[
+  c(15:23),
+  c(1, 2, 3)
+] # nolint
+colnames(kitayama_litter_stoichiometry_N) <- c(
+  "site",
+  "leaf_N",
+  "reproductive_organ_N"
+) # nolint
+kitayama_litter_stoichiometry_P <- kitayama_litter_stoichiometry[
+  c(3:11),
+  c(1, 2, 3)
+] # nolint
+colnames(kitayama_litter_stoichiometry_P) <- c(
+  "site",
+  "leaf_P",
+  "reproductive_organ_P"
+) # nolint
 
 # Merge together
 
@@ -573,9 +639,11 @@ kitayama_litter_stoichiometry$reproductive_organ_P <-
 # compared with our other measure of leaf stoichiometry
 
 kitayama_litter_stoichiometry$reproductive_organ_CN <-
-  kitayama_litter_stoichiometry$reproductive_organ_C / kitayama_litter_stoichiometry$reproductive_organ_N # nolint
+  kitayama_litter_stoichiometry$reproductive_organ_C /
+  kitayama_litter_stoichiometry$reproductive_organ_N # nolint
 kitayama_litter_stoichiometry$reproductive_organ_CP <-
-  kitayama_litter_stoichiometry$reproductive_organ_C / kitayama_litter_stoichiometry$reproductive_organ_P # nolint
+  kitayama_litter_stoichiometry$reproductive_organ_C /
+  kitayama_litter_stoichiometry$reproductive_organ_P # nolint
 
 kitayama_litter_stoichiometry$leaf_CN <-
   kitayama_litter_stoichiometry$leaf_C / kitayama_litter_stoichiometry$leaf_N
@@ -788,18 +856,34 @@ summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
 summary$lignin_leaf_mean <- as.numeric(summary$lignin_leaf_mean)
 summary$CN_senesced_leaf_mean <- as.numeric(summary$CN_senesced_leaf_mean)
 summary$CP_senesced_leaf_mean <- as.numeric(summary$CP_senesced_leaf_mean)
-summary$lignin_senesced_leaf_mean <- as.numeric(summary$lignin_senesced_leaf_mean)
+summary$lignin_senesced_leaf_mean <- as.numeric(
+  summary$lignin_senesced_leaf_mean
+)
 
 names(summary)
 summary <- summary[, c(
-  "PFT_name", "CN_sapwood_mean", "CP_sapwood_mean", "stem_lignin",
-  "CN_leaf_mean", "CP_leaf_mean", "lignin_leaf_mean",
-  "CN_senesced_leaf_mean", "CP_senesced_leaf_mean", "lignin_senesced_leaf_mean",
-  "reproductive_organ_CN", "reproductive_organ_CP",
-  "mature_fruit_CN", "mature_fruit_CP", "mature_fruit_C_mass",
-  "seed_C_mass", "seed_lignin",
-  "flower_CN", "flower_CP",
-  "fine_root_CN", "fine_root_CP", "fine_root_lignin"
+  "PFT_name",
+  "CN_sapwood_mean",
+  "CP_sapwood_mean",
+  "stem_lignin",
+  "CN_leaf_mean",
+  "CP_leaf_mean",
+  "lignin_leaf_mean",
+  "CN_senesced_leaf_mean",
+  "CP_senesced_leaf_mean",
+  "lignin_senesced_leaf_mean",
+  "reproductive_organ_CN",
+  "reproductive_organ_CP",
+  "mature_fruit_CN",
+  "mature_fruit_CP",
+  "mature_fruit_C_mass",
+  "seed_C_mass",
+  "seed_lignin",
+  "flower_CN",
+  "flower_CP",
+  "fine_root_CN",
+  "fine_root_CP",
+  "fine_root_lignin"
 )]
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary) # nolint
@@ -807,15 +891,28 @@ rownames(summary) <- 1:nrow(summary) # nolint
 # Change variable names to match those used in the VE
 names(summary)
 colnames(summary) <- c(
-  "name", "deadwood_c_n_ratio", "deadwood_c_p_ratio", "stem_lignin",
-  "foliage_c_n_ratio", "foliage_c_p_ratio", "leaf_lignin",
-  "leaf_turnover_c_n_ratio", "leaf_turnover_c_p_ratio", "senesced_leaf_lignin",
+  "name",
+  "deadwood_c_n_ratio",
+  "deadwood_c_p_ratio",
+  "stem_lignin",
+  "foliage_c_n_ratio",
+  "foliage_c_p_ratio",
+  "leaf_lignin",
+  "leaf_turnover_c_n_ratio",
+  "leaf_turnover_c_p_ratio",
+  "senesced_leaf_lignin",
   "plant_reproductive_tissue_turnover_c_n_ratio",
   "plant_reproductive_tissue_turnover_c_p_ratio",
-  "mature_fruit_c_n_ratio", "mature_fruit_c_p_ratio", "mature_fruit_c_mass",
-  "carbon_mass_per_propagule", "plant_reproductive_tissue_lignin",
-  "flower_c_n_ratio", "flower_c_p_ratio",
-  "root_turnover_c_n_ratio", "root_turnover_c_p_ratio", "root_lignin"
+  "mature_fruit_c_n_ratio",
+  "mature_fruit_c_p_ratio",
+  "mature_fruit_c_mass",
+  "carbon_mass_per_propagule",
+  "plant_reproductive_tissue_lignin",
+  "flower_c_n_ratio",
+  "flower_c_p_ratio",
+  "root_turnover_c_n_ratio",
+  "root_turnover_c_p_ratio",
+  "root_lignin"
 )
 
 # Write CSV file
