@@ -5,7 +5,7 @@
 #|     Generate input data in netCDF format for the Virtual Ecosystem from a list
 #|     of arrays. In principle this function should work across modules.
 #|
-#| virtual_ecosystem_module: Soil, Litter
+#| virtual_ecosystem_module: All
 #|
 #| author: Hao Ran Lai
 #|
@@ -17,8 +17,9 @@
 #|
 #| package_dependencies:
 #|     - RNetCDF
+#|     - purrr
 #|
-#| usage_notes:
+#| usage_notes: See function documentation below.
 #| ---
 
 #' Convert a list of input arrays to netCDF used by the Virtual Ecosystem
@@ -36,11 +37,6 @@
 #'   connection.
 #'
 #' @returns A netCDF file written to disk as per filename when close.nc is TRUE.
-
-# load libraries; this will be added to @importFrom if we turn the functions
-# into a package
-library(RNetCDF)
-library(purrr)
 
 convert_array_to_nc <- function(
   array,

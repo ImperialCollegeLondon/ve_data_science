@@ -1,3 +1,26 @@
+#| ---
+#| title: Subset netCDF data used by the Virtual Ecosystem
+#|
+#| description: |
+#|     Subset netCDF input data using latitudinal and longitudinal limits.
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - RNetCDF
+#|     - purrr
+#|
+#| usage_notes: See function documentation below.
+#| ---
+
 #' Subset netCDF data used by the Virtual Ecosystem
 #'
 #' Subset netCDF input data using latitudinal and longitudinal limits.
@@ -10,9 +33,6 @@
 #' @param ... Additional arguments passed to convert_array_to_nc()
 #'
 #' @returns A subset netCDF file written to disk as per filename when close.nc is TRUE.
-
-# load libraries; to move into @import when this is turned into a package
-require(RNetCDF)
 
 subset_nc <- function(nc, ll_x, ll_y, ur_x, ur_y, ...) {
   # filter data to region of interest
