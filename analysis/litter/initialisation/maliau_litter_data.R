@@ -146,7 +146,6 @@ source("analysis/litter/nutrient_pool/initial_nutrient_aboveground.R")
 
 # predictions, added directly to the dataset
 # NB: the [1, ] index is to extract a Maliau sample site
-# nolint start
 dat <-
   dat |>
   mutate(
@@ -176,7 +175,6 @@ dat <-
     litter_pool_above_structural_p = litter_pool_above_structural_c /
       c_p_ratio_above_structural
   )
-# nolint end
 
 # Second, belowground litter including:
 # lignin_below_structural
@@ -222,7 +220,7 @@ below_litter_sim <-
   ) |>
   # calculate metabolic and structural nutrients
   # see rearranged equation on the litter theory documentation
-  # nolint https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
+  # https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
   mutate(
     c_n_ratio_below_metabolic = CN / (r_century + fm * (1 - r_century)),
     c_p_ratio_below_metabolic = CP / (r_century + fm * (1 - r_century)),
@@ -280,7 +278,6 @@ lignin_sim <-
   lignin_sim * 0.625 / (nutrient_deadwood_sim[, "C_total"] / 100)
 
 # add to the dataset
-# nolint start
 dat <-
   dat |>
   mutate(
@@ -295,7 +292,6 @@ dat <-
     litter_pool_woody_n = litter_pool_woody_c / c_n_ratio_woody,
     litter_pool_woody_p = litter_pool_woody_c / c_p_ratio_woody
   )
-# nolint end
 
 # Combine litter C, N and P stocks into triplets
 dat <-

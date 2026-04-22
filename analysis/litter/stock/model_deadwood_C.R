@@ -93,11 +93,9 @@ deadwood_N <-
 density_file <-
   "data/primary/litter/SAFE_WoodDecomposition_Data_SAFEdatabase_2021-06-04.xlsx"
 deadwood_rho <-
-  # nolint start
   read_xlsx(density_file, sheet = 3, skip = 5) %>%
   # use the first census
   filter(SamplingCampaign == "1st") %>%
-  # nolint end
   # calculate mean density per wood sample
   select(SamplingYear:Tag, starts_with("Density")) %>%
   pivot_longer(
