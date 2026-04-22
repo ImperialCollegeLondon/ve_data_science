@@ -1,3 +1,26 @@
+#| ---
+#| title: Convert a list of input arrays to netCDF used by the Virtual Ecosystem
+#|
+#| description: |
+#|     Generate input data in netCDF format for the Virtual Ecosystem from a list
+#|     of arrays. In principle this function should work across modules.
+#|
+#| virtual_ecosystem_module: Soil, Litter
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - RNetCDF
+#|
+#| usage_notes:
+#| ---
+
 #' Convert a list of input arrays to netCDF used by the Virtual Ecosystem
 #'
 #' Generate input data in netCDF format for the Virtual Ecosystem from a list
@@ -30,9 +53,7 @@ convert_array_to_nc <- function(
   dims <-
     lapply(array, dimnames) |>
     flatten() |>
-    {
-      split(., names(.)) # nolint
-    } |>
+    (\(x) split(x, names(x)))() |>
     map(~ unique(unlist(.x)))
 
   # define dimensions
