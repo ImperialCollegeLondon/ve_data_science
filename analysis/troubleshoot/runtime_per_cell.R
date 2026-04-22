@@ -3,9 +3,12 @@ library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
+library(reticulate)
+use_virtualenv("./ve_release")
 source("analysis/soil/initialisation/convert_array_to_nc.R")
 source("analysis/soil/initialisation/subset_nc.R")
 source("analysis/soil/sensitivity/cell_id_to_xy.R")
+source("utils/build_config.R")
 
 
 # Maliau site metadata ----------------------------------------------------
@@ -133,6 +136,16 @@ file.copy(paste0(copy_dir, files_to_copy), paste_dir)
 
 # Generate config files --------------------------------------------------
 
-config_template <- parseTOML(
-  "data/scenarios/maliau/maliau_2/config/data_config.toml"
+# first generate a template for modification later
+build_config(
+  list(
+    "core",
+    "abiotic_simple",
+    "hydrology",
+    "plants",
+    "animals",
+    "soil",
+    "litter"
+  ),
+  filename = "data/scenarios/runtime_per_cell/config/config_template.toml"
 )
