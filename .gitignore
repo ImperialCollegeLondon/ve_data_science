@@ -18,6 +18,7 @@ data/primary
 # scenario files (inputs for VE)
 # we are going to keep metadata files
 data/scenarios/maliau/maliau_1
+data/scenarios/maliau/maliau_2
 
 # History files
 .Rhistory
