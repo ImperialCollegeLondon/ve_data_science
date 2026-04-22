@@ -14,6 +14,9 @@
 #'
 #' @returns A netCDF file written to disk as per filename when close.nc is TRUE.
 
+# load libraries; to move into @import when this is turned into a package
+require(RNetCDF)
+
 convert_array_to_nc <- function(
   array,
   filename,

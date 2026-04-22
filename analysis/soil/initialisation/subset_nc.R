@@ -11,6 +11,9 @@
 #'
 #' @returns A subset netCDF file written to disk as per filename when close.nc is TRUE.
 
+# load libraries; to move into @import when this is turned into a package
+require(RNetCDF)
+
 subset_nc <- function(nc, ll_x, ll_y, ur_x, ur_y, ...) {
   # filter data to region of interest
   data_subset_array <- subset_array(nc, ll_x, ll_y, ur_x, ur_y)

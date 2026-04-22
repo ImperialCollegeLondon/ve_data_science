@@ -21,8 +21,9 @@
 #'   attribute of the output netCDF file.
 #'
 #' @returns A netCDF file written to disk as per filename.
-#'
-#' @export
+
+# load libraries; to move into @import when this is turned into a package
+require(RNetCDF)
 
 convert_df_to_nc <- function(
   data,
