@@ -35,10 +35,12 @@
 #'   TRUE. Set to FALSE to add additional data manually before closing the
 #'   connection.
 #'
-#' @importFrom RNetCDF create.nc dim.def.nc var.def.nc var.put.nc att.put.nc
-#' @importFrom purrr flatten
-#'
 #' @returns A netCDF file written to disk as per filename when close.nc is TRUE.
+
+# load libraries; this will be added to @importFrom if we turn the functions
+# into a package
+library(RNetCDF)
+library(purrr)
 
 convert_array_to_nc <- function(
   array,
