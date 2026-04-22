@@ -62,7 +62,6 @@
 #|   of each PFT.
 #| ---
 
-
 # Load packages
 
 library(readxl)
@@ -87,20 +86,28 @@ names(data)
 
 # Load PFT species classification maximum height and clean up a bit
 
-PFT_species_classification_maximum_height <- read.csv( # nolint
+PFT_species_classification_maximum_height <- read.csv(
+  # nolint
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_maximum_height.csv", # nolint
   header = TRUE
 )
 
-PFT_species_classification_maximum_height <- PFT_species_classification_maximum_height[ # nolint
+PFT_species_classification_maximum_height <- PFT_species_classification_maximum_height[
+  # nolint
   ,
   c("PFT_final", "PFT_name", "TaxaName")
 ]
-PFT_species_classification_maximum_height <- unique(PFT_species_classification_maximum_height) # nolint
+PFT_species_classification_maximum_height <- unique(
+  PFT_species_classification_maximum_height
+) # nolint
 
 # Add PFT_final and PFT_name to data based on TaxaName and call it data_taxa
 
-data_taxa <- left_join(data, PFT_species_classification_maximum_height, by = "TaxaName")
+data_taxa <- left_join(
+  data,
+  PFT_species_classification_maximum_height,
+  by = "TaxaName"
+)
 
 ####################
 
@@ -111,9 +118,18 @@ backup <- data_taxa
 data_taxa <- backup
 
 data_taxa <- data_taxa[, c(
-  "Block", "Plot", "PlotID", "TagStem_latest",
-  "Family", "Genus", "Species", "TaxaName",
-  "TaxaLevel", "PFT_final", "PFT_name", "HeightTotal_m_2011",
+  "Block",
+  "Plot",
+  "PlotID",
+  "TagStem_latest",
+  "Family",
+  "Genus",
+  "Species",
+  "TaxaName",
+  "TaxaLevel",
+  "PFT_final",
+  "PFT_name",
+  "HeightTotal_m_2011",
   "DBH2011_mm_clean"
 )]
 
@@ -137,11 +153,17 @@ data_taxa$DBH2011_mm_clean <- as.numeric(data_taxa$DBH2011_mm_clean)
 data_taxa$PFT_final[!(data_taxa$PFT_final %in% c(1, 2, 3, 4))] <- "0"
 data_taxa$PFT_name[data_taxa$PFT_final == "0"] <- "unknown"
 
-ggplot(data_taxa, aes(x = TagStem_latest, y = HeightTotal_m_2011, color = PFT_final)) +
+ggplot(
+  data_taxa,
+  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = PFT_final)
+) +
   geom_point() +
   labs(x = "TreeID", y = "Height (m)")
 
-ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_final)) +
+ggplot(
+  data_taxa,
+  aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_final)
+) +
   geom_point() +
   labs(x = "TreeID", y = "DBH (mm)")
 
@@ -168,37 +190,49 @@ nrow(data_taxa_without_PFT)
 # The difference is the amount of trees with PFT, across all plots
 nrow(data_taxa) - nrow(data_taxa_without_PFT)
 
-plot(as.factor(data_taxa_without_PFT$Block),
-  xlab = "Block", ylab = "Trees without PFT"
+plot(
+  as.factor(data_taxa_without_PFT$Block),
+  xlab = "Block",
+  ylab = "Trees without PFT"
 )
 # OG1, OG2 and OG3 seem relatively good to use
 # A-F have quite a lot of missing values
 
-plot(as.factor(data_taxa_without_PFT$PlotID),
-  xlab = "Block", ylab = "Trees without PFT"
+plot(
+  as.factor(data_taxa_without_PFT$PlotID),
+  xlab = "Block",
+  ylab = "Trees without PFT"
 )
 
 plot(
-  as.factor(data_taxa_without_PFT$PlotID[data_taxa_without_PFT$Block
-    %in% c("OG1", "OG2", "OG3")]), # nolint
-  xlab = "PlotID", ylab = "Trees without PFT"
+  as.factor(data_taxa_without_PFT$PlotID[
+    data_taxa_without_PFT$Block %in% c("OG1", "OG2", "OG3")
+  ]), # nolint
+  xlab = "PlotID",
+  ylab = "Trees without PFT"
 )
 
 # Remove trees without PFT assigned
 data_taxa_with_PFT <- drop_na(data_taxa, PFT_final) # nolint
 
-plot(as.factor(data_taxa_with_PFT$Block),
-  xlab = "Block", ylab = "Trees with PFT"
-)
-
-plot(as.factor(data_taxa_with_PFT$PlotID),
-  xlab = "PlotID", ylab = "Trees with PFT"
+plot(
+  as.factor(data_taxa_with_PFT$Block),
+  xlab = "Block",
+  ylab = "Trees with PFT"
 )
 
 plot(
-  as.factor(data_taxa_with_PFT$PlotID[data_taxa_with_PFT$Block
-    %in% c("OG1", "OG2", "OG3")]), # nolint
-  xlab = "PlotID", ylab = "Trees with PFT"
+  as.factor(data_taxa_with_PFT$PlotID),
+  xlab = "PlotID",
+  ylab = "Trees with PFT"
+)
+
+plot(
+  as.factor(data_taxa_with_PFT$PlotID[
+    data_taxa_with_PFT$Block %in% c("OG1", "OG2", "OG3")
+  ]), # nolint
+  xlab = "PlotID",
+  ylab = "Trees with PFT"
 )
 
 ##########
@@ -226,11 +260,17 @@ data_taxa <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 
 data_taxa <- drop_na(data_taxa, DBH2011_mm_clean)
 
-ggplot(data_taxa, aes(x = TagStem_latest, y = HeightTotal_m_2011, color = PFT_final)) +
+ggplot(
+  data_taxa,
+  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = PFT_final)
+) +
   geom_point() +
   labs(x = "TreeID", y = "Height (m)")
 
-ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_final)) +
+ggplot(
+  data_taxa,
+  aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_final)
+) +
   geom_point() +
   labs(x = "TreeID", y = "DBH (mm)")
 
@@ -240,9 +280,7 @@ ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_fina
 # representativeness of the OG plots relative to the literature
 
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
-plot(as.factor(check$Block),
-  xlab = "Block", ylab = "Trees in OG blocks"
-)
+plot(as.factor(check$Block), xlab = "Block", ylab = "Trees in OG blocks")
 unique(check$PlotID)
 
 OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
@@ -277,11 +315,16 @@ mean(c(OG1_density, OG2_density, OG3_density))
 # Narrow down to DBH for each PFT
 
 names(data_taxa)
-data_taxa <- data_taxa[
-  ,
+data_taxa <- data_taxa[,
   c(
-    "Block", "Plot", "PlotID", "TagStem_latest",
-    "PFT_final", "PFT_name", "HeightTotal_m_2011", "DBH2011_mm_clean"
+    "Block",
+    "Plot",
+    "PlotID",
+    "TagStem_latest",
+    "PFT_final",
+    "PFT_name",
+    "HeightTotal_m_2011",
+    "DBH2011_mm_clean"
   )
 ]
 
@@ -301,7 +344,8 @@ data_taxa$dbh <- NA
 # 100 and smaller than or equal to 200
 dbh_intervals <- c(0, seq(100, max_dbh + 100, 100))
 dbh_midpoints <- c(100, seq(150, max_dbh + 50, 100))
-data_taxa$dbh <- cut(data_taxa$DBH2011_mm_clean,
+data_taxa$dbh <- cut(
+  data_taxa$DBH2011_mm_clean,
   breaks = dbh_intervals,
   labels = dbh_midpoints
 )
@@ -310,19 +354,25 @@ data_taxa$dbh <- as.numeric(as.character(data_taxa$dbh))
 # Prepare data_taxa for saving
 
 names(data_taxa)
-data_taxa <- data_taxa[
-  ,
+data_taxa <- data_taxa[,
   c("Block", "Plot", "PlotID", "TagStem_latest", "PFT_final", "PFT_name", "dbh")
 ]
 colnames(data_taxa) <- c(
-  "Block", "Plot", "PlotID", "TagStem_latest", "PFT_final",
-  "PFT_name", "DBH_class"
+  "Block",
+  "Plot",
+  "PlotID",
+  "TagStem_latest",
+  "PFT_final",
+  "PFT_name",
+  "DBH_class"
 )
 
 data_taxa <- data_taxa[
   order(
-    data_taxa$Block, data_taxa$Plot,
-    data_taxa$PFT_final, data_taxa$DBH_class
+    data_taxa$Block,
+    data_taxa$Plot,
+    data_taxa$PFT_final,
+    data_taxa$DBH_class
   ),
 ]
 
@@ -348,9 +398,7 @@ write.csv(
 # Standardising OG cohort distribution per hectare
 
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
-plot(as.factor(check$Block),
-  xlab = "Block", ylab = "Trees in OG blocks"
-)
+plot(as.factor(check$Block), xlab = "Block", ylab = "Trees in OG blocks")
 unique(check$PlotID)
 
 OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
@@ -373,8 +421,9 @@ data_taxa <- data_taxa %>%
 # Calculate the count of individuals with (un)known PFTs
 
 data_taxa$PFT_known <-
-  nrow(data_taxa[data_taxa$PFT_name
-    %in% c("emergent", "overstory", "pioneer", "understory"), ]) # nolint
+  nrow(data_taxa[
+    data_taxa$PFT_name %in% c("emergent", "overstory", "pioneer", "understory"),
+  ]) # nolint
 data_taxa$PFT_unknown <-
   nrow(data_taxa[data_taxa$PFT_name %in% c("unknown"), ])
 data_taxa$PFT_total <- data_taxa$PFT_known + data_taxa$PFT_unknown
@@ -393,10 +442,17 @@ before <- unique(before)
 after <- unique(after)
 
 sum(before$plant_cohorts_n)
-sum(after$plant_cohorts_n_corrected[after$PFT_name %in% c("emergent", "overstory", "understory", "pioneer")]) # nolint
+sum(after$plant_cohorts_n_corrected[
+  after$PFT_name %in% c("emergent", "overstory", "understory", "pioneer")
+]) # nolint
 
 after_check <-
-  data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n", "plant_cohorts_n_corrected")] # nolint
+  data_taxa[, c(
+    "PFT_name",
+    "DBH_class",
+    "plant_cohorts_n",
+    "plant_cohorts_n_corrected"
+  )] # nolint
 data_taxa$plant_cohorts_n_corrected[data_taxa$PFT_name == "unknown"] <- 0
 
 ###
@@ -417,21 +473,25 @@ data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n * 10000
 # Clean up summary
 
 data_taxa <-
-  data_taxa[
-    ,
+  data_taxa[,
     c("plant_cohorts_n", "PFT_name", "DBH_class")
   ]
 data_taxa <- unique(data_taxa)
 
 data_taxa <- data_taxa[
   order(
-    data_taxa$PFT_name, data_taxa$DBH_class
+    data_taxa$PFT_name,
+    data_taxa$DBH_class
   ),
 ]
 
 # Rename variables to match VE
 names(data_taxa)
-colnames(data_taxa) <- c("plant_cohorts_n", "plant_cohorts_pft", "plant_cohorts_dbh")
+colnames(data_taxa) <- c(
+  "plant_cohorts_n",
+  "plant_cohorts_pft",
+  "plant_cohorts_dbh"
+)
 
 # Quick check of total stem density per hectare (to compare with literature)
 # Original stem density from SAFE census data was 558 per hectare
@@ -451,7 +511,9 @@ write.csv(
 
 # Exploring the variability in PFT cohort distribution across plots
 
-data_taxa <- read.csv("../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution.csv") # nolint
+data_taxa <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution.csv"
+) # nolint
 data <- data_taxa
 names(data)
 

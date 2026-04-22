@@ -63,19 +63,23 @@ litter_stocks <-
     stock = P_structural
   ) %>%
   # aggregate to VE litter pools
-  mutate(pool = case_match(
-    pool_raw,
-    "twig and branch" ~ "wood",
-    "deadwood" ~ "wood",
-    .default = pool_raw
-  )) %>%
+  mutate(
+    pool = case_match(
+      pool_raw,
+      "twig and branch" ~ "wood",
+      "deadwood" ~ "wood",
+      .default = pool_raw
+    )
+  ) %>%
   group_by(pool) %>%
   summarise(stock = sum(stock)) %>%
   # add a column of methodology
-  mutate(method = case_when(
-    str_detect(pool, "belowground") ~ "equilibrium",
-    .default = "field"
-  ))
+  mutate(
+    method = case_when(
+      str_detect(pool, "belowground") ~ "equilibrium",
+      .default = "field"
+    )
+  )
 
 # save output
 write_csv(

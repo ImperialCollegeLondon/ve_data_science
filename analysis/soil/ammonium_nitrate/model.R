@@ -39,7 +39,6 @@
 #|   hold until 25 cm. We may want to revisit this assumption later.
 #| ---
 
-
 library(tidyverse)
 library(readxl)
 library(lubridate)
@@ -51,7 +50,8 @@ library(glmmTMB)
 
 # soil bulk density dataset
 one_off <-
-  read_excel("data/primary/soil/gas_flux/3_GHG_jdrewer.xlsx",
+  read_excel(
+    "data/primary/soil/gas_flux/3_GHG_jdrewer.xlsx",
     sheet = 3,
     skip = 5
   ) %>%
@@ -60,7 +60,8 @@ one_off <-
 
 # soil flux dataset to get ammonium and nitrate measurements
 flux <-
-  read_excel("data/primary/soil/gas_flux/3_GHG_jdrewer.xlsx",
+  read_excel(
+    "data/primary/soil/gas_flux/3_GHG_jdrewer.xlsx",
     sheet = 4,
     skip = 5,
     col_types = c(

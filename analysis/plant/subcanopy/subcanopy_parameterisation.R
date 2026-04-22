@@ -128,14 +128,14 @@ dobert_2017_plot_species_data <- dobert_2017_plot_species_data[160:180, ]
 # Subset to taxa of interest
 
 dobert_2017_plot_species_data <-
-  dobert_2017_plot_species_data[
-    , c("X", taxa[taxa %in% colnames(dobert_2017_plot_species_data)])
+  dobert_2017_plot_species_data[,
+    c("X", taxa[taxa %in% colnames(dobert_2017_plot_species_data)])
   ]
 
 # Keep columns only when sum across plots is more than 0
 
-dobert_2017_plot_species_data <- dobert_2017_plot_species_data[
-  , c(TRUE, colSums(dobert_2017_plot_species_data[, 2:150]) > 0)
+dobert_2017_plot_species_data <- dobert_2017_plot_species_data[,
+  c(TRUE, colSums(dobert_2017_plot_species_data[, 2:150]) > 0)
 ]
 
 taxa_present <- colnames(dobert_2017_plot_species_data[2:15])

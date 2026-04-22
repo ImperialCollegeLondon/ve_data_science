@@ -41,8 +41,8 @@
 # distribution;
 # I have iteratively tweaked the following lognormal distribution to get
 # random variates that resemble the Tabatabai range and centrality:
-# test <- exp(rnorm(10000, log(2e-4), 1.8))   # nolint
-# quantile(test, c(0.05, 0.5, 0.95))          # nolint
+# test <- exp(rnorm(10000, log(2e-4), 1.8))
+# quantile(test, c(0.05, 0.5, 0.95))
 
 # There are four groups of soil extracellular enzymes in VE currently and
 # I will simply split them equally

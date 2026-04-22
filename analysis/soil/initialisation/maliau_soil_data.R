@@ -104,20 +104,16 @@ dat <-
 source("analysis/soil/initialisation/model_safe.R")
 
 # extract covariates to the Maliau region of interest
-# nolint start
 dat <-
   dat |>
   mutate(
-    elev = terra::extract(elev, pick("cell_x", "cell_y"))[
-      ,
+    elev = terra::extract(elev, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_processed"
     ],
-    topo = terra::extract(topo, pick("cell_x", "cell_y"))[
-      ,
+    topo = terra::extract(topo, pick("cell_x", "cell_y"))[,
       "SRTM_UTM50N_TRI_Wilson2007"
     ],
-    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[
-      ,
+    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
       "SRTM_Log_Flow_Accum"
     ],
     # set acd to mean because there is no full data coverage
@@ -135,7 +131,6 @@ dat <-
   # we need to fill in two NA grids in the EVI layer,
   # I think they are due to rivers / water bodies
   fill(evi)
-# nolint end
 
 # new basis functions for the Maliau region
 maliau_basis <-
@@ -190,7 +185,6 @@ dat <-
 # Both are predicted from control plots from a tropical forest in BCI
 source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
 
-# nolint start
 dat <-
   dat |>
   mutate(
@@ -243,7 +237,6 @@ dat <-
       type = "response"
     )
   )
-# nolint end
 
 # soil_c_pool_lmwc
 # using DOC as a proxy
