@@ -1,19 +1,19 @@
 library(tidyverse)
-library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
+library(toml)
 library(reticulate)
 use_virtualenv("./ve_release")
 source("analysis/soil/initialisation/convert_array_to_nc.R")
 source("analysis/soil/initialisation/subset_nc.R")
 source("analysis/soil/sensitivity/cell_id_to_xy.R")
-source("utils/build_config.R")
+source("tools/build_config.R")
 
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau_subset <- parseTOML(
+maliau_subset <- read_toml(
   "data/derived/site/maliau/maliau_grid_definition_100m_10x10.toml"
 )
 ll_x <- maliau_subset$ll_x
@@ -137,15 +137,27 @@ file.copy(paste0(copy_dir, files_to_copy), paste_dir)
 # Generate config files --------------------------------------------------
 
 # first generate a template for modification later
+toml_dest <- "data/scenarios/runtime_per_cell/config/config_template.toml"
 build_config(
   list(
     "core",
     "abiotic_simple",
     "hydrology",
     "plants",
-    "animals",
+    "animal",
     "soil",
     "litter"
   ),
-  filename = "data/scenarios/runtime_per_cell/config/config_template.toml"
+  filename = toml_dest
 )
+
+# read the template config TOML
+config_template <-
+  read_toml(toml_dest) |>
+  write_toml() |>
+  edit_toml("core.grid.cell_area", maliau_subset$core$grid$cell_area) |>
+  edit_toml("core.grid.cell_nx", maliau_subset$core$grid$cell_nx) |>
+  edit_toml("core.grid.cell_ny", maliau_subset$core$grid$cell_ny) |>
+  edit_toml("core.grid.xoff", maliau_subset$core$grid$xoff) |>
+  edit_toml("core.grid.yoff", maliau_subset$core$grid$yoff) |>
+  edit_toml("core.timing.start_date", maliau_subset$core$timing$start_date)
