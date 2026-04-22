@@ -24,7 +24,6 @@
 #|     close to the initial value as possible.
 #| ---
 
-
 # Dissolved organic carbon (DOC) and nitrogen (DON) from Montano et al. (2007)
 # https://doi.org/10.1007/s11104-007-9281-x
 # The system was a Mexican tropical deciduous forest; I took the rainy season
