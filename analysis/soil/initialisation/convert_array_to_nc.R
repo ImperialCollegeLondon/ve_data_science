@@ -12,10 +12,10 @@
 #'   TRUE. Set to FALSE to add additional data manually before closing the
 #'   connection.
 #'
+#' @importFrom RNetCDF create.nc dim.def.nc var.def.nc var.put.nc att.put.nc
+#' @importFrom purrr flatten
+#'
 #' @returns A netCDF file written to disk as per filename when close.nc is TRUE.
-
-# load libraries; to move into @import when this is turned into a package
-require(RNetCDF)
 
 convert_array_to_nc <- function(
   array,
@@ -28,11 +28,11 @@ convert_array_to_nc <- function(
 
   # some dimension attributes
   dims <-
-    lapply(array, dimnames) %>%
-    flatten() %>%
+    lapply(array, dimnames) |>
+    flatten() |>
     {
-      split(., names(.))
-    } %>%
+      split(., names(.)) # nolint
+    } |>
     map(~ unique(unlist(.x)))
 
   # define dimensions
