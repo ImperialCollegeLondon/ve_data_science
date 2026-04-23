@@ -289,7 +289,7 @@ def write_all_scenarios(data, output_path):
 # a complete VE-compatible TOML structure.
 def run(grid_name):
     """Generate and save a grid scenario to the TOML file."""
-    
+
     # Output file path
     output_path = "data/derived/site/maliau/maliau_grid_definition.toml"
 
