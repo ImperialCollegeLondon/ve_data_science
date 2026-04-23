@@ -7,26 +7,66 @@
 #' @param ll_y Lower limit of the y or longitudinal dimension.
 #' @param ur_x Upper limit of the x or longitudinal dimension.
 #' @param ur_y Upper limit of the y or longitudinal dimension.
+#' @param cell_id
 #' @param ... Additional arguments passed to convert_array_to_nc()
 #'
 #' @returns A subset netCDF file written to disk as per filename when close.nc is TRUE.
 
-subset_nc <- function(nc, ll_x, ll_y, ur_x, ur_y, ...) {
+subset_nc <- function(
+  nc,
+  ll_x = NULL,
+  ll_y = NULL,
+  ur_x = NULL,
+  ur_y = NULL,
+  cell_ids = NULL,
+  ...
+) {
   # filter data to region of interest
-  data_subset_array <- subset_array(nc, ll_x, ll_y, ur_x, ur_y)
+  data_subset_array <- subset_array(nc, ll_x, ll_y, ur_x, ur_y, cell_ids)
 
   # convert arrays back to netCDF
   convert_array_to_nc(array = data_subset_array, ...)
 }
 
-subset_array <- function(nc, ll_x, ll_y, ur_x, ur_y) {
+subset_array <- function(
+  nc,
+  ll_x = NULL,
+  ll_y = NULL,
+  ur_x = NULL,
+  ur_y = NULL,
+  cell_ids = NULL
+) {
+  # check that either [ll_x, ll_y, ur_x, ur_y] OR cell_ids is supplied, not both
+  stopifnot(
+    "Please only specify either [ll_x, ll_y, ur_x, ur_y] OR cell_ids." = (all(c(
+      is.null(ll_x),
+      is.null(ll_y),
+      is.null(ur_x),
+      is.null(ur_y)
+    )) &&
+      !is.null(cell_ids)) ||
+      (all(c(
+        !is.null(ll_x),
+        !is.null(ll_y),
+        !is.null(ur_x),
+        !is.null(ur_y)
+      )) &&
+        is.null(cell_ids))
+  )
+
   # filter data to region of interest
-  data_subset <-
-    tidync(nc) |>
-    hyper_filter(
-      x = x > ll_x & x < ur_x,
-      y = y > ll_y & y < ur_y
-    )
+  if (is.null(cell_ids)) {
+    data_subset <-
+      tidync(nc) |>
+      hyper_filter(
+        x = x > ll_x & x < ur_x,
+        y = y > ll_y & y < ur_y
+      )
+  } else {
+    data_subset <-
+      tidync(nc) |>
+      hyper_filter(cell_id = cell_id %in% cell_ids)
+  }
 
   # a list of non-variables to be excluded
   # these are dimensions
