@@ -153,18 +153,94 @@ for (j in seq_along(ur_y)) {
   read_toml(paste0(copy_dir, "data_config.toml")) |>
     write_toml() |>
     edit_toml("core.grid.cell_ny", j) |>
+    edit_toml(
+      "core.data.variable",
+      data.frame(
+        var_name = c(
+          "air_temperature_ref",
+          "relative_humidity_ref",
+          "atmospheric_pressure_ref",
+          "precipitation",
+          "atmospheric_co2_ref",
+          "mean_annual_temperature",
+          "wind_speed_ref",
+          "downward_longwave_radiation",
+          "downward_shortwave_radiation"
+        ),
+        file_path = paste0("../data/era5_maliau_", j, "x10_2010_2020.nc")
+      ) |>
+        bind_rows(
+          data.frame(
+            var_name = c("elevation"),
+            file_path = paste0("../data/elevation_maliau_", j, "x10.nc")
+          )
+        ) |>
+        bind_rows(
+          data.frame(
+            var_name = c(
+              "soil_cnp_pool_lmwc",
+              "soil_cnp_pool_maom",
+              "soil_cnp_pool_necromass",
+              "soil_cnp_pool_pom",
+              "clay_fraction",
+              "fungal_fruiting_bodies",
+              "pH",
+              "soil_c_pool_arbuscular_mycorrhiza",
+              "soil_c_pool_bacteria",
+              "soil_c_pool_ectomycorrhiza",
+              "soil_c_pool_saprotrophic_fungi",
+              "soil_enzyme_maom_bacteria",
+              "soil_enzyme_maom_fungi",
+              "soil_enzyme_pom_bacteria",
+              "soil_enzyme_pom_fungi",
+              "soil_n_pool_ammonium",
+              "soil_n_pool_nitrate",
+              "soil_p_pool_labile",
+              "soil_p_pool_primary",
+              "soil_p_pool_secondary"
+            ),
+            file_path = paste0("../data/soil_maliau_", j, "x10.nc")
+          )
+        ) |>
+        bind_rows(
+          data.frame(
+            var_name = c(
+              "litter_pool_above_metabolic_cnp",
+              "litter_pool_above_structural_cnp",
+              "litter_pool_below_metabolic_cnp",
+              "litter_pool_below_structural_cnp",
+              "litter_pool_woody_cnp",
+              "lignin_above_structural",
+              "lignin_below_structural",
+              "lignin_woody"
+            ),
+            file_path = paste0("../data/litter_maliau_", j, "x10.nc")
+          )
+        )
+    ) |>
     write_lines(paste0(config_dir, "/data_config.toml"))
 
-  # plant config
+  # plants config
   read_toml(paste0(copy_dir, "plant_config.toml")) |>
     write_toml() |>
-    # same plant cohort across
+    # same plants cohort across
     edit_toml(
-      "plant.cohort_data_path",
-      paste0(
-        "data/scenarios/runtime_per_cell/data/plant_cohort_data_maliau_",
-        j,
-        "x10.csv"
+      "plants.cohort_data_path",
+      paste0("../data/plant_cohort_data_maliau_", j, "x10.csv")
+    ) |>
+    edit_toml(
+      "plants.pft_definitions_path",
+      "../data/plant_pft_definitions_Maliau_10x10.csv"
+    ) |>
+    edit_toml(
+      "core.data.variable",
+      data.frame(
+        var_name = c(
+          "plant_pft_propagules",
+          "subcanopy_vegetation_biomass",
+          "subcanopy_seedbank_biomass"
+        ),
+        file_path = paste0("../data/plant_input_data_maliau_", j, "x10.nc")
       )
     ) |>
     write_lines(paste0(config_dir, "/plant_config.toml"))
