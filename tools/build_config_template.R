@@ -40,9 +40,9 @@
 #'
 #' @export
 #' @examples
-#'   build_config(list("core", "abiotic_simple"), filename = "tmp.toml")
+#'   build_config_template(list("core", "abiotic_simple"), filename = "tmp.toml")
 
-build_config <- function(
+build_config_template <- function(
   requested_modules = list("core"),
   requested_disturbances = list(),
   filename
