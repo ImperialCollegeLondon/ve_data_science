@@ -251,7 +251,7 @@ def write_all_scenarios(data, output_path):
 def run(grid_name):
     """Generate and save a grid scenario to the TOML file."""
     # Output file path
-    output_path = "../../../data/derived/sites/maliau_grid_definition.toml"
+    output_path = "data/derived/site/maliau_grid_definition.toml"
 
     # Load existing scenarios (if file exists)
     if os.path.exists(output_path):
