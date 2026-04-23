@@ -7,21 +7,25 @@ description: |
   them as multiple scenarios within a single TOML file.
 
   Each scenario (e.g., maliau_1, maliau_2) is defined by a user-specified geographic
-  bounding box (WGS84), grid resolution (meters), and grid dimensions
-  (cell_nx, cell_ny).
+  bounding box (WGS84), grid resolution (meters), grid dimensions
+  (cell_nx, cell_ny), simulation timing configuration (core.timing)
 
   The workflow:
     1. Converts geographic coordinates (WGS84) to UTM Zone 50N
     2. Aligns the grid to the specified resolution using a snapped lower-left origin
     3. Computes grid extent (lower-left and upper-right coordinates)
     4. Calculates cell centre coordinates for compatibility with input datasets
-    5. Writes all scenarios into a structured TOML file under [Scenario.<name>]
+    5. Attaches VE-compatible configuration blocks:
+         - core.grid   (spatial configuration)
+         - core.timing (temporal configuration)
+    6. Writes all scenarios into a structured TOML file under [Scenario.<name>]
 
   The output TOML file contains:
     - Grid extent (UTM coordinates)
     - Corresponding WGS84 bounding box
     - Cell centre coordinates
-    - VE-compatible grid configuration (core.grid)
+    - VE-compatible grid configuration (core.grid) and
+      timing configuration (core.timing)
 
   Existing scenarios are preserved across runs, and new scenarios are added without
   overwriting previous entries.
@@ -35,12 +39,12 @@ virtual_ecosystem_module: all
 status: draft
 
 input_files:
-  - description: User-defined grid configurations (within script)
+  - description: User-defined grid and timing configurations (within script)
 
 output_files:
   - name: maliau_grid_definition.toml
     path: data/derived/site/maliau
-    description: Multi-scenario grid definition file for VE simulations
+    description: Multi-scenario grid and timing definition file for VE simulations
 
 package_dependencies:
   - pyproj
@@ -49,19 +53,18 @@ package_dependencies:
   - tomllib
 
 usage_notes: |
-  - Add scenario information to the list under `get_all_configs` in this script
-  - In the terminal, run this script `python maliau_site_definition.py` from the root directory
-  - Add or edit each scenario at a time interactively by typing, for example, `maliau_1`, `maliau_2` etc.
-  - A TOML file will be created at the `output_path`
-  - To update or add another scenario to the TOML file, repeat the steps above
-  - Scenarios are stored under [Scenario.<name>]
+  - Add and edit scenario information to the list under `get_all_configs` in this script
+  - In the terminal, run this script `python maliau_site_definition.py` from the root
+    directory
+  - Select a scenario interactively by typing, for example, `maliau_1,
+    `maliau_2` etc.
+  - A TOML file will be created at the specified `output_path`
+  - To update or add additional scenario to the TOML file, rerun the script and select
+    the new scenario name.
+  - Scenarios are stored under [Scenario.<name>] with their own grid and timing
+    configuration blocks.
+
   Run as: python maliau_site_definition.py
-
-  Instructions:
-  - Select scenario interactively (e.g., maliau_1, maliau_2)
-  - Each run updates or adds a scenario to the TOML file
-  - Scenarios are stored under [Scenario.<name>]
-
 ---
 
 """  # noqa: D400, D212, D205, D415
@@ -83,6 +86,10 @@ from shapely.ops import transform
 #    - cell_nx, cell_ny : grid dimensions
 #    - res              : grid resolution (meters)
 #    - bbox             : bounding box in WGS84 (lat_min, lon_min, lat_max, lon_max)
+#    - timing           : simulation timing configuration (core.timing)
+#        - start_date      : simulation start date (YYYY-MM-DD)
+#        - update_interval : model update timestep (e.g. "1 month", "1 day")
+#        - run_length      : total simulation duration (e.g. "11 years")
 
 
 def get_all_configs():
@@ -93,12 +100,22 @@ def get_all_configs():
             "cell_ny": 50,
             "res": 100,
             "bbox": (4.7170137, 116.9492683, 4.7569565, 116.9890846),
+            "timing": {
+                "start_date": "2010-01-01",
+                "update_interval": "1 month",
+                "run_length": "11 years",
+            },
         },
         "maliau_2": {
             "cell_nx": 10,
             "cell_ny": 10,
             "res": 100,
             "bbox": (4.7420402, 116.9679879, 4.7501825, 116.9761036),
+            "timing": {
+                "start_date": "2010-01-01",
+                "update_interval": "1 month",
+                "run_length": "11 years",
+            },
         },
     }
 
@@ -133,6 +150,8 @@ def build_grid_definition(config):
     (lat_min, lon_min, lat_max, lon_max) = config[
         "bbox"
     ]  # Bounding box in WGS84 geographic coordinates
+
+    timing = config.get("timing", None)
 
     # Define projection systems and transformation functions between WGS84
     # and UTM Zone50N
@@ -198,7 +217,8 @@ def build_grid_definition(config):
                 grid_type="square",
                 xoff=ll_x,  # x offset (lower-left corner cell in UTM50N)
                 yoff=ll_y,  # y offset (lower-left corner cell in UTM50N)
-            )
+            ),
+            timing=timing,  # timing configuration
         ),
     )
 
@@ -210,7 +230,7 @@ def build_grid_definition(config):
 
 # For each scenario:
 # - Writes the main grid definition
-# - Ensures the `core.grid` block is always included
+# - Ensures the `core.grid` and `core.timing`block are always included
 
 # The file is fully rewritten each time to maintain consistency and prevent missing
 # or partial sections.
@@ -222,14 +242,28 @@ def write_all_scenarios(data, output_path):
         f.write(b"[Scenario]\n")
 
         for name, scenario in data["Scenario"].items():
-            # Main block
             f.write(f"\n[Scenario.{name}]\n".encode())
 
+            # Temporal formatting
+            timing = scenario["core"].get("timing", None)
+
+            if timing:
+                start_year = int(timing["start_date"][:4])
+                run_years = int(timing["run_length"].split()[0])
+                end_year = start_year + run_years - 1
+                temporal_str = (
+                    f"# Temporal: {start_year}–{end_year} ({run_years} years)\n"
+                )
+            else:
+                temporal_str = ""
+
+            # Write header comment for each scenario with grid and temporal info
             f.write(
                 (
                     f"# Site definition file for {name}\n"
                     f"# Grid: {scenario['cell_nx']} x {scenario['cell_ny']} cells, "
-                    f"resolution = {scenario['res']} m\n\n"
+                    f"resolution = {scenario['res']} m\n"
+                    f"{temporal_str}\n"
                 ).encode()
             )
 
@@ -237,9 +271,14 @@ def write_all_scenarios(data, output_path):
             main = {k: v for k, v in scenario.items() if k != "core"}
             tomli_w.dump(main, f)
 
-            # 🔥 ALWAYS write core.grid for every scenario
+            # Write core.grid for every scenario
             f.write(f"\n[Scenario.{name}.core.grid]\n".encode())
             tomli_w.dump(scenario["core"]["grid"], f)
+
+            # Write core.timing for every scenario
+            if "timing" in scenario["core"] and scenario["core"]["timing"] is not None:
+                f.write(f"\n[Scenario.{name}.core.timing]\n".encode())
+                tomli_w.dump(scenario["core"]["timing"], f)
 
 
 ## ============================================================
@@ -250,8 +289,9 @@ def write_all_scenarios(data, output_path):
 # a complete VE-compatible TOML structure.
 def run(grid_name):
     """Generate and save a grid scenario to the TOML file."""
+    
     # Output file path
-    output_path = "data/derived/site/maliau_grid_definition.toml"
+    output_path = "data/derived/site/maliau/maliau_grid_definition.toml"
 
     # Load existing scenarios (if file exists)
     if os.path.exists(output_path):
