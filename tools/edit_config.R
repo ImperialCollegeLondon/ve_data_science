@@ -1,30 +1,29 @@
 library(tidyverse)
 library(toml)
-library(reticulate)
-use_virtualenv("./ve_release")
-source("tools/build_config.R")
+# library(reticulate)
+# use_virtualenv("./ve_release")
+# source("tools/build_config.R")
 
-# first generate a template for modification later
-toml_dest <- "data/scenarios/maliau/maliau_2/config/config_template.toml"
+# # first generate a template for modification later
+# toml_dest <- "data/scenarios/maliau/maliau_2/config/config_template.toml"
 
-build_config(
-  list(
-    "core",
-    "abiotic_simple",
-    "hydrology",
-    "plants",
-    "animal",
-    "soil",
-    "litter"
-  ),
-  filename = toml_dest
-)
+# build_config(
+#   list(
+#     "core",
+#     "abiotic_simple",
+#     "hydrology",
+#     "plants",
+#     "animal",
+#     "soil",
+#     "litter"
+#   ),
+#   filename = toml_dest
+# )
 
-# read the template config TOML
-config_template <-
-  read_toml(toml_dest) |>
-  write_toml()
-
+# # read the template config TOML
+# config_template <-
+#   read_toml(toml_dest) |>
+#   write_toml()
 
 # Source new values analysed elsewhere -----------------------------------
 
@@ -138,12 +137,7 @@ config_edits <-
         save_initial_state = TRUE
       ),
       data = list(
-        variable = list(
-          list(
-            file_path = "../data/plant_input_data_Maliau_10x10.nc",
-            var_name = "plant_pft_propagules"
-          )
-        )
+        variable = data_paths
       )
     )
   ) |>
@@ -202,9 +196,15 @@ config_edits <-
 #   list_flatten(name_spec = "{outer}.{inner}") |>
 #   list_flatten(name_spec = "{outer}.{inner}")
 
+config_edits |>
+  write_toml() |>
+  writeLines(
+    con = "data/scenarios/maliau/maliau_2_edit_config/config_edits.toml"
+  )
+
 # recursively edit all new values in the template config
-for (i in seq_along(config_edits)) {
-  field <- names(config_edits)[i]
-  value <- config_edits[[i]]
-  config_template <- edit_toml(config_template, field, value)
-}
+# for (i in seq_along(config_edits)) {
+#   field <- names(config_edits)[i]
+#   value <- config_edits[[i]]
+#   config_template <- edit_toml(config_template, field, value)
+# }
