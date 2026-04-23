@@ -101,8 +101,8 @@ config_edits <-
   # set up list, this line is not necessary but I want to be explicit that
   # config_edits can be an empty list (i.e., no edit)
   list() |>
-  # core config
   list_assign(
+    # core config
     core = list(
       grid = maliau_2$grid,
       timing = list(
@@ -116,10 +116,8 @@ config_edits <-
       data = list(
         variable = data_paths
       )
-    )
-  ) |>
-  # plants
-  list_assign(
+    ),
+    # plants
     plants = list(
       cohort_data_path = "../data/plant_cohort_data_Maliau_10x10.csv",
       pft_definitions_path = "../data/plant_pft_definitions_Maliau_10x10.csv",
@@ -132,9 +130,7 @@ config_edits <-
       ),
       constants = plants_contants
     ),
-  ) |>
-  # animals
-  list_assign(
+    # animals
     animal = list(
       functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level1.csv",
       cohort_data_export = list(
@@ -167,21 +163,17 @@ config_edits <-
       )
     )
   )
-# soil
-# litter
-#  |>
-#   list_flatten(name_spec = "{outer}.{inner}") |>
-#   list_flatten(name_spec = "{outer}.{inner}")
 
-config_edits |>
-  write_toml() |>
-  writeLines(
-    con = "data/scenarios/maliau/maliau_2_edit_config/config_edits.toml"
-  )
-
-# recursively edit all new values in the template config
-# for (i in seq_along(config_edits)) {
-#   field <- names(config_edits)[i]
-#   value <- config_edits[[i]]
-#   config_template <- edit_toml(config_template, field, value)
-# }
+build_config_user(
+  requested_modules = c(
+    "core",
+    "abiotic_simple",
+    "hydrology",
+    "plants",
+    "animal",
+    "soil",
+    "litter"
+  ),
+  config_edits,
+  path = "data/scenarios/maliau/maliau_2_edit_config"
+)
