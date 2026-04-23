@@ -1,4 +1,10 @@
-# Site definition file for Maliau Basin
+[Scenario]
+
+[Scenario.maliau_1]
+# Site definition file for maliau_1
+# Grid: 50 x 50 cells, resolution = 100 m
+# Temporal: 2010–2020 (11 years)
+
 epsg_code = 32650
 ll_x = 494300
 ll_y = 521300
@@ -11,10 +17,10 @@ bounds = [
     526300.0,
 ]
 wgs84_bounds = [
-    4.716255907706633,
     116.94859933725873,
-    4.761491248605263,
+    4.716255907706633,
     116.99368804742119,
+    4.761491248605263,
 ]
 cell_nx = 50
 cell_ny = 50
@@ -124,10 +130,78 @@ cell_y_centres = [
 ]
 res = 100
 
-[core.grid]
+[Scenario.maliau_1.core.grid]
 cell_area = 10000
 cell_nx = 50
 cell_ny = 50
 grid_type = "square"
 xoff = 494300
 yoff = 521300
+
+[Scenario.maliau_1.core.timing]
+start_date = "2010-01-01"
+update_interval = "1 month"
+run_length = "11 years"
+
+[Scenario.maliau_2]
+# Site definition file for maliau_2
+# Grid: 10 x 10 cells, resolution = 100 m
+# Temporal: 2010–2020 (11 years)
+
+epsg_code = 32650
+ll_x = 496400
+ll_y = 524100
+ur_x = 497400
+ur_y = 525100
+bounds = [
+    496400.0,
+    524100.0,
+    497400.0,
+    525100.0,
+]
+wgs84_bounds = [
+    116.96753692923511,
+    4.741587796183912,
+    116.97655475359156,
+    4.750634852021439,
+]
+cell_nx = 10
+cell_ny = 10
+cell_x_centres = [
+    496450.0,
+    496550.0,
+    496650.0,
+    496750.0,
+    496850.0,
+    496950.0,
+    497050.0,
+    497150.0,
+    497250.0,
+    497350.0,
+]
+cell_y_centres = [
+    524150.0,
+    524250.0,
+    524350.0,
+    524450.0,
+    524550.0,
+    524650.0,
+    524750.0,
+    524850.0,
+    524950.0,
+    525050.0,
+]
+res = 100
+
+[Scenario.maliau_2.core.grid]
+cell_area = 10000
+cell_nx = 10
+cell_ny = 10
+grid_type = "square"
+xoff = 496400
+yoff = 524100
+
+[Scenario.maliau_2.core.timing]
+start_date = "2010-01-01"
+update_interval = "1 month"
+run_length = "11 years"
