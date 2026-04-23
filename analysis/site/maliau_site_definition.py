@@ -76,7 +76,7 @@ from shapely.ops import transform
 #    Each scenario includes:
 #    - cell_nx, cell_ny : grid dimensions
 #    - res              : grid resolution (meters)
-#    - bbox             : bounding box (lat_min, lon_min, lat_max, lon_max)
+#    - bbox             : bounding box in WGS84 (lat_min, lon_min, lat_max, lon_max)
 
 
 def get_all_configs():
