@@ -150,8 +150,7 @@ def build_grid_definition(config):
     (lat_min, lon_min, lat_max, lon_max) = config[
         "bbox"
     ]  # Bounding box in WGS84 geographic coordinates
-
-    timing = config.get("timing", None)
+    timing = config.get("timing", None)  # timing configuration
 
     # Define projection systems and transformation functions between WGS84
     # and UTM Zone50N
@@ -252,7 +251,7 @@ def write_all_scenarios(data, output_path):
                 run_years = int(timing["run_length"].split()[0])
                 end_year = start_year + run_years - 1
                 temporal_str = (
-                    f"# Temporal: {start_year}–{end_year} ({run_years} years)\n"
+                    f"# Temporal: {start_year}_{end_year} ({run_years} years)\n"
                 )
             else:
                 temporal_str = ""
