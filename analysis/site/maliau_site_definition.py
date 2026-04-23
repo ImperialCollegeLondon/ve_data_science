@@ -49,6 +49,12 @@ package_dependencies:
   - tomllib
 
 usage_notes: |
+  - Add scenario information to the list under `get_all_configs` in this script
+  - In the terminal, run this script `python maliau_site_definition.py` from the root directory
+  - Add or edit each scenario at a time interactively by typing, for example, `maliau_1`, `maliau_2` etc.
+  - A TOML file will be created at the `output_path`
+  - To update or add another scenario to the TOML file, repeat the steps above
+  - Scenarios are stored under [Scenario.<name>]
   Run as: python maliau_site_definition.py
 
   Instructions:
