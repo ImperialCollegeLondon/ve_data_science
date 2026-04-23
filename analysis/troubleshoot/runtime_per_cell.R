@@ -3,12 +3,9 @@ library(RNetCDF)
 library(tidync)
 library(purrr)
 library(toml)
-library(reticulate)
-use_virtualenv("./ve_release")
 source("analysis/soil/initialisation/convert_array_to_nc.R")
 source("analysis/soil/initialisation/subset_nc.R")
 source("analysis/soil/sensitivity/cell_id_to_xy.R")
-source("tools/build_config.R")
 
 
 # Maliau site metadata ----------------------------------------------------
@@ -20,6 +17,19 @@ ll_x <- maliau_subset$ll_x
 ll_y <- maliau_subset$ll_y
 ur_x <- maliau_subset$ur_x
 ur_y <- ll_y + seq_len(maliau_subset$cell_ny) * maliau_subset$res
+# determine the cell_id that corresponds to ur_y for plants
+cell_id_mat <-
+  t(matrix(
+    seq_len(maliau_subset$cell_nx * maliau_subset$cell_ny) - 1,
+    maliau_subset$cell_nx,
+    maliau_subset$cell_ny
+  ))
+cell_ids <- vector("list", nrow(cell_id_mat))
+for (i in seq_len(nrow(cell_id_mat))) {
+  row_start <- nrow(cell_id_mat)
+  row_end <- row_start - (i - 1)
+  cell_ids[[i]] <- as.vector(cell_id_mat[row_start:row_end, ])
+}
 
 
 # Subset input data ------------------------------------------------------
@@ -27,8 +37,19 @@ ur_y <- ll_y + seq_len(maliau_subset$cell_ny) * maliau_subset$res
 # To quantify runtime per cell, we vary the subset data to be 1x10, 2x10, 3x10
 # ... cells from the Maliau 2 scenario data
 
+# First we copy over stuff that do not change across scenarios
+copy_dir <- "data/scenarios/maliau/maliau_2/data/"
+paste_dir <- "data/scenarios/runtime_per_cell/data/"
+files_to_copy <- c(
+  "animal_functional_groups_Maliau_level1.csv",
+  "plant_constants_Maliau_10x10.csv",
+  "plant_pft_definitions_maliau_10x10.csv"
+)
+file.copy(paste0(copy_dir, files_to_copy), paste_dir)
+
+# Then we generate data and configs that do vary across scenarios
 for (j in seq_along(ur_y)) {
-  # soil
+  # soil data
   subset_nc(
     nc = "data/scenarios/maliau/maliau_1/data/soil_maliau.nc",
     ll_x = ll_x,
@@ -42,7 +63,7 @@ for (j in seq_along(ur_y)) {
     )
   )
 
-  # litter
+  # litter data
   subset_nc(
     nc = "data/scenarios/maliau/maliau_1/data/litter_maliau.nc",
     ll_x = ll_x,
@@ -56,7 +77,7 @@ for (j in seq_along(ur_y)) {
     )
   )
 
-  # elevation
+  # elevation data
   subset_nc(
     nc = "data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc",
     ll_x = ll_x,
@@ -70,7 +91,7 @@ for (j in seq_along(ur_y)) {
     )
   )
 
-  # climate / abiotic
+  # climate / abiotic data
   subset_nc(
     nc = "data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc",
     ll_x = ll_x,
@@ -84,80 +105,67 @@ for (j in seq_along(ur_y)) {
     )
   )
 
-  # plant
-  # needs a special treatment to convert them from cell_id-based to xy-based
-  # to be used in the same functions above
-  cell_id_to_xy(
-    nc = "data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_10x10.nc",
-    x = maliau_subset$cell_x_centres,
-    y = maliau_subset$cell_y_centres,
-    filename = "data/scenarios/runtime_per_cell/data/plant_input_data_maliau_10x10_xy.nc",
-    return = TRUE
-  )
+  # plant data
   subset_nc(
-    nc = "data/scenarios/runtime_per_cell/data/plant_input_data_maliau_10x10_xy.nc",
-    ll_x = ll_x,
-    ll_y = ll_y,
-    ur_x = ur_x,
-    ur_y = ur_y[j],
+    nc = "data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_10x10.nc",
+    cell_ids = cell_ids[[j]],
     filename = paste0(
       "data/scenarios/runtime_per_cell/data/plant_input_data_maliau_",
       j,
       "x10.nc"
     )
   )
+  # Subset plant cohort
+  plant_cohort <-
+    read_csv(
+      "data/scenarios/maliau/maliau_2/data/plant_cohort_data_maliau_10x10.csv"
+    ) |>
+    filter(plant_cohorts_cell_id %in% cell_ids[[j]])
+  write_csv(
+    plant_cohort,
+    paste0(
+      "data/scenarios/runtime_per_cell/data/plant_cohort_data_maliau_",
+      j,
+      "x10.csv"
+    )
+  )
+
+  # now reconfigure the config files
+  config_dir <- paste0(
+    "data/scenarios/runtime_per_cell/config/config_",
+    j,
+    "x10"
+  )
+  if (!dir.exists(config_dir)) {
+    dir.create(config_dir)
+  }
+
+  # Copy over the remaining config files that do not require modification
+  copy_dir <- "data/scenarios/maliau/maliau_2/config/"
+  files_to_copy <- c(
+    "ve_run.toml",
+    "soil_microbial_groups.toml",
+    "animal_config.toml"
+  )
+  file.copy(paste0(copy_dir, files_to_copy), config_dir)
+
+  # core config
+  read_toml(paste0(copy_dir, "data_config.toml")) |>
+    write_toml() |>
+    edit_toml("core.grid.cell_ny", j) |>
+    write_lines(paste0(config_dir, "/data_config.toml"))
+
+  # plant config
+  read_toml(paste0(copy_dir, "plant_config.toml")) |>
+    write_toml() |>
+    # same plant cohort across
+    edit_toml(
+      "plant.cohort_data_path",
+      paste0(
+        "data/scenarios/runtime_per_cell/data/plant_cohort_data_maliau_",
+        j,
+        "x10.csv"
+      )
+    ) |>
+    write_lines(paste0(config_dir, "/plant_config.toml"))
 }
-
-# Subset plant cohort
-# NB: For plant I could match cell_id to the netCDF subsets in the loop above
-# but I decided to simply fix the plant cohort to the same so we remove an
-# extra moving part from this exercise (though as of now plant cohorts are the
-# same across cells)
-plant_cohort <-
-  read_csv(
-    "data/scenarios/maliau/maliau_2/data/plant_cohort_data_maliau_10x10.csv"
-  ) |>
-  filter(plant_cohorts_cell_id == 0)
-write_csv(
-  plant_cohort,
-  "data/scenarios/runtime_per_cell/data/plant_cohort_data_maliau.csv"
-)
-
-# Copy over the remaining input data that do not require to vary cell number
-copy_dir <- "data/scenarios/maliau/maliau_2/data/"
-paste_dir <- "data/scenarios/runtime_per_cell/data/"
-files_to_copy <- c(
-  "animal_functional_groups_Maliau_level1.csv",
-  "plant_constants_Maliau_10x10.csv",
-  "plant_pft_definitions_maliau_10x10.csv"
-)
-file.copy(paste0(copy_dir, files_to_copy), paste_dir)
-
-
-# Generate config files --------------------------------------------------
-
-# first generate a template for modification later
-toml_dest <- "data/scenarios/runtime_per_cell/config/config_template.toml"
-build_config(
-  list(
-    "core",
-    "abiotic_simple",
-    "hydrology",
-    "plants",
-    "animal",
-    "soil",
-    "litter"
-  ),
-  filename = toml_dest
-)
-
-# read the template config TOML
-config_template <-
-  read_toml(toml_dest) |>
-  write_toml() |>
-  edit_toml("core.grid.cell_area", maliau_subset$core$grid$cell_area) |>
-  edit_toml("core.grid.cell_nx", maliau_subset$core$grid$cell_nx) |>
-  edit_toml("core.grid.cell_ny", maliau_subset$core$grid$cell_ny) |>
-  edit_toml("core.grid.xoff", maliau_subset$core$grid$xoff) |>
-  edit_toml("core.grid.yoff", maliau_subset$core$grid$yoff) |>
-  edit_toml("core.timing.start_date", maliau_subset$core$timing$start_date)
