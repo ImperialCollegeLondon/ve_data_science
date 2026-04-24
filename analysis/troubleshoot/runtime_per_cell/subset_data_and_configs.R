@@ -249,7 +249,8 @@ for (j in seq_along(ur_y)) {
     write_toml() |>
     # same plants cohort across
     edit_toml(
-      "animal.functional_group_definitions_path ",
+      "animal.functional_group_definitions_path",
       "../../data/animal_functional_groups_Maliau_level1.csv"
-    )
+    ) |>
+    write_lines(paste0(config_dir, "/animal_config.toml"))
 }
