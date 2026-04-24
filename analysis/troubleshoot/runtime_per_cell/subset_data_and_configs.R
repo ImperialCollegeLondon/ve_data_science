@@ -1,6 +1,7 @@
 library(tidyverse)
 library(RNetCDF)
 library(tidync)
+library(ncdf4)
 library(purrr)
 library(toml)
 source("analysis/soil/initialisation/convert_array_to_nc.R")
@@ -115,12 +116,29 @@ for (j in seq_along(ur_y)) {
       "x10.nc"
     )
   )
+  # reset cell_id to be compatible with the internal operation of VE
+  # very clunky but can't be helped
+  plant_nc_tmp <- nc_open(
+    paste0(
+      "data/scenarios/runtime_per_cell/data/plant_input_data_maliau_",
+      j,
+      "x10.nc"
+    ),
+    write = TRUE
+  )
+  cell_id_reset <- seq_along(ncvar_get(plant_nc_tmp, "cell_id")) - 1
+  ncvar_put(plant_nc_tmp, "cell_id", cell_id_reset)
+  nc_close(plant_nc_tmp)
   # Subset plant cohort
   plant_cohort <-
     read_csv(
       "data/scenarios/maliau/maliau_2/data/plant_cohort_data_maliau_10x10.csv"
     ) |>
-    filter(plant_cohorts_cell_id %in% cell_ids[[j]])
+    filter(plant_cohorts_cell_id %in% cell_ids[[j]]) |>
+    # reset cell_id to start from zero here too
+    mutate(
+      plant_cohorts_cell_id = plant_cohorts_cell_id - min(plant_cohorts_cell_id)
+    )
   write_csv(
     plant_cohort,
     paste0(
