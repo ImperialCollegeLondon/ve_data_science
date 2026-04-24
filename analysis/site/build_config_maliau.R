@@ -97,72 +97,69 @@ data_paths <-
 
 # Set up a list of new values --------------------------------------------
 
-config_edits <-
-  # set up list, this line is not necessary but I want to be explicit that
-  # config_edits can be an empty list (i.e., no edit)
-  list() |>
-  list_assign(
-    # core config
-    core = list(
-      grid = maliau_2$grid,
-      timing = list(
-        start_date = "2010-01-01",
-        update_interval = "1 month",
-        run_length = "11 years"
-      ),
-      data_output_options = list(
-        save_initial_state = TRUE
-      ),
-      data = list(
-        variable = data_paths
-      )
-    ),
-    # plants
-    plants = list(
-      cohort_data_path = "../data/plant_cohort_data_Maliau_10x10.csv",
-      pft_definitions_path = "../data/plant_pft_definitions_Maliau_10x10.csv",
-      community_data_export = list(
-        required_data = list(
-          "cohorts",
-          "community_canopy",
-          "stem_canopy"
-        )
-      ),
-      constants = plants_contants
-    ),
-    # animals
-    animal = list(
-      functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level1.csv",
-      cohort_data_export = list(
-        enabled = TRUE,
-        cohort_attributes = list(
-          "time",
-          "cohort_id",
-          "functional_group",
-          "diet_type",
-          "development_type",
-          "age",
-          "individuals",
-          "is_alive",
-          "is_mature",
-          "time_to_maturity",
-          "time_since_maturity",
-          "location_status",
-          "centroid_key",
-          "territory_size",
-          "territory",
-          "occupancy_proportion",
-          "largest_mass_achieved",
-          "mass_carbon",
-          "mass_nitrogen",
-          "mass_phosphorus",
-          "reproductive_mass_carbon",
-          "reproductive_mass_nitrogen",
-          "reproductive_mass_phosphorus"
-        )
-      )
+# core config
+core <- list(
+  grid = maliau_2$grid,
+  timing = list(
+    start_date = "2010-01-01",
+    update_interval = "1 month",
+    run_length = "11 years"
+  ),
+  data_output_options = list(
+    save_initial_state = TRUE
+  ),
+  data = list(
+    variable = data_paths
+  )
+)
+
+# plants config
+plants <- list(
+  cohort_data_path = "../data/plant_cohort_data_Maliau_10x10.csv",
+  pft_definitions_path = "../data/plant_pft_definitions_Maliau_10x10.csv",
+  community_data_export = list(
+    required_data = list(
+      "cohorts",
+      "community_canopy",
+      "stem_canopy"
+    )
+  ),
+  constants = plants_contants
+)
+
+# animal config
+animal <- list(
+  functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level1.csv",
+  cohort_data_export = list(
+    enabled = TRUE,
+    cohort_attributes = list(
+      "time",
+      "cohort_id",
+      "functional_group",
+      "diet_type",
+      "development_type",
+      "age",
+      "individuals",
+      "is_alive",
+      "is_mature",
+      "time_to_maturity",
+      "time_since_maturity",
+      "location_status",
+      "centroid_key",
+      "territory_size",
+      "territory",
+      "occupancy_proportion",
+      "largest_mass_achieved",
+      "mass_carbon",
+      "mass_nitrogen",
+      "mass_phosphorus",
+      "reproductive_mass_carbon",
+      "reproductive_mass_nitrogen",
+      "reproductive_mass_phosphorus"
     )
   )
+)
+
 
 build_config_user(
   requested_modules = c(
@@ -174,6 +171,8 @@ build_config_user(
     "soil",
     "litter"
   ),
-  config_edits,
+  core = core,
+  plants = plants,
+  animal = animal,
   path = "data/scenarios/maliau/maliau_2_edit_config"
 )
