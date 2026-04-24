@@ -144,8 +144,7 @@ for (j in seq_along(ur_y)) {
   copy_dir <- "data/scenarios/maliau/maliau_2/config/"
   files_to_copy <- c(
     "ve_run.toml",
-    "soil_microbial_groups.toml",
-    "animal_config.toml"
+    "soil_microbial_groups.toml"
   )
   file.copy(paste0(copy_dir, files_to_copy), config_dir)
 
@@ -167,12 +166,12 @@ for (j in seq_along(ur_y)) {
           "downward_longwave_radiation",
           "downward_shortwave_radiation"
         ),
-        file_path = paste0("../data/era5_maliau_", j, "x10_2010_2020.nc")
+        file_path = paste0("../../data/era5_maliau_", j, "x10_2010_2020.nc")
       ) |>
         bind_rows(
           data.frame(
             var_name = c("elevation"),
-            file_path = paste0("../data/elevation_maliau_", j, "x10.nc")
+            file_path = paste0("../../data/elevation_maliau_", j, "x10.nc")
           )
         ) |>
         bind_rows(
@@ -199,7 +198,7 @@ for (j in seq_along(ur_y)) {
               "soil_p_pool_primary",
               "soil_p_pool_secondary"
             ),
-            file_path = paste0("../data/soil_maliau_", j, "x10.nc")
+            file_path = paste0("../../data/soil_maliau_", j, "x10.nc")
           )
         ) |>
         bind_rows(
@@ -214,7 +213,7 @@ for (j in seq_along(ur_y)) {
               "lignin_below_structural",
               "lignin_woody"
             ),
-            file_path = paste0("../data/litter_maliau_", j, "x10.nc")
+            file_path = paste0("../../data/litter_maliau_", j, "x10.nc")
           )
         )
     ) |>
@@ -226,11 +225,11 @@ for (j in seq_along(ur_y)) {
     # same plants cohort across
     edit_toml(
       "plants.cohort_data_path",
-      paste0("../data/plant_cohort_data_maliau_", j, "x10.csv")
+      paste0("../../data/plant_cohort_data_maliau_", j, "x10.csv")
     ) |>
     edit_toml(
       "plants.pft_definitions_path",
-      "../data/plant_pft_definitions_Maliau_10x10.csv"
+      "../../data/plant_pft_definitions_Maliau_10x10.csv"
     ) |>
     edit_toml(
       "core.data.variable",
@@ -240,8 +239,17 @@ for (j in seq_along(ur_y)) {
           "subcanopy_vegetation_biomass",
           "subcanopy_seedbank_biomass"
         ),
-        file_path = paste0("../data/plant_input_data_maliau_", j, "x10.nc")
+        file_path = paste0("../../data/plant_input_data_maliau_", j, "x10.nc")
       )
     ) |>
     write_lines(paste0(config_dir, "/plant_config.toml"))
+
+  # animal config
+  read_toml(paste0(copy_dir, "animal_config.toml")) |>
+    write_toml() |>
+    # same plants cohort across
+    edit_toml(
+      "animal.functional_group_definitions_path ",
+      "../../data/animal_functional_groups_Maliau_level1.csv"
+    )
 }
