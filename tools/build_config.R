@@ -1,3 +1,29 @@
+#' Build user configuration files for the Virtual Ecosystem
+#'
+#' Generate a set of TOML configuration files for the Virtual Ecosystem's
+#' ve_run command. Begin by selecting the modules to be loaded, and then
+#' input any user-specified settings to each module. Module-named arguments
+#' that are left blank will use default settings.
+#'
+#' @param requested_modules A character vector of requested modules. Can be
+#'   any of "core", "abiotic", "hydrology", "plants", "animal", "soil" and
+#'   "litter".
+#' @param core A named list of core module settings.
+#' @param abiotic A named list of abiotic module settings.
+#' @param abiotic_simple A named list of abiotic_simple module settings.
+#' @param hydrology A named list of hydrology module settings.
+#' @param plants A named list of plants module settings.
+#' @param animal A named list of animal module settings.
+#' @param soil A named list of soil module settings.
+#' @param litter A named list of litter module settings.
+#' @param path Directory to save the output TOML configuration files.
+#'
+#' @notes The nested structure of each module's list need to reflect the
+#'   TOML hierarchy, so that the lists can be parsed correctly to TOML using
+#'   toml::write_toml.
+#'
+#' @returns TOML configuration files saved in the specified path.
+
 build_config <- function(
   requested_modules = c(
     "core",
@@ -26,18 +52,6 @@ build_config <- function(
   message("Requested modules recorded in ve_run.toml")
 
   # generate user-specified configs and write them to modular TOML files
-  # function to export configs
-  export_config <- function(config_list) {
-    # retrieve the list name
-    nm <- deparse(substitute(config_list))
-    # assign name to set it a level deeper so we maintain the right TOML hierarchy
-    setNames(list(config_list), nm) |>
-      write_toml() |>
-      writeLines(
-        con = paste0(path, "/", nm, "_config.toml")
-      )
-    message(paste0(nm, " config recorded in ", nm, "_config.toml"))
-  }
 
   # core config
   if (!is.null(core)) {
@@ -80,4 +94,17 @@ build_config <- function(
   }
 
   message(paste0("These config files are saved in ", path))
+}
+
+# function to export configs
+export_config <- function(config_list) {
+  # retrieve the list name
+  nm <- deparse(substitute(config_list))
+  # assign name to set it a level deeper so we maintain the right TOML hierarchy
+  setNames(list(config_list), nm) |>
+    write_toml() |>
+    writeLines(
+      con = paste0(path, "/", nm, "_config.toml")
+    )
+  message(paste0(nm, " config recorded in ", nm, "_config.toml"))
 }
