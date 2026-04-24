@@ -23,7 +23,7 @@ runtime <- foreach(out = outs, config = configs) %do%
       paste0(config_dir, "/", config),
       out,
       paste0(out, "/logfile.log"),
-      "ve_release/Scripts"
+      "ve_develop/Scripts"
     )
     toc()
   } |>
