@@ -8,94 +8,24 @@ library(toml)
 maliau <- read_toml("data/derived/site/maliau_grid_definition.toml")
 maliau_2 <- maliau$Scenario$maliau_2$core
 
+# input data paths for core.data.variable
+data_paths <- collect_data_paths(
+  plants = "../data/plant_input_data_Maliau_10x10.nc",
+  climate = "../data/era5_maliau_10x10_2010_2020.nc",
+  elevation = "../data/elevation_maliau_10x10.nc",
+  soil = "../data/soil_maliau.nc",
+  litter = "../data/litter_maliau.nc"
+)
+
 # new values for plants.constants
 plants_contants <-
   read.csv(
     "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_10x10.csv"
-  ) |>
-  as.list()
-
-# input data paths
-data_paths <-
-  # plant data
-  data.frame(
-    var_name = c(
-      "plant_pft_propagules",
-      "subcanopy_vegetation_biomass",
-      "subcanopy_seedbank_biomass"
-    ),
-    file_path = "../data/plant_input_data_Maliau_10x10.nc"
-  ) |>
-  # climate data
-  bind_rows(
-    data.frame(
-      var_name = c(
-        "air_temperature_ref",
-        "relative_humidity_ref",
-        "atmospheric_pressure_ref",
-        "precipitation",
-        "atmospheric_co2_ref",
-        "mean_annual_temperature",
-        "wind_speed_ref",
-        "downward_longwave_radiation",
-        "downward_shortwave_radiation"
-      ),
-      file_path = "../data/era5_maliau_10x10_2010_2020.nc"
-    )
-  ) |>
-  # elevation data
-  bind_rows(
-    data.frame(
-      var_name = "elevation",
-      file_path = "../data/elevation_maliau_10x10.nc"
-    )
-  ) |>
-  # soil data
-  bind_rows(
-    data.frame(
-      var_name = c(
-        "soil_cnp_pool_lmwc",
-        "soil_cnp_pool_maom",
-        "soil_cnp_pool_necromass",
-        "soil_cnp_pool_pom",
-        "clay_fraction",
-        "fungal_fruiting_bodies",
-        "pH",
-        "soil_c_pool_arbuscular_mycorrhiza",
-        "soil_c_pool_bacteria",
-        "soil_c_pool_ectomycorrhiza",
-        "soil_c_pool_saprotrophic_fungi",
-        "soil_enzyme_maom_bacteria",
-        "soil_enzyme_maom_fungi",
-        "soil_enzyme_pom_bacteria",
-        "soil_enzyme_pom_fungi",
-        "soil_n_pool_ammonium",
-        "soil_n_pool_nitrate",
-        "soil_p_pool_labile",
-        "soil_p_pool_primary",
-        "soil_p_pool_secondary"
-      ),
-      file_path = "../data/soil_maliau.nc"
-    )
-  ) |>
-  # litter data
-  bind_rows(
-    data.frame(
-      var_name = c(
-        "litter_pool_above_metabolic_cnp",
-        "litter_pool_above_structural_cnp",
-        "litter_pool_below_metabolic_cnp",
-        "litter_pool_below_structural_cnp",
-        "litter_pool_woody_cnp",
-        "lignin_above_structural",
-        "lignin_below_structural",
-        "lignin_woody"
-      ),
-      file_path = "../data/litter_maliau.nc"
-    )
   )
 
+
 # Set up a list of new values --------------------------------------------
+# These new values reflect the Maliau scenarios
 
 # core config
 core <- list(
@@ -124,7 +54,7 @@ plants <- list(
       "stem_canopy"
     )
   ),
-  constants = plants_contants
+  constants = as.list(plants_contants)
 )
 
 # animal config
@@ -160,6 +90,8 @@ animal <- list(
   )
 )
 
+
+# Build configuration files ----------------------------------------------
 
 build_config_user(
   requested_modules = c(
