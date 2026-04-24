@@ -1,28 +1,30 @@
 library(tidyverse)
 library(ve.utils)
 library(tictoc)
+library(foreach)
+library(futurize)
+plan(multisession)
 
 
 config_dir <- "data/scenarios/runtime_per_cell/config"
 configs <- list.dirs(config_dir, full.names = FALSE, recursive = FALSE)
 
-out_dir <- "data/scenarios/runtime_per_cell/out"
+out_dir <- "data/scenarios/runtime_per_cell/out/"
 outs <- paste0(out_dir, str_replace(configs, "config", "out"))
 
-runtime <- numeric(length(configs))
-names(runtime) <- str_remove(configs, "config_")
+runtime <- foreach(out = outs, config = configs) %do%
+  {
+    if (!dir.exists(out)) {
+      dir.create(out)
+    }
 
-for (i in seq_along(outs)) {
-  if (!dir.exists(outs[i])) {
-    dir.create(outs[i])
-  }
-
-  tic()
-  ve_run(
-    paste0(config_dir, "/", configs[i]),
-    outs[i],
-    paste0(outs[i], "/logfile.log"),
-    "ve_release/Scripts"
-  )
-  runtime[i] <- toc()
-}
+    tic()
+    ve_run(
+      paste0(config_dir, "/", config),
+      out,
+      paste0(out, "/logfile.log"),
+      "ve_release/Scripts"
+    )
+    toc()
+  } |>
+  futurize()
