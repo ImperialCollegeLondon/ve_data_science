@@ -1,4 +1,4 @@
-build_config_user <- function(
+build_config <- function(
   requested_modules = c(
     "core",
     "abiotic",
