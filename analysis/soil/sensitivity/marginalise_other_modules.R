@@ -52,20 +52,9 @@ get_mean_array(
   )
 
 # Plant data
-# needs a special treatment to convert them from cell_id-based to xy-based
-# to be used in the same functions above
-cell_id_to_xy(
-  nc = paste0(in_dir, "plant_input_data_Maliau_50x50.nc"),
-  x = maliau$cell_x_centres,
-  y = maliau$cell_y_centres,
-  filename = paste0(out_dir, "plant_input_data_Maliau_50x50_xy.nc")
-)
 get_mean_array(
-  nc = paste0(out_dir, "plant_input_data_Maliau_50x50_xy.nc"),
-  ll_x = ll_x,
-  ll_y = ll_y,
-  ur_x = ur_x,
-  ur_y = ur_y
+  nc = paste0(in_dir, "plant_input_data_Maliau_50x50.nc"),
+  cell_id = seq_len(maliau$cell_nx * maliau$cell_ny) - 1
 ) |>
   convert_array_to_nc(
     filename = paste0(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
