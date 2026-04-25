@@ -51,7 +51,6 @@
 #|   to ensure that we reach the global optimum
 #| ---
 
-
 # packages
 library(tidyverse)
 library(readxl)
@@ -71,20 +70,23 @@ trait <-
 
 # site info from the SAFE dataset
 site <-
-  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+  read_xlsx(
+    paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
     sheet = 4,
     skip = 9
   )
 
 # taxonomic info from the SAFE dataset
 taxo <-
-  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+  read_xlsx(
+    paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
     sheet = 3
   )
 
 # community data from the SAFE dataset
 comm <-
-  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+  read_xlsx(
+    paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
     sheet = 5,
     skip = 9
   ) %>%
@@ -107,17 +109,19 @@ comm <-
   ) %>%
   # rename / merge guilds into coarser groups that we want
   # and then sum their abundances
-  mutate(guild = case_when(
-    primary_lifestyle == "arbuscular_mycorrhizal" ~ "AM",
-    primary_lifestyle == "ectomycorrhizal" ~ "EM",
-    str_detect(primary_lifestyle, "saprotroph") ~ "saprotroph",
-    str_detect(primary_lifestyle, "pathogen") ~ "pathogen",
-    str_detect(primary_lifestyle, "parasite") ~ "parasite",
-    str_detect(primary_lifestyle, "endophyte") ~ "endophyte",
-    str_detect(primary_lifestyle, "lichenized") ~ "lichenized",
-    str_detect(primary_lifestyle, "epiphyte") ~ "epiphyte",
-    .default = "other"
-  )) %>%
+  mutate(
+    guild = case_when(
+      primary_lifestyle == "arbuscular_mycorrhizal" ~ "AM",
+      primary_lifestyle == "ectomycorrhizal" ~ "EM",
+      str_detect(primary_lifestyle, "saprotroph") ~ "saprotroph",
+      str_detect(primary_lifestyle, "pathogen") ~ "pathogen",
+      str_detect(primary_lifestyle, "parasite") ~ "parasite",
+      str_detect(primary_lifestyle, "endophyte") ~ "endophyte",
+      str_detect(primary_lifestyle, "lichenized") ~ "lichenized",
+      str_detect(primary_lifestyle, "epiphyte") ~ "epiphyte",
+      .default = "other"
+    )
+  ) %>%
   group_by(guild) %>%
   summarise_at(vars(starts_with("MYC_")), sum)
 

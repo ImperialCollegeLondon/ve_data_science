@@ -157,4 +157,7 @@ param <-
   group_by(Param) %>%
   median_qi()
 
-write_csv(param, "data/derived/soil/n_fixation/free_living_fixation_parameters.csv")
+write_csv(
+  param,
+  "data/derived/soil/n_fixation/free_living_fixation_parameters.csv"
+)

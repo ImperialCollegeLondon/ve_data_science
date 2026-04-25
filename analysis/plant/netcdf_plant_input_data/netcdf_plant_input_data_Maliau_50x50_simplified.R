@@ -53,7 +53,6 @@
 #|   in that particular simulation.
 #| ---
 
-
 # Load packages
 
 library(RNetCDF)
@@ -107,9 +106,7 @@ pft_index <- c("overstory", "understory")
 
 # First set up the empty structure, we will then add the propagules per PFT
 plant_pft_propagules <-
-  matrix(as.integer(0),
-    nrow = length(pft_index), ncol = length(cell_id_index)
-  )
+  matrix(as.integer(0), nrow = length(pft_index), ncol = length(cell_id_index))
 
 # Calculate recruits per hectare, using "Recruitment of new seedlings" for
 # Plot 3, which is the unlogged forest
@@ -155,22 +152,29 @@ subcanopy_parameters <- read.csv(
 # subcanopy_vegetation_biomass: cell_id only
 # Use value from subcanopy_parameters
 subcanopy_vegetation_biomass <-
-  as.numeric(matrix(subcanopy_parameters$subcanopy_vegetation_biomass,
-    nrow = 1, ncol = length(cell_id_index)
+  as.numeric(matrix(
+    subcanopy_parameters$subcanopy_vegetation_biomass,
+    nrow = 1,
+    ncol = length(cell_id_index)
   ))
 
 # subcanopy_seedbank_biomass: cell_id only
 # Use value from subcanopy_parameters
 subcanopy_seedbank_biomass <-
-  as.numeric(matrix(subcanopy_parameters$subcanopy_seedbank_biomass,
-    nrow = 1, ncol = length(cell_id_index)
+  as.numeric(matrix(
+    subcanopy_parameters$subcanopy_seedbank_biomass,
+    nrow = 1,
+    ncol = length(cell_id_index)
   ))
 
 #####
 
 # Open NetCDF file
 nc <-
-  create.nc("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc", format = "netcdf4") # nolint
+  create.nc(
+    "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc",
+    format = "netcdf4"
+  ) # nolint
 
 # Define dimensions
 dim.def.nc(nc, "cell_id", length(cell_id_index))
@@ -199,7 +203,9 @@ close.nc(nc)
 # Load data file and check it
 # Here we use NCDF4 for exploration in RStudio (as RNetCDF cannot do this)
 plant_input_data_Maliau_50x50 <-
-  nc_open("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc") # nolint
+  nc_open(
+    "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc"
+  ) # nolint
 
 names(plant_input_data_Maliau_50x50$var)
 ncvar_get(plant_input_data_Maliau_50x50, "plant_pft_propagules")

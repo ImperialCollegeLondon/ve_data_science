@@ -46,7 +46,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
 # Data --------------------------------------------------------------------
 
 litter_wood_raw <-
@@ -125,7 +124,8 @@ newdat <-
     PlotCode = NA
   )
 newdat$estimate <-
-  predict(mod_wood,
+  predict(
+    mod_wood,
     newdata = newdat,
     type = "response",
     allow.new.levels = TRUE

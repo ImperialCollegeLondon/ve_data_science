@@ -43,7 +43,6 @@
 library(tidyverse)
 
 
-
 # Derived quantities ------------------------------------------------------
 
 # Fungal to bacteria ratio
