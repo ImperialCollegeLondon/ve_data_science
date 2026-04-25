@@ -1,8 +1,33 @@
+#| ---
+#| title: Collect filenames and paths to input data into a dataframe
+#|
+#| description: |
+#|     This is a helper function for build_config() in build_config.R to collect
+#|     filenames and paths to input data into a dataframe.
+#|
+#| VE_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - toml
+#|
+#| usage_notes: See details below
+#| ---
+
 #' Collect filenames and paths to input data into a dataframe
 #'
 #' @param plants Full relative path and filename of the plants module input data.
-#' @param climate Full relative path and filename of the climate variables in the abiotic(_simple) module input data.
-#' @param elevation Full relative path and filename of the elevation variable in the abiotic(_simple) module input data.
+#' @param climate Full relative path and filename of the climate variables in
+#'   the abiotic(_simple) module input data.
+#' @param elevation Full relative path and filename of the elevation variable
+#'   in the abiotic(_simple) module input data.
 #' @param soil Full relative path and filename of the soil module input data.
 #' @param litter Full relative path and filename of the litter module input data.
 #'

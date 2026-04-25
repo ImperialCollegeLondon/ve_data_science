@@ -1,3 +1,28 @@
+#| ---
+#| title: Build user configuration files for the Virtual Ecosystem
+#|
+#| description: |
+#|     Generate a set of TOML configuration files for the Virtual Ecosystem's
+#|     ve_run command. Begin by selecting the modules to be loaded, and then
+#|     input any user-specified settings to each module. Module-named arguments
+#|     that are left blank will use default settings.
+#|
+#| VE_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - toml
+#|
+#| usage_notes: See details below
+#| ---
+
 #' Build user configuration files for the Virtual Ecosystem
 #'
 #' Generate a set of TOML configuration files for the Virtual Ecosystem's
