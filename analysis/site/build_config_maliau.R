@@ -1,11 +1,56 @@
+#| ---
+#| title: Build the configuration files for the maliau_2 scenario
+#|
+#| description: |
+#|     This R script uses a custom function to build the configuration files for
+#|     the maliau_2 scenario to improve over the current manual TOML edits.
+#|
+#| VE_module: All
+#|
+#| author:
+#|   - name: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: maliau_grid_definition.toml
+#|     path: data/derived/site/maliau
+#|     description: Definition file of the Maliau scenarios
+#|   - name: plant_constants_Maliau_10x10.csv
+#|     path: data/derived/plant/csv_plant_input_data
+#|     description: Plant constants for the Maliau scenario by Arne Scheire
+#|
+#| output_files:
+#|   - name: ve_run.toml
+#|     path: data/scenarios/maliau/maliau_2_build_config
+#|     description: Built main config TOML file for maliau_2
+#|   - name: core_config.toml
+#|     path: data/scenarios/maliau/maliau_2_build_config
+#|     description: Built core config TOML file for maliau_2
+#|   - name: animal_config.toml
+#|     path: data/scenarios/maliau/maliau_2_build_config
+#|     description: Built animal config TOML file for maliau_2
+#|   - name: plants_config.toml
+#|     path: data/scenarios/maliau/maliau_2_build_config
+#|     description: Built plants config TOML file for maliau_2
+#|
+#| package_dependencies:
+#|     - tidybayes
+#|     - toml
+#|
+#| usage_notes:
+#| ---
+
 library(tidyverse)
 library(toml)
+source("tools/build_config.R")
+source("tools/collect_data_paths.R")
 
 
 # Source new values analysed elsewhere -----------------------------------
 
 # new values for core.grid
-maliau <- read_toml("data/derived/site/maliau_grid_definition.toml")
+maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
 maliau_2 <- maliau$Scenario$maliau_2$core
 
 # input data paths for core.data.variable
@@ -93,7 +138,7 @@ animal <- list(
 
 # Build configuration files ----------------------------------------------
 
-build_config_user(
+build_config(
   requested_modules = c(
     "core",
     "abiotic_simple",
@@ -106,5 +151,5 @@ build_config_user(
   core = core,
   plants = plants,
   animal = animal,
-  path = "data/scenarios/maliau/maliau_2_edit_config"
+  path = "data/scenarios/maliau/maliau_2_build_config"
 )
