@@ -80,49 +80,49 @@ build_config <- function(
 
   # core config
   if (!is.null(core)) {
-    export_config(core)
+    export_config(core, path)
   }
 
   # abiotic config
   if (!is.null(abiotic)) {
-    export_config(abiotic)
+    export_config(abiotic, path)
   }
 
   # abiotic_simple config
   if (!is.null(abiotic_simple)) {
-    export_config(abiotic_simple)
+    export_config(abiotic_simple, path)
   }
 
   # hydrology config
   if (!is.null(hydrology)) {
-    export_config(hydrology)
+    export_config(hydrology, path)
   }
 
   # plants config
   if (!is.null(plants)) {
-    export_config(plants)
+    export_config(plants, path)
   }
 
   # animal config
   if (!is.null(animal)) {
-    export_config(animal)
+    export_config(animal, path)
   }
 
   # soil config
   if (!is.null(soil)) {
-    export_config(soil)
+    export_config(soil, path)
   }
 
   # litter config
   if (!is.null(litter)) {
-    export_config(litter)
+    export_config(litter, path)
   }
 
   message(paste0("These config files are saved in ", path))
 }
 
 # function to export configs
-export_config <- function(config_list) {
+export_config <- function(config_list, path) {
   # retrieve the list name
   nm <- deparse(substitute(config_list))
   # assign name to set it a level deeper so we maintain the right TOML hierarchy
