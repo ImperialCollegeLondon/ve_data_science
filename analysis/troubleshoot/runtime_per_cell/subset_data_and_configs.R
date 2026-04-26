@@ -6,7 +6,6 @@ library(purrr)
 library(toml)
 source("analysis/soil/initialisation/convert_array_to_nc.R")
 source("analysis/soil/initialisation/subset_nc.R")
-source("analysis/soil/sensitivity/cell_id_to_xy.R")
 
 
 # Maliau site metadata ----------------------------------------------------
