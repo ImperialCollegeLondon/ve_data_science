@@ -1,3 +1,20 @@
+#' Marginalise variable arrays over space
+#'
+#' Apply a function to spatially aggregate a variable array. In the context of
+#' the Virtual Ecosystem, this usually means marginalising a variable over the
+#' x and y coordinates, or over cell_id's.
+#'
+#' @param arrays A list of variable arrays, usually assembled with
+#'   get_all_variables()
+#' @param FUN The function to be applied, potentially one of the acceptable
+#'   function by base::apply()
+#'
+#' @returns A spatially-aggregated array with the same dimnames as the input
+#'   array. The marginalised spatial dimensions are of length one, and they are
+#'   arbitrarily assigned the first value of each spatial dimension to be
+#'   compatible with convert_array_to_nc() or the data requirement of `ve_run`,
+#'   as a quick-and-dirty solution.
+
 summarise_spatial <- function(arrays, FUN) {
   arrays |>
     map(\(var) {
