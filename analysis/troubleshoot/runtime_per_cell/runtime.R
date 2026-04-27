@@ -2,8 +2,7 @@ library(tidyverse)
 library(ve.utils)
 library(tictoc)
 library(foreach)
-library(futurize)
-plan(multisession)
+library(ggpubr)
 
 
 config_dir <- "data/scenarios/runtime_per_cell/config"
