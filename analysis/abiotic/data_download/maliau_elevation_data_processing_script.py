@@ -87,11 +87,11 @@ usage_notes: |
 
 """  # noqa: D400, D212, D205, D415
 
+import tomllib
 from pathlib import Path
 
 import numpy as np
 import rasterio
-import tomllib
 import xarray as xr
 from rasterio.enums import Resampling
 from rasterio.warp import reproject
