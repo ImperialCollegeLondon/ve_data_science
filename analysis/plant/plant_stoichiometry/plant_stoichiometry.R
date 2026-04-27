@@ -77,17 +77,14 @@ library(stringr)
 # Load PFT species classification base and clean up a bit
 
 PFT_species_classification_base <- read.csv(
-  # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[
-  # nolint
-  ,
+PFT_species_classification_base <- PFT_species_classification_base[,
   c("PFT", "PFT_name", "TaxaName")
 ]
-PFT_species_classification_base <- unique(PFT_species_classification_base) # nolint
+PFT_species_classification_base <- unique(PFT_species_classification_base)
 
 data_taxa <- PFT_species_classification_base
 
@@ -590,30 +587,30 @@ colnames(kitayama_litter_stoichiometry) <- kitayama_litter_stoichiometry[2, ]
 kitayama_litter_stoichiometry_C <- kitayama_litter_stoichiometry[
   c(28:36),
   c(1, 2, 3)
-] # nolint
+]
 colnames(kitayama_litter_stoichiometry_C) <- c(
   "site",
   "leaf_C",
   "reproductive_organ_C"
-) # nolint
+)
 kitayama_litter_stoichiometry_N <- kitayama_litter_stoichiometry[
   c(15:23),
   c(1, 2, 3)
-] # nolint
+]
 colnames(kitayama_litter_stoichiometry_N) <- c(
   "site",
   "leaf_N",
   "reproductive_organ_N"
-) # nolint
+)
 kitayama_litter_stoichiometry_P <- kitayama_litter_stoichiometry[
   c(3:11),
   c(1, 2, 3)
-] # nolint
+]
 colnames(kitayama_litter_stoichiometry_P) <- c(
   "site",
   "leaf_P",
   "reproductive_organ_P"
-) # nolint
+)
 
 # Merge together
 
@@ -640,10 +637,10 @@ kitayama_litter_stoichiometry$reproductive_organ_P <-
 
 kitayama_litter_stoichiometry$reproductive_organ_CN <-
   kitayama_litter_stoichiometry$reproductive_organ_C /
-  kitayama_litter_stoichiometry$reproductive_organ_N # nolint
+  kitayama_litter_stoichiometry$reproductive_organ_N
 kitayama_litter_stoichiometry$reproductive_organ_CP <-
   kitayama_litter_stoichiometry$reproductive_organ_C /
-  kitayama_litter_stoichiometry$reproductive_organ_P # nolint
+  kitayama_litter_stoichiometry$reproductive_organ_P
 
 kitayama_litter_stoichiometry$leaf_CN <-
   kitayama_litter_stoichiometry$leaf_C / kitayama_litter_stoichiometry$leaf_N
