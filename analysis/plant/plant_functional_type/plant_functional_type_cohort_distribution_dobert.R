@@ -92,14 +92,11 @@ names(data)
 # Load PFT species classification Dobert and clean up a bit
 
 PFT_species_classification_dobert <- read.csv(
-  # nolint
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv", # nolint
   header = TRUE
 )
 
-PFT_species_classification_dobert <- PFT_species_classification_dobert[
-  # nolint
-  ,
+PFT_species_classification_dobert <- PFT_species_classification_dobert[,
   c("PFT_name", "TaxaName")
 ]
 PFT_species_classification_dobert <- unique(PFT_species_classification_dobert) # nolint
@@ -142,7 +139,6 @@ data_taxa <- data_taxa[!data_taxa$TaxaLevel == "indet", ]
 # Then fill the gaps in data_taxa based on genus PFT from Dobert
 
 PFT_species_classification_dobert <- read.csv(
-  # nolint
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv", # nolint
   header = TRUE
 )
@@ -455,7 +451,7 @@ plot(
 plot(
   as.factor(data_taxa_without_PFT$PlotID[
     data_taxa_without_PFT$Block %in% c("OG1", "OG2", "OG3")
-  ]), # nolint
+  ]),
   xlab = "PlotID",
   ylab = "Trees without PFT"
 )
@@ -472,7 +468,7 @@ plot(
 plot(
   as.factor(data_taxa_with_PFT$PlotID[
     data_taxa_with_PFT$Block %in% c("OG1", "OG2", "OG3")
-  ]), # nolint
+  ]),
   xlab = "PlotID",
   ylab = "Trees with PFT"
 )
@@ -733,7 +729,7 @@ after_check <-
     "DBH_class",
     "plant_cohorts_n",
     "plant_cohorts_n_corrected"
-  )] # nolint
+  )]
 data_taxa$plant_cohorts_n_corrected[is.na(data_taxa$PFT_name)] <- 0
 
 ###
@@ -794,7 +790,7 @@ write.csv(
 
 data_taxa <- read.csv(
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_dobert.csv"
-) # nolint
+)
 data <- data_taxa
 names(data)
 
