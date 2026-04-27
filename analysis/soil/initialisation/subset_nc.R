@@ -1,3 +1,26 @@
+#| ---
+#| title: Subset netCDF data used by the Virtual Ecosystem
+#|
+#| description: |
+#|     Subset netCDF input data using latitudinal and longitudinal limits.
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - RNetCDF
+#|     - purrr
+#|
+#| usage_notes: See function documentation below.
+#| ---
+
 #' Subset netCDF data used by the Virtual Ecosystem
 #'
 #' Subset netCDF input data using latitudinal and longitudinal limits.
@@ -55,43 +78,11 @@ subset_array <- function(
   )
 
   # filter data to region of interest
-  if (is.null(cell_ids)) {
-    data_subset <-
-      tidync(nc) |>
-      hyper_filter(
-        x = x > ll_x & x < ur_x,
-        y = y > ll_y & y < ur_y
-      )
-  } else {
-    data_subset <-
-      tidync(nc) |>
-      hyper_filter(cell_id = cell_id %in% cell_ids)
-  }
-
-  # a list of non-variables to be excluded
-  # these are dimensions
-  non_vars <- c(
-    "x",
-    "y",
-    "element",
-    "cell_id",
-    "pft",
-    "time_index",
-    "valid_time",
-    "expver"
-  )
-  vars <- setdiff(data_subset$variable$name, non_vars)
-
-  # collect input variables into a list of arrays with named dimensions
-  data_subset_array <- vector("list", length(vars))
-  names(data_subset_array) <- vars
-  for (var in vars) {
-    data_subset_array[[var]] <-
-      data_subset |>
-      activate(var) |>
-      hyper_array(drop = FALSE)
-    data_subset_array[[var]] <- data_subset_array[[var]][[1]]
-  }
-
-  return(data_subset_array)
+  tidync(nc) |>
+    hyper_filter(
+      x = x > ll_x & x < ur_x,
+      y = y > ll_y & y < ur_y
+    ) |>
+    # Retrieve all variables from the subsetted data
+    get_all_variables()
 }

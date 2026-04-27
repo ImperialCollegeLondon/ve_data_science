@@ -1,3 +1,28 @@
+#| ---
+#| title: Convert input dataframe to netCDF used by the Virtual Ecosystem
+#|
+#| description: |
+#|     Generate input data in netCDF format for the Virtual Ecosystem from a
+#|     dataframe object. Currently the function only works specifically for the
+#|     soil and litter modules due to dimensional differences of other modules'
+#|     input data.
+#|
+#| virtual_ecosystem_module: Soil, Litter
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - RNetCDF
+#|
+#| usage_notes: See function documentation below.
+#| ---
+
 #' Convert input dataframe to netCDF used by the Virtual Ecosystem
 #'
 #' Generate input data in netCDF format for the Virtual Ecosystem from a
@@ -21,8 +46,6 @@
 #'   attribute of the output netCDF file.
 #'
 #' @returns A netCDF file written to disk as per filename.
-#'
-#' @export
 
 convert_df_to_nc <- function(
   data,
