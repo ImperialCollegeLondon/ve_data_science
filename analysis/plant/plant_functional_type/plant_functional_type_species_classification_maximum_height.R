@@ -296,7 +296,7 @@ abline(lm(temp$maximum_height ~ temp$maximum_height_Mahayani))
 abline(a = 0, b = 1, col = "red", lty = 2)
 
 # Test out with second maximum height
-# temp$maximum_height <- temp$maximum_height_Mahayani # nolint
+# temp$maximum_height <- temp$maximum_height_Mahayani
 
 ##########
 
@@ -540,6 +540,6 @@ data_taxa <- data_taxa[
 
 write.csv(
   data_taxa,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_maximum_height.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_maximum_height.csv",
   row.names = FALSE
 )

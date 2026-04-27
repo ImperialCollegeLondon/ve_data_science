@@ -101,7 +101,7 @@ base_cohort_distribution[final_row + 3, ] <- c(
   "understory",
   dbh_1_2
 )
-# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_1_2) # nolint
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_1_2)
 
 base_cohort_distribution[final_row + 4, ] <- c(
   trees_2_5 / 3,
@@ -118,7 +118,7 @@ base_cohort_distribution[final_row + 6, ] <- c(
   "understory",
   dbh_2_5
 )
-# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_2_5) # nolint
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_2_5)
 
 base_cohort_distribution[final_row + 7, ] <- c(
   trees_5_10 / 3,
@@ -135,7 +135,7 @@ base_cohort_distribution[final_row + 9, ] <- c(
   "understory",
   dbh_5_10
 )
-# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_5_10) # nolint
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_5_10)
 
 # Note that above we technically account for all seedlings/saplings with a dbh
 # between 1 and 10 cm dbh. Currently, the cohort distribution also has a
@@ -171,9 +171,9 @@ base_cohort_distribution$plant_cohorts_cell_id <-
   as.integer(base_cohort_distribution$plant_cohorts_cell_id)
 
 # Scale plant_cohorts_n from 10000 to 8100
-# base_cohort_distribution$plant_cohorts_n_scaled <- # only used when scaling # nolint
-#  base_cohort_distribution$plant_cohorts_n / 10000 * 8100 # only used when scaling # nolint
-base_cohort_distribution$plant_cohorts_n_scaled <- # replace this line with the one above when scaling # nolint
+# base_cohort_distribution$plant_cohorts_n_scaled <- # only used when scaling
+#  base_cohort_distribution$plant_cohorts_n / 10000 * 8100 # only used when scaling
+base_cohort_distribution$plant_cohorts_n_scaled <- # replace this line with the one above when scaling
   base_cohort_distribution$plant_cohorts_n
 
 # Round up/down as decimal individuals do not exist
@@ -213,6 +213,6 @@ colnames(base_cohort_distribution) <-
 # Save scaled cohort distribution
 write.csv(
   base_cohort_distribution,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv",
   row.names = FALSE
 )

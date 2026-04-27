@@ -92,14 +92,14 @@ names(data)
 # Load PFT species classification Dobert and clean up a bit
 
 PFT_species_classification_dobert <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv",
   header = TRUE
 )
 
 PFT_species_classification_dobert <- PFT_species_classification_dobert[,
   c("PFT_name", "TaxaName")
 ]
-PFT_species_classification_dobert <- unique(PFT_species_classification_dobert) # nolint
+PFT_species_classification_dobert <- unique(PFT_species_classification_dobert)
 
 # Add PFT_name to data based on TaxaName and call it data_taxa
 
@@ -139,7 +139,7 @@ data_taxa <- data_taxa[!data_taxa$TaxaLevel == "indet", ]
 # Then fill the gaps in data_taxa based on genus PFT from Dobert
 
 PFT_species_classification_dobert <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv",
   header = TRUE
 )
 
@@ -411,7 +411,7 @@ individuals_all <- unique(data_taxa$TagStem_latest[
 ])
 
 for (i in individuals_all) {
-  j <- unique(data_taxa$Genus[data_taxa$TagStem_latest == i]) # nolint
+  j <- unique(data_taxa$Genus[data_taxa$TagStem_latest == i])
   print(j)
   data_taxa$PFT_genus_all[data_taxa$TagStem_latest == i] <-
     unique(PFT_species_classification_dobert$PFT_name[
@@ -433,7 +433,7 @@ data_taxa$PFT_name[is.na(data_taxa$PFT_name)] <-
 
 # Save log of trees without PFT to see where data is missing
 # (i.e., is it concentrated in certain plots?)
-data_taxa_without_PFT <- data_taxa[is.na(data_taxa$PFT_name), ] # nolint
+data_taxa_without_PFT <- data_taxa[is.na(data_taxa$PFT_name), ]
 
 # Before NA removal:
 nrow(data_taxa)
@@ -457,7 +457,7 @@ plot(
 )
 
 # Remove trees without PFT assigned
-data_taxa_with_PFT <- drop_na(data_taxa, PFT_name) # nolint
+data_taxa_with_PFT <- drop_na(data_taxa, PFT_name)
 
 plot(
   as.factor(data_taxa_with_PFT$Block),
@@ -502,24 +502,24 @@ check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 plot(as.factor(check$Block), xlab = "Block", ylab = "Trees in OG blocks")
 unique(check$PlotID)
 
-OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
-OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9 # nolint
-OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9 # nolint
+OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9
+OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9
+OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9
 
-OG1_area <- 9 * (25 * 25) # m2 # nolint
-OG2_area <- 9 * (25 * 25) # m2 # nolint
-OG3_area <- 9 * (25 * 25) # m2 # nolint
+OG1_area <- 9 * (25 * 25) # m2
+OG2_area <- 9 * (25 * 25) # m2
+OG3_area <- 9 * (25 * 25) # m2
 
 # Use something else than TagStem_latest (may not be most accurate
 # option available, e.g. account for dead trees)
 
-OG1_trees <- length(unique(check$TagStem_latest[check$Block == "OG1"])) # nolint
-OG2_trees <- length(unique(check$TagStem_latest[check$Block == "OG2"])) # nolint
-OG3_trees <- length(unique(check$TagStem_latest[check$Block == "OG3"])) # nolint
+OG1_trees <- length(unique(check$TagStem_latest[check$Block == "OG1"]))
+OG2_trees <- length(unique(check$TagStem_latest[check$Block == "OG2"]))
+OG3_trees <- length(unique(check$TagStem_latest[check$Block == "OG3"]))
 
-OG1_density <- OG1_trees / OG1_area * 10000 # from trees per m2 to per hectare # nolint
-OG2_density <- OG2_trees / OG2_area * 10000 # from trees per m2 to per hectare # nolint
-OG3_density <- OG3_trees / OG3_area * 10000 # from trees per m2 to per hectare # nolint
+OG1_density <- OG1_trees / OG1_area * 10000 # from trees per m2 to per hectare
+OG2_density <- OG2_trees / OG2_area * 10000 # from trees per m2 to per hectare
+OG3_density <- OG3_trees / OG3_area * 10000 # from trees per m2 to per hectare
 
 # Mean OG tree density per hectare (536)
 mean(c(OG1_density, OG2_density, OG3_density))
@@ -670,7 +670,7 @@ data_taxa$DBH_class <- data_taxa$DBH_class / 1000
 
 write.csv(
   data_taxa,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_dobert.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_dobert.csv",
   row.names = FALSE
 )
 
@@ -682,15 +682,15 @@ check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 plot(as.factor(check$Block), xlab = "Block", ylab = "Trees in OG blocks")
 unique(check$PlotID)
 
-OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
-OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9 # nolint
-OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9 # nolint
+OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9
+OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9
+OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9
 
-OG1_area <- 9 * (25 * 25) # m2 # nolint
-OG2_area <- 9 * (25 * 25) # m2 # nolint
-OG3_area <- 9 * (25 * 25) # m2 # nolint
+OG1_area <- 9 * (25 * 25) # m2
+OG2_area <- 9 * (25 * 25) # m2
+OG3_area <- 9 * (25 * 25) # m2
 
-total_OG_area <- OG1_area + OG2_area + OG3_area # m2 # nolint
+total_OG_area <- OG1_area + OG2_area + OG3_area # m2
 
 data_taxa$total_OG_area <- total_OG_area
 
@@ -721,7 +721,7 @@ before <- unique(before)
 after <- unique(after)
 
 sum(before$plant_cohorts_n)
-sum(after$plant_cohorts_n_corrected[!is.na(after$PFT_name)]) # nolint
+sum(after$plant_cohorts_n_corrected[!is.na(after$PFT_name)])
 
 after_check <-
   data_taxa[, c(
@@ -780,7 +780,7 @@ sum(data_taxa$plant_cohorts_n)
 
 write.csv(
   data_taxa,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare_dobert.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare_dobert.csv",
   row.names = FALSE
 )
 
