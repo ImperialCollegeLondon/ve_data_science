@@ -61,13 +61,11 @@ library(glmmTMB)
 
 # root litter inputs
 litter_root <-
-  # nolint start
   read_xlsx(
     "data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
     sheet = 4,
     skip = 5
   ) %>%
-  # nolint end
   select(ForestType:ForestPlotsCode, Mortality_FR, Mortality_CR) %>%
   mutate(root_litter_input = Mortality_FR + Mortality_CR)
 

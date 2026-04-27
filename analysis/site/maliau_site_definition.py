@@ -1,110 +1,343 @@
 """
 ---
-title: Maliau site definition generator
+title: Maliau site definition generator (multi-scenario TOML)
 
 description: |
-  This file defines the site parameters for the Maliau basin and exports them to a TOML
-  file that can be read in by other scripts.
+  This script generates grid-based site definitions for the Maliau Basin and stores
+  them as multiple scenarios within a single TOML file.
+
+  Each scenario (e.g., maliau_1, maliau_2) is defined by a user-specified geographic
+  bounding box (WGS84), grid resolution (meters), grid dimensions
+  (cell_nx, cell_ny), simulation timing configuration (core.timing)
+
+  The workflow:
+    1. Converts geographic coordinates (WGS84) to UTM Zone 50N
+    2. Aligns the grid to the specified resolution using a snapped lower-left origin
+    3. Computes grid extent (lower-left and upper-right coordinates)
+    4. Calculates cell centre coordinates for compatibility with input datasets
+    5. Attaches VE-compatible configuration blocks:
+         - core.grid   (spatial configuration)
+         - core.timing (temporal configuration)
+    6. Writes all scenarios into a structured TOML file under [Scenario.<name>]
+
+  The output TOML file contains:
+    - Grid extent (UTM coordinates)
+    - Corresponding WGS84 bounding box
+    - Cell centre coordinates
+    - VE-compatible grid configuration (core.grid) and
+      timing configuration (core.timing)
+
+  Existing scenarios are preserved across runs, and new scenarios are added without
+  overwriting previous entries.
 
 author:
   - name: David Orme
+  - name: Lelavathy
 
 virtual_ecosystem_module: all
 
 status: draft
 
 input_files:
+  - description: User-defined grid and timing configurations (within script)
 
 output_files:
-  - name: maliau_grid_definition_90m.toml
-    path: data/derived/sites
-    description: Site definition file for the Maliau Basin
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Multi-scenario grid and timing definition file for VE simulations
 
 package_dependencies:
   - pyproj
   - tomli_w
   - shapely
+  - tomllib
 
-usage_notes: Run as `python maliau_site_definition.py`
+usage_notes: |
+  - Add and edit scenario information to the list under `get_all_configs` in this script
+  - In the terminal, run this script `python maliau_site_definition.py` from the root
+    directory
+  - Select a scenario interactively by typing, for example, `maliau_1,
+    `maliau_2` etc.
+  - A TOML file will be created at the specified `output_path`
+  - To update or add additional scenario to the TOML file, rerun the script and select
+    the new scenario name.
+  - Scenarios are stored under [Scenario.<name>] with their own grid and timing
+    configuration blocks.
 
+  Run as: python maliau_site_definition.py
 ---
-"""  # noqa: D205, D212, D400, D415
+
+"""  # noqa: D400, D212, D205, D415
+
+import math
+import os
+import tomllib
 
 import pyproj
 import tomli_w
 from shapely.geometry import box
 from shapely.ops import transform
 
-# Define reprojection functions between WGS84 and UTM50N
-wgs84_proj = pyproj.Proj("epsg:4326")
-utm50N_proj = pyproj.Proj("epsg:32650")
-wgs84_to_utm50N = pyproj.Transformer.from_proj(wgs84_proj, utm50N_proj)
-utm50N_to_wgs84 = pyproj.Transformer.from_proj(utm50N_proj, wgs84_proj)
-
-# These coords are the latlong bounds of the first pass at the grid definition in WGS84
-maliau_prototype_wgs84 = box(4.7170137, 116.9492683, 4.7569565, 116.9890846)
-maliau_prototype_utm50N = transform(wgs84_to_utm50N.transform, maliau_prototype_wgs84)
-
-# Those coords have the following bounds in UTM50N
-maliau_prototype_utm50N.bounds
-# >>> (494373.8239959609, 521383.5637796852, 498789.5451954976, 525798.942726805)
-
-# This is a 49 x 49 grid at 90 m resolution (so ~ 4410m by 4410m) but on awkward
-# coordinate boundaries. What we want is a grid in UTM50N that uses actual 90m cells
-# (not degree approximations, although at this spatial scale the approximation is pretty
-# good)
-
-# Round down the lower left corner to neat metre coordinates and add a cell to maintain
-# the approximate limits of the original grid
-ll_x_utm50N = 494300
-ll_y_utm50N = 521300
-cell_nx = 50
-cell_ny = 50
-res = 90
-# Calculate the upper right bounds
-ur_x_utm50N = ll_x_utm50N + cell_nx * res
-ur_y_utm50N = ll_y_utm50N + cell_ny * res
-
-# Create a polygon of those bounds and transform to WGS84 to identify what coords should
-# be used in any bounding box for latlong data download
-maliau_grid_bounds_utm50N = box(ll_x_utm50N, ll_y_utm50N, ur_x_utm50N, ur_y_utm50N)
-maliau_grid_bounds_wgs84 = transform(
-    utm50N_to_wgs84.transform, maliau_grid_bounds_utm50N
-)
-maliau_grid_bounds_wgs84.bounds
-# >>> (4.716255907706633, 116.94859967285831, 4.756967848389091, 116.98917950990788)
+# ============================================================
+# CONFIGURATION
+# ============================================================
+# Define all available grid scenarios.
+#    Each scenario includes:
+#    - cell_nx, cell_ny : grid dimensions
+#    - res              : grid resolution (meters)
+#    - bbox             : bounding box in WGS84 (lat_min, lon_min, lat_max, lon_max)
+#    - timing           : simulation timing configuration (core.timing)
+#        - start_date      : simulation start date (YYYY-MM-DD)
+#        - update_interval : model update timestep (e.g. "1 month", "1 day")
+#        - run_length      : total simulation duration (e.g. "11 years")
 
 
-# Write a definition file as TOMLI
+def get_all_configs():
+    """Return predefined grid configurations."""
+    return {
+        "maliau_1": {
+            "cell_nx": 50,
+            "cell_ny": 50,
+            "res": 100,
+            "bbox": (4.7170137, 116.9492683, 4.7569565, 116.9890846),
+            "timing": {
+                "start_date": "2010-01-01",
+                "update_interval": "1 month",
+                "run_length": "11 years",
+            },
+        },
+        "maliau_2": {
+            "cell_nx": 10,
+            "cell_ny": 10,
+            "res": 100,
+            "bbox": (4.7420402, 116.9679879, 4.7501825, 116.9761036),
+            "timing": {
+                "start_date": "2010-01-01",
+                "update_interval": "1 month",
+                "run_length": "11 years",
+            },
+        },
+    }
 
-cell_x_centres = [(ll_x_utm50N + res / 2) + res * idx for idx in range(cell_nx)]
-cell_y_centres = [(ll_y_utm50N + res / 2) + res * idx for idx in range(cell_ny)]
 
-grid_definition = dict(
-    epsg_code=32650,
-    ll_x=ll_x_utm50N,
-    ll_y=ll_y_utm50N,
-    ur_x=ur_x_utm50N,
-    ur_y=ur_y_utm50N,
-    bounds=maliau_grid_bounds_utm50N.bounds,
-    wgs84_bounds=maliau_grid_bounds_wgs84.bounds,
-    cell_nx=cell_nx,
-    cell_ny=cell_ny,
-    cell_x_centres=cell_x_centres,
-    cell_y_centres=cell_y_centres,
-    res=res,
-    core=dict(
-        grid=dict(
-            cell_area=res * res,
-            cell_nx=cell_nx,
-            cell_ny=cell_ny,
-            grid_type="square",
-            xoff=ll_x_utm50N + res / 2,
-            yoff=ll_y_utm50N + res / 2,
+def get_grid_config(grid_name: str):
+    """Return the configuration dictionary for a given grid scenario."""
+    configs = get_all_configs()
+    if grid_name not in configs:
+        raise ValueError(f"Invalid grid_name: {grid_name}")
+    return configs[grid_name]
+
+
+# ============================================================
+# GRID GENERATION
+# ============================================================
+# Generate grid definition from configuration.
+#   Steps:
+#    1. Convert bounding box (WGS84 → UTM)
+#    2. Snap grid to resolution
+#    3. Compute grid extent (LL and UR)
+#    4. Convert back to WGS84
+#    5. Compute cell centres
+#    6. Assemble final grid definition dictionary
+
+
+def build_grid_definition(config):
+    """Build a grid definition dictionary from a given configuration."""
+    # Extract parameters
+    cell_nx = config["cell_nx"]  # Number of grid cells in X direction
+    cell_ny = config["cell_ny"]  # Number of grid cells in Y direction
+    res = config["res"]  # Grid resolution of each grid cell (in meters)
+    (lat_min, lon_min, lat_max, lon_max) = config[
+        "bbox"
+    ]  # Bounding box in WGS84 geographic coordinates
+    timing = config.get("timing", None)  # timing configuration
+
+    # Define projection systems and transformation functions between WGS84
+    # and UTM Zone50N
+    # - WGS84 (EPSG:4326): Geographic coordinate system using latitude
+    #   and longitude (deg)
+    # - UTM Zone 50N (EPSG:32650): Projected coordinate system in meters
+    wgs84 = pyproj.Proj("epsg:4326")
+    utm50 = pyproj.Proj("epsg:32650")
+
+    # Transformers are defined for bidirectional conversion:
+    #   - wgs84_to_utm50N: converts (lon, lat) → (x, y) in meters
+    #   - utm50N_to_wgs84: converts (x, y) → (lon, lat)
+    to_utm = pyproj.Transformer.from_proj(wgs84, utm50, always_xy=True)
+    to_wgs = pyproj.Transformer.from_proj(utm50, wgs84, always_xy=True)
+
+    # NOTE:
+    # always_xy=True ensures coordinate order is always:
+    # (longitude, latitude), avoiding axis confusion
+    # Create bounding box (lon, lat order for shapely)
+
+    # Create bounding box polygon in WGS84
+    poly = box(lon_min, lat_min, lon_max, lat_max)
+    poly_utm = transform(to_utm.transform, poly)
+
+    # Extract bounding box limits in UTM
+    minx, miny, _, _ = poly_utm.bounds
+
+    # Snap lower-left corner to grid resolution
+    ll_x = math.floor(minx / res) * res
+    ll_y = math.floor(miny / res) * res
+
+    # Compute upper-right corner of grid
+    ur_x = ll_x + cell_nx * res
+    ur_y = ll_y + cell_ny * res
+
+    # Convert grid bounds back to WGS84
+    grid_bounds = box(ll_x, ll_y, ur_x, ur_y)
+    grid_bounds_wgs = transform(to_wgs.transform, grid_bounds)
+
+    # Compute grid cell centre coordinates
+    cx = [(ll_x + res / 2) + res * i for i in range(cell_nx)]  # X centres (eastings)
+    cy = [(ll_y + res / 2) + res * i for i in range(cell_ny)]  # Y centres (northings)
+
+    # Assemble final grid definition
+    return dict(
+        epsg_code=32650,
+        ll_x=ll_x,
+        ll_y=ll_y,
+        ur_x=ur_x,
+        ur_y=ur_y,
+        bounds=grid_bounds.bounds,
+        wgs84_bounds=grid_bounds_wgs.bounds,
+        cell_nx=cell_nx,
+        cell_ny=cell_ny,
+        cell_x_centres=cx,
+        cell_y_centres=cy,
+        res=res,
+        core=dict(
+            grid=dict(
+                cell_area=res * res,
+                cell_nx=cell_nx,
+                cell_ny=cell_ny,
+                grid_type="square",
+                xoff=ll_x,  # x offset (lower-left corner cell in UTM50N)
+                yoff=ll_y,  # y offset (lower-left corner cell in UTM50N)
+            ),
+            timing=timing,  # timing configuration
+        ),
+    )
+
+
+# ============================================================
+# WRITE TOML FILE
+# ============================================================
+# Write all scenarios to a TOML file in VE-compatible format.
+
+# For each scenario:
+# - Writes the main grid definition
+# - Ensures the `core.grid` and `core.timing`block are always included
+
+# The file is fully rewritten each time to maintain consistency and prevent missing
+# or partial sections.
+
+
+def write_all_scenarios(data, output_path):
+    """Write all grid scenarios to a TOML file."""
+    with open(output_path, "wb") as f:
+        f.write(b"[Scenario]\n")
+
+        for name, scenario in data["Scenario"].items():
+            f.write(f"\n[Scenario.{name}]\n".encode())
+
+            # Temporal formatting
+            timing = scenario["core"].get("timing", None)
+
+            if timing:
+                start_year = int(timing["start_date"][:4])
+                run_years = int(timing["run_length"].split()[0])
+                end_year = start_year + run_years - 1
+                temporal_str = (
+                    f"# Temporal: {start_year}-{end_year} ({run_years} years)\n"
+                )
+            else:
+                temporal_str = ""
+
+            # Write header comment for each scenario with grid and temporal info
+            f.write(
+                (
+                    f"# Site definition file for {name}\n"
+                    f"# Grid: {scenario['cell_nx']} x {scenario['cell_ny']} cells, "
+                    f"resolution = {scenario['res']} m\n"
+                    f"{temporal_str}\n"
+                ).encode()
+            )
+
+            # Write everything except core
+            main = {k: v for k, v in scenario.items() if k != "core"}
+            tomli_w.dump(main, f)
+
+            # Write core.grid for every scenario
+            f.write(f"\n[Scenario.{name}.core.grid]\n".encode())
+            tomli_w.dump(scenario["core"]["grid"], f)
+
+            # Write core.timing for every scenario
+            if "timing" in scenario["core"] and scenario["core"]["timing"] is not None:
+                f.write(f"\n[Scenario.{name}.core.timing]\n".encode())
+                tomli_w.dump(scenario["core"]["timing"], f)
+
+
+## ============================================================
+# MAIN RUN FUNCTION
+# ============================================================
+# Generate and write a grid scenario to the TOML file.
+# Loads existing scenarios, prevents overwriting, and ensures
+# a complete VE-compatible TOML structure.
+def run(grid_name):
+    """Generate and save a grid scenario to the TOML file."""
+
+    # Output file path
+    output_path = "data/derived/site/maliau/maliau_grid_definition.toml"
+
+    # Load existing scenarios (if file exists)
+    if os.path.exists(output_path):
+        with open(output_path, "rb") as f:
+            data = tomllib.load(f)
+    else:
+        data = {}
+
+    # Ensure "Scenario" container exists
+    if "Scenario" not in data:
+        data["Scenario"] = {}
+
+    # Prevent overwriting existing scenario
+    if grid_name in data["Scenario"]:
+        raise ValueError(
+            f"❌ Scenario '{grid_name}' already exists.\n"
+            f"Delete it manually if you want to regenerate."
         )
-    ),
-)
+    # Build new scenario
+    config = get_grid_config(grid_name)
+    new_grid = build_grid_definition(config)
 
-with open("data/derived/sites/maliau_grid_definition_90m.toml", "ab") as outfile:
-    outfile.write(b"# Site definition file for Maliau Basin\n")
-    tomli_w.dump(grid_definition, outfile)
+    # Add only if new
+    data["Scenario"][grid_name] = new_grid
+
+    # Write full TOML file
+    write_all_scenarios(data, output_path)
+    print(f"\n✔ Scenario '{grid_name}' written successfully (write-once).\n")
+
+
+# ============================================================
+# INTERACTIVE ENTRY POINT
+# ============================================================
+# Displays available scenarios, prompts user selection,validates input, and executes
+# the selected scenario via the run() function.
+
+if __name__ == "__main__":
+    configs = get_all_configs()
+    names = list(configs.keys())
+
+    print("\nAvailable scenarios:")
+    for n in names:
+        print(f" - {n}")
+
+    choice = input("\nEnter scenario: ").strip()
+
+    if choice not in names:
+        raise ValueError("Invalid choice")
+
+    run(choice)

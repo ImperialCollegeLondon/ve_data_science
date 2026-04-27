@@ -15,15 +15,27 @@ repos:
     # This is python specific linting and formatting using ruff
     rev: v0.14.5
     hooks:
-      - id: ruff # Run the linter.
-        args: [ --fix, --exit-non-zero-on-fix ]
-      - id: ruff-format # Run the formatter.
+    # Run the linter.
+    - id: ruff-check
+      args: [--fix, --exit-non-zero-on-fix, --target-version, py312]
+    # Run the formatter.
+    - id: ruff-format
   - repo: https://github.com/igorshubovych/markdownlint-cli
     # This is markdown linting
     rev: v0.45.0
     hooks:
       - id: markdownlint
         exclude: .ipynb_checkpoints
+  - repo: https://github.com/lorenzwalthert/precommit
+    # These are R specific tools to format and lint the code and check for common errors
+    # Note that this currently points to a specific GitHub commit to avoid an issue with
+    # Rcpp: https://github.com/lorenzwalthert/precommit/issues/612 but should be updated
+    # when that issue gets resolved in a published version.
+    rev: v0.4.3.9017
+    hooks:
+      - id: parsable-R
+      - id: no-browser-statement
+      - id: no-debug-statement
   - repo: https://github.com/posit-dev/air-pre-commit
     # Air formatter for R codes
     rev: 0.9.0

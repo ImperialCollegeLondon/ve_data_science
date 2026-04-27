@@ -136,7 +136,6 @@ param_summary <-
 # lignin content; also this is a crude conversion because ideally we would
 # incorporate the parameter uncertainty of r, but I'm only using its mean
 # estimate for simplicity here
-# nolint start
 param_summary[
   param_summary$Parameter == "kw",
   c("value", ".lower", ".upper")
@@ -155,7 +154,6 @@ param_summary[
     c("value", ".lower", ".upper")
   ] /
   exp(param_summary$value[param_summary$Parameter == "r"] * lignin_leaf)
-# nolint end
 
 # save output table
 write_csv(

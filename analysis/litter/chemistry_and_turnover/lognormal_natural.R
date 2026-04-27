@@ -1,4 +1,3 @@
-# nolint start
 # From https://github.com/paul-buerkner/custom-brms-families/blob/master/families/lognormal_natural.R
 
 # helper functions for post-processing of the family
@@ -56,5 +55,3 @@ stan_lognormal_natural <- "
                             sqrt(common_term));
   }
 "
-
-# nolint end

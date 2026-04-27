@@ -72,7 +72,7 @@ rownames(soil_mat) <- soil$sample_ID
 # TODO check if NA can pass model
 complete_cases <-
   complete.cases(soil_mat) &
-  apply(soil_mat, 1, function(x) all(is.finite(x))) # nolint
+  apply(soil_mat, 1, function(x) all(is.finite(x)))
 
 soil_mat <- soil_mat[complete_cases, ]
 
