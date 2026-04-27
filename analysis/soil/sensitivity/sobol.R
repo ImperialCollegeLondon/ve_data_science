@@ -1,12 +1,19 @@
 library(tidyverse)
 library(sensobol)
 library(tidync)
-source("tools/R/convert_array_to_nc.R")
+library(toml)
+library(RNetCDF)
+source("tools/R/convert_df_to_nc.R")
 source("tools/R/get_all_variables.R")
 source("tools/R/summarise_spatial.R")
 
 
 # Maliau input data -------------------------------------------------------
+
+maliau_1 <-
+  read_toml("data/derived/site/maliau/maliau_grid_definition.toml") |>
+  pluck("Scenario") |>
+  pluck("maliau_1")
 
 dat_maliau <- list(
   soil = tidync("data/scenarios/maliau/maliau_1/data/soil_maliau.nc"),
@@ -116,9 +123,12 @@ sobol_df <-
 # each row will be treated as a single-grid "scenario"
 # so convert the Sobol matrix to a list of single-grid variable arrays, which
 # will be further converted to netCDF input data
-foo <- as.list(sobol_df[1, ])
-
-
-# Convert data in the Sobol Matrix to netCDFs ----------------------------
-
-convert_array_to_nc()
+convert_df_to_nc(
+  sobol_df[1, ],
+  filename = "data/scenarios/sensitivity_soil_litter/soil_litter_data.nc",
+  x = maliau_1$ll_x,
+  y = maliau_1$ll_y,
+  element = c("C", "N", "P"),
+  units = rep("", length(maliau_vars_init)),
+  variables = maliau_vars_init
+)
