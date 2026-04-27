@@ -14,7 +14,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: SRTM_UTM50N_processed.tif

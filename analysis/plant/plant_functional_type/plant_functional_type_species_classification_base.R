@@ -392,6 +392,6 @@ data_taxa <- data_taxa[
 
 write.csv(
   data_taxa,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
   row.names = FALSE
 )

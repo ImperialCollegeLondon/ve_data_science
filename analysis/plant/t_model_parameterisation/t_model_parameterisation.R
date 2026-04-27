@@ -96,17 +96,14 @@ names(data)
 # Load PFT species classification base and clean up a bit
 
 PFT_species_classification_base <- read.csv(
-  # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[
-  # nolint
-  ,
+PFT_species_classification_base <- PFT_species_classification_base[,
   c("PFT", "PFT_name", "TaxaName")
 ]
-PFT_species_classification_base <- unique(PFT_species_classification_base) # nolint
+PFT_species_classification_base <- unique(PFT_species_classification_base)
 
 # Add PFT and PFT_name to data based on TaxaName and call it data_taxa
 
@@ -278,10 +275,10 @@ nls_model_1 <- nls(
   control = nls.control(maxiter = 100)
 ) # Increase iterations if needed
 summary(nls_model_1)
-coef_1 <- coef(nls_model_1) # nolint
-coef_1 # nolint
-Hm_1 <- coef_1["Hm"] # nolint
-a_1 <- coef_1["a"] # nolint
+coef_1 <- coef(nls_model_1)
+coef_1
+Hm_1 <- coef_1["Hm"]
+a_1 <- coef_1["a"]
 
 ggplot(
   plot_data[plot_data$PFT == "1", ],
@@ -294,7 +291,6 @@ ggplot(
   geom_point() +
   stat_function(
     fun = function(D) {
-      # nolint
       coef(nls_model_1)["Hm"] *
         (1 - exp(-coef(nls_model_1)["a"] * D / coef(nls_model_1)["Hm"]))
     },
@@ -331,7 +327,7 @@ nls_model_2 <- nls(
 summary(nls_model_2)
 coef_2 <- coef(nls_model_2)
 coef_2
-Hm_2 <- coef_2["Hm"] # nolint
+Hm_2 <- coef_2["Hm"]
 a_2 <- coef_2["a"]
 
 ggplot(
@@ -341,7 +337,6 @@ ggplot(
   geom_point() +
   stat_function(
     fun = function(D) {
-      # nolint
       coef(nls_model_2)["Hm"] *
         (1 - exp(-coef(nls_model_2)["a"] * D / coef(nls_model_2)["Hm"]))
     },
@@ -373,7 +368,7 @@ nls_model_3 <- nls(
 summary(nls_model_3)
 coef_3 <- coef(nls_model_3)
 coef_3
-Hm_3 <- coef_3["Hm"] # nolint
+Hm_3 <- coef_3["Hm"]
 a_3 <- coef_3["a"]
 
 ggplot(
@@ -383,7 +378,6 @@ ggplot(
   geom_point() +
   stat_function(
     fun = function(D) {
-      # nolint
       coef(nls_model_3)["Hm"] *
         (1 - exp(-coef(nls_model_3)["a"] * D / coef(nls_model_3)["Hm"]))
     },
@@ -420,7 +414,7 @@ nls_model_4 <- nls(
 summary(nls_model_4)
 coef_4 <- coef(nls_model_4)
 coef_4
-Hm_4 <- coef_4["Hm"] # nolint
+Hm_4 <- coef_4["Hm"]
 a_4 <- coef_4["a"]
 
 ggplot(
@@ -430,7 +424,6 @@ ggplot(
   geom_point() +
   stat_function(
     fun = function(D) {
-      # nolint
       coef(nls_model_4)["Hm"] *
         (1 - exp(-coef(nls_model_4)["a"] * D / coef(nls_model_4)["Hm"]))
     },
@@ -1167,7 +1160,7 @@ summary <- summary[, c(
 summary <- unique(summary)
 summary <- na.omit(summary)
 summary <- summary[order(summary$PFT), ]
-rownames(summary) <- 1:nrow(summary) # nolint
+rownames(summary) <- 1:nrow(summary)
 
 summary$WD_NB <- as.numeric(summary$WD_NB)
 summary$WD_NB_SD <- as.numeric(summary$WD_NB_SD)
@@ -1430,7 +1423,7 @@ summary <- left_join(summary, niiyama_data, by = "PFT_name")
 # dataset, which has the NPP and GPP for several plots at SAFE.
 
 SAFE_carbon_balance_components <- read_excel(
-  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx", # nolint
+  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
   sheet = "Data",
   col_names = FALSE
 )
@@ -1462,10 +1455,10 @@ SAFE_carbon_balance_components$GPP_WithMycorrhiza <-
 
 SAFE_carbon_balance_components$NPP_to_GPP_without <-
   SAFE_carbon_balance_components$TotalNPP_WithoutMycorrhiza /
-  SAFE_carbon_balance_components$GPP_WithoutMycorrhiza # nolint
+  SAFE_carbon_balance_components$GPP_WithoutMycorrhiza
 SAFE_carbon_balance_components$NPP_to_GPP_with <-
   SAFE_carbon_balance_components$TotalNPP_WithMycorrhiza /
-  SAFE_carbon_balance_components$GPP_WithMycorrhiza # nolint
+  SAFE_carbon_balance_components$GPP_WithMycorrhiza
 
 mean(SAFE_carbon_balance_components$NPP_to_GPP_without) # 0.4048004
 mean(SAFE_carbon_balance_components$NPP_to_GPP_with) # 0.4277772
