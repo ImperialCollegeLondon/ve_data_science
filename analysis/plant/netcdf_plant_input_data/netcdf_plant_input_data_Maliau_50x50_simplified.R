@@ -60,14 +60,14 @@ library(ncdf4)
 
 # Load the Maliau cohort distribution
 cohort_distribution <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv",
   header = TRUE
 )
 
 #####
 
 # Obtain variable axes
-# (see plant data under https://virtual-ecosystem.readthedocs.io/en/latest/using_the_ve/example_data.html#data-files) # nolint
+# (see plant data under https://virtual-ecosystem.readthedocs.io/en/latest/using_the_ve/example_data.html#data-files)
 
 # -plant_pft_propagules: cell_id and pft
 # -subcanopy_vegetation_biomass: cel_id
@@ -119,13 +119,13 @@ recruits_per_hectare <- (121 * 100) / 20 * 12 # converted to per hectare per yea
 
 seedling_survival_rate <- 0.84^(12 / 20) # converted to per year
 
-recruits_per_hectare_without_mortality <- # nolint
+recruits_per_hectare_without_mortality <-
   recruits_per_hectare / seedling_survival_rate # these represent germinated seeds
 
 germination_rate <- 0.023 / 2 # converted to per year
 
 seedbank <-
-  recruits_per_hectare_without_mortality / germination_rate # all seeds across PFTs # nolint
+  recruits_per_hectare_without_mortality / germination_rate # all seeds across PFTs
 
 # Distribute seedbank evenly across PFTs
 # Round down to avoid decimal seeds
@@ -145,7 +145,7 @@ plant_pft_propagules[2, ] <- seedbank_understory
 
 # Load the subcanopy parameters
 subcanopy_parameters <- read.csv(
-  "../../../data/derived/plant/subcanopy/subcanopy_parameters.csv", # nolint
+  "../../../data/derived/plant/subcanopy/subcanopy_parameters.csv",
   header = TRUE
 )
 
@@ -174,7 +174,7 @@ nc <-
   create.nc(
     "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc",
     format = "netcdf4"
-  ) # nolint
+  )
 
 # Define dimensions
 dim.def.nc(nc, "cell_id", length(cell_id_index))
@@ -205,7 +205,7 @@ close.nc(nc)
 plant_input_data_Maliau_50x50 <-
   nc_open(
     "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc"
-  ) # nolint
+  )
 
 names(plant_input_data_Maliau_50x50$var)
 ncvar_get(plant_input_data_Maliau_50x50, "plant_pft_propagules")

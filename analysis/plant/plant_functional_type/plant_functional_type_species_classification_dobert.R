@@ -144,7 +144,7 @@ unique(dobert_2017_species_trait_data$fruit)
 
 # "berry","berry-like","drupe" = "fleshy"
 # "achene","capsule","caryopsis","follicle","legume","nut","samara",
-# "schizocarp" = "dry" # nolint
+# "schizocarp" = "dry"
 
 dobert_2017_species_trait_data$fruit[
   dobert_2017_species_trait_data$fruit %in%
@@ -318,7 +318,7 @@ dobert_2017_species_trait_data$wood.dens <-
 # Save plant_functional_type_species_classification_dobert
 # Get same variables as maximum_height output
 # PFT_final, PFT_name, TaxaName, TaxaLevel, Species, Genus, Family, maximum_height
-plant_functional_type_species_classification_dobert <- # nolint
+plant_functional_type_species_classification_dobert <-
   dobert_2017_species_trait_data[,
     c(
       "PFT_sub",
@@ -330,13 +330,13 @@ plant_functional_type_species_classification_dobert <- # nolint
     )
   ]
 
-colnames(plant_functional_type_species_classification_dobert) <- # nolint
+colnames(plant_functional_type_species_classification_dobert) <-
   c("PFT_name", "TaxaName", "Species", "Genus", "Family", "maximum_height")
 
 # Write CSV file
 write.csv(
   plant_functional_type_species_classification_dobert,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv",
   row.names = FALSE
 )
 
@@ -344,12 +344,12 @@ write.csv(
 
 # Now also save dobert_2017_species_trait_data_PFT so that it can be used for
 # other scripts
-dobert_2017_species_trait_data_PFT <- # nolint
+dobert_2017_species_trait_data_PFT <-
   dobert_2017_species_trait_data[, c(1:11, 13)]
 
 names(dobert_2017_species_trait_data_PFT)
 
-colnames(dobert_2017_species_trait_data_PFT) <- # nolint
+colnames(dobert_2017_species_trait_data_PFT) <-
   c(
     "Species_code",
     "Family",
@@ -368,6 +368,6 @@ colnames(dobert_2017_species_trait_data_PFT) <- # nolint
 # Write CSV file
 write.csv(
   dobert_2017_species_trait_data_PFT,
-  "../../../data/derived/plant/traits_data/dobert_2017_species_trait_data_PFT.csv", # nolint
+  "../../../data/derived/plant/traits_data/dobert_2017_species_trait_data_PFT.csv",
   row.names = FALSE
 )

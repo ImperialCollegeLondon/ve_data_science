@@ -65,13 +65,11 @@ library(glmmTMB)
 # we will reassign them to aboveground metabolic and aboveground structural later
 
 litter_stock <-
-  # nolint start
   read_xlsx(
     "data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
     sheet = 4,
     skip = 5
   ) %>%
-  # nolint end
   select(field_name:ForestPlotsCode, LitterStock) %>%
   # convert litter stock from Mg C / ha to kg C / m2
   mutate(LitterStock = LitterStock * 0.1)

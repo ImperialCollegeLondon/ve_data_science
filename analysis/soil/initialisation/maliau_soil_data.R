@@ -104,7 +104,6 @@ dat <-
 source("analysis/soil/initialisation/model_safe.R")
 
 # extract covariates to the Maliau region of interest
-# nolint start
 dat <-
   dat |>
   mutate(
@@ -132,7 +131,6 @@ dat <-
   # we need to fill in two NA grids in the EVI layer,
   # I think they are due to rivers / water bodies
   fill(evi)
-# nolint end
 
 # new basis functions for the Maliau region
 maliau_basis <-
@@ -187,7 +185,6 @@ dat <-
 # Both are predicted from control plots from a tropical forest in BCI
 source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
 
-# nolint start
 dat <-
   dat |>
   mutate(
@@ -240,7 +237,6 @@ dat <-
       type = "response"
     )
   )
-# nolint end
 
 # soil_c_pool_lmwc
 # using DOC as a proxy

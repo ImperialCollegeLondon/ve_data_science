@@ -69,7 +69,7 @@ library(tidyverse)
 # Load the input data files
 
 cohort_distribution <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv",
   header = TRUE
 )
 
@@ -84,7 +84,7 @@ t_model_parameters <- read.csv(
 )
 
 reproductive_tissue_allocation <- read.csv(
-  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv", # nolint
+  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv",
   header = TRUE
 )
 
@@ -99,13 +99,12 @@ subcanopy_parameters <- read.csv(
 
 # Start from t_model_parameters
 
-plant_pft_definitions_Maliau_50x50 <- t_model_parameters # nolint
+plant_pft_definitions_Maliau_50x50 <- t_model_parameters
 
 # Exclude root_exudates, per_stem_annual_mortality_probability and
 # per_propagule_annual_recruitment_probability
 
 plant_pft_definitions_Maliau_50x50 <- subset(
-  # nolint
   plant_pft_definitions_Maliau_50x50,
   select = -c(
     root_exudates,
@@ -156,18 +155,18 @@ plant_pft_definitions_Maliau_50x50 <- subset(
 # Add missing ones
 
 # m
-plant_pft_definitions_Maliau_50x50$m <- 2 # nolint
+plant_pft_definitions_Maliau_50x50$m <- 2
 # n
-plant_pft_definitions_Maliau_50x50$n <- 5 # nolint
+plant_pft_definitions_Maliau_50x50$n <- 5
 # f_g
-plant_pft_definitions_Maliau_50x50$f_g <- 0.02 # nolint
+plant_pft_definitions_Maliau_50x50$f_g <- 0.02
 # gpp_topslice
-plant_pft_definitions_Maliau_50x50$gpp_topslice <- 0.1 # nolint
+plant_pft_definitions_Maliau_50x50$gpp_topslice <- 0.1
 
 # p_foliage_for_reproductive_tissue
 # Use Kitayama et al., 2015 reference in Aoyagi et al., 2018 (row 10) in
 # reproductive_tissue_allocation
-plant_pft_definitions_Maliau_50x50$p_foliage_for_reproductive_tissue <- 0.073545706 # nolint
+plant_pft_definitions_Maliau_50x50$p_foliage_for_reproductive_tissue <- 0.073545706
 
 # deadwood_c_n_ratio
 # deadwood_c_p_ratio
@@ -193,11 +192,11 @@ temp <- plant_stoichiometry[, c(
   "foliage_c_p_ratio"
 )]
 
-plant_pft_definitions_Maliau_50x50 <- # nolint
+plant_pft_definitions_Maliau_50x50 <-
   left_join(plant_pft_definitions_Maliau_50x50, temp, by = "name")
 
 # Subset to simplified PFTs (overstory and understory only)
-plant_pft_definitions_Maliau_50x50 <- # nolint
+plant_pft_definitions_Maliau_50x50 <-
   plant_pft_definitions_Maliau_50x50[
     plant_pft_definitions_Maliau_50x50$name %in% c("overstory", "understory"),
   ]
@@ -208,7 +207,7 @@ plant_pft_definitions_Maliau_50x50 <- # nolint
 
 write.csv(
   plant_pft_definitions_Maliau_50x50,
-  "../../../data/derived/plant/csv_plant_input_data/plant_pft_definitions_Maliau_50x50_simplified.csv", # nolint
+  "../../../data/derived/plant/csv_plant_input_data/plant_pft_definitions_Maliau_50x50_simplified.csv",
   row.names = FALSE
 )
 
@@ -298,7 +297,7 @@ plant_constants_Maliau_50x50$carbon_mass_per_propagule <-
 
 write.csv(
   plant_constants_Maliau_50x50,
-  "../../../data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50_simplified.csv", # nolint
+  "../../../data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50_simplified.csv",
   row.names = FALSE
 )
 
@@ -320,7 +319,7 @@ plant_cohort_data_Maliau_50x50$plant_cohorts_pft_simplified[
 ] <- "overstory"
 
 # Calculate new count of individuals per DBH
-plant_cohort_data_Maliau_50x50_simplified <- plant_cohort_data_Maliau_50x50 %>% # nolint
+plant_cohort_data_Maliau_50x50_simplified <- plant_cohort_data_Maliau_50x50 %>%
   group_by(
     plant_cohorts_cell_id,
     plant_cohorts_pft_simplified,
@@ -332,7 +331,7 @@ plant_cohort_data_Maliau_50x50_simplified <- plant_cohort_data_Maliau_50x50 %>% 
   )
 
 # Rename simplified variables to match original names (with updated values)
-plant_cohort_data_Maliau_50x50_simplified <- # nolint
+plant_cohort_data_Maliau_50x50_simplified <-
   plant_cohort_data_Maliau_50x50_simplified[, c(
     "plant_cohorts_cell_id",
     "plant_cohorts_n_simplified",
@@ -340,7 +339,7 @@ plant_cohort_data_Maliau_50x50_simplified <- # nolint
     "plant_cohorts_dbh"
   )]
 
-colnames(plant_cohort_data_Maliau_50x50_simplified) <- # nolint
+colnames(plant_cohort_data_Maliau_50x50_simplified) <-
   c(
     "plant_cohorts_cell_id",
     "plant_cohorts_n",
@@ -352,6 +351,6 @@ colnames(plant_cohort_data_Maliau_50x50_simplified) <- # nolint
 
 write.csv(
   plant_cohort_data_Maliau_50x50_simplified,
-  "../../../data/derived/plant/csv_plant_input_data/plant_cohort_data_Maliau_50x50_simplified.csv", # nolint
+  "../../../data/derived/plant/csv_plant_input_data/plant_cohort_data_Maliau_50x50_simplified.csv",
   row.names = FALSE
 )
