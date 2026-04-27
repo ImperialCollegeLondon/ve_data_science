@@ -84,17 +84,14 @@ names(data)
 # Load PFT species classification base and clean up a bit
 
 PFT_species_classification_base <- read.csv(
-  # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[
-  # nolint
-  ,
+PFT_species_classification_base <- PFT_species_classification_base[,
   c("PFT", "PFT_name", "TaxaName")
 ]
-PFT_species_classification_base <- unique(PFT_species_classification_base) # nolint
+PFT_species_classification_base <- unique(PFT_species_classification_base)
 
 # Add PFT and PFT_name to data based on TaxaName and call it data_taxa
 
