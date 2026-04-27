@@ -154,7 +154,7 @@ taxa_present <- colnames(dobert_2017_plot_species_data[2:15])
 # scipic = scindapsus pictus = herbaceous climber
 # sel225 = selliguea sp. = fern
 # stasum = stachyphrynium sumatranum = forb
-# zinunk = zingiberaceae = forb (ginger) # nolint
+# zinunk = zingiberaceae = forb (ginger)
 
 # Calculate total subcanopy dry mass per plot (g m-2)
 
@@ -340,20 +340,20 @@ write.csv(
 
 # Summary of units
 
-# "subcanopy_vegetation_biomass" = kg C m-2 # nolint
-# "subcanopy_seedbank_biomass" = kg C m-2 # nolint
-# "subcanopy_specific_leaf_area" = m2 kg-1 C # nolint
-# "subcanopy_reproductive_allocation" = fraction of aboveground (leaf) biomass # nolint
-# "subcanopy_respiration_fraction" = fraction of GPP # nolint
-# "subcanopy_extinction_coef" = unitless # nolint
-# "subcanopy_yield" = fraction of GPP # nolint
-# "subcanopy_vegetation_turnover" = year-1 # nolint
-# "subcanopy_vegetation_c_n_ratio" = unitless # nolint
-# "subcanopy_vegetation_c_p_ratio" = unitless # nolint
-# "subcanopy_vegetation_lignin" = unitless # nolint
-# "subcanopy_seedbank_turnover" = year-1 # nolint
-# "subcanopy_sprout_rate" = fraction of seedbank carbon mass year-1 # nolint
-# "subcanopy_sprout_yield" = fraction of seedbank carbon mass # nolint
-# "subcanopy_seedbank_c_n_ratio" = unitless # nolint
-# "subcanopy_seedbank_c_p_ratio" = unitless # nolint
-# "subcanopy_seedbank_lignin" = unitless # nolint
+# "subcanopy_vegetation_biomass" = kg C m-2
+# "subcanopy_seedbank_biomass" = kg C m-2
+# "subcanopy_specific_leaf_area" = m2 kg-1 C
+# "subcanopy_reproductive_allocation" = fraction of aboveground (leaf) biomass
+# "subcanopy_respiration_fraction" = fraction of GPP
+# "subcanopy_extinction_coef" = unitless
+# "subcanopy_yield" = fraction of GPP
+# "subcanopy_vegetation_turnover" = year-1
+# "subcanopy_vegetation_c_n_ratio" = unitless
+# "subcanopy_vegetation_c_p_ratio" = unitless
+# "subcanopy_vegetation_lignin" = unitless
+# "subcanopy_seedbank_turnover" = year-1
+# "subcanopy_sprout_rate" = fraction of seedbank carbon mass year-1
+# "subcanopy_sprout_yield" = fraction of seedbank carbon mass
+# "subcanopy_seedbank_c_n_ratio" = unitless
+# "subcanopy_seedbank_c_p_ratio" = unitless
+# "subcanopy_seedbank_lignin" = unitless
