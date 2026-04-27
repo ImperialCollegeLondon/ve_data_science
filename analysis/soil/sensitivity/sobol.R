@@ -54,10 +54,79 @@ for (var in maliau_vars_init) {
     mat[, var] * (max - min) + min
 }
 
+# convert to dataframe, and then combine CNP into triplet columns
+sobol_df <-
+  mat |>
+  as.data.frame() |>
+  # combine C, N and P columns into a single list column
+  mutate(
+    soil_cnp_pool_lmwc = pmap(
+      list(soil_cnp_pool_lmwc_C, soil_cnp_pool_lmwc_N, soil_cnp_pool_lmwc_P),
+      c
+    ),
+    soil_cnp_pool_maom = pmap(
+      list(soil_cnp_pool_maom_C, soil_cnp_pool_maom_N, soil_cnp_pool_maom_P),
+      c
+    ),
+    soil_cnp_pool_pom = pmap(
+      list(soil_cnp_pool_pom_C, soil_cnp_pool_pom_N, soil_cnp_pool_pom_P),
+      c
+    ),
+    soil_cnp_pool_necromass = pmap(
+      list(
+        soil_cnp_pool_necromass_C,
+        soil_cnp_pool_necromass_N,
+        soil_cnp_pool_necromass_P
+      ),
+      c
+    ),
+    litter_pool_above_metabolic_cnp = pmap(
+      list(
+        litter_pool_above_metabolic_cnp_C,
+        litter_pool_above_metabolic_cnp_N,
+        litter_pool_above_metabolic_cnp_P
+      ),
+      c
+    ),
+    litter_pool_below_metabolic_cnp = pmap(
+      list(
+        litter_pool_below_metabolic_cnp_C,
+        litter_pool_below_metabolic_cnp_N,
+        litter_pool_below_metabolic_cnp_P
+      ),
+      c
+    ),
+    litter_pool_above_structural_cnp = pmap(
+      list(
+        litter_pool_above_structural_cnp_C,
+        litter_pool_above_structural_cnp_N,
+        litter_pool_above_structural_cnp_P
+      ),
+      c
+    ),
+    litter_pool_below_structural_cnp = pmap(
+      list(
+        litter_pool_below_structural_cnp_C,
+        litter_pool_below_structural_cnp_N,
+        litter_pool_below_structural_cnp_P
+      ),
+      c
+    ),
+    litter_pool_woody_cnp = pmap(
+      list(
+        litter_pool_woody_cnp_C,
+        litter_pool_woody_cnp_N,
+        litter_pool_woody_cnp_P
+      ),
+      c
+    ),
+    .keep = "unused"
+  )
+
 # each row will be treated as a single-grid "scenario"
 # so convert the Sobol matrix to a list of single-grid variable arrays, which
 # will be further converted to netCDF input data
-foo <- as.list(mat[1, ])
+foo <- as.list(sobol_df[1, ])
 
 
 # Convert data in the Sobol Matrix to netCDFs ----------------------------
