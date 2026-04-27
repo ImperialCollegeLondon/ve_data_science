@@ -42,6 +42,10 @@ library(tidyverse)
 library(RcppTOML)
 library(RNetCDF)
 library(tidync)
+library(purrr)
+source("analysis/soil/initialisation/convert_array_to_nc.R")
+source("analysis/soil/initialisation/subset_nc.R")
+source("analysis/soil/initialisation/get_all_variables.R")
 
 
 # Maliau site metadata ----------------------------------------------------
@@ -57,94 +61,20 @@ ur_y <- maliau_subset$ur_y
 
 # Subset input data ------------------------------------------------------
 
-soil_subset <-
-  tidync("data/scenarios/maliau/maliau_1/data/soil_maliau.nc") |>
-  hyper_filter(
-    x = x > ll_x & x < ur_x,
-    y = y > ll_y & y < ur_y
-  )
-soil_subset_3D <-
-  soil_subset |>
-  activate("D2,D1,D0") |>
-  hyper_array()
-soil_subset_2D <-
-  soil_subset |>
-  activate("D1,D0") |>
-  hyper_array()
-soil_subset_x <-
-  soil_subset |>
-  activate("D0") |>
-  hyper_array()
-soil_subset_y <-
-  soil_subset |>
-  activate("D1") |>
-  hyper_array()
-soil_subset_element <-
-  soil_subset |>
-  activate("D2") |>
-  hyper_array()
+ncout <- subset_nc(
+  nc = "data/scenarios/maliau/maliau_1/data/soil_maliau.nc",
+  ll_x = ll_x,
+  ll_y = ll_y,
+  ur_x = ur_x,
+  ur_y = ur_y,
+  filename = "data/scenarios/maliau/maliau_2/data/soil_maliau.nc",
+  description = "Soil data for the Maliau 2 scenario",
+  close.nc = FALSE
+)
 
-
-# Output subset data -----------------------------------------------------
-
-# path and file name of netCDF
-ncpath <- "data/scenarios/maliau/maliau_2/data/"
-ncname <- "soil_maliau"
-ncfname <- paste0(ncpath, ncname, ".nc")
-
-# create netCDF file
-ncout <- create.nc(ncfname, format = "netcdf4")
-
-# define dimensions
-dim.def.nc(ncout, "x", maliau_subset$cell_nx)
-dim.def.nc(ncout, "y", maliau_subset$cell_ny)
-dim.def.nc(ncout, "element", 3)
-var.def.nc(ncout, "x", "NC_FLOAT", "x")
-var.def.nc(ncout, "y", "NC_FLOAT", "y")
-var.def.nc(ncout, "element", "NC_STRING", "element")
+# add units
 att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
 att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
-var.put.nc(ncout, "x", soil_subset_x$x)
-var.put.nc(ncout, "y", soil_subset_y$y)
-var.put.nc(ncout, "element", soil_subset_element$element)
-
-# define and put variables
-for (i in names(soil_subset_2D)) {
-  var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y")))
-  var.put.nc(ncout, i, soil_subset_2D[[i]])
-  # add units
-  # more metadata can be added here
-  att.put.nc(
-    ncout,
-    i,
-    "units",
-    "NC_CHAR",
-    soil_subset$attribute$value[soil_subset$attribute$variable == i]$units
-  )
-}
-
-for (i in names(soil_subset_3D)) {
-  var.def.nc(ncout, i, "NC_DOUBLE", rev(c("x", "y", "element")))
-  var.put.nc(ncout, i, soil_subset_3D[[i]])
-  # add units
-  # more metadata can be added here
-  att.put.nc(
-    ncout,
-    i,
-    "units",
-    "NC_CHAR",
-    soil_subset$attribute$value[soil_subset$attribute$variable == i]$units
-  )
-}
-
-# add global attributes
-att.put.nc(
-  ncout,
-  "NC_GLOBAL",
-  "description",
-  "NC_CHAR",
-  "Soil data for the Maliau 2 scenario"
-)
 
 # Get a summary of the created file
 print.nc(ncout)
