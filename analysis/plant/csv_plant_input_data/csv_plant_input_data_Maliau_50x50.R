@@ -104,7 +104,6 @@ plant_pft_definitions_Maliau_50x50 <- t_model_parameters # nolint
 # per_propagule_annual_recruitment_probability
 
 plant_pft_definitions_Maliau_50x50 <- subset(
-  # nolint
   plant_pft_definitions_Maliau_50x50,
   select = -c(
     root_exudates,
