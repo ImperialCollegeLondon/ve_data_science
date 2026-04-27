@@ -71,7 +71,6 @@
 #|   this script. Variable names have been matched with those used by the VE.
 #| ---
 
-
 # Load packages
 
 library(readxl)
@@ -96,16 +95,15 @@ names(data)
 
 # Load PFT species classification base and clean up a bit
 
-PFT_species_classification_base <- read.csv( # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
+PFT_species_classification_base <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[ # nolint
-  ,
+PFT_species_classification_base <- PFT_species_classification_base[,
   c("PFT", "PFT_name", "TaxaName")
 ]
-PFT_species_classification_base <- unique(PFT_species_classification_base) # nolint
+PFT_species_classification_base <- unique(PFT_species_classification_base)
 
 # Add PFT and PFT_name to data based on TaxaName and call it data_taxa
 
@@ -114,27 +112,60 @@ data_taxa <- left_join(data, PFT_species_classification_base, by = "TaxaName")
 # Give plots a logging indicator
 
 data_taxa$logging <- NA
-data_taxa$logging[data_taxa$Block %in%
-  c(
-    "LFE", "LF1", "LF2", "LF3"
-  )] <- "logged"
-data_taxa$logging[data_taxa$Block %in%
-  c(
-    "A", "B", "C", "D", "E", "F", "VJR", "OG1",
-    "OG2", "OG3"
-  )] <- "unlogged"
-data_taxa$logging[data_taxa$Block %in%
-  c(
-    "OP1", "OP2", "OP3"
-  )] <- "oil_palm"
+data_taxa$logging[
+  data_taxa$Block %in%
+    c(
+      "LFE",
+      "LF1",
+      "LF2",
+      "LF3"
+    )
+] <- "logged"
+data_taxa$logging[
+  data_taxa$Block %in%
+    c(
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "VJR",
+      "OG1",
+      "OG2",
+      "OG3"
+    )
+] <- "unlogged"
+data_taxa$logging[
+  data_taxa$Block %in%
+    c(
+      "OP1",
+      "OP2",
+      "OP3"
+    )
+] <- "oil_palm"
 
 unique(data_taxa$logging)
 
-data_taxa <- data_taxa[data_taxa$Block %in%
-  c(
-    "LFE", "LF1", "LF2", "LF3", "A", "B", "C", "D",
-    "E", "F", "VJR", "OG1", "OG2", "OG3"
-  ), ]
+data_taxa <- data_taxa[
+  data_taxa$Block %in%
+    c(
+      "LFE",
+      "LF1",
+      "LF2",
+      "LF3",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "VJR",
+      "OG1",
+      "OG2",
+      "OG3"
+    ),
+]
 
 
 ##########
@@ -145,18 +176,38 @@ data_taxa <- data_taxa[data_taxa$Block %in%
 # Initial slope of height–diameter relationship
 
 plot_data <- data_taxa[, c(
-  "Block", "Plot", "PlotID", "logging", "TagStem_latest", "PFT", "Genus",
-  "Species", "TaxaName", "HeightTotal_m_2011", "DBH2011_mm_clean",
-  "CanopyRadiusNorth_cm_2011", "CanopyRadiusEast_cm_2011",
-  "CanopyRadiusSouth_cm_2011", "CanopyRadiusWest_cm_2011", "HeightBranch_m_2011"
+  "Block",
+  "Plot",
+  "PlotID",
+  "logging",
+  "TagStem_latest",
+  "PFT",
+  "Genus",
+  "Species",
+  "TaxaName",
+  "HeightTotal_m_2011",
+  "DBH2011_mm_clean",
+  "CanopyRadiusNorth_cm_2011",
+  "CanopyRadiusEast_cm_2011",
+  "CanopyRadiusSouth_cm_2011",
+  "CanopyRadiusWest_cm_2011",
+  "HeightBranch_m_2011"
 )]
 
 plot_data$HeightTotal_m_2011 <- as.numeric(plot_data$HeightTotal_m_2011)
 plot_data$DBH2011_mm_clean <- as.numeric(plot_data$DBH2011_mm_clean)
-plot_data$CanopyRadiusNorth_cm_2011 <- as.numeric(plot_data$CanopyRadiusNorth_cm_2011)
-plot_data$CanopyRadiusEast_cm_2011 <- as.numeric(plot_data$CanopyRadiusEast_cm_2011)
-plot_data$CanopyRadiusSouth_cm_2011 <- as.numeric(plot_data$CanopyRadiusSouth_cm_2011)
-plot_data$CanopyRadiusWest_cm_2011 <- as.numeric(plot_data$CanopyRadiusWest_cm_2011)
+plot_data$CanopyRadiusNorth_cm_2011 <- as.numeric(
+  plot_data$CanopyRadiusNorth_cm_2011
+)
+plot_data$CanopyRadiusEast_cm_2011 <- as.numeric(
+  plot_data$CanopyRadiusEast_cm_2011
+)
+plot_data$CanopyRadiusSouth_cm_2011 <- as.numeric(
+  plot_data$CanopyRadiusSouth_cm_2011
+)
+plot_data$CanopyRadiusWest_cm_2011 <- as.numeric(
+  plot_data$CanopyRadiusWest_cm_2011
+)
 plot_data$HeightBranch_m_2011 <- as.numeric(plot_data$HeightBranch_m_2011)
 
 plot_data$logging <- as.factor(plot_data$logging)
@@ -180,10 +231,12 @@ plot_data$crown_radius <- rowMeans(cbind(
 
 plot_data$crown_circular_area <- pi * ((plot_data$crown_radius / 100)^2)
 # Converted to meters
-plot_data$crown_ellipsoidal_area <- 0.25 * (
-  pi * 2 * plot_data$crown_radius / 100 *
-    (plot_data$HeightTotal_m_2011 - plot_data$HeightBranch_m_2011)
-)
+plot_data$crown_ellipsoidal_area <- 0.25 *
+  (pi *
+    2 *
+    plot_data$crown_radius /
+    100 *
+    (plot_data$HeightTotal_m_2011 - plot_data$HeightBranch_m_2011))
 plot_data$crown_projected_area <- plot_data$crown_ellipsoidal_area
 
 plot_data$DBH2011_m <- plot_data$DBH2011_mm_clean / 1000 # Scale DBH to meters
@@ -192,10 +245,14 @@ plot_data$DBH2011_m <- plot_data$DBH2011_mm_clean / 1000 # Scale DBH to meters
 
 # Checking crown projected area (for comparison with Pyrealm graphs)
 
-ggplot(plot_data, aes(
-  x = DBH2011_m, y = crown_projected_area, color =
-    factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = DBH2011_m,
+    y = crown_projected_area,
+    color = factor(PFT)
+  )
+) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ exp(x), se = FALSE) + # Exponential fit
   ylim(0, 300) + # Limit y-axis to 300
@@ -211,32 +268,37 @@ ggplot(plot_data, aes(
 
 plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "1", ])
 
-nls_model_1 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
+nls_model_1 <- nls(
+  HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
   data = plot_data[plot_data$PFT == "1", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
 ) # Increase iterations if needed
 summary(nls_model_1)
-coef_1 <- coef(nls_model_1) # nolint
-coef_1 # nolint
-Hm_1 <- coef_1["Hm"] # nolint
-a_1 <- coef_1["a"] # nolint
+coef_1 <- coef(nls_model_1)
+coef_1
+Hm_1 <- coef_1["Hm"]
+a_1 <- coef_1["a"]
 
-ggplot(plot_data[plot_data$PFT == "1", ], aes(
-  x = DBH2011_m,
-  y = HeightTotal_m_2011,
-  color = logging
-)) +
+ggplot(
+  plot_data[plot_data$PFT == "1", ],
+  aes(
+    x = DBH2011_m,
+    y = HeightTotal_m_2011,
+    color = logging
+  )
+) +
   geom_point() +
   stat_function(
-    fun = function(D) { # nolint
+    fun = function(D) {
       coef(nls_model_1)["Hm"] *
         (1 - exp(-coef(nls_model_1)["a"] * D / coef(nls_model_1)["Hm"]))
     },
     color = "blue"
   ) +
   labs(
-    x = "Diameter (m)", y = "Height (m)",
+    x = "Diameter (m)",
+    y = "Height (m)",
     title = "Height-Diameter Relationship PFT1"
   )
 
@@ -256,7 +318,8 @@ data_taxa$a_SE[data_taxa$PFT == "1"] <-
 
 plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "2", ])
 
-nls_model_2 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
+nls_model_2 <- nls(
+  HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
   data = plot_data[plot_data$PFT == "2", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
@@ -264,7 +327,7 @@ nls_model_2 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
 summary(nls_model_2)
 coef_2 <- coef(nls_model_2)
 coef_2
-Hm_2 <- coef_2["Hm"] # nolint
+Hm_2 <- coef_2["Hm"]
 a_2 <- coef_2["a"]
 
 ggplot(
@@ -273,14 +336,15 @@ ggplot(
 ) +
   geom_point() +
   stat_function(
-    fun = function(D) { # nolint
+    fun = function(D) {
       coef(nls_model_2)["Hm"] *
         (1 - exp(-coef(nls_model_2)["a"] * D / coef(nls_model_2)["Hm"]))
     },
     color = "blue"
   ) +
   labs(
-    x = "Diameter (m)", y = "Height (m)",
+    x = "Diameter (m)",
+    y = "Height (m)",
     title = "Height-Diameter Relationship PFT2"
   )
 
@@ -295,7 +359,8 @@ data_taxa$a_SE[data_taxa$PFT == "2"] <-
 
 plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "3", ])
 
-nls_model_3 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
+nls_model_3 <- nls(
+  HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
   data = plot_data[plot_data$PFT == "3", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
@@ -303,7 +368,7 @@ nls_model_3 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
 summary(nls_model_3)
 coef_3 <- coef(nls_model_3)
 coef_3
-Hm_3 <- coef_3["Hm"] # nolint
+Hm_3 <- coef_3["Hm"]
 a_3 <- coef_3["a"]
 
 ggplot(
@@ -312,14 +377,15 @@ ggplot(
 ) +
   geom_point() +
   stat_function(
-    fun = function(D) { # nolint
+    fun = function(D) {
       coef(nls_model_3)["Hm"] *
         (1 - exp(-coef(nls_model_3)["a"] * D / coef(nls_model_3)["Hm"]))
     },
     color = "blue"
   ) +
   labs(
-    x = "Diameter (m)", y = "Height (m)",
+    x = "Diameter (m)",
+    y = "Height (m)",
     title = "Height-Diameter Relationship PFT3"
   )
 
@@ -332,11 +398,15 @@ data_taxa$a_SE[data_taxa$PFT == "3"] <-
 
 # PFT 4 (low data availability for height measurements)
 
-plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[
-  plot_data$PFT == "4",
-])
+plot(
+  HeightTotal_m_2011 ~ DBH2011_m,
+  data = plot_data[
+    plot_data$PFT == "4",
+  ]
+)
 
-nls_model_4 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
+nls_model_4 <- nls(
+  HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
   data = plot_data[plot_data$PFT == "4", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
@@ -344,7 +414,7 @@ nls_model_4 <- nls(HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
 summary(nls_model_4)
 coef_4 <- coef(nls_model_4)
 coef_4
-Hm_4 <- coef_4["Hm"] # nolint
+Hm_4 <- coef_4["Hm"]
 a_4 <- coef_4["a"]
 
 ggplot(
@@ -353,14 +423,15 @@ ggplot(
 ) +
   geom_point() +
   stat_function(
-    fun = function(D) { # nolint
+    fun = function(D) {
       coef(nls_model_4)["Hm"] *
         (1 - exp(-coef(nls_model_4)["a"] * D / coef(nls_model_4)["Hm"]))
     },
     color = "blue"
   ) +
   labs(
-    x = "Diameter (m)", y = "Height (m)",
+    x = "Diameter (m)",
+    y = "Height (m)",
     title = "Height-Diameter Relationship PFT 4"
   )
 
@@ -380,14 +451,19 @@ data_taxa$a_SE[data_taxa$PFT == "4"] <-
 backup <- plot_data
 plot_data <- backup[backup$PFT == "1", ]
 
-plot_data$piDH4a <- pi * plot_data$DBH2011_m *
-  plot_data$HeightTotal_m_2011 / (4 * a_1)
+plot_data$piDH4a <- pi *
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011 /
+  (4 * a_1)
 plot(crown_projected_area ~ piDH4a, data = plot_data)
 plot_data$a_1 <- a_1
 
 nls_model_1 <- nls(
   crown_projected_area ~ pi *
-    c * DBH2011_m * HeightTotal_m_2011 / (4 * a_1),
+    c *
+    DBH2011_m *
+    HeightTotal_m_2011 /
+    (4 * a_1),
   data = plot_data,
   start = list(c = 400), # Starting guesses c
   control = nls.control(maxiter = 100)
@@ -403,7 +479,8 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   geom_point() + # scatterplot of data points
   geom_line(aes(y = predicted_crown_area), color = "blue") + # fitted line
   labs(
-    x = "piDH/4a (m2)", y = "Crown projected area (m2)",
+    x = "piDH/4a (m2)",
+    y = "Crown projected area (m2)",
     title = "Crown-Diameter Relationship PFT1"
   )
 
@@ -419,14 +496,19 @@ data_taxa$c_SE[data_taxa$PFT == "1"] <-
 
 plot_data$Ac <- NA
 plot_data$Ac <- ((pi * c_1) / (4 * a_1)) *
-  plot_data$DBH2011_m * plot_data$HeightTotal_m_2011
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011
 
 summary(lm(plot_data$crown_projected_area ~ plot_data$Ac))
 
 ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
-  labs(x = "Ac (m2)", y = "Crown projected area (m2)", title = "Crown area PFT1")
+  labs(
+    x = "Ac (m2)",
+    y = "Crown projected area (m2)",
+    title = "Crown area PFT1"
+  )
 
 ##########
 
@@ -437,14 +519,15 @@ plot_data <- backup[backup$PFT == "2", ]
 # Removed outliers
 plot_data <- plot_data[plot_data$crown_projected_area < 90, ]
 
-plot_data$piDH4a <- pi * plot_data$DBH2011_m *
-  plot_data$HeightTotal_m_2011 / (4 * a_2)
+plot_data$piDH4a <- pi *
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011 /
+  (4 * a_2)
 plot(crown_projected_area ~ piDH4a, data = plot_data)
 plot_data$a_2 <- a_2
 
 nls_model_2 <- nls(
-  crown_projected_area ~ pi * c *
-    DBH2011_m * HeightTotal_m_2011 / (4 * a_2),
+  crown_projected_area ~ pi * c * DBH2011_m * HeightTotal_m_2011 / (4 * a_2),
   data = plot_data,
   start = list(c = 400), # Starting guesses c
   control = nls.control(maxiter = 100)
@@ -460,7 +543,8 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   geom_point() + # scatterplot of data points
   geom_line(aes(y = predicted_crown_area), color = "blue") + # fitted line
   labs(
-    x = "piDH/4a (m2)", y = "Crown projected area (m2)",
+    x = "piDH/4a (m2)",
+    y = "Crown projected area (m2)",
     title = "Crown-Diameter Relationship PFT2"
   )
 
@@ -474,14 +558,19 @@ data_taxa$c_SE[data_taxa$PFT == "2"] <-
 
 plot_data$Ac <- NA
 plot_data$Ac <- ((pi * c_2) / (4 * a_2)) *
-  plot_data$DBH2011_m * plot_data$HeightTotal_m_2011
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011
 
 summary(lm(plot_data$crown_projected_area ~ plot_data$Ac))
 
 ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
-  labs(x = "Ac (m2)", y = "Crown projected area (m2)", title = "Crown area PFT2")
+  labs(
+    x = "Ac (m2)",
+    y = "Crown projected area (m2)",
+    title = "Crown area PFT2"
+  )
 
 ##########
 
@@ -489,14 +578,19 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
 
 plot_data <- backup[backup$PFT == "3", ]
 
-plot_data$piDH4a <- pi * plot_data$DBH2011_m *
-  plot_data$HeightTotal_m_2011 / (4 * a_3)
+plot_data$piDH4a <- pi *
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011 /
+  (4 * a_3)
 plot(crown_projected_area ~ piDH4a, data = plot_data)
 plot_data$a_3 <- a_3
 
 nls_model_3 <- nls(
   crown_projected_area ~ pi *
-    c * DBH2011_m * HeightTotal_m_2011 / (4 * a_3),
+    c *
+    DBH2011_m *
+    HeightTotal_m_2011 /
+    (4 * a_3),
   data = plot_data,
   start = list(c = 400), # Starting guesses c
   control = nls.control(maxiter = 100)
@@ -512,7 +606,8 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   geom_point() + # scatterplot of data points
   geom_line(aes(y = predicted_crown_area), color = "blue") + # fitted line
   labs(
-    x = "piDH/4a (m2)", y = "Crown projected area (m2)",
+    x = "piDH/4a (m2)",
+    y = "Crown projected area (m2)",
     title = "Crown-Diameter Relationship PFT3"
   )
 
@@ -526,14 +621,19 @@ data_taxa$c_SE[data_taxa$PFT == "3"] <-
 
 plot_data$Ac <- NA
 plot_data$Ac <- ((pi * c_3) / (4 * a_3)) *
-  plot_data$DBH2011_m * plot_data$HeightTotal_m_2011
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011
 
 summary(lm(plot_data$crown_projected_area ~ plot_data$Ac))
 
 ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
-  labs(x = "Ac (m2)", y = "Crown projected area (m2)", title = "Crown area PFT3")
+  labs(
+    x = "Ac (m2)",
+    y = "Crown projected area (m2)",
+    title = "Crown area PFT3"
+  )
 
 ##########
 
@@ -541,14 +641,19 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
 
 plot_data <- backup[backup$PFT == "4", ]
 
-plot_data$piDH4a <- pi * plot_data$DBH2011_m *
-  plot_data$HeightTotal_m_2011 / (4 * a_4)
+plot_data$piDH4a <- pi *
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011 /
+  (4 * a_4)
 plot(crown_projected_area ~ piDH4a, data = plot_data)
 plot_data$a_4 <- a_4
 
 nls_model_4 <- nls(
   crown_projected_area ~ pi *
-    c * DBH2011_m * HeightTotal_m_2011 / (4 * a_4),
+    c *
+    DBH2011_m *
+    HeightTotal_m_2011 /
+    (4 * a_4),
   data = plot_data,
   start = list(c = 400), # Starting guesses c
   control = nls.control(maxiter = 100)
@@ -564,7 +669,8 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   geom_point() + # scatterplot of data points
   geom_line(aes(y = predicted_crown_area), color = "blue") + # fitted line
   labs(
-    x = "piDH/4a (m2)", y = "Crown projected area (m2)",
+    x = "piDH/4a (m2)",
+    y = "Crown projected area (m2)",
     title = "Crown-Diameter Relationship PFT4"
   )
 
@@ -578,14 +684,19 @@ data_taxa$c_SE[data_taxa$PFT == "4"] <-
 
 plot_data$Ac <- NA
 plot_data$Ac <- ((pi * c_4) / (4 * a_4)) *
-  plot_data$DBH2011_m * plot_data$HeightTotal_m_2011
+  plot_data$DBH2011_m *
+  plot_data$HeightTotal_m_2011
 
 summary(lm(plot_data$crown_projected_area ~ plot_data$Ac))
 
 ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
-  labs(x = "Ac (m2)", y = "Crown projected area (m2)", title = "Crown area PFT4")
+  labs(
+    x = "Ac (m2)",
+    y = "Crown projected area (m2)",
+    title = "Crown area PFT4"
+  )
 
 ##########
 
@@ -606,27 +717,40 @@ data <- data_taxa
 names(data)
 
 plot_data <- data[, c(
-  "Block", "Plot", "PlotID",
-  "logging", "TagStem_latest", "PFT",
-  "TaxaName", "HeightTotal_m_2011"
+  "Block",
+  "Plot",
+  "PlotID",
+  "logging",
+  "TagStem_latest",
+  "PFT",
+  "TaxaName",
+  "HeightTotal_m_2011"
 )]
 plot_data <- na.omit(plot_data)
 unique(plot_data$PFT)
 
 plot_data$HeightTotal_m_2011 <- as.numeric(plot_data$HeightTotal_m_2011)
 
-ggplot(plot_data, aes(
-  x = TagStem_latest, y = HeightTotal_m_2011,
-  color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = TagStem_latest,
+    y = HeightTotal_m_2011,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "Height total 2011 (m)") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = HeightTotal_m_2011,
-  color = as.factor(logging)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = HeightTotal_m_2011,
+    color = as.factor(logging)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "Mean Height total 2011 (m)") +
@@ -641,26 +765,40 @@ data <- data_taxa
 names(data)
 
 plot_data <- data[, c(
-  "Block", "Plot", "PlotID", "logging",
-  "TagStem_latest", "PFT", "TaxaName", "DBH2011_mm_clean"
+  "Block",
+  "Plot",
+  "PlotID",
+  "logging",
+  "TagStem_latest",
+  "PFT",
+  "TaxaName",
+  "DBH2011_mm_clean"
 )]
 plot_data <- na.omit(plot_data)
 unique(plot_data$PFT)
 
 plot_data$DBH2011_mm_clean <- as.numeric(plot_data$DBH2011_mm_clean)
 
-ggplot(plot_data, aes(
-  x = TagStem_latest, y = DBH2011_mm_clean,
-  color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = TagStem_latest,
+    y = DBH2011_mm_clean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "DBH 2011 (mm)") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = DBH2011_mm_clean,
-  color = as.factor(logging)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = DBH2011_mm_clean,
+    color = as.factor(logging)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "Mean DBH 2011 (mm)") +
@@ -742,12 +880,16 @@ data <- data[, c(1:9, 86, 10:85)]
 # Link dataset to PFT species classification dataset
 
 # Match by species first
-data1 <- left_join(data, PFT_species_classification_base,
+data1 <- left_join(
+  data,
+  PFT_species_classification_base,
   by = c("species" = "TaxaName")
 )
 
 # Match by genus only for rows where PFT is still NA
-data2 <- left_join(data, PFT_species_classification_base,
+data2 <- left_join(
+  data,
+  PFT_species_classification_base,
   by = c("genus" = "TaxaName")
 )
 
@@ -761,8 +903,13 @@ data$PFT_name <- ifelse(!is.na(data1$PFT_name), data1$PFT_name, data2$PFT_name)
 # Wood density (WD_NB)
 
 plot_data <- data[, c(
-  "location", "forest_type", "sample_code",
-  "PFT", "PFT_name", "species", "WD_NB"
+  "location",
+  "forest_type",
+  "sample_code",
+  "PFT",
+  "PFT_name",
+  "species",
+  "WD_NB"
 )]
 plot_data <- na.omit(plot_data)
 unique(plot_data$PFT)
@@ -782,10 +929,14 @@ ggplot(plot_data, aes(x = sample_code, y = WD_NB, color = as.factor(PFT))) +
   labs(x = "Individual", y = "Wood density (kg C m-3)") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = WD_NB,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = WD_NB,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "Mean Wood density (kg C m-3)") +
@@ -819,8 +970,13 @@ summary$WD_NB_SD[summary$PFT == "4"] <- round(summary_stats[4, "SD_WD_NB"], 2)
 # SLA (SLA_mm2.mg_mean)
 
 plot_data <- data[, c(
-  "location", "forest_type", "sample_code",
-  "PFT", "species", "SLA_mm2.mg_mean", "C_perc"
+  "location",
+  "forest_type",
+  "sample_code",
+  "PFT",
+  "species",
+  "SLA_mm2.mg_mean",
+  "C_perc"
 )]
 plot_data <- na.omit(plot_data)
 unique(plot_data$PFT)
@@ -833,18 +989,26 @@ plot_data$C_perc <- plot_data$C_perc / 100 # Convert to decimal
 plot_data$SLA_mm2.mg_mean <- plot_data$SLA_mm2.mg_mean /
   plot_data$C_perc # Convert using carbon content
 
-ggplot(plot_data, aes(
-  x = sample_code,
-  y = SLA_mm2.mg_mean, color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = sample_code,
+    y = SLA_mm2.mg_mean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "SLA (mm2 mg-1 C)") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = SLA_mm2.mg_mean,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = SLA_mm2.mg_mean,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "Mean SLA (mm2 mg-1 C)") +
@@ -892,15 +1056,34 @@ summary <- backup
 
 names(summary)
 summary <- summary[, c(
-  "PFT", "PFT_name", "Family", "Genus", "Species", "TaxaName",
-  "HeightTotal_m_2011", "Hm", "Hm_SE", "a", "a_SE", "c", "c_SE",
-  "WD_NB", "WD_NB_SD", "SLA", "SLA_SD", "TagStem_latest"
+  "PFT",
+  "PFT_name",
+  "Family",
+  "Genus",
+  "Species",
+  "TaxaName",
+  "HeightTotal_m_2011",
+  "Hm",
+  "Hm_SE",
+  "a",
+  "a_SE",
+  "c",
+  "c_SE",
+  "WD_NB",
+  "WD_NB_SD",
+  "SLA",
+  "SLA_SD",
+  "TagStem_latest"
 )]
-summary <- summary[order(
-  summary$PFT, summary$Family,
-  summary$Genus, summary$Species,
-  summary$HeightTotal_m_2011
-), ]
+summary <- summary[
+  order(
+    summary$PFT,
+    summary$Family,
+    summary$Genus,
+    summary$Species,
+    summary$HeightTotal_m_2011
+  ),
+]
 
 summary$TaxaNames <- NA
 summary$Trees <- NA
@@ -926,26 +1109,58 @@ summary$Trees[summary$PFT == "4"] <-
 # Clean up summary
 
 summary <- summary[, c(
-  "PFT", "PFT_name", "Family", "Genus", "Species", "TaxaName",
-  "TaxaNames", "Trees", "HeightTotal_m_2011", "Hm", "Hm_SE",
-  "a", "a_SE", "c", "c_SE",
-  "WD_NB", "WD_NB_SD", "SLA", "SLA_SD"
+  "PFT",
+  "PFT_name",
+  "Family",
+  "Genus",
+  "Species",
+  "TaxaName",
+  "TaxaNames",
+  "Trees",
+  "HeightTotal_m_2011",
+  "Hm",
+  "Hm_SE",
+  "a",
+  "a_SE",
+  "c",
+  "c_SE",
+  "WD_NB",
+  "WD_NB_SD",
+  "SLA",
+  "SLA_SD"
 )]
-summary <- summary[order(
-  summary$PFT, summary$Family, summary$Genus,
-  summary$Species, summary$HeightTotal_m_2011
-), ]
+summary <- summary[
+  order(
+    summary$PFT,
+    summary$Family,
+    summary$Genus,
+    summary$Species,
+    summary$HeightTotal_m_2011
+  ),
+]
 
 names(summary)
 summary <- summary[, c(
-  "PFT", "PFT_name", "Hm", "Hm_SE", "a", "a_SE", "c", "c_SE",
-  "WD_NB", "WD_NB_SD", "SLA", "SLA_SD", "TaxaNames", "Trees"
+  "PFT",
+  "PFT_name",
+  "Hm",
+  "Hm_SE",
+  "a",
+  "a_SE",
+  "c",
+  "c_SE",
+  "WD_NB",
+  "WD_NB_SD",
+  "SLA",
+  "SLA_SD",
+  "TaxaNames",
+  "Trees"
 )]
 
 summary <- unique(summary)
 summary <- na.omit(summary)
 summary <- summary[order(summary$PFT), ]
-rownames(summary) <- 1:nrow(summary) # nolint
+rownames(summary) <- 1:nrow(summary)
 
 summary$WD_NB <- as.numeric(summary$WD_NB)
 summary$WD_NB_SD <- as.numeric(summary$WD_NB_SD)
@@ -1090,14 +1305,17 @@ kenzo_data <- data.frame(
 # very low compared to Sabal, and other studies (like Niiyama)
 
 # Convert the leaf dry mass from megagrams per hectare to grams per hectare
-kenzo_data$leaf_dry_mass_big_trees <- kenzo_data$leaf_dry_mass_big_trees * 1000000
-kenzo_data$leaf_dry_mass_small_trees <- kenzo_data$leaf_dry_mass_small_trees * 1000000
+kenzo_data$leaf_dry_mass_big_trees <- kenzo_data$leaf_dry_mass_big_trees *
+  1000000
+kenzo_data$leaf_dry_mass_small_trees <- kenzo_data$leaf_dry_mass_small_trees *
+  1000000
 
 # Use LMA to find the total leaf area (m2 per hectare)
 kenzo_data$leaf_area_big_trees <-
   kenzo_data$leaf_dry_mass_big_trees / kenzo_data$leaf_mass_per_area_big_trees
 kenzo_data$leaf_area_small_trees <-
-  kenzo_data$leaf_dry_mass_small_trees / kenzo_data$leaf_mass_per_area_small_trees
+  kenzo_data$leaf_dry_mass_small_trees /
+  kenzo_data$leaf_mass_per_area_small_trees
 
 # Combine leaf area of big and small trees to get total leaf area
 kenzo_data$total_leaf_area <-
@@ -1173,7 +1391,9 @@ niiyama_data$leaf_area <- niiyama_data$leaf_area / 10^6
 
 # Convert fine root dry mass to carbon mass using 45.2% carbon content (Imai et al.)
 # The unit then becomes Mg C per hectare
-niiyama_data$fine_root_carbon_mass <- niiyama_data$fine_root_dry_mass * 45.2 / 100
+niiyama_data$fine_root_carbon_mass <- niiyama_data$fine_root_dry_mass *
+  45.2 /
+  100
 
 # Convert Mg C ha-1 to Kg C ha-1
 niiyama_data$fine_root_carbon_mass <- niiyama_data$fine_root_carbon_mass * 1000
@@ -1203,7 +1423,7 @@ summary <- left_join(summary, niiyama_data, by = "PFT_name")
 # dataset, which has the NPP and GPP for several plots at SAFE.
 
 SAFE_carbon_balance_components <- read_excel(
-  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx", # nolint
+  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
   sheet = "Data",
   col_names = FALSE
 )
@@ -1235,10 +1455,10 @@ SAFE_carbon_balance_components$GPP_WithMycorrhiza <-
 
 SAFE_carbon_balance_components$NPP_to_GPP_without <-
   SAFE_carbon_balance_components$TotalNPP_WithoutMycorrhiza /
-    SAFE_carbon_balance_components$GPP_WithoutMycorrhiza # nolint
+  SAFE_carbon_balance_components$GPP_WithoutMycorrhiza
 SAFE_carbon_balance_components$NPP_to_GPP_with <-
   SAFE_carbon_balance_components$TotalNPP_WithMycorrhiza /
-    SAFE_carbon_balance_components$GPP_WithMycorrhiza # nolint
+  SAFE_carbon_balance_components$GPP_WithMycorrhiza
 
 mean(SAFE_carbon_balance_components$NPP_to_GPP_without) # 0.4048004
 mean(SAFE_carbon_balance_components$NPP_to_GPP_with) # 0.4277772
@@ -1262,7 +1482,8 @@ summary$per_stem_annual_mortality_probability <- 0.0159
 
 seedling_survival_rate <- 0.84^(12 / 20) # converted to per year
 
-summary$per_propagule_annual_recruitment_probability <- 0.023 * seedling_survival_rate
+summary$per_propagule_annual_recruitment_probability <- 0.023 *
+  seedling_survival_rate
 
 ################################################################################
 
@@ -1271,21 +1492,47 @@ summary$per_propagule_annual_recruitment_probability <- 0.023 * seedling_surviva
 names(summary)
 
 summary <- summary[, c(
-  "PFT_name", "Hm", "a", "c", "WD_NB", "SLA", "leaf_area_index",
-  "light_extinction_coefficient", "turnover_leaf",
-  "turnover_reproductive_organ", "turnover_fine_root",
-  "respiration_fine_root", "respiration_leaf",
-  "respiration_wood", "respiration_reproductive_organ", "yield_factor",
-  "fine_root_carbon_foliage_area", "root_exudates",
+  "PFT_name",
+  "Hm",
+  "a",
+  "c",
+  "WD_NB",
+  "SLA",
+  "leaf_area_index",
+  "light_extinction_coefficient",
+  "turnover_leaf",
+  "turnover_reproductive_organ",
+  "turnover_fine_root",
+  "respiration_fine_root",
+  "respiration_leaf",
+  "respiration_wood",
+  "respiration_reproductive_organ",
+  "yield_factor",
+  "fine_root_carbon_foliage_area",
+  "root_exudates",
   "per_stem_annual_mortality_probability",
   "per_propagule_annual_recruitment_probability"
 )]
 
 colnames(summary) <- c(
-  "PFT_name", "Hm", "a", "c", "WD", "SLA", "LAI",
-  "LEC", "turnover_leaf", "turnover_RT", "turnover_root",
-  "respiration_root", "respiration_leaf", "respiration_wood",
-  "respiration_reproductive_organ", "yield_factor", "zeta", "root_exudates",
+  "PFT_name",
+  "Hm",
+  "a",
+  "c",
+  "WD",
+  "SLA",
+  "LAI",
+  "LEC",
+  "turnover_leaf",
+  "turnover_RT",
+  "turnover_root",
+  "respiration_root",
+  "respiration_leaf",
+  "respiration_wood",
+  "respiration_reproductive_organ",
+  "yield_factor",
+  "zeta",
+  "root_exudates",
   "per_stem_annual_mortality_probability",
   "per_propagule_annual_recruitment_probability"
 )
@@ -1314,10 +1561,24 @@ colnames(summary) <- c(
 # per_propagule_annual_recruitment_probability (-)
 
 colnames(summary) <- c(
-  "name", "h_max", "a_hd", "ca_ratio", "rho_s", "sla", "lai",
-  "par_ext", "tau_f", "tau_rt", "tau_r",
-  "resp_r", "resp_f", "resp_s", "resp_rt",
-  "yld", "zeta", "root_exudates",
+  "name",
+  "h_max",
+  "a_hd",
+  "ca_ratio",
+  "rho_s",
+  "sla",
+  "lai",
+  "par_ext",
+  "tau_f",
+  "tau_rt",
+  "tau_r",
+  "resp_r",
+  "resp_f",
+  "resp_s",
+  "resp_rt",
+  "yld",
+  "zeta",
+  "root_exudates",
   "per_stem_annual_mortality_probability",
   "per_propagule_annual_recruitment_probability"
 )

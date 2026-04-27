@@ -52,7 +52,6 @@
 #|   in that particular simulation.
 #| ---
 
-
 # Load packages
 
 library(RNetCDF)
@@ -60,14 +59,14 @@ library(ncdf4)
 
 # Load the Maliau cohort distribution
 cohort_distribution <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_10x10.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_10x10.csv",
   header = TRUE
 )
 
 #####
 
 # Obtain variable axes
-# (see plant data under https://virtual-ecosystem.readthedocs.io/en/latest/using_the_ve/example_data.html#data-files) # nolint
+# (see plant data under https://virtual-ecosystem.readthedocs.io/en/latest/using_the_ve/example_data.html#data-files)
 
 # -plant_pft_propagules: cell_id and pft
 # -subcanopy_vegetation_biomass: cel_id
@@ -124,9 +123,7 @@ pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 # First set up the empty structure, we will then add the propagules per PFT
 
 plant_pft_propagules <-
-  matrix(as.integer(0),
-    nrow = length(pft_index), ncol = length(cell_id_index)
-  )
+  matrix(as.integer(0), nrow = length(pft_index), ncol = length(cell_id_index))
 
 # Calculate recruits per hectare, using "Recruitment of new seedlings" for
 # Plot 3, which is the unlogged forest
@@ -139,13 +136,13 @@ recruits_per_hectare <- (121 * 100) / 20 * 12 # converted to per hectare per yea
 
 seedling_survival_rate <- 0.84^(12 / 20) # converted to per year
 
-recruits_per_hectare_without_mortality <- # nolint
+recruits_per_hectare_without_mortality <-
   recruits_per_hectare / seedling_survival_rate # these represent germinated seeds
 
 germination_rate <- 0.023 / 2 # converted to per year
 
 seedbank <-
-  recruits_per_hectare_without_mortality / germination_rate # all seeds across PFTs # nolint
+  recruits_per_hectare_without_mortality / germination_rate # all seeds across PFTs
 
 # Distribute seedbank evenly across PFTs, assuming no seedbank for pioneers
 # Round down to avoid decimal seeds
@@ -169,29 +166,36 @@ plant_pft_propagules[4, ] <- seedbank_understory
 
 # Load the subcanopy parameters
 subcanopy_parameters <- read.csv(
-  "../../../data/derived/plant/subcanopy/subcanopy_parameters.csv", # nolint
+  "../../../data/derived/plant/subcanopy/subcanopy_parameters.csv",
   header = TRUE
 )
 
 # subcanopy_vegetation_biomass: cell_id only
 # Use value from subcanopy_parameters
 subcanopy_vegetation_biomass <-
-  as.numeric(matrix(subcanopy_parameters$subcanopy_vegetation_biomass,
-    nrow = 1, ncol = length(cell_id_index)
+  as.numeric(matrix(
+    subcanopy_parameters$subcanopy_vegetation_biomass,
+    nrow = 1,
+    ncol = length(cell_id_index)
   ))
 
 # subcanopy_seedbank_biomass: cell_id only
 # Use value from subcanopy_parameters
 subcanopy_seedbank_biomass <-
-  as.numeric(matrix(subcanopy_parameters$subcanopy_seedbank_biomass,
-    nrow = 1, ncol = length(cell_id_index)
+  as.numeric(matrix(
+    subcanopy_parameters$subcanopy_seedbank_biomass,
+    nrow = 1,
+    ncol = length(cell_id_index)
   ))
 
 #####
 
 # Open NetCDF file
 nc <-
-  create.nc("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_10x10.nc", format = "netcdf4") # nolint
+  create.nc(
+    "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_10x10.nc",
+    format = "netcdf4"
+  )
 
 # Define dimensions
 dim.def.nc(nc, "cell_id", length(cell_id_index))
@@ -220,7 +224,9 @@ close.nc(nc)
 # Load data file and check it
 # Here we use NCDF4 for exploration in RStudio (as RNetCDF cannot do this)
 plant_input_data_Maliau_10x10 <-
-  nc_open("../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_10x10.nc") # nolint
+  nc_open(
+    "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_10x10.nc"
+  )
 
 names(plant_input_data_Maliau_10x10$var)
 ncvar_get(plant_input_data_Maliau_10x10, "plant_pft_propagules")

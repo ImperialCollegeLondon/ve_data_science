@@ -65,12 +65,11 @@ library(glmmTMB)
 # we will reassign them to aboveground metabolic and aboveground structural later
 
 litter_stock <-
-  # nolint start
-  read_xlsx("data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
+  read_xlsx(
+    "data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
     sheet = 4,
     skip = 5
   ) %>%
-  # nolint end
   select(field_name:ForestPlotsCode, LitterStock) %>%
   # convert litter stock from Mg C / ha to kg C / m2
   mutate(LitterStock = LitterStock * 0.1)
@@ -87,7 +86,8 @@ litter_stock <-
 # aboveground metabolic and structural --- we'll use leaf nutrient data to do this
 
 litter_compo <-
-  read_xlsx("data/primary/litter/Ewers_LeafLitter.xlsx",
+  read_xlsx(
+    "data/primary/litter/Ewers_LeafLitter.xlsx",
     sheet = 3,
     skip = 9
   ) %>%
@@ -109,8 +109,13 @@ litter_compo <-
   ) %>%
   # convert to long format for modelling
   select(
-    Plot, log_days, month,
-    DW.leaf, DW.wood, DW.reproduction, DW.other
+    Plot,
+    log_days,
+    month,
+    DW.leaf,
+    DW.wood,
+    DW.reproduction,
+    DW.other
   ) %>%
   pivot_longer(
     cols = starts_with("DW"),
@@ -123,7 +128,8 @@ litter_compo <-
 # https://doi.org/10.5281/zenodo.3247639
 # to split leaf litter into aboveground metabolic and structural
 nutrient_leaf <-
-  read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
+  read_xlsx(
+    "data/primary/litter/Both_litter_decomposition_experiment.xlsx",
     sheet = 3,
     skip = 7
   ) %>%

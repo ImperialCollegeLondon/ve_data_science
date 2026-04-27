@@ -138,10 +138,10 @@ maliau <-
 # fill in missing coordinates
 extra_locations <-
   tribble(
-    ~location, ~lat, ~lon,
-    "OG3_DW1", 4.733986, 116.970434,
-    "OG3_DW2", 4.7341235, 116.967075,
-    "OG3_DW3", 4.734606, 116.965199
+    ~location , ~lat      , ~lon       ,
+    "OG3_DW1" , 4.733986  , 116.970434 ,
+    "OG3_DW2" , 4.7341235 , 116.967075 ,
+    "OG3_DW3" , 4.734606  , 116.965199
   ) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 # tidy up location info

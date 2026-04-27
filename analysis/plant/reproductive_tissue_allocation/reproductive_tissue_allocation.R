@@ -81,7 +81,7 @@ library(ggplot2)
 # Load SAFE carbon balance components dataset and clean up a bit
 
 safe_carbon_balance_components <- read_excel(
-  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx", # nolint
+  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
   sheet = "Data",
   col_names = FALSE
 )
@@ -93,11 +93,14 @@ colnames(data) <- data[6, ]
 data <- data[7:17, ]
 names(data)
 
-data <- data[
-  ,
+data <- data[,
   c(
-    "ForestType", "SAFEPlotName", "PlotName", "ForestPlotsCode",
-    "CanopyNPP_Leaf", "CanopyNPP_Reproductive"
+    "ForestType",
+    "SAFEPlotName",
+    "PlotName",
+    "ForestPlotsCode",
+    "CanopyNPP_Leaf",
+    "CanopyNPP_Reproductive"
   )
 ]
 
@@ -131,9 +134,13 @@ names(both_data)
 
 # Note that this dataset has logged and old-growth plots
 
-both_data <- both_data[
-  , c(
-    "forest_type", "forestplots_name", "branch_type", "tree_id", "C_perc"
+both_data <- both_data[,
+  c(
+    "forest_type",
+    "forestplots_name",
+    "branch_type",
+    "tree_id",
+    "C_perc"
   )
 ]
 
@@ -161,27 +168,27 @@ data$leaf_C_perc[data$ForestType == "Logged"] <-
 # reproductive organ litter carbon content across the different plots.
 
 kitayama_litter_stoichiometry <- read_excel(
-  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx", # nolint
+  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
   sheet = "Sheet1",
   col_names = FALSE
 )
 
 colnames(kitayama_litter_stoichiometry) <- kitayama_litter_stoichiometry[2, ]
 
-kitayama_litter_stoichiometry_C <- # nolint
+kitayama_litter_stoichiometry_C <-
   kitayama_litter_stoichiometry[c(28:36), c(1, 2, 3)]
-colnames(kitayama_litter_stoichiometry_C) <- # nolint
+colnames(kitayama_litter_stoichiometry_C) <-
   c("site", "leaf_C", "reproductive_organ_C")
 
-kitayama_litter_stoichiometry_C$leaf_C <- # nolint
+kitayama_litter_stoichiometry_C$leaf_C <-
   as.numeric(kitayama_litter_stoichiometry_C$leaf_C)
-kitayama_litter_stoichiometry_C$reproductive_organ_C <- # nolint
+kitayama_litter_stoichiometry_C$reproductive_organ_C <-
   as.numeric(kitayama_litter_stoichiometry_C$reproductive_organ_C)
 
 # Save mean reproductive carbon content separately in case we want to use it
 # to correct for carbon mass in other approaches in this script.
 
-kitayama_mean_C_percentage <- # nolint
+kitayama_mean_C_percentage <-
   mean(kitayama_litter_stoichiometry_C$reproductive_organ_C / 1000) * 100
 print(kitayama_mean_C_percentage)
 
@@ -214,7 +221,9 @@ data$reproductive_to_leaf_ratio_C_kitayama <-
   data$CanopyNPP_Reproductive_C_kitayama / data$CanopyNPP_Leaf_C
 
 mean(data$reproductive_to_leaf_ratio_C_kitayama)
-mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Old-growth"])
+mean(data$reproductive_to_leaf_ratio_C_kitayama[
+  data$ForestType == "Old-growth"
+])
 mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Logged"])
 
 # B: Aoyagi C perc reproductive tissues
@@ -237,18 +246,22 @@ mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Logged"])
 summary <- data.frame(
   approach = c("1"),
   source = c("safe_carbon_balance_components"),
-  reproductive_to_leaf_ratio_C =
-    mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Old-growth"]),
-  notes =
-    c("old growth, litter fall from SAFE, leaf carbon from same plots,
-      reproductive tissue carbon from Kitayama")
+  reproductive_to_leaf_ratio_C = mean(data$reproductive_to_leaf_ratio_C_kitayama[
+    data$ForestType == "Old-growth"
+  ]),
+  notes = c(
+    "old growth, litter fall from SAFE, leaf carbon from same plots,
+      reproductive tissue carbon from Kitayama"
+  )
 )
 
 summary[2, ] <-
   c(
     "1",
     "safe_carbon_balance_components",
-    mean(data$reproductive_to_leaf_ratio_C_kitayama[data$ForestType == "Logged"]),
+    mean(data$reproductive_to_leaf_ratio_C_kitayama[
+      data$ForestType == "Logged"
+    ]),
     "selectively logged, litter fall from SAFE, leaf carbon from same plots,
       reproductive tissue carbon from Kitayama"
   )
@@ -257,7 +270,9 @@ summary[3, ] <-
   c(
     "1",
     "safe_carbon_balance_components",
-    mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Old-growth"]),
+    mean(data$reproductive_to_leaf_ratio_C_aoyagi[
+      data$ForestType == "Old-growth"
+    ]),
     "old growth, litter fall from SAFE, leaf carbon from same plots,
       reproductive tissue carbon from Aoyagi"
   )
@@ -278,8 +293,14 @@ summary[4, ] <-
 # Extract data from paper (Table 2)
 kitayama_data <- data.frame(
   site = c(
-    "S-700", "S-1700", "S-2700", "S-3100",
-    "U-700", "U-1700", "U-2700", "U-3100",
+    "S-700",
+    "S-1700",
+    "S-2700",
+    "S-3100",
+    "U-700",
+    "U-1700",
+    "U-2700",
+    "U-3100",
     "Q-1700"
   ),
   leaf_mean = c(6403, 5107, 2929, 4848, 6027, 4131, 4676, 1236, 5450),
@@ -360,28 +381,43 @@ aoyagi_data <- data.frame(
 
 aoyagi_data[2, ] <-
   c(
-    "this study", "dipterocarp forest", "non-mast",
-    mean(c(55, 231)), mean(c(5252, 6856))
+    "this study",
+    "dipterocarp forest",
+    "non-mast",
+    mean(c(55, 231)),
+    mean(c(5252, 6856))
   )
 aoyagi_data[3, ] <-
   c(
-    "kitayama_2015", "dipterocarp forest", "mast",
-    mean(c(1165, 2918)), mean(c(6027, 6402))
+    "kitayama_2015",
+    "dipterocarp forest",
+    "mast",
+    mean(c(1165, 2918)),
+    mean(c(6027, 6402))
   )
 aoyagi_data[4, ] <-
   c(
-    "kitayama_2015", "dipterocarp forest", "non-mast",
-    mean(c(278, 684)), mean(c(6027, 6402))
+    "kitayama_2015",
+    "dipterocarp forest",
+    "non-mast",
+    mean(c(278, 684)),
+    mean(c(6027, 6402))
   )
 aoyagi_data[5, ] <-
   c(
-    "kitayama_2015", "montane forest", "mast",
-    mean(c(464, 727)), mean(c(4130, 5106))
+    "kitayama_2015",
+    "montane forest",
+    "mast",
+    mean(c(464, 727)),
+    mean(c(4130, 5106))
   )
 aoyagi_data[6, ] <-
   c(
-    "kitayama_2015", "montane forest", "non-mast",
-    mean(c(190, 301)), mean(c(4130, 5106))
+    "kitayama_2015",
+    "montane forest",
+    "non-mast",
+    mean(c(190, 301)),
+    mean(c(4130, 5106))
   )
 
 # Note that for the Kitayama data Aoyagi used plots S-700 and U-700 for dipterocarp
@@ -409,7 +445,9 @@ aoyagi_data$dry_mass_leaf <-
 
 # Correct for carbon content
 aoyagi_data$fruit_and_flower_C_mass <-
-  aoyagi_data$dry_mass_fruit_and_flower * aoyagi_data$fruit_and_flower_C_perc / 100
+  aoyagi_data$dry_mass_fruit_and_flower *
+  aoyagi_data$fruit_and_flower_C_perc /
+  100
 aoyagi_data$leaf_C_mass <-
   aoyagi_data$dry_mass_leaf * aoyagi_data$leaf_C_perc / 100
 
@@ -465,28 +503,44 @@ summary[12, ] <-
 # This could potentially be a way to implement masting into the model
 
 aoyagi_data$ratio_mast_to_non_mast[aoyagi_data$site == "this study"] <-
-  aoyagi_data$reproductive_to_leaf_ratio[aoyagi_data$site == "this study" &
-    aoyagi_data$masting == "mast"] / # nolint
-    aoyagi_data$reproductive_to_leaf_ratio[aoyagi_data$site == "this study" & # nolint
-      aoyagi_data$masting == "non-mast"] # nolint
+  aoyagi_data$reproductive_to_leaf_ratio[
+    aoyagi_data$site == "this study" &
+      aoyagi_data$masting == "mast"
+  ] /
+  aoyagi_data$reproductive_to_leaf_ratio[
+    aoyagi_data$site == "this study" &
+      aoyagi_data$masting == "non-mast"
+  ]
 
-aoyagi_data$ratio_mast_to_non_mast[aoyagi_data$site == "kitayama_2015" &
-  aoyagi_data$vegetation == "dipterocarp forest"] <- # nolint
-  aoyagi_data$reproductive_to_leaf_ratio[aoyagi_data$site == "kitayama_2015" &
-    aoyagi_data$vegetation == "dipterocarp forest" & # nolint
-    aoyagi_data$masting == "mast"] /
-    aoyagi_data$reproductive_to_leaf_ratio[aoyagi_data$site == "kitayama_2015" & # nolint
-      aoyagi_data$vegetation == "dipterocarp forest" & # nolint
-      aoyagi_data$masting == "non-mast"]
+aoyagi_data$ratio_mast_to_non_mast[
+  aoyagi_data$site == "kitayama_2015" &
+    aoyagi_data$vegetation == "dipterocarp forest"
+] <-
+  aoyagi_data$reproductive_to_leaf_ratio[
+    aoyagi_data$site == "kitayama_2015" &
+      aoyagi_data$vegetation == "dipterocarp forest" &
+      aoyagi_data$masting == "mast"
+  ] /
+  aoyagi_data$reproductive_to_leaf_ratio[
+    aoyagi_data$site == "kitayama_2015" &
+      aoyagi_data$vegetation == "dipterocarp forest" &
+      aoyagi_data$masting == "non-mast"
+  ]
 
-aoyagi_data$ratio_mast_to_non_mast[aoyagi_data$site == "kitayama_2015" &
-  aoyagi_data$vegetation == "montane forest"] <- # nolint
-  aoyagi_data$reproductive_to_leaf_ratio[aoyagi_data$site == "kitayama_2015" &
-    aoyagi_data$vegetation == "montane forest" & # nolint
-    aoyagi_data$masting == "mast"] /
-    aoyagi_data$reproductive_to_leaf_ratio[aoyagi_data$site == "kitayama_2015" & # nolint
-      aoyagi_data$vegetation == "montane forest" & # nolint
-      aoyagi_data$masting == "non-mast"]
+aoyagi_data$ratio_mast_to_non_mast[
+  aoyagi_data$site == "kitayama_2015" &
+    aoyagi_data$vegetation == "montane forest"
+] <-
+  aoyagi_data$reproductive_to_leaf_ratio[
+    aoyagi_data$site == "kitayama_2015" &
+      aoyagi_data$vegetation == "montane forest" &
+      aoyagi_data$masting == "mast"
+  ] /
+  aoyagi_data$reproductive_to_leaf_ratio[
+    aoyagi_data$site == "kitayama_2015" &
+      aoyagi_data$vegetation == "montane forest" &
+      aoyagi_data$masting == "non-mast"
+  ]
 
 #####
 
@@ -519,7 +573,9 @@ anderson_data[8, ] <-
   c("standing crop", "forest over limestone", 4.2, 0.01)
 
 anderson_data$leaves <- as.numeric(anderson_data$leaves)
-anderson_data$reproductive_organs <- as.numeric(anderson_data$reproductive_organs)
+anderson_data$reproductive_organs <- as.numeric(
+  anderson_data$reproductive_organs
+)
 
 # Correct for carbon content in leaves and reproductive organs
 # Since the paper does not have values for carbon content, we'll use the same
@@ -529,7 +585,9 @@ anderson_data$leaves_C_perc <- 482 / 10
 
 # Correct for carbon content and calculate ratio
 anderson_data$reproductive_organs_C <-
-  anderson_data$reproductive_organs * anderson_data$reproductive_organs_C_perc / 100
+  anderson_data$reproductive_organs *
+  anderson_data$reproductive_organs_C_perc /
+  100
 anderson_data$leaves_C <-
   anderson_data$leaves * anderson_data$leaves_C_perc / 100
 
@@ -586,7 +644,9 @@ proctor_data$reproductive_organs_C_perc <- ((464 + 452) / 2) / 10
 proctor_data$leaves_C_perc <- 482 / 10
 
 proctor_data$reproductive_organs_C <-
-  proctor_data$reproductive_organs * proctor_data$reproductive_organs_C_perc / 100
+  proctor_data$reproductive_organs *
+  proctor_data$reproductive_organs_C_perc /
+  100
 proctor_data$leaves_C <-
   proctor_data$leaves * proctor_data$leaves_C_perc / 100
 
@@ -716,17 +776,19 @@ ichie_data$fruit_live_organ_carbon_mass <-
 
 ichie_data$flower_allocation_litter <-
   ichie_data$flower_litter_carbon_mass /
-    (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass) # nolint
+  (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass)
 ichie_data$fruit_allocation_litter <-
   ichie_data$fruit_litter_carbon_mass /
-    (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass) # nolint
+  (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass)
 
 ichie_data$flower_allocation_live_organ <-
   ichie_data$flower_live_organ_carbon_mass /
-    (ichie_data$flower_live_organ_carbon_mass + ichie_data$fruit_live_organ_carbon_mass) # nolint
+  (ichie_data$flower_live_organ_carbon_mass +
+    ichie_data$fruit_live_organ_carbon_mass)
 ichie_data$fruit_allocation_live_organ <-
   ichie_data$fruit_live_organ_carbon_mass /
-    (ichie_data$flower_live_organ_carbon_mass + ichie_data$fruit_live_organ_carbon_mass) # nolint
+  (ichie_data$flower_live_organ_carbon_mass +
+    ichie_data$fruit_live_organ_carbon_mass)
 
 # Have another look at the paper and see if we want to use the ratio based on
 # litter or live organ
@@ -768,6 +830,6 @@ summary[20, ] <-
 
 write.csv(
   summary,
-  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv", # nolint
+  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv",
   row.names = FALSE
 )

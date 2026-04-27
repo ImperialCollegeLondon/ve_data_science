@@ -38,7 +38,6 @@
 #|   This script can be copied and adjusted if the grid changes.
 #| ---
 
-
 # Load packages
 
 library(readxl)
@@ -53,7 +52,9 @@ print("This means we do not need to rescale the cohort data from 10000 m2")
 print("Then multiply the base cohort distribution by 2500, one for each cell")
 
 # Load base cohort distribution per hectare
-base_cohort_distribution <- read.csv("../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv") # nolint
+base_cohort_distribution <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv"
+)
 
 # Add individuals with dbh <10 cm (as these are not included in the Maliau census)
 # Use the value reported in Kenzo et al. (2015) for Balai Ringin site,
@@ -85,20 +86,56 @@ trees_5_10 <- kenzo_trees_below_10 * percent_5_10 / 100
 # that reported 0 recruits for pioneers in Maliau
 final_row <- nrow(base_cohort_distribution)
 
-base_cohort_distribution[final_row + 1, ] <- c(trees_1_2 / 3, "emergent", dbh_1_2)
-base_cohort_distribution[final_row + 2, ] <- c(trees_1_2 / 3, "overstory", dbh_1_2)
-base_cohort_distribution[final_row + 3, ] <- c(trees_1_2 / 3, "understory", dbh_1_2)
-# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_1_2) # nolint
+base_cohort_distribution[final_row + 1, ] <- c(
+  trees_1_2 / 3,
+  "emergent",
+  dbh_1_2
+)
+base_cohort_distribution[final_row + 2, ] <- c(
+  trees_1_2 / 3,
+  "overstory",
+  dbh_1_2
+)
+base_cohort_distribution[final_row + 3, ] <- c(
+  trees_1_2 / 3,
+  "understory",
+  dbh_1_2
+)
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_1_2)
 
-base_cohort_distribution[final_row + 4, ] <- c(trees_2_5 / 3, "emergent", dbh_2_5)
-base_cohort_distribution[final_row + 5, ] <- c(trees_2_5 / 3, "overstory", dbh_2_5)
-base_cohort_distribution[final_row + 6, ] <- c(trees_2_5 / 3, "understory", dbh_2_5)
-# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_2_5) # nolint
+base_cohort_distribution[final_row + 4, ] <- c(
+  trees_2_5 / 3,
+  "emergent",
+  dbh_2_5
+)
+base_cohort_distribution[final_row + 5, ] <- c(
+  trees_2_5 / 3,
+  "overstory",
+  dbh_2_5
+)
+base_cohort_distribution[final_row + 6, ] <- c(
+  trees_2_5 / 3,
+  "understory",
+  dbh_2_5
+)
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_2_5)
 
-base_cohort_distribution[final_row + 7, ] <- c(trees_5_10 / 3, "emergent", dbh_5_10)
-base_cohort_distribution[final_row + 8, ] <- c(trees_5_10 / 3, "overstory", dbh_5_10)
-base_cohort_distribution[final_row + 9, ] <- c(trees_5_10 / 3, "understory", dbh_5_10)
-# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_5_10) # nolint
+base_cohort_distribution[final_row + 7, ] <- c(
+  trees_5_10 / 3,
+  "emergent",
+  dbh_5_10
+)
+base_cohort_distribution[final_row + 8, ] <- c(
+  trees_5_10 / 3,
+  "overstory",
+  dbh_5_10
+)
+base_cohort_distribution[final_row + 9, ] <- c(
+  trees_5_10 / 3,
+  "understory",
+  dbh_5_10
+)
+# base_cohort_distribution[final_row+x, ] <- c(0, "pioneer", dbh_5_10)
 
 # Note that above we technically account for all seedlings/saplings with a dbh
 # between 1 and 10 cm dbh. Currently, the cohort distribution also has a
@@ -115,10 +152,12 @@ base_cohort_distribution <-
 
 # Reorder by dbh within PFT
 base_cohort_distribution <-
-  base_cohort_distribution[order(
-    base_cohort_distribution$plant_cohorts_pft,
-    base_cohort_distribution$plant_cohorts_dbh
-  ), ]
+  base_cohort_distribution[
+    order(
+      base_cohort_distribution$plant_cohorts_pft,
+      base_cohort_distribution$plant_cohorts_dbh
+    ),
+  ]
 
 # Change to numeric
 base_cohort_distribution$plant_cohorts_n <-
@@ -132,9 +171,9 @@ base_cohort_distribution$plant_cohorts_cell_id <-
   as.integer(base_cohort_distribution$plant_cohorts_cell_id)
 
 # Scale plant_cohorts_n from 10000 to 8100
-# base_cohort_distribution$plant_cohorts_n_scaled <- # only used when scaling # nolint
-#  base_cohort_distribution$plant_cohorts_n / 10000 * 8100 # only used when scaling # nolint
-base_cohort_distribution$plant_cohorts_n_scaled <- # replace this line with the one above when scaling # nolint
+# base_cohort_distribution$plant_cohorts_n_scaled <- # only used when scaling
+#  base_cohort_distribution$plant_cohorts_n / 10000 * 8100 # only used when scaling
+base_cohort_distribution$plant_cohorts_n_scaled <- # replace this line with the one above when scaling
   base_cohort_distribution$plant_cohorts_n
 
 # Round up/down as decimal individuals do not exist
@@ -144,15 +183,19 @@ base_cohort_distribution$plant_cohorts_n_scaled_rounded <-
 # Subset columns and correct for amount of cells (start counting from 0)
 base_cohort_distribution <-
   base_cohort_distribution[, c(
-    "plant_cohorts_cell_id", "plant_cohorts_n_scaled_rounded",
-    "plant_cohorts_pft", "plant_cohorts_dbh"
+    "plant_cohorts_cell_id",
+    "plant_cohorts_n_scaled_rounded",
+    "plant_cohorts_pft",
+    "plant_cohorts_dbh"
   )]
 
 cell_id <- 1:2499 # we start from 1 here because the first cohort (0) is the base
 
 for (i in cell_id) {
   base_x <-
-    base_cohort_distribution[base_cohort_distribution$plant_cohorts_cell_id == 0, ]
+    base_cohort_distribution[
+      base_cohort_distribution$plant_cohorts_cell_id == 0,
+    ]
   base_x$plant_cohorts_cell_id <- i
   base_cohort_distribution <-
     rbind(base_cohort_distribution, base_x)
@@ -161,13 +204,15 @@ for (i in cell_id) {
 # Final colnames
 colnames(base_cohort_distribution) <-
   c(
-    "plant_cohorts_cell_id", "plant_cohorts_n",
-    "plant_cohorts_pft", "plant_cohorts_dbh"
+    "plant_cohorts_cell_id",
+    "plant_cohorts_n",
+    "plant_cohorts_pft",
+    "plant_cohorts_dbh"
   )
 
 # Save scaled cohort distribution
 write.csv(
   base_cohort_distribution,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_Maliau_50x50.csv",
   row.names = FALSE
 )
