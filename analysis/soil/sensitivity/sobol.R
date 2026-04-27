@@ -2,6 +2,8 @@ library(tidyverse)
 library(sensobol)
 library(tidync)
 source("analysis/soil/initialisation/convert_array_to_nc.R")
+source("analysis/soil/initialisation/get_all_variables.R")
+source("analysis/soil/sensitivity/summarise_spatial.R")
 
 
 # Maliau input data -------------------------------------------------------
@@ -10,41 +12,32 @@ dat_maliau <- list(
   soil = tidync("data/scenarios/maliau/maliau_1/data/soil_maliau.nc"),
   litter = tidync("data/scenarios/maliau/maliau_1/data/litter_maliau.nc")
 )
-vars <-
+
+vars_maliau <-
   dat_maliau |>
-  map(
-    \(x) {
-      x$variable |> filter(dim_coord == FALSE) |> pull(name)
-    }
-  ) |>
+  map(get_all_variables) |>
   list_c()
 
-dat_maliau$soil |>
-  activate(vars[1]) |>
-  hyper_array()
-
-# function to extract the range of input data
-get_range <- function(nc, variable) {
-  dat_maliau$soil |>
-    activate(variable) |>
-    hyper_array()
-  vars_tmp <- intersect(ve_vars_init, names(data$var))
-  t(sapply(vars_tmp, function(var) {
-    ncvar_get(data, var) |> range()
-  }))
-}
-
-soil_range <-
-  get_maliau_range("data/scenarios/maliau/maliau_1/data/soil_maliau.nc")
-litter_range <-
-  get_maliau_range("data/scenarios/maliau/maliau_1/data/litter_maliau.nc")
-
-maliau_range <- rbind(soil_range, litter_range)
-maliau_vars_init <- rownames(maliau_range)
+range_maliau <-
+  vars_maliau |>
+  summarise_spatial(FUN = min) |>
+  reshape2::melt(value.name = "min") |>
+  left_join(
+    vars_maliau |>
+      summarise_spatial(FUN = max) |>
+      reshape2::melt(value.name = "max")
+  ) |>
+  # paste variable names with their extra dimension names to treat them as
+  # individual variables
+  mutate(
+    variable = ifelse(is.na(element), L1, paste(L1, element, sep = "_"))
+  ) |>
+  select(variable, min, max)
 
 
 # Set up Sobol matrix -----------------------------------------------------
 
+maliau_vars_init <- range_maliau$variable
 n_sample <- 100
 mat <- sobol_matrices(
   N = n_sample,
@@ -54,9 +47,11 @@ mat <- sobol_matrices(
 )
 
 # rescale to Maliau ranges
-for (i in maliau_vars_init) {
-  mat[, i] <-
-    mat[, i] * (maliau_range[i, 2] - maliau_range[i, 1]) + maliau_range[i, 1]
+for (var in maliau_vars_init) {
+  min <- range_maliau |> filter(variable == var) |> pull(min)
+  max <- range_maliau |> filter(variable == var) |> pull(max)
+  mat[, var] <-
+    mat[, var] * (max - min) + min
 }
 
 # each row will be treated as a single-grid "scenario"
