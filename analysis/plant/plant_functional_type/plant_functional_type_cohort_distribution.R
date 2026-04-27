@@ -87,19 +87,16 @@ names(data)
 # Load PFT species classification maximum height and clean up a bit
 
 PFT_species_classification_maximum_height <- read.csv(
-  # nolint
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_maximum_height.csv", # nolint
   header = TRUE
 )
 
-PFT_species_classification_maximum_height <- PFT_species_classification_maximum_height[
-  # nolint
-  ,
+PFT_species_classification_maximum_height <- PFT_species_classification_maximum_height[,
   c("PFT_final", "PFT_name", "TaxaName")
 ]
 PFT_species_classification_maximum_height <- unique(
   PFT_species_classification_maximum_height
-) # nolint
+)
 
 # Add PFT_final and PFT_name to data based on TaxaName and call it data_taxa
 
@@ -207,7 +204,7 @@ plot(
 plot(
   as.factor(data_taxa_without_PFT$PlotID[
     data_taxa_without_PFT$Block %in% c("OG1", "OG2", "OG3")
-  ]), # nolint
+  ]),
   xlab = "PlotID",
   ylab = "Trees without PFT"
 )
@@ -230,7 +227,7 @@ plot(
 plot(
   as.factor(data_taxa_with_PFT$PlotID[
     data_taxa_with_PFT$Block %in% c("OG1", "OG2", "OG3")
-  ]), # nolint
+  ]),
   xlab = "PlotID",
   ylab = "Trees with PFT"
 )
@@ -423,7 +420,7 @@ data_taxa <- data_taxa %>%
 data_taxa$PFT_known <-
   nrow(data_taxa[
     data_taxa$PFT_name %in% c("emergent", "overstory", "pioneer", "understory"),
-  ]) # nolint
+  ])
 data_taxa$PFT_unknown <-
   nrow(data_taxa[data_taxa$PFT_name %in% c("unknown"), ])
 data_taxa$PFT_total <- data_taxa$PFT_known + data_taxa$PFT_unknown
@@ -444,7 +441,7 @@ after <- unique(after)
 sum(before$plant_cohorts_n)
 sum(after$plant_cohorts_n_corrected[
   after$PFT_name %in% c("emergent", "overstory", "understory", "pioneer")
-]) # nolint
+])
 
 after_check <-
   data_taxa[, c(
@@ -452,7 +449,7 @@ after_check <-
     "DBH_class",
     "plant_cohorts_n",
     "plant_cohorts_n_corrected"
-  )] # nolint
+  )]
 data_taxa$plant_cohorts_n_corrected[data_taxa$PFT_name == "unknown"] <- 0
 
 ###
@@ -513,7 +510,7 @@ write.csv(
 
 data_taxa <- read.csv(
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution.csv"
-) # nolint
+)
 data <- data_taxa
 names(data)
 
