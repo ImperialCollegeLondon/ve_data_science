@@ -174,7 +174,7 @@ nc <-
   create.nc(
     "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc",
     format = "netcdf4"
-  ) # nolint
+  )
 
 # Define dimensions
 dim.def.nc(nc, "cell_id", length(cell_id_index))
@@ -205,7 +205,7 @@ close.nc(nc)
 plant_input_data_Maliau_50x50 <-
   nc_open(
     "../../../data/derived/plant/netcdf_plant_input_data/plant_input_data_Maliau_50x50_simplified.nc"
-  ) # nolint
+  )
 
 names(plant_input_data_Maliau_50x50$var)
 ncvar_get(plant_input_data_Maliau_50x50, "plant_pft_propagules")
