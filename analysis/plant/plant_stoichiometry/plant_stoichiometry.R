@@ -192,8 +192,8 @@ stem_lignin_percentage <- 23
 mean(data$C_total[data$TissueType == "Sapwood"])
 # We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
 
-stem_lignin_C_percentage <- stem_lignin_percentage * 0.625 # nolint
-stem_lignin_C_of_stem_C <- stem_lignin_C_percentage / 45.9 # nolint
+stem_lignin_C_percentage <- stem_lignin_percentage * 0.625
+stem_lignin_C_of_stem_C <- stem_lignin_C_percentage / 45.9
 
 # Add to summary
 
@@ -577,7 +577,7 @@ summary$lignin_senesced_leaf_mean <-
 # for a range of forests on Mount Kinabalu, Borneo
 
 kitayama_litter_stoichiometry <- read_excel(
-  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx", # nolint
+  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
   sheet = "Sheet1",
   col_names = FALSE
 )
@@ -710,12 +710,12 @@ summary$reproductive_organ_CP <-
 # reproductive tissues. The advantage here is that they separate fruits and flowers
 # To calculate fruit stoichiometric ratios, the values for mature fruit are used
 
-mature_fruit_C_percentage <- 50.62 # mean with SD of 0.44 # nolint
-mature_fruit_N_percentage <- 0.79 # mean with SD of 0.14 # nolint
-mature_fruit_P_percentage <- 0.61 # mean with SD of 0.11 # nolint
+mature_fruit_C_percentage <- 50.62 # mean with SD of 0.44
+mature_fruit_N_percentage <- 0.79 # mean with SD of 0.14
+mature_fruit_P_percentage <- 0.61 # mean with SD of 0.11
 
-mature_fruit_CN <- mature_fruit_C_percentage / mature_fruit_N_percentage # nolint
-mature_fruit_CP <- mature_fruit_C_percentage / mature_fruit_P_percentage # nolint
+mature_fruit_CN <- mature_fruit_C_percentage / mature_fruit_N_percentage
+mature_fruit_CP <- mature_fruit_C_percentage / mature_fruit_P_percentage
 
 # Note that the CP ratio here is much lower than the one by Kitayama
 
@@ -754,10 +754,10 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # (DOI https://doi.org/10.1079/SSR2004181)
 
 mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98 (see Ichie)
-mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100 # nolint
+mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100
 
 seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
-seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100 # nolint
+seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100
 
 # Add seed lignin content (the fraction of reproductive tissue carbon that is
 # captured in lignin)
@@ -771,9 +771,9 @@ seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100 # nolint
 seed_lignin_percentage <- 14.4 # with SD of 3.2 (see Nakagawa and Nakashizuka)
 
 seed_lignin_g <- (seed_lignin_percentage / 100) * seed_dry_mass
-seed_lignin_C_g <- seed_lignin_g * 0.625 # nolint
-seed_C_g <- (mature_fruit_C_percentage / 100) * seed_dry_mass # nolint
-lignin_C_of_seed_C <- seed_lignin_C_g / seed_C_g # nolint
+seed_lignin_C_g <- seed_lignin_g * 0.625
+seed_C_g <- (mature_fruit_C_percentage / 100) * seed_dry_mass
+lignin_C_of_seed_C <- seed_lignin_C_g / seed_C_g
 
 # Add to summary
 
@@ -790,12 +790,12 @@ summary$seed_lignin <- lignin_C_of_seed_C
 # To calculate flower stoichiometry, the following tissue stages are averaged:
 # flower bud, corolla appearing from flower bud, just before flowering, open flower
 
-flower_C_percentage <- (49.16 + 49.42 + 49.13 + 48.71) / 4 # See paper for SD # nolint
-flower_N_percentage <- (0.86 + 1.11 + 0.92 + 1.11) / 4 # See paper for SD # nolint
-flower_P_percentage <- (0.88 + 1.05 + 0.84 + 0.85) / 4 # See paper for SD # nolint
+flower_C_percentage <- (49.16 + 49.42 + 49.13 + 48.71) / 4 # See paper for SD
+flower_N_percentage <- (0.86 + 1.11 + 0.92 + 1.11) / 4 # See paper for SD
+flower_P_percentage <- (0.88 + 1.05 + 0.84 + 0.85) / 4 # See paper for SD
 
-flower_CN <- flower_C_percentage / flower_N_percentage # nolint
-flower_CP <- flower_C_percentage / flower_P_percentage # nolint
+flower_CN <- flower_C_percentage / flower_N_percentage
+flower_CP <- flower_C_percentage / flower_P_percentage
 
 # Note that the CP ratio here is also much lower than the one by Kitayama
 
@@ -812,12 +812,12 @@ summary$flower_CP <- flower_CP
 # (https://doi.org/10.1017/S0266467410000350)
 # These data are for mixed dipterocarp lowland tropical rain forest in Sabah
 
-fine_root_C_percentage <- 45.2 # SD = 4.4 # nolint
-fine_root_N_percentage <- 1.38 # SD = 0.32 # nolint
-fine_root_P_percentage <- 0.052 # SD = 0.004 # nolint
+fine_root_C_percentage <- 45.2 # SD = 4.4
+fine_root_N_percentage <- 1.38 # SD = 0.32
+fine_root_P_percentage <- 0.052 # SD = 0.004
 
-fine_root_CN <- fine_root_C_percentage / fine_root_N_percentage # nolint
-fine_root_CP <- fine_root_C_percentage / fine_root_P_percentage # nolint
+fine_root_CN <- fine_root_C_percentage / fine_root_N_percentage
+fine_root_CP <- fine_root_C_percentage / fine_root_P_percentage
 
 # Fine root lignin content (expressed as fraction of fine root carbon mass)
 
@@ -832,8 +832,8 @@ fine_root_lignin_percentage <- 22
 # We'll use the fine_root_C_percentage (45.2%) from Imai et al., 2010 (see above)
 # We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
 
-lignin_C_percentage <- fine_root_lignin_percentage * 0.625 # nolint
-fine_root_lignin_C_of_root_C <- lignin_C_percentage / 45.2 # nolint
+lignin_C_percentage <- fine_root_lignin_percentage * 0.625
+fine_root_lignin_C_of_root_C <- lignin_C_percentage / 45.2
 
 # Add to summary
 
@@ -883,7 +883,7 @@ summary <- summary[, c(
   "fine_root_lignin"
 )]
 summary <- unique(summary)
-rownames(summary) <- 1:nrow(summary) # nolint
+rownames(summary) <- 1:nrow(summary)
 
 # Change variable names to match those used in the VE
 names(summary)
