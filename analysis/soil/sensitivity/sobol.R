@@ -1,46 +1,36 @@
+library(tidyverse)
 library(sensobol)
-library(ncdf4)
-# library(futurize)
-library(reticulate)
-use_virtualenv("../ve.sandbox/ve_release")
-
-
-# List initial state variables from Virtual Ecosystem ---------------------
-
-# Import the model class
-abiotic_simple <-
-  import("virtual_ecosystem.models.abiotic_simple.abiotic_simple_model")
-hydrology <-
-  import("virtual_ecosystem.models.hydrology.hydrology_model")
-plants <-
-  import("virtual_ecosystem.models.plants.plants_model")
-animal <-
-  import("virtual_ecosystem.models.animal.animal_model")
-soil <-
-  import("virtual_ecosystem.models.soil.soil_model")
-litter <-
-  import("virtual_ecosystem.models.litter.litter_model")
-
-# Collect the required variables
-ve_vars_init <- c(
-  unlist(abiotic_simple$AbioticSimpleModel$vars_required_for_init),
-  unlist(hydrology$HydrologyModel$vars_required_for_init),
-  unlist(plants$PlantsModel$vars_required_for_init),
-  unlist(animal$AnimalModel$vars_required_for_init),
-  unlist(soil$SoilModel$vars_required_for_init),
-  unlist(litter$LitterModel$vars_required_for_init)
-) |>
-  unique()
+library(tidync)
+source("analysis/soil/initialisation/convert_array_to_nc.R")
 
 
 # Maliau input data -------------------------------------------------------
 
+dat_maliau <- list(
+  soil = tidync("data/scenarios/maliau/maliau_1/data/soil_maliau.nc"),
+  litter = tidync("data/scenarios/maliau/maliau_1/data/litter_maliau.nc")
+)
+vars <-
+  dat_maliau |>
+  map(
+    \(x) {
+      x$variable |> filter(dim_coord == FALSE) |> pull(name)
+    }
+  ) |>
+  list_c()
+
+dat_maliau$soil |>
+  activate(vars[1]) |>
+  hyper_array()
+
 # function to extract the range of input data
-get_maliau_range <- function(nc_path) {
-  data_maliau <- nc_open(nc_path)
-  vars_tmp <- intersect(ve_vars_init, names(data_maliau$var))
+get_range <- function(nc, variable) {
+  dat_maliau$soil |>
+    activate(variable) |>
+    hyper_array()
+  vars_tmp <- intersect(ve_vars_init, names(data$var))
   t(sapply(vars_tmp, function(var) {
-    ncvar_get(data_maliau, var) |> range()
+    ncvar_get(data, var) |> range()
   }))
 }
 
@@ -56,7 +46,6 @@ maliau_vars_init <- rownames(maliau_range)
 # Set up Sobol matrix -----------------------------------------------------
 
 n_sample <- 100
-
 mat <- sobol_matrices(
   N = n_sample,
   params = maliau_vars_init,
@@ -69,3 +58,13 @@ for (i in maliau_vars_init) {
   mat[, i] <-
     mat[, i] * (maliau_range[i, 2] - maliau_range[i, 1]) + maliau_range[i, 1]
 }
+
+# each row will be treated as a single-grid "scenario"
+# so convert the Sobol matrix to a list of single-grid variable arrays, which
+# will be further converted to netCDF input data
+foo <- as.list(mat[1, ])
+
+
+# Convert data in the Sobol Matrix to netCDFs ----------------------------
+
+convert_array_to_nc()
