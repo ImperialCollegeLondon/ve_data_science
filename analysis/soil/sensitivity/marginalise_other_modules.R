@@ -4,7 +4,7 @@ library(RNetCDF)
 library(tidync)
 library(purrr)
 source("analysis/soil/initialisation/convert_array_to_nc.R")
-source("analysis/soil/initialisation/subset_nc.R")
+source("analysis/soil/initialisation/get_all_variables.R")
 source("analysis/soil/sensitivity/get_mean_array.R")
 
 
@@ -19,42 +19,29 @@ ur_y <- maliau$ur_y
 
 
 # Generate mean arrays ---------------------------------------------------
-# use the subset_array() to convert netCDF to arrays but setting the coordinate
-# limits to the same as Maliau; this asks the function to simply return the
-# same extend but converts data to array
-
 in_dir <- "data/scenarios/maliau/maliau_1/data/"
 out_dir <- "data/scenarios/sensitivity_soil_litter/"
 
 # Climate / abiotic data
-get_mean_array(
-  nc = paste0(in_dir, "era5_maliau_2010_2020_100m.nc"),
-  ll_x = ll_x,
-  ll_y = ll_y,
-  ur_x = ur_x,
-  ur_y = ur_y
-) |>
+tidync(paste0(in_dir, "era5_maliau_2010_2020_100m.nc")) |>
+  get_all_variables() |>
+  summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
     filename = paste0(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
   )
 
 # Elevation data
-get_mean_array(
-  nc = paste0(in_dir, "elevation_maliau_2010_2020_100m.nc"),
-  ll_x = ll_x,
-  ll_y = ll_y,
-  ur_x = ur_x,
-  ur_y = ur_y
-) |>
+tidync(paste0(in_dir, "elevation_maliau_2010_2020_100m.nc")) |>
+  get_all_variables() |>
+  summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
     filename = paste0(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
   )
 
 # Plant data
-get_mean_array(
-  nc = paste0(in_dir, "plant_input_data_Maliau_50x50.nc"),
-  cell_id = seq_len(maliau$cell_nx * maliau$cell_ny) - 1
-) |>
+tidync(paste0(in_dir, "plant_input_data_Maliau_50x50.nc")) |>
+  get_all_variables() |>
+  summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
     filename = paste0(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
   )
