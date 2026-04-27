@@ -506,39 +506,39 @@ aoyagi_data$ratio_mast_to_non_mast[aoyagi_data$site == "this study"] <-
   aoyagi_data$reproductive_to_leaf_ratio[
     aoyagi_data$site == "this study" &
       aoyagi_data$masting == "mast"
-  ] / # nolint
+  ] /
   aoyagi_data$reproductive_to_leaf_ratio[
-    aoyagi_data$site == "this study" & # nolint
+    aoyagi_data$site == "this study" &
       aoyagi_data$masting == "non-mast"
-  ] # nolint
+  ]
 
 aoyagi_data$ratio_mast_to_non_mast[
   aoyagi_data$site == "kitayama_2015" &
     aoyagi_data$vegetation == "dipterocarp forest"
-] <- # nolint
+] <-
   aoyagi_data$reproductive_to_leaf_ratio[
     aoyagi_data$site == "kitayama_2015" &
-      aoyagi_data$vegetation == "dipterocarp forest" & # nolint
+      aoyagi_data$vegetation == "dipterocarp forest" &
       aoyagi_data$masting == "mast"
   ] /
   aoyagi_data$reproductive_to_leaf_ratio[
-    aoyagi_data$site == "kitayama_2015" & # nolint
-      aoyagi_data$vegetation == "dipterocarp forest" & # nolint
+    aoyagi_data$site == "kitayama_2015" &
+      aoyagi_data$vegetation == "dipterocarp forest" &
       aoyagi_data$masting == "non-mast"
   ]
 
 aoyagi_data$ratio_mast_to_non_mast[
   aoyagi_data$site == "kitayama_2015" &
     aoyagi_data$vegetation == "montane forest"
-] <- # nolint
+] <-
   aoyagi_data$reproductive_to_leaf_ratio[
     aoyagi_data$site == "kitayama_2015" &
-      aoyagi_data$vegetation == "montane forest" & # nolint
+      aoyagi_data$vegetation == "montane forest" &
       aoyagi_data$masting == "mast"
   ] /
   aoyagi_data$reproductive_to_leaf_ratio[
-    aoyagi_data$site == "kitayama_2015" & # nolint
-      aoyagi_data$vegetation == "montane forest" & # nolint
+    aoyagi_data$site == "kitayama_2015" &
+      aoyagi_data$vegetation == "montane forest" &
       aoyagi_data$masting == "non-mast"
   ]
 
@@ -776,19 +776,19 @@ ichie_data$fruit_live_organ_carbon_mass <-
 
 ichie_data$flower_allocation_litter <-
   ichie_data$flower_litter_carbon_mass /
-  (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass) # nolint
+  (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass)
 ichie_data$fruit_allocation_litter <-
   ichie_data$fruit_litter_carbon_mass /
-  (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass) # nolint
+  (ichie_data$flower_litter_carbon_mass + ichie_data$fruit_litter_carbon_mass)
 
 ichie_data$flower_allocation_live_organ <-
   ichie_data$flower_live_organ_carbon_mass /
   (ichie_data$flower_live_organ_carbon_mass +
-    ichie_data$fruit_live_organ_carbon_mass) # nolint
+    ichie_data$fruit_live_organ_carbon_mass)
 ichie_data$fruit_allocation_live_organ <-
   ichie_data$fruit_live_organ_carbon_mass /
   (ichie_data$flower_live_organ_carbon_mass +
-    ichie_data$fruit_live_organ_carbon_mass) # nolint
+    ichie_data$fruit_live_organ_carbon_mass)
 
 # Have another look at the paper and see if we want to use the ratio based on
 # litter or live organ
@@ -830,6 +830,6 @@ summary[20, ] <-
 
 write.csv(
   summary,
-  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv", # nolint
+  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv",
   row.names = FALSE
 )
