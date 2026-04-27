@@ -55,70 +55,60 @@ for (var in maliau_vars_init) {
 }
 
 # convert to dataframe, and then combine CNP into triplet columns
+# simple function to merge triplet
+merge_triplet <- function(C, N, P) {
+  pmap(list(C, N, P), c)
+}
+
 sobol_df <-
   mat |>
   as.data.frame() |>
   # combine C, N and P columns into a single list column
   mutate(
-    soil_cnp_pool_lmwc = pmap(
-      list(soil_cnp_pool_lmwc_C, soil_cnp_pool_lmwc_N, soil_cnp_pool_lmwc_P),
-      c
+    soil_cnp_pool_lmwc = merge_triplet(
+      soil_cnp_pool_lmwc_C,
+      soil_cnp_pool_lmwc_N,
+      soil_cnp_pool_lmwc_P
     ),
-    soil_cnp_pool_maom = pmap(
-      list(soil_cnp_pool_maom_C, soil_cnp_pool_maom_N, soil_cnp_pool_maom_P),
-      c
+    soil_cnp_pool_maom = merge_triplet(
+      soil_cnp_pool_maom_C,
+      soil_cnp_pool_maom_N,
+      soil_cnp_pool_maom_P
     ),
-    soil_cnp_pool_pom = pmap(
-      list(soil_cnp_pool_pom_C, soil_cnp_pool_pom_N, soil_cnp_pool_pom_P),
-      c
+    soil_cnp_pool_pom = merge_triplet(
+      soil_cnp_pool_pom_C,
+      soil_cnp_pool_pom_N,
+      soil_cnp_pool_pom_P
     ),
-    soil_cnp_pool_necromass = pmap(
-      list(
-        soil_cnp_pool_necromass_C,
-        soil_cnp_pool_necromass_N,
-        soil_cnp_pool_necromass_P
-      ),
-      c
+    soil_cnp_pool_necromass = merge_triplet(
+      soil_cnp_pool_necromass_C,
+      soil_cnp_pool_necromass_N,
+      soil_cnp_pool_necromass_P
     ),
-    litter_pool_above_metabolic_cnp = pmap(
-      list(
-        litter_pool_above_metabolic_cnp_C,
-        litter_pool_above_metabolic_cnp_N,
-        litter_pool_above_metabolic_cnp_P
-      ),
-      c
+    litter_pool_above_metabolic_cnp = merge_triplet(
+      litter_pool_above_metabolic_cnp_C,
+      litter_pool_above_metabolic_cnp_N,
+      litter_pool_above_metabolic_cnp_P
     ),
-    litter_pool_below_metabolic_cnp = pmap(
-      list(
-        litter_pool_below_metabolic_cnp_C,
-        litter_pool_below_metabolic_cnp_N,
-        litter_pool_below_metabolic_cnp_P
-      ),
-      c
+    litter_pool_below_metabolic_cnp = merge_triplet(
+      litter_pool_below_metabolic_cnp_C,
+      litter_pool_below_metabolic_cnp_N,
+      litter_pool_below_metabolic_cnp_P
     ),
-    litter_pool_above_structural_cnp = pmap(
-      list(
-        litter_pool_above_structural_cnp_C,
-        litter_pool_above_structural_cnp_N,
-        litter_pool_above_structural_cnp_P
-      ),
-      c
+    litter_pool_above_structural_cnp = merge_triplet(
+      litter_pool_above_structural_cnp_C,
+      litter_pool_above_structural_cnp_N,
+      litter_pool_above_structural_cnp_P
     ),
-    litter_pool_below_structural_cnp = pmap(
-      list(
-        litter_pool_below_structural_cnp_C,
-        litter_pool_below_structural_cnp_N,
-        litter_pool_below_structural_cnp_P
-      ),
-      c
+    litter_pool_below_structural_cnp = merge_triplet(
+      litter_pool_below_structural_cnp_C,
+      litter_pool_below_structural_cnp_N,
+      litter_pool_below_structural_cnp_P
     ),
-    litter_pool_woody_cnp = pmap(
-      list(
-        litter_pool_woody_cnp_C,
-        litter_pool_woody_cnp_N,
-        litter_pool_woody_cnp_P
-      ),
-      c
+    litter_pool_woody_cnp = merge_triplet(
+      litter_pool_woody_cnp_C,
+      litter_pool_woody_cnp_N,
+      litter_pool_woody_cnp_P
     ),
     .keep = "unused"
   )
