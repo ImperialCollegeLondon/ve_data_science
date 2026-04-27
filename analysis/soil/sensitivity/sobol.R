@@ -1,9 +1,9 @@
 library(tidyverse)
 library(sensobol)
 library(tidync)
-source("analysis/soil/initialisation/convert_array_to_nc.R")
-source("analysis/soil/initialisation/get_all_variables.R")
-source("analysis/soil/sensitivity/summarise_spatial.R")
+source("tools/R/convert_array_to_nc.R")
+source("tools/R/get_all_variables.R")
+source("tools/R/summarise_spatial.R")
 
 
 # Maliau input data -------------------------------------------------------
