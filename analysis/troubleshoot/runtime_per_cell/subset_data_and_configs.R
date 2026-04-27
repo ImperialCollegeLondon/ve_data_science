@@ -169,6 +169,9 @@ for (j in seq_along(ur_y)) {
   read_toml(paste0(copy_dir, "data_config.toml")) |>
     write_toml() |>
     edit_toml("core.grid.cell_ny", j) |>
+    edit_toml("core.data_output_options.save_initial_state", FALSE) |>
+    edit_toml("core.data_output_options.save_continuous_data", FALSE) |>
+    edit_toml("core.data_output_options.save_final_state", FALSE) |>
     edit_toml(
       "core.data.variable",
       data.frame(
@@ -239,7 +242,6 @@ for (j in seq_along(ur_y)) {
   # plants config
   read_toml(paste0(copy_dir, "plant_config.toml")) |>
     write_toml() |>
-    # same plants cohort across
     edit_toml(
       "plants.cohort_data_path",
       paste0("../../data/plant_cohort_data_maliau_", j, "x10.csv")
@@ -259,6 +261,7 @@ for (j in seq_along(ur_y)) {
         file_path = paste0("../../data/plant_input_data_maliau_", j, "x10.nc")
       )
     ) |>
+    edit_toml("plants.community_data_export.required_data", list()) |>
     write_lines(paste0(config_dir, "/plant_config.toml"))
 
   # animal config
@@ -269,5 +272,7 @@ for (j in seq_along(ur_y)) {
       "animal.functional_group_definitions_path",
       "../../data/animal_functional_groups_Maliau_level1.csv"
     ) |>
+    edit_toml("animal.cohort_data_export.enabled", FALSE) |>
+    edit_toml("animal.cohort_data_export.cohort_attributes", list()) |>
     write_lines(paste0(config_dir, "/animal_config.toml"))
 }
