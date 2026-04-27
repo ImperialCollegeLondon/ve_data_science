@@ -71,10 +71,10 @@ usage_notes: |
 
 import math
 import os
+import tomllib
 
 import pyproj
 import tomli_w
-import tomllib
 from shapely.geometry import box
 from shapely.ops import transform
 
