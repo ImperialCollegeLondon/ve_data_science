@@ -54,7 +54,7 @@ print("Then multiply the base cohort distribution by 2500, one for each cell")
 # Load base cohort distribution per hectare
 base_cohort_distribution <- read.csv(
   "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare.csv"
-) # nolint
+)
 
 # Add individuals with dbh <10 cm (as these are not included in the Maliau census)
 # Use the value reported in Kenzo et al. (2015) for Balai Ringin site,
