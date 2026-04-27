@@ -1,3 +1,39 @@
+#| ---
+#| title: Subset maliau_2 scenario datasets to examine runtime per grid
+#|
+#| description: |
+#|     Subset the maliau_2 scenario datasets into 1x10, 2x10, ... 10x10 grids
+#|     to examine the amount of runtime per grid. The output data and configs
+#|     are analysed in analysis/troubleshoot/runtime_per_cell/runtime.R
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|   - name: runtime.rds
+#|     path: data/derived/troubleshoot/runtime_per_cell
+#|     description: |
+#          Results of total runtime and runtime per grid against grid number
+#|   - name: runtime.png
+#|     path: data/derived/troubleshoot/runtime_per_cell
+#|     description: |
+#          Plot of total runtime and runtime per grid against grid number
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - ve.utils
+#|     - tictoc
+#|     - foreach
+#|     - ggpubr
+#|
+#| usage_notes:
+#| ---
+
 library(tidyverse)
 library(ve.utils)
 library(tictoc)

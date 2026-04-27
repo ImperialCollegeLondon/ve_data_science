@@ -1,3 +1,119 @@
+#| ---
+#| title: Subset maliau_2 scenario datasets to examine runtime per grid
+#|
+#| description: |
+#|     Subset the maliau_2 scenario datasets into 1x10, 2x10, ... 10x10 grids
+#|     to examine the amount of runtime per grid. The output data and configs
+#|     are analysed in analysis/troubleshoot/runtime_per_cell/runtime.R
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: maliau_grid_definition_100m_10x10.toml
+#|     path: data/derived/site/maliau
+#|     description: Grid definition metadata for the maliau_2 scenario
+#|   - name: animal_functional_groups_Maliau_level1.csv
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Animal functional group input data
+#|   - name: plant_constants_Maliau_10x10.csv
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Plant constant values
+#|   - name: plant_pft_definitions_maliau_10x10.csv
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Plant functional type definitions
+#|   - name: soil_maliau.nc
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Soil input data
+#|   - name: litter_maliau.nc
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Litter input data
+#|   - name: elevation_maliau_10x10.nc
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Elevation input data
+#|   - name: era5_maliau_10x10_2010_2020.nc
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Climate input data
+#|   - name: plant_input_data_maliau_10x10.nc
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Plants input data
+#|   - name: plant_cohort_data_maliau_10x10.csv
+#|     path: data/scenarios/maliau/maliau_2/data
+#|     description: Plant cohort input data
+#|   - name: ve_run.toml
+#|     path: data/scenarios/maliau/maliau_2/config
+#|     description: ve_run master config
+#|   - name: soil_microbial_groups.toml
+#|     path: data/scenarios/maliau/maliau_2/config
+#|     description: Soil microbial group config
+#|   - name: data_config.toml
+#|     path: data/scenarios/maliau/maliau_2/config
+#|     description: Core and data config
+#|   - name: plant_config.toml
+#|     path: data/scenarios/maliau/maliau_2/config
+#|     description: Plants module config
+#|   - name: animal_config.toml
+#|     path: data/scenarios/maliau/maliau_2/config
+#|     description: Animal module config
+#|
+#| output_files:
+#|   - name: animal_functional_groups_Maliau_level1.csv
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Animal functional group input data
+#|   - name: plant_constants_Maliau_10x10.csv
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Plant constant values
+#|   - name: plant_pft_definitions_maliau_10x10.csv
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Plant functional type definitions
+#|   - name: soil_maliau.nc
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Soil input data
+#|   - name: litter_maliau.nc
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Litter input data
+#|   - name: elevation_maliau_10x10.nc
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Elevation input data
+#|   - name: era5_maliau_10x10_2010_2020.nc
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Climate input data
+#|   - name: plant_input_data_maliau_10x10.nc
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Plants input data
+#|   - name: plant_cohort_data_maliau_10x10.csv
+#|     path: data/scenarios/runtime_per_cell/data
+#|     description: Plant cohort input data
+#|   - name: ve_run.toml
+#|     path: data/scenarios/runtime_per_cell/config
+#|     description: ve_run master config
+#|   - name: soil_microbial_groups.toml
+#|     path: data/scenarios/runtime_per_cell/config
+#|     description: Soil microbial group config
+#|   - name: data_config.toml
+#|     path: data/scenarios/runtime_per_cell/config
+#|     description: Core and data config
+#|   - name: plant_config.toml
+#|     path: data/scenarios/runtime_per_cell/config
+#|     description: Plants module config
+#|   - name: animal_config.toml
+#|     path: data/scenarios/runtime_per_cell/config
+#|     description: Animal module config
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - RNetCDF
+#|     - tidync
+#|     - ncdf4
+#|     - purrr
+#|     - toml
+#|
+#| usage_notes:
+#| ---
+
 library(tidyverse)
 library(RNetCDF)
 library(tidync)
@@ -51,7 +167,7 @@ file.copy(paste0(copy_dir, files_to_copy), paste_dir)
 for (j in seq_along(ur_y)) {
   # soil data
   subset_nc(
-    nc = "data/scenarios/maliau/maliau_1/data/soil_maliau.nc",
+    nc = "data/scenarios/maliau/maliau_2/data/soil_maliau.nc",
     ll_x = ll_x,
     ll_y = ll_y,
     ur_x = ur_x,
@@ -65,7 +181,7 @@ for (j in seq_along(ur_y)) {
 
   # litter data
   subset_nc(
-    nc = "data/scenarios/maliau/maliau_1/data/litter_maliau.nc",
+    nc = "data/scenarios/maliau/maliau_2/data/litter_maliau.nc",
     ll_x = ll_x,
     ll_y = ll_y,
     ur_x = ur_x,
