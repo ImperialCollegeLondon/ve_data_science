@@ -19,45 +19,21 @@ runtime <- foreach(out = outs, config = configs) %do%
 
     tic()
     ve_run(
-      paste0(config_dir, "/", config),
-      out,
-      paste0(out, "/logfile.log"),
-      extra_args = c("--config", "core.debug.truncate_run_at_update=30"),
-      "ve_develop/Scripts"
+      cfg_paths = paste0(config_dir, "/", config),
+      outpath = out,
+      logfile = paste0(out, "/logfile.log"),
+      env = "ve_develop/Scripts"
     )
     toc()
-  } |>
-  futurize()
-
-runtime_cli <- c(
-  "24:23",
-  "03:40",
-  "06:39",
-  "10:19",
-  "14:07",
-  "15:54",
-  "17:48",
-  "20:26",
-  "22:07",
-  "23:22"
-)
-runtime_cli <-
-  sapply(runtime_cli, \(x) {
-    parts <- as.numeric(strsplit(x, ":")[[1]])
-    parts[1] * 60 + parts[2]
-  })
-
+  }
 write_rds(runtime, "data/derived/troubleshoot/runtime_per_cell/runtime.rds")
-write_rds(
-  runtime_cli,
-  "data/derived/troubleshoot/runtime_per_cell/runtime_cli.rds"
-)
+
+runtime <- read_rds("data/derived/troubleshoot/runtime_per_cell/runtime.rds")
 
 runtime_df <- data.frame(
   time = sapply(runtime, \(x) {
     as.numeric(str_remove(x$callback_msg, " sec elapsed"))
   }),
-  time_cli = runtime_cli,
   grid = str_remove(configs, "config_")
 ) |>
   mutate(
@@ -66,17 +42,29 @@ runtime_df <- data.frame(
     time_per_cell = time / n_cell
   )
 
-png(
-  "data/derived/troubleshoot/runtime_per_cell/runtime.png",
-  res = 300,
-  width = 6,
-  height = 4,
-  units = "in"
-)
-ggplot(runtime_df) +
+p_total <-
+  ggplot(runtime_df) +
+  geom_line(aes(n_cell, time)) +
+  geom_point(aes(n_cell, time)) +
+  labs(y = "Total time elapsed (s)", x = "Number of grids") +
+  scale_x_continuous(breaks = runtime_df$n_cell, labels = runtime_df$grid) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+p_per_cell <-
+  ggplot(runtime_df) +
   geom_line(aes(n_cell, time_per_cell)) +
   geom_point(aes(n_cell, time_per_cell)) +
   labs(y = "Time elapsed per grid (s per grid)", x = "Number of grids") +
   scale_x_continuous(breaks = runtime_df$n_cell, labels = runtime_df$grid) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+
+png(
+  "data/derived/troubleshoot/runtime_per_cell/runtime.png",
+  res = 300,
+  width = 6,
+  height = 3,
+  units = "in"
+)
+ggarrange(p_total, p_per_cell)
 dev.off()
