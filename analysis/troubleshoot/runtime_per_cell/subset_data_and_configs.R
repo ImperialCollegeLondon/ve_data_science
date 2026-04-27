@@ -120,8 +120,8 @@ library(tidync)
 library(ncdf4)
 library(purrr)
 library(toml)
-source("analysis/soil/initialisation/convert_array_to_nc.R")
-source("analysis/soil/initialisation/subset_nc.R")
+source("tools/R/convert_array_to_nc.R")
+source("tools/R/subset_nc.R")
 
 
 # Maliau site metadata ----------------------------------------------------

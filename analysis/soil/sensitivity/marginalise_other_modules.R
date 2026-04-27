@@ -3,9 +3,20 @@ library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
-source("analysis/soil/initialisation/convert_array_to_nc.R")
-source("analysis/soil/initialisation/get_all_variables.R")
-source("analysis/soil/sensitivity/summarise_spatial.R")
+source("tools/R/convert_array_to_nc.R")
+source("tools/R/subset_nc.R")
+source("tools/R/get_mean_array.R")
+source("tools/R/cell_id_to_xy.R")
+
+
+# Maliau site metadata ----------------------------------------------------
+
+maliau <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
+ll_x <- maliau$ll_x
+ll_y <- maliau$ll_y
+ur_x <- maliau$ur_x
+ur_y <- maliau$ur_y
 
 
 # Generate mean arrays ---------------------------------------------------
