@@ -81,7 +81,7 @@ library(ggplot2)
 # Load SAFE carbon balance components dataset and clean up a bit
 
 safe_carbon_balance_components <- read_excel(
-  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx", # nolint
+  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
   sheet = "Data",
   col_names = FALSE
 )
@@ -168,27 +168,27 @@ data$leaf_C_perc[data$ForestType == "Logged"] <-
 # reproductive organ litter carbon content across the different plots.
 
 kitayama_litter_stoichiometry <- read_excel(
-  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx", # nolint
+  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
   sheet = "Sheet1",
   col_names = FALSE
 )
 
 colnames(kitayama_litter_stoichiometry) <- kitayama_litter_stoichiometry[2, ]
 
-kitayama_litter_stoichiometry_C <- # nolint
+kitayama_litter_stoichiometry_C <-
   kitayama_litter_stoichiometry[c(28:36), c(1, 2, 3)]
-colnames(kitayama_litter_stoichiometry_C) <- # nolint
+colnames(kitayama_litter_stoichiometry_C) <-
   c("site", "leaf_C", "reproductive_organ_C")
 
-kitayama_litter_stoichiometry_C$leaf_C <- # nolint
+kitayama_litter_stoichiometry_C$leaf_C <-
   as.numeric(kitayama_litter_stoichiometry_C$leaf_C)
-kitayama_litter_stoichiometry_C$reproductive_organ_C <- # nolint
+kitayama_litter_stoichiometry_C$reproductive_organ_C <-
   as.numeric(kitayama_litter_stoichiometry_C$reproductive_organ_C)
 
 # Save mean reproductive carbon content separately in case we want to use it
 # to correct for carbon mass in other approaches in this script.
 
-kitayama_mean_C_percentage <- # nolint
+kitayama_mean_C_percentage <-
   mean(kitayama_litter_stoichiometry_C$reproductive_organ_C / 1000) * 100
 print(kitayama_mean_C_percentage)
 
