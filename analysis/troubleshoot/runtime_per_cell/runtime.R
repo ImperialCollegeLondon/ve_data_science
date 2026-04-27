@@ -5,11 +5,16 @@ library(foreach)
 library(ggpubr)
 
 
+# Set up config and output directories -----------------------------------
+
 config_dir <- "data/scenarios/runtime_per_cell/config"
 configs <- list.dirs(config_dir, full.names = FALSE, recursive = FALSE)
 
 out_dir <- "data/scenarios/runtime_per_cell/out/"
 outs <- paste0(out_dir, str_replace(configs, "config", "out"))
+
+
+# Run each grid-size scenario --------------------------------------------
 
 runtime <- foreach(out = outs, config = configs) %do%
   {
@@ -26,22 +31,30 @@ runtime <- foreach(out = outs, config = configs) %do%
     )
     toc()
   }
+
+# save output once
 write_rds(runtime, "data/derived/troubleshoot/runtime_per_cell/runtime.rds")
 
+# read output again (to skip having to re-run VE next time)
 runtime <- read_rds("data/derived/troubleshoot/runtime_per_cell/runtime.rds")
 
+# tidy up results
 runtime_df <- data.frame(
+  # collect total time elapsed
   time = sapply(runtime, \(x) {
     as.numeric(str_remove(x$callback_msg, " sec elapsed"))
   }),
   grid = str_remove(configs, "config_")
 ) |>
+  # calculate time elapsed per grid
   mutate(
     ny = as.numeric(str_extract(grid, "^\\d+")),
     n_cell = ny * 10,
     time_per_cell = time / n_cell
   )
 
+# Visualise
+# total runtime
 p_total <-
   ggplot(runtime_df) +
   geom_line(aes(n_cell, time)) +
@@ -50,6 +63,7 @@ p_total <-
   scale_x_continuous(breaks = runtime_df$n_cell, labels = runtime_df$grid) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
+# runtime per grid
 p_per_cell <-
   ggplot(runtime_df) +
   geom_line(aes(n_cell, time_per_cell)) +
@@ -59,6 +73,7 @@ p_per_cell <-
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 
+# save plot
 png(
   "data/derived/troubleshoot/runtime_per_cell/runtime.png",
   res = 300,
