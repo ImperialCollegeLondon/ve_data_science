@@ -191,8 +191,11 @@ plant_cohort <-
     show_col_types = FALSE
   ) |>
   group_by(plant_cohorts_pft) |>
-  # take average cohort size and then floor it to get integer
-  summarise(plant_cohorts_n = floor(mean(plant_cohorts_n))) |>
+  # take average cohort size and DBH and floor cohort size to get integer
+  summarise(
+    plant_cohorts_n = floor(mean(plant_cohorts_n)),
+    plant_cohorts_dbh = mean(plant_cohorts_dbh),
+  ) |>
   # reset cell_id to start from zero here too
   mutate(plant_cohorts_cell_id = 0)
 write_csv(
