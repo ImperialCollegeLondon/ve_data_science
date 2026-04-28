@@ -12,8 +12,7 @@ args <- c(
   "--out",
   out_path,
   "--logfile",
-  paste0(out_path, "/logfile.log"),
-  "--config",
-  "core.debug.truncate_run_at_update=4"
+  paste0(out_path, "/logfile.log")
 )
+
 ve_run(args, venv = "./ve_develop")

@@ -45,8 +45,7 @@ core <- list(
   ),
   data_output_options = list(
     save_initial_state = FALSE,
-    save_continuous_data = FALSE,
-    save_final_state = FALSE
+    save_continuous_data = FALSE
   ),
   data = list(variable = data_paths)
 )
