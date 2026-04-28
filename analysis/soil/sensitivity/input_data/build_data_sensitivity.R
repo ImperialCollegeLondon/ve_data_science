@@ -131,8 +131,8 @@ sobol_df <-
 # so convert the Sobol matrix to a list of single-grid variable arrays, which
 # will be further converted to netCDF input data
 dimnames <- list(
-  x = maliau_1$ll_x,
-  y = maliau_1$ur_y,
+  x = maliau_1$cell_x_centres[1],
+  y = maliau_1$cell_y_centres[1],
   element = c("C", "N", "P")
 )
 
