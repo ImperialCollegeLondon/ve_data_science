@@ -51,7 +51,7 @@ range_maliau <-
 # to efficiency sample the variable space of soil and litter data
 
 maliau_vars_init <- range_maliau$variable
-n_sample <- 100
+n_sample <- 5
 mat <- sobol_matrices(
   N = n_sample,
   params = maliau_vars_init,
