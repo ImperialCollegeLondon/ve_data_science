@@ -46,11 +46,15 @@
 #'   )
 #'   ve_run(args)
 
-ve_run <- function(args, venv) {
-  # use virtual environment if specified
-  reticulate::use_virtualenv(venv)
+ve_run <- function(args, venv = NULL) {
+  if (!is.null(venv)) {
+    # use virtual environment if specified
+    reticulate::use_virtualenv(venv)
+  }
+
   # import the ve_run_cli function from VE
   ve_run_cli <- reticulate::import("virtual_ecosystem.entry_points")$ve_run_cli
+
   # run VE
   ve_run_cli(args)
 }
