@@ -10,7 +10,7 @@ source("tools/R/summarise_spatial.R")
 
 # some directory paths
 in_dir <- "data/scenarios/maliau/maliau_1/data/"
-out_dir <- "data/scenarios/sensitivity_soil_litter/"
+out_dir <- "data/scenarios/sensitivity_soil_litter/data/"
 
 
 # Maliau input data -------------------------------------------------------
@@ -56,7 +56,8 @@ mat <- sobol_matrices(
   N = n_sample,
   params = maliau_vars_init,
   order = "first",
-  type = "QRN"
+  type = "QRN",
+  seed = 777
 )
 
 # rescale to Maliau ranges
