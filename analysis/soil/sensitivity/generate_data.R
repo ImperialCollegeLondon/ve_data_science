@@ -8,6 +8,11 @@ source("tools/R/get_all_variables.R")
 source("tools/R/summarise_spatial.R")
 
 
+# some directory paths
+in_dir <- "data/scenarios/maliau/maliau_1/data/"
+out_dir <- "data/scenarios/sensitivity_soil_litter/"
+
+
 # Maliau input data -------------------------------------------------------
 
 maliau_1 <-
@@ -16,8 +21,8 @@ maliau_1 <-
   pluck("maliau_1")
 
 dat_maliau <- list(
-  soil = tidync("data/scenarios/maliau/maliau_1/data/soil_maliau.nc"),
-  litter = tidync("data/scenarios/maliau/maliau_1/data/litter_maliau.nc")
+  soil = tidync(paste0(in_dir, "soil_maliau.nc")),
+  litter = tidync(paste0(in_dir, "litter_maliau.nc"))
 )
 
 vars_maliau <-
@@ -148,15 +153,11 @@ sobol_df[1, ] |>
       )
     }
   }) |>
-  convert_array_to_nc(
-    filename = "data/scenarios/sensitivity_soil_litter/soil_litter_data.nc"
-  )
+  convert_array_to_nc(filename = paste0(out_dir, "soil_litter_data.nc"))
 
 
 # Generate mean arrays ---------------------------------------------------
 # For other modules, fix their values at spatial averages
-in_dir <- "data/scenarios/maliau/maliau_1/data/"
-out_dir <- "data/scenarios/sensitivity_soil_litter/"
 
 # Climate / abiotic data
 tidync(paste0(in_dir, "era5_maliau_2010_2020_100m.nc")) |>
