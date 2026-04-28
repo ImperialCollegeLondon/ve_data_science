@@ -183,3 +183,30 @@ tidync(paste0(in_dir, "plant_input_data_Maliau_50x50.nc")) |>
   convert_array_to_nc(
     filename = paste0(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
   )
+
+# Plant cohorts
+plant_cohort <-
+  read_csv(
+    paste0(in_dir, "plant_cohort_data_maliau_50x50.csv"),
+    show_col_types = FALSE
+  ) |>
+  group_by(plant_cohorts_pft) |>
+  # take average cohort size and then floor it to get integer
+  summarise(plant_cohorts_n = floor(mean(plant_cohorts_n))) |>
+  # reset cell_id to start from zero here too
+  mutate(plant_cohorts_cell_id = 0)
+write_csv(
+  plant_cohort,
+  paste0(out_dir, "plant_cohort_data_maliau_50x50.csv")
+)
+
+# Copy over other data that do not need to be modified
+files_to_copy <- c(
+  "animal_functional_groups_Maliau_level1.csv",
+  "plant_pft_definitions_maliau_50x50.csv"
+)
+file.copy(paste0(in_dir, files_to_copy), out_dir)
+file.copy(
+  "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml",
+  "data/scenarios/sensitivity_soil_litter/config"
+)
