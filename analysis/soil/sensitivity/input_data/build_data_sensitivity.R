@@ -136,25 +136,36 @@ dimnames <- list(
   element = c("C", "N", "P")
 )
 
-sobol_df[1, ] |>
-  as.list() |>
-  list_flatten() |>
-  map(\(x) {
-    if (length(x) == 1) {
-      array(x, dim = c(1, 1), dimnames = list(x = dimnames$x, y = dimnames$y))
-    } else {
-      array(
-        x,
-        dim = c(3, 1, 1),
-        dimnames = list(
-          element = dimnames$element,
-          x = dimnames$x,
-          y = dimnames$y
-        )
+sobol_df[1:5, ] |>
+  mutate(row_id = row_number()) |>
+  group_split(row_id) |>
+  imap(\(x, idx) {
+    x |>
+      as.list() |>
+      list_flatten() |>
+      map(\(dat) {
+        if (length(dat) == 1) {
+          array(
+            dat,
+            dim = c(1, 1),
+            dimnames = list(x = dimnames$x, y = dimnames$y)
+          )
+        } else {
+          array(
+            dat,
+            dim = c(3, 1, 1),
+            dimnames = list(
+              element = dimnames$element,
+              x = dimnames$x,
+              y = dimnames$y
+            )
+          )
+        }
+      }) |>
+      convert_array_to_nc(
+        filename = paste0(out_dir, "soil_litter_data_", idx, ".nc")
       )
-    }
-  }) |>
-  convert_array_to_nc(filename = paste0(out_dir, "soil_litter_data.nc"))
+  })
 
 
 # Generate mean arrays ---------------------------------------------------
