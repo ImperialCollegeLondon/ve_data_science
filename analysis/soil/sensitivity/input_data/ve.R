@@ -1,31 +1,45 @@
+library(tidyverse)
 library(mirai)
 
-source("tools/R/ve_run.R")
 
 # file paths
-config_path <- "data/scenarios/sensitivity_soil_litter/config"
-out_path <- "data/scenarios/sensitivity_soil_litter/out"
-if (!dir.exists(out_path)) {
-  dir.create(out_path)
-}
+config_paths <-
+  list.dirs("data/scenarios/sensitivity_soil_litter/config", recursive = FALSE)
+out_paths <- str_replace(config_paths, "config", "out")
+walk(out_paths, \(path) {
+  if (!dir.exists(path)) {
+    dir.create(path)
+  }
+})
 
-# argument string
-args <- c(
-  config_path,
-  "--out",
-  out_path,
-  "--logfile",
-  paste0(out_path, "/logfile.log"),
-  "--config",
-  "core.debug.truncate_run_at_update=24"
-)
+paths <- data.frame(config = config_paths, out = out_paths)
+path_list <- split(paths, 1:nrow(paths))
 
 # run VE
+daemons(5)
 
-daemons(4)
+ve_runs <- map(
+  path_list,
+  # in_parallel(
+  \(path) {
+    # argument string
+    args <- c(
+      path$config,
+      "--out",
+      path$out,
+      "--logfile",
+      paste0(path$out, "/logfile.log"),
+      "--config",
+      "core.debug.truncate_run_at_update=24"
+    )
 
-tictoc::tic()
-ve_run(args, venv = "./ve_develop")
-tictoc::toc()
+    source("tools/R/ve_run.R")
+
+    tictoc::tic()
+    ve_run(args, venv = "./ve_develop")
+    tictoc::toc()
+  }
+  # )
+)
 
 daemons(0)
