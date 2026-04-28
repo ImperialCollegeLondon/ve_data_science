@@ -1,3 +1,27 @@
+#| ---
+#| title: Run the Virtual Ecosystem in R
+#|
+#| description: |
+#|     The function in this script imports ve_run_cli from virtual_ecosystem.entry_points
+#|     to run VE directly from R.
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - reticulate (R)
+#|     - virtual_ecosystem (Python)
+#|
+#| usage_notes: See function documentation below.
+#| ---
+
 #' Run the Virtual Ecosystem in R
 #'
 #' @param args A concatenated string of arguments. For example,
