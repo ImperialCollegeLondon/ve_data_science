@@ -28,7 +28,7 @@ data_paths <- collect_data_paths(
 # new values for plants.constants
 plants_contants <-
   read.csv(
-    "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_10x10.csv"
+    "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
   )
 
 
@@ -53,8 +53,8 @@ core <- list(
 
 # plants config
 plants <- list(
-  cohort_data_path = "../data/plant_cohort_data_Maliau_10x10.csv",
-  pft_definitions_path = "../data/plant_pft_definitions_Maliau_10x10.csv",
+  cohort_data_path = "../data/plant_cohort_data_Maliau_50x50.csv",
+  pft_definitions_path = "../data/plant_pft_definitions_Maliau_50x50.csv",
   constants = as.list(plants_contants)
 )
 
