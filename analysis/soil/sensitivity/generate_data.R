@@ -3,7 +3,7 @@ library(sensobol)
 library(tidync)
 library(toml)
 library(RNetCDF)
-source("tools/R/convert_df_to_nc.R")
+source("tools/R/convert_array_to_nc.R")
 source("tools/R/get_all_variables.R")
 source("tools/R/summarise_spatial.R")
 
@@ -43,6 +43,7 @@ range_maliau <-
 
 
 # Set up Sobol matrix -----------------------------------------------------
+# to efficiency sample the variable space of soil and litter data
 
 maliau_vars_init <- range_maliau$variable
 n_sample <- 100
@@ -123,12 +124,60 @@ sobol_df <-
 # each row will be treated as a single-grid "scenario"
 # so convert the Sobol matrix to a list of single-grid variable arrays, which
 # will be further converted to netCDF input data
-convert_df_to_nc(
-  sobol_df[1, ],
-  filename = "data/scenarios/sensitivity_soil_litter/soil_litter_data.nc",
+dimnames <- list(
   x = maliau_1$ll_x,
-  y = maliau_1$ll_y,
-  element = c("C", "N", "P"),
-  units = rep("", length(maliau_vars_init)),
-  variables = maliau_vars_init
+  y = maliau_1$ur_y,
+  element = c("C", "N", "P")
 )
+
+sobol_df[1, ] |>
+  as.list() |>
+  list_flatten() |>
+  map(\(x) {
+    if (length(x) == 1) {
+      array(x, dim = c(1, 1), dimnames = list(x = dimnames$x, y = dimnames$y))
+    } else {
+      array(
+        x,
+        dim = c(3, 1, 1),
+        dimnames = list(
+          element = dimnames$element,
+          x = dimnames$x,
+          y = dimnames$y
+        )
+      )
+    }
+  }) |>
+  convert_array_to_nc(
+    filename = "data/scenarios/sensitivity_soil_litter/soil_litter_data.nc"
+  )
+
+
+# Generate mean arrays ---------------------------------------------------
+# For other modules, fix their values at spatial averages
+in_dir <- "data/scenarios/maliau/maliau_1/data/"
+out_dir <- "data/scenarios/sensitivity_soil_litter/"
+
+# Climate / abiotic data
+tidync(paste0(in_dir, "era5_maliau_2010_2020_100m.nc")) |>
+  get_all_variables() |>
+  summarise_spatial(FUN = mean) |>
+  convert_array_to_nc(
+    filename = paste0(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
+  )
+
+# Elevation data
+tidync(paste0(in_dir, "elevation_maliau_2010_2020_100m.nc")) |>
+  get_all_variables() |>
+  summarise_spatial(FUN = mean) |>
+  convert_array_to_nc(
+    filename = paste0(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
+  )
+
+# Plant data
+tidync(paste0(in_dir, "plant_input_data_Maliau_50x50.nc")) |>
+  get_all_variables() |>
+  summarise_spatial(FUN = mean) |>
+  convert_array_to_nc(
+    filename = paste0(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
+  )
