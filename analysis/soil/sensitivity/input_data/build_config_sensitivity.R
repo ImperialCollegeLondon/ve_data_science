@@ -19,8 +19,8 @@ core_grid <-
 # input data paths for core.data.variable
 data_paths <- collect_data_paths(
   plants = "../data/plant_input_data_Maliau_50x50_mean.nc",
-  climate = "../data/era5_maliau_1010_2020_100m_mean.nc",
-  elevation = "../data/elevation_maliau_1010_2020_100m_mean.nc",
+  climate = "../data/era5_maliau_2010_2020_100m_mean.nc",
+  elevation = "../data/elevation_maliau_2010_2020_100m_mean.nc",
   soil = "../data/soil_litter_data.nc",
   litter = "../data/soil_litter_data.nc"
 )
