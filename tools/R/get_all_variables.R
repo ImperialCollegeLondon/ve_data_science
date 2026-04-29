@@ -33,14 +33,18 @@
 
 get_all_variables <- function(tidync) {
   # retrive all non-dimension state variables
-  vars <- tidync$variable |> filter(dim_coord == FALSE) |> pull(name)
+  vars <-
+    tidync$variable |>
+    dplyr::filter(dim_coord == FALSE) |>
+    dplyr::pull(name)
   # activate each variable and extract its array iteratively
-  out <- vars |>
-    map(\(var) {
+  out <-
+    vars |>
+    purrr::map(\(var) {
       tidync |>
-        activate(var) |>
-        hyper_array(drop = FALSE) |>
-        pluck(var)
+        tidync::activate(var) |>
+        tidync::hyper_array(drop = FALSE) |>
+        purrr::pluck(var)
     })
   names(out) <- vars
   return(out)
