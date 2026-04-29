@@ -25,7 +25,7 @@
 
 #' Retrieve all (non-dimension) state variables from a netCDF data
 #'
-#' @param tidync A tidync object from tidync::tidync(), which reads in data from
+#' @param tidync A tidync object from tidync(), which reads in data from
 #'   a netCDF file.
 #'
 #' @returns A list of arrays for all non-dimension state variables, including
@@ -35,16 +35,16 @@ get_all_variables <- function(tidync) {
   # retrive all non-dimension state variables
   vars <-
     tidync$variable |>
-    dplyr::filter(dim_coord == FALSE) |>
-    dplyr::pull(name)
+    filter(dim_coord == FALSE) |>
+    pull(name)
   # activate each variable and extract its array iteratively
   out <-
     vars |>
-    purrr::map(\(var) {
+    map(\(var) {
       tidync |>
-        tidync::activate(var) |>
-        tidync::hyper_array(drop = FALSE) |>
-        purrr::pluck(var)
+        activate(var) |>
+        hyper_array(drop = FALSE) |>
+        pluck(var)
     })
   names(out) <- vars
   return(out)
