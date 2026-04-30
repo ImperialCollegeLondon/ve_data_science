@@ -22,30 +22,33 @@ class TrophicFlowAnalysis:
     consumer_cohort in each timestep.
 
     Args:
-        file_path (str): Path to CSV file.
         config(dict): Configuration dictionary.
-        df (dataframe): Raw data.
+        df (dataframe): Raw input data which is loaded separately in your notebook
+                        before calling this class.
         processed_df (dataframe): Processed data.
         grouped_df(dataframe): Grouped data according to resource_kind.
         pivoted_df(dataframe): Pivoted data for plotting.
 
     """
 
-    def __init__(self, file_path, config: dict | None = None):
-        """Initialise the analysis with file path and config."""
-        self.file_path = file_path
+    def __init__(self, df: pd.dataframe, config: dict | None = None):
+        """Initialise the analysis with dataframe and config."""
+        self.df = df
         # returns a dict of standard settings
         self.config = self._default_config()
         # if config is provided, then update config
         if config:
             self.config.update(config)
         # create empty placeholders
-        self.df = None
         self.processed_df = None
         self.grouped_df = None
         self.pivoted_df = None
 
-        print(f"trophic flow initialised for {file_path}")
+        print("trophic flow initialised")
+        # print(f" Mass flow: {self.config['element']}")
+        # print(f"  Data shape: {self.df.shape}")
+
+        # self.process_data()
 
     def _default_config(self) -> dict:
         """Use default values for config.
@@ -66,7 +69,7 @@ class TrophicFlowAnalysis:
             "dpi": 300,
         }
 
-    def load_data(self) -> "TrophicFlowAnalysis":
+    def load_data(self) -> None:
         """Load the animal trophic interaction output.
 
         Load data from the output CSV file from Virtual Ecosystem
@@ -80,11 +83,10 @@ class TrophicFlowAnalysis:
         print("loading data...")
         self.df = pd.read_csv(self.file_path, parse_dates=["time"])
         print(f" Loaded {len(self.df)} rows, {len(self.df.columns)} columns")
-        return self
 
     def convert_units(
         self, columns: list[str] | None = None, multiplier: float = 1000
-    ) -> "TrophicFlowAnalysis":
+    ) -> None:
         """Convert measurement units (default: from kg to g).
 
         Args:
@@ -92,14 +94,13 @@ class TrophicFlowAnalysis:
             multiplier: multiplier factor.
 
         Returns:
-            A dataframe with units converted.
+            Updates the dataframe with units converted.
 
         """
         cols = columns or self.config["column_values"]
         if self.config["convert_to_grams"]:
             print(f"Converting {cols} by {multiplier} to grams")
             self.df[cols] = self.df[cols] * multiplier
-        return self
 
     # TODO: when needed, add convert time to datetime for plotting against time
     # could consider using only month and year as time
@@ -111,7 +112,7 @@ class TrophicFlowAnalysis:
     # ===========================================
     def group_and_aggregate(
         self, group_by: list[str] | None = None, agg_column: str | None = None
-    ) -> "TrophicFlowAnalysis":
+    ) -> None:
         """Group data and sum (aggregate) variables of interest.
 
         Args:
@@ -119,7 +120,7 @@ class TrophicFlowAnalysis:
             agg_column: Column to aggregate.
 
         Returns:
-            A more compacted dataframe with less rows.
+            Does not return but updates the dataframe.
 
         """
 
@@ -133,20 +134,19 @@ class TrophicFlowAnalysis:
             self.df.groupby(groups)
             # selects column C, sums up values in each group
             # TODO: add args/param to be more flexible? so user
-            #   can specify sum,average?
+            #   can specify sum,average...?
             .agg({agg_col: "sum"})
             # turns groups back into columns
             .reset_index()
         )
         print(f" Successfully grouped {len(self.group_df)} rows")
-        return self
 
     def pivot_data(
         self,
         index_col: str | None = None,
         columns_col: str | None = None,
         values_col: str | None = None,
-    ) -> "TrophicFlowAnalysis":
+    ) -> None:
         """Pivoting dataframe from wide to long.
 
         Args:
@@ -155,8 +155,7 @@ class TrophicFlowAnalysis:
             values_col: Column for new values.
 
         Returns:
-             A long dataframe with time index as row values,
-             variables of interest as column names.
+             Does not return anything but populates self.pivoted_df
 
         """
         index = index_col or self.config["group_by"][0]
@@ -170,11 +169,11 @@ class TrophicFlowAnalysis:
         )
         print(f"{self.pivoted_df.shape[0]} rows x {self.pivoted_df.shape[1]} columns")
 
-    def process_data(self) -> "TrophicFlowAnalysis":
+    def process_data(self) -> None:
         """Run all the processing steps in correct order.
 
         Returns:
-            A processed dataframe.
+            Does not return anything, only run processing
 
         """
         print("\nProcessing data...")
@@ -182,7 +181,6 @@ class TrophicFlowAnalysis:
         self.group_and_aggregate()
         self.pivot_data()
         print("Processing complete!")
-        return self
 
     # =========================================================
     #  Plot data
@@ -367,7 +365,6 @@ class TrophicFlowAnalysis:
         print("\n" + "=" * 50)
         print("Data Summary")
         print("=" * 50)
-        print(f"File: {self.file_path}")
         print(f"rows: {len(self.df)}")
         print(f"columns: {len(self.df.columns.tolist())}")
         print(
@@ -383,34 +380,3 @@ class TrophicFlowAnalysis:
         TODO: check if this is necessary, if we printed resources above.
         """
         return self.pivoted_df.columns.tolist() if self.pivoted_df is not None else []
-
-    # =================================================================
-    # Running our class
-    # =================================================================
-
-
-if __name__ == "__main__":  #
-    """Run test separately.
-
-    Only run this chunk of codes when executed directly and not imported.
-    animal_trophic_interactions.csv can be generated when doing a ve_run.
-    This csv can be found in ".../out"
-    Place the csv file in the same folder as your py files.
-    """
-    # create instance for analysis
-    analysis = TrophicFlowAnalysis(
-        "animal_trophic_interactions.csv", config={"cumulative": False, "n_cols": 2}
-    )
-
-    # load and process data (method chaining)
-    analysis.load_data().process_data()
-
-    #     summary
-    analysis.summary()
-
-    # create plots
-    analysis.plot_faceted(save_path="mass_flow_faceted.png")
-
-    print("\nDone")
-
-# TODO: build test file for the analysis with assert on plotting and other stuff.

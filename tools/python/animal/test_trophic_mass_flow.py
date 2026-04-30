@@ -83,15 +83,3 @@ def test_plot_faceted_saves_file(analysis, tmp_path):
     assert output_path.is_file(), "Plot file was not saved"
     # check if file is bigger than 10KB, smaller than that would indicate failure
     assert output_path.stat().st_size > 10000, "Plot file might be too small"
-
-
-# ================================================================
-# running the test
-# ================================================================
-
-if __name__ == "__main__":
-    print("Running tests")
-    test_class_initialisation(analysis())
-    test_load_data(analysis())
-    test_process_data(analysis())
-    print("All tests passed")
