@@ -3,7 +3,7 @@
 [Scenario.maliau_1]
 # Site definition file for maliau_1
 # Grid: 50 x 50 cells, resolution = 100 m
-# Temporal: 2010–2020 (11 years)
+# Temporal: 2010-2020 (11 years)
 
 epsg_code = 32650
 ll_x = 494300
@@ -146,7 +146,7 @@ run_length = "11 years"
 [Scenario.maliau_2]
 # Site definition file for maliau_2
 # Grid: 10 x 10 cells, resolution = 100 m
-# Temporal: 2010–2020 (11 years)
+# Temporal: 2010-2020 (11 years)
 
 epsg_code = 32650
 ll_x = 496400

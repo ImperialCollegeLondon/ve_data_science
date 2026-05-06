@@ -67,7 +67,6 @@
 #|   other PFT species classifications.
 #| ---
 
-
 # Load packages
 
 library(readxl)
@@ -92,16 +91,15 @@ names(data)
 
 # Load PFT species classification Dobert and clean up a bit
 
-PFT_species_classification_dobert <- read.csv( # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv", # nolint
+PFT_species_classification_dobert <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv",
   header = TRUE
 )
 
-PFT_species_classification_dobert <- PFT_species_classification_dobert[ # nolint
-  ,
+PFT_species_classification_dobert <- PFT_species_classification_dobert[,
   c("PFT_name", "TaxaName")
 ]
-PFT_species_classification_dobert <- unique(PFT_species_classification_dobert) # nolint
+PFT_species_classification_dobert <- unique(PFT_species_classification_dobert)
 
 # Add PFT_name to data based on TaxaName and call it data_taxa
 
@@ -110,9 +108,17 @@ data_taxa <- left_join(data, PFT_species_classification_dobert, by = "TaxaName")
 # Subset to relevant columns
 
 data_taxa <- data_taxa[, c(
-  "Block", "Plot", "PlotID", "TagStem_latest",
-  "Family", "Genus", "Species", "TaxaName",
-  "TaxaLevel", "PFT_name", "HeightTotal_m_2011",
+  "Block",
+  "Plot",
+  "PlotID",
+  "TagStem_latest",
+  "Family",
+  "Genus",
+  "Species",
+  "TaxaName",
+  "TaxaLevel",
+  "PFT_name",
+  "HeightTotal_m_2011",
   "DBH2011_mm_clean"
 )]
 
@@ -132,8 +138,8 @@ data_taxa <- data_taxa[!data_taxa$TaxaLevel == "indet", ]
 # Aim to get 1 PFT per genus
 # Then fill the gaps in data_taxa based on genus PFT from Dobert
 
-PFT_species_classification_dobert <- read.csv( # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv", # nolint
+PFT_species_classification_dobert <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_dobert.csv",
   header = TRUE
 )
 
@@ -186,10 +192,18 @@ print(genus)
 # removed because not recorded in SAFE census OG plots
 
 genus_emergent <- c(
-  "Aglaia", "Baccaurea", "Chionanthus",
-  "Diospyros", "Hydnocarpus", "Knema",
-  "Mallotus", "Microcos", "Nephelium",
-  "Polyalthia", "Vatica", "Xanthophyllum"
+  "Aglaia",
+  "Baccaurea",
+  "Chionanthus",
+  "Diospyros",
+  "Hydnocarpus",
+  "Knema",
+  "Mallotus",
+  "Microcos",
+  "Nephelium",
+  "Polyalthia",
+  "Vatica",
+  "Xanthophyllum"
 )
 
 # For emergent: Ficus causes issues (which is why it is not included in
@@ -198,15 +212,17 @@ genus_emergent <- c(
 for (i in genus_emergent) {
   data_taxa$PFT_genus[
     data_taxa$Genus == i &
-      data_taxa$HeightTotal_m_2011 > t_model_parameters$h_max[
-        t_model_parameters$name == "overstory"
-      ]
+      data_taxa$HeightTotal_m_2011 >
+        t_model_parameters$h_max[
+          t_model_parameters$name == "overstory"
+        ]
   ] <-
     unique(PFT_species_classification_dobert$PFT_name[
       PFT_species_classification_dobert$Genus == i &
-        PFT_species_classification_dobert$maximum_height > t_model_parameters$h_max[
-          t_model_parameters$name == "overstory"
-        ]
+        PFT_species_classification_dobert$maximum_height >
+          t_model_parameters$h_max[
+            t_model_parameters$name == "overstory"
+          ]
     ])
   print(i)
 }
@@ -218,10 +234,18 @@ for (i in genus_emergent) {
 # Repeat step above for other PFTs
 
 genus_overstory <- c(
-  "Aglaia", "Baccaurea", "Chionanthus",
-  "Diospyros", "Ficus", "Hydnocarpus", "Knema",
-  "Mallotus", "Nephelium",
-  "Polyalthia", "Vatica", "Xanthophyllum"
+  "Aglaia",
+  "Baccaurea",
+  "Chionanthus",
+  "Diospyros",
+  "Ficus",
+  "Hydnocarpus",
+  "Knema",
+  "Mallotus",
+  "Nephelium",
+  "Polyalthia",
+  "Vatica",
+  "Xanthophyllum"
 )
 
 # For overstory: Microcos causes issues
@@ -229,21 +253,25 @@ genus_overstory <- c(
 for (i in genus_overstory) {
   data_taxa$PFT_genus[
     data_taxa$Genus == i &
-      data_taxa$HeightTotal_m_2011 < t_model_parameters$h_max[
-        t_model_parameters$name == "overstory"
-      ] &
-      data_taxa$HeightTotal_m_2011 > t_model_parameters$h_max[
-        t_model_parameters$name == "understory"
-      ]
+      data_taxa$HeightTotal_m_2011 <
+        t_model_parameters$h_max[
+          t_model_parameters$name == "overstory"
+        ] &
+      data_taxa$HeightTotal_m_2011 >
+        t_model_parameters$h_max[
+          t_model_parameters$name == "understory"
+        ]
   ] <-
     unique(PFT_species_classification_dobert$PFT_name[
       PFT_species_classification_dobert$Genus == i &
-        PFT_species_classification_dobert$maximum_height < t_model_parameters$h_max[
-          t_model_parameters$name == "overstory"
-        ] &
-        PFT_species_classification_dobert$maximum_height > t_model_parameters$h_max[
-          t_model_parameters$name == "understory"
-        ]
+        PFT_species_classification_dobert$maximum_height <
+          t_model_parameters$h_max[
+            t_model_parameters$name == "overstory"
+          ] &
+        PFT_species_classification_dobert$maximum_height >
+          t_model_parameters$h_max[
+            t_model_parameters$name == "understory"
+          ]
     ])
   print(i)
 }
@@ -256,10 +284,15 @@ for (i in genus_overstory) {
 # Repeat step above for other PFTs
 
 genus_understory <- c(
-  "Aglaia", "Baccaurea",
-  "Diospyros", "Ficus",
-  "Mallotus", "Microcos", "Nephelium",
-  "Polyalthia", "Xanthophyllum"
+  "Aglaia",
+  "Baccaurea",
+  "Diospyros",
+  "Ficus",
+  "Mallotus",
+  "Microcos",
+  "Nephelium",
+  "Polyalthia",
+  "Xanthophyllum"
 )
 
 # For understory: Chionanthus, Hydnocarpus, Knema, Vatica cause issues
@@ -267,15 +300,17 @@ genus_understory <- c(
 for (i in genus_understory) {
   data_taxa$PFT_genus[
     data_taxa$Genus == i &
-      data_taxa$HeightTotal_m_2011 < t_model_parameters$h_max[
-        t_model_parameters$name == "understory"
-      ]
+      data_taxa$HeightTotal_m_2011 <
+        t_model_parameters$h_max[
+          t_model_parameters$name == "understory"
+        ]
   ] <-
     unique(PFT_species_classification_dobert$PFT_name[
       PFT_species_classification_dobert$Genus == i &
-        PFT_species_classification_dobert$maximum_height < t_model_parameters$h_max[
-          t_model_parameters$name == "understory"
-        ]
+        PFT_species_classification_dobert$maximum_height <
+          t_model_parameters$h_max[
+            t_model_parameters$name == "understory"
+          ]
     ])
   print(i)
 }
@@ -310,16 +345,22 @@ data_taxa$PFT_genus[data_taxa$Genus == "Knema" & is.na(data_taxa$PFT_genus)] <-
 # Microcos: no overstory PFT in Dobert (only understory and emergent), so
 # manually classify trees with data_taxa height below understory limit as
 # understory and those above the limit as emergent
-data_taxa$PFT_genus[data_taxa$Genus == "Microcos" & is.na(data_taxa$PFT_genus)] <-
+data_taxa$PFT_genus[
+  data_taxa$Genus == "Microcos" & is.na(data_taxa$PFT_genus)
+] <-
   "emergent_biotic_fleshy_biotic"
 
 # Chionanthus: no understory PFT in Dobert (only understory and emergent), so
 # manually classify trees as overstory
-data_taxa$PFT_genus[data_taxa$Genus == "Chionanthus" & is.na(data_taxa$PFT_genus)] <-
+data_taxa$PFT_genus[
+  data_taxa$Genus == "Chionanthus" & is.na(data_taxa$PFT_genus)
+] <-
   "overstory_biotic_fleshy_biotic"
 # Hydnocarpus: no understory PFT in Dobert (only understory and emergent), so
 # manually classify trees as overstory
-data_taxa$PFT_genus[data_taxa$Genus == "Hydnocarpus" & is.na(data_taxa$PFT_genus)] <-
+data_taxa$PFT_genus[
+  data_taxa$Genus == "Hydnocarpus" & is.na(data_taxa$PFT_genus)
+] <-
   "overstory_biotic_dry_biotic"
 # Knema: no understory PFT in Dobert (only understory and emergent), so
 # manually classify trees as overstory
@@ -364,12 +405,13 @@ for (i in genus_all) {
 data_taxa$PFT_genus_all <- NA
 
 individuals_all <- unique(data_taxa$TagStem_latest[
-  is.na(data_taxa$PFT_name) & is.na(data_taxa$PFT_genus) &
+  is.na(data_taxa$PFT_name) &
+    is.na(data_taxa$PFT_genus) &
     data_taxa$Genus %in% genus_all
 ])
 
 for (i in individuals_all) {
-  j <- unique(data_taxa$Genus[data_taxa$TagStem_latest == i]) # nolint
+  j <- unique(data_taxa$Genus[data_taxa$TagStem_latest == i])
   print(j)
   data_taxa$PFT_genus_all[data_taxa$TagStem_latest == i] <-
     unique(PFT_species_classification_dobert$PFT_name[
@@ -391,7 +433,7 @@ data_taxa$PFT_name[is.na(data_taxa$PFT_name)] <-
 
 # Save log of trees without PFT to see where data is missing
 # (i.e., is it concentrated in certain plots?)
-data_taxa_without_PFT <- data_taxa[is.na(data_taxa$PFT_name), ] # nolint
+data_taxa_without_PFT <- data_taxa[is.na(data_taxa$PFT_name), ]
 
 # Before NA removal:
 nrow(data_taxa)
@@ -400,27 +442,35 @@ nrow(data_taxa_without_PFT)
 # The difference is the amount of trees with PFT, across all plots
 nrow(data_taxa) - nrow(data_taxa_without_PFT)
 
-plot(as.factor(data_taxa_without_PFT$Block),
-  xlab = "Block", ylab = "Trees without PFT"
+plot(
+  as.factor(data_taxa_without_PFT$Block),
+  xlab = "Block",
+  ylab = "Trees without PFT"
 )
 
 plot(
-  as.factor(data_taxa_without_PFT$PlotID[data_taxa_without_PFT$Block
-    %in% c("OG1", "OG2", "OG3")]), # nolint
-  xlab = "PlotID", ylab = "Trees without PFT"
+  as.factor(data_taxa_without_PFT$PlotID[
+    data_taxa_without_PFT$Block %in% c("OG1", "OG2", "OG3")
+  ]),
+  xlab = "PlotID",
+  ylab = "Trees without PFT"
 )
 
 # Remove trees without PFT assigned
-data_taxa_with_PFT <- drop_na(data_taxa, PFT_name) # nolint
+data_taxa_with_PFT <- drop_na(data_taxa, PFT_name)
 
-plot(as.factor(data_taxa_with_PFT$Block),
-  xlab = "Block", ylab = "Trees with PFT"
+plot(
+  as.factor(data_taxa_with_PFT$Block),
+  xlab = "Block",
+  ylab = "Trees with PFT"
 )
 
 plot(
-  as.factor(data_taxa_with_PFT$PlotID[data_taxa_with_PFT$Block
-    %in% c("OG1", "OG2", "OG3")]), # nolint
-  xlab = "PlotID", ylab = "Trees with PFT"
+  as.factor(data_taxa_with_PFT$PlotID[
+    data_taxa_with_PFT$Block %in% c("OG1", "OG2", "OG3")
+  ]),
+  xlab = "PlotID",
+  ylab = "Trees with PFT"
 )
 
 ##########
@@ -429,11 +479,17 @@ data_taxa <- drop_na(data_taxa, DBH2011_mm_clean)
 
 data_taxa <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
 
-ggplot(data_taxa, aes(x = TagStem_latest, y = HeightTotal_m_2011, color = PFT_name)) +
+ggplot(
+  data_taxa,
+  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = PFT_name)
+) +
   geom_point() +
   labs(x = "TreeID", y = "Height (m)")
 
-ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_name)) +
+ggplot(
+  data_taxa,
+  aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_name)
+) +
   geom_point() +
   labs(x = "TreeID", y = "DBH (mm)")
 
@@ -443,29 +499,27 @@ ggplot(data_taxa, aes(x = TagStem_latest, y = DBH2011_mm_clean, color = PFT_name
 # representativeness of the OG plots relative to the literature
 
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
-plot(as.factor(check$Block),
-  xlab = "Block", ylab = "Trees in OG blocks"
-)
+plot(as.factor(check$Block), xlab = "Block", ylab = "Trees in OG blocks")
 unique(check$PlotID)
 
-OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
-OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9 # nolint
-OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9 # nolint
+OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9
+OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9
+OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9
 
-OG1_area <- 9 * (25 * 25) # m2 # nolint
-OG2_area <- 9 * (25 * 25) # m2 # nolint
-OG3_area <- 9 * (25 * 25) # m2 # nolint
+OG1_area <- 9 * (25 * 25) # m2
+OG2_area <- 9 * (25 * 25) # m2
+OG3_area <- 9 * (25 * 25) # m2
 
 # Use something else than TagStem_latest (may not be most accurate
 # option available, e.g. account for dead trees)
 
-OG1_trees <- length(unique(check$TagStem_latest[check$Block == "OG1"])) # nolint
-OG2_trees <- length(unique(check$TagStem_latest[check$Block == "OG2"])) # nolint
-OG3_trees <- length(unique(check$TagStem_latest[check$Block == "OG3"])) # nolint
+OG1_trees <- length(unique(check$TagStem_latest[check$Block == "OG1"]))
+OG2_trees <- length(unique(check$TagStem_latest[check$Block == "OG2"]))
+OG3_trees <- length(unique(check$TagStem_latest[check$Block == "OG3"]))
 
-OG1_density <- OG1_trees / OG1_area * 10000 # from trees per m2 to per hectare # nolint
-OG2_density <- OG2_trees / OG2_area * 10000 # from trees per m2 to per hectare # nolint
-OG3_density <- OG3_trees / OG3_area * 10000 # from trees per m2 to per hectare # nolint
+OG1_density <- OG1_trees / OG1_area * 10000 # from trees per m2 to per hectare
+OG2_density <- OG2_trees / OG2_area * 10000 # from trees per m2 to per hectare
+OG3_density <- OG3_trees / OG3_area * 10000 # from trees per m2 to per hectare
 
 # Mean OG tree density per hectare (536)
 mean(c(OG1_density, OG2_density, OG3_density))
@@ -477,11 +531,15 @@ mean(c(OG1_density, OG2_density, OG3_density))
 # Narrow down to DBH for each PFT
 
 names(data_taxa)
-data_taxa <- data_taxa[
-  ,
+data_taxa <- data_taxa[,
   c(
-    "Block", "Plot", "PlotID", "TagStem_latest",
-    "PFT_name", "HeightTotal_m_2011", "DBH2011_mm_clean"
+    "Block",
+    "Plot",
+    "PlotID",
+    "TagStem_latest",
+    "PFT_name",
+    "HeightTotal_m_2011",
+    "DBH2011_mm_clean"
   )
 ]
 
@@ -578,19 +636,24 @@ max(data_taxa$DBH2011_mm_clean)
 # Prepare data_taxa for saving
 
 names(data_taxa)
-data_taxa <- data_taxa[
-  ,
+data_taxa <- data_taxa[,
   c("Block", "Plot", "PlotID", "TagStem_latest", "PFT_name", "dbh")
 ]
 colnames(data_taxa) <- c(
-  "Block", "Plot", "PlotID", "TagStem_latest",
-  "PFT_name", "DBH_class"
+  "Block",
+  "Plot",
+  "PlotID",
+  "TagStem_latest",
+  "PFT_name",
+  "DBH_class"
 )
 
 data_taxa <- data_taxa[
   order(
-    data_taxa$Block, data_taxa$Plot,
-    data_taxa$PFT_name, data_taxa$DBH_class
+    data_taxa$Block,
+    data_taxa$Plot,
+    data_taxa$PFT_name,
+    data_taxa$DBH_class
   ),
 ]
 
@@ -607,7 +670,7 @@ data_taxa$DBH_class <- data_taxa$DBH_class / 1000
 
 write.csv(
   data_taxa,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_dobert.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_dobert.csv",
   row.names = FALSE
 )
 
@@ -616,20 +679,18 @@ write.csv(
 # Standardising OG cohort distribution per hectare
 
 check <- data_taxa[data_taxa$Block %in% c("OG1", "OG2", "OG3"), ]
-plot(as.factor(check$Block),
-  xlab = "Block", ylab = "Trees in OG blocks"
-)
+plot(as.factor(check$Block), xlab = "Block", ylab = "Trees in OG blocks")
 unique(check$PlotID)
 
-OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9 # nolint
-OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9 # nolint
-OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9 # nolint
+OG1_plots <- length(unique(check$Plot[check$Block == "OG1"])) # 9
+OG2_plots <- length(unique(check$Plot[check$Block == "OG2"])) # 9
+OG3_plots <- length(unique(check$Plot[check$Block == "OG3"])) # 9
 
-OG1_area <- 9 * (25 * 25) # m2 # nolint
-OG2_area <- 9 * (25 * 25) # m2 # nolint
-OG3_area <- 9 * (25 * 25) # m2 # nolint
+OG1_area <- 9 * (25 * 25) # m2
+OG2_area <- 9 * (25 * 25) # m2
+OG3_area <- 9 * (25 * 25) # m2
 
-total_OG_area <- OG1_area + OG2_area + OG3_area # m2 # nolint
+total_OG_area <- OG1_area + OG2_area + OG3_area # m2
 
 data_taxa$total_OG_area <- total_OG_area
 
@@ -660,10 +721,15 @@ before <- unique(before)
 after <- unique(after)
 
 sum(before$plant_cohorts_n)
-sum(after$plant_cohorts_n_corrected[!is.na(after$PFT_name)]) # nolint
+sum(after$plant_cohorts_n_corrected[!is.na(after$PFT_name)])
 
 after_check <-
-  data_taxa[, c("PFT_name", "DBH_class", "plant_cohorts_n", "plant_cohorts_n_corrected")] # nolint
+  data_taxa[, c(
+    "PFT_name",
+    "DBH_class",
+    "plant_cohorts_n",
+    "plant_cohorts_n_corrected"
+  )]
 data_taxa$plant_cohorts_n_corrected[is.na(data_taxa$PFT_name)] <- 0
 
 ###
@@ -684,21 +750,25 @@ data_taxa$plant_cohorts_n <- data_taxa$plant_cohorts_n * 10000
 # Clean up summary
 
 data_taxa <-
-  data_taxa[
-    ,
+  data_taxa[,
     c("plant_cohorts_n", "PFT_name", "DBH_class")
   ]
 data_taxa <- unique(data_taxa)
 
 data_taxa <- data_taxa[
   order(
-    data_taxa$PFT_name, data_taxa$DBH_class
+    data_taxa$PFT_name,
+    data_taxa$DBH_class
   ),
 ]
 
 # Rename variables to match VE
 names(data_taxa)
-colnames(data_taxa) <- c("plant_cohorts_n", "plant_cohorts_pft", "plant_cohorts_dbh")
+colnames(data_taxa) <- c(
+  "plant_cohorts_n",
+  "plant_cohorts_pft",
+  "plant_cohorts_dbh"
+)
 
 # Quick check of total stem density per hectare (to compare with literature)
 # Original stem density from SAFE census data was 558 per hectare
@@ -710,7 +780,7 @@ sum(data_taxa$plant_cohorts_n)
 
 write.csv(
   data_taxa,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare_dobert.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_per_hectare_dobert.csv",
   row.names = FALSE
 )
 
@@ -718,7 +788,9 @@ write.csv(
 
 # Exploring the variability in PFT cohort distribution across plots
 
-data_taxa <- read.csv("../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_dobert.csv") # nolint
+data_taxa <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_cohort_distribution_dobert.csv"
+)
 data <- data_taxa
 names(data)
 

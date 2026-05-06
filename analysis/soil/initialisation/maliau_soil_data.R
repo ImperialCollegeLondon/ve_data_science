@@ -43,7 +43,7 @@
 #|     - terra
 #|     - autoFRK
 #|     - CBFM
-#|     - ncdf4
+#|     - RNetCDF
 #|     - glmmTMB
 #|     - biogas
 #|     - lubridate
@@ -62,11 +62,12 @@ library(sf)
 library(terra)
 library(autoFRK)
 library(CBFM)
-library(ncdf4)
+library(RNetCDF)
 library(glmmTMB)
 library(biogas)
 library(lubridate)
 library(hms)
+source("tools/R/convert_df_to_nc.R")
 
 set.seed(20260313)
 
@@ -74,11 +75,13 @@ set.seed(20260313)
 # Soil metadata ---------------------------------------------------------
 
 soil_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
+soil_meta <- soil_meta$soil
 
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau <- parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
+maliau <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
@@ -92,13 +95,7 @@ dat <-
   expand_grid(
     cell_x = maliau$cell_x_centres,
     cell_y = maliau$cell_y_centres
-  ) |>
-  # calculate displacements
-  mutate(
-    x = cell_x - min(cell_x),
-    y = cell_y - min(cell_y)
   )
-
 
 
 # Spatial prediction from SAFE soil campaign ------------------------------
@@ -107,13 +104,18 @@ dat <-
 source("analysis/soil/initialisation/model_safe.R")
 
 # extract covariates to the Maliau region of interest
-# nolint start
 dat <-
   dat |>
   mutate(
-    elev = terra::extract(elev, pick("cell_x", "cell_y"))[, "SRTM_UTM50N_processed"],
-    topo = terra::extract(topo, pick("cell_x", "cell_y"))[, "SRTM_UTM50N_TRI_Wilson2007"],
-    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[, "SRTM_Log_Flow_Accum"],
+    elev = terra::extract(elev, pick("cell_x", "cell_y"))[,
+      "SRTM_UTM50N_processed"
+    ],
+    topo = terra::extract(topo, pick("cell_x", "cell_y"))[,
+      "SRTM_UTM50N_TRI_Wilson2007"
+    ],
+    hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
+      "SRTM_Log_Flow_Accum"
+    ],
     # set acd to mean because there is no full data coverage
     # for the entire Maliau region
     acd = mean(soil$acd),
@@ -129,7 +131,6 @@ dat <-
   # we need to fill in two NA grids in the EVI layer,
   # I think they are due to rivers / water bodies
   fill(evi)
-# nolint end
 
 # new basis functions for the Maliau region
 maliau_basis <-
@@ -173,7 +174,6 @@ dat <-
 
 # The remaining total C, N and P will be split into separate pools
 
-
 # Split SAFE campaign variables into specific pools -----------------------
 
 # first we predict POM and MAOM carbon and nitrogen fractions:
@@ -185,65 +185,58 @@ dat <-
 # Both are predicted from control plots from a tropical forest in BCI
 source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
 
-# nolint start
 dat <-
   dat |>
   mutate(
-    soil_c_pool_pom =
-      predict(mod_C,
-        newdata =
-          dat |>
-            select(C_total = total_carbon) |>
-            mutate(
-              class = "POM",
-              treatm = "CT",
-              block = NA
-            ),
-        allow.new.levels = TRUE,
-        type = "response"
-      ),
-    soil_c_pool_maom =
-      predict(mod_C,
-        newdata =
-          dat |>
-            select(C_total = total_carbon) |>
-            mutate(
-              class = "MAOM",
-              treatm = "CT",
-              block = NA
-            ),
-        allow.new.levels = TRUE,
-        type = "response"
-      ),
-    soil_n_pool_particulate =
-      predict(mod_N,
-        newdata =
-          dat |>
-            select(N_total = total_nitrogen) |>
-            mutate(
-              class = "POM",
-              treatm = "CT",
-              block = NA
-            ),
-        allow.new.levels = TRUE,
-        type = "response"
-      ),
-    soil_n_pool_maom =
-      predict(mod_N,
-        newdata =
-          dat |>
-            select(N_total = total_nitrogen) |>
-            mutate(
-              class = "MAOM",
-              treatm = "CT",
-              block = NA
-            ),
-        allow.new.levels = TRUE,
-        type = "response"
-      )
+    soil_c_pool_pom = predict(
+      mod_C,
+      newdata = dat |>
+        select(C_total = total_carbon) |>
+        mutate(
+          class = "POM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    ),
+    soil_c_pool_maom = predict(
+      mod_C,
+      newdata = dat |>
+        select(C_total = total_carbon) |>
+        mutate(
+          class = "MAOM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    ),
+    soil_n_pool_particulate = predict(
+      mod_N,
+      newdata = dat |>
+        select(N_total = total_nitrogen) |>
+        mutate(
+          class = "POM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    ),
+    soil_n_pool_maom = predict(
+      mod_N,
+      newdata = dat |>
+        select(N_total = total_nitrogen) |>
+        mutate(
+          class = "MAOM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    )
   )
-# nolint end
-
 
 # soil_c_pool_lmwc
 # using DOC as a proxy
@@ -330,7 +323,6 @@ dat <- bind_cols(dat, p_fractions)
 # NB: at this point, soil_p_pool_necromass seems very higher (even than the
 #     total phosphorous amount). This is definitely worth checking later.
 
-
 # Variables that scale / are predicted independently from SAFE -----------
 
 # Inorganic nitrogen, including:
@@ -372,7 +364,9 @@ dat <-
   dat |>
   mutate(
     fungal_fruiting_bodies = rnorm(
-      n_sim, sporocarp_biomass_mean, sporocarp_biomass_sd
+      n_sim,
+      sporocarp_biomass_mean,
+      sporocarp_biomass_sd
     )
   )
 
@@ -437,73 +431,55 @@ dat <-
       soil_p_pool_necromass
     ),
     ~ . * (bulk_density * 1e3)
+  ) |>
+  # combine C, N and P columns into a single list column
+  mutate(
+    soil_cnp_pool_lmwc = pmap(
+      list(soil_c_pool_lmwc, soil_n_pool_don, soil_p_pool_dop),
+      c
+    ),
+    soil_cnp_pool_maom = pmap(
+      list(soil_c_pool_maom, soil_n_pool_maom, soil_p_pool_maom),
+      c
+    ),
+    soil_cnp_pool_pom = pmap(
+      list(
+        soil_c_pool_pom,
+        soil_n_pool_particulate,
+        soil_p_pool_particulate
+      ),
+      c
+    ),
+    soil_cnp_pool_necromass = pmap(
+      list(
+        soil_c_pool_necromass,
+        soil_n_pool_necromass,
+        soil_p_pool_necromass
+      ),
+      c
+    ),
+    .keep = "unused"
   )
 
 
 # Write data to netCDF ----------------------------------------------------
 
-# collect soil metadata
+# collect soil metadata to get variable names and units
 soil_meta_df <-
   reshape2::melt(lapply(soil_meta, function(meta) meta$unit)) |>
   select(
     variable = L1,
     unit = value
-  ) |>
-  filter(variable %in% names(dat))
-
-# convert dataframe to arrays
-soil_vars <- soil_meta_df$variable
-array_list <- vector("list", length(soil_vars))
-names(array_list) <- soil_vars
-for (i in soil_vars) {
-  array_list[[i]] <-
-    array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
-}
-
-# path and file name of netCDF
-ncpath <- "data/scenarios/maliau/maliau_1/data/"
-ncname <- "soil_maliau"
-ncfname <- paste(ncpath, ncname, ".nc", sep = "")
-
-# create and write the netCDF file -- ncdf4 version
-# define dimensions
-xdim <-
-  ncdim_def(
-    "x", "m",
-    as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
   )
-ydim <-
-  ncdim_def(
-    "y", "m",
-    as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
-  )
-# define variables
-vardef <- vector("list", nrow(soil_meta_df))
-for (i in seq_along(vardef)) {
-  vardef[[i]] <-
-    ncvar_def(
-      soil_meta_df$variable[i],
-      soil_meta_df$unit[i],
-      list(xdim, ydim)
-    )
-}
 
-# create netCDF file and put arrays
-ncout <- nc_create(ncfname, vardef, force_v4 = TRUE)
-
-# put variables
-for (i in seq_along(soil_vars)) {
-  ncvar_put(ncout, vardef[[i]], array_list[[i]])
-}
-
-# add global attributes
-ncatt_put(
-  ncout, 0, "description",
-  "Soil data for the Maliau scenario"
+# convert data to netCDF
+convert_df_to_nc(
+  data = dat,
+  filename = "data/scenarios/maliau/maliau_1/data/soil_maliau.nc",
+  x = maliau$cell_x_centres,
+  y = maliau$cell_y_centres,
+  element = c("C", "N", "P"),
+  variables = soil_meta_df$variable,
+  units = soil_meta_df$unit,
+  description = "Soil data for the Maliau scenario"
 )
-
-# Get a summary of the created file:
-ncout
-
-# close the file, writing data to disk
-nc_close(ncout)

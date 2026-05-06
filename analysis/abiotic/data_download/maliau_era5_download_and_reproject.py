@@ -49,9 +49,9 @@ usage_notes: |
 ---
 """  # noqa: D205, D212, D400, D415
 
+import tomllib
 from pathlib import Path
 
-import tomllib
 import xarray
 from cdsapi_downloader import cdsapi_era5_downloader
 from rasterio import Affine

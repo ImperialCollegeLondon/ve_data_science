@@ -67,7 +67,6 @@
 #|   This script can be expanded when additional biomass pools are added to the model.
 #| ---
 
-
 # Load packages
 
 library(readxl)
@@ -77,16 +76,15 @@ library(stringr)
 
 # Load PFT species classification base and clean up a bit
 
-PFT_species_classification_base <- read.csv( # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
+PFT_species_classification_base <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[ # nolint
-  ,
+PFT_species_classification_base <- PFT_species_classification_base[,
   c("PFT", "PFT_name", "TaxaName")
 ]
-PFT_species_classification_base <- unique(PFT_species_classification_base) # nolint
+PFT_species_classification_base <- unique(PFT_species_classification_base)
 
 data_taxa <- PFT_species_classification_base
 
@@ -194,8 +192,8 @@ stem_lignin_percentage <- 23
 mean(data$C_total[data$TissueType == "Sapwood"])
 # We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
 
-stem_lignin_C_percentage <- stem_lignin_percentage * 0.625 # nolint
-stem_lignin_C_of_stem_C <- stem_lignin_C_percentage / 45.9 # nolint
+stem_lignin_C_percentage <- stem_lignin_percentage * 0.625
+stem_lignin_C_of_stem_C <- stem_lignin_C_percentage / 45.9
 
 # Add to summary
 
@@ -237,15 +235,23 @@ data <- data[, c(1:9, 86, 10:85)]
 ##########
 
 names(data)
-temp <- data[
-  , c(
-    "species", "C_perc", "N_perc", "total_P_mg.g",
-    "lignin_recalcitrants_perc", "dry_weight_g_mean"
+temp <- data[,
+  c(
+    "species",
+    "C_perc",
+    "N_perc",
+    "total_P_mg.g",
+    "lignin_recalcitrants_perc",
+    "dry_weight_g_mean"
   )
 ]
 colnames(temp) <- c(
-  "species", "C_total", "N_total", "P_total",
-  "lignin", "dry_weight"
+  "species",
+  "C_total",
+  "N_total",
+  "P_total",
+  "lignin",
+  "dry_weight"
 )
 
 temp$C_total <- as.numeric(temp$C_total)
@@ -311,7 +317,9 @@ leaf_ratios <- unique(temp$species)
 for (id in leaf_ratios) {
   data$CN_leaf_mean[data$species == id] <- temp$CN_leaf_mean[temp$species == id]
   data$CP_leaf_mean[data$species == id] <- temp$CP_leaf_mean[temp$species == id]
-  data$lignin_leaf_mean[data$species == id] <- temp$lignin_leaf_mean[temp$species == id]
+  data$lignin_leaf_mean[data$species == id] <- temp$lignin_leaf_mean[
+    temp$species == id
+  ]
 }
 
 # Because the ratios are calculated for each species, this allows calculation of
@@ -326,12 +334,16 @@ mean(temp$lignin_leaf_mean)
 # Link leaf stoichiometry dataset to base PFT species classification
 
 # Match by species first
-data1 <- left_join(data, PFT_species_classification_base,
+data1 <- left_join(
+  data,
+  PFT_species_classification_base,
   by = c("species" = "TaxaName")
 )
 
 # Match by genus only for rows where PFT is still NA
-data2 <- left_join(data, PFT_species_classification_base,
+data2 <- left_join(
+  data,
+  PFT_species_classification_base,
   by = c("genus" = "TaxaName")
 )
 
@@ -347,8 +359,14 @@ data$PFT_name <- ifelse(!is.na(data1$PFT_name), data1$PFT_name, data2$PFT_name)
 names(data)
 
 plot_data <- data[, c(
-  "location", "forest_type", "sample_code", "PFT",
-  "PFT_name", "species", "CN_leaf_mean", "CP_leaf_mean",
+  "location",
+  "forest_type",
+  "sample_code",
+  "PFT",
+  "PFT_name",
+  "species",
+  "CN_leaf_mean",
+  "CP_leaf_mean",
   "lignin_leaf_mean"
 )]
 plot_data <- na.omit(plot_data)
@@ -358,18 +376,26 @@ plot_data$forest_type <- as.factor(plot_data$forest_type)
 
 # CN_leaf_mean
 
-ggplot(plot_data, aes(
-  x = sample_code, y = CN_leaf_mean,
-  color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = sample_code,
+    y = CN_leaf_mean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "CN_leaf_mean") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = CN_leaf_mean,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = CN_leaf_mean,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "CN_leaf_mean") +
@@ -408,18 +434,26 @@ summary$CN_leaf_mean_SD[summary$PFT == "4"] <-
 
 # CP_leaf_mean
 
-ggplot(plot_data, aes(
-  x = sample_code, y = CP_leaf_mean,
-  color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = sample_code,
+    y = CP_leaf_mean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "CP_leaf_mean") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = CP_leaf_mean,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = CP_leaf_mean,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "CP_leaf_mean") +
@@ -458,18 +492,26 @@ summary$CP_leaf_mean_SD[summary$PFT == "4"] <-
 
 # lignin_leaf_mean
 
-ggplot(plot_data, aes(
-  x = sample_code,
-  y = lignin_leaf_mean, color = as.factor(PFT)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = sample_code,
+    y = lignin_leaf_mean,
+    color = as.factor(PFT)
+  )
+) +
   geom_point() +
   labs(x = "Individual", y = "lignin_leaf_mean") +
   theme_minimal()
 
-ggplot(plot_data, aes(
-  x = as.factor(PFT), y = lignin_leaf_mean,
-  color = as.factor(forest_type)
-)) +
+ggplot(
+  plot_data,
+  aes(
+    x = as.factor(PFT),
+    y = lignin_leaf_mean,
+    color = as.factor(forest_type)
+  )
+) +
   geom_point(position = position_jitter(width = 0.2), alpha = 0.6) +
   stat_summary(fun = "mean", geom = "point", size = 4, color = "black") +
   labs(x = "PFT", y = "lignin_leaf_mean") +
@@ -535,19 +577,40 @@ summary$lignin_senesced_leaf_mean <-
 # for a range of forests on Mount Kinabalu, Borneo
 
 kitayama_litter_stoichiometry <- read_excel(
-  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx", # nolint
+  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
   sheet = "Sheet1",
   col_names = FALSE
 )
 
 colnames(kitayama_litter_stoichiometry) <- kitayama_litter_stoichiometry[2, ]
 
-kitayama_litter_stoichiometry_C <- kitayama_litter_stoichiometry[c(28:36), c(1, 2, 3)] # nolint
-colnames(kitayama_litter_stoichiometry_C) <- c("site", "leaf_C", "reproductive_organ_C") # nolint
-kitayama_litter_stoichiometry_N <- kitayama_litter_stoichiometry[c(15:23), c(1, 2, 3)] # nolint
-colnames(kitayama_litter_stoichiometry_N) <- c("site", "leaf_N", "reproductive_organ_N") # nolint
-kitayama_litter_stoichiometry_P <- kitayama_litter_stoichiometry[c(3:11), c(1, 2, 3)] # nolint
-colnames(kitayama_litter_stoichiometry_P) <- c("site", "leaf_P", "reproductive_organ_P") # nolint
+kitayama_litter_stoichiometry_C <- kitayama_litter_stoichiometry[
+  c(28:36),
+  c(1, 2, 3)
+]
+colnames(kitayama_litter_stoichiometry_C) <- c(
+  "site",
+  "leaf_C",
+  "reproductive_organ_C"
+)
+kitayama_litter_stoichiometry_N <- kitayama_litter_stoichiometry[
+  c(15:23),
+  c(1, 2, 3)
+]
+colnames(kitayama_litter_stoichiometry_N) <- c(
+  "site",
+  "leaf_N",
+  "reproductive_organ_N"
+)
+kitayama_litter_stoichiometry_P <- kitayama_litter_stoichiometry[
+  c(3:11),
+  c(1, 2, 3)
+]
+colnames(kitayama_litter_stoichiometry_P) <- c(
+  "site",
+  "leaf_P",
+  "reproductive_organ_P"
+)
 
 # Merge together
 
@@ -573,9 +636,11 @@ kitayama_litter_stoichiometry$reproductive_organ_P <-
 # compared with our other measure of leaf stoichiometry
 
 kitayama_litter_stoichiometry$reproductive_organ_CN <-
-  kitayama_litter_stoichiometry$reproductive_organ_C / kitayama_litter_stoichiometry$reproductive_organ_N # nolint
+  kitayama_litter_stoichiometry$reproductive_organ_C /
+  kitayama_litter_stoichiometry$reproductive_organ_N
 kitayama_litter_stoichiometry$reproductive_organ_CP <-
-  kitayama_litter_stoichiometry$reproductive_organ_C / kitayama_litter_stoichiometry$reproductive_organ_P # nolint
+  kitayama_litter_stoichiometry$reproductive_organ_C /
+  kitayama_litter_stoichiometry$reproductive_organ_P
 
 kitayama_litter_stoichiometry$leaf_CN <-
   kitayama_litter_stoichiometry$leaf_C / kitayama_litter_stoichiometry$leaf_N
@@ -645,12 +710,12 @@ summary$reproductive_organ_CP <-
 # reproductive tissues. The advantage here is that they separate fruits and flowers
 # To calculate fruit stoichiometric ratios, the values for mature fruit are used
 
-mature_fruit_C_percentage <- 50.62 # mean with SD of 0.44 # nolint
-mature_fruit_N_percentage <- 0.79 # mean with SD of 0.14 # nolint
-mature_fruit_P_percentage <- 0.61 # mean with SD of 0.11 # nolint
+mature_fruit_C_percentage <- 50.62 # mean with SD of 0.44
+mature_fruit_N_percentage <- 0.79 # mean with SD of 0.14
+mature_fruit_P_percentage <- 0.61 # mean with SD of 0.11
 
-mature_fruit_CN <- mature_fruit_C_percentage / mature_fruit_N_percentage # nolint
-mature_fruit_CP <- mature_fruit_C_percentage / mature_fruit_P_percentage # nolint
+mature_fruit_CN <- mature_fruit_C_percentage / mature_fruit_N_percentage
+mature_fruit_CP <- mature_fruit_C_percentage / mature_fruit_P_percentage
 
 # Note that the CP ratio here is much lower than the one by Kitayama
 
@@ -689,10 +754,10 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # (DOI https://doi.org/10.1079/SSR2004181)
 
 mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98 (see Ichie)
-mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100 # nolint
+mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100
 
 seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
-seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100 # nolint
+seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100
 
 # Add seed lignin content (the fraction of reproductive tissue carbon that is
 # captured in lignin)
@@ -706,9 +771,9 @@ seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100 # nolint
 seed_lignin_percentage <- 14.4 # with SD of 3.2 (see Nakagawa and Nakashizuka)
 
 seed_lignin_g <- (seed_lignin_percentage / 100) * seed_dry_mass
-seed_lignin_C_g <- seed_lignin_g * 0.625 # nolint
-seed_C_g <- (mature_fruit_C_percentage / 100) * seed_dry_mass # nolint
-lignin_C_of_seed_C <- seed_lignin_C_g / seed_C_g # nolint
+seed_lignin_C_g <- seed_lignin_g * 0.625
+seed_C_g <- (mature_fruit_C_percentage / 100) * seed_dry_mass
+lignin_C_of_seed_C <- seed_lignin_C_g / seed_C_g
 
 # Add to summary
 
@@ -725,12 +790,12 @@ summary$seed_lignin <- lignin_C_of_seed_C
 # To calculate flower stoichiometry, the following tissue stages are averaged:
 # flower bud, corolla appearing from flower bud, just before flowering, open flower
 
-flower_C_percentage <- (49.16 + 49.42 + 49.13 + 48.71) / 4 # See paper for SD # nolint
-flower_N_percentage <- (0.86 + 1.11 + 0.92 + 1.11) / 4 # See paper for SD # nolint
-flower_P_percentage <- (0.88 + 1.05 + 0.84 + 0.85) / 4 # See paper for SD # nolint
+flower_C_percentage <- (49.16 + 49.42 + 49.13 + 48.71) / 4 # See paper for SD
+flower_N_percentage <- (0.86 + 1.11 + 0.92 + 1.11) / 4 # See paper for SD
+flower_P_percentage <- (0.88 + 1.05 + 0.84 + 0.85) / 4 # See paper for SD
 
-flower_CN <- flower_C_percentage / flower_N_percentage # nolint
-flower_CP <- flower_C_percentage / flower_P_percentage # nolint
+flower_CN <- flower_C_percentage / flower_N_percentage
+flower_CP <- flower_C_percentage / flower_P_percentage
 
 # Note that the CP ratio here is also much lower than the one by Kitayama
 
@@ -747,12 +812,12 @@ summary$flower_CP <- flower_CP
 # (https://doi.org/10.1017/S0266467410000350)
 # These data are for mixed dipterocarp lowland tropical rain forest in Sabah
 
-fine_root_C_percentage <- 45.2 # SD = 4.4 # nolint
-fine_root_N_percentage <- 1.38 # SD = 0.32 # nolint
-fine_root_P_percentage <- 0.052 # SD = 0.004 # nolint
+fine_root_C_percentage <- 45.2 # SD = 4.4
+fine_root_N_percentage <- 1.38 # SD = 0.32
+fine_root_P_percentage <- 0.052 # SD = 0.004
 
-fine_root_CN <- fine_root_C_percentage / fine_root_N_percentage # nolint
-fine_root_CP <- fine_root_C_percentage / fine_root_P_percentage # nolint
+fine_root_CN <- fine_root_C_percentage / fine_root_N_percentage
+fine_root_CP <- fine_root_C_percentage / fine_root_P_percentage
 
 # Fine root lignin content (expressed as fraction of fine root carbon mass)
 
@@ -767,8 +832,8 @@ fine_root_lignin_percentage <- 22
 # We'll use the fine_root_C_percentage (45.2%) from Imai et al., 2010 (see above)
 # We'll also use 62.5% carbon content of lignin (Muddasar et al., 2024)
 
-lignin_C_percentage <- fine_root_lignin_percentage * 0.625 # nolint
-fine_root_lignin_C_of_root_C <- lignin_C_percentage / 45.2 # nolint
+lignin_C_percentage <- fine_root_lignin_percentage * 0.625
+fine_root_lignin_C_of_root_C <- lignin_C_percentage / 45.2
 
 # Add to summary
 
@@ -788,34 +853,63 @@ summary$CP_leaf_mean <- as.numeric(summary$CP_leaf_mean)
 summary$lignin_leaf_mean <- as.numeric(summary$lignin_leaf_mean)
 summary$CN_senesced_leaf_mean <- as.numeric(summary$CN_senesced_leaf_mean)
 summary$CP_senesced_leaf_mean <- as.numeric(summary$CP_senesced_leaf_mean)
-summary$lignin_senesced_leaf_mean <- as.numeric(summary$lignin_senesced_leaf_mean)
+summary$lignin_senesced_leaf_mean <- as.numeric(
+  summary$lignin_senesced_leaf_mean
+)
 
 names(summary)
 summary <- summary[, c(
-  "PFT_name", "CN_sapwood_mean", "CP_sapwood_mean", "stem_lignin",
-  "CN_leaf_mean", "CP_leaf_mean", "lignin_leaf_mean",
-  "CN_senesced_leaf_mean", "CP_senesced_leaf_mean", "lignin_senesced_leaf_mean",
-  "reproductive_organ_CN", "reproductive_organ_CP",
-  "mature_fruit_CN", "mature_fruit_CP", "mature_fruit_C_mass",
-  "seed_C_mass", "seed_lignin",
-  "flower_CN", "flower_CP",
-  "fine_root_CN", "fine_root_CP", "fine_root_lignin"
+  "PFT_name",
+  "CN_sapwood_mean",
+  "CP_sapwood_mean",
+  "stem_lignin",
+  "CN_leaf_mean",
+  "CP_leaf_mean",
+  "lignin_leaf_mean",
+  "CN_senesced_leaf_mean",
+  "CP_senesced_leaf_mean",
+  "lignin_senesced_leaf_mean",
+  "reproductive_organ_CN",
+  "reproductive_organ_CP",
+  "mature_fruit_CN",
+  "mature_fruit_CP",
+  "mature_fruit_C_mass",
+  "seed_C_mass",
+  "seed_lignin",
+  "flower_CN",
+  "flower_CP",
+  "fine_root_CN",
+  "fine_root_CP",
+  "fine_root_lignin"
 )]
 summary <- unique(summary)
-rownames(summary) <- 1:nrow(summary) # nolint
+rownames(summary) <- 1:nrow(summary)
 
 # Change variable names to match those used in the VE
 names(summary)
 colnames(summary) <- c(
-  "name", "deadwood_c_n_ratio", "deadwood_c_p_ratio", "stem_lignin",
-  "foliage_c_n_ratio", "foliage_c_p_ratio", "leaf_lignin",
-  "leaf_turnover_c_n_ratio", "leaf_turnover_c_p_ratio", "senesced_leaf_lignin",
+  "name",
+  "deadwood_c_n_ratio",
+  "deadwood_c_p_ratio",
+  "stem_lignin",
+  "foliage_c_n_ratio",
+  "foliage_c_p_ratio",
+  "leaf_lignin",
+  "leaf_turnover_c_n_ratio",
+  "leaf_turnover_c_p_ratio",
+  "senesced_leaf_lignin",
   "plant_reproductive_tissue_turnover_c_n_ratio",
   "plant_reproductive_tissue_turnover_c_p_ratio",
-  "mature_fruit_c_n_ratio", "mature_fruit_c_p_ratio", "mature_fruit_c_mass",
-  "carbon_mass_per_propagule", "plant_reproductive_tissue_lignin",
-  "flower_c_n_ratio", "flower_c_p_ratio",
-  "root_turnover_c_n_ratio", "root_turnover_c_p_ratio", "root_lignin"
+  "mature_fruit_c_n_ratio",
+  "mature_fruit_c_p_ratio",
+  "mature_fruit_c_mass",
+  "carbon_mass_per_propagule",
+  "plant_reproductive_tissue_lignin",
+  "flower_c_n_ratio",
+  "flower_c_p_ratio",
+  "root_turnover_c_n_ratio",
+  "root_turnover_c_p_ratio",
+  "root_lignin"
 )
 
 # Write CSV file

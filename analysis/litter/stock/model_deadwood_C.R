@@ -49,7 +49,8 @@ library(glmmTMB)
 
 # deadwood volume
 deadwood_V <-
-  read_xlsx("data/primary/litter/SAFE_DeadwoodSurvey_SAFEdatabase_2021-06-04.xlsx",
+  read_xlsx(
+    "data/primary/litter/SAFE_DeadwoodSurvey_SAFEdatabase_2021-06-04.xlsx",
     sheet = 3,
     skip = 5
   ) %>%
@@ -75,7 +76,10 @@ deadwood_V <-
   # ignoring hollow diameter for now because (1) they don't comprise of the
   # majority and because we are doing a quick job for initialisation now
   mutate(
-    Volume = pi * Length / 3 * (Diameter1^2 + Diameter1 * Diameter2 + Diameter2^2)
+    Volume = pi *
+      Length /
+      3 *
+      (Diameter1^2 + Diameter1 * Diameter2 + Diameter2^2)
   ) %>%
   filter(!is.na(Volume))
 
@@ -89,14 +93,9 @@ deadwood_N <-
 density_file <-
   "data/primary/litter/SAFE_WoodDecomposition_Data_SAFEdatabase_2021-06-04.xlsx"
 deadwood_rho <-
-  # nolint start
-  read_xlsx(density_file,
-    sheet = 3,
-    skip = 5
-  ) %>%
+  read_xlsx(density_file, sheet = 3, skip = 5) %>%
   # use the first census
   filter(SamplingCampaign == "1st") %>%
-  # nolint end
   # calculate mean density per wood sample
   select(SamplingYear:Tag, starts_with("Density")) %>%
   pivot_longer(
@@ -119,10 +118,7 @@ deadwood_rho <-
   ungroup() %>%
   # join decay class information
   left_join(
-    read_xlsx(density_file,
-      sheet = 2,
-      skip = 5
-    ) %>%
+    read_xlsx(density_file, sheet = 2, skip = 5) %>%
       filter(SamplingCampaign == "1st") %>%
       distinct(Tag, DecayClass)
   )

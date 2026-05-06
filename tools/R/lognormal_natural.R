@@ -1,4 +1,3 @@
-# nolint start
 # From https://github.com/paul-buerkner/custom-brms-families/blob/master/families/lognormal_natural.R
 
 # helper functions for post-processing of the family
@@ -6,9 +5,8 @@ log_lik_lognormal_natural <- function(i, prep) {
   mu <- prep$dpars$mu[, i]
   if (NCOL(prep$dpars$sigma) == 1) {
     sigma <- prep$dpars$sigma
-  } else
-  ## [, i] if sigma is modelled, without otherwise
-  {
+  } else {
+    ## [, i] if sigma is modelled, without otherwise
     sigma <- prep$dpars$sigma[, i]
   }
   y <- prep$data$Y[i]
@@ -21,9 +19,8 @@ posterior_predict_lognormal_natural <- function(i, prep, ...) {
   mu <- prep$dpars$mu[, i]
   if (NCOL(prep$dpars$sigma) == 1) {
     sigma <- prep$dpars$sigma
-  } else
-  ## [, i] if sigma is modelled, without otherwise
-  {
+  } else {
+    ## [, i] if sigma is modelled, without otherwise
     sigma <- prep$dpars$sigma[, i]
   }
   common_term <- log(1 + sigma^2 / mu^2)
@@ -58,5 +55,3 @@ stan_lognormal_natural <- "
                             sqrt(common_term));
   }
 "
-
-# nolint end

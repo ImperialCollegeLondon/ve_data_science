@@ -36,7 +36,6 @@
 #|   planned that should be noted?
 #| ---
 
-
 # An R Script template
 # First we load the packages at the top of the notebook
 

@@ -42,7 +42,7 @@
 #|     - RcppTOML
 #|     - readxl
 #|     - glmmTMB
-#|     - ncdf4
+#|     - RNetCDF
 #|     - reshape2
 #|
 #| usage_notes: |
@@ -55,7 +55,8 @@ library(mvtnorm)
 library(RcppTOML)
 library(readxl)
 library(glmmTMB)
-library(ncdf4)
+library(RNetCDF)
+source("tools/R/convert_df_to_nc.R")
 
 set.seed(20260312)
 
@@ -63,11 +64,13 @@ set.seed(20260312)
 # Litter metadata ---------------------------------------------------------
 
 litter_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
+litter_meta <- litter_meta$litter
 
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau <- parseTOML("data/derived/site/maliau_grid_definition_100m.toml")
+maliau <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
@@ -81,22 +84,17 @@ dat <-
   expand_grid(
     cell_x = maliau$cell_x_centres,
     cell_y = maliau$cell_y_centres
-  ) |>
-  # calculate displacements
-  mutate(
-    x = cell_x - min(cell_x),
-    y = cell_y - min(cell_y)
   )
 
 
-# Litter stock ------------------------------------------------------------
+# Litter carbon stock -----------------------------------------------------
 
-# Including:
-# litter_pool_above_metabolic
-# litter_pool_above_structural
-# litter_pool_woody
-# litter_pool_below_metabolic
-# litter_pool_below_structural
+# This section is about the "C" part in:
+# litter_pool_above_metabolic_cnp
+# litter_pool_above_structural_cnp
+# litter_pool_woody_cnp
+# litter_pool_below_metabolic_cnp
+# litter_pool_below_structural_cnp
 
 # Litter stock means are straightforward, but not their variances. This is
 # because we modelled physical litter types (e.g., leaf, root, twig) but then
@@ -111,70 +109,80 @@ dat <-
 # to their observed physical counterparts at SAFE. Then I assume the same also
 # applies to the woody and belowground pools.
 
-litter_stocks <- read_csv("data/derived/litter/stock/litter_stock.csv")
+litter_stocks_c <- read_csv("data/derived/litter/stock/litter_stock.csv")
 
 # retrieve stock means and then calculate SDs
 # they are in log scales to generate stocks with a lognormal distribution
 # to keep them positively bound
-litter_stocks_meanlog <- log(litter_stocks$stock)
-litter_stocks_sdlog <- abs(litter_stocks_meanlog / 10)
+litter_stocks_c_meanlog <- log(litter_stocks_c$stock)
+litter_stocks_c_sdlog <- abs(litter_stocks_c_meanlog / 10)
 
 # simulate litter stocks
-litter_stocks_sim <- mapply(
+litter_stocks_c_sim <- mapply(
   function(mean, sd) rlnorm(n_sim, mean, sd),
-  mean = litter_stocks_meanlog,
-  sd = litter_stocks_sdlog
+  mean = litter_stocks_c_meanlog,
+  sd = litter_stocks_c_sdlog
 )
-colnames(litter_stocks_sim) <- c(
-  "litter_pool_above_metabolic",
-  "litter_pool_above_structural",
-  "litter_pool_below_metabolic",
-  "litter_pool_below_structural",
-  "litter_pool_woody"
+colnames(litter_stocks_c_sim) <- c(
+  "litter_pool_above_metabolic_c",
+  "litter_pool_above_structural_c",
+  "litter_pool_below_metabolic_c",
+  "litter_pool_below_structural_c",
+  "litter_pool_woody_c"
 )
 
 # add to dataset
-dat <- bind_cols(dat, litter_stocks_sim)
+dat <- bind_cols(dat, litter_stocks_c_sim)
 
 
-# Litter nutrient contents ------------------------------------------------
+# Litter N and P stocks ---------------------------------------------------
 
 # First, aboveground litter including:
 # lignin_above_structural
-# c_n_ratio_above_metabolic
-# c_n_ratio_above_structural
-# c_p_ratio_above_metabolic
-# c_p_ratio_above_structural
+# And the "N" and "P" parts of:
+# litter_pool_above_metabolic_cnp
+# litter_pool_above_structural_cnp
 
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_aboveground.R")
 
 # predictions, added directly to the dataset
 # NB: the [1, ] index is to extract a Maliau sample site
-# nolint start
 dat <-
   dat |>
   mutate(
-    c_n_ratio_above_metabolic =
-      as.numeric(simulate(mod_C.N_met_above, nsim = n_sim)[1, ]),
-    c_n_ratio_above_structural =
-      r_century * c_n_ratio_above_metabolic,
-    c_p_ratio_above_metabolic =
-      as.numeric(simulate(mod_C.P_met_above, nsim = n_sim)[1, ]),
-    c_p_ratio_above_structural =
-      r_century * c_p_ratio_above_metabolic,
-    lignin_above_structural =
-      as.numeric(simulate(mod_lignin_above, nsim = n_sim)[1, ])
+    c_n_ratio_above_metabolic = as.numeric(simulate(
+      mod_C.N_met_above,
+      nsim = n_sim
+    )[1, ]),
+    c_n_ratio_above_structural = r_century * c_n_ratio_above_metabolic,
+    c_p_ratio_above_metabolic = as.numeric(simulate(
+      mod_C.P_met_above,
+      nsim = n_sim
+    )[1, ]),
+    c_p_ratio_above_structural = r_century * c_p_ratio_above_metabolic,
+    lignin_above_structural = as.numeric(simulate(
+      mod_lignin_above,
+      nsim = n_sim
+    )[1, ])
+  ) |>
+  # calculate litter N and P stocks from C stock and C:N & C:P ratios
+  mutate(
+    litter_pool_above_metabolic_n = litter_pool_above_metabolic_c /
+      c_n_ratio_above_metabolic,
+    litter_pool_above_structural_n = litter_pool_above_structural_c /
+      c_n_ratio_above_structural,
+    litter_pool_above_metabolic_p = litter_pool_above_metabolic_c /
+      c_p_ratio_above_metabolic,
+    litter_pool_above_structural_p = litter_pool_above_structural_c /
+      c_p_ratio_above_structural
   )
-# nolint end
-
 
 # Second, belowground litter including:
 # lignin_below_structural
-# c_n_ratio_below_metabolic
-# c_n_ratio_below_structural
-# c_p_ratio_below_metabolic
-# c_p_ratio_below_structural
+# And the "N" and "P" parts of:
+# litter_pool_below_metabolic_cnp
+# litter_pool_below_structural_cnp
 
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_belowground.R")
@@ -207,19 +215,22 @@ below_litter_sim <-
     CP = C / P
   ) |>
   # calculate metabolic fraction
-  mutate(fm = plogis(
-    logitfM - lignin * (sN * CN + sP * CP)
-  )) |>
+  mutate(
+    fm = plogis(
+      logitfM - lignin * (sN * CN + sP * CP)
+    )
+  ) |>
   # calculate metabolic and structural nutrients
   # see rearranged equation on the litter theory documentation
-  # nolint https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
+  # https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
   mutate(
     c_n_ratio_below_metabolic = CN / (r_century + fm * (1 - r_century)),
     c_p_ratio_below_metabolic = CP / (r_century + fm * (1 - r_century)),
     c_n_ratio_below_structural = r_century * c_n_ratio_below_metabolic,
     c_p_ratio_below_structural = r_century * c_p_ratio_below_metabolic
   ) |>
-  select(c_n_ratio_below_metabolic,
+  select(
+    c_n_ratio_below_metabolic,
     c_p_ratio_below_metabolic,
     c_n_ratio_below_structural,
     c_p_ratio_below_structural,
@@ -227,13 +238,25 @@ below_litter_sim <-
   )
 
 # add to the dataset
-dat <- bind_cols(dat, below_litter_sim)
+dat <-
+  bind_cols(dat, below_litter_sim) |>
+  # calculate litter N and P stocks from C stock and C:N & C:P ratios
+  mutate(
+    litter_pool_below_metabolic_n = litter_pool_below_metabolic_c /
+      c_n_ratio_below_metabolic,
+    litter_pool_below_structural_n = litter_pool_below_structural_c /
+      c_n_ratio_below_structural,
+    litter_pool_below_metabolic_p = litter_pool_below_metabolic_c /
+      c_p_ratio_below_metabolic,
+    litter_pool_below_structural_p = litter_pool_below_structural_c /
+      c_p_ratio_below_structural
+  )
 
 
 # Third, woody litter including:
 # lignin_woody
-# c_n_ratio_woody
-# c_p_ratio_woody
+# And the "N" and "P" parts of:
+# litter_pool_woody_cnp
 
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_woody.R")
@@ -257,17 +280,67 @@ lignin_sim <-
   lignin_sim * 0.625 / (nutrient_deadwood_sim[, "C_total"] / 100)
 
 # add to the dataset
-# nolint start
 dat <-
   dat |>
   mutate(
-    c_n_ratio_woody =
-      nutrient_deadwood_sim[, "C_total"] / nutrient_deadwood_sim[, "N_total"],
-    c_p_ratio_woody =
-      nutrient_deadwood_sim[, "C_total"] / nutrient_deadwood_sim[, "P_total"],
+    c_n_ratio_woody = nutrient_deadwood_sim[, "C_total"] /
+      nutrient_deadwood_sim[, "N_total"],
+    c_p_ratio_woody = nutrient_deadwood_sim[, "C_total"] /
+      nutrient_deadwood_sim[, "P_total"],
     lignin_woody = lignin_sim
+  ) |>
+  # calculate litter N and P stocks from C stock and C:N & C:P ratios
+  mutate(
+    litter_pool_woody_n = litter_pool_woody_c / c_n_ratio_woody,
+    litter_pool_woody_p = litter_pool_woody_c / c_p_ratio_woody
   )
-# nolint end
+
+# Combine litter C, N and P stocks into triplets
+dat <-
+  dat |>
+  mutate(
+    litter_pool_above_metabolic_cnp = pmap(
+      list(
+        litter_pool_above_metabolic_c,
+        litter_pool_above_metabolic_n,
+        litter_pool_above_metabolic_p
+      ),
+      c
+    ),
+    litter_pool_below_metabolic_cnp = pmap(
+      list(
+        litter_pool_below_metabolic_c,
+        litter_pool_below_metabolic_n,
+        litter_pool_below_metabolic_p
+      ),
+      c
+    ),
+    litter_pool_above_structural_cnp = pmap(
+      list(
+        litter_pool_above_structural_c,
+        litter_pool_above_structural_n,
+        litter_pool_above_structural_p
+      ),
+      c
+    ),
+    litter_pool_below_structural_cnp = pmap(
+      list(
+        litter_pool_below_structural_c,
+        litter_pool_below_structural_n,
+        litter_pool_below_structural_p
+      ),
+      c
+    ),
+    litter_pool_woody_cnp = pmap(
+      list(
+        litter_pool_woody_c,
+        litter_pool_woody_n,
+        litter_pool_woody_p
+      ),
+      c
+    ),
+    .keep = "unused"
+  )
 
 
 # Write data to netCDF ----------------------------------------------------
@@ -278,62 +351,16 @@ litter_meta_df <-
   select(
     variable = L1,
     unit = value
-  ) |>
-  filter(variable %in% names(dat)[-(1:4)])
-
-# convert dataframe to arrays
-litter_vars <- litter_meta_df$variable
-array_list <- vector("list", length(litter_vars))
-names(array_list) <- litter_vars
-for (i in litter_vars) {
-  array_list[[i]] <-
-    array(dat[[i]], dim = c(maliau$cell_nx, maliau$cell_ny))
-}
-
-# path and file name of netCDF
-ncpath <- "data/scenarios/maliau/maliau_1/data/"
-ncname <- "litter_maliau"
-ncfname <- paste(ncpath, ncname, ".nc", sep = "")
-
-# create and write the netCDF file -- ncdf4 version
-# define dimensions
-xdim <-
-  ncdim_def(
-    "x", "m",
-    as.double(maliau$cell_x_centres - min(maliau$cell_x_centres))
   )
-ydim <-
-  ncdim_def(
-    "y", "m",
-    as.double(maliau$cell_y_centres - min(maliau$cell_y_centres))
-  )
-# define variables
-vardef <- vector("list", nrow(litter_meta_df))
-for (i in seq_along(vardef)) {
-  vardef[[i]] <-
-    ncvar_def(
-      litter_meta_df$variable[i],
-      litter_meta_df$unit[i],
-      list(xdim, ydim)
-    )
-}
 
-# create netCDF file and put arrays
-ncout <- nc_create(ncfname, vardef, force_v4 = TRUE)
-
-# put variables
-for (i in seq_along(litter_vars)) {
-  ncvar_put(ncout, vardef[[i]], array_list[[i]])
-}
-
-# add global attributes
-ncatt_put(
-  ncout, 0, "description",
-  "Litter data for the Maliau scenario"
+# convert data to netCDF
+convert_df_to_nc(
+  data = dat,
+  filename = "data/scenarios/maliau/maliau_1/data/litter_maliau.nc",
+  x = maliau$cell_x_centres,
+  y = maliau$cell_y_centres,
+  element = c("C", "N", "P"),
+  variables = litter_meta_df$variable,
+  units = litter_meta_df$unit,
+  description = "Litter data for the Maliau scenario"
 )
-
-# Get a summary of the created file:
-ncout
-
-# close the file, writing data to disk
-nc_close(ncout)

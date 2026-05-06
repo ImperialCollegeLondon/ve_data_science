@@ -35,7 +35,7 @@ library(biogas)
 # amino sugar content in rainforest (RF) soils
 # in mg / g SOC
 amino_sugar_mean <- 69.04762
-# amino_sugar_sd <- 5.952381   # nolint
+# amino_sugar_sd <- 5.952381
 
 # Percentage of each amino sugar in rainforest (RF) soils
 # converted to proportions
