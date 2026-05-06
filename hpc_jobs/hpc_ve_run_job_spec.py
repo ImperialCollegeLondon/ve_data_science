@@ -1,11 +1,11 @@
 """Validation and loading of HPC VE_run job specifications."""
 
 import sys
+import tomllib
 from dataclasses import field
 from pathlib import Path
 from typing import Any
 
-import tomllib
 from pydantic.dataclasses import dataclass
 
 
