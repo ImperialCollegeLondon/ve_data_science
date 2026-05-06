@@ -3,6 +3,7 @@
 [Scenario.maliau_1]
 # Site definition file for maliau_1
 # Grid: 50 x 50 cells, resolution = 100 m
+# Temporal: 2010-2020 (11 years)
 
 epsg_code = 32650
 ll_x = 494300
@@ -137,9 +138,15 @@ grid_type = "square"
 xoff = 494300
 yoff = 521300
 
+[Scenario.maliau_1.core.timing]
+start_date = "2010-01-01"
+update_interval = "1 month"
+run_length = "11 years"
+
 [Scenario.maliau_2]
 # Site definition file for maliau_2
 # Grid: 10 x 10 cells, resolution = 100 m
+# Temporal: 2010-2020 (11 years)
 
 epsg_code = 32650
 ll_x = 496400
@@ -193,3 +200,8 @@ cell_ny = 10
 grid_type = "square"
 xoff = 496400
 yoff = 524100
+
+[Scenario.maliau_2.core.timing]
+start_date = "2010-01-01"
+update_interval = "1 month"
+run_length = "11 years"
