@@ -198,7 +198,7 @@ tidync(paste0(in_dir, "plant_input_data_Maliau_50x50.nc")) |>
 # Plant cohorts
 plant_cohort <-
   read_csv(
-    paste0(in_dir, "plant_cohort_data_maliau_50x50.csv"),
+    paste0(in_dir, "plant_cohort_data_Maliau_50x50.csv"),
     show_col_types = FALSE
   ) |>
   group_by(plant_cohorts_pft) |>
@@ -211,7 +211,7 @@ plant_cohort <-
   mutate(plant_cohorts_cell_id = 0)
 write_csv(
   plant_cohort,
-  paste0(out_dir, "plant_cohort_data_maliau_50x50.csv")
+  paste0(out_dir, "plant_cohort_data_Maliau_50x50.csv")
 )
 
 # Copy over other data that do not need to be modified
