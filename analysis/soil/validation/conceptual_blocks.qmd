@@ -1,9 +1,9 @@
 ---
 title: "Some conceptual blocks on validation"
-author: 
+author:
   name: Hao Ran
 date: last-modified
-format: 
+format:
   html:
     toc: true
     toc-location: left
