@@ -1,6 +1,7 @@
 library(tidyverse)
 library(sensobol)
 library(tidync)
+library(RNetCDF)
 library(toml)
 source("tools/R/convert_array_to_nc.R")
 source("tools/R/get_all_variables.R")
