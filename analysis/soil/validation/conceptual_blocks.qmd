@@ -1,0 +1,56 @@
+---
+title: "Some conceptual blocks on validation"
+author: 
+  name: Hao Ran
+date: last-modified
+format: 
+  html:
+    toc: true
+    toc-location: left
+    theme: sandstone
+---
+
+# Preamble
+
+- I learned about "validation" from the statistical modelling perspective; there may be some nuanced difference from process-based or mechanistic modelling.
+- I try to move across modules but apologies in advance if I have gotten anything wrong.
+- I try to think about validation generally, instead of only for Maliau itself. Solving this for Maliau = solving for any subsequent scenarios.
+
+# Conceptual blocks
+
+## How long should we run the simulation?
+
+A proper pair of input and validation datasets come from a study where you sampled at time $t_0$ and repeated at $t_{100}$. In this case, we would simply initiate the model with input data from $t_0$, run it for 100 time steps, and then validate the model outputs against data from $t_{100}$. This is the case for long-term monitoring datasets like Danum, BCI, or some SAFE plots (though we rarely have a full set of variables collected both at $t_0$ and $t_{100}$, so the points below still applies).
+
+Maliau does not work like the above. With the exception of abiotic module, perhaps.
+
+The abiotic input data are clearly anchored to a time point. Air temperature on 1 Jan 2010 must come from historical data on 1 Jan 2010 to make sense. So abiotic has a clearer validation target: initiate VE at $t_0$ using real historical data (and in fact input the required time series from $t_0$ to $t_{100}$), and then validate against any updated variables that are not part of the required input data (e.g., `vapour_pressure_deficit` and `wind_speed`).
+[The Maliau scenario is monthly from 2010-01-01 to 2021-01-01.]{.aside}
+
+As a counter example, the soil input data had to be sourced from different study periods. And we do not have soil validation dataset collected exactly on the final date of the simulation. Hence the question in this section's heading.
+
+Even if abiotic inputs and outputs have a clear time mapping, the abiotic validation targets are affected by variables from other modules that do not (e.g., microclimate depends on plants). Because there is no spin-up phase in VE (except animals maybe), during the early time steps of simulation the state variables are likely doing *both* endogenic/internal stabilisation and reacting to exogenous factors. As such, even if we have clear validation targets, it is still hard to disentangle the effect of poor initialisation vs. poor parameter calibration.
+
+## Validate on Maliau or outside of Maliau?
+
+We have not decided whether the validation dataset should be from Maliau or not. If we initialise with Maliau or Maliau-like input data, then it makes sense to validation on another test dataset from Maliau. With the exception of abiotic, however, many input data are not exactly from Maliau, but similar forests. So it is probably okay to validate on non-Maliau datasets, plus there is often limited data for many of the state variables at Maliau.
+
+That said, if we validate soil on external dataset A and animal on external dataset B, and find that soil validates well but animal poorly, what does that mean? We cannot really conclude that soil is doing better than animal, because who knows if animal actually validates well on dataset A? Should we then all validate on the same dataset, which has a near-zero probability of having sampled all of our state variables? If it exists, we would have used it for input data already...
+[Nick has some thoughts on using global data for validation, i.e., if we validate the Maliau scenario onto global test dataset, and then redo for the SAFE scenario, then what does it mean to use the same global dataset twice?]{.aside}
+
+## Validate within or across modules?
+
+Currently we are validating within modules, but we are also increasingly aware of the need do so across modules. I'm leaning towards the latter because:
+
+1. VE's strength lies in its holistic nature. Validating within modules sort of defeats this original purpose.
+2. Validation within module overlooks the possibility that, for example, a poorly validated plant variable could be due to a poorly initialised or calibrated soil variable.
+3. Validating across modules helps modules with hard-to-define targets. For example, plant validation datasets are relatively available but not animals, so why don't we just let animal use plant as validation targets? This is meaningful because if animal processes such as herbivory works well then we would expect the plant validation targets to do well too.
+
+# Another solution: focus on qualitative or emergent properties
+
+Some of the text above contains potential solutions; here's another that Jacob and I have discussed (with soil in mind, mostly).
+
+Even if we managed to find a soil validation dataset, we feel that overly focusing on individual state variable would tell us little about the model's overall performance. For example, what does it mean if `soil_c_pool_maom` validates well but not `soil_c_pool_pom`?
+[The soil nutrient pools now are in triplets, e.g., `soil_cnp_pool_maom`, but I'm just using carbon as an example here, hence `soil_c_pool_maom`.]{.aside}
+Do we then revisit `soil_c_pool_pom` only to get it right? Probably not, because (1) it also depends on `soil_c_pool_maom` and (2) the input data source probably contains both variables anyways. Most often than not we care about the whole carbon pool being partitioned correctly, rather than each pool hitting their own targets (if it happens, doesn't it just mean the former). In other words, since we will often be looking at groups of variables, then a validation target will often correspond to a group of variables. This naturally led us to think more about qualitative or emergent properties, e.g., that the ranking between soil nutrient pools should be preserved, soil fungi and bacteria should coexist, soil--microbe--plant stoichiometry should be preserved etc. And as you see it also naturally led us to think across modules.
+[There are other higher-level emergent properties that are not explicitly captured as state variables in VE, such as thinning rules, trophic distributions, network properties, energy compartments, biodiversity--productivity relationships etc., but they go beyond the discussion here.]{.aside}
