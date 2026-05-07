@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -lwalltime=1:MM:00
+#PBS -lwalltime=0:30:00
 #PBS -lselect=1:ncpus=1:mem=8gb
 
 # Initialise conda environment
@@ -15,3 +15,6 @@ cd ${PBS_O_WORKDIR}
 
 Rscript analysis/soil/sensitivity/input_data/build_data_sensitivity.R
 Rscript analysis/soil/sensitivity/input_data/build_config_sensitivity.R
+
+# submit this from the ve_data_science root directory with:
+# qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
