@@ -56,7 +56,7 @@ library(RcppTOML)
 library(readxl)
 library(glmmTMB)
 library(RNetCDF)
-source("analysis/soil/initialisation/convert_df_to_nc.R")
+source("tools/R/convert_df_to_nc.R")
 
 set.seed(20260312)
 

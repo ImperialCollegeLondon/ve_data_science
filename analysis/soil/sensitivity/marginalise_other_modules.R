@@ -3,10 +3,10 @@ library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
-source("analysis/soil/initialisation/convert_array_to_nc.R")
-source("analysis/soil/initialisation/subset_nc.R")
-source("analysis/soil/sensitivity/get_mean_array.R")
-source("analysis/soil/sensitivity/cell_id_to_xy.R")
+source("tools/R/convert_array_to_nc.R")
+source("tools/R/subset_nc.R")
+source("tools/R/get_mean_array.R")
+source("tools/R/cell_id_to_xy.R")
 
 
 # Maliau site metadata ----------------------------------------------------

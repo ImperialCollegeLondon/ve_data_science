@@ -67,7 +67,7 @@ library(glmmTMB)
 library(biogas)
 library(lubridate)
 library(hms)
-source("analysis/soil/initialisation/convert_df_to_nc.R")
+source("tools/R/convert_df_to_nc.R")
 
 set.seed(20260313)
 

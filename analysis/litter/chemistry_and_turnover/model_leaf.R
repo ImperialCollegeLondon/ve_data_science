@@ -148,7 +148,7 @@ inits <- list(inits, inits, inits, inits)
 
 # source the lognormal mean-sd parameterisation
 # this will be passed to stanvars in brm
-source("analysis/litter/chemistry_and_turnover/lognormal_natural.R")
+source("tools/R/lognormal_natural.R")
 
 # fit the model
 mod_leaf <- brm(

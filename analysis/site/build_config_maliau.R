@@ -43,8 +43,8 @@
 
 library(tidyverse)
 library(toml)
-source("tools/build_config.R")
-source("tools/collect_data_paths.R")
+source("tools/R/build_config.R")
+source("tools/R/collect_data_paths.R")
 
 
 # Source new values analysed elsewhere -----------------------------------
