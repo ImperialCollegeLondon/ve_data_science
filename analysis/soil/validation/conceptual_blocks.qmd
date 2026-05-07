@@ -8,6 +8,7 @@ format:
     toc: true
     toc-location: left
     theme: sandstone
+    embed-resources: true
 ---
 
 # Preamble
