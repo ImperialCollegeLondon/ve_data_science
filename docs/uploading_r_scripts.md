@@ -89,7 +89,7 @@ updated files and re-commit the changes. Some common problems and fixes:
 Error | Solution
 -- | --
 Rscript not found | Add R to system environment PATH
-Lintr style issues | Follow suggested fixes or use # nolint where appropriate
+Air formatter issues | Follow suggested fixes or use # fmt: skip where appropriate
 Variable/function names too long | Rename using snake_case, max 30 characters
 Lines > 88 characters | Reformat or split lines carefully
 

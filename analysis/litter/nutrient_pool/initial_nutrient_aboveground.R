@@ -60,7 +60,8 @@ r_century <- 5
 
 # Litter data from SAFE
 litter <-
-  read_xlsx("data/primary/litter/Both_litter_decomposition_experiment.xlsx",
+  read_xlsx(
+    "data/primary/litter/Both_litter_decomposition_experiment.xlsx",
     sheet = 3,
     skip = 7
   ) |>
@@ -70,15 +71,19 @@ litter <-
   mutate(lignin = lignin_recalcitrants * 0.625 / C_perc) |>
   select(
     litter_type,
-    C.N, C.P, lignin,
+    C.N,
+    C.P,
+    lignin,
   ) |>
   # calculate metabolic fraction
-  mutate(fm = plogis(
-    logitfM - lignin * (sN * C.N + sP * C.P)
-  )) |>
+  mutate(
+    fm = plogis(
+      logitfM - lignin * (sN * C.N + sP * C.P)
+    )
+  ) |>
   # calculate metabolic and structural nutrients
   # see rearranged equation on the litter theory documentation
-  # nolint https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
+  # https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
   mutate(
     C.N_metabolic = C.N / (r_century + fm * (1 - r_century)),
     C.P_metabolic = C.P / (r_century + fm * (1 - r_century)),

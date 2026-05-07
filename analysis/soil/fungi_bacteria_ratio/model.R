@@ -47,14 +47,16 @@ library(glmmTMB)
 
 # subplot coordinates
 coord <-
-  read_xlsx("data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
+  read_xlsx(
+    "data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
     sheet = 2
   ) %>%
   filter(Type == "Carbon Subplot") %>%
   rename(location_name = `Location name`)
 
 soil <-
-  read_xlsx("data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
+  read_xlsx(
+    "data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
     sheet = 3,
     skip = 9
   ) %>%
@@ -62,7 +64,8 @@ soil <-
 
 # PLFA concentrations containing fungal:bacterial ratio
 plfa <-
-  read_xlsx("data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
+  read_xlsx(
+    "data/primary/soil/fungal_bacteria_ratio/SAFE_Dataset.xlsx",
     sheet = 5,
     skip = 9
   ) %>%
@@ -123,11 +126,7 @@ newdat <- data.frame(
   Plot_ID = "OG"
 )
 yhat <-
-  predict(mod,
-    newdata = newdat,
-    type = "response",
-    cov.fit = TRUE
-  )
+  predict(mod, newdata = newdat, type = "response", cov.fit = TRUE)
 
 # calculate (predicted) fungal-to-bacterial ratio using their predicted biomass
 fungal_bacteria_ratio <- yhat$fit[1] / yhat$fit[2]

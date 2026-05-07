@@ -4,8 +4,8 @@
 #| description: |
 #|     This R script estimates soil necromass C, N and P stocks using amino
 #|     sugar biomarkers measured at Pasoh forest reserve, Malaysia. First we
-#|     estimate the C pool, and then scale it get N and P pools using microbe
-#|     stoichiometry.
+#|     estimate the C pool, and then scale it to get N and P pools using
+#|     microbe stoichiometry.
 #|
 #| virtual_ecosystem_module: Litter
 #|
@@ -35,7 +35,7 @@ library(biogas)
 # amino sugar content in rainforest (RF) soils
 # in mg / g SOC
 amino_sugar_mean <- 69.04762
-# amino_sugar_sd <- 5.952381   # nolint
+# amino_sugar_sd <- 5.952381
 
 # Percentage of each amino sugar in rainforest (RF) soils
 # converted to proportions

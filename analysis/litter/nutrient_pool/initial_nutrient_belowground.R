@@ -50,7 +50,6 @@ sP <- decay_param$value[decay_param$Parameter == "sP"]
 r_century <- 5
 
 
-
 # Fine root stoichiometry -------------------------------------------------
 
 # This section is mostly adapted from Arne Scheire's code stored

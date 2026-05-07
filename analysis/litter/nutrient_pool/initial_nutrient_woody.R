@@ -36,8 +36,6 @@ library(readxl)
 library(glmmTMB)
 
 
-
-
 # Data --------------------------------------------------------------------
 
 # N, C and P from SAFE deadwood survey
@@ -76,7 +74,6 @@ lignin_cv <- 0.14
 # calculate standard deviation from mean and CV
 lignin_sd <- lignin_mean * lignin_cv
 # mean and sd will be used downstream to simulate lignin distribution in Maliau
-
 
 # Model -------------------------------------------------------------------
 
