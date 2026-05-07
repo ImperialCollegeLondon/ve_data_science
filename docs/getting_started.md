@@ -25,10 +25,10 @@ to live and then run the following command.
 git clone https://github.com/ImperialCollegeLondon/ve_data_science.git
 ```
 
-That will create a new directory called `ve_data_science` that contains all of the current
-files, all of the changes ever made to those files. It also contains the details of all of
-the branches containing active versions of the code that differ from the core `main` branch.
-Those changes are hidden away in the `.git` folder.
+That will create a new directory called `ve_data_science` that contains all of the
+current files, all of the changes ever made to those files. It also contains the details
+of all of the branches containing active versions of the code that differ from the core
+`main` branch. Those changes are hidden away in the `.git` folder.
 
 See the [GitHub Overview](github_overview.md) for details on working with Git and GitHub.
 
@@ -44,7 +44,8 @@ to use.
 
 2. Install `poetry`. This is a python package manager, which we are using here to
    maintain a set of Python tools that are likely to be used within the project. Follow
-   the command line instructions on the [poetry installation page](https://python-poetry.org/docs/#installing-with-the-official-installer).
+   the command line instructions on the [poetry installation
+   page](https://python-poetry.org/docs/#installing-with-the-official-installer).
 
 3. In the command line, run `poetry install`. This will install the recommended python
    packages, which includes the `radian` front-end for R, the `xarray` package for
