@@ -3,6 +3,7 @@ library(sensobol)
 library(tidync)
 library(RNetCDF)
 library(toml)
+library(mirai)
 source("tools/R/convert_array_to_nc.R")
 source("tools/R/get_all_variables.R")
 source("tools/R/summarise_spatial.R")
@@ -136,10 +137,12 @@ dimnames <- list(
   element = c("C", "N", "P")
 )
 
+daemons(16)
+
 sobol_df |>
   mutate(row_id = row_number()) |>
   group_split(row_id) |>
-  imap(\(x, idx) {
+  imap(in_parallel(\(x, idx) {
     x |>
       as.list() |>
       list_flatten() |>
@@ -161,11 +164,13 @@ sobol_df |>
             )
           )
         }
-      }) |>
+      })) |>
       convert_array_to_nc(
         filename = paste0(out_dir, "soil_litter_data_", idx, ".nc")
       )
   })
+
+daemons(0)
 
 
 # Generate mean arrays ---------------------------------------------------

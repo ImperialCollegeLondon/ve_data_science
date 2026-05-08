@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -lwalltime=0:30:00
-#PBS -lselect=1:ncpus=1:mem=8gb
+#PBS -lselect=1:ncpus=16:mem=16gb
 #PBS -j oe
 #PBS -o /rds/general/user/hlai1/home/logs/
 
