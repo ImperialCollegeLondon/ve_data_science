@@ -89,32 +89,42 @@ daemons(16)
 
 iwalk(
   core_list,
-  in_parallel(\(x, idx) {
-    config_dir <- paste0("data/scenarios/sensitivity_soil_litter/config/", idx)
-    if (!dir.exists(config_dir)) {
-      dir.create(config_dir)
-    }
-    build_config(
-      requested_modules = c(
-        "core",
-        "abiotic_simple",
-        "hydrology",
-        "plants",
-        "animal",
-        "soil",
-        "litter"
-      ),
-      core = x,
-      plants = plants,
-      animal = animal,
-      path = config_dir
-    )
-    # Copy over soil microbial config that does not change across scenarios
-    file.copy(
-      "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml",
-      config_dir
-    )
-  })
+  in_parallel(
+    \(x, idx) {
+      config_dir <- paste0(
+        "data/scenarios/sensitivity_soil_litter/config/",
+        idx
+      )
+      if (!dir.exists(config_dir)) {
+        dir.create(config_dir)
+      }
+      build_config(
+        requested_modules = c(
+          "core",
+          "abiotic_simple",
+          "hydrology",
+          "plants",
+          "animal",
+          "soil",
+          "litter"
+        ),
+        core = x,
+        plants = plants,
+        animal = animal,
+        path = config_dir
+      )
+      # Copy over soil microbial config that does not change across scenarios
+      file.copy(
+        "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml",
+        config_dir
+      )
+    },
+    build_config = build_config,
+    write_toml = toml::write_toml,
+    export_config = export_config,
+    plants = plants,
+    animal = animal
+  )
 )
 
 daemons(0)
