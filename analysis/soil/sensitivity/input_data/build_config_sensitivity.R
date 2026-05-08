@@ -61,8 +61,8 @@ core_list <-
           run_length = "11 years"
         ),
         data_output_options = list(
-          save_initial_state = FALSE,
-          save_continuous_data = FALSE
+          save_initial_state = TRUE,
+          save_continuous_data = TRUE
         ),
         data = list(variable = data_path)
       )
