@@ -1,5 +1,6 @@
 library(tidyverse)
 library(mirai)
+source("tools/R/ve_run.R")
 
 
 # file paths
@@ -16,30 +17,27 @@ paths <- data.frame(config = config_paths, out = out_paths)
 path_list <- split(paths, 1:nrow(paths))
 
 # run VE
-daemons(5)
+daemons(128)
 
 ve_runs <- map(
   path_list,
-  # in_parallel(
-  \(path) {
-    # argument string
-    args <- c(
-      path$config,
-      "--out",
-      path$out,
-      "--logfile",
-      paste0(path$out, "/logfile.log"),
-      "--config",
-      "core.debug.truncate_run_at_update=24"
-    )
+  in_parallel(
+    \(path) {
+      # argument string
+      args <- c(
+        path$config,
+        "--out",
+        path$out,
+        "--logfile",
+        paste0(path$out, "/logfile.log"),
+        "--config",
+        "core.debug.truncate_run_at_update=12"
+      )
 
-    source("tools/R/ve_run.R")
-
-    tictoc::tic()
-    ve_run(args, venv = "./ve_develop")
-    tictoc::toc()
-  }
-  # )
+      ve_run(args, venv = "./ve_develop")
+    },
+    ve_run = ve_run
+  )
 )
 
 daemons(0)
