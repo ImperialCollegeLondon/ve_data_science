@@ -39,7 +39,6 @@ ruff = "^0.9.3"
 shapely = "^2.1.1"
 tomli-w = "^1.2.0"
 types-pyyaml = "^6.0.12.20250516"
-ve_data_science_tool = {git = "https://github.com/ImperialCollegeLondon/ve_data_science_tool.git", branch = "main"}
 xarray = {extras = ["io"], version = "^2025.7.1"}
 
 [build-system]
