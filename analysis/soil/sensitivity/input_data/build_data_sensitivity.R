@@ -51,7 +51,7 @@ range_maliau <-
 # to efficiency sample the variable space of soil and litter data
 
 maliau_vars_init <- range_maliau$variable
-n_sample <- 5
+n_sample <- 100
 mat <- sobol_matrices(
   N = n_sample,
   params = maliau_vars_init,
@@ -136,7 +136,7 @@ dimnames <- list(
   element = c("C", "N", "P")
 )
 
-sobol_df[1:5, ] |>
+sobol_df |>
   mutate(row_id = row_number()) |>
   group_split(row_id) |>
   imap(\(x, idx) {
