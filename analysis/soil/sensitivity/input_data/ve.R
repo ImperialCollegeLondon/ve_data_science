@@ -29,9 +29,7 @@ ve_runs <- map(
         "--out",
         path$out,
         "--logfile",
-        paste0(path$out, "/logfile.log"),
-        "--config",
-        "core.debug.truncate_run_at_update=12"
+        paste0(path$out, "/logfile.log")
       )
 
       ve_run(args, condaenv = "hpc_jobs/virtual_ecosystem_py314")
