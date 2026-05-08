@@ -34,7 +34,7 @@ ve_runs <- map(
         "core.debug.truncate_run_at_update=12"
       )
 
-      ve_run(args, venv = "./ve_develop")
+      ve_run(args, venv = "hpc_jobs/virtual_ecosystem_py314")
     },
     ve_run = ve_run
   )
