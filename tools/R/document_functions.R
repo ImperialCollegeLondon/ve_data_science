@@ -3,6 +3,8 @@
 # Retrieved 2026-05-08, License - CC BY-SA 3.0
 
 library(roxygen2)
+library(roxygen2md)
+
 tools_dir <- "tools/R"
 rfiles <- list.files(tools_dir, full.names = TRUE)
 
@@ -16,15 +18,5 @@ parsed <- list(env = env, blocks = blocks)
 
 
 ############################
-roclet_preprocess(blocks[[1]])
-
-# parse roxygen comments into rd files and output then into the "./man" directory
-roc <- rd_roclet()
-results <- roc_process(roc, parsed, tools_dir)
-roc_output(
-  roc,
-  results,
-  mydir,
-  options = list(wrap = FALSE),
-  check = FALSE
-)
+foo <- blocks[[1]] |> roxygen2:::block_to_rd(env = env)
+foo$format() |> markdownify()
