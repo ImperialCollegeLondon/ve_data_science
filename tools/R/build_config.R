@@ -30,6 +30,8 @@
 #' input any user-specified settings to each module. Module-named arguments
 #' that are left blank will use default settings.
 #'
+#' @name build_config
+#'
 #' @param requested_modules A character vector of requested modules. Can be
 #'   any of "core", "abiotic", "hydrology", "plants", "animal", "soil" and
 #'   "litter".
