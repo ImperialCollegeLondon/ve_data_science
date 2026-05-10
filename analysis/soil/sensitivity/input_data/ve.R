@@ -32,7 +32,14 @@ ve_runs <- map(
         paste0(path$out, "/logfile.log")
       )
 
-      ve_run(args, condaenv = "hpc_jobs/virtual_ecosystem_py314")
+      tryCatch(
+        {
+          ve_run(args, condaenv = "hpc_jobs/virtual_ecosystem_py314")
+        },
+        error = function(e) {
+          message("Error encountered during a run, see log.")
+        }
+      )
     },
     ve_run = ve_run
   )
