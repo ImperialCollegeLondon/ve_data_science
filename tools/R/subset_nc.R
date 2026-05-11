@@ -30,7 +30,7 @@
 #' @param ll_y Lower limit of the y or longitudinal dimension.
 #' @param ur_x Upper limit of the x or longitudinal dimension.
 #' @param ur_y Upper limit of the y or longitudinal dimension.
-#' @param cell_id
+#' @param cell_ids Numeric vector of cell_id's for subsetting.
 #' @param ... Additional arguments passed to convert_array_to_nc()
 #'
 #' @returns A subset netCDF file written to disk as per filename when close.nc is TRUE.
@@ -77,12 +77,18 @@ subset_array <- function(
         is.null(cell_ids))
   )
 
-  # filter data to region of interest
-  tidync(nc) |>
-    hyper_filter(
-      x = x > ll_x & x < ur_x,
-      y = y > ll_y & y < ur_y
-    ) |>
-    # Retrieve all variables from the subsetted data
-    get_all_variables()
+  # filter data to region of interest and then retrieve all variables from the
+  # subsetted data
+  if (is.null(cell_ids)) {
+    tidync(nc) |>
+      hyper_filter(
+        x = x > ll_x & x < ur_x,
+        y = y > ll_y & y < ur_y
+      ) |>
+      get_all_variables()
+  } else {
+    tidync(nc) |>
+      hyper_filter(cell_id = cell_id %in% cell_ids) |>
+      get_all_variables()
+  }
 }
