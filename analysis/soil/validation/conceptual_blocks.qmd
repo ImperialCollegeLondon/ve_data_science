@@ -34,20 +34,20 @@ Even if abiotic inputs and outputs have a clear time mapping, the abiotic valida
 
 ::: {.callout-note}
 ## Team comments:
-Bai: 
+Bai:
 
-- Animal validation data are also unlikely to match the exact simulation start and end dates. 
+- Animal validation data are also unlikely to match the exact simulation start and end dates.
 - I'm also wondering whether there are criteria or indicators we should use to identify when the system is sufficiently stabilised for interpretation or validation.
 
 Nick:
 
-- Do we validate our animal population across time, or just validate a snapshot of the population. 
+- Do we validate our animal population across time, or just validate a snapshot of the population.
 - Can we find empirical datasets of population or biomass fluctuations in function of time?
 
 Lela:
 
-- The modules have different response timescales. 
-- Abiotic variables such as temperature, hydrology, or microclimate can respond relatively quickly to short-term climate forcing, whereas variables such as soil carbon pools, nutrient dynamics, or vegetation structure may evolve much more slowly over time. 
+- The modules have different response timescales.
+- Abiotic variables such as temperature, hydrology, or microclimate can respond relatively quickly to short-term climate forcing, whereas variables such as soil carbon pools, nutrient dynamics, or vegetation structure may evolve much more slowly over time.
 - Therefore validation/calibration approaches that are appropriate for fast abiotic processes may not necessarily work well for slower ecological processes, especially in the absence of a dedicated spin-up or equilibration phase.
 
 Jacob:
@@ -67,7 +67,7 @@ That said, if we validate soil on external dataset A and animal on external data
 Arne:
 
 - I think the goal for the Maliau scenario is to model the ecosystem (i.e., intact primary), rather than trying to validate Maliau exactly.
-- Perhaps it helps to separate whether we're validating a model-specific process, or the overall VE simulation as a whole. 
+- Perhaps it helps to separate whether we're validating a model-specific process, or the overall VE simulation as a whole.
 - For model-specific processes, I think it's fine to use different datasets (i.e., your example of datasets A and B), because the goal here (I think) should be to calibrate the process/science within the specific model, we don't necessarily need to focus here on how the interaction with other models.
 - For validating the VE simulation as a whole, these interactions become more important.
 
@@ -83,12 +83,12 @@ Lela:
 
 Bai:
 
-- No two primary/intact forests are ever truly the same. 
+- No two primary/intact forests are ever truly the same.
 - Perhaps the first step is defining the validation target itself, then identifying which ecological factors are most likely to influence that target, and only after that deciding whether an external dataset such as Danum is appropriate.
 
-Nick: 
+Nick:
 
-- So we have a concensus of Maliau as a representation of intact forests. 
+- So we have a concensus of Maliau as a representation of intact forests.
 - However, if we then validate Danum, a similar intact tropical forest, how much would our validation datasets differ? I guess not so much.
 - Likewise, if we validate the Maliau scenario onto global test dataset, and then redo for the SAFE scenario, then what does it mean to use the same global dataset twice?
 
@@ -145,7 +145,7 @@ Arne:
 
 Nick:
 
-- At the moment for animals, I would say the collection of validation datasets and its ideas have been on emergent properties. They could be population turnover, growth rate, time to maturity, movement (which might be ambitious), trophic mass flow... 
+- At the moment for animals, I would say the collection of validation datasets and its ideas have been on emergent properties. They could be population turnover, growth rate, time to maturity, movement (which might be ambitious), trophic mass flow...
 - I am currently looking at building a trophic network to potentially explore network properties and energy flow.
 
 :::
