@@ -69,6 +69,9 @@ for (var in maliau_vars_init) {
     mat[, var] * (max - min) + min
 }
 
+# output the Sobol matrix for reuse in downstream analysis
+write_rds(mat, paste0(out_dir, "sobol_matrix.rds"))
+
 # convert to dataframe, and then combine CNP into triplet columns
 # simple function to merge triplet
 merge_triplet <- function(C, N, P) {
