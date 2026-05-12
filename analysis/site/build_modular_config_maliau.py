@@ -19,7 +19,7 @@ description: |
     - soil_microbial_groups.toml
 
   The script also:
-    - loads plant constants from CSV files
+    - loads plant constants from a CSV file
     - generates scenario-specific file naming
     - creates modular VE configuration structures
     - automatically writes TOML files to scenario output directories
