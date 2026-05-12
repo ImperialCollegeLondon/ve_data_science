@@ -347,7 +347,7 @@ with open(
 print(f"written: {data_config_file}")
 
 # =============================================================================
-# Generate animal _config.toml
+# Generate animal_config.toml
 # =============================================================================
 # Generate the VE animal module configuration file
 # including cohort export settings and attributes.
