@@ -1,0 +1,20 @@
+---
+title: "The Virtual Ecosystem data science repository"
+format: html
+---
+
+This is an initial landing page for the Virtual Ecosystem data science repository. As
+more content moves into these documents, this page will be expanded to give an overview.
+
+Manuals:
+
+- [Getting started](manual/getting_started.qmd)
+- [GitHub overview](manual/github_overview.qmd)
+- [Using GLOBUS](manual/using_globus.qmd)
+- [Uploading R scripts](manual/uploading_r_scripts.qmd)
+- [What are those odd files?](manual/what_are_those_odd_files.qmd)
+
+Experimental report workflow:
+
+- [Example python quarto](experimental/Example_python.qmd)
+- [Example R quarto](experimental/Example_R.qmd)

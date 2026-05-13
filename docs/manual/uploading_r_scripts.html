@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Experimental notebook – VE data science</title>
+<title>Uploading an R Script to a GitHub Repository – VE data science</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -105,12 +105,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script async="" src="https://hypothes.is/embed.js"></script>
-<script>
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    document.body.classList.add('hypothesis-enabled');
-  });
-</script>
 
 
 </head>
@@ -195,7 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Experimental notebook</h1>
+<h1 class="title">Uploading an R Script to a GitHub Repository</h1>
 </div>
 
 
@@ -212,37 +206,179 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This is an experimental notebook</p>
-<div id="591fd685" class="cell" data-execution_count="1">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a code cell</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
+<p>(This text was written by <span class="citation" data-cites="arne-exe">@arne-exe</span> and is copied directly from <a href="https://github.com/ImperialCollegeLondon/ve_data_science/issues/22#issuecomment-2740835471" class="uri">https://github.com/ImperialCollegeLondon/ve_data_science/issues/22#issuecomment-2740835471</a>)</p>
+<p>These notes should help guide you through uploading an R script to a GitHub repository using Git, Visual Studio Code (VSC), and best practices for version control, branch management, and code formatting</p>
+<section id="prerequisites" class="level2">
+<h2 class="anchored" data-anchor-id="prerequisites">✅ Prerequisites</h2>
+<p>Before you start, make sure you have the following in place:</p>
+<ul>
+<li>Git is installed and configured</li>
+<li>You have access to the ve_data_science GitHub repository</li>
+<li>R (at least version 4.4.2) is installed and added to your system PATH</li>
+<li>Visual Studio Code (VSC) is installed, with Git integration enabled</li>
+<li>Pre-commit hooks are installed</li>
+</ul>
+</section>
+<section id="create-a-github-issue" class="level2">
+<h2 class="anchored" data-anchor-id="create-a-github-issue">1️⃣ Create a GitHub Issue</h2>
+<ul>
+<li>In your GitHub repository, create a new <strong>Issue</strong> describing your task, e.g., <strong>“Uploading script X”</strong>. This helps track your work and adds context for collaborators.</li>
+</ul>
+</section>
+<section id="prepare-your-local-repository" class="level2">
+<h2 class="anchored" data-anchor-id="prepare-your-local-repository">2️⃣ Prepare Your Local Repository</h2>
+<ul>
+<li><p>Clone the repository (if not done already).</p></li>
+<li><p>Navigate into the cloned folder and open it in <strong>Visual Studio Code</strong></p></li>
+<li><p>Check the status of the repository and update it from the remote repository</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>These commands ensure your local <code>main</code> branch is up to date.</p></li>
+</ul>
+</section>
+<section id="create-a-new-branch" class="level2">
+<h2 class="anchored" data-anchor-id="create-a-new-branch">&nbsp;3️⃣ Create a New Branch</h2>
+<p>Create a new branch for your changes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> meaningful-branch-name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use a descriptive name like <code>uploading_t_model_parameters_script</code>, not a generic name like <code>my_feature_branch</code>.</p>
+</section>
+<section id="make-your-changes" class="level2">
+<h2 class="anchored" data-anchor-id="make-your-changes">4️⃣ Make Your Changes</h2>
+<ul>
+<li>Create any new folders under <code>data</code> or <code>analysis</code>.</li>
+<li>Use the <strong>template scripts</strong> provided in the repository.
+</li>
+<li>Move your R script into the appropriate folder.
+</li>
+<li>Ensure local datasets are placed in correct subfolders within <code>data/</code>.</li>
+</ul>
+</section>
+<section id="stage-and-commit-changes" class="level2">
+<h2 class="anchored" data-anchor-id="stage-and-commit-changes">5️⃣ Stage and Commit Changes</h2>
+<p>Check what’s changed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Stage your files:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add path/to/script.R</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Commit your changes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Uploading script X"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="handle-pre-commit-checks" class="level2">
+<h2 class="anchored" data-anchor-id="handle-pre-commit-checks">6️⃣ Handle Pre-commit Checks</h2>
+<p>If the commit fails due to pre-commit hook issues then fix the issues, re-add the updated files and re-commit the changes. Some common problems and fixes:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Error</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rscript not found</td>
+<td>Add R to system environment PATH</td>
+</tr>
+<tr class="even">
+<td>Air formatter issues</td>
+<td>Follow suggested fixes or use # fmt: skip where appropriate</td>
+</tr>
+<tr class="odd">
+<td>Variable/function names too long</td>
+<td>Rename using snake_case, max 30 characters</td>
+</tr>
+<tr class="even">
+<td>Lines &gt; 88 characters</td>
+<td>Reformat or split lines carefully</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<p>We’re going to do some stuff</p>
-<div id="e0bba358" class="cell" data-execution_count="2">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.random.uniform(size<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.random.uniform(size<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>plt.scatter(x, y)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"A variable"</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Another variable"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Example_python_files/figure-html/cell-3-output-1.png" width="662" height="470" class="figure-img"></p>
-</figure>
+<div class="callout-title-container flex-fill">
+Tip
 </div>
 </div>
+<div class="callout-body-container callout-body">
+<p>Use <strong>VS Code’s syntax highlighting</strong> and <strong>Ctrl + Click</strong> to quickly navigate and fix code issues.</p>
 </div>
+</div>
+</section>
+<section id="push-your-branch" class="level2">
+<h2 class="anchored" data-anchor-id="push-your-branch">&nbsp;7️⃣ Push Your Branch</h2>
+<p>Once your commit passes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin your-branch-name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="create-a-pull-request-pr" class="level2">
+<h2 class="anchored" data-anchor-id="create-a-pull-request-pr">8️⃣ Create a Pull Request (PR)</h2>
+<ul>
+<li>Go to your GitHub repo</li>
+<li>Click <strong>“Compare &amp; pull request”</strong></li>
+<li>Add a title and description</li>
+<li>Assign reviewers and submit</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Any new commits pushed to this branch automatically update the same PR — no need to create a new one.</p>
+</div>
+</div>
+</section>
+<section id="address-review-feedback" class="level2">
+<h2 class="anchored" data-anchor-id="address-review-feedback">9️⃣ Address Review Feedback</h2>
+<p>If your reviewer suggests changes:</p>
+<p>Edit your script locally (while still being on the same branch) Commit and push again:</p>
+<section id="on-relative-paths" class="level3">
+<h3 class="anchored" data-anchor-id="on-relative-paths">On Relative Paths</h3>
+<p>Avoid hardcoded system paths like <code>C:/Users/...</code>. Use relative paths:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"../../../data/primary/plant/tree_census/tree_census_11_20.xlsx"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>../</code> moves one directory up.</li>
+<li>Always ensure you’re working in the correct working directory (e.g., by opening the script directly or by setting the working directory manually).</li>
+</ul>
+</section>
+</section>
+<section id="final-merge-cleanup" class="level2">
+<h2 class="anchored" data-anchor-id="final-merge-cleanup">🔐 Final Merge &amp; Cleanup</h2>
+<p>Once the PR is approved</p>
+<ul>
+<li>Merge it via GitHub</li>
+<li>Update your local <code>main</code>:</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout main</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Clean up your feature branch (optional):</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-d</span> your-branch-name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="collaboration-best-practices" class="level2">
+<h2 class="anchored" data-anchor-id="collaboration-best-practices">🤝 Collaboration Best Practices</h2>
+<ul>
+<li>Always pull latest changes before starting new work</li>
+<li>Keep commits clear and descriptive</li>
+<li>Never push directly to <code>main</code></li>
+<li>Communicate clearly in PRs and commit messages</li>
+<li>Ask for help if <code>lintr</code> feedback is confusing — even paste the code into ChatGPT for help!</li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

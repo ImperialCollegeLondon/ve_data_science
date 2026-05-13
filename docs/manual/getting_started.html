@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Experimental notebook – VE data science</title>
+<title>Getting started with the ve_data_science repository – VE data science</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -105,12 +105,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script async="" src="https://hypothes.is/embed.js"></script>
-<script>
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    document.body.classList.add('hypothesis-enabled');
-  });
-</script>
 
 
 </head>
@@ -195,7 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Experimental notebook</h1>
+<h1 class="title">Getting started with the <code>ve_data_science</code> repository</h1>
 </div>
 
 
@@ -212,37 +206,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This is an experimental notebook</p>
-<div id="591fd685" class="cell" data-execution_count="1">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a code cell</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<p>We’re going to do some stuff</p>
-<div id="e0bba358" class="cell" data-execution_count="2">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.random.uniform(size<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.random.uniform(size<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>plt.scatter(x, y)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"A variable"</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Another variable"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Example_python_files/figure-html/cell-3-output-1.png" width="662" height="470" class="figure-img"></p>
-</figure>
+<div class="callout-title-container flex-fill">
+Important
 </div>
 </div>
+<div class="callout-body-container callout-body">
+<p>This is a draft document</p>
 </div>
+</div>
+<p>This is a how to guide to getting started with the <code>ve_data_science</code> repository</p>
+<section id="getting-the-repository" class="level2">
+<h2 class="anchored" data-anchor-id="getting-the-repository">Getting the repository</h2>
+<p>The first step is to clone the repository. If you do not already have <code>git</code> then you will need to install it:</p>
+<p><a href="https://git-scm.com/downloads" class="uri">https://git-scm.com/downloads</a></p>
+<p>Next, in your terminal, change directory to the location where you want the repository to live and then run the following command.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/ImperialCollegeLondon/ve_data_science.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That will create a new directory called <code>ve_data_science</code> that contains all of the current files, all of the changes ever made to those files. It also contains the details of all of the branches containing active versions of the code that differ from the core <code>main</code> branch. Those changes are hidden away in the <code>.git</code> folder.</p>
+<p>See the <a href="../manual/github_overview.html">GitHub Overview</a> for details on working with Git and GitHub.</p>
+</section>
+<section id="setting-up-the-repository-for-use" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-the-repository-for-use">Setting up the repository for use</h2>
+<p>However, we use a number of quality assurance tools (QA) to help manage the code files and documents within this repository. You also need to do the following to get this set up working and make the most of working with VSCode, if that is the editor tool you want to use.</p>
+<ol type="1">
+<li><p>Install python if needed. You probably already have this since it is needed to run <code>virtual_ecosystem</code>!</p></li>
+<li><p>Install <code>poetry</code>. This is a python package manager, which we are using here to maintain a set of Python tools that are likely to be used within the project. Follow the command line instructions on the <a href="https://python-poetry.org/docs/#installing-with-the-official-installer">poetry installation page</a>.</p></li>
+<li><p>In the command line, run <code>poetry install</code>. This will install the recommended python packages, which includes the <code>radian</code> front-end for R, the <code>xarray</code> package for handling NetCDF data and the <code>pre-commit</code> framework for running code quality checks on changes being committed to the repository. The <code>poetry</code> tool creates a new Python environment that is specific to this project.</p></li>
+<li><p>If you are using Visual Studio Code, then it needs to know which python setup to use for running Python code and for running Python code quality tools. This is done by setting the Python interpreter path to match the one that <code>poetry</code> just created:</p>
+<ul>
+<li>Run <code>poetry env list --full-path</code>, copy the result and then either add <code>/bin/python</code> (on MacOS or Linux) or <code>\Scripts\python.exe</code> (on Windows) to the end. For example: <code>/Users/dorme/Library/Caches/pypoetry/virtualenvs/ve-data-science-ND1juKN--py3.12/bin/python</code></li>
+<li>In the VSCode menus, select View &gt; Command Palette and then enter <code>interpreter</code> in the box to find the <code>Python: Select Interpreter</code> command. Click on <code>Enter interpreter path</code> and paste in the path from above.</li>
+</ul></li>
+<li><p>You now need to setup the <code>pre-commit</code> tool, which is used to run a standard set of checks on files when <code>git commit</code> is run. At the command line, enter:</p>
+<p><code>poetry run pre-commit install</code></p>
+<p>This command can take quite a long time to run - among other things, it is installing a separate version of R just to be used for file checking!</p></li>
+<li><p>If you do not have R 4.4 installed, you will now need to install it.</p></li>
+<li><p>You now need to configure VSCode to work with R. This involves changing some of the settings so that it [TBD]</p></li>
+</ol>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

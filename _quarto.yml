@@ -1,16 +1,27 @@
 project:
   type: website
   output-dir: docs
+  render:
+    - experimental/
+    - manual/
+    - index.qmd
 
 website:
-  title: "The Virtual Ecosystem data science repository"
+  title: "VE data science"
   description: "The Virtual Ecosystem data science repository"
   navbar:
     background: primary
     search: true
     left:
-      - href: index.md
-        text: "Home"
+      - text: "Home"
+        href: index.qmd
+      - text: "Manuals"
+        menu:
+          - manual/getting_started.qmd
+          - manual/github_overview.qmd
+          - manual/using_globus.qmd
+          - manual/uploading_r_scripts.qmd
+          - manual/what_are_those_odd_files.qmd
     tools:
       - icon: github
         menu:
@@ -18,6 +29,7 @@ website:
             href: https://github.com/ImperialCollegeLondon/ve_data_science
           - text: Report an issue
             href: https://github.com/ImperialCollegeLondon/ve_data_science/issues
+  page-navigation: true
 
 format:
   html:

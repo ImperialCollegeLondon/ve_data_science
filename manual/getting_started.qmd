@@ -1,13 +1,11 @@
-# Getting started with the `ve_data_science` repository
+---
+title: "Getting started with the `ve_data_science` repository"
+format: html
+---
 
-<!-- markdownlint-disable MD046 -->
-<!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
-indented content of the admonition is code. It then complains about the mixture of
-fenced code blocks (e.g. ```sh) and indented code blocks.-->
-
-!!! IMPORTANT
-
-    This is a draft document
+::: {.callout-important}
+This is a draft document
+:::
 
 This is a how to guide to getting started with the `ve_data_science` repository
 
@@ -30,7 +28,7 @@ current files, all of the changes ever made to those files. It also contains the
 of all of the branches containing active versions of the code that differ from the core
 `main` branch. Those changes are hidden away in the `.git` folder.
 
-See the [GitHub Overview](github_overview.md) for details on working with Git and GitHub.
+See the [GitHub Overview](./github_overview.qmd) for details on working with Git and GitHub.
 
 ## Setting up the repository for use
 

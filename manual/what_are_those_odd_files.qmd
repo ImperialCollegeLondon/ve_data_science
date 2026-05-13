@@ -1,11 +1,13 @@
-# What are all those odd files?
+---
+title: "What are all those odd files?"
+format: html
+---
 
 The `ve_data_science` repository contains an awful lot of odd files that are used for
 configuring the data quality and formatting setup of the repositor. The listing below
 shows all of the key files used to set up the repo and a short description. The list
 includes 'hidden' files, which start with a dot.
 
-<!-- markdownlint-disable MD013 -->
 | File | Description |
 | ---- | ----------- |
 | `.git` | Used by `git` to keep track of all of file changes. Ignore it. |
