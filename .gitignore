@@ -6,7 +6,6 @@
 *.geotiff
 *.jpg
 *.jpeg
-*.png
 *.xlsx
 *.xls
 *.dat
@@ -19,6 +18,7 @@ data/primary
 # we are going to keep metadata files
 data/scenarios/maliau/maliau_1
 data/scenarios/maliau/maliau_2
+data/scenarios/sensitivity_soil_litter
 
 # notebooks
 analysis/soil/validation/*html
@@ -555,3 +555,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+/.quarto/
+**/*.quarto_ipynb
