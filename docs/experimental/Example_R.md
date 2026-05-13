@@ -1,23 +1,16 @@
----
-title: "Experimental notebook"
-format:
-  html:
-    code-fold: true
-  gfm: default
-comments:
-  hypothesis: true
----
+# Experimental notebook
+
 
 This is an experimental notebook
 
-```{r}
+``` r
 # This is a code cell
 library(MASS)
 ```
 
-We're going to do some stuff
+We’re going to do some stuff
 
-```{r}
+``` r
 x <- runif(100)
 y <- runif(100)
 
@@ -28,3 +21,5 @@ plot(
   ylab = "Another variable"
 )
 ```
+
+![](Example_R_files/figure-commonmark/unnamed-chunk-2-1.png)
