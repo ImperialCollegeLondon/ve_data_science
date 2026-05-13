@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "experimental/Example_R.html",
+    "href": "experimental/Example_R.html",
+    "title": "Experimental notebook",
+    "section": "",
+    "text": "This is an experimental notebook\n\n# This is a code cell\nlibrary(MASS)\n\nWe’re going to do some stuff\n\nx &lt;- runif(100)\ny &lt;- runif(100)\n\nplot(\n  x,\n  y,\n  xlab = \"A variable\",\n  ylab = \"Another variable\"\n)"
+  },
+  {
+    "objectID": "experimental/Example_python.html",
+    "href": "experimental/Example_python.html",
+    "title": "Experimental notebook",
+    "section": "",
+    "text": "This is an experimental notebook\n\n# This is a code cell\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nWe’re going to do some stuff\n\nx = np.random.uniform(size=100)\ny = np.random.uniform(size=100)\n\nplt.scatter(x, y)\nplt.xlabel(\"A variable\")\nplt.ylabel(\"Another variable\")\nplt.tight_layout()"
+  }
+]
