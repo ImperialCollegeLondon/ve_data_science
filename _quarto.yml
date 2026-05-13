@@ -1,3 +1,26 @@
 project:
   type: website
   output-dir: docs
+
+website:
+  title: "The Virtual Ecosystem data science repository"
+  description: "The Virtual Ecosystem data science repository"
+  navbar:
+    background: primary
+    search: true
+    left:
+      - href: index.md
+        text: "Home"
+    tools:
+      - icon: github
+        menu:
+          - text: Source code
+            href: https://github.com/ImperialCollegeLondon/ve_data_science
+          - text: Report an issue
+            href: https://github.com/ImperialCollegeLondon/ve_data_science/issues
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
