@@ -1,25 +1,17 @@
----
-title: "Experimental notebook"
-format: 
-  html:
-    code-fold: true
-  gfm: default
-jupyter: python3
-comments:
-  hypothesis: true
----
+# Experimental notebook
+
 
 This is an experimental notebook
 
-```{python}
+``` python
 # This is a code cell
 import matplotlib.pyplot as plt
 import numpy as np
 ```
 
-We're going to do some stuff
+We’re going to do some stuff
 
-```{python}
+``` python
 x = np.random.uniform(size=100)
 y = np.random.uniform(size=100)
 
@@ -28,3 +20,5 @@ plt.xlabel("A variable")
 plt.ylabel("Another variable")
 plt.tight_layout()
 ```
+
+![](Example_python_files/figure-commonmark/cell-3-output-1.png)
