@@ -20,7 +20,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
   vertical-align: middle;
 }
 </style>
@@ -92,34 +92,34 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../index.html"> 
+    <a class="nav-link" href="../index.html">
 <span class="menu-text">Home</span></a>
-  </li>  
+  </li>
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-manuals" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Manuals</span>
     </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-manuals">    
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-manuals">
         <li>
     <a class="dropdown-item" href="../manual/getting_started.html">
  <span class="dropdown-text">Getting started with the <code>ve_data_science</code> repository</span></a>
-  </li>  
+  </li>
         <li>
     <a class="dropdown-item" href="../manual/github_overview.html">
  <span class="dropdown-text">Github Overview</span></a>
-  </li>  
+  </li>
         <li>
     <a class="dropdown-item" href="../manual/using_globus.html">
  <span class="dropdown-text">Using GLOBUS</span></a>
-  </li>  
+  </li>
         <li>
     <a class="dropdown-item" href="../manual/uploading_r_scripts.html">
  <span class="dropdown-text">Uploading an R Script to a GitHub Repository</span></a>
-  </li>  
+  </li>
         <li>
     <a class="dropdown-item" href="../manual/what_are_those_odd_files.html">
  <span class="dropdown-text">What are all those odd files?</span></a>
-  </li>  
+  </li>
     </ul>
   </li>
 </ul>
@@ -148,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -161,11 +161,11 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-title-meta">
 
-    
-  
-    
+
+
+
   </div>
-  
+
 
 
 </header>
@@ -281,7 +281,7 @@ collection.</code></pre>
     anchorJS.add('.anchored');
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
+        if (clz.startsWith('code-annotation-')) {
           return true;
         }
       }
@@ -301,11 +301,11 @@ collection.</code></pre>
         button.setAttribute("data-bs-toggle", "tooltip");
         button.setAttribute("data-bs-placement", "left");
         button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
+        tooltip = new bootstrap.Tooltip(button,
+          { trigger: "manual",
             customClass: "code-copy-button-tooltip",
             offset: [0, -8]});
-        tooltip.show();    
+        tooltip.show();
       }
       setTimeout(function() {
         if (tooltip) {
@@ -382,7 +382,7 @@ collection.</code></pre>
       if (onUntriggerFn) {
         config.onUntrigger = onUntriggerFn;
       }
-      window.tippy(el, config); 
+      window.tippy(el, config);
     }
     const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
     for (var i=0; i<noterefs.length; i++) {
@@ -457,7 +457,7 @@ collection.</code></pre>
       tippyHover(xref, undefined, function(instance) {
         instance.disable();
         let url = xref.getAttribute('href');
-        let hash = undefined; 
+        let hash = undefined;
         if (url.startsWith('#')) {
           hash = url;
         } else {
@@ -485,7 +485,7 @@ collection.</code></pre>
               if (note !== null) {
                 const html = processXRef(id, note);
                 instance.setContent(html);
-              } 
+              }
             }).finally(() => {
               instance.enable();
               instance.show();
@@ -509,7 +509,7 @@ collection.</code></pre>
               }
               const html = processXRef(null, note);
               instance.setContent(html);
-            } 
+            }
           }).finally(() => {
             instance.enable();
             instance.show();
@@ -549,7 +549,7 @@ collection.</code></pre>
               height = bottom - top;
             }
             if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
+              // cook up a div (if necessary) and position it
               let div = window.document.getElementById("code-annotation-line-highlight");
               if (div === null) {
                 div = window.document.createElement("div");
