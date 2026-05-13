@@ -1,6 +1,6 @@
 ---
 title: "Experimental notebook"
-format: 
+format:
   html:
     code-fold: true
 comments:
