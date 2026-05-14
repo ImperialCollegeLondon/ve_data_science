@@ -40,4 +40,4 @@ merged <- map(
   list_rbind()
 daemons(0)
 
-write_csv(merged, file.path(out_path, "all_continuous_data_merged.nc"))
+write_csv(merged, file.path(out_path, "all_continuous_data_merged.csv"))
