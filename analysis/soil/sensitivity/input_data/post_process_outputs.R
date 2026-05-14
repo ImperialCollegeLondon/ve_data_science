@@ -4,7 +4,7 @@ library(tidync)
 library(futurize)
 source("tools/R/get_all_variables.R")
 
-# plan(future.batchtools::batchtools_torque)
+plan(future.batchtools::batchtools_torque)
 
 out_path <- "data/scenarios/sensitivity_soil_litter/out"
 out_files <- list.files(out_path, "all_continuous_data.nc", recursive = TRUE)
@@ -31,10 +31,9 @@ merged <- map(
         remove = TRUE
       ) |>
       select(-cell_id)
-  },
-  .progress = TRUE
+  }
 ) |>
-  futurize() |>
+  futurize(options = futurize_options(packages = c("purrr"))) |>
   list_rbind()
 
 write_csv(merged, file.path(out_path, "all_continuous_data_merged.nc"))
