@@ -4,7 +4,7 @@ library(tidync)
 library(futurize)
 source("tools/R/get_all_variables.R")
 
-plan(future.batchtools::batchtools_torque)
+# plan(future.batchtools::batchtools_torque)
 
 out_path <- "data/scenarios/sensitivity_soil_litter/out"
 out_files <- list.files(out_path, "all_continuous_data.nc", recursive = TRUE)
