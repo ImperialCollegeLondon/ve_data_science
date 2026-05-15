@@ -55,39 +55,49 @@ source("tools/R/get_all_variables.R")
 source("tools/R/summarise_spatial.R")
 
 
-# some directory paths
+# input and output directory paths
 in_dir <- "data/scenarios/maliau/maliau_1/data/"
 out_dir <- "data/scenarios/sensitivity_soil_litter/data/"
 
 
 # Maliau input data -------------------------------------------------------
-
+# the site definition
 maliau_1 <-
   read_toml("data/derived/site/maliau/maliau_grid_definition.toml") |>
   pluck("Scenario") |>
   pluck("maliau_1")
 
+# soil and litter input data for the maliau_2 scenario
 dat_maliau <- list(
   soil = tidync(paste0(in_dir, "soil_maliau.nc")),
   litter = tidync(paste0(in_dir, "litter_maliau.nc"))
 )
 
+# get the names of soil and litter input variables
 vars_maliau <-
   dat_maliau |>
   map(get_all_variables) |>
   list_c()
 
+# get the range of soil and litter input variables
+# they will be used to rescaled the Sobol sampling matrix to observation scale
+# later; more on this later
 range_maliau <-
+  # get min
   vars_maliau |>
   summarise_spatial(FUN = min) |>
   reshape2::melt(value.name = "min") |>
+  # get max
   left_join(
     vars_maliau |>
       summarise_spatial(FUN = max) |>
       reshape2::melt(value.name = "max")
   ) |>
   # paste variable names with their extra dimension names to treat them as
-  # individual variables
+  # individual variables; for example, litter_pool_above_metabolic_cnp needs
+  # to become litter_pool_above_metabolic_cnp_C,
+  # litter_pool_above_metabolic_cnp_N and litter_pool_above_metabolic_cnp_P to
+  # for their names to be unique
   mutate(
     variable = ifelse(is.na(element), L1, paste(L1, element, sep = "_"))
   ) |>
@@ -98,8 +108,22 @@ range_maliau <-
 # to efficiency sample the variable space of soil and litter data
 # the Sobol matrix should have N * (2 + k) rows
 
+# For more information about the Sobol sampling matrices, see
+# McKay MD, Beckman RJ, Conover WJ (1979). “Comparison of three methods for
+# selecting values of input variables in the analysis of output from a computer
+# code.” Technometrics, 21(2), 239–245. doi:10.1080/00401706.1979.10489755.
+# Sobol' IM (1967). “On the distribution of points in a cube and the approximate
+#  evaluation of integrals.” USSR Computational Mathematics and Mathematical
+# Physics, 7(4), 86–112. doi:10.1016/0041-5553(67)90144-9.
+# Or simply Google for it.
+
+# variable names
 maliau_vars_init <- range_maliau$variable
+
+# number of initial Sobol samples
 n_sample <- 100
+
+# generate the Sobol sampling matrices
 mat <- sobol_matrices(
   N = n_sample,
   params = maliau_vars_init,
@@ -109,6 +133,12 @@ mat <- sobol_matrices(
 )
 
 # rescale to Maliau ranges
+# Because the Sobol sampling matrices generate variables in unit space, with
+# each variable ranging [0, 1]. We need to rescale them back to the observation
+# scale (the scale of the input data variables) simply by making 0 correspond to
+#  min(variable) and 1 correspond to max(variable). The most straightforward
+# backscaling is the inverse function of the normalisation function, which is
+# x * (max(x) - min(x)) - min(x).
 for (var in maliau_vars_init) {
   min <- range_maliau |> filter(variable == var) |> pull(min)
   max <- range_maliau |> filter(variable == var) |> pull(max)
@@ -120,11 +150,13 @@ for (var in maliau_vars_init) {
 write_rds(mat, paste0(out_dir, "sobol_matrix.rds"))
 
 # convert to dataframe, and then combine CNP into triplet columns
+
 # simple function to merge triplet
 merge_triplet <- function(C, N, P) {
   pmap(list(C, N, P), c)
 }
 
+# apply the merge function
 sobol_df <-
   mat |>
   as.data.frame() |>
@@ -178,18 +210,19 @@ sobol_df <-
     .keep = "unused"
   )
 
-# each row will be treated as a single-grid "scenario"
-# so convert the Sobol matrix to a list of single-grid variable arrays, which
-# will be further converted to netCDF input data
+# each row in the Sobol matrix will be treated as a single-grid "scenario"
+# so we convert the Sobol matrix to a list of single-grid variable arrays,
+# which will be further converted to netCDF input data
 dimnames <- list(
   x = maliau_1$cell_x_centres[1],
   y = maliau_1$cell_y_centres[1],
   element = c("C", "N", "P")
 )
 
+# set up the conversion in parallel
 daemons(16)
-
 sobol_df |>
+  # split the Sobol matrix into list row-by-row
   mutate(row_id = row_number()) |>
   group_split(row_id) |>
   imap(in_parallel(
@@ -197,6 +230,8 @@ sobol_df |>
       x |>
         as.list() |>
         list_flatten() |>
+        # determine if there is an extra element dimension, and then convert to
+        # an array according to the right dimensionality
         map(\(dat) {
           if (length(dat) == 1) {
             array(
@@ -216,10 +251,12 @@ sobol_df |>
             )
           }
         }) |>
+        # convert the array to netCDF
         convert_array_to_nc(
           filename = paste0(out_dir, "soil_litter_data_", idx, ".nc")
         )
     },
+    # required objects and namespace
     convert_array_to_nc = convert_array_to_nc,
     create.nc = RNetCDF::create.nc,
     dim.def.nc = RNetCDF::dim.def.nc,
@@ -232,12 +269,17 @@ sobol_df |>
     dimnames = dimnames,
     out_dir = out_dir
   ))
-
 daemons(0)
 
 
 # Generate mean arrays ---------------------------------------------------
-# For other modules, fix their values at spatial averages
+# For other modules, fix their values at spatial averages, so that the
+# sensitivity analysis does not vary them, i.e., we are not doing any
+# sensitivity analysis of these variables.
+# NB: plant input data does not vary across grid, so it is the same as using a
+# spatial average here. Abiotic input data cannot really be used for sensitivity
+# analysis because they are "forcings", which are pre-determined over time
+# (they do not response to other inputs).
 
 # Climate / abiotic data
 tidync(paste0(in_dir, "era5_maliau_2010_2020_100m.nc")) |>
