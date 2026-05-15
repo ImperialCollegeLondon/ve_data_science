@@ -1,3 +1,49 @@
+#| ---
+#| title: |
+#|     Generate datasets for the sensitivity analysis of soil and litter
+#|     input data
+#|
+#| description: |
+#|     This R script generates
+#|
+#| virtual_ecosystem_module: Soil, Litter
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: Input file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       Source (short citation) and a brief explanation of what this input file
+#|       contains and its use case in this script
+#|
+#| output_files:
+#|   - name: Output file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       What the output file contains and its significance, are they used in any other
+#|       scripts?
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - sensobol
+#|     - tidync
+#|     - RNetCDF
+#|     - toml
+#|     - mirai
+#|
+#| source_files:
+#|     - tools/R/convert_array_to_nc.R
+#|     - tools/R/get_all_variables.R
+#|     - tools/R/summarise_spatial.R
+#|
+#| usage_notes: |
+#|   Any known issues or bugs? Future plans for script/extensions or improvements
+#|   planned that should be noted?
+#| ---
+
 library(tidyverse)
 library(sensobol)
 library(tidync)
