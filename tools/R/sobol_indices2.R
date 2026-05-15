@@ -1,3 +1,30 @@
+#| ---
+#| title: Modified sensobol::sobol_indices function to accommodation NAs
+#|
+#| description: |
+#|     Modified sensobol::sobol_indices function to accommodation NAs due to
+#|     failed ve_run simulations. This is only a temporary hack intended for
+#|     sensitivity analyses that inevitably results in some failed runs using
+#|     in-development virtual_ecosystem. The modified parts are basically adding
+#|     the argument `na.rm = TRUE` to functions such as sum, mean, colMeans, var
+#|     etc.
+#|
+#| virtual_ecosystem_module: Soil
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - sensobol
+#|
+#| usage_notes:
+#| ---
+
 sobol_indices2 <- function(
   matrices = c("A", "B", "AB"),
   Y,
