@@ -43,7 +43,10 @@ sens <- map(
 
 
 sens |>
-  filter(sensitivity == "Ti") |>
+  filter(sensitivity == "Ti", !is.na(original)) |>
+  # "normalise" sobol indices for comparative visualisation
+  group_by(Y_var) |>
+  mutate(original_s = original / sd(original)) |>
   ggplot() +
   geom_raster(aes(y = parameters, x = Y_var, fill = original)) +
   scale_fill_viridis_c(option = "cividis", transform = "sqrt") +
