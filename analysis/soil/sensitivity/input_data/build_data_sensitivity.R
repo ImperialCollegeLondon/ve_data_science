@@ -50,6 +50,7 @@ range_maliau <-
 
 # Set up Sobol matrix -----------------------------------------------------
 # to efficiency sample the variable space of soil and litter data
+# the Sobol matrix should have N * (2 + k) rows
 
 maliau_vars_init <- range_maliau$variable
 n_sample <- 100
