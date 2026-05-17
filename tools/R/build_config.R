@@ -43,7 +43,7 @@
 #' @param litter A named list of litter module settings.
 #' @param path Directory to save the output TOML configuration files.
 #'
-#' @notes The nested structure of each module's list need to reflect the
+#' @note The nested structure of each module's list need to reflect the
 #'   TOML hierarchy, so that the lists can be parsed correctly to TOML using
 #'   toml::write_toml.
 #'

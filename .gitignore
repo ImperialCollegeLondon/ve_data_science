@@ -22,6 +22,9 @@ data/scenarios/maliau/maliau_2*
 data/scenarios/sensitivity_soil_litter
 data/scenarios/ve_example
 
+# notebooks
+analysis/soil/validation/*html
+
 # History files
 .Rhistory
 .Rapp.history
