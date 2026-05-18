@@ -1,5 +1,4 @@
 # Empty forest? We need a scenario with persistent animal populations over the simulation period
-
 Lai, Hao Ran
 2026-05-18
 
