@@ -5,7 +5,7 @@ author:
 date: last-modified
 format:
   html:
-    comments: 
+    comments:
       hypothesis: true
 knitr:
   opts_chunk:
@@ -157,7 +157,7 @@ Experimental phase diagram
 
 
 
-Look at histogram 
+Look at histogram
 
 
 ```{r}
