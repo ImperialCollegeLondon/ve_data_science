@@ -1,5 +1,7 @@
 ---
-title: "Empty forest? We need a scenario with persistent animal populations over the simulation period"
+title: |
+  Empty forest? We need a scenario with persistent animal populations over the 
+  simulation period
 author:
   name: Lai, Hao Ran
 date: last-modified
@@ -7,6 +9,11 @@ format:
   html:
     comments: 
       hypothesis: true
+  gfm: default
+  ipynb:
+    execute:
+      eval: true
+      warning: false
 toc: true
 theme: sandstone
 knitr:
