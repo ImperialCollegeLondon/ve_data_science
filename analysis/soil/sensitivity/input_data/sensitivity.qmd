@@ -96,7 +96,7 @@ forcings <-
   ) |>
     list_rbind() |>
     group_by(Y_var) |>
-    # remove in-developement or problematic output variables with NA values or
+    # remove in-development or problematic output variables with NA values or
     # zero variation
     filter(!is.na(original), var(original) != 0) |>
     # "normalise" sobol indices for comparative visualisation
@@ -145,6 +145,7 @@ foo <-
     )
   ) |>
   filter(
+    time_index == 131,
     variable %in%
       c("litter_pool_above_metabolic_cnp_C", "animal_bacteria_consumption")
   ) |>
@@ -154,7 +155,9 @@ foo <-
 
 Experimental phase diagram
 
-
+```{r}
+with(foo, plot(litter_pool_above_metabolic_cnp_C, animal_bacteria_consumption))
+```
 
 
 Look at histogram 
@@ -166,6 +169,13 @@ sens |>
   ggplot() +
   geom_histogram(aes(original))
 ```
+
+Which factor is dominating this uncertainty? 
+
+Are there a few dominating factors or is the uncertainty originating from several factors? 
+
+Do the factors act singularly or in combination with one another?
+
 
 # Reference
 
