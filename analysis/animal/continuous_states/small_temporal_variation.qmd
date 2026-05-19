@@ -5,6 +5,7 @@ author:
 date: last-modified
 format:
   html:
+    minimal: true
     comments: 
       hypothesis: true
   gfm: default
@@ -13,12 +14,13 @@ format:
       eval: true
       warning: false
       enabled: true
+  pdf: default
+  docx: default
 toc: true
 theme: sandstone
 knitr:
   opts_chunk:
     message: false
-    dpi: 300
 code-fold: true
 ---
 
