@@ -6,7 +6,7 @@ date: last-modified
 format:
   html:
     minimal: true
-    comments: 
+    comments:
       hypothesis: true
   gfm: default
   ipynb:
