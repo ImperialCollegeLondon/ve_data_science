@@ -170,9 +170,9 @@ sens |>
   geom_histogram(aes(original))
 ```
 
-Which factor is dominating this uncertainty? 
+Which factor is dominating this uncertainty?
 
-Are there a few dominating factors or is the uncertainty originating from several factors? 
+Are there a few dominating factors or is the uncertainty originating from several factors?
 
 Do the factors act singularly or in combination with one another?
 
