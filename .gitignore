@@ -17,13 +17,18 @@ data/primary
 
 # scenario files (inputs for VE)
 # we are going to keep metadata files
-data/scenarios/maliau/maliau_1
+data/scenarios/maliau/maliau_1*
 data/scenarios/maliau/maliau_2*
 data/scenarios/sensitivity_soil_litter
+data/scenarios/runtime*
 data/scenarios/ve_example
 
 # notebooks
-analysis/soil/validation/*html
+analysis/soil/**/*.html
+analysis/soil/**/*_files/
+
+# Quarto files
+.quarto
 
 # History files
 .Rhistory
