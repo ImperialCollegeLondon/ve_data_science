@@ -5,7 +5,7 @@ author:
 date: last-modified
 format:
   html:
-    comments: 
+    comments:
       hypothesis: true
 knitr:
   opts_chunk:
@@ -160,7 +160,7 @@ with(foo, plot(litter_pool_above_metabolic_cnp_C, animal_bacteria_consumption))
 ```
 
 
-Look at histogram 
+Look at histogram
 
 
 ```{r}
