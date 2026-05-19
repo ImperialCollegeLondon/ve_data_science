@@ -152,13 +152,14 @@ semi-transparent line is a grid cell.
 animal_cohort <- read_csv(
   here("data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv")
 )
-max_cohort_time <- max(animal_cohort$time_index)
+# add one to the time index because python starts from zero
+max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
 </details>
 
 Before proceeding, I checked the animal cohort data and saw that all
-cohorts went extinct after time step 3.
+cohorts went extinct after time step 4.
 
 Following Nick’s suggestion, I also checked the temporal trends in
 resource availability:
@@ -202,7 +203,7 @@ semi-transparent line is a grid cell.
 A few follow-up questions upon seeing the temporal graphs:
 
 - Why do we still see non-zero values in some variables long after all
-  animals have gone extinct since time step 3?
+  animals have gone extinct since time step 4?
 - Presumably these variables are positive only; what do the negative
   values mean? The way they fluctuate almost symmetrically around zero
   makes me suspect that the non-zero values are not true non-zeros but

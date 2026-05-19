@@ -255,10 +255,11 @@ Figure&nbsp;1: Temporal trends in animal state variables. Each semi-transparent 
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>animal_cohort <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv"</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>max_cohort_time <span class="ot">&lt;-</span> <span class="fu">max</span>(animal_cohort<span class="sc">$</span>time_index)</span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># add one to the time index because python starts from zero</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>max_cohort_time <span class="ot">&lt;-</span> <span class="fu">max</span>(animal_cohort<span class="sc">$</span>time_index) <span class="sc">+</span> <span class="dv">1</span></span></code></pre></div>
 </details>
 </div>
-<p>Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step 3.</p>
+<p>Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step 4.</p>
 <p>Following Nick’s suggestion, I also checked the temporal trends in resource availability:</p>
 <div class="cell">
 <details class="code-fold">
@@ -298,7 +299,7 @@ Figure&nbsp;2: Temporal trends in resource state variables. Each semi-transparen
 </div>
 <p>A few follow-up questions upon seeing the temporal graphs:</p>
 <ul>
-<li>Why do we still see non-zero values in some variables long after all animals have gone extinct since time step 3?</li>
+<li>Why do we still see non-zero values in some variables long after all animals have gone extinct since time step 4?</li>
 <li>Presumably these variables are positive only; what do the negative values mean? The way they fluctuate almost symmetrically around zero makes me suspect that the non-zero values are not true non-zeros but numerical imprecision.</li>
 <li>There seems to be some relationship with resource availability. But there is no animal to consume then at later time steps?</li>
 </ul>

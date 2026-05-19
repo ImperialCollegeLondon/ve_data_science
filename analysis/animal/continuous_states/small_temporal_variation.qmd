@@ -111,7 +111,8 @@ animal_cont |>
 animal_cohort <- read_csv(
   here("data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv")
 )
-max_cohort_time <- max(animal_cohort$time_index)
+# add one to the time index because python starts from zero
+max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
 Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step `r max_cohort_time`.
