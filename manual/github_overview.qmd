@@ -1,8 +1,11 @@
-# Github Overview
+---
+title: "Github Overview"
+format: html
+---
 
-!!! IMPORTANT
-
-    This is currently a draft document
+::: {.callout-important}
+This is currently a draft document
+:::
 
 Github is an online platform for code sharing and collaboration. Multiple developers can
 work on a project at once, make changes on their own copy of the code (called a
@@ -147,6 +150,8 @@ over. A few things to remember...
 * Always create new branches off of main. Go into VS Code (or the terminal) and switch
   to the main branch. Pull the latest version before creating a new branch.
 
-!!! NOTE "TODO"
+::: {.callout-note}
+# TODO
 
-    Handling merge conflicts
+Handling merge conflicts
+:::

@@ -1,9 +1,7 @@
-# Uploading an R Script to a GitHub Repository
-
-<!-- markdownlint-disable MD046 -->
-<!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
-indented content of the admonition is code. It then complains about the mixture of
-fenced code blocks (e.g. ```sh) and indented code blocks.-->
+---
+title: "Uploading an R Script to a GitHub Repository"
+format: html
+---
 
 (This text was written by @arne-exe and is copied directly from
 <https://github.com/ImperialCollegeLondon/ve_data_science/issues/22#issuecomment-2740835471>)
@@ -35,7 +33,6 @@ Before you start, make sure you have the following in place:
 * Check the status of the repository and update it from the remote repository
 
     ```sh
-
     git status
     git fetch
     git pull
@@ -93,10 +90,10 @@ Air formatter issues | Follow suggested fixes or use # fmt: skip where appropria
 Variable/function names too long | Rename using snake_case, max 30 characters
 Lines > 88 characters | Reformat or split lines carefully
 
-!!! TIP
-
-    Use **VS Code's syntax highlighting** and **Ctrl + Click** to quickly navigate and
-    fix code issues.
+::: {.callout-tip}
+Use **VS Code's syntax highlighting** and **Ctrl + Click** to quickly navigate and
+fix code issues.
+:::
 
 ##  7️⃣ Push Your Branch
 
@@ -113,10 +110,10 @@ git push -u origin your-branch-name
 * Add a title and description
 * Assign reviewers and submit
 
-!!! TIP
-
-    Any new commits pushed to this branch automatically update the same PR — no need to
-    create a new one.
+::: {.callout-tip}
+Any new commits pushed to this branch automatically update the same PR — no need to
+create a new one.
+:::
 
 ## 9️⃣ Address Review Feedback
 

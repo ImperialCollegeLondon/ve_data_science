@@ -1,0 +1,30 @@
+---
+title: "Experimental notebook"
+format:
+  html:
+    code-fold: true
+  gfm: default
+comments:
+  hypothesis: true
+---
+
+This is an experimental notebook
+
+```{r}
+# This is a code cell
+library(MASS)
+```
+
+We're going to do some stuff
+
+```{r}
+x <- runif(100)
+y <- runif(100)
+
+plot(
+  x,
+  y,
+  xlab = "A variable",
+  ylab = "Another variable"
+)
+```

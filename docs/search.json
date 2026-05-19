@@ -1,0 +1,226 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "The Virtual Ecosystem data science repository",
+    "section": "",
+    "text": "This is an initial landing page for the Virtual Ecosystem data science repository. As more content moves into these documents, this page will be expanded to give an overview.\nManuals:\n\nGetting started\nGitHub overview\nUsing GLOBUS\nUploading R scripts\nWhat are those odd files?\n\nExperimental report workflow:\n\nExample python quarto\nExample R quarto"
+  },
+  {
+    "objectID": "manual/using_globus.html",
+    "href": "manual/using_globus.html",
+    "title": "Using GLOBUS",
+    "section": "",
+    "text": "We are using the GLOBUS system to curate the data used in the Virtual Ecosystem data science repository.\nAt any point, we should be able to re-run analyses by cloning the code from the GitHub repository and then populating the data directory using GLOBUS."
+  },
+  {
+    "objectID": "manual/using_globus.html#globus-overview",
+    "href": "manual/using_globus.html#globus-overview",
+    "title": "Using GLOBUS",
+    "section": "GLOBUS Overview",
+    "text": "GLOBUS Overview\nGLOBUS is a web-based system that provides access to data files.\n\nGLOBUS does not store the files itself - it is not cloud storage - but it provides configured connections to data in existing networked storage.\nGLOBUS also manages access privileges and authentication to connect to data: users register with GLOBUS and can then be granted access to data sets\n\nA single data repository is called a collection. A collection is basically just a configured connection to a particular set of files. Individual users can then be given access to collections. Users can also be made part of a group and that group can be given access to collections.\nFor the VE Data Science team, we are using GLOBUS to connect to a collection of files hosted on the Imperial College London Research Data Store.\nOnce you have logged into the GLOBUS web application, you will end up on a page with a set of different tabs on the left hand side.\n!!! info “Access permissions”\nGlobus frequently requests extra authentication steps. This is usually when you are\naccessing a new part of the GLOBUS functionality. It will typically take you to a\npage with a prompt like \"Session reauthentication required (Globus Transfer)\". The\npage will then also show your login ID email - this is actually a clickable link to\nstart the authentication for the action and should just complete and take you to the\npage you were trying to access."
+  },
+  {
+    "objectID": "manual/using_globus.html#the-collections-tab",
+    "href": "manual/using_globus.html#the-collections-tab",
+    "title": "Using GLOBUS",
+    "section": "The Collections tab",
+    "text": "The Collections tab\nThe Collections tab is used to provide an overview of the data collections that you have access to.\n\nStart by opening the Collections tab and then clicking the “Shared with you” Button. The URL https://app.globus.org/collections?scope=shared-with-me should take you straight to this page.\nYou should see the “Virtual Ecosystem data science” collection.\nIf you click on that link, you’ll see an unfriendly overview page with collection details.\nYou should also see a button marked “Open in File Manager” - click this!"
+  },
+  {
+    "objectID": "manual/using_globus.html#the-file-manager",
+    "href": "manual/using_globus.html#the-file-manager",
+    "title": "Using GLOBUS",
+    "section": "The File Manager",
+    "text": "The File Manager\nThe File Manager tab is used to view the files and folders within a collection and to interact with the data repository. You can access the tab from a particular collection (as above), from the tab button on the left or directly using the URL https://app.globus.org/file-manager\nOnce you have opened a collection in the pane then you should be able to see the files and folders in the collection and can open folders to explore the data.\n!!! alert “Collection paths”\nWhen you open the VE Data Science collection, you will see that it shows a path at the\ntop: `ve_data_science/data`. This is because the collection shares _all_ of the files\nin our Research Data Store. This includes a clone of the `ve_data_science` repo but\nalso some other data resources. We are managing access to the files using a GLOBUS\ngroup ('VE Data Science team') that only has access to the files under the\n`ve_data_science/data` path, so you can't see the other data on that drive.\n\nFile Manager actions\nThe bar in the centre of the file manager provides action buttons to work with files and folders.\n\nNew Folder, Rename and Delete Selected can be used with any selected folder or file in the collection.\nYou’d need a very good reason to rename or delete files in the collection and this should be done through GitHub and not GLOBUS. If you change the names or files or folders then this will break any existing scripts that use those files, so if you want to change or delete file paths, you should create a PR that explains the rationale for the changes and also updates any affected scripts.\nDownload and Upload can be used with single files and folders: these allow you to drop a single file or folder from any location into a folder in the collection or download a file or folder\n\nThese tools may be all you need for day to day work - if you have a few files to upload this may well be what you want to do. However, if you want to upload a more complex set of files or download a large number of files, this is going to be a problem.\nThis is where the Transfer or Sync to… option comes in - it allows files and folders to be copied between two collections. To do so, you need to configure your own computer as a collection."
+  },
+  {
+    "objectID": "manual/using_globus.html#globus-connect-personal",
+    "href": "manual/using_globus.html#globus-connect-personal",
+    "title": "Using GLOBUS",
+    "section": "Globus Connect Personal",
+    "text": "Globus Connect Personal\nThe Globus Connect Personal application https://www.globus.org/globus-connect-personal is a local application that you install to your computer that sets up a GLOBUS collection on your computer.\n\nDownload and install the program.\nWhen you open it for the first time, it will ask you to log in with your GLOBUS credentials:\n\nThis will first take you to the GLOBUS website to authorise your GLOBUS account to create and manage a collection.\nIt will then ask for the collection details to create on your computer.\n\nIt will then start the Globus Connect Personal application.\n\nIf you now go to the web application and look at the collections administered by you, you should see the a new Private Mapped Connection:\nhttps://app.globus.org/collections?scope=administered-by-me\nIn the File Manager tab of the web application, you can now select your personal collection and use the File Manager action buttons to manage your files and transfer folders between the two collections.\n!!! Warning “Local file access permissions”\nBy default, Globus Connect Personal (GCP) has access to your home directory. Only you\nhave access to the collection, but you can also configure GCP to only be able to\naccess a subset of files. Under the `GCP &gt; Preferences` settings, you can select the\nAccess tab and specify which files GCP can access _and_ whether GCP is allowed to\nwrite to those folders.\n\nWithin the GLOBUS web application, you can also check the visibility of your local\ncollection through the Collections tab: click your local collection and then explore\nthe visibility options to check if other users can see the existence of your\ncollection.\n\nThe GLOBUS Transfer system\nTransfer is used to copy files from a source collection to a destination collection. Here, you could be uploading a folder from your personal collection (source) to the RDS repo (destination) or downloading data from the RDS (source) to your local collection (destination) for analysis. Or possibly doing both to synchronise the two folders!\nTo transfer files or folders between collections:\n\nSelect the files or folders on the source collection\nIn the destination folder, open the location where the selected data will be transferred. Do not_ select the folders or files on the destination but instead make sure you have the location that you want to copy to open.\nFor example, if you are synchronising the data/derived data folder, you will need to select the derived folder in the source collection, but just have the data folder open in the destination. If you do not do this then the data will be transfered into the selected folder.\nPress the “Start button” above the source collection. GLOBUS will schedule and run the transfer in the background: you can open the activity monitor link to see the progress of the transfer."
+  },
+  {
+    "objectID": "manual/github_overview.html",
+    "href": "manual/github_overview.html",
+    "title": "Github Overview",
+    "section": "",
+    "text": "Important\n\n\n\nThis is currently a draft document\nGithub is an online platform for code sharing and collaboration. Multiple developers can work on a project at once, make changes on their own copy of the code (called a “branch”), get feedback on the changes from other team members, and then “merge” their changes into the core code-base. This page walks you through basic git and github functionality used for the project."
+  },
+  {
+    "objectID": "manual/github_overview.html#lingo",
+    "href": "manual/github_overview.html#lingo",
+    "title": "Github Overview",
+    "section": "Lingo",
+    "text": "Lingo\n\nRepository (repo): the codebase.\nBranch: a copy of the codebase where local changes don’t immediately impact the main branch\nCommit: a package of changes that you’re satisfied with, and then group them together and label with a description.\nPull request: a functioning chunk of code that can be safely merged into the main codebase without breaking any other functionality\nPush: send your commits to the upstream version of your branch (the online version)"
+  },
+  {
+    "objectID": "manual/github_overview.html#getting-started",
+    "href": "manual/github_overview.html#getting-started",
+    "title": "Github Overview",
+    "section": "Getting started",
+    "text": "Getting started\n\nMake a github account and login.\nFind the repository that you want to work on. Click on the green “code” button and copy the link under clone.\n\nIf your github account usees two-factor authentication or single sign-on you will need to use the SSH version, otherwise you can use HTTPS.\nIf you use the SSH version, your computer will need to communicate with github automatically to authenticate you when you make changes from your desktop. To do this you need to generate a SSH key and add it to your GitHub account.\n\nDecide where you want the repo to be stored on your local computer. Open a terminal window and navigate to this location (cd FOLDERNAME moves you into a folder, and cd .. moves you backwards.)\nOnce you have found the folder, paste git clone SSH/HTTPS REPO URL into the terminal. This should download a copy of the up-to-date code into your local computer.\nOpen VS Code (or another processor such as PyCharm) and open the folder that you just downloaded.\n\nYou can now add files, make changes, and work on the codebase. Once you’re ready to share those changes, go to the next section!"
+  },
+  {
+    "objectID": "manual/github_overview.html#checkout-a-new-branch",
+    "href": "manual/github_overview.html#checkout-a-new-branch",
+    "title": "Github Overview",
+    "section": "Checkout a new branch",
+    "text": "Checkout a new branch\nBy default, when you download the code you will be on the main branch. This branch includes all the approved code. Never work directly on the main branch - you should always create your own branch, and merge it into main only later once the code is ready and has received approval.\n\nCheck what branch you’re on. VS Code has the name of the branch in the bottom left, or you can run git branch in the terminal.\nPull the most recent version of main. Before you create a new branch, make sure your main is up-to-date. This will be the copy of the code that you start from. To pull, use the refresh button in the bottom left of VS Code, or run git pull in the terminal.\nCreate a new branch. You can create a new branch in VS Code by clicking on the branch name and then the “Create a new branch…” option that should show up. Otherwise, run git checkout -b BRANCH NAME in the terminal. Your branch name doesn’t need to be long, but should be descriptive enough so that you remember what you’re doing on it in case you switch between branches."
+  },
+  {
+    "objectID": "manual/github_overview.html#commit-and-push-your-code",
+    "href": "manual/github_overview.html#commit-and-push-your-code",
+    "title": "Github Overview",
+    "section": "Commit and push your code",
+    "text": "Commit and push your code\nCommitting your code is a way to package up some changes that should all be logically grouped together and describing what you’ve done. A commit is a helpful way for other developers to quickly look at the change you’ve made with the intention you had, so that they can easily review the changes.\n\nFirst, check exactly what changes git has tracked. This ensures that you don’t commit anything you don’t mean to (like old work, commented out code, etc.) You can do this in VS Code in the “Source Control” tab. Anything labelled “changes” is work that hasn’t yet been marked as ready to add to a commit. Anything labeled “staged changes” includes work that you have indicated is ready to commit, but has not yet been committed.\nCheck over your changes and stage them. Click on the files under changes and look through what has been added (will be noted with blue highlight next to the line numbers). As long as you are happy, you can stage the changes by clicking the “+” button next to the file.\nOnce you are ready to commit all your staged changes, press the blue commit button. This will open a new file where you can type a commit message (a brief description of what work has been done). Then, click the check mark button.\nPush your changes to github. To send your changes to github, press the “publish” button. This sends a copy of the work on your branch to github, so anyone can see what you have been doing.\n\nYou can also perform these tasks from the terminal window if you prefer. Some basic commands are git status to see what branch you’re on and what files have changed; git diff to see what your changes are; git add FILENAME to stage changes in that file; git commit -m COMMIT MESSAGE to commit all the staged changes; and git push to push your changes to github."
+  },
+  {
+    "objectID": "manual/github_overview.html#creating-a-pull-request-and-merging",
+    "href": "manual/github_overview.html#creating-a-pull-request-and-merging",
+    "title": "Github Overview",
+    "section": "Creating a pull request and merging",
+    "text": "Creating a pull request and merging\n\nOnce you are ready for a code review (and ultimately for your code to be merged into the main branch), go on github and create a pull request (PR). You can do this from the pull request tab, or if you’ve recently pushed from a local branch, github will prompt you to make a PR from that branch. When you’re making a PR, you want to merge your branch into main.\nAdd a description of what the PR accomplishes and request review from the relevant team members.\nWait for the reviews to come in: it makes life hard for reviewers if there are more changes coming into a PR while they are trying to review it!\nRespond to reviews. Your reviewers can either give approval or request changes. Even if they approve the PR, they may also make some comments for minor changes, so before merging (see below) you should go through any comments in the review and deal with them. Typical actions are:\n\nMaking some additional changes on the branch to address the comment and then commiting and pushing those changes.\nAccepting a “suggestion” - this option appears when a reviewer has posted some actual changes, a bit like a suggestion in track changes in Word, rather than a comment about what they would like you to change. You can accept suggestions directly in GitHub but will then need to use git pull to bring those suggestions into your local copy\nSimply replying to the comment - it might be that the comment just wanted clarification without needing to changes anything, or it might be that there are good reasons not to do what the comment asks. This might involve a short discussion before deciding on what to do.\n\nWhen a comment has been handled, it is good practice to leave some form of comment: that could just be a simple “thumbs up” reaction for simple changes or could be a few sentences explaining what you’ve done. You should click on the “resolve conversation” button when there is no further action to be taken.\nIf a reviewer has requested changes, you will need to request a new review from that reviewer to get them to approve the update PR.\nOnce you have approvals from all reviewers, you can merge from the PR page, which sends your updates into the main branch. If the main branch has changed since you started your branch and PR, you may need to update the branch before you can merge."
+  },
+  {
+    "objectID": "manual/github_overview.html#start-it-all-over",
+    "href": "manual/github_overview.html#start-it-all-over",
+    "title": "Github Overview",
+    "section": "Start it all over",
+    "text": "Start it all over\nOnce you complete your task and are ready for the next one, you can start the process over. A few things to remember…\n\nAlways create new branches off of main. Go into VS Code (or the terminal) and switch to the main branch. Pull the latest version before creating a new branch.\n\n\n\n\n\n\n\nNoteTODO\n\n\n\nHandling merge conflicts"
+  },
+  {
+    "objectID": "experimental/Example_R.html",
+    "href": "experimental/Example_R.html",
+    "title": "Experimental notebook",
+    "section": "",
+    "text": "This is an experimental notebook\n\n\nCode\n# This is a code cell\nlibrary(MASS)\n\n\nWe’re going to do some stuff\n\n\nCode\nx &lt;- runif(100)\ny &lt;- runif(100)\n\nplot(\n  x,\n  y,\n  xlab = \"A variable\",\n  ylab = \"Another variable\"\n)"
+  },
+  {
+    "objectID": "experimental/Example_python.html",
+    "href": "experimental/Example_python.html",
+    "title": "Experimental notebook",
+    "section": "",
+    "text": "This is an experimental notebook\n\n\nCode\n# This is a code cell\nimport matplotlib.pyplot as plt\nimport numpy as np\n\n\nWe’re going to do some stuff\n\n\nCode\nx = np.random.uniform(size=100)\ny = np.random.uniform(size=100)\n\nplt.scatter(x, y)\nplt.xlabel(\"A variable\")\nplt.ylabel(\"Another variable\")\nplt.tight_layout()"
+  },
+  {
+    "objectID": "manual/getting_started.html",
+    "href": "manual/getting_started.html",
+    "title": "Getting started with the ve_data_science repository",
+    "section": "",
+    "text": "Important\n\n\n\nThis is a draft document\nThis is a how to guide to getting started with the ve_data_science repository"
+  },
+  {
+    "objectID": "manual/getting_started.html#getting-the-repository",
+    "href": "manual/getting_started.html#getting-the-repository",
+    "title": "Getting started with the ve_data_science repository",
+    "section": "Getting the repository",
+    "text": "Getting the repository\nThe first step is to clone the repository. If you do not already have git then you will need to install it:\nhttps://git-scm.com/downloads\nNext, in your terminal, change directory to the location where you want the repository to live and then run the following command.\ngit clone https://github.com/ImperialCollegeLondon/ve_data_science.git\nThat will create a new directory called ve_data_science that contains all of the current files, all of the changes ever made to those files. It also contains the details of all of the branches containing active versions of the code that differ from the core main branch. Those changes are hidden away in the .git folder.\nSee the GitHub Overview for details on working with Git and GitHub."
+  },
+  {
+    "objectID": "manual/getting_started.html#setting-up-the-repository-for-use",
+    "href": "manual/getting_started.html#setting-up-the-repository-for-use",
+    "title": "Getting started with the ve_data_science repository",
+    "section": "Setting up the repository for use",
+    "text": "Setting up the repository for use\nHowever, we use a number of quality assurance tools (QA) to help manage the code files and documents within this repository. You also need to do the following to get this set up working and make the most of working with VSCode, if that is the editor tool you want to use.\n\nInstall python if needed. You probably already have this since it is needed to run virtual_ecosystem!\nInstall poetry. This is a python package manager, which we are using here to maintain a set of Python tools that are likely to be used within the project. Follow the command line instructions on the poetry installation page.\nIn the command line, run poetry install. This will install the recommended python packages, which includes the radian front-end for R, the xarray package for handling NetCDF data and the pre-commit framework for running code quality checks on changes being committed to the repository. The poetry tool creates a new Python environment that is specific to this project.\nIf you are using Visual Studio Code, then it needs to know which python setup to use for running Python code and for running Python code quality tools. This is done by setting the Python interpreter path to match the one that poetry just created:\n\nRun poetry env list --full-path, copy the result and then either add /bin/python (on MacOS or Linux) or \\Scripts\\python.exe (on Windows) to the end. For example: /Users/dorme/Library/Caches/pypoetry/virtualenvs/ve-data-science-ND1juKN--py3.12/bin/python\nIn the VSCode menus, select View &gt; Command Palette and then enter interpreter in the box to find the Python: Select Interpreter command. Click on Enter interpreter path and paste in the path from above.\n\nYou now need to setup the pre-commit tool, which is used to run a standard set of checks on files when git commit is run. At the command line, enter:\npoetry run pre-commit install\nThis command can take quite a long time to run - among other things, it is installing a separate version of R just to be used for file checking!\nIf you do not have R 4.4 installed, you will now need to install it.\nYou now need to configure VSCode to work with R. This involves changing some of the settings so that it [TBD]"
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html",
+    "href": "manual/uploading_r_scripts.html",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "",
+    "text": "(This text was written by @arne-exe and is copied directly from https://github.com/ImperialCollegeLondon/ve_data_science/issues/22#issuecomment-2740835471)\nThese notes should help guide you through uploading an R script to a GitHub repository using Git, Visual Studio Code (VSC), and best practices for version control, branch management, and code formatting"
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#prerequisites",
+    "href": "manual/uploading_r_scripts.html#prerequisites",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "✅ Prerequisites",
+    "text": "✅ Prerequisites\nBefore you start, make sure you have the following in place:\n\nGit is installed and configured\nYou have access to the ve_data_science GitHub repository\nR (at least version 4.4.2) is installed and added to your system PATH\nVisual Studio Code (VSC) is installed, with Git integration enabled\nPre-commit hooks are installed"
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#create-a-github-issue",
+    "href": "manual/uploading_r_scripts.html#create-a-github-issue",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "1️⃣ Create a GitHub Issue",
+    "text": "1️⃣ Create a GitHub Issue\n\nIn your GitHub repository, create a new Issue describing your task, e.g., “Uploading script X”. This helps track your work and adds context for collaborators."
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#prepare-your-local-repository",
+    "href": "manual/uploading_r_scripts.html#prepare-your-local-repository",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "2️⃣ Prepare Your Local Repository",
+    "text": "2️⃣ Prepare Your Local Repository\n\nClone the repository (if not done already).\nNavigate into the cloned folder and open it in Visual Studio Code\nCheck the status of the repository and update it from the remote repository\ngit status\ngit fetch\ngit pull\nThese commands ensure your local main branch is up to date."
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#create-a-new-branch",
+    "href": "manual/uploading_r_scripts.html#create-a-new-branch",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": " 3️⃣ Create a New Branch",
+    "text": "3️⃣ Create a New Branch\nCreate a new branch for your changes:\ngit checkout -b meaningful-branch-name\nUse a descriptive name like uploading_t_model_parameters_script, not a generic name like my_feature_branch."
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#make-your-changes",
+    "href": "manual/uploading_r_scripts.html#make-your-changes",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "4️⃣ Make Your Changes",
+    "text": "4️⃣ Make Your Changes\n\nCreate any new folders under data or analysis.\nUse the template scripts provided in the repository.\n\nMove your R script into the appropriate folder.\n\nEnsure local datasets are placed in correct subfolders within data/."
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#stage-and-commit-changes",
+    "href": "manual/uploading_r_scripts.html#stage-and-commit-changes",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "5️⃣ Stage and Commit Changes",
+    "text": "5️⃣ Stage and Commit Changes\nCheck what’s changed:\ngit status\nStage your files:\ngit add path/to/script.R\nCommit your changes:\ngit commit -m \"Uploading script X\""
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#handle-pre-commit-checks",
+    "href": "manual/uploading_r_scripts.html#handle-pre-commit-checks",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "6️⃣ Handle Pre-commit Checks",
+    "text": "6️⃣ Handle Pre-commit Checks\nIf the commit fails due to pre-commit hook issues then fix the issues, re-add the updated files and re-commit the changes. Some common problems and fixes:\n\n\n\n\n\n\n\nError\nSolution\n\n\n\n\nRscript not found\nAdd R to system environment PATH\n\n\nAir formatter issues\nFollow suggested fixes or use # fmt: skip where appropriate\n\n\nVariable/function names too long\nRename using snake_case, max 30 characters\n\n\nLines &gt; 88 characters\nReformat or split lines carefully\n\n\n\n\n\n\n\n\n\nTip\n\n\n\nUse VS Code’s syntax highlighting and Ctrl + Click to quickly navigate and fix code issues."
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#push-your-branch",
+    "href": "manual/uploading_r_scripts.html#push-your-branch",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": " 7️⃣ Push Your Branch",
+    "text": "7️⃣ Push Your Branch\nOnce your commit passes:\ngit push -u origin your-branch-name"
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#create-a-pull-request-pr",
+    "href": "manual/uploading_r_scripts.html#create-a-pull-request-pr",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "8️⃣ Create a Pull Request (PR)",
+    "text": "8️⃣ Create a Pull Request (PR)\n\nGo to your GitHub repo\nClick “Compare & pull request”\nAdd a title and description\nAssign reviewers and submit\n\n\n\n\n\n\n\nTip\n\n\n\nAny new commits pushed to this branch automatically update the same PR — no need to create a new one."
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#address-review-feedback",
+    "href": "manual/uploading_r_scripts.html#address-review-feedback",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "9️⃣ Address Review Feedback",
+    "text": "9️⃣ Address Review Feedback\nIf your reviewer suggests changes:\nEdit your script locally (while still being on the same branch) Commit and push again:\n\nOn Relative Paths\nAvoid hardcoded system paths like C:/Users/.... Use relative paths:\ndata &lt;- readxl::read_excel(\n    \"../../../data/primary/plant/tree_census/tree_census_11_20.xlsx\"\n)\n\n../ moves one directory up.\nAlways ensure you’re working in the correct working directory (e.g., by opening the script directly or by setting the working directory manually)."
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#final-merge-cleanup",
+    "href": "manual/uploading_r_scripts.html#final-merge-cleanup",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "🔐 Final Merge & Cleanup",
+    "text": "🔐 Final Merge & Cleanup\nOnce the PR is approved\n\nMerge it via GitHub\nUpdate your local main:\n\ngit checkout main\ngit pull origin main\n\nClean up your feature branch (optional):\n\ngit branch -d your-branch-name"
+  },
+  {
+    "objectID": "manual/uploading_r_scripts.html#collaboration-best-practices",
+    "href": "manual/uploading_r_scripts.html#collaboration-best-practices",
+    "title": "Uploading an R Script to a GitHub Repository",
+    "section": "🤝 Collaboration Best Practices",
+    "text": "🤝 Collaboration Best Practices\n\nAlways pull latest changes before starting new work\nKeep commits clear and descriptive\nNever push directly to main\nCommunicate clearly in PRs and commit messages\nAsk for help if lintr feedback is confusing — even paste the code into ChatGPT for help!"
+  },
+  {
+    "objectID": "manual/what_are_those_odd_files.html",
+    "href": "manual/what_are_those_odd_files.html",
+    "title": "What are all those odd files?",
+    "section": "",
+    "text": "The ve_data_science repository contains an awful lot of odd files that are used for configuring the data quality and formatting setup of the repositor. The listing below shows all of the key files used to set up the repo and a short description. The list includes ‘hidden’ files, which start with a dot.\n\n\n\n\n\n\n\nFile\nDescription\n\n\n\n\n.git\nUsed by git to keep track of all of file changes. Ignore it.\n\n\n.github/workflows/ci.yaml\nDefines a workflow that runs when a pull request is made on GitHub to add changes to the repository. It runs a standard set of checks that validate the code quality.\n\n\n.gitignore\nUsed to manage a set of files that git should not manage - these files will not be added and any changes will not be tracked.\n\n\n.lintr\nA configuration file for the R lintr package, used to enforce standard formatting in R files.\n\n\n.markdownlint.yaml\nA configuration file for the markdownlint tool, used to enforce standard formatting in Markdown files.\n\n\n.pre-commit-config.yaml\nA configuration file for the pre-commit tool, defining a set of quality checks that are run when git commit is run.\n\n\n.Rprofile\nA start up file used when R is started in the project. It automatically runs the configuration of the renv R environment manager.\n\n\n.vscode/extensions.json\nDefines a recommended set of extensions for VSCode\n\n\n.vscode/settings.json\nDefine a recommended set of common settings for VSCode\n\n\nLICENSE\nThe software licence used for the code in the project.\n\n\npoetry.lock\nA file that records the Python packages being used in the project and the versions being used.\n\n\npyproject.toml\nA configuration file used to manage the Python packages used within the project.\n\n\nREADME.md\nThe main project description details shown on the repository homepage.\n\n\nsystem_dependencies.R\nThis is used to declare the use of R packages that are used in the repository system and which are not used by actual analytical code."
+  }
+]
