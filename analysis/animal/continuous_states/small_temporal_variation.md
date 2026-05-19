@@ -118,7 +118,7 @@ animal_cont |>
     3 animal_ectomycorrhiza_consumption        -6.46e-18 6.46e-18
     4 animal_pom_consumption_cnp               -3.53e-17 3.33e-17
     5 animal_saprotrophic_fungi_consumption    -2.80e-17 2.73e-17
-    6 total_animal_respiration                  0        0
+    6 total_animal_respiration                  0        0       
 
 Here’s how the variables looked over simulation time steps:
 
@@ -160,6 +160,45 @@ max_cohort_time <- max(animal_cohort$time_index)
 Before proceeding, I checked the animal cohort data and saw that all
 cohorts went extinct after time step 3.
 
+Following Nick’s suggestion, I also checked the temporal trends in
+resource availability:
+
+<details class="code-fold">
+<summary>Code</summary>
+
+``` r
+resource_vars <- c(
+  "soil_c_pool_arbuscular_mycorrhiza",
+  "soil_c_pool_bacteria",
+  "soil_c_pool_ectomycorrhiza",
+  "soil_c_pool_saprotrophic_fungi",
+  "soil_cnp_pool_pom"
+)
+
+resource_cont <- tidy_continuous_data(
+  here("data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"),
+  variables = resource_vars
+)
+
+resource_cont |>
+  unite("variable2", variable, element, na.rm = TRUE) |>
+  ggplot() +
+  facet_wrap(~variable2, ncol = 1, scales = "free_y") +
+  geom_line(aes(time_index, value, group = cell_id), alpha = 0.5) +
+  theme_bw()
+```
+
+</details>
+
+<div id="fig-resource-trend">
+
+![](small_temporal_variation_files/figure-commonmark/fig-resource-trend-1.png)
+
+Figure 2: Temporal trends in resource state variables. Each
+semi-transparent line is a grid cell.
+
+</div>
+
 A few follow-up questions upon seeing the temporal graphs:
 
 - Why do we still see non-zero values in some variables long after all
@@ -168,6 +207,8 @@ A few follow-up questions upon seeing the temporal graphs:
   values mean? The way they fluctuate almost symmetrically around zero
   makes me suspect that the non-zero values are not true non-zeros but
   numerical imprecision.
+- There seems to be some relationship with resource availability. But
+  there is no animal to consume then at later time steps?
 
 > [!CAUTION]
 >

@@ -22,7 +22,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
@@ -85,7 +85,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
-
+   
   <ul>
   <li><a href="#preamble" id="toc-preamble" class="nav-link active" data-scroll-target="#preamble">Preamble</a></li>
   <li><a href="#model-and-data-summary" id="toc-model-and-data-summary" class="nav-link" data-scroll-target="#model-and-data-summary">Model and data summary</a></li>
@@ -111,17 +111,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
              <p>Lai, Hao Ran </p>
           </div>
   </div>
-
+    
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
       <p class="date">May 19, 2026</p>
     </div>
   </div>
-
-
+  
+    
   </div>
-
+  
 
 
 </header>
@@ -259,10 +259,48 @@ Figure&nbsp;1: Temporal trends in animal state variables. Each semi-transparent 
 </details>
 </div>
 <p>Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step 3.</p>
+<p>Following Nick’s suggestion, I also checked the temporal trends in resource availability:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>resource_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_arbuscular_mycorrhiza"</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_bacteria"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_ectomycorrhiza"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_saprotrophic_fungi"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_cnp_pool_pom"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>resource_cont <span class="ot">&lt;-</span> <span class="fu">tidy_continuous_data</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> resource_vars</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>resource_cont <span class="sc">|&gt;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(<span class="st">"variable2"</span>, variable, element, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>variable2, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(time_index, value, <span class="at">group =</span> cell_id), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-resource-trend" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-resource-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="small_temporal_variation_files/figure-html/fig-resource-trend-1.png" width="672" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-resource-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Temporal trends in resource state variables. Each semi-transparent line is a grid cell.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <p>A few follow-up questions upon seeing the temporal graphs:</p>
 <ul>
 <li>Why do we still see non-zero values in some variables long after all animals have gone extinct since time step 3?</li>
 <li>Presumably these variables are positive only; what do the negative values mean? The way they fluctuate almost symmetrically around zero makes me suspect that the non-zero values are not true non-zeros but numerical imprecision.</li>
+<li>There seems to be some relationship with resource availability. But there is no animal to consume then at later time steps?</li>
 </ul>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
