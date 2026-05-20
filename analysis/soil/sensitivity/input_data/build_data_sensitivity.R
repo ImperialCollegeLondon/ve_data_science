@@ -220,7 +220,7 @@ dimnames <- list(
 )
 
 # set up the conversion in parallel
-daemons(16)
+daemons(128)
 sobol_df |>
   # split the Sobol matrix into list row-by-row
   mutate(row_id = row_number()) |>

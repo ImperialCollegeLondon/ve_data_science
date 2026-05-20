@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -lwalltime=0:30:00
-#PBS -lselect=1:ncpus=16:mem=16gb
+#PBS -lselect=1:ncpus=128:mem=128gb
 #PBS -j oe
 #PBS -o /rds/general/user/hlai1/home/logs/
 
@@ -13,7 +13,6 @@ cd "${PBS_O_WORKDIR}" || exit
 
 Rscript analysis/soil/sensitivity/input_data/build_data_sensitivity.R
 Rscript analysis/soil/sensitivity/input_data/build_config_sensitivity.R
-Rscript analysis/soil/sensitivity/input_data/build_hpc_job_config.R
 
 # submit this from the ve_data_science root directory with:
 # cd ../projects/virtual_rainforest/live/ve_data_science
