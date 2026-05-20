@@ -8,7 +8,8 @@
 # Initialise conda environment
 module purge
 eval "$(~/miniforge3/bin/conda shell.bash hook)"
-conda activate r452
+# conda activate r452
+conda activate /rds/general/project/virtual_rainforest/live/ve_data_science/hpc_jobs/virtual_ecosystem_py314
 
 # run from the submission directory (typically path/to/ve_data_science)
 cd "${PBS_O_WORKDIR}" || exit
