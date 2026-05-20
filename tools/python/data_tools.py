@@ -1,14 +1,12 @@
-"""
-data_tools.py
-"""
+"""data_tools.py"""
 
-import xarray as xr
 import numpy as np
-
+import xarray as xr
 
 # =====================================================
 # LOAD DATASET
 # =====================================================
+
 
 def load_dataset(nc_file):
 
@@ -21,6 +19,7 @@ def load_dataset(nc_file):
 # SHOW SUMMARY
 # =====================================================
 
+
 def show_dataset_summary(ds):
 
     print(ds)
@@ -30,10 +29,10 @@ def show_dataset_summary(ds):
 # LIST VARIABLES
 # =====================================================
 
+
 def list_variables(ds):
 
     for var in ds.data_vars:
-
         print(f"\n{var}")
 
         print(f"Dimensions : {ds[var].dims}")
@@ -45,36 +44,30 @@ def list_variables(ds):
 # CLASSIFY VARIABLE
 # =====================================================
 
+
 def classify_variable(variable):
 
     dims = variable.dims
 
     if dims == ("time_index",):
-
         return "time"
 
     elif dims == ("time_index", "cell_id"):
-
         return "scalar"
 
     elif "layers" in dims:
-
         return "layered"
 
     elif "groundwater_layers" in dims:
-
         return "groundwater"
 
     elif "element" in dims and "pft" not in dims:
-
         return "element"
 
     elif "pft" in dims:
-
         return "pft"
 
     else:
-
         return "other"
 
 
@@ -82,16 +75,15 @@ def classify_variable(variable):
 # CATEGORISE ALL VARIABLES
 # =====================================================
 
+
 def categorise_all_variables(ds):
 
     categories = {}
 
     for var in ds.data_vars:
-
         category = classify_variable(ds[var])
 
         if category not in categories:
-
             categories[category] = []
 
         categories[category].append(var)
@@ -102,6 +94,7 @@ def categorise_all_variables(ds):
 # =====================================================
 # RESHAPE TO X-Y
 # =====================================================
+
 
 def reshape_to_xy(data_array):
 
