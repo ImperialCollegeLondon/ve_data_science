@@ -2,14 +2,10 @@ library(tidyverse)
 source("tools/R/ve_run.R")
 
 # Capture command line arguments
-args <- commandArgs(trailingOnly = TRUE)
-job_index <- as.numeric(args[1])
+job_index <- as.integer(Sys.getenv("PBS_ARRAY_INDEX"))
 
 # file paths
-config_path <- paste0(
-  "data/scenarios/sensitivity_soil_litter/config/",
-  job_index
-)
+config_path <- "data/scenarios/sensitivity_soil_litter/config"
 out_path <- paste0(
   "data/scenarios/sensitivity_soil_litter/out/",
   job_index
