@@ -24,7 +24,9 @@ args <- c(
   "--out",
   out_path,
   "--logfile",
-  paste0(out_path, "/logfile.log")
+  paste0(out_path, "/logfile.log"),
+  "--config",
+  "core.debug.truncate_run_at_update=24"
 )
 
 tryCatch(
