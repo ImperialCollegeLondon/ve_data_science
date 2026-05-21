@@ -22,7 +22,8 @@ OUTDIR="data/scenarios/sensitivity_soil_litter/out/${PBS_ARRAY_INDEX}"
 mkdir -p "${OUTDIR}"
 
 # Run VE
-mkdir "%OUTDIR%"/config \
+ve_run \
+  data/scenarios/sensitivity_soil_litter/config \
   --out "${OUTDIR}" \
   --logfile "${OUTDIR}/logfile.log"
 
