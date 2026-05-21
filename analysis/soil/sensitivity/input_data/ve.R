@@ -1,4 +1,3 @@
-library(tidyverse)
 source("tools/R/ve_run.R")
 
 # Capture command line arguments
