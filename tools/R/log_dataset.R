@@ -1,21 +1,27 @@
-#' Title
+#' Log decision on whether a dataset should be included for validation purposes
 #'
-#' @param doi
-#' @param decision
-#' @param reason
-#' @param tags
-#' @param notes
-#' @param outdir
+#' This function is intended to be used as `log_dataset()`, which will display
+#' a UI in the R console and prompt you to enter the DOI and notes on
+#' decisions. The log is then stored as a human-readable YAML file in the
+#' specified output directory, which defaults to the soil module for now.
+#'
+#' @param outdir Path to the output directory, which currently defaults to the
+#'   soil module
+#'
+#' @details
+#' You will asked to enter:
+#' * DOI: DOI string of the dataset or publication
+#' * Decision: A menu to select decision
+#' * Reason: (Optional) A menu to select reason
+#' * Notes: (Optional) A string of long-form rationale
 #'
 #' @returns
 #'
 #' @export
 #' @examples
+#' log_dataset()
 
 log_dataset <- function(
-  doi,
-  reason = NULL,
-  notes = NULL,
   outdir = "data/derived/soil/validation/records"
 ) {
   # prompt to enter DOI
