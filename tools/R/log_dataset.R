@@ -37,7 +37,7 @@ log_dataset <- function(
   meta <- rcrossref::cr_cn(doi, format = "bibentry")
 
   # prompt for decision, decision, decision...
-  decision <- select.list(
+  decision <- utils::select.list(
     c("included", "excluded"),
     title = "Decision (enter 0 to skip): ",
     graphics = FALSE
@@ -47,7 +47,7 @@ log_dataset <- function(
   }
 
   # prompt for short-form reason
-  reason <- select.list(
+  reason <- utils::select.list(
     c("used_elsewhere", "no_raw_data", "no_soil_data"),
     title = "Reason (enter 0 to skip): ",
     graphics = FALSE
