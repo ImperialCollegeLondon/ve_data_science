@@ -1,6 +1,6 @@
 #' Log decision on whether a dataset should be included for validation purposes
 #'
-#' This function is intended to be used as `log_dataset()`, which will display
+#' This function is intended to be used as \code{log_dataset()}, which will display
 #' a UI in the R console and prompt you to enter the DOI and notes on
 #' decisions. The log is then stored as a human-readable YAML file in the
 #' specified output directory, which defaults to the soil module for now.
@@ -10,15 +10,21 @@
 #'
 #' @details
 #' You will asked to enter:
-#' * DOI: DOI string of the dataset or publication
-#' * Decision: A menu to select decision
-#' * Reason: (Optional) A menu to select reason
-#' * Notes: (Optional) A string of long-form rationale
+#' \describe{
+#'   \item{DOI}{DOI string of the dataset or publication}
+#'   \item{Decision}{A menu to select decision}
+#'   \item{Reason}{(Optional) A menu to select reason}
+#'   \item{Notes}{(Optional) A string of long-form rationale}
+#' }
 #'
-#' @returns
+#' @returns A YAML file logging the decision and source metadata in
+#'   \code{outdir}.
 #'
 #' @export
+#'
 #' @examples
+#' box::use(tools/R/log_dataset[log_dataset])
+#' box::help(log_dataset)
 #' log_dataset()
 
 log_dataset <- function(
