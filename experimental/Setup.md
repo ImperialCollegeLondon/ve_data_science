@@ -68,25 +68,27 @@ that isn't mandatory.
   code.
 
 So, to actually generate something that shows the full report, we need to execute the
-notebook. That generates an `.ipynb` output and you can then execute and export the
-notebook as a markdown format:
+source notebook. That generates an `.ipynb` output and you can then execute and export
+the notebook as a markdown format.
+
+We have two markdown files: a source file and a rendered output. We can use `.myst.md`
+on the source files and set up the worflow to generate a rendered file with the `.md` suffix.
 
 ```bash
 # Convert md to ipynb
-jupytext --to ipynb Example_python.md
+jupytext --to ipynb  --from .myst.md:myst Example_python.myst.md
 
-# Execute the notebook and
-jupyter nbconvert --to markdown --execute \
-    Example_python.ipynb --output Example_python_executed.md
+# Execute the notebook and save to a notebook
+jupyter nbconvert --to markdown --execute Example_python.ipynb
 ```
 
-We would want to remove the `.ipynb` (otherwise we might as well just use that) and then
+We do not want to keep the `.ipynb` (otherwise we might as well just use that) and then
 we have a set of files:
 
 ```bash
+Example_python.myst.md
 Example_python.md
-Example_python_executed.md
-Example_python_executed_files/
+Example_python_files/
     Example_python_2.png
 ```
 

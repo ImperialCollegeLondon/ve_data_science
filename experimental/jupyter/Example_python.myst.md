@@ -34,7 +34,3 @@ plt.xlabel("A variable")
 plt.ylabel("Another variable")
 plt.tight_layout()
 ```
-
-```{code-cell} ipython3
-
-```
