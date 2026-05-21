@@ -22,6 +22,10 @@ library(DT)
 library(tidyverse)
 ```
 
+Notes on soil temperature and soil moisture --- hydrology / abiotic or soil?
+
+`used_elsewhere` might be able to split them into test--train sets to salvage some data.
+
 ```{r}
 #| label: read-yaml
 #| column: screen
@@ -50,6 +54,8 @@ records |>
     Year = metadata.year
   ) |>
   datatable(
-    caption = "Screening decision of the SAFE database for soil and litter validation datasets."
+    caption = "Screening decision of the SAFE database for soil and litter validation datasets.",
+    filter = list(position = "top"),
+    options = list(pageLength = 25)
   )
 ```
