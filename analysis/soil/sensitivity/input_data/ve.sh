@@ -18,12 +18,11 @@ cd "${PBS_O_WORKDIR}" || exit
 export SOIL_LITTER_DATA="data/scenarios/sensitivity_soil_litter/data/soil_litter_data_${PBS_ARRAY_INDEX}.nc"
 
 # create output directory if it does not exist
-OUTDIR="data/scenarios/sensitivity_soil_litter/config/${PBS_ARRAY_INDEX}"
+OUTDIR="data/scenarios/sensitivity_soil_litter/out/${PBS_ARRAY_INDEX}"
 mkdir -p "${OUTDIR}"
 
 # Run VE
-ve_run \
-  data/scenarios/sensitivity_soil_litter/config \
+mkdir "%OUTDIR%"/config \
   --out "${OUTDIR}" \
   --logfile "${OUTDIR}/logfile.log"
 
