@@ -36,6 +36,15 @@ log_dataset <- function(
   # download dataset metadata
   meta <- rcrossref::cr_cn(doi, format = "bibentry")
 
+  # set up output path
+  slug <- gsub("[/.]", "-", meta$doi)
+  path <- file.path(outdir, paste0(slug, ".yaml"))
+
+  # early exit if already logged
+  if (file.exists(path)) {
+    cli::cli_abort("A log for {doi} already exists at {path}")
+  }
+
   # prompt for decision, decision, decision...
   decision <- utils::select.list(
     c("included", "excluded"),
@@ -75,8 +84,6 @@ log_dataset <- function(
   )
 
   # Write YAML
-  slug <- gsub("[/.]", "-", meta$doi)
-  path <- file.path(outdir, paste0(slug, ".yaml"))
   yaml::write_yaml(record, path)
 
   # Completion message
