@@ -1,6 +1,5 @@
 # Experimental notebook
 
-
 This is an experimental notebook
 
 ``` r
@@ -29,4 +28,4 @@ abline(h = 0.5, v = 0.9)
 mean(x)
 ```
 
-    [1] 0.5005373
+    [1] 0.5407535
