@@ -1,0 +1,55 @@
+---
+title: "SAFE database screening for validation datasets"
+author:
+  name: Lai, Hao Ran
+date: last-modified
+format:
+  html: default
+comments:
+  hypothesis: true
+toc: true
+code-fold: true
+knitr:
+  opts_chunk:
+    message: false
+---
+
+```{r}
+#| label: load-libraries
+library(here)
+library(yaml)
+library(DT)
+library(tidyverse)
+```
+
+```{r}
+#| label: read-yaml
+#| column: screen
+# list all the dataset logs
+logfiles <- list.files(
+  here("data/derived/soil/validation/records"),
+  pattern = "\\.yaml$",
+  full.names = TRUE
+)
+
+# read the logs and tidy up
+records <-
+  logfiles |>
+  map(read_yaml) |>
+  map(as.data.frame) |>
+  list_rbind()
+
+# tabulate the records
+records |>
+  select(
+    DOI = doi,
+    Title = metadata.title,
+    Decision = decision,
+    Reason = reason,
+    Notes = notes,
+    Year = metadata.year
+  ) |>
+  datatable(
+    caption = "Screening decision of the SAFE database for soil and litter validation datasets."
+  )
+```
