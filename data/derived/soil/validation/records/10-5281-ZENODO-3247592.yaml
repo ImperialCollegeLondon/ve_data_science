@@ -1,0 +1,17 @@
+doi: 10.5281/ZENODO.3247592
+decision: excluded
+reason: no_soil_data
+notes: Contains soil carbon flux that are not validation targets.
+logged_at: '2026-05-21'
+metadata:
+  title: Daily cycles in soil carbon flux
+  author: Orme, C David L and Riutta, Terhi and Fraser, Adam and Mackintosh, Emma
+    and Vollans, Maisie and Graves, Kristina and Roxby, Gabrielle and Baynham, Georgina
+    and Noble, Ciar and Adzhar, Rahayu and MacLean, Catherine and Martin, Stephanie
+    and McKinlay, Amelia and Poznansky, Frederica and Prairie, Aaron and Brasington,
+    Ella and Wiederkehr, Fabienne
+  year: '2019'
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/3247592
+  keywords: soil CO2 flux, 24 hour cycle, partitioning

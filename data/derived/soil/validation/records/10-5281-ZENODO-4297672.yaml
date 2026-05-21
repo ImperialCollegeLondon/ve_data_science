@@ -1,0 +1,15 @@
+doi: 10.5281/ZENODO.4297672
+decision: excluded
+reason: no_soil_data
+notes: Soil keyword was only about sampling methodology.
+logged_at: '2026-05-21'
+metadata:
+  title: The Resilience of Tropical Forest Invertebrates to Microclimate Change
+  author: Boyle, Michael and Evans, Theo and Van Breugel, Michiel and Chung, Arthur
+    and Ewers, Robert
+  year: '2020'
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/4297672
+  keywords: 'Ants, CTmax, Microclimate, Physiology, FOS: Biological sciences, FOS:
+    Biological sciences'

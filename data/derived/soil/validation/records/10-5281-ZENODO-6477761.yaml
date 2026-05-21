@@ -1,0 +1,13 @@
+doi: 10.5281/ZENODO.6477761
+decision: excluded
+reason: no_soil_data
+notes: Contains soil disturbance but is not a validation target.
+logged_at: '2026-05-21'
+metadata:
+  title: Pig rooting surveys
+  author: Heon, Sui P and Berhard, Henry and Ewers, Robert M
+  year: '2022'
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/6477761
+  keywords: Bearded Pigs, African swine fever, Rooting, Soil disturbance
