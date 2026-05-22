@@ -1,0 +1,14 @@
+doi: 10.5281/ZENODO.1198471
+decision: excluded
+reason: no_soil_data
+notes: Contains soil temperature.
+logged_at: '2026-05-21'
+metadata:
+  title: Microclimate Change, Forest Disturbance And Twig-Dwelling Ants
+  author: Lane Shaw, Isolde
+  year: '2018'
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198471
+  keywords: twig-nesting ant, colonisation, termite, microclimate, soil temperature,
+    Ctmax

@@ -1,0 +1,14 @@
+doi: 10.5281/ZENODO.3888374
+decision: excluded
+reason: no_soil_data
+notes: Contains soil water content and soil temperature.
+logged_at: '2026-05-21'
+metadata:
+  title: Microclimate at SAFE Flux Tower
+  author: Riutta, Terhi and Malhi, Yadvinder and Ewers, Robert M and Majalap, Noreen
+  year: '2020'
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/3888374
+  keywords: microclimate, temperature, humidity, moisture, water content, radiation,
+    weather, data logger, rainfall, precipitation

@@ -1,0 +1,17 @@
+doi: 10.5281/ZENODO.7307448
+decision: excluded
+reason: no_soil_data
+notes: Contains net primary productivity and carbon balance data, may be worth revisiting
+  for emergent properties.
+logged_at: '2026-05-21'
+metadata:
+  title: Components of the complete budget for SAFE intensive carbon plots
+  author: Riutta, Terhi and Ewers, Robert M and Malhi, Yadvinder and Majalap, Noreen
+    and Khoon, Kho Lip and Mills, Maria
+  year: '2022'
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/7307448
+  keywords: Carbon balance, Respiration, Carbon flux, SAFE core data, SAFE project,
+    Carbon plot, Heterotropchic respiration, Autotrophic respiration, Soil carbon
+    cycle, Productivity, Litter, Soil organic matter, Flux
