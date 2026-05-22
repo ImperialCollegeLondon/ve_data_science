@@ -4,15 +4,31 @@ author:
   name: Lai, Hao Ran
 date: last-modified
 format:
-  html: default
+  html: 
+    embed-resources: true
 comments:
   hypothesis: true
 toc: true
+reference-location: margin
 code-fold: true
 knitr:
   opts_chunk:
     message: false
 ---
+
+# Goal
+
+To record my decisions as I screen through the SAFE database[^1] on Zenodo for soil and litter validation datasets.
+
+[^1]: I'm using the SAFE database as a testing example before expanding the workflow here to all other datasets in the wild.
+
+I also want something sharable to discuss with Jacob and the team. I expect a few rounds of discussion that iterate the decisions here.
+
+I expected most of the datasets to be not suitable, but I am including everything that I've screened through here so I remember what has been inspected and why it has been included or excluded.
+
+# Methods
+
+I wanted the final product to be a table of decision per dataset, plus the dataset' metadata (mostly citation information). But I do not want to manually copy-and-paste into MS Excel, so I opted for a custom function `log_dataset()` in R, which (1) automates the metadata extraction and (2) records my decision into a YAML file for each dataset. All YAMLs are then combined into @tbl-tabulate-records.
 
 ```{r}
 #| label: load-libraries
@@ -22,13 +38,8 @@ library(DT)
 library(tidyverse)
 ```
 
-Notes on soil temperature and soil moisture --- hydrology / abiotic or soil?
-
-`used_elsewhere` might be able to split them into test--train sets to salvage some data.
-
 ```{r}
 #| label: read-yaml
-#| column: screen
 # list all the dataset logs
 logfiles <- list.files(
   here("data/derived/soil/validation/records"),
@@ -42,8 +53,18 @@ records <-
   map(read_yaml) |>
   map(as.data.frame) |>
   list_rbind()
+```
 
-# tabulate the records
+# Notes for discussion
+
+- I will next focus on datasets that are listed as "included" under the "Decision" column. There are currently `r filter(records, decision == "included") |> nrow()` datasets.
+- Among the excluded datasets, a lot of them contains soil temperature and soil moisture, which fall under the abiotic and hydrology modules, but I will discuss with Lela if I should be responsible for them.
+- If we are really low on validation datasets, then datasets that are `used_elsewhere` (see Decision column) for input data can be split into testing--training sets. However this entails quite a lot of change to the previous input-data codes.
+- As expected, some of the datasets here that are not useful for soil can be useful for other modules, but I haven't decided on a good way to document and communicate that.
+
+```{r}
+#| label: tbl-tabulate-records
+#| column: screen
 records |>
   select(
     DOI = doi,
