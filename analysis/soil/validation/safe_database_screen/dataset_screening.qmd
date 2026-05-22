@@ -4,7 +4,7 @@ author:
   name: Lai, Hao Ran
 date: last-modified
 format:
-  html: 
+  html:
     embed-resources: true
 comments:
   hypothesis: true
