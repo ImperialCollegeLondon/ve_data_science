@@ -28,7 +28,7 @@
 #' log_dataset()
 
 log_dataset <- function(
-  outdir = "data/derived/soil/validation/records"
+  outdir = "data/derived/soil/validation/config"
 ) {
   # prompt to enter DOI
   doi <- readline("Enter DOI: ")
