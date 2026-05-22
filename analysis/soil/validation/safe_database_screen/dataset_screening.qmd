@@ -28,7 +28,9 @@ I expected most of the datasets to be not suitable, but I am including everythin
 
 # Methods
 
-I wanted the final product to be a table of decision per dataset, plus the dataset' metadata (mostly citation information). But I do not want to manually copy-and-paste into MS Excel, so I opted for a custom function `log_dataset()` in R, which (1) automates the metadata extraction and (2) records my decision into a YAML file for each dataset. All YAMLs are then combined into @tbl-tabulate-records.
+I wanted the final product to be a table of decision per dataset, plus the dataset' metadata (mostly citation information). But I do not want to manually copy-and-paste into MS Excel, so I opted for a custom function `log_dataset()` in R, which (1) automates the metadata extraction and (2) records my decision into a YAML file for each dataset. All YAMLs are then combined into @tbl-tabulate-records.[^2]
+
+[^2]: An unexpected feeling from generating a table here as a report (compared to an Excel sheet) is that I could add paragraphs of background text and thoughts in the same document, rather than having to write an email or GitHub issue and attach the Excel sheet, which are hard to track.
 
 ```{r}
 #| label: load-libraries
