@@ -43,17 +43,14 @@ library(tidyverse)
 ```{r}
 #| label: read-yaml
 # list all the dataset logs
-logfiles <- list.files(
-  here("data/derived/soil/validation/records"),
-  pattern = "\\.yaml$",
-  full.names = TRUE
-)
+logdir <- here("data/derived/soil/validation/config/sources")
+logfiles <- list.files(logdir, pattern = "\\.yaml$")
 
 # read the logs and tidy up
 records <-
-  logfiles |>
+  file.path(logdir, logfiles) |>
   map(read_yaml) |>
-  map(as.data.frame) |>
+  map2(logfiles, \(x, nm) as.data.frame(x) |> mutate(logfile = nm)) |>
   list_rbind()
 ```
 
@@ -68,8 +65,12 @@ records <-
 #| label: tbl-tabulate-records
 #| column: screen
 records |>
+  mutate(
+    DOI = paste0("<a href='", metadata.url, "' target='_blank'>", doi, "</a>")
+  ) |>
   select(
-    DOI = doi,
+    DOI,
+    Log = logfile,
     Title = metadata.title,
     Decision = decision,
     Reason = reason,
@@ -79,6 +80,7 @@ records |>
   datatable(
     caption = "Screening decision of the SAFE database for soil and litter validation datasets.",
     filter = list(position = "top"),
-    options = list(pageLength = 25)
+    options = list(pageLength = 25),
+    escape = FALSE
   )
 ```
