@@ -12,11 +12,30 @@ want to avoid having to write many custom codes that each only work for one
 dataset. The idea to run a single script to build the database, while YAML
 config metadata handles all dataset-specific idiosyncracies.
 
-!!! TODO
+The folder structure looks like this:
+```
+data/derived/soil
+└── validation
+    ├── config
+    │   ├── sources
+    │   │   ├── 10-5281-ZENODO-1198460.yaml  # metadata about each dataset
+    │   │   ├── 10-5281-ZENODO-1198471.yaml
+    │   │   ├── ...
+    │   ├── units_canonical.yaml   # canonical unit of VE data variables
+    │   └── unit_conversions.csv   # unit conversion table
+    └── database
+        └── ...  # a master .csv, but I'm considering .parquet
+tools/R
+├── add_schema.R                 # function to add dataset metadata
+├── build_validation_database.R  # main function to build database
+└── log_dataset.R                # function to screen datasets and autofill metadata
+```
 
-    Show the folder tree to illustrate points.
+I have built the pipeline in two parts:
 
-I have built the pipeline in two parts: data screening and data entering.
+1. data screening
+2. data entering
+
 Everything happens in `R` for now.
 
 ## Data screening workflow
