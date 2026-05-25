@@ -60,6 +60,7 @@ records <-
 - Among the excluded datasets, a lot of them contains soil temperature and soil moisture, which fall under the abiotic and hydrology modules, but I will discuss with Lela if I should be responsible for them.
 - If we are really low on validation datasets, then datasets that are `used_elsewhere` (see Decision column) for input data can be split into testing--training sets. However this entails quite a lot of change to the previous input-data codes.
 - As expected, some of the datasets here that are not useful for soil can be useful for other modules, but I haven't decided on a good way to document and communicate that.
+- We decided not to validate soil isotope datasets. From Jacob "For stable isotope to be used as a validation a significant amount of code would need to be added to track it, as you essentially have to start tracking litter newness".
 
 ```{r}
 #| label: tbl-tabulate-records
