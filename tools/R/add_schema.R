@@ -18,8 +18,10 @@ add_schema <- function(yaml_path) {
     skip_rows = 0L,
     variables = list(
       var_original_1 = list(
-        canonical = "var_ve_1",
+        var_canonical = "var_ve_1",
+        transform = NA,
         unit = "unit",
+        unit_transform = NA,
         description = NA
       )
     ),

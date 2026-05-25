@@ -20,15 +20,16 @@ data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
 skip_rows: 9
 variables:
   soilN:
-    canonical: derived
+    var_canonical: derived
     transform:
       "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
       soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
-    unit: mg cm-3
+    unit: mg cm^-3
+    unit_transform: kg m^-3
     description: Total soil nitrogen content
   soilP:
-    canonical: dissolved_phosphorus
-    unit: ug cm-3
+    var_canonical: dissolved_phosphorus
+    unit: ug cm^-3
     description: Plant available soil phosphorus content
 dedup_key:
   - plot.code
