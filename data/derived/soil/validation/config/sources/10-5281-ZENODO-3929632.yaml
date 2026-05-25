@@ -1,17 +1,54 @@
 doi: 10.5281/ZENODO.3929632
 decision: included
 reason: used_elsewhere
-notes: Used in various microbial and litter input data analyses, but there are leftover
-  soil variables such as soil_N, _C and _P worth validating.
-logged_at: '2026-05-21'
+notes:
+  Used in various microbial and litter input data analyses, but there are
+  leftover soil variables such as soil_N, _C and _P worth validating.
+logged_at: "2026-05-21"
 metadata:
-  title: Soil and litter chemistry, soil microbial communities and litter decomposition
-    from tropical forest and oil palm
-  author: Elias, Dafydd and Robinson, Samuel and Both, Sabine and Goodall, Tim and
+  title:
+    Soil and litter chemistry, soil microbial communities and litter
+    decomposition from tropical forest and oil palm
+  author:
+    Elias, Dafydd and Robinson, Samuel and Both, Sabine and Goodall, Tim and
     Majalap-Lee, Noreen and Ostle, Nick and McNamara, Niall
-  year: '2020'
+  year: "2020"
   journal: .na.character
   publisher: Zenodo
   url: https://zenodo.org/record/3929632
-  keywords: soil, soil microbial communities, PLFA, litter decomposition, litter,
+  keywords:
+    soil, soil microbial communities, PLFA, litter decomposition, litter,
     functional dissimilarity
+source_id: elias_2020
+data_file: data/primary/soil/elias_2020/SAFE_Dataset.csv
+skip_rows: 9
+variables:
+  soil_N:
+    var_canonical: derived
+    transform:
+      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
+      soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
+    unit: g g{bulk soil SAFE}^-1
+    unit_transform: kg N m^-3
+    description: Total soil nitrogen
+  soil_C:
+    var_canonical: derived
+    transform:
+      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
+      soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza +
+      soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza +
+      soil_c_pool_saprotrophic_fungi"
+    unit: g g{bulk soil SAFE}^-1
+    unit_transform: kg C m^-3
+    description: Total soil carbon
+  soil_P:
+    var_canonical: derived
+    transform:
+      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
+      soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary +
+      soil_p_pool_secondary"
+    unit: ug g{bulk soil SAFE}^-1
+    unit_transform: kg P m^-3
+    description: Total soil phosphorous
+dedup_key:
+  - location_name

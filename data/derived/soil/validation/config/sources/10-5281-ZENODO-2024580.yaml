@@ -25,7 +25,7 @@ variables:
       "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
       soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
     unit: mg cm^-3
-    unit_transform: kg m^-3
+    unit_transform: kg N m^-3
     description: Total soil nitrogen content
   soilP:
     var_canonical: dissolved_phosphorus
