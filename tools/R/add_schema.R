@@ -33,4 +33,7 @@ add_schema <- function(yaml_path) {
 
   # Write back
   yaml::write_yaml(merged, yaml_path)
+
+  # Open the YAML file in the editor for editing
+  file.edit(yaml_path)
 }
