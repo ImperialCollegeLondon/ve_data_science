@@ -1,3 +1,3 @@
 unit_from,unit_to,function
-ug cm-3,kg m^-3,x/1000
-mg cm-3,kg m^-3,x*1000
+ug cm^-3,kg N m^-3,x/1000
+mg cm^-3,kg m^-3,x*1000
