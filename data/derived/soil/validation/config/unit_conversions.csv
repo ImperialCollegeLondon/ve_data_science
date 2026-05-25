@@ -1,3 +1,13 @@
 unit_from,unit_to,function
+ug cm^-3,kg C m^-3,x/1000
 ug cm^-3,kg N m^-3,x/1000
-mg cm^-3,kg m^-3,x*1000
+ug cm^-3,kg P m^-3,x/1000
+mg cm^-3,kg C m^-3,x
+mg cm^-3,kg N m^-3,x
+mg cm^-3,kg P m^-3,x
+g cm^-3,kg C m^-3,x*1000
+g cm^-3,kg N m^-3,x*1000
+g cm^-3,kg P m^-3,x*1000
+g g{bulk soil SAFE}^-1,kg N m^-3,x*0.9421*1000
+g g{bulk soil SAFE}^-1,kg C m^-3,x*0.9421*1000
+ug g{bulk soil SAFE}^-1,kg P m^-3,x*0.9421/1000
