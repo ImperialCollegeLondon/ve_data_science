@@ -116,9 +116,7 @@ add_schema <- function(
     variables = list(
       var_original_1 = list(
         var_canonical = "var_ve_1",
-        transform = NA,
         unit = "unit",
-        unit_transform = NA,
         description = NA
       )
     ),
@@ -145,6 +143,8 @@ add_schema <- function(
 #'
 #' @export
 #' @examples
+#' box::use(tools/R/valdb)
+#' valdb$build_validation_database()
 
 build_validation_database <- function(
   config_dir = "data/derived/soil/validation/config",
@@ -156,12 +156,15 @@ build_validation_database <- function(
   # the CSV file needs to be manually updated when there is a new unit_from and
   # unit_to pairs
   unit_conversions <-
-    readr::read_csv(file.path(config_dir, "unit_conversions.csv")) |>
+    readr::read_csv(
+      file.path(config_dir, "unit_conversions.csv"),
+      show_col_types = FALSE
+    ) |>
     # convert literal function to function objects
     dplyr::mutate(
       convert_unit = purrr::map(
         `function`,
-        ~ rlang::as_function(as.formula(paste("~", gsub("x", ".x", .x))))
+        ~ rlang::as_function(stats::as.formula(paste("~", gsub("x", ".x", .x))))
       )
     )
 
@@ -187,7 +190,7 @@ build_validation_database <- function(
   # read the metadata of data sources
   sources <-
     sources_files |>
-    purrr::map(read_yaml) |>
+    purrr::map(yaml::read_yaml) |>
     # filter and keep only sources that has the source_id entry
     purrr::keep(~ purrr::pluck_exists(.x, "source_id"))
 
@@ -202,7 +205,7 @@ build_validation_database <- function(
         skip = source_dat$skip_rows
       ) |>
         # select the relevant columns: unique IDs and validation variables
-        dpylr::select(tidyr::all_of(c(
+        dplyr::select(tidyr::all_of(c(
           source_dat$dedup_key,
           names(source_dat$variables)
         ))) |>
@@ -214,52 +217,42 @@ build_validation_database <- function(
           cols = names(source_dat$variables),
           names_to = "var_original"
         ) |>
-        dpylr::filter(!is.na(value)) |>
+        dplyr::filter(!is.na(value)) |>
         # join variable information,
         # including unit and target validation variable
-        dpylr::left_join(
+        dplyr::left_join(
           source_dat$variables |>
             tibble::enframe(name = "var_original") |>
             tidyr::unnest_wider(value),
-          by = dpylr::join_by(var_original)
+          by = dplyr::join_by(var_original)
         ) |>
         # Unit conversion
-        dpylr::rename(unit_from = unit) |>
+        dplyr::rename(unit_from = unit) |>
         # join canonical or target units
-        dpylr::left_join(units, by = dpylr::join_by(var_canonical)) |>
-        # fallback to NA is left_join resulted in zero match
-        dpylr::mutate(unit_to = dpylr::coalesce(unit_to, NA)) |>
-        dpylr::mutate(
-          unit_to = ifelse(
-            is.na(unit_to) & !is.na(transform),
-            unit_transform,
-            unit_to
-          )
-        ) |>
+        dplyr::left_join(units, by = dplyr::join_by(var_canonical)) |>
         # join conversion function
-        dpylr::left_join(
+        dplyr::left_join(
           unit_conversions,
-          by = dpylr::join_by(unit_from, unit_to)
+          by = dplyr::join_by(unit_from, unit_to)
         ) |>
         # convert the unit finally
-        dpylr::mutate(
-          value_canonical = purrr::map2(value, convert_unit, ~ .y(.x))
+        dplyr::mutate(
+          value_canonical = purrr::map2_dbl(value, convert_unit, ~ .y(.x))
         ) |>
         # add the source ID
-        dpylr::mutate(dataset = source_dat$source_id)
+        dplyr::mutate(dataset = source_dat$source_id)
     })
 
   # combine datasets into database
   database <-
     data_harmonised |>
     purrr::list_rbind() |>
-    dpylr::select(
+    dplyr::select(
       dataset,
       ID,
       var_original,
       value_original = value,
       var_canonical,
-      transform,
       unit_from,
       unit_to,
       value_canonical
@@ -267,8 +260,11 @@ build_validation_database <- function(
 
   # Write database ---------------------------------------------------------
   database |>
-    dpylr::group_by(dataset) |>
+    dplyr::group_by(dataset) |>
     arrow::write_dataset(db_path, format = "parquet")
+
+  # print message on write
+  cli::cli_alert_success("Database saved to {db_path}.")
 }
 
 

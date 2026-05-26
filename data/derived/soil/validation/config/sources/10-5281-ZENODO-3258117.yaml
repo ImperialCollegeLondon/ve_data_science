@@ -24,24 +24,14 @@ data_file: data/primary/soil/drewer_2019/3_GHG_jdrewer.csv
 skip_rows: 5
 variables:
   soil_N:
-    var_canonical: derived
-    transform:
-      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
-      soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
+    var_canonical: total_soil_n
     unit: g cm^-3
-    unit_transform: kg N m^-3
     description:
       Percentage of soil N. Calculated in the CSV sheet as 'soil_N% *
       bulk_density'.
   soil_C:
-    var_canonical: derived
-    transform:
-      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
-      soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza +
-      soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza +
-      soil_c_pool_saprotrophic_fungi"
+    var_canonical: total_soil_c
     unit: g cm^-3
-    unit_transform: kg C m^-3
     description:
       Percentage of soil C. Calculated in the CSV sheet as 'soil_C% *
       bulk_density'.

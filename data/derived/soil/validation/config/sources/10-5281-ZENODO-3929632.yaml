@@ -24,31 +24,16 @@ data_file: data/primary/soil/elias_2020/SAFE_Dataset.csv
 skip_rows: 9
 variables:
   soil_N:
-    var_canonical: derived
-    transform:
-      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
-      soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
+    var_canonical: total_soil_n
     unit: g g{bulk soil SAFE}^-1
-    unit_transform: kg N m^-3
     description: Total soil nitrogen
   soil_C:
-    var_canonical: derived
-    transform:
-      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
-      soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza +
-      soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza +
-      soil_c_pool_saprotrophic_fungi"
+    var_canonical: total_soil_c
     unit: g g{bulk soil SAFE}^-1
-    unit_transform: kg C m^-3
     description: Total soil carbon
   soil_P:
-    var_canonical: derived
-    transform:
-      "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
-      soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary +
-      soil_p_pool_secondary"
+    var_canonical: total_soil_p
     unit: ug g{bulk soil SAFE}^-1
-    unit_transform: kg P m^-3
     description: Total soil phosphorous
 dedup_key:
   - location_name
