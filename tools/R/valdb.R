@@ -281,18 +281,33 @@ build_validation_database <- function(
 #'
 #' @export
 #' @examples
+#' box::use(tools/R/valdb)
+#' valdb$build_data_variables_table()
 
 build_data_variables_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = NULL
+  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  output = "data/derived/soil/validation/config/units_canonical.yaml"
 ) {
-  toml::read_toml(variables_ve) |>
+  var_list <- import_variables_table(variables_ve)
+  if (!is.null(variables_derived)) {
+    var_list <- c(var_list, import_variables_table(variables_derived))
+  }
+  yaml::write_yaml(var_list, output)
+}
+
+
+#' Title
+#'
+#' @param toml
+#'
+#' @returns
+
+import_variables_table <- function(toml) {
+  toml::read_toml(toml) |>
     purrr::pluck("variable") |>
     {
       \(x) purrr::set_names(x, purrr::map_chr(x, "name"))
     }() |>
-    purrr::map(~ purrr::discard(.x, names(.x) == "name")) |>
-    yaml::write_yaml(
-      "data/derived/soil/validation/config/units_canonical.yaml"
-    )
+    purrr::map(~ purrr::discard(.x, names(.x) == "name"))
 }
