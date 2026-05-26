@@ -141,8 +141,8 @@ YAML configs is to tell the single R script how to harmonise each dataset.
 
 ## Regular housekeeping
 
-- Update VE data variables table when there is a change upstream 
+- Update VE data variables table when there is a change upstream
   ```r
   box::use(tools/R/valdb[build_data_variables_table])
   build_data_variables_table()
-  ``` 
+  ```
