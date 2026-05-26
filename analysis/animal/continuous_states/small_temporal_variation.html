@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lai, Hao Ran">
+<meta name="dcterms.date" content="2026-05-19">
+
+<title>Empty forest? We need a scenario with persistent animal populations over the simulation period</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="small_temporal_variation_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="small_temporal_variation_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="small_temporal_variation_files/libs/quarto-html/popper.min.js"></script>
+<script src="small_temporal_variation_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="small_temporal_variation_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="small_temporal_variation_files/libs/bootstrap/bootstrap-6ab7983778ee3ef963c6f4653e24dfc7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script async="" src="https://hypothes.is/embed.js"></script>
+<script>
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    document.body.classList.add('hypothesis-enabled');
+  });
+</script>
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+
+  <ul>
+  <li><a href="#preamble" id="toc-preamble" class="nav-link active" data-scroll-target="#preamble">Preamble</a></li>
+  <li><a href="#model-and-data-summary" id="toc-model-and-data-summary" class="nav-link" data-scroll-target="#model-and-data-summary">Model and data summary</a></li>
+  <li><a href="#animal-continuous-state-variables" id="toc-animal-continuous-state-variables" class="nav-link" data-scroll-target="#animal-continuous-state-variables">Animal continuous state variables</a></li>
+  <li><a href="#why-we-need-persistent-animal-populations" id="toc-why-we-need-persistent-animal-populations" class="nav-link" data-scroll-target="#why-we-need-persistent-animal-populations">Why we need persistent animal populations</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="small_temporal_variation.md"><i class="bi bi-file-code"></i>Github (GFM)</a></li><li><a href="small_temporal_variation.ipynb" download="small_temporal_variation.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li><li><a href="..\..\..\small_temporal_variation.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li><li><a href="small_temporal_variation.docx"><i class="bi bi-file-word"></i>MS Word</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Empty forest? We need a scenario with persistent animal populations over the simulation period</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Lai, Hao Ran </p>
+          </div>
+  </div>
+
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 19, 2026</p>
+    </div>
+  </div>
+
+
+  </div>
+
+
+
+</header>
+
+
+<section id="preamble" class="level1">
+<h1>Preamble</h1>
+<p>I am conducting a sensitivity analysis for the soil and litter modules. A sensitivity analysis examines how much of the variation in an output is attributed to variation in an input. <strong>However, if an output never varies, it is meaningless to conduct a sensitivity analysis.</strong> This happens to a few animal-related outputs in the <code>all_continuous_data.nc</code> file. My gut feeling is that the lack of temporal variation is due to the animal FGs dying off, hence the exploration here.</p>
+<p>At the end of this report, I explain why we might want to design a scenario where there is at least some persistent animal populations, at least for the purpose of sensitivity analyses.</p>
+</section>
+<section id="model-and-data-summary" class="level1">
+<h1>Model and data summary</h1>
+<p>I ran the full <code>maliau_2</code> scenario:</p>
+<ul>
+<li>config in <code>data/scenarios/maliau/maliau_2/config</code></li>
+<li>data in <code>data/scenarios/maliau/maliau_2/data</code></li>
+<li>VE version: v0.1.1a17 (dev version; commit <a href="https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/b6a216bd263a50adfb5e1c90eb64583699578017">b6a216</a>)</li>
+<li>OS: Windows 11</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Improvement
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I’m thinking of writing a function to automatically summarise key model configurations from the full config TOML compiled by <code>ve_run</code>. We know what <code>maliau_2</code> means but others outside our team may not remember. Sometimes a scenario config may also change. Tracked in <a href="https://github.com/ImperialCollegeLondon/ve_data_science/issues/327">this Issue</a>.</p>
+</div>
+</div>
+</section>
+<section id="animal-continuous-state-variables" class="level1">
+<h1>Animal continuous state variables</h1>
+<p>Currently, I’m examining:</p>
+<ul>
+<li><code>animal_arbuscular_mycorrhiza_consumption</code></li>
+<li><code>animal_bacteria_consumption</code></li>
+<li><code>animal_ectomycorrhiza_consumption</code></li>
+<li><code>animal_pom_consumption_cnp</code></li>
+<li><code>animal_saprotrophic_fungi_consumption</code></li>
+<li><code>total_animal_respiration</code></li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Need help
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Pardon if I haven’t grasped the full list of “animal-related” continuous state variables. Please suggest anything that is missing here.</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidync)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">here</span>(<span class="st">"tools/R/tidy_continuous_data.R"</span>))</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>animal_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"animal_arbuscular_mycorrhiza_consumption"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"animal_bacteria_consumption"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"animal_ectomycorrhiza_consumption"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"animal_pom_consumption_cnp"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"animal_saprotrophic_fungi_consumption"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"total_animal_respiration"</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>animal_cont <span class="ot">&lt;-</span> <span class="fu">tidy_continuous_data</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> animal_vars</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</details>
+</div>
+<p>First I saw that the range of these state variables are very small. Are they truly very small, or are they numerical imprecisions that need to be zapped to zero?</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>animal_cont <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(variable) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">min =</span> <span class="fu">min</span>(value), <span class="at">max =</span> <span class="fu">max</span>(value))</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  variable                                       min      max
+  &lt;chr&gt;                                        &lt;dbl&gt;    &lt;dbl&gt;
+1 animal_arbuscular_mycorrhiza_consumption -4.18e-20 4.18e-20
+2 animal_bacteria_consumption              -1.17e-16 1.17e-16
+3 animal_ectomycorrhiza_consumption        -6.46e-18 6.46e-18
+4 animal_pom_consumption_cnp               -3.53e-17 3.33e-17
+5 animal_saprotrophic_fungi_consumption    -2.80e-17 2.73e-17
+6 total_animal_respiration                  0        0       </code></pre>
+</div>
+</div>
+<p>Here’s how the variables looked over simulation time steps:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>animal_cont <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(<span class="st">"variable2"</span>, variable, element, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>variable2, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(time_index, value, <span class="at">group =</span> cell_id), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-temporal-trend" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-temporal-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="small_temporal_variation_files/figure-html/fig-temporal-trend-1.png" width="672" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-temporal-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Temporal trends in animal state variables. Each semi-transparent line is a grid cell.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>animal_cohort <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># add one to the time index because python starts from zero</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>max_cohort_time <span class="ot">&lt;-</span> <span class="fu">max</span>(animal_cohort<span class="sc">$</span>time_index) <span class="sc">+</span> <span class="dv">1</span></span></code></pre></div>
+</details>
+</div>
+<p>Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step 4.</p>
+<p>Following Nick’s suggestion, I also checked the temporal trends in resource availability:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>resource_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_arbuscular_mycorrhiza"</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_bacteria"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_ectomycorrhiza"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_c_pool_saprotrophic_fungi"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"soil_cnp_pool_pom"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>resource_cont <span class="ot">&lt;-</span> <span class="fu">tidy_continuous_data</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> resource_vars</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>resource_cont <span class="sc">|&gt;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(<span class="st">"variable2"</span>, variable, element, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>variable2, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(time_index, value, <span class="at">group =</span> cell_id), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-resource-trend" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-resource-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="small_temporal_variation_files/figure-html/fig-resource-trend-1.png" width="672" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-resource-trend-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Temporal trends in resource state variables. Each semi-transparent line is a grid cell.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>A few follow-up questions upon seeing the temporal graphs:</p>
+<ul>
+<li>Why do we still see non-zero values in some variables long after all animals have gone extinct since time step 4?</li>
+<li>Presumably these variables are positive only; what do the negative values mean? The way they fluctuate almost symmetrically around zero makes me suspect that the non-zero values are not true non-zeros but numerical imprecision.</li>
+<li>There seems to be some relationship with resource availability. But there is no animal to consume then at later time steps?</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Checkpoint
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If these trends are numerical artefacts rather than true consumption and respiration rates, then there is not much point to read on.</p>
+</div>
+</div>
+</section>
+<section id="why-we-need-persistent-animal-populations" class="level1">
+<h1>Why we need persistent animal populations</h1>
+<p>Mainly so that we can include animal-related state variables into the sensitivity analyses. More importantly, the animal variables feed back into the non-animal variables. Unless we are truly aiming for an empty-forest scenario, we will be left with a half-complete sensitivity analysis.</p>
+<p>Should we consider an alternative set of animal FG definitions? Currently <code>maliau_2</code> uses the level 1 definition, which contain only a single herbivorous endotherm that always go extinct very early on. Has anyone run VE with the level 2 definitions? If the level 2 groups also go extinct, should we consider an alternative set (perhaps more basal in tropic levels) that can persist over time, and hence continue to keep the animal and non-animal components coupled until the end of simulation?</p>
+</section>
+
+</main>
+<!-- /main column -->
+</div> <!-- /content -->
+
+
+
+
+</body></html>
