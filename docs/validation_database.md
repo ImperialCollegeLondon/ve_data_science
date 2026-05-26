@@ -137,3 +137,11 @@ YAML configs is to tell the single R script how to harmonise each dataset.
 6. Once you have added the schema for all datasets to be included, simply run
    the R script `tools/R/build_validation_database.R` once to build the
    validation database. For now, we will just `source()` the script.
+
+## Regular housekeeping
+
+- Update VE data variables table when there is a change upstream 
+  ```r
+  box::use(tools/R/build_data_variables_table[build_data_variables_table])
+  build_data_variables_table()
+  ``` 
