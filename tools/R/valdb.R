@@ -102,8 +102,8 @@ log_dataset <- function(
 #' @examples
 
 add_schema <- function(
-  config_dir = "data/derived/soil/validation/config",
-  yaml_file
+  yaml_file,
+  config_dir = "data/derived/soil/validation/config"
 ) {
   # Read existing YAML
   existing <- yaml::read_yaml(file.path(config_dir, yaml_file))
