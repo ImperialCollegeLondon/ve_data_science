@@ -26,9 +26,10 @@ data/derived/soil
     └── database
         └── ...  # a master .csv, but I'm considering .parquet
 tools/R
-├── add_schema.R                 # function to add dataset metadata
-├── build_validation_database.R  # main function to build database
-└── log_dataset.R                # function to screen datasets and autofill metadata
+└── valdb.R
+    ├── add_schema()                 # function to add dataset metadata
+    ├── build_validation_database()  # main function to build database
+    └── log_dataset()                # function to screen datasets and autofill metadata
 ```
 
 I have built the pipeline in two parts:
@@ -49,7 +50,7 @@ guides data entering later.
 3. Log the dataset. The following code will bring up an interactive session:
 
    ```r
-   box::use(tools/R/log_dataset[log_dataset])
+   box::use(tools/R/valdb[log_dataset])
    # box::help(log_dataset)
    log_dataset()
    ```
@@ -106,7 +107,7 @@ YAML configs is to tell the single R script how to harmonise each dataset.
 3. Add the dataset's schema, which tells the build script how to harmonise this
    dataset:
    ```r
-   box::use(tools/R/add_schema[add_schema])
+   box::use(tools/R/valdb[add_schema])
    add_schema("data/derived/soil/validation/config/sources/10-5281-ZENODO-3929632.yaml")
    ```
    This will append some template YAML sections to the dataset's config file,
@@ -142,6 +143,6 @@ YAML configs is to tell the single R script how to harmonise each dataset.
 
 - Update VE data variables table when there is a change upstream 
   ```r
-  box::use(tools/R/build_data_variables_table[build_data_variables_table])
+  box::use(tools/R/valdb[build_data_variables_table])
   build_data_variables_table()
   ``` 
