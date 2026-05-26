@@ -23,9 +23,9 @@
 #' @export
 #'
 #' @examples
-#' box::use(tools/R/log_dataset[log_dataset])
-#' box::help(log_dataset)
-#' log_dataset()
+#' box::use(tools/R/valdb)
+#' box::help(valdb$log_dataset)
+#' valdb$log_dataset()
 
 log_dataset <- function(
   outdir = "data/derived/soil/validation/config/sources"
@@ -94,16 +94,19 @@ log_dataset <- function(
 
 #' Title
 #'
-#' @param yaml_path
+#' @param yaml_file
 #'
 #' @returns
 #'
 #' @export
 #' @examples
 
-add_schema <- function(yaml_path) {
+add_schema <- function(
+  config_dir = "data/derived/soil/validation/config",
+  yaml_file
+) {
   # Read existing YAML
-  existing <- yaml::read_yaml(yaml_path)
+  existing <- yaml::read_yaml(file.path(config_dir, yaml_file))
 
   # Default template schema
   template <- list(
@@ -126,10 +129,10 @@ add_schema <- function(yaml_path) {
   merged <- purrr::list_modify(existing, !!!template)
 
   # Write back
-  yaml::write_yaml(merged, yaml_path)
+  yaml::write_yaml(merged, yaml_file)
 
   # Open the YAML file in the editor for editing
-  file.edit(yaml_path)
+  file.edit(yaml_file)
 }
 
 
@@ -263,15 +266,19 @@ build_validation_database <- function(
 
 #' Title
 #'
+#' @param variables_ve
+#' @param variables_derived
+#'
 #' @returns
 #'
 #' @export
 #' @examples
 
-build_data_variables_table <- function() {
-  toml::read_toml(
-    "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml"
-  ) |>
+build_data_variables_table <- function(
+  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
+  variables_derived = NULL
+) {
+  toml::read_toml(variables_ve) |>
     purrr::pluck("variable") |>
     {
       \(x) purrr::set_names(x, purrr::map_chr(x, "name"))
