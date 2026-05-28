@@ -7,9 +7,9 @@
 
 Here we use a config-driven pipeline to read, wrangle, unit-convert, and
 combine multiple datasets into a single master file, hereafter referred to as
-the "database". We are not aiming for a full database backend, instead we only
-want to avoid having to write many custom codes that each only work for one
-dataset. The idea to run a single script to build the database, while YAML
+the "validation database". We are not aiming for a full database backend, instead
+the main goal is to avoid having to write many custom codes that each only work
+for one dataset. The idea to run a single script to build the database, while YAML
 config metadata handles all dataset-specific idiosyncracies.
 
 The folder structure looks like this:
@@ -24,7 +24,7 @@ data/derived/soil
     │   ├── units_canonical.yaml   # canonical unit of VE data variables
     │   └── unit_conversions.csv   # unit conversion table
     └── database
-        └── ...  # a master .csv, but I'm considering .parquet
+        └── ...  # a master database in the .parquet format (.csv also possible)
 tools/R
 └── valdb.R
     ├── add_schema()                 # function to add dataset metadata
@@ -50,9 +50,9 @@ guides data entering later.
 3. Log the dataset. The following code will bring up an interactive session:
 
    ```r
-   box::use(tools/R/valdb[log_dataset])
-   # box::help(log_dataset)
-   log_dataset()
+   box::use(tools/R/valdb)
+   # box::help(valdb$log_dataset)
+   valdb$log_dataset()
    ```
 
 4. After filling up the questions, a YAML config or metadata file will be saved
@@ -80,7 +80,8 @@ guides data entering later.
    ```
 5. Repeat the steps above until you've finished searching and screening for
    datasets.
-6. Build a table to view the screened datasets and your decisions about them.
+6. Build a table from these YAML metadata to view the screened datasets and your
+   decisions about them.
    I opted to write a Quarto report with additional notes, and then include an
    interactive table at the end of the html report. My report is saved in
    `analysis/soil/validation/safe_database_screen/dataset_screening.qmd`.
@@ -90,12 +91,15 @@ that you've decided to include for validation.
 
 ## Data entering workflow
 
-This stage begins by adding more information to the included dataset's YAML
+This stage begins by adding more information to the **included** dataset's YAML
 config, and ends with building a single database for validation. The editing of
-YAML configs is to tell the single R script how to harmonise each dataset.
+YAML configs is to tell the single R script how to harmonise each dataset. (As
+these YAML configs act a bit like code instructions, I recommend to treat
+them like codes and commit to GitHub, although they are stored under the
+`data/derived` directory.)
 
 1. Using the report's table as a tool, revisit the screened datasets to be
-   included (e.g., visit its DOI link).
+   included (e.g., by visiting its DOI link).
 2. Download the dataset to `data/primary/soil/<author>_<year>`. Note that I am
    again using the soil folder as an example, and I have opted a `author_year`
    folder naming convention. If there are conflicts, then the next folder should
@@ -105,44 +109,62 @@ YAML configs is to tell the single R script how to harmonise each dataset.
    data formats because the cost of manual conversion is relatively minor even
    in the long run.
 3. Add the dataset's schema, which tells the build script how to harmonise this
-   dataset:
+   dataset. For example:
    ```r
-   box::use(tools/R/valdb[add_schema])
-   add_schema("data/derived/soil/validation/config/sources/10-5281-ZENODO-3929632.yaml")
+   valdb$add_schema(
+     "10-5281-ZENODO-2024580.yaml",
+     config_dir = "data/derived/soil/validation/config/sources"
+   )
    ```
    This will append some template YAML sections to the dataset's config file,
-   which you have created during the data screening stage. (Need to make the
-   path setting more user friendly)
+   which you have created during the data screening stage.
 4. Manually add and edit the schema. An example schema looks like this:
    ```yaml
    source_id: dobert_2019
    data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
    skip_rows: 9
    variables:
-     soilN:
-       var_canonical: derived
-       transform:
-         "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
-         soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
-       unit: mg cm^-3
-       unit_transform: kg N m^-3
-       description: Total soil nitrogen content
-     soilP:
-       var_canonical: dissolved_phosphorus
-       unit: ug cm^-3
-       description: Plant available soil phosphorus content
+      soilN:
+         var_canonical: total_soil_n
+         unit: mg cm^-3
+         description: Total soil nitrogen content
+      soilP:
+         var_canonical: dissolved_phosphorus
+         unit: ug cm^-3
+         description: Plant available soil phosphorus content
    dedup_key:
-     - plot.code
+      - plot.code
    ```
-5. (More information on how to edit the schema)
+   In this example, I assigned the dataset a `source_id` of `dobert_2019`
+   following the author-year convention. The `data_file` entry specifies where
+   the csv primary data have been stored. It informs the R script to skip 9 rows
+   in the original csv, and then read data from the variable columns named `soilN` and `soilP`, as well as the unique sample ID from `plot.code`.
+5. The next important step is to set up the unit conversion. For each variable,
+   the metadata `var_canonical` tells the R script which VE data variable that
+   it should be mapped to; this also tells it about the target unit under the
+   hood, which is stored in an imported TOML config from VE, converted to YAML
+   and stored under `data/derived/soil/validation/config/units_canonical.yaml`.
+   When we key in the unit of measurement of the original variable in `unit`,
+   the R script will compare `unit` to the canonical target unit and do the
+   conversion based on a curated table in
+   `data/derived/soil/validation/config/unit_conversions.csv`. Sometimes the
+   original variable do not map 1:1 to any VE data variables (e.g., **total**
+   soil nitrogen). This requires another curated list of so-called derived
+   variables (a.k.a. emergent variables) in a similar TOML file to that of VE's
+   in `data/derived/soil/validation/config/derived_variables.toml`.
 6. Once you have added the schema for all datasets to be included, simply run
-   the R script `tools/R/build_validation_database.R` once to build the
-   validation database. For now, we will just `source()` the script.
+   ```r
+   valdb$build_data_variables_table()
+   ```
+   once in R to (re)build the validation database.
 
-## Regular housekeeping
+## Regular metadata curation
 
 - Update VE data variables table when there is a change upstream
   ```r
-  box::use(tools/R/valdb[build_data_variables_table])
-  build_data_variables_table()
+  valdb$build_data_variables_table()
   ```
+- Add new unit conversion when there is a new pair of units, by editing
+  `data/derived/soil/validation/config/unit_conversions.csv`
+- Add new derived or emergent variables not defined in VE, by editing
+  `data/derived/soil/validation/config/derived_variables.toml`
