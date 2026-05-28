@@ -100,13 +100,33 @@ log_dataset <- function(
 #'
 #' @export
 #' @examples
+#' box::use(tools/R/valdb)
+#' valdb$add_schema(
+#'   "10-5281-ZENODO-2024580.yaml",
+#'   config_dir = "data/derived/soil/validation/config/sources"
+#' )
 
 add_schema <- function(
   yaml_file,
-  config_dir = "data/derived/soil/validation/config"
+  config_dir = "data/derived/soil/validation/config/sources"
 ) {
   # Read existing YAML
   existing <- yaml::read_yaml(file.path(config_dir, yaml_file))
+
+  # warn if source_id already exists, indicating that a schema has already been
+  # added previously
+  if ("source_id" %in% names(existing)) {
+    if (
+      !yesno::yesno(
+        c(
+          "`source_id` already exists in the source YAML metadata.\n",
+          "Proceeding would overwrite the previous entries, are you sure?"
+        )
+      )
+    ) {
+      stop("Aborted.")
+    }
+  }
 
   # Default template schema
   template <- list(
@@ -130,7 +150,7 @@ add_schema <- function(
   yaml::write_yaml(merged, yaml_file)
 
   # Open the YAML file in the editor for editing
-  file.edit(yaml_file)
+  utils::file.edit(yaml_file)
 }
 
 
