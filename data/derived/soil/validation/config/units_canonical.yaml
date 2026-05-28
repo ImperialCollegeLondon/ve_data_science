@@ -1,0 +1,1276 @@
+population_densities:
+  axis: []
+  description: Density of animal populations.
+  unit: individual m-2
+  variable_type: float
+air_heat_conductivity:
+  axis:
+  - spatial
+  description: Air heat conductivity between layers
+  unit: mol m-2 s-1
+  variable_type: float
+air_temperature:
+  axis:
+  - spatial
+  description: Air temperature profile
+  unit: C
+  variable_type: float
+air_temperature_ref:
+  axis:
+  - spatial
+  - time
+  description: Air temperature at reference height (2m)
+  unit: C
+  variable_type: float
+diurnal_temperature_range:
+  axis:
+  - spatial
+  description: Diurnal air temperature range
+  unit: C
+  variable_type: float
+total_animal_respiration:
+  axis:
+  - spatial
+  description: Animal respiration aggregated over all functional types
+  unit: ppm
+  variable_type: float
+atmospheric_co2:
+  axis:
+  - spatial
+  description: Atmospheric CO2 concentration profile
+  unit: ppm
+  variable_type: float
+atmospheric_co2_ref:
+  axis:
+  - spatial
+  - time
+  description: Atmospheric CO2 concentration at reference height (above canopy)
+  unit: ppm
+  variable_type: float
+atmospheric_pressure:
+  axis:
+  - spatial
+  description: Atmospheric pressure profile
+  unit: kPa
+  variable_type: float
+atmospheric_pressure_ref:
+  axis:
+  - spatial
+  - time
+  description: Atmospheric pressure at reference height (2m)
+  unit: kPa
+  variable_type: float
+attenuation_coefficient:
+  axis:
+  - spatial
+  description: Wind attenuation coefficient
+  unit: '-'
+  variable_type: float
+baseflow:
+  axis:
+  - spatial
+  description: Baseflow
+  unit: mm
+  variable_type: float
+bypass_flow:
+  axis:
+  - spatial
+  description: Bypass flow
+  unit: mm
+  variable_type: float
+shortwave_absorption:
+  axis:
+  - spatial
+  description: Shortwave radiation absorbed by individual canopy layers
+  unit: W m-2
+  variable_type: float
+canopy_height:
+  axis:
+  - spatial
+  description: Canopy height
+  unit: m
+  variable_type: float
+canopy_temperature:
+  axis:
+  - spatial
+  description: Canopy temperature of individual layers
+  unit: C
+  variable_type: float
+conductivity_from_ref_height:
+  axis:
+  - spatial
+  description: Conductivity from reference height
+  unit: mol m-2 s-1
+  variable_type: float
+conductivity_from_soil:
+  axis:
+  - spatial
+  description: Conductivity from soil
+  unit: mol m-2 s-1
+  variable_type: float
+condensation:
+  axis:
+  - spatial
+  description: Condensated water from supersaturation in the atmosphere
+  unit: mm
+  variable_type: float
+diabatic_correction_heat_above:
+  axis:
+  - spatial
+  description: Diabatic correction factor for heat above canopy
+  unit: '-'
+  variable_type: float
+diabatic_correction_heat_canopy:
+  axis:
+  - spatial
+  description: Diabatic correction factor for heat in canopy
+  unit: '-'
+  variable_type: float
+diabatic_correction_momentum_above:
+  axis:
+  - spatial
+  description: Diabatic correction factor for momentum above canopy
+  unit: '-'
+  variable_type: float
+diabatic_correction_momentum_canopy:
+  axis:
+  - spatial
+  description: Diabatic correction factor for momentum in canopy
+  unit: '-'
+  variable_type: float
+elevation:
+  axis:
+  - spatial
+  description: Elevation above sea level
+  unit: m
+  variable_type: float
+transpiration:
+  axis:
+  - spatial
+  description: Transpiration from the canopy and subcanopy
+  unit: mm
+  variable_type: float
+friction_velocity:
+  axis:
+  - spatial
+  description: Friction velocity
+  unit: m s-1
+  variable_type: float
+ground_heat_flux:
+  axis:
+  - spatial
+  description: Ground heat flux
+  unit: W m-2
+  variable_type: float
+conductive_flux_understorey:
+  axis:
+  - spatial
+  description: Conductive flux between soil and understorey
+  unit: W m-2
+  variable_type: float
+groundwater_storage:
+  axis:
+  - spatial
+  description: Groundwater Storage
+  unit: mm
+  variable_type: float
+latent_heat_flux:
+  axis:
+  - spatial
+  description: Latent heat flux profile
+  unit: W m-2
+  variable_type: float
+latent_heat_flux_soil:
+  axis:
+  - spatial
+  description: Latent heat flux from topsoil layer
+  unit: W m-2
+  variable_type: float
+latent_heat_vapourisation:
+  axis:
+  - spatial
+  description: Latent heat of vapourisation
+  unit: kJ kg-1
+  variable_type: float
+layer_heights:
+  axis:
+  - spatial
+  description: Heights of model layers
+  unit: m
+  variable_type: float
+interception:
+  axis:
+  - spatial
+  description: Intercepted rainfall in canopy
+  unit: mm
+  variable_type: float
+leaf_air_heat_conductivity:
+  axis:
+  - spatial
+  description: Leaf air heat conductivity
+  unit: mol m-2 s-1
+  variable_type: float
+leaf_area_index:
+  axis:
+  - spatial
+  description: Leaf area index
+  unit: m m-1
+  variable_type: float
+leaf_vapour_conductivity:
+  axis:
+  - spatial
+  description: Leaf vapour conductivity
+  unit: mol m-2 s-1
+  variable_type: float
+longwave_canopy:
+  axis:
+  - spatial
+  description: Longwave emission from individual canopy layers
+  unit: W m-2
+  variable_type: float
+longwave_emission_soil:
+  axis:
+  - spatial
+  description: Longwave emission from topsoil layer
+  unit: W m-2
+  variable_type: float
+longwave_emission:
+  axis:
+  - spatial
+  description: Longwave emission
+  unit: W m-2
+  variable_type: float
+matric_potential:
+  axis:
+  - spatial
+  description: Matric potential
+  unit: kPa
+  variable_type: float
+mean_annual_temperature:
+  axis:
+  - spatial
+  - time
+  description: Mean annual temperature = temperature of deepest soil layer
+  unit: C
+  variable_type: float
+mean_mixing_length:
+  axis:
+  - spatial
+  description: Mean mixing length
+  unit: m
+  variable_type: float
+mixing_coefficient:
+  axis:
+  - spatial
+  description: Turbulent mixing coefficient
+  unit: s-1
+  variable_type: float
+ventilation_rate:
+  axis:
+  - spatial
+  description: ventilation rate between top of canopy and atmosphere above
+  unit: s-1
+  variable_type: float
+net_radiation:
+  axis:
+  - spatial
+  description: Net radiation
+  unit: W m-2
+  variable_type: float
+density_air:
+  axis:
+  - spatial
+  description: Temperature-dependent density of air
+  unit: kg m-3
+  variable_type: float
+plant_net_co2_assimilation:
+  axis: []
+  description: Plant net CO2 assimilation
+  unit: ppm
+  variable_type: ''
+downward_shortwave_radiation:
+  axis:
+  - spatial
+  - time
+  description: Top of canopy downward shortwave radiation (DSR)
+  unit: W m-2
+  variable_type: float
+downward_longwave_radiation:
+  axis:
+  - spatial
+  - time
+  description: Top of canopy downward longwave radiation (DLR)
+  unit: W m-2
+  variable_type: float
+precipitation:
+  axis:
+  - spatial
+  - time
+  description: Precipitation input at the top of the canopy
+  unit: mm
+  variable_type: float
+precipitation_surface:
+  axis:
+  - spatial
+  description: Precipitation that reaches surface
+  unit: mm
+  variable_type: float
+relative_humidity:
+  axis:
+  - spatial
+  description: Relative humidity profile
+  unit: '%'
+  variable_type: float
+relative_humidity_ref:
+  axis:
+  - spatial
+  - time
+  description: Relative humidity at reference height (2m)
+  unit: '%'
+  variable_type: float
+relative_turbulence_intensity:
+  axis:
+  - spatial
+  description: Relative turbulence intensity
+  unit: '-'
+  variable_type: float
+river_discharge_rate:
+  axis:
+  - spatial
+  description: River discharge rate
+  unit: m3 s-1
+  variable_type: float
+aerodynamic_resistance_soil:
+  axis:
+  - spatial
+  description: Aerodynamic resistance soil
+  unit: s m-1
+  variable_type: float
+aerodynamic_resistance_canopy:
+  axis:
+  - spatial
+  description: Aerodynamic resistance canopy
+  unit: s m-1
+  variable_type: float
+canopy_evaporation:
+  axis:
+  - spatial
+  description: Canopy evaporation
+  unit: mm
+  variable_type: float
+roughness_length_momentum:
+  axis:
+  - spatial
+  description: Roughness length for momentum
+  unit: m
+  variable_type: float
+saturated_vapour_pressure_ref:
+  axis:
+  - spatial
+  - time
+  description: Saturated vapour pressure at reference height (2m)
+  unit: kPa
+  variable_type: float
+sensible_heat_flux:
+  axis:
+  - spatial
+  description: Sensible heat flux profile
+  unit: W m-2
+  variable_type: float
+sensible_heat_flux_soil:
+  axis:
+  - spatial
+  description: Sensible heat flux from topsoil layer
+  unit: W m-2
+  variable_type: float
+shortwave_radiation_surface:
+  axis:
+  - spatial
+  description: Shortwave radiation at the surface
+  unit: W m-2
+  variable_type: float
+soil_absorption:
+  axis:
+  - spatial
+  description: Shortwave radiation absorbed by topsoil layer
+  unit: W m-2
+  variable_type: float
+soil_vapour_pressure:
+  axis:
+  - spatial
+  description: Soil vapour pressure
+  unit: kPa
+  variable_type: float
+subsurface_runoff_routed_plus_local:
+  axis:
+  - spatial
+  description: Subsurface flow contributing to river discharge in each grid cell
+  unit: mm
+  variable_type: float
+soil_evaporation:
+  axis:
+  - spatial
+  description: Soil evaporation
+  unit: mm
+  variable_type: float
+soil_moisture:
+  axis:
+  - spatial
+  description: Soil moisture
+  unit: mm
+  variable_type: float
+soil_respiration:
+  axis:
+  - spatial
+  description: Soil respiration
+  unit: ppm
+  variable_type: ''
+soil_temperature:
+  axis:
+  - spatial
+  description: Soil temperature profile
+  unit: C
+  variable_type: float
+specific_heat_air:
+  axis:
+  - spatial
+  description: Specific heat of air
+  unit: J kg-1 K-1
+  variable_type: float
+specific_humidity:
+  axis:
+  - spatial
+  description: Specific humidity of air
+  unit: g kg-1
+  variable_type: ''
+stomatal_conductance:
+  axis:
+  - spatial
+  description: Stomatal conductance
+  unit: mol m-2 s-1
+  variable_type: float
+stream_flow:
+  axis:
+  - spatial
+  description: Estimated stream flow
+  unit: mm per time step
+  variable_type: float
+subsurface_flow:
+  axis:
+  - spatial
+  description: Subsurface flow
+  unit: mm
+  variable_type: float
+surface_runoff:
+  axis:
+  - spatial
+  description: Surface runoff generated in each grid cell
+  unit: mm
+  variable_type: float
+surface_runoff_routed_plus_local:
+  axis:
+  - spatial
+  description: Surface runoff contributing to river discharge in each grid cell
+  unit: mm
+  variable_type: float
+topofcanopy_radiation:
+  axis:
+  - spatial
+  description: Top of canopy downward shortwave radiation
+  unit: W m-2
+  variable_type: float
+total_runoff:
+  axis:
+  - spatial
+  description: Total runoff through each grid cell
+  unit: mm
+  variable_type: float
+vapour_pressure:
+  axis:
+  - spatial
+  description: Vapour pressure profile
+  unit: kPa
+  variable_type: float
+vapour_pressure_ref:
+  axis:
+  - spatial
+  - time
+  description: Vapour pressure at reference height (2m)
+  unit: kPa
+  variable_type: float
+vapour_pressure_deficit:
+  axis:
+  - spatial
+  description: Vapour pressure deficit profile
+  unit: kPa
+  variable_type: float
+vapour_pressure_deficit_ref:
+  axis:
+  - spatial
+  - time
+  description: Vapour pressure deficit at reference height (2m)
+  unit: kPa
+  variable_type: float
+vertical_flow:
+  axis:
+  - spatial
+  description: Vertical flow of water through soil column
+  unit: mm per time step (currently day)
+  variable_type: float
+wind_speed:
+  axis:
+  - spatial
+  description: Wind profile within and below canopy
+  unit: m s-1
+  variable_type: float
+wind_speed_ref:
+  axis:
+  - spatial
+  - time
+  description: Wind speed at reference height (10m)
+  unit: m s-1
+  variable_type: float
+zero_plane_displacement:
+  axis:
+  - spatial
+  description: Zero plane displacement height
+  unit: m
+  variable_type: float
+soil_cnp_pool_lmwc:
+  axis:
+  - spatial
+  description: Soil low molecular weight carbon pool. Carbon, nitrogen and phosphorous
+    content
+  unit: kg m^-3
+  variable_type: float
+soil_cnp_pool_maom:
+  axis:
+  - spatial
+  description: Soil mineral associated organic matter pool. Carbon, nitrogen and phosphorous
+    content
+  unit: kg m^-3
+  variable_type: float
+soil_c_pool_bacteria:
+  axis:
+  - spatial
+  description: Soil bacterial biomass (carbon) pool
+  unit: kg C m^-3
+  variable_type: float
+soil_c_pool_saprotrophic_fungi:
+  axis:
+  - spatial
+  description: Soil saprotrophic fungal biomass (carbon) pool
+  unit: kg C m^-3
+  variable_type: float
+soil_c_pool_arbuscular_mycorrhiza:
+  axis:
+  - spatial
+  description: Soil arbuscular mycorrhizal fungal biomass (carbon) pool
+  unit: kg C m^-3
+  variable_type: float
+soil_c_pool_ectomycorrhiza:
+  axis:
+  - spatial
+  description: Soil ectomycorrhizal fungal biomass (carbon) pool
+  unit: kg C m^-3
+  variable_type: float
+soil_cnp_pool_pom:
+  axis:
+  - spatial
+  description: Particulate organic matter pool. Carbon, nitrogen and phosphorous content
+  unit: kg m^-3
+  variable_type: float
+soil_cnp_pool_necromass:
+  axis:
+  - spatial
+  description: Necrotic organic matter pool. Carbon, nitrogen and phosphorous content
+  unit: kg m^-3
+  variable_type: float
+soil_n_pool_ammonium:
+  axis:
+  - spatial
+  description: Amount of nitrogen contained in the soil ammonium (NH4+) pool
+  unit: kg N m^-3
+  variable_type: float
+soil_n_pool_nitrate:
+  axis:
+  - spatial
+  description: Amount of nitrogen contained in the soil nitrate (NO3-) pool
+  unit: kg N m^-3
+  variable_type: float
+soil_p_pool_primary:
+  axis:
+  - spatial
+  description: Amount of phosphorus in a primary mineral form
+  unit: kg P m^-3
+  variable_type: float
+soil_p_pool_secondary:
+  axis:
+  - spatial
+  description: Amount of inorganic phosphorus that is associated with secondary minerals
+  unit: kg P m^-3
+  variable_type: float
+soil_p_pool_labile:
+  axis:
+  - spatial
+  description: Amount of inorganic phosphorus that is in a labile form
+  unit: kg P m^-3
+  variable_type: float
+pH:
+  axis:
+  - spatial
+  description: Soil pH values for each grid cell
+  unit: pH
+  variable_type: float
+litter_pool_above_metabolic_cnp:
+  axis:
+  - spatial
+  description: Above ground metabolic litter pool, carbon, nitrogen and phosphorus
+    mass
+  unit: kg m^-2
+  variable_type: float
+litter_pool_above_structural_cnp:
+  axis:
+  - spatial
+  description: Above ground structural litter pool, carbon, nitrogen and phosphorus
+    mass
+  unit: kg m^-2
+  variable_type: float
+litter_pool_woody_cnp:
+  axis:
+  - spatial
+  description: Woody litter pool, carbon, nitrogen and phosphorus mass
+  unit: kg m^-2
+  variable_type: float
+litter_pool_below_metabolic_cnp:
+  axis:
+  - spatial
+  description: Below ground metabolic litter pool, carbon, nitrogen and phosphorus
+    mass
+  unit: kg m^-2
+  variable_type: float
+litter_pool_below_structural_cnp:
+  axis:
+  - spatial
+  description: Below ground structural litter pool, carbon, nitrogen and phosphorus
+    mass
+  unit: kg m^-2
+  variable_type: float
+litter_mineralisation_rate_cnp:
+  axis:
+  - spatial
+  description: Rate of carbon, nitrogen and phosphorus addition to soil from litter
+  unit: kg m^-3 day^-1
+  variable_type: float
+lignin_above_structural:
+  axis:
+  - spatial
+  description: Proportion of above ground structural litter carbon which is lignin
+    carbon
+  unit: unitless
+  variable_type: float
+lignin_below_structural:
+  axis:
+  - spatial
+  description: Proportion of below ground structural litter carbon which is lignin
+    carbon
+  unit: unitless
+  variable_type: float
+lignin_woody:
+  axis:
+  - spatial
+  description: Proportion of dead wood carbon which is lignin carbon
+  unit: unitless
+  variable_type: float
+decomposed_excrement_cnp:
+  axis:
+  - spatial
+  description: Flow rates of carbon, nitrogen and phosphorous into the soil due to
+    animal excrement decay
+  unit: kg m^-2 day^-1
+  variable_type: float
+decomposed_carcasses_cnp:
+  axis:
+  - spatial
+  description: Flow rates of carbon, nitrogen and phosphorous into the soil due to
+    animal carcass decay
+  unit: kg m^-2 day^-1
+  variable_type: float
+herbivory_waste_leaf_cnp:
+  axis:
+  - spatial
+  description: Carbon, nitrogen and phosphorus mass of leaves added to the litter
+    due to herbivore mechanical inefficiency
+  unit: kg
+  variable_type: float
+herbivory_waste_leaf_lignin:
+  axis:
+  - spatial
+  description: Proportion of leaf carbon added to litter due to herbivore mechanical
+    inefficiency that is lignin carbon
+  unit: unitless
+  variable_type: float
+litter_consumed_above_metabolic_cnp:
+  axis:
+  - spatial
+  description: Amount of above-ground metabolic litter that has been consumed by animals,
+    in carbon, nitrogen and phosphorus terms
+  unit: kg
+  variable_type: float
+litter_consumed_above_structural_cnp:
+  axis:
+  - spatial
+  description: Amount of above-ground structural litter that has been consumed by
+    animals, in carbon, nitrogen and phosphorus terms
+  unit: kg
+  variable_type: float
+litter_consumed_woody_cnp:
+  axis:
+  - spatial
+  description: Amount of woody litter that has been consumed by animals, in carbon,
+    nitrogen and phosphorus terms
+  unit: kg
+  variable_type: float
+litter_consumed_below_metabolic_cnp:
+  axis:
+  - spatial
+  description: Amount of below-ground metabolic litter that has been consumed by animals,
+    in carbon, nitrogen and phosphorus terms
+  unit: kg
+  variable_type: float
+litter_consumed_below_structural_cnp:
+  axis:
+  - spatial
+  description: Amount of below-ground structural litter that has been consumed by
+    animals, in carbon, nitrogen and phosphorus terms
+  unit: kg
+  variable_type: float
+animal_pom_consumption_cnp:
+  axis:
+  - spatial
+  description: Rate at which carbon, nitrogen and phosphorus components of soil particulate
+    organic matter are consumed by animals
+  unit: kg m^-3 day^-1
+  variable_type: float
+animal_bacteria_consumption:
+  axis:
+  - spatial
+  description: Rate at which soil bacteria are being consumed by animals
+  unit: kg C m^-3 day^-1
+  variable_type: float
+animal_saprotrophic_fungi_consumption:
+  axis:
+  - spatial
+  description: Rate at which saprotrophic soil fungi are being consumed by animals
+  unit: kg C m^-3 day^-1
+  variable_type: float
+animal_ectomycorrhiza_consumption:
+  axis:
+  - spatial
+  description: Rate at which ectomycorrhizal soil fungi are being consumed by animals
+  unit: kg C m^-3 day^-1
+  variable_type: float
+animal_arbuscular_mycorrhiza_consumption:
+  axis:
+  - spatial
+  description: Rate at which arbuscular mycorrhizal soil fungi are being consumed
+    by animals
+  unit: kg C m^-3 day^-1
+  variable_type: float
+fungal_fruiting_bodies:
+  axis:
+  - spatial
+  description: Density of fungal fruiting bodies growing from the litter and soil
+  unit: kg C m^-2
+  variable_type: float
+decay_of_fungal_fruiting_bodies:
+  axis:
+  - spatial
+  description: Rate of decay of fungal fruiting bodies back into the soil
+  unit: kg C m^-2 day^-1
+  variable_type: float
+production_of_fungal_fruiting_bodies:
+  axis:
+  - spatial
+  description: Rate at which fungal fruiting bodies are produced by soil fungi
+  unit: kg C m^-2 day^-1
+  variable_type: float
+plant_pft_propagules:
+  axis:
+  - spatial
+  description: Per cell counts of propagules for each plant functional type
+  unit: count
+  variable_type: integer
+fallen_non_propagule_c_mass:
+  axis:
+  - spatial
+  description: Plant reproductive tissue non-propagule turnover since last update
+  unit: kg C m^-2
+  variable_type: float
+stem_lignin:
+  axis:
+  - spatial
+  description: Proportion of stem carbon that is lignin carbon
+  unit: unitless
+  variable_type: float
+senesced_leaf_lignin:
+  axis:
+  - spatial
+  description: Proportion of carbon in leaf turnover that is lignin carbon
+  unit: unitless
+  variable_type: float
+plant_reproductive_tissue_lignin:
+  axis:
+  - spatial
+  description: Proportion of carbon in reproductive tissue turnover that is lignin
+    carbon
+  unit: unitless
+  variable_type: float
+root_lignin:
+  axis:
+  - spatial
+  description: Proportion of carbon in root turnover that is lignin carbon
+  unit: unitless
+  variable_type: float
+plant_reproductive_tissue_turnover_c_n_ratio:
+  axis:
+  - spatial
+  description: Carbon:nitrogen ratio of plant reproductive tissue turnover
+  unit: '-'
+  variable_type: float
+plant_reproductive_tissue_turnover_c_p_ratio:
+  axis:
+  - spatial
+  description: Carbon:phosphorus ratio of plant reproductive tissue turnover
+  unit: '-'
+  variable_type: float
+plant_rt_turnover_n_mass:
+  axis:
+  - spatial
+  description: Mass of Nitrogen in plant reproductive and tissue turnover
+  unit: kg N
+  variable_type: float
+plant_rt_turnover_p_mass:
+  axis:
+  - spatial
+  description: Mass of Phosphorus in plant reproductive and tissue turnover
+  unit: kg P
+  variable_type: float
+plant_reproductive_tissue_turnover:
+  axis:
+  - spatial
+  description: Mass of plant reproductive tissue turnover
+  unit: kg C
+  variable_type: float
+plant_reproductive_tissue_turnover_cnp:
+  axis:
+  - spatial
+  description: Biomasses of plant reproductive tissue turnover
+  unit: kg C
+  variable_type: float
+fruit_turnover_cnp:
+  axis:
+  - spatial
+  description: Biomasses of plant fruit tissue turnover
+  unit: kg C
+  variable_type: float
+seed_turnover_cnp:
+  axis:
+  - spatial
+  description: Biomasses of plant seed tissue turnover
+  unit: kg C
+  variable_type: float
+plant_symbiote_carbon_supply:
+  axis:
+  - spatial
+  description: Rate at which plants are supplying carbon to their soil-living symbiotic
+    partners
+  unit: kg C m^-2 day^-1
+  variable_type: float
+root_carbohydrate_exudation:
+  axis:
+  - spatial
+  description: Rate at which plants exude carbohydrates from their roots into the
+    soil
+  unit: kg C m^-2 day^-1
+  variable_type: float
+dissolved_nitrate:
+  axis:
+  - spatial
+  description: Concentration of dissolved nitrate in the topsoil layer
+  unit: kg N m^-3
+  variable_type: float
+dissolved_ammonium:
+  axis:
+  - spatial
+  description: Concentration of dissolved ammonium in the topsoil layer
+  unit: kg N m^-3
+  variable_type: float
+dissolved_phosphorus:
+  axis:
+  - spatial
+  description: Concentration of dissolved labile inorganic phosphorus in the topsoil
+    layer
+  unit: kg N m^-3
+  variable_type: float
+arbuscular_mycorrhizal_n_supply:
+  axis:
+  - spatial
+  description: Amount of nitrogen provided by arbuscular mycorrhizal fungi to their
+    plant partners
+  unit: kg N
+  variable_type: float
+arbuscular_mycorrhizal_p_supply:
+  axis:
+  - spatial
+  description: Amount of phosphorous provided by arbuscular mycorrhizal fungi to their
+    plant partners
+  unit: kg P
+  variable_type: float
+ectomycorrhizal_n_supply:
+  axis:
+  - spatial
+  description: Amount of nitrogen provided by ectomycorrhizal fungi to their plant
+    partners
+  unit: kg N
+  variable_type: float
+ectomycorrhizal_p_supply:
+  axis:
+  - spatial
+  description: Amount of phosphorous provided by ectomycorrhizal fungi to their plant
+    partners
+  unit: kg P
+  variable_type: float
+plant_ammonium_uptake:
+  axis:
+  - spatial
+  description: Rate at which plants uptake ammonium from the soil
+  unit: kg N m^-2 day^-1
+  variable_type: float
+plant_nitrate_uptake:
+  axis:
+  - spatial
+  description: Rate at which plants uptake nitrate from the soil
+  unit: kg N m^-2 day^-1
+  variable_type: float
+plant_phosphorus_uptake:
+  axis:
+  - spatial
+  description: Rate at which plants uptake labile inorganic phosphorus from the soil
+  unit: kg P m^-2 day^-1
+  variable_type: float
+clay_fraction:
+  axis:
+  - spatial
+  description: The fraction of clay in soil. This is a proportion between 0 and 1.
+  unit: '-'
+  variable_type: float
+layer_fapar:
+  axis:
+  - spatial
+  description: The fraction of absorbed photosynthetically active radiation (f_APAR)
+    in each model layer.
+  unit: '-'
+  variable_type: float
+layer_leaf_mass:
+  axis:
+  - spatial
+  description: The leaf mass within each canopy layer.
+  unit: kg
+  variable_type: float
+soil_enzyme_pom_bacteria:
+  axis:
+  - spatial
+  description: Amount of bacterial enzyme class which breaks down particulate organic
+    matter
+  unit: kg C m^-3
+  variable_type: float
+soil_enzyme_maom_bacteria:
+  axis:
+  - spatial
+  description: Amount of bacterial enzyme class which breaks down mineral associated
+    organic matter
+  unit: kg C m^-3
+  variable_type: float
+soil_enzyme_pom_fungi:
+  axis:
+  - spatial
+  description: Amount of fungal enzyme class which breaks down particulate organic
+    matter
+  unit: kg C m^-3
+  variable_type: float
+soil_enzyme_maom_fungi:
+  axis:
+  - spatial
+  description: Amount of fungal enzyme class which breaks down mineral associated
+    organic matter
+  unit: kg C m^-3
+  variable_type: float
+subcanopy_vegetation_biomass:
+  axis:
+  - spatial
+  description: Carbon biomass of vegetation growing underneath the canopy.
+  unit: kg C m^-2
+  variable_type: float
+subcanopy_seedbank_biomass:
+  axis:
+  - spatial
+  description: Carbon biomass of subcanopy seedbank.
+  unit: kg C m^-2
+  variable_type: float
+subcanopy_vegetation_litter_lignin:
+  axis:
+  - spatial
+  description: Proportion of subcanopy vegetation litter carbon that is lignin carbon.
+  unit: unitless
+  variable_type: float
+subcanopy_seedbank_litter_lignin:
+  axis:
+  - spatial
+  description: Proportion of subcanopy seedbank litter carbon that is lignin carbon
+  unit: unitless
+  variable_type: float
+subcanopy_ammonium_uptake:
+  axis:
+  - spatial
+  description: Uptake of ammonium by subcanopy transpiration
+  unit: kg
+  variable_type: float
+subcanopy_nitrate_uptake:
+  axis:
+  - spatial
+  description: Uptake of nitrate by subcanopy transpiration
+  unit: kg
+  variable_type: float
+subcanopy_phosphorus_uptake:
+  axis:
+  - spatial
+  description: Uptake of phosphorous by subcanopy transpiration
+  unit: kg
+  variable_type: float
+stem_turnover_cnp:
+  axis:
+  - spatial
+  description: C, N, and P masses for stem turnover in a given timestep
+  unit: kg
+  variable_type: float
+foliage_turnover_cnp:
+  axis:
+  - spatial
+  description: C, N, and P masses for foliage turnover in a given timestep
+  unit: kg
+  variable_type: float
+root_turnover_cnp:
+  axis:
+  - spatial
+  description: C, N, and P masses for root turnover in a given timestep
+  unit: kg
+  variable_type: float
+subcanopy_vegetation_litter_cnp:
+  axis:
+  - spatial
+  description: C, N, and P masses for subcanopy turnover in a given timestep
+  unit: kg
+  variable_type: float
+subcanopy_vegetation_cnp:
+  axis:
+  - spatial
+  description: C, N, and P masses for subcanopy vegetation
+  unit: kg
+  variable_type: float
+subcanopy_vegetation_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P masses of subcanopy vegetation consumed by animals.
+  unit: kg C m^-2
+  variable_type: float
+subcanopy_seedbank_litter_cnp:
+  axis:
+  - spatial
+  description: C, N, and P masses for the ground seedbank
+  unit: kg
+  variable_type: float
+subcanopy_seedbank_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P masses of subcanopy seedbank consumed by animals.
+  unit: kg C m^-2
+  variable_type: float
+subcanopy_seedbank_cnp:
+  axis:
+  - spatial
+  description: C, N, and P masses for the subcanopy seedbank CNP
+  unit: kg
+  variable_type: float
+canopy_fruit_n:
+  axis:
+  - spatial
+  description: Number of fruits of each PFT in the canopy
+  unit: count
+  variable_type: float
+canopy_seeds_per_fruit:
+  axis:
+  - spatial
+  description: Number of seeds per fruit in each PFT
+  unit: count
+  variable_type: float
+canopy_seed_cnp:
+  axis:
+  - spatial
+  description: C, N, and P of each seed PFT
+  unit: kg
+  variable_type: float
+fallen_fruit_n:
+  axis:
+  - spatial
+  description: Number of fallen fruits per PFT
+  unit: count
+  variable_type: float
+canopy_fruit_cnp:
+  axis:
+  - spatial
+  description: Average C, N, and P masses of each fruit per PFT in the canopy
+  unit: kg
+  variable_type: float
+fallen_fruit_cnp:
+  axis:
+  - spatial
+  description: Average C, N, and P masses of each fruit per PFT
+  unit: kg
+  variable_type: float
+fallen_seeds_per_fruit:
+  axis:
+  - spatial
+  description: Number of seeds per fruit per PFT
+  unit: count
+  variable_type: float
+fallen_seeds_cnp:
+  axis:
+  - spatial
+  description: Average C, N, and P masses of each seed in a PFT
+  unit: kg
+  variable_type: float
+canopy_foliage_cnp:
+  axis:
+  - spatial
+  description: C, N, and P of canopy foliage
+  unit: kg
+  variable_type: float
+canopy_foliage_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P of canopy foliage consumed by animals
+  unit: kg
+  variable_type: float
+canopy_seed_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P of canopy seed consumed by animals
+  unit: kg
+  variable_type: float
+canopy_fruit_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P of canopy fruit consumed by animals
+  unit: kg
+  variable_type: float
+foliage_turnover_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P of foliage turnover consumed by animals
+  unit: kg
+  variable_type: float
+seed_turnover_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P of seed turnover consumed by animals
+  unit: kg
+  variable_type: float
+fruit_turnover_cnp_consumed:
+  axis:
+  - spatial
+  description: C, N, and P of fruit turnover consumed by animals
+  unit: kg
+  variable_type: float
+fallen_n_propagules:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION
+  unit: NEEDS UNIT
+  variable_type: float
+canopy_n_propagules:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION
+  unit: NEEDS UNIT
+  variable_type: float
+canopy_non_propagule_c_mass:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION
+  unit: NEEDS UNIT
+  variable_type: float
+sensible_heat_flux_topofcanopy:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION
+  unit: NEEDS UNIT
+  variable_type: float
+surface_runoff_accumulated:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION
+  unit: NEEDS UNIT
+  variable_type: float
+molar_density_air:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION
+  unit: NEEDS UNIT
+  variable_type: float
+subsurface_flow_accumulated:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION - I THINK THIS MIGHT BE AN OUTDATED INPUT INTO ANIMALS
+  unit: NEEDS UNIT
+  variable_type: float
+zero_displacement_height:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION - I THINK THIS MIGHT BE AN OUTDATED INPUT INTO ANIMALS
+  unit: NEEDS UNIT
+  variable_type: float
+aerodynamic_resistance_surface:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION - I THINK THIS MIGHT BE AN OUTDATED INPUT INTO ANIMALS
+  unit: NEEDS UNIT
+  variable_type: float
+absorbed_radiation:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION - I THINK THIS MIGHT BE AN OUTDATED INPUT INTO ANIMALS
+  unit: NEEDS UNIT
+  variable_type: float
+evapotranspiration:
+  axis:
+  - spatial
+  description: NEEDS DESCRIPTION - I THINK THIS MIGHT BE AN OUTDATED INPUT INTO ANIMALS
+  unit: NEEDS UNIT
+  variable_type: float
+total_soil_n:
+  description: Total soil nitrogen
+  unit: kg N m^-3
+  transform: soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom
+    + soil_n_pool_ammonium + soil_n_pool_nitrate
+total_soil_c:
+  description: Total soil carbon
+  unit: kg C m^-3
+  transform: soil_cnp_pool_lmwc + soil_cnp_pool_soil_cnp_pool_lmwc + soil_cnp_pool_maom
+    + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza
+    + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi
+total_soil_p:
+  description: Total soil phosphorous
+  unit: kg P m^-3
+  transform: soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom
+    + soil_p_pool_labile + soil_p_pool_primary + soil_p_pool_secondary

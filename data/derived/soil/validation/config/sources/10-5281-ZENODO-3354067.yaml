@@ -1,0 +1,14 @@
+doi: 10.5281/ZENODO.3354067
+decision: excluded
+reason: no_soil_data
+notes: Soil keyword was only about disturbance.
+logged_at: '2026-05-21'
+metadata:
+  title: Core - invert biomass + ordinal sort
+  author: Sawang, Anati and Sharp, Adam and Chung, Arthur and Ewers, Robert M and
+    Barclay, Max
+  year: '2019'
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/3354067
+  keywords: Insect sorting, Core data, SAFE project, Insect trapping, Beetles

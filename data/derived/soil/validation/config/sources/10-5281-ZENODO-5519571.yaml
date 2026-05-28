@@ -1,0 +1,19 @@
+doi: 10.5281/ZENODO.5519571
+decision: excluded
+reason: no_soil_data
+notes: Contains soil CO2 efflux, soil moisture and temperature.
+logged_at: "2026-05-21"
+metadata:
+  title:
+    Large contribution of recent photosynthate to soil respiration in tropical
+    dipterocarp forest revealed by girdling
+  author:
+    Nottingham, Andrew and Cheeseman, Alexander and Riutta, Terhi and Doughty,
+    Christopher and Telford, Elizabeth and Huasco, Walter Huaraca and Svátek,
+    Martin and Kvasnica, Jakub and Majalap, Noreen and Malhi, Yadvinder and
+    Meir, Patrick and Teh, Yit Arn
+  year: "2021"
+  journal: .na.character
+  publisher: Zenodo
+  url: https://zenodo.org/record/5519571
+  keywords: Girdling, Licor, Carbon, Tree, Mortality
