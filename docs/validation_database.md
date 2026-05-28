@@ -1,5 +1,7 @@
 # Building a database for (soil and litter) validation
 
+<!-- markdownlint-disable MD046 MD031 -->
+
 !!! IMPORTANT
 
     This is a draft document. Most of the workflow below will only work for the
@@ -13,7 +15,8 @@ for one dataset. The idea to run a single script to build the database, while YA
 config metadata handles all dataset-specific idiosyncracies.
 
 The folder structure looks like this:
-```
+
+```text
 data/derived/soil
 └── validation
     ├── config
@@ -138,7 +141,8 @@ them like codes and commit to GitHub, although they are stored under the
    In this example, I assigned the dataset a `source_id` of `dobert_2019`
    following the author-year convention. The `data_file` entry specifies where
    the csv primary data have been stored. It informs the R script to skip 9 rows
-   in the original csv, and then read data from the variable columns named `soilN` and `soilP`, as well as the unique sample ID from `plot.code`.
+   in the original csv, and then read data from the variable columns named
+   `soilN` and `soilP`, as well as the unique sample ID from `plot.code`.
 5. The next important step is to set up the unit conversion. For each variable,
    the metadata `var_canonical` tells the R script which VE data variable that
    it should be mapped to; this also tells it about the target unit under the
