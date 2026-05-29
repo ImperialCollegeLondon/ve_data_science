@@ -281,20 +281,28 @@ daemons(0)
 # analysis because they are "forcings", which are pre-determined over time
 # (they do not response to other inputs).
 
-# Climate / abiotic data
-tidync(paste0(in_dir, "era5_maliau_2010_2020_100m.nc")) |>
-  get_all_variables() |>
-  summarise_spatial(FUN = mean) |>
-  convert_array_to_nc(
-    filename = paste0(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
-  )
-
 # Elevation data
 tidync(paste0(in_dir, "elevation_maliau_2010_2020_100m.nc")) |>
   get_all_variables() |>
   summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
     filename = paste0(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
+  )
+
+# Climate / abiotic data
+# requires a special treatment because the variable `valid_time` is a temporal
+# variable that do not need to go through summarise_spatial() below
+clim_dat <-
+  tidync(paste0(in_dir, "era5_maliau_2010_2020_100m.nc")) |>
+  get_all_variables()
+clim_dat |>
+  # summarise spatial mean of climate data, bypassing valid_time
+  discard_at("valid_time") |>
+  summarise_spatial(FUN = mean) |>
+  # put valid_time back before converting back to netCDF
+  list_assign(valid_time = clim_dat$valid_time) |>
+  convert_array_to_nc(
+    filename = paste0(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
   )
 
 # Plant data
