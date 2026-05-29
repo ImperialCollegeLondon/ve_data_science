@@ -14,9 +14,6 @@ conda activate /rds/general/project/virtual_rainforest/live/ve_data_science/hpc_
 # run from the submission directory (typically path/to/ve_data_science)
 cd "${PBS_O_WORKDIR}" || exit
 
-# Export per-job filename (should I stage to temporary directory?)
-export SOIL_LITTER_DATA="data/scenarios/sensitivity_soil_litter/data/soil_litter_data_${PBS_ARRAY_INDEX}.nc"
-
 # create output directory if it does not exist
 OUTDIR="data/scenarios/sensitivity_soil_litter/out/${PBS_ARRAY_INDEX}"
 mkdir -p "${OUTDIR}"
@@ -24,6 +21,7 @@ mkdir -p "${OUTDIR}"
 # Run VE
 ve_run \
   data/scenarios/sensitivity_soil_litter/config \
+  -p SOIL_LITTER_DATA="data/scenarios/sensitivity_soil_litter/data/soil_litter_data_${PBS_ARRAY_INDEX}.nc" \
   --out "${OUTDIR}" \
   --logfile "${OUTDIR}/logfile.log"
 
