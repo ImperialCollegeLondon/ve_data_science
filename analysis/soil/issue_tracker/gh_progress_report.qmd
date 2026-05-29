@@ -1,0 +1,17 @@
+---
+title: "Untitled"
+format: html
+---
+
+```{r}
+library("IssueTrackeR")
+```
+
+```{r}
+gh_issues <- get_issues(
+  source = "online",
+  owner = "ImperialCollegeLondon",
+  repo = "ve_data_science",
+  verbose = FALSE
+)
+```
