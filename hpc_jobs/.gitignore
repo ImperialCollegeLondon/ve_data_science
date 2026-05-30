@@ -1,0 +1,2 @@
+# Do not include local conda environments in repo!
+virtual_ecosystem_py314
