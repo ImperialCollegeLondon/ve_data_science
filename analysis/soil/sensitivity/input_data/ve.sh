@@ -23,7 +23,8 @@ ve_run \
   data/scenarios/sensitivity_soil_litter/config \
   -p SOIL_LITTER_DATA="data/scenarios/sensitivity_soil_litter/data/soil_litter_data_${PBS_ARRAY_INDEX}.nc" \
   --out "${OUTDIR}" \
-  --logfile "${OUTDIR}/logfile.log"
+  --logfile "${OUTDIR}/logfile.log" \
+  --config core.debug.truncate_run_at_update=24
 
 # run R script
 # Rscript analysis/soil/sensitivity/input_data/ve.R
