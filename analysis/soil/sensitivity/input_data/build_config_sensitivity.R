@@ -92,5 +92,6 @@ build_config(
 # Copy over soil microbial config that does not change across scenarios
 file.copy(
   "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml",
-  config_dir
+  config_dir,
+  overwrite = TRUE
 )
