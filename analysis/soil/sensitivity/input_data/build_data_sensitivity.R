@@ -337,8 +337,9 @@ files_to_copy <- c(
   "animal_functional_groups_Maliau_level1.csv",
   "plant_pft_definitions_Maliau_50x50.csv"
 )
-file.copy(paste0(in_dir, files_to_copy), out_dir)
+file.copy(paste0(in_dir, files_to_copy), out_dir, overwrite = TRUE)
 file.copy(
   "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml",
-  "data/scenarios/sensitivity_soil_litter/config"
+  "data/scenarios/sensitivity_soil_litter/config",
+  overwrite = TRUE
 )
