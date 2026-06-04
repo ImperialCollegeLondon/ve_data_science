@@ -1,12 +1,44 @@
 ---
 title: "Soil and Litter GitHub Issues Tracker"
-format: html
+author:
+  name: Lai, Hao Ran
+date: last-modified
+format:
+  html:
+    toc: true
+    toc-expand: true
+    theme: sandstone
+    embed-resources: true
+    other-links:
+      - text: "GitHub Issues"
+        icon: github
+        href: https://github.com/ImperialCollegeLondon/ve_data_science/issues?q=is%3Aissue%20state%3Aopen%20author%3Ahrlai
+      - text: "GitHub Milestones"
+        icon: github
+        href: https://github.com/ImperialCollegeLondon/ve_data_science/milestones
+title-block-banner: true
+comments:
+  hypothesis: true
+execute:
+  echo: false
+  warning: false
+abstract-title: Preamble
+abstract: |
+    This is a semi-automated report that I update weekly. 
+    The [Overview](@sec-overview) section is written manually, while the 
+    [Subtasks](@sec-milestones) section is synchronised automatically with 
+    [GitHub Issues](https://github.com/ImperialCollegeLondon/ve_data_science/issues?q=is%3Aissue%20state%3Aopen%20author%3Ahrlai) and 
+    [Milestones](https://github.com/ImperialCollegeLondon/ve_data_science/milestones). 
+    This report should reflect most of my tasks, which are almost 100% tracked
+    on GitHub.
 ---
 
 ```{r}
+#| label: setup
 library(DT)
 library(tidyverse)
-library("IssueTrackeR")
+library(IssueTrackeR)
+library(htmltools)
 
 # IssueTrackerR configs
 options(IssueTrackeR.dataset.dir = "data/derived/soil/gh_issues")
@@ -16,7 +48,7 @@ options(IssueTrackeR.repo = "ve_data_science")
 # Set global options for all DT tables
 options(
   DT.options = list(
-    pageLength = 10,
+    pageLength = 5,
     autoWidth = TRUE,
     # 2. Pre-populate specific column filters
     searchCols = list(
@@ -28,12 +60,64 @@ options(
     )
   )
 )
+
+# function to render the interactive table
+render_issues <- function(issue) {
+  issue |>
+    select(-milestone) |>
+    datatable(
+      rownames = FALSE,
+      colnames = c(
+        "Issue" = "number",
+        "Title" = "title",
+        "Body (truncated)" = "body",
+        "State" = "state",
+        "Created at" = "created_at"
+      ),
+      filter = "top",
+      escape = 2
+    )
+}
+
+# function for a HTML progress bar
+progress_bar <- function(x, total = 100, color = "#2c7bb6") {
+  pct <- round(x / total * 100)
+  lbl <- paste0(pct, "% complete; ", total - x, " open; ", x, " closed")
+
+  tags$div(
+    style = "margin: 1rem 0",
+    tags$div(
+      style = "display: flex; justify-content: space-between; font-size: 0.85rem; color: #555; margin-bottom: 4px;",
+      tags$span("Progress"),
+      tags$span(lbl)
+    ),
+    tags$div(
+      style = "background: #e9ecef; border-radius: 999px; height: 10px; overflow: hidden;",
+      tags$div(
+        style = glue::glue(
+          "width: {pct}%; height: 100%; background: {color};
+           border-radius: 999px; transition: width 0.6s ease;"
+        )
+      )
+    )
+  )
+}
+
+# function that applies progress_bar() to a milestone object
+progress_bar_milestone <- function(milestone, ...) {
+  tmp <- milestones |> filter(title == milestone)
+  n_closed <- tmp$nb_issues_closed
+  n_total <- tmp$nb_issues_open + tmp$nb_issues_closed
+  progress_bar(n_closed, n_total, ...)
+}
 ```
 
 ```{r}
 #| label: read-issues
 # download GitHub issues
-issues <- get_issues(source = "online", state = "all")
+issues <- get_issues(source = "online", state = "all", verbose = FALSE)
+milestones <- get_milestones(source = "online", state = "all", verbose = FALSE)
+
 # write_to_dataset(issues)
 # update_database()
 
@@ -57,23 +141,120 @@ issue_table <-
   select(number, title, body, state, milestone, created_at)
 ```
 
+# Overview {#sec-overview}
+
+## Lastest description
+
+I am finalising two main things to bring over to Silwood for in-person discussions:
+
+- Validation database and dataset screening pipeline for soil and litter; lots of discussion space around unit conversion and harmonisation
+- A draft sensitivity analysis pipeline for soil and litter; related to HPC use
+
+## Required elements ("Waiting for")
+
+- Urgent
+  - Code review for Set up soil and litter validation screening and database (PR [#339](https://github.com/ImperialCollegeLondon/ve_data_science/pull/339))
+  - Taran to review 329 examine animal continuous state variables from maliau_2 (PR [#330](https://github.com/ImperialCollegeLondon/ve_data_science/pull/330))
+  - VE Issue: Error: Trophic transfer masses must be non-negative [#1628](https://github.com/ImperialCollegeLondon/virtual_ecosystem/issues/1628)
+- Not urgent
+  - HPC tutorial: I am able to submit jobs, but want to double check some best practices
+  - Team to settle on reporting format
+  - Team to settle on folder structure
+  - A bug-free VE release that runs on Maliau 1 and 2 scenarios
+
+## Additional notes
+
+- None currently.
+
+# Subtasks (as GitHub Milestones) {#sec-milestones}
+
+## Soil parameterisation
+
+Parameterise soil and litter constants with empirical data or best-guess estimates.
 
 ```{r}
-#| label: tracker-tables
-# render the interactive table
+#| label: parameterisation
+# milestone overview
+progress_bar_milestone("Soil parameterisation")
+
+# issue table
 issue_table |>
-  select(-milestone) |>
-  datatable(
-    rownames = FALSE,
-    colnames = c(
-      "Issue" = "number",
-      "Title" = "title",
-      "Body (truncated)" = "body",
-      "State" = "state",
-      "Created at" = "created_at"
-    ),
-    # extensions = 'RowGroup',
-    filter = "top",
-    escape = 2
-  )
+  filter(milestone == "Soil parameterisation") |>
+  render_issues()
+```
+
+## Soil validation
+
+Validate soil and litter variables.
+
+```{r}
+#| label: validation
+# milestone overview
+progress_bar_milestone("Soil validation")
+
+# issue table
+issue_table |>
+  filter(milestone == "Soil validation") |>
+  render_issues()
+```
+
+## Soil calibration
+
+Not started yet.
+
+## Soil sensitivity
+
+Sensitivity analysis for soil and litter.
+
+```{r}
+#| label: sensitivity
+# milestone overview
+progress_bar_milestone("Soil sensitivity")
+
+# issue table
+issue_table |>
+  filter(milestone == "Soil sensitivity") |>
+  render_issues()
+```
+
+## Soil input data (phase 2)
+
+Follow up to polish soil and litter input data for completeness.
+
+```{r}
+#| label: input2
+# milestone overview
+progress_bar_milestone("Soil input data (phase 2)")
+
+# issue table
+issue_table |>
+  filter(milestone == "Soil input data (phase 2)") |>
+  render_issues()
+```
+
+## Soil input data (phase 1)
+
+MVP of soil and litter input datasets using "Maliau" datasets. This milestone has been fully completed.
+
+```{r}
+#| label: input1
+# milestone overview
+progress_bar_milestone("Soil input data (phase 1)")
+
+# issue table
+issue_table |>
+  filter(milestone == "Soil input data (phase 1)") |>
+  render_issues()
+```
+
+## Other tasks
+
+These are miscellaneous tasks not targetting any milestones, but are important for housekeeping and repo maintenance.
+
+```{r}
+#| label: other-tasks
+# issue table
+issue_table |>
+  filter(milestone == "No Milestone") |>
+  render_issues()
 ```
