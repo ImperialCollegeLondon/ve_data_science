@@ -25,11 +25,11 @@ execute:
   warning: false
 abstract-title: Preamble
 abstract: |
-    This is a semi-automated report that I update weekly. 
-    The [Overview](#sec-overview) section is written manually, while the 
-    [Subtasks](#sec-milestones) section is synchronised automatically with 
-    [GitHub Issues](https://github.com/ImperialCollegeLondon/ve_data_science/issues?q=is%3Aissue%20state%3Aopen%20author%3Ahrlai) and 
-    [Milestones](https://github.com/ImperialCollegeLondon/ve_data_science/milestones). 
+    This is a semi-automated report that I update weekly.
+    The [Overview](#sec-overview) section is written manually, while the
+    [Subtasks](#sec-milestones) section is synchronised automatically with
+    [GitHub Issues](https://github.com/ImperialCollegeLondon/ve_data_science/issues?q=is%3Aissue%20state%3Aopen%20author%3Ahrlai) and
+    [Milestones](https://github.com/ImperialCollegeLondon/ve_data_science/milestones).
     This report should reflect most of my tasks, which are almost 100% tracked
     on GitHub.
     The [Subtasks](#sec-milestones) GitHub Issue tracker tables show only Open
