@@ -558,3 +558,6 @@ rsconnect/
 
 /.quarto/
 **/*.quarto_ipynb
+
+# GitHub Issue Tracker report
+analysis/soil/issue_tracker/VE_Task Breakdown Soil Litter Hao Ran.html
