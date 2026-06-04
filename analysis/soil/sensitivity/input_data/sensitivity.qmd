@@ -22,7 +22,6 @@ library(sensobol)
 library(tidync)
 library(arrow)
 library(here)
-source(here("tools/R/sobol_indices2.R"))
 ```
 
 
@@ -63,7 +62,7 @@ merged <-
       "data/scenarios/sensitivity_soil_litter/out/all_continuous_data_merged.parquet"
     )
   ) |>
-  filter(time_index == 131) %>%
+  filter(time_index == 24) %>%
   collect()
 ```
 
@@ -88,7 +87,7 @@ forcings <-
         ) |>
         arrange(scenario) |>
         pull(value)
-      sobol_indices2(Y = Y, N = n_samples, params = pars) |>
+      sobol_indices(Y = Y, N = n_samples, params = pars) |>
         pluck("results") |>
         as.data.frame() |>
         mutate(Y_var = Y_var)
@@ -145,7 +144,7 @@ foo <-
     )
   ) |>
   filter(
-    time_index == 131,
+    time_index == 24,
     variable %in%
       c("litter_pool_above_metabolic_cnp_C", "animal_bacteria_consumption")
   ) |>
