@@ -33,6 +33,6 @@ errors <-
 # save stderr summary
 summary_dir <- "data/derived/troubleshoot/job_array_stderr"
 if (!dir.exists(summary_dir)) {
-  dir.create(summary_dir)
+  dir.create(summary_dir, recursive = TRUE)
 }
 write_rds(errors, "data/derived/troubleshoot/job_array_stderr/errors.rds")
