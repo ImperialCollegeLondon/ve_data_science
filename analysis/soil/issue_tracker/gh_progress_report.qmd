@@ -1,17 +1,79 @@
 ---
-title: "Untitled"
+title: "Soil and Litter GitHub Issues Tracker"
 format: html
 ---
 
 ```{r}
+library(DT)
+library(tidyverse)
 library("IssueTrackeR")
+
+# IssueTrackerR configs
+options(IssueTrackeR.dataset.dir = "data/derived/soil/gh_issues")
+options(IssueTrackeR.owner = "ImperialCollegeLondon")
+options(IssueTrackeR.repo = "ve_data_science")
+
+# Set global options for all DT tables
+options(
+  DT.options = list(
+    pageLength = 10,
+    autoWidth = TRUE,
+    # 2. Pre-populate specific column filters
+    searchCols = list(
+      NULL,
+      NULL,
+      NULL,
+      list(search = '["open"]'),
+      NULL
+    )
+  )
+)
 ```
 
 ```{r}
-gh_issues <- get_issues(
-  source = "online",
-  owner = "ImperialCollegeLondon",
-  repo = "ve_data_science",
-  verbose = FALSE
-)
+#| label: read-issues
+# download GitHub issues
+issues <- get_issues(source = "online", state = "all")
+# write_to_dataset(issues)
+# update_database()
+
+# prepare the issue tracker table
+issue_table <-
+  issues |>
+  as_tibble() |>
+  filter(creator == "hrlai") |>
+  # Convert NA milestones to a string for grouping
+  mutate(milestone = replace_na(as.character(milestone), "No Milestone")) |>
+  # Arrange by milestone, then by our custom state order
+  mutate(state = factor(state, levels = c("open", "closed"))) |>
+  arrange(milestone, state, desc(created_at)) |>
+  # cleaner dates
+  mutate_at(vars(created_at, closed_at), ymd) |>
+  # Create a column for the linked number
+  mutate(
+    number = sprintf('<a href="%s" target="_blank">%s</a>', html_url, number),
+    body = str_trunc(body, 100),
+  ) |>
+  select(number, title, body, state, milestone, created_at)
+```
+
+
+```{r}
+#| label: tracker-tables
+# render the interactive table
+issue_table |>
+  select(-milestone) |>
+  datatable(
+    rownames = FALSE,
+    colnames = c(
+      "Issue" = "number",
+      "Title" = "title",
+      "Body (truncated)" = "body",
+      "State" = "state",
+      "Created at" = "created_at"
+    ),
+    # extensions = 'RowGroup',
+    filter = "top",
+    escape = 2
+  )
 ```
