@@ -42,15 +42,10 @@ library(tidyverse)
 
 ```{r}
 #| label: read-yaml
-# list all the dataset logs
-logdir <- here("data/derived/soil/validation/config/sources")
-logfiles <- list.files(logdir, pattern = "\\.yaml$")
-
 # read the logs and tidy up
 records <-
-  file.path(logdir, logfiles) |>
-  map(read_yaml) |>
-  map2(logfiles, \(x, nm) as.data.frame(x) |> mutate(logfile = nm)) |>
+  read_yaml(here("data/derived/soil/validation/config/sources.yaml")) |>
+  map(as.data.frame) |>
   list_rbind()
 ```
 
@@ -71,7 +66,6 @@ records |>
   ) |>
   select(
     DOI,
-    Log = logfile,
     Title = metadata.title,
     Decision = decision,
     Reason = reason,
