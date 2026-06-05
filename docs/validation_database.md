@@ -56,7 +56,7 @@ guides data entering later.
    ```
 
 4. After filling up the questions, a YAML config or metadata file will be saved
-   to `data/derived/soil/validation/config/sources` (currently this is
+   to `data/derived/soil/validation/config/sources.yaml` (currently this is
    hard-coded to the soil folder because I do not know if anyone would use it
    outside of soil). An example YAML config or metadata looks like this:
    ```yaml
