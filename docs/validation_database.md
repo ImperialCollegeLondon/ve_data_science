@@ -20,11 +20,8 @@ The folder structure looks like this:
 data/derived/soil
 └── validation
     ├── config
-    │   ├── sources
-    │   │   ├── 10-5281-ZENODO-1198460.yaml  # metadata about each dataset
-    │   │   ├── 10-5281-ZENODO-1198471.yaml
-    │   │   ├── ...
-    │   ├── units_canonical.yaml   # canonical unit of VE data variables
+    │   ├── sources.yaml  # metadata about each dataset
+    │   ├── derived_variables.yaml   # derived variables and units
     │   └── unit_conversions.csv   # unit conversion table
     └── database
         └── ...  # a master database in the .parquet format (.csv also possible)
@@ -146,8 +143,8 @@ them like codes and commit to GitHub, although they are stored under the
 5. The next important step is to set up the unit conversion. For each variable,
    the metadata `var_canonical` tells the R script which VE data variable that
    it should be mapped to; this also tells it about the target unit under the
-   hood, which is stored in an imported TOML config from VE, converted to YAML
-   and stored under `data/derived/soil/validation/config/units_canonical.yaml`.
+   hood, which is stored in an imported
+   [TOML config from VE](https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml).
    When we key in the unit of measurement of the original variable in `unit`,
    the R script will compare `unit` to the canonical target unit and do the
    conversion based on a curated table in
