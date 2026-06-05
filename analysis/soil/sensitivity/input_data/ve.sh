@@ -31,4 +31,5 @@ ve_run \
 
 # submit this from the ve_data_science root directory with:
 # cd ../projects/virtual_rainforest/live/ve_data_science
+# rm -rf data/scenarios/sensitivity_soil_litter/out/*
 # qsub analysis/soil/sensitivity/input_data/ve.sh
