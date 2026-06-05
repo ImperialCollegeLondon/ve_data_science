@@ -1,17 +1,17 @@
 [[variable]]
 name = "total_soil_n"
 description = "Total soil nitrogen"
-unit = "kg N m^-3"
+unit = "kg{N} m^-3"
 transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
 
 [[variable]]
 name = "total_soil_c"
 description = "Total soil carbon"
-unit = "kg C m^-3"
+unit = "kg{C} m^-3"
 transform = "soil_cnp_pool_lmwc + soil_cnp_pool_soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi"
 
 [[variable]]
 name = "total_soil_p"
 description = "Total soil phosphorous"
-unit = "kg P m^-3"
+unit = "kg{P} m^-3"
 transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary + soil_p_pool_secondary"
