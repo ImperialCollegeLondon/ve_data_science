@@ -47,7 +47,7 @@
 #' decisions. The log is then stored as a human-readable YAML file in the
 #' specified output directory, which defaults to the soil module for now.
 #'
-#' @param outdir Path to the output directory, which currently defaults to the
+#' @param filename Path to the output directory, which currently defaults to the
 #'   soil module
 #'
 #' @details
@@ -60,7 +60,7 @@
 #' }
 #'
 #' @returns A YAML file logging the decision and source metadata in
-#'   \code{outdir}.
+#'   \code{filename}.
 #'
 #' @export
 #'
@@ -70,22 +70,23 @@
 #' valdb$log_dataset()
 
 log_dataset <- function(
-  outdir = "data/derived/soil/validation/config/sources"
+  filename = "data/derived/soil/validation/config/sources.yaml"
 ) {
   # prompt to enter DOI
   doi <- readline("Enter DOI: ")
 
+  # read source yaml file if it already exists
+  if (file.exists(filename)) {
+    sources <- yaml::read_yaml(filename)
+    # exit early if a DOI has already been logged
+    doi_existing <- purrr::map_chr(sources, "doi")
+    if (tolower(doi) %in% tolower(doi_existing)) {
+      cli::cli_abort("{doi} has already been logged in {filename}.")
+    }
+  }
+
   # download dataset metadata
   meta <- rcrossref::cr_cn(doi, format = "bibentry")
-
-  # set up output path
-  slug <- gsub("[/.]", "-", meta$doi)
-  path <- file.path(outdir, paste0(slug, ".yaml"))
-
-  # early exit if already logged
-  if (file.exists(path)) {
-    cli::cli_abort("A log for {doi} already exists at {path}")
-  }
 
   # prompt for decision, decision, decision...
   decision <- utils::select.list(
@@ -107,8 +108,8 @@ log_dataset <- function(
   # prompt for long-form notes
   notes <- readline("Notes (leave blank to skip): ")
 
-  # Build record
-  record <- list(
+  # Build new record
+  new_record <- list(
     doi = meta$doi,
     decision = decision,
     reason = reason,
@@ -125,12 +126,19 @@ log_dataset <- function(
     )
   )
 
+  # append new record to existing source YAML if the latter already exists
+  if (file.exists(filename)) {
+    sources <- c(sources, list(new_record))
+  } else {
+    sources <- list(new_record)
+  }
+
   # Write YAML
-  yaml::write_yaml(record, path)
+  yaml::write_yaml(sources, filename)
 
   # Completion message
   cli::cli_alert_info("Dataset from {doi} is {decision}")
-  cli::cli_alert_success("Decision log saved to\n{path}")
+  cli::cli_alert_success("Decision log saved to\n{filename}")
 }
 
 
