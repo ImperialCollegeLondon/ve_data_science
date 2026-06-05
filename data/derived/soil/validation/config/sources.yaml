@@ -222,7 +222,7 @@
   skip_rows: 9
   variables:
     soilN:
-      var_canonical: total_soil_n
+      var_canonical: total_soil_n_per_volume
       unit: mg cm^-3
       description: Total soil nitrogen content
     soilP:
@@ -299,13 +299,13 @@
   skip_rows: 5
   variables:
     soil_N:
-      var_canonical: total_soil_n
+      var_canonical: total_soil_n_per_volume
       unit: g cm^-3
       description:
         Percentage of soil N. Calculated in the CSV sheet as 'soil_N% *
         bulk_density'.
     soil_C:
-      var_canonical: total_soil_c
+      var_canonical: total_soil_c_per_volume
       unit: g cm^-3
       description:
         Percentage of soil C. Calculated in the CSV sheet as 'soil_C% *
@@ -464,17 +464,17 @@
   skip_rows: 9
   variables:
     soil_N:
-      var_canonical: total_soil_n
-      unit: g g{bulk soil SAFE}^-1
-      description: Total soil nitrogen
+      var_canonical: total_soil_n_per_mass
+      unit: g g^-1
+      description: Total soil nitrogen concentration
     soil_C:
-      var_canonical: total_soil_c
-      unit: g g{bulk soil SAFE}^-1
-      description: Total soil carbon
+      var_canonical: total_soil_c_per_mass
+      unit: g g^-1
+      description: Total soil carbon concentration
     soil_P:
-      var_canonical: total_soil_p
-      unit: ug g{bulk soil SAFE}^-1
-      description: Total soil phosphorous
+      var_canonical: total_soil_p_per_mass
+      unit: ug g^-1
+      description: Total soil phosphorous concentration
   dedup_key: location_name
 - doi: 10.5281/ZENODO.3979295
   decision: excluded

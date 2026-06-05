@@ -1,17 +1,35 @@
 [[variable]]
-name = "total_soil_n"
-description = "Total soil nitrogen"
+name = "total_soil_n_per_volume"
+description = "Total soil nitrogen per volume"
 unit = "kg{N} m^-3"
 transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
 
 [[variable]]
-name = "total_soil_c"
-description = "Total soil carbon"
+name = "total_soil_c_per_volume"
+description = "Total soil carbon per volume"
 unit = "kg{C} m^-3"
 transform = "soil_cnp_pool_lmwc + soil_cnp_pool_soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi"
 
 [[variable]]
-name = "total_soil_p"
-description = "Total soil phosphorous"
+name = "total_soil_p_per_volume"
+description = "Total soil phosphorous per volume"
 unit = "kg{P} m^-3"
 transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary + soil_p_pool_secondary"
+
+[[variable]]
+name = "total_soil_n_per_mass"
+description = "Total soil nitrogen per mass"
+unit = "kg{N} kg^-1"
+transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate) / bulk_density"
+
+[[variable]]
+name = "total_soil_c_per_mass"
+description = "Total soil carbon per mass"
+unit = "kg{C} kg^-1"
+transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi) / bulk_density"
+
+[[variable]]
+name = "total_soil_p_per_mass"
+description = "Total soil phosphorous per mass"
+unit = "kg{P} kg^-1"
+transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary + soil_p_pool_secondary) / bulk_density"
