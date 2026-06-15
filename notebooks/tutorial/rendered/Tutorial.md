@@ -24,7 +24,7 @@ pip install matplotlib
 4. Create a new `.ipynb` notebook and name it appropriately.
 5. Click "File" -> "Jupytext" -> "Pair Notebook with Markdown"
 
-Now you are ready to start your data analysis! Make sure you include any data files that you are using in the same folder that your notebook is in. 
+Now you are ready to start your data analysis! Make sure you include any data files that you are using in the same folder that your notebook is in.
 
 # Pushing to Github
 
@@ -68,9 +68,9 @@ plt.show()
 ```
 
 
-    
+
 ![png](output_1_0.png)
-    
+
 
 
 
