@@ -44,7 +44,7 @@ Now you are ready to start your data analysis! Make sure you include any data fi
 
 # Pushing to Github
 
-When you are ready to push your changes to GitHub, you will need to first export a rendered version of the markdown file. 
+When you are ready to push your changes to GitHub, you will need to first export a rendered version of the markdown file.
 
 1. In your `.ipynb` file, click "Run" and "Run All Cells".
 2. Click "File" -> "Save and Export Notebook As" -> "Markdown". This will save the rendered markdown file and any images (such as graphs) as a png. These files will be zipped.
