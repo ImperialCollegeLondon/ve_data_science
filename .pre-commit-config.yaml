@@ -41,12 +41,3 @@ repos:
     rev: 0.9.0
     hooks:
       - id: air-format
-  - repo: https://github.com/mwouts/jupytext
-    # Formats python within notebooks
-    rev: v1.19.3
-    hooks:
-    - id: jupytext
-      args: [--pipe, black]
-      additional_dependencies:
-        - black==24.4.2 # Matches hook
-      exclude: "(^|/)rendered/"
