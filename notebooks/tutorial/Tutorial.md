@@ -1,26 +1,28 @@
 ---
-jupytext:
-  formats: ipynb,md:myst
-  text_representation:
-    extension: .md
-    format_name: myst
-    format_version: 0.13
-    jupytext_version: 1.19.3
-kernelspec:
-  name: python3
-  display_name: Python 3 (ipykernel)
-  language: python
+jupyter:
+  jupytext:
+    formats: ipynb,md
+    text_representation:
+      extension: .md
+      format_name: markdown
+      format_version: '1.3'
+      jupytext_version: 1.19.3
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
 ---
 
+<!-- #region -->
 # Getting Started
 
 1. In the `ve_data_science/notebooks` folder, create a new folder for your notebook.
-2. Create a virtual environment and install the dependencies below.
+2. Create a virtual environment and install the dependencies using the code below.
 
 ```
 # Create and activate a new venv
-python -m venv ve_ds_venv
-source ve_ds_venv/bin/activate
+python -m venv .ve_ds_venv
+source .ve_ds_venv/bin/activate
 
 # Install Jupyter and Myst notebook tools.
 pip install "notebook<7"
@@ -35,14 +37,36 @@ pip install matplotlib
 ```
 
 3. In your terminal, run `jupyter lab` and it should automatically open a browser.
-4. Create a new notebook and name it appropriately.
-5. Click "File" -> "Jupytext" -> "Pair Notebook with MyST Markdown"
+4. Create a new `.ipynb` notebook and name it appropriately.
+5. Click "File" -> "Jupytext" -> "Pair Notebook with Markdown"
 
 Now you are ready to start your data analysis! Make sure you include any data files that you are using in the same folder that your notebook is in. 
 
-Here is a sample plot, so we can see what it'll be like to include plots and other visuals in the process.
+# Pushing to Github
 
-```{code-cell} ipython3
+When you are ready to push your changes to GitHub, you will need to first export a rendered version of the markdown file. 
+
+1. In your `.ipynb` file, click "Run" and "Run All Cells".
+2. Click "File" -> "Save and Export Notebook As" -> "Markdown". This will save the rendered markdown file and any images (such as graphs) as a png. These files will be zipped.
+3. Unzip the files and move them into a "Rendered" folder in the same place as your source files.
+4. Commit the following files and push them to github:
+
+* The markdown source file
+* Any source data files used in your markdown notebook
+* The "rendered" markdown file and the images.
+
+Notably the `.ipynb` file should not be pushed to github.
+
+Now you can create a Pull Request on github and request reviews. When you are reviewing the files online, it may be useful to view the rendered version of a notebook which you can do by clicking the three dots on the right of the file and click "View".
+
+Any time you make changes to your original source file, you *will* need to re-render it using steps 1-4. This will not happen automatically, so you can delete the old contents of your "Rendered" folder and replace them with the new rendered files.
+
+
+
+Here is a sample plot, so we can see what it'll be like to include plots and other visuals in the process.
+<!-- #endregion -->
+
+```python
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -59,12 +83,4 @@ plt.tight_layout()
 plt.show()
 ```
 
-Test change! 
 
-```{code-cell} ipython3
-
-```
-
-```{code-cell} ipython3
-
-```
