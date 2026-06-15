@@ -38,7 +38,7 @@ pip install matplotlib
 4. Create a new notebook and name it appropriately.
 5. Click "File" -> "Jupytext" -> "Pair Notebook with MyST Markdown"
 
-Now you are ready to start your data analysis! Make sure you include any data files that you are using in the same folder that your notebook is in. 
+Now you are ready to start your data analysis! Make sure you include any data files that you are using in the same folder that your notebook is in.
 
 Here is a sample plot, so we can see what it'll be like to include plots and other visuals in the process.
 
@@ -59,7 +59,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-Test change! 
+Test change!
 
 ```{code-cell} ipython3
 
