@@ -1,14 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: all,-trusted
-#     notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-# ---
-
 """
 ---
 title: VE Elevation Data Preparation and Grid Reprojection for Maliau Basin
@@ -139,19 +128,16 @@ input_srtm = Path("data/primary/abiotic/SRTM_UTM50N_processed.tif")
 # Each scenario defines grid resolution, extent, and origin
 toml_path = Path("data/derived/site/maliau/maliau_grid_definition.toml")
 
-# +
 # Define output directory for storing processed elevation datasets
 output_dir = Path("data/derived/abiotic/elevation_data")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 
-# + [markdown]
 # ============================================================
 # LOAD SCENARIO
 # ============================================================
 
 
-# +
 def load_scenario(toml_path, scenario_name):
     """Load grid configuration and construct UTM coordinates for a scenario.
 
@@ -196,13 +182,11 @@ def load_scenario(toml_path, scenario_name):
     return nx, ny, res, cell_x.astype(np.float32), cell_y.astype(np.float32)
 
 
-# + [markdown]
 # ============================================================
 # PROCESS ELEVATION
 # ============================================================
 
 
-# +
 def process_elevation(input_srtm, nx, ny, res, cell_x, cell_y):
     """Reproject and resample SRTM DEM to match the scenario grid.
 
@@ -270,13 +254,11 @@ def process_elevation(input_srtm, nx, ny, res, cell_x, cell_y):
     return dst
 
 
-# + [markdown]
 # ============================================================
 # BUILD DATASET (x, y, elevation)
 # ============================================================
 
 
-# +
 def build_dataset(dst, cell_x, cell_y):
     """Construct an xarray Dataset with (x, y, elevation) structure.
 
@@ -329,11 +311,9 @@ def build_dataset(dst, cell_x, cell_y):
     return ds
 
 
-# + [markdown]
 # ============================================================
 # RUN PIPELINE
 # ============================================================
-# -
 
 
 def run(scenario_name):

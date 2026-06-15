@@ -1,14 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: all,-trusted
-#     notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-# ---
-
 """
 ---
 title: Maliau site definition generator (multi-scenario TOML)
@@ -89,7 +78,6 @@ import tomli_w
 from shapely.geometry import box
 from shapely.ops import transform
 
-# + [markdown]
 # ============================================================
 # CONFIGURATION
 # ============================================================
@@ -102,7 +90,6 @@ from shapely.ops import transform
 #        - start_date      : simulation start date (YYYY-MM-DD)
 #        - update_interval : model update timestep (e.g. "1 month", "1 day")
 #        - run_length      : total simulation duration (e.g. "11 years")
-# -
 
 
 def get_all_configs():
@@ -133,7 +120,6 @@ def get_all_configs():
     }
 
 
-# +
 def get_grid_config(grid_name: str):
     """Return the configuration dictionary for a given grid scenario."""
     configs = get_all_configs()
@@ -142,7 +128,6 @@ def get_grid_config(grid_name: str):
     return configs[grid_name]
 
 
-# + [markdown]
 # ============================================================
 # GRID GENERATION
 # ============================================================
@@ -156,7 +141,6 @@ def get_grid_config(grid_name: str):
 #    6. Assemble final grid definition dictionary
 
 
-# +
 def build_grid_definition(config):
     """Build a grid definition dictionary from a given configuration."""
     # Extract parameters
@@ -236,7 +220,6 @@ def build_grid_definition(config):
             timing=timing,  # timing configuration
         ),
     )
-# -
 
 
 # ============================================================
@@ -248,10 +231,8 @@ def build_grid_definition(config):
 # - Writes the main grid definition
 # - Ensures the `core.grid` and `core.timing`block are always included
 
-# + [markdown]
 # The file is fully rewritten each time to maintain consistency and prevent missing
 # or partial sections.
-# -
 
 
 def write_all_scenarios(data, output_path):

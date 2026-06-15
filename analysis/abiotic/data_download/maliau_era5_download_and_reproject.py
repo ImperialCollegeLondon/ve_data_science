@@ -1,14 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: all,-trusted
-#     notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-# ---
-
 """
 ---
 title: ERA5 data download and reproject for the Maliau site
