@@ -125,7 +125,7 @@ them like codes and commit to GitHub, although they are stored under the
    skip_rows: 9
    variables:
       soilN:
-         var_canonical: total_soil_n
+         var_canonical: total_soil_n_per_volume
          unit: mg cm^-3
          description: Total soil nitrogen content
       soilP:
