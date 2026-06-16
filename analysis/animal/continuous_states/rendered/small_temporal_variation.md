@@ -33,19 +33,6 @@ I ran the full `maliau_2` scenario:
   [b6a216](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/b6a216bd263a50adfb5e1c90eb64583699578017))
 - OS: Windows 11
 
-<div>
-
-> **Improvement**
->
-> I’m thinking of writing a function to automatically summarise key
-> model configurations from the full config TOML compiled by `ve_run`.
-> We know what `maliau_2` means but others outside our team may not
-> remember. Sometimes a scenario config may also change. Tracked in
-> [this
-> Issue](https://github.com/ImperialCollegeLondon/ve_data_science/issues/327).
-
-</div>
-
 # Animal continuous state variables
 
 Currently, I’m examining:
@@ -56,16 +43,6 @@ Currently, I’m examining:
 - `animal_pom_consumption_cnp`
 - `animal_saprotrophic_fungi_consumption`
 - `total_animal_respiration`
-
-<div>
-
-> **Need help**
->
-> Pardon if I haven’t grasped the full list of “animal-related”
-> continuous state variables. Please suggest anything that is missing
-> here.
-
-</div>
 
 ``` r
 library(tidync)
@@ -171,14 +148,8 @@ A few follow-up questions upon seeing the temporal graphs:
 - There seems to be some relationship with resource availability. But
   there is no animal to consume then at later time steps?
 
-<div>
-
-> **Checkpoint**
->
-> If these trends are numerical artefacts rather than true consumption
-> and respiration rates, then there is not much point to read on.
-
-</div>
+If these trends are numerical artefacts rather than true consumption and
+respiration rates, then there is not much point to read on.
 
 # Why we need persistent animal populations
 
