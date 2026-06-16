@@ -9,6 +9,8 @@ format:
     toc-location: left
     theme: sandstone
     embed-resources: true
+comments:
+  hypothesis: true
 ---
 
 # Preamble
