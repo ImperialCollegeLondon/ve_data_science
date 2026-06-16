@@ -1,6 +1,6 @@
 # Empty forest? We need a scenario with persistent animal populations over the simulation period
 Lai, Hao Ran
-2026-05-19
+2026-06-16
 
 - [Preamble](#preamble)
 - [Model and data summary](#model-and-data-summary)
@@ -33,9 +33,9 @@ I ran the full `maliau_2` scenario:
   [b6a216](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/b6a216bd263a50adfb5e1c90eb64583699578017))
 - OS: Windows 11
 
-> [!NOTE]
->
-> ### Improvement
+<div>
+
+> **Improvement**
 >
 > I’m thinking of writing a function to automatically summarise key
 > model configurations from the full config TOML compiled by `ve_run`.
@@ -43,6 +43,8 @@ I ran the full `maliau_2` scenario:
 > remember. Sometimes a scenario config may also change. Tracked in
 > [this
 > Issue](https://github.com/ImperialCollegeLondon/ve_data_science/issues/327).
+
+</div>
 
 # Animal continuous state variables
 
@@ -55,16 +57,15 @@ Currently, I’m examining:
 - `animal_saprotrophic_fungi_consumption`
 - `total_animal_respiration`
 
-> [!CAUTION]
->
-> ### Need help
+<div>
+
+> **Need help**
 >
 > Pardon if I haven’t grasped the full list of “animal-related”
 > continuous state variables. Please suggest anything that is missing
 > here.
 
-<details class="code-fold">
-<summary>Code</summary>
+</div>
 
 ``` r
 library(tidync)
@@ -72,11 +73,6 @@ library(tidyverse)
 library(here)
 source(here("tools/R/tidy_continuous_data.R"))
 ```
-
-</details>
-
-<details class="code-fold">
-<summary>Code</summary>
 
 ``` r
 animal_vars <- c(
@@ -93,14 +89,9 @@ animal_cont <- tidy_continuous_data(
 )
 ```
 
-</details>
-
 First I saw that the range of these state variables are very small. Are
 they truly very small, or are they numerical imprecisions that need to
 be zapped to zero?
-
-<details class="code-fold">
-<summary>Code</summary>
 
 ``` r
 animal_cont |>
@@ -108,22 +99,17 @@ animal_cont |>
   summarise(min = min(value), max = max(value))
 ```
 
-</details>
-
     # A tibble: 6 × 3
       variable                                       min      max
       <chr>                                        <dbl>    <dbl>
     1 animal_arbuscular_mycorrhiza_consumption -4.18e-20 4.18e-20
-    2 animal_bacteria_consumption              -1.17e-16 1.17e-16
+    2 animal_bacteria_consumption              -2.33e-16 1.17e-16
     3 animal_ectomycorrhiza_consumption        -6.46e-18 6.46e-18
     4 animal_pom_consumption_cnp               -3.53e-17 3.33e-17
-    5 animal_saprotrophic_fungi_consumption    -2.80e-17 2.73e-17
-    6 total_animal_respiration                  0        0
+    5 animal_saprotrophic_fungi_consumption    -2.82e-17 2.68e-17
+    6 total_animal_respiration                  0        0       
 
 Here’s how the variables looked over simulation time steps:
-
-<details class="code-fold">
-<summary>Code</summary>
 
 ``` r
 animal_cont |>
@@ -134,19 +120,7 @@ animal_cont |>
   theme_bw()
 ```
 
-</details>
-
-<div id="fig-temporal-trend">
-
 ![](small_temporal_variation_files/figure-commonmark/fig-temporal-trend-1.png)
-
-Figure 1: Temporal trends in animal state variables. Each
-semi-transparent line is a grid cell.
-
-</div>
-
-<details class="code-fold">
-<summary>Code</summary>
 
 ``` r
 animal_cohort <- read_csv(
@@ -156,16 +130,11 @@ animal_cohort <- read_csv(
 max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
-</details>
-
 Before proceeding, I checked the animal cohort data and saw that all
 cohorts went extinct after time step 4.
 
 Following Nick’s suggestion, I also checked the temporal trends in
 resource availability:
-
-<details class="code-fold">
-<summary>Code</summary>
 
 ``` r
 resource_vars <- c(
@@ -189,16 +158,7 @@ resource_cont |>
   theme_bw()
 ```
 
-</details>
-
-<div id="fig-resource-trend">
-
 ![](small_temporal_variation_files/figure-commonmark/fig-resource-trend-1.png)
-
-Figure 2: Temporal trends in resource state variables. Each
-semi-transparent line is a grid cell.
-
-</div>
 
 A few follow-up questions upon seeing the temporal graphs:
 
@@ -211,12 +171,14 @@ A few follow-up questions upon seeing the temporal graphs:
 - There seems to be some relationship with resource availability. But
   there is no animal to consume then at later time steps?
 
-> [!CAUTION]
->
-> ### Checkpoint
+<div>
+
+> **Checkpoint**
 >
 > If these trends are numerical artefacts rather than true consumption
 > and respiration rates, then there is not much point to read on.
+
+</div>
 
 # Why we need persistent animal populations
 

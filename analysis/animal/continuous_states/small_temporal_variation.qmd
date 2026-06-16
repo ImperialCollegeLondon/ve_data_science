@@ -3,8 +3,10 @@ title: Empty forest? We need a scenario with persistent animal populations over 
 author:
   name: Lai, Hao Ran
 date: last-modified
-format:
-  gfm: default
+format: commonmark
+toc: true
+execute:
+  warning: false
 ---
 
 # Preamble
