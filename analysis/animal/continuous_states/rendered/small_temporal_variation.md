@@ -107,7 +107,7 @@ animal_cont |>
     3 animal_ectomycorrhiza_consumption        -6.46e-18 6.46e-18
     4 animal_pom_consumption_cnp               -3.53e-17 3.33e-17
     5 animal_saprotrophic_fungi_consumption    -2.82e-17 2.68e-17
-    6 total_animal_respiration                  0        0
+    6 total_animal_respiration                  0        0       
 
 Here’s how the variables looked over simulation time steps:
 
@@ -120,7 +120,7 @@ animal_cont |>
   theme_bw()
 ```
 
-![](small_temporal_variation_files/figure-commonmark/fig-temporal-trend-1.png)
+![](fig-temporal-trend-1.png)
 
 ``` r
 animal_cohort <- read_csv(
@@ -158,7 +158,7 @@ resource_cont |>
   theme_bw()
 ```
 
-![](small_temporal_variation_files/figure-commonmark/fig-resource-trend-1.png)
+![](fig-resource-trend-1.png)
 
 A few follow-up questions upon seeing the temporal graphs:
 
