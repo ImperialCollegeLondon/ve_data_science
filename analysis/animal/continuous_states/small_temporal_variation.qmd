@@ -4,24 +4,7 @@ author:
   name: Lai, Hao Ran
 date: last-modified
 format:
-  html:
-    minimal: true
-    comments:
-      hypothesis: true
   gfm: default
-  ipynb:
-    execute:
-      eval: true
-      warning: false
-      enabled: true
-  pdf: default
-  docx: default
-toc: true
-theme: sandstone
-knitr:
-  opts_chunk:
-    message: false
-code-fold: true
 ---
 
 # Preamble
