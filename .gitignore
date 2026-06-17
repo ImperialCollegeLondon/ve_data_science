@@ -558,4 +558,3 @@ rsconnect/
 
 /.quarto/
 **/*.quarto_ipynb
-*.qmd
