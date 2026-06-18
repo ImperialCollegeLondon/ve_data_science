@@ -33,28 +33,27 @@ get_derived_variables <- function(nc) {
 #' @export
 
 get_total_soil_c_per_volume <- function(nc) {
-  input_varnames <- c(
-    "soil_cnp_pool_lmwc",
-    "soil_cnp_pool_maom",
-    "soil_cnp_pool_necromass",
-    "soil_cnp_pool_pom",
-    "soil_c_pool_arbuscular_mycorrhiza",
-    "soil_c_pool_bacteria",
-    "soil_c_pool_ectomycorrhiza",
-    "soil_c_pool_saprotrophic_fungi"
-  )
-
-  input_vars <- get_data_variables(nc, input_varnames)
-
-  with(
-    input_vars,
-    soil_cnp_pool_lmwc["C", , ] +
-      soil_cnp_pool_maom["C", , ] +
-      soil_cnp_pool_necromass["C", , ] +
-      soil_cnp_pool_pom["C", , ] +
-      soil_c_pool_arbuscular_mycorrhiza +
-      soil_c_pool_bacteria +
-      soil_c_pool_ectomycorrhiza +
-      soil_c_pool_saprotrophic_fungi
-  )
+  get_data_variables(
+    nc,
+    c(
+      "soil_cnp_pool_lmwc",
+      "soil_cnp_pool_maom",
+      "soil_cnp_pool_necromass",
+      "soil_cnp_pool_pom",
+      "soil_c_pool_arbuscular_mycorrhiza",
+      "soil_c_pool_bacteria",
+      "soil_c_pool_ectomycorrhiza",
+      "soil_c_pool_saprotrophic_fungi"
+    )
+  ) |>
+    with(
+      soil_cnp_pool_lmwc["C", , ] +
+        soil_cnp_pool_maom["C", , ] +
+        soil_cnp_pool_necromass["C", , ] +
+        soil_cnp_pool_pom["C", , ] +
+        soil_c_pool_arbuscular_mycorrhiza +
+        soil_c_pool_bacteria +
+        soil_c_pool_ectomycorrhiza +
+        soil_c_pool_saprotrophic_fungi
+    )
 }
