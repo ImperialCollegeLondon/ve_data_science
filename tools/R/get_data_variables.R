@@ -38,15 +38,15 @@
 #' \dontrun{
 #'   # Retrieve all variables
 #'   nc <- tidync::tidync("data.nc")
-#'   all_vars <- get_variables(nc)
+#'   all_vars <- get_data_variables(nc)
 #'
 #'   # Retrieve specific variables
-#'   subset_vars <- get_variables(nc, variables = c("temp", "precip"))
+#'   subset_vars <- get_data_variables(nc, variables = c("temp", "precip"))
 #' }
 #'
 #' @export
 
-get_variables <- function(tidync, variables = NULL) {
+get_data_variables <- function(tidync, variables = NULL) {
   # retrieve all non-dimension state variables
   vars <-
     tidync$variable |>
