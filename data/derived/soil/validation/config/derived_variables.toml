@@ -8,7 +8,7 @@ transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
 name = "total_soil_c_per_volume"
 description = "Total soil carbon per volume"
 unit = "kg{C} m^-3"
-transform = "soil_cnp_pool_lmwc + soil_cnp_pool_soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi"
+transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi"
 
 [[variable]]
 name = "total_soil_p_per_volume"
@@ -26,7 +26,7 @@ transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass 
 name = "total_soil_c_per_mass"
 description = "Total soil carbon per mass"
 unit = "kg{C} kg^-1"
-transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi) / bulk_density"
+transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi) / bulk_density"
 
 [[variable]]
 name = "total_soil_p_per_mass"
