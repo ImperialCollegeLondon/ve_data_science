@@ -2,8 +2,8 @@
 #PBS -lwalltime=1:00:00
 #PBS -lselect=1:ncpus=1:mem=4gb
 #PBS -J 1-4800%100
-#PBS -o /rds/general/user/hlai1/home/logs/
-#PBS -e /rds/general/user/hlai1/home/logs/
+#PBS -j oe
+#PBS -o /rds/general/user/hlai1/home/logs/sensitivity/job_^array_index^.out
 
 # Initialise conda environment
 module purge
