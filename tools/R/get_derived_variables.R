@@ -30,7 +30,7 @@ get_derived_variables <- function(array) {
 #'
 #' @export
 
-get_total_soil_c_per_volume <- function(nc) {
+get_total_soil_c_per_volume <- function(array) {
   input_vars <- get_data_variables(
     array,
     c(
