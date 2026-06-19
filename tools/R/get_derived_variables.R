@@ -1,5 +1,3 @@
-box::use(tools/R/get_data_variables[get_data_variables])
-
 #' Get derived variables
 #'
 #' Wrapper around \code{get_*()} to compute derived
