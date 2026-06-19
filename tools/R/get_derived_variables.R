@@ -5,21 +5,21 @@ box::use(tools/R/get_data_variables[get_data_variables])
 #' Wrapper around \code{get_*()} to compute derived
 #' variables from the input NetCDF object.
 #'
-#' @param nc NetCDF object or path accepted by \code{get_data_variables()}.
+#' @param array Data arrays read from \code{tidync::tidync()}. See examples.
 #' @return A named list with derived variables.
 #'
 #' @examples
 #' \dontrun{
-#'   nc <- tidync::tidync(
+#'   array <- tidync::tidync(
 #'     "data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"
 #'   )
-#'   get_derived_variables(nc)
+#'   get_derived_variables(array)
 #' }
 #'
 #' @export
 
-get_derived_variables <- function(nc) {
-  total_soil_c_per_volume <- get_total_soil_c_per_volume(nc)
+get_derived_variables <- function(array) {
+  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
   return(list(total_soil_c_per_volume = total_soil_c_per_volume))
 }
 
@@ -27,14 +27,14 @@ get_derived_variables <- function(nc) {
 #'
 #' Sum carbon pools from soil variables in a NetCDF object.
 #'
-#' @param nc NetCDF object or path accepted by \code{get_data_variables()}.
+#' @param array Data arrays read from \code{tidync::tidync()}. See examples.
 #' @return Array of total soil carbon per volume.
 #'
 #' @export
 
 get_total_soil_c_per_volume <- function(nc) {
-  get_data_variables(
-    nc,
+  input_vars <- get_data_variables(
+    array,
     c(
       "soil_cnp_pool_lmwc",
       "soil_cnp_pool_maom",
@@ -45,15 +45,23 @@ get_total_soil_c_per_volume <- function(nc) {
       "soil_c_pool_ectomycorrhiza",
       "soil_c_pool_saprotrophic_fungi"
     )
-  ) |>
-    with(
-      soil_cnp_pool_lmwc["C", , ] +
-        soil_cnp_pool_maom["C", , ] +
-        soil_cnp_pool_necromass["C", , ] +
-        soil_cnp_pool_pom["C", , ] +
-        soil_c_pool_arbuscular_mycorrhiza +
-        soil_c_pool_bacteria +
-        soil_c_pool_ectomycorrhiza +
-        soil_c_pool_saprotrophic_fungi
-    )
+  )
+
+  with(
+    input_vars,
+    soil_cnp_pool_lmwc["C", , ] +
+      soil_cnp_pool_maom["C", , ] +
+      soil_cnp_pool_necromass["C", , ] +
+      soil_cnp_pool_pom["C", , ] +
+      soil_c_pool_arbuscular_mycorrhiza +
+      soil_c_pool_bacteria +
+      soil_c_pool_ectomycorrhiza +
+      soil_c_pool_saprotrophic_fungi
+  )
+}
+
+
+get_total_soil_c_per_mass <- function(array) {
+  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
+  bulk_density <- 
 }
