@@ -8,7 +8,7 @@ transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass +
 name = "total_soil_c_per_volume"
 description = "Total soil carbon per volume"
 unit = "kg{C} m^-3"
-transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi"
+function = "get_total_soil_c_per_volume"
 
 [[variable]]
 name = "total_soil_p_per_volume"
@@ -26,10 +26,16 @@ transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass 
 name = "total_soil_c_per_mass"
 description = "Total soil carbon per mass"
 unit = "kg{C} kg^-1"
-transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_c_pool_arbuscular_mycorrhiza + soil_c_pool_bacteria + soil_c_pool_ectomycorrhiza + soil_c_pool_saprotrophic_fungi) / bulk_density"
+function = "get_total_soil_c_per_mass"
 
 [[variable]]
 name = "total_soil_p_per_mass"
 description = "Total soil phosphorous per mass"
 unit = "kg{P} kg^-1"
 transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary + soil_p_pool_secondary) / bulk_density"
+
+[[variable]]
+name = "total_soil_c_per_area"
+description = "Total soil carbon per area"
+unit = "kg{C} m^-2"
+function = "get_total_soil_c_per_area"
