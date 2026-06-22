@@ -82,7 +82,7 @@ get_total_soil_c_per_mass <- function(array, config) {
 
 
 get_total_soil_c_per_area <- function(array, config) {
-  total_soil_c_per_mass <- get_total_soil_c_per_mass(array, config)
+  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
   soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
-  total_soil_c_per_mass * soil_layer_depth
+  total_soil_c_per_volume * soil_layer_depth
 }
