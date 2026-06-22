@@ -59,7 +59,27 @@ get_total_soil_c_per_volume <- function(array) {
 }
 
 
-get_total_soil_c_per_mass <- function(array) {
+configs <- toml::read_toml(
+  "data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
+)
+
+get_total_soil_c_per_mass <- function(array, config) {
   total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
-  bulk_density <- 
+
+  # retrieve bulk density from full configurations, but it won't be exported
+  # unless the abiotic model is used. In the case of abiotic_simple, for
+  # example, it will return NULL, so we overwrite it manually with a hard-coded
+  # default value in VE; this is meant to be temporary and is subjected to
+  # discussion
+  bulk_density_soil <- configs$abiotic$constants$bulk_density_soil
+  if (is.null(bulk_density_soil)) {
+    bulk_density_soil <- 1175.0
+    cli::cli_alert_warning("Soil bulk density is not found in the config file.")
+    cli::cli_alert_warning(
+      "Assigning it the default value {bulk_density_soil} from VE."
+    )
+  }
+
+  # convert nutrient per volume to nutrient per mass
+  total_soil_c_per_volume / bulk_density_soil
 }
