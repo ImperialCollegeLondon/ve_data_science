@@ -11,6 +11,9 @@
 #'   array <- tidync::tidync(
 #'     "data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"
 #'   )
+#'   config <- toml::read_toml(
+#'     "data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
+#'   )
 #'   get_derived_variables(array)
 #' }
 #'
@@ -85,4 +88,21 @@ get_total_soil_c_per_area <- function(array, config) {
   total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
   soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
   total_soil_c_per_volume * soil_layer_depth
+}
+
+
+convert_nutrient_soil_microbial <- function(array, config) {
+  # get the soil C in the microbial pools
+  soil_c_microbial <- get_data_variables(
+    array,
+    c(
+      "soil_c_pool_arbuscular_mycorrhiza",
+      "soil_c_pool_bacteria",
+      "soil_c_pool_ectomycorrhiza",
+      "soil_c_pool_saprotrophic_fungi"
+    )
+  )
+
+  # get the microbial nutrient stoichiometry
+  config$soil$microbial_group_definition
 }
