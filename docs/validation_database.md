@@ -4,7 +4,7 @@
 
 !!! IMPORTANT
 
-    This is a draft document. Most of the workflow below will only work for the
+    This is a draft document. Most of the workflow below is intended for the
     soil and litter modules.
 
 Here we use a config-driven pipeline to read, wrangle, unit-convert, and
