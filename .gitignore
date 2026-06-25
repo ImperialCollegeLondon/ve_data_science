@@ -6,7 +6,6 @@
 *.geotiff
 *.jpg
 *.jpeg
-*.png
 *.xlsx
 *.xls
 *.dat
@@ -74,8 +73,9 @@ rsconnect/
 # Python noise
 __pycache__
 
-# notebook caching
+# Jupyter notebook
 .ipynb_checkpoints
+.ipynb
 
 # Mac .DS_store
 .DS_store
