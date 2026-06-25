@@ -26,7 +26,7 @@ get_derived_variables <- function(array) {
 
 #' Compute total soil carbon per volume
 #'
-#' Sum carbon pools from soil variables in a NetCDF object.
+#' Sum carbon pools from soil variable arrays.
 #'
 #' @param array Data arrays read from \code{tidync::tidync()}. See examples.
 #' @return Array of total soil carbon per volume.
@@ -34,6 +34,7 @@ get_derived_variables <- function(array) {
 #' @export
 
 get_total_soil_c_per_volume <- function(array) {
+  # get the soil C variables
   input_vars <- get_data_variables(
     array,
     c(
@@ -48,6 +49,7 @@ get_total_soil_c_per_volume <- function(array) {
     )
   )
 
+  # summation
   with(
     input_vars,
     soil_cnp_pool_lmwc["C", , ] +
@@ -61,10 +63,7 @@ get_total_soil_c_per_volume <- function(array) {
   )
 }
 
-
-get_total_soil_c_per_mass <- function(array, config) {
-  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
-
+convert_volume_to_mass_basis <- function(volume_basis_data, config) {
   # retrieve bulk density from full configurations, but it won't be exported
   # unless the abiotic model is used. In the case of abiotic_simple, for
   # example, it will return NULL, so we overwrite it manually with a hard-coded
@@ -80,22 +79,84 @@ get_total_soil_c_per_mass <- function(array, config) {
   }
 
   # convert nutrient per volume to nutrient per mass
-  total_soil_c_per_volume / bulk_density_soil
+  volume_basis_data / bulk_density_soil
+}
+
+convert_volume_to_area_basis <- function(volume_basis_data, config) {
+  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
+  volume_basis_data * soil_layer_depth
+}
+
+
+get_total_soil_c_per_mass <- function(array, config) {
+  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
+  convert_volume_to_mass_basis(total_soil_c_per_volume, config)
 }
 
 
 get_total_soil_c_per_area <- function(array, config) {
   total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
-  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
-  total_soil_c_per_volume * soil_layer_depth
+  convert_volume_to_area_basis(total_soil_c_per_volume, config)
 }
 
 
-convert_nutrient_soil_microbial <- function(array, config) {
+get_soil_np_pool_microbial <- function(array, config) {
   # get the soil C in the microbial pools
   soil_c_microbial <- get_data_variables(
     array,
     c(
+      "soil_c_pool_bacteria",
+      "soil_c_pool_arbuscular_mycorrhiza",
+      "soil_c_pool_ectomycorrhiza",
+      "soil_c_pool_saprotrophic_fungi"
+    )
+  )
+
+  # get the microbial nutrient stoichiometry
+  stoich <-
+    config$soil$microbial_group_definition |>
+    purrr::map_vec(\(x) {
+      as.data.frame(x[c("name", "c_n_ratio", "c_p_ratio")])
+    }) |>
+    dplyr::mutate(name = paste0("soil_c_pool_", name))
+  # make sure that the names of microbial groups match up
+  c_n_ratio <- stoich$c_n_ratio[match(names(soil_c_microbial), stoich$name)]
+  c_p_ratio <- stoich$c_p_ratio[match(names(soil_c_microbial), stoich$name)]
+
+  # convert soil C to N and P, and rename arrays by their nutrient type
+  soil_n_microbial <-
+    purrr::map2(soil_c_microbial, c_n_ratio, \(x, y) {
+      x / y
+    })
+  names(soil_n_microbial) <- stringr::str_replace(
+    names(soil_n_microbial),
+    "_c_",
+    "_n_"
+  )
+  soil_p_microbial <-
+    purrr::map2(soil_c_microbial, c_p_ratio, \(x, y) {
+      x / y
+    })
+  names(soil_p_microbial) <- stringr::str_replace(
+    names(soil_p_microbial),
+    "_c_",
+    "_p_"
+  )
+
+  # combine N and P outputs
+  c(soil_n_microbial, soil_p_microbial)
+}
+
+
+get_total_soil_n_per_volume <- function(array, config) {
+  # get the soil N and related variables
+  input_vars <- get_data_variables(
+    array,
+    c(
+      "soil_cnp_pool_lmwc",
+      "soil_cnp_pool_maom",
+      "soil_cnp_pool_necromass",
+      "soil_cnp_pool_pom",
       "soil_c_pool_arbuscular_mycorrhiza",
       "soil_c_pool_bacteria",
       "soil_c_pool_ectomycorrhiza",
@@ -103,6 +164,78 @@ convert_nutrient_soil_microbial <- function(array, config) {
     )
   )
 
-  # get the microbial nutrient stoichiometry
-  config$soil$microbial_group_definition
+  # convert the microbial C to N
+  soil_np_pool_microbial <- get_soil_np_pool_microbial(array, config)
+
+  # summation
+  with(
+    input_vars,
+    soil_cnp_pool_lmwc["N", , ] +
+      soil_cnp_pool_maom["N", , ] +
+      soil_cnp_pool_necromass["N", , ] +
+      soil_cnp_pool_pom["N", , ]
+  ) +
+    with(
+      soil_np_pool_microbial,
+      soil_n_pool_arbuscular_mycorrhiza +
+        soil_n_pool_bacteria +
+        soil_n_pool_ectomycorrhiza +
+        soil_n_pool_saprotrophic_fungi
+    )
+}
+
+get_total_soil_n_per_mass <- function(array, config) {
+  total_soil_n_per_volume <- get_total_soil_n_per_volume(array, config)
+  convert_volume_to_mass_basis(total_soil_n_per_volume, config)
+}
+
+get_total_soil_n_per_area <- function(array, config) {
+  total_soil_n_per_volume <- get_total_soil_n_per_volume(array, config)
+  convert_volume_to_area_basis(total_soil_n_per_volume, config)
+}
+
+get_total_soil_p_per_volume <- function(array, config) {
+  # get the soil N and related variables
+  input_vars <- get_data_variables(
+    array,
+    c(
+      "soil_cnp_pool_lmwc",
+      "soil_cnp_pool_maom",
+      "soil_cnp_pool_necromass",
+      "soil_cnp_pool_pom",
+      "soil_c_pool_arbuscular_mycorrhiza",
+      "soil_c_pool_bacteria",
+      "soil_c_pool_ectomycorrhiza",
+      "soil_c_pool_saprotrophic_fungi"
+    )
+  )
+
+  # convert the microbial C to N
+  soil_np_pool_microbial <- get_soil_np_pool_microbial(array, config)
+
+  # summation
+  with(
+    input_vars,
+    soil_cnp_pool_lmwc["P", , ] +
+      soil_cnp_pool_maom["P", , ] +
+      soil_cnp_pool_necromass["P", , ] +
+      soil_cnp_pool_pom["P", , ]
+  ) +
+    with(
+      soil_np_pool_microbial,
+      soil_p_pool_arbuscular_mycorrhiza +
+        soil_p_pool_bacteria +
+        soil_p_pool_ectomycorrhiza +
+        soil_p_pool_saprotrophic_fungi
+    )
+}
+
+get_total_soil_p_per_mass <- function(array, config) {
+  total_soil_p_per_volume <- get_total_soil_p_per_volume(array, config)
+  convert_volume_to_mass_basis(total_soil_p_per_volume, config)
+}
+
+get_total_soil_p_per_area <- function(array, config) {
+  total_soil_p_per_volume <- get_total_soil_p_per_volume(array, config)
+  convert_volume_to_area_basis(total_soil_p_per_volume, config)
 }
