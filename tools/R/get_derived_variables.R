@@ -149,7 +149,7 @@ get_soil_np_pool_microbial <- function(array, config) {
 
 
 get_total_soil_n_per_volume <- function(array, config) {
-  # get the soil N and related variables
+  # get the soil N variables
   input_vars <- get_data_variables(
     array,
     c(
@@ -157,10 +157,8 @@ get_total_soil_n_per_volume <- function(array, config) {
       "soil_cnp_pool_maom",
       "soil_cnp_pool_necromass",
       "soil_cnp_pool_pom",
-      "soil_c_pool_arbuscular_mycorrhiza",
-      "soil_c_pool_bacteria",
-      "soil_c_pool_ectomycorrhiza",
-      "soil_c_pool_saprotrophic_fungi"
+      "soil_n_pool_ammonium",
+      "soil_n_pool_nitrate"
     )
   )
 
@@ -173,7 +171,9 @@ get_total_soil_n_per_volume <- function(array, config) {
     soil_cnp_pool_lmwc["N", , ] +
       soil_cnp_pool_maom["N", , ] +
       soil_cnp_pool_necromass["N", , ] +
-      soil_cnp_pool_pom["N", , ]
+      soil_cnp_pool_pom["N", , ] +
+      soil_n_pool_ammonium +
+      soil_n_pool_nitrate
   ) +
     with(
       soil_np_pool_microbial,
@@ -195,7 +195,7 @@ get_total_soil_n_per_area <- function(array, config) {
 }
 
 get_total_soil_p_per_volume <- function(array, config) {
-  # get the soil N and related variables
+  # get the soil P variables
   input_vars <- get_data_variables(
     array,
     c(
@@ -203,14 +203,13 @@ get_total_soil_p_per_volume <- function(array, config) {
       "soil_cnp_pool_maom",
       "soil_cnp_pool_necromass",
       "soil_cnp_pool_pom",
-      "soil_c_pool_arbuscular_mycorrhiza",
-      "soil_c_pool_bacteria",
-      "soil_c_pool_ectomycorrhiza",
-      "soil_c_pool_saprotrophic_fungi"
+      "soil_p_pool_labile",
+      "soil_p_pool_primary",
+      "soil_p_pool_secondary"
     )
   )
 
-  # convert the microbial C to N
+  # convert the microbial C to P
   soil_np_pool_microbial <- get_soil_np_pool_microbial(array, config)
 
   # summation
@@ -219,7 +218,10 @@ get_total_soil_p_per_volume <- function(array, config) {
     soil_cnp_pool_lmwc["P", , ] +
       soil_cnp_pool_maom["P", , ] +
       soil_cnp_pool_necromass["P", , ] +
-      soil_cnp_pool_pom["P", , ]
+      soil_cnp_pool_pom["P", , ] +
+      soil_p_pool_labile +
+      soil_p_pool_primary +
+      soil_p_pool_secondary
   ) +
     with(
       soil_np_pool_microbial,
