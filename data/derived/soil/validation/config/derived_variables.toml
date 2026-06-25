@@ -2,7 +2,7 @@
 name = "total_soil_n_per_volume"
 description = "Total soil nitrogen per volume"
 unit = "kg{N} m^-3"
-transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate"
+function = "get_total_soil_n_per_volume"
 
 [[variable]]
 name = "total_soil_c_per_volume"
@@ -14,13 +14,13 @@ function = "get_total_soil_c_per_volume"
 name = "total_soil_p_per_volume"
 description = "Total soil phosphorous per volume"
 unit = "kg{P} m^-3"
-transform = "soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary + soil_p_pool_secondary"
+function = "get_total_soil_p_per_volume"
 
 [[variable]]
 name = "total_soil_n_per_mass"
 description = "Total soil nitrogen per mass"
 unit = "kg{N} kg^-1"
-transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_n_pool_ammonium + soil_n_pool_nitrate) / bulk_density"
+function = "get_total_soil_n_per_mass"
 
 [[variable]]
 name = "total_soil_c_per_mass"
@@ -32,10 +32,22 @@ function = "get_total_soil_c_per_mass"
 name = "total_soil_p_per_mass"
 description = "Total soil phosphorous per mass"
 unit = "kg{P} kg^-1"
-transform = "(soil_cnp_pool_lmwc + soil_cnp_pool_maom + soil_cnp_pool_necromass + soil_cnp_pool_pom + soil_p_pool_labile + soil_p_pool_primary + soil_p_pool_secondary) / bulk_density"
+function = "get_total_soil_p_per_mass"
 
 [[variable]]
 name = "total_soil_c_per_area"
 description = "Total soil carbon per area"
 unit = "kg{C} m^-2"
 function = "get_total_soil_c_per_area"
+
+[[variable]]
+name = "total_soil_n_per_area"
+description = "Total soil nitrogen per area"
+unit = "kg{N} m^-2"
+function = "get_total_soil_n_per_area"
+
+[[variable]]
+name = "total_soil_p_per_area"
+description = "Total soil phosphorous per area"
+unit = "kg{P} m^-2"
+function = "get_total_soil_p_per_area"
