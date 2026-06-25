@@ -63,6 +63,13 @@ get_total_soil_c_per_volume <- function(array) {
   )
 }
 
+#' Convert nutrient per volume to mass basis
+#'
+#' @param volume_basis_data Data in volume basis.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil nutrient per mass.
+
 convert_volume_to_mass_basis <- function(volume_basis_data, config) {
   # retrieve bulk density from full configurations, but it won't be exported
   # unless the abiotic model is used. In the case of abiotic_simple, for
@@ -82,11 +89,28 @@ convert_volume_to_mass_basis <- function(volume_basis_data, config) {
   volume_basis_data / bulk_density_soil
 }
 
+#' Convert nutrient per volume to area basis
+#'
+#' @param volume_basis_data Data in volume basis.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil nutrient per area.
+
 convert_volume_to_area_basis <- function(volume_basis_data, config) {
   soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
   volume_basis_data * soil_layer_depth
 }
 
+
+#' Calculate total soil carbon per mass
+#'
+#' Convert total soil carbon per volume to a mass basis.
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil carbon per mass.
+#' @export
 
 get_total_soil_c_per_mass <- function(array, config) {
   total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
@@ -94,11 +118,26 @@ get_total_soil_c_per_mass <- function(array, config) {
 }
 
 
+#' Calculate total soil carbon per area
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil carbon per area.
+#' @export
+
 get_total_soil_c_per_area <- function(array, config) {
   total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
   convert_volume_to_area_basis(total_soil_c_per_volume, config)
 }
 
+
+#' Calculate soil nitrogen and phosphorus in microbial pools
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return List of arrays of nitrogen and phosphorus in the microbial pools.
 
 get_soil_np_pool_microbial <- function(array, config) {
   # get the soil C in the microbial pools
@@ -148,6 +187,16 @@ get_soil_np_pool_microbial <- function(array, config) {
 }
 
 
+#' Compute total soil nitrogen per volume
+#'
+#' Sum nitrogen pools from soil variable arrays.
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil nitrogen per volume.
+#' @export
+
 get_total_soil_n_per_volume <- function(array, config) {
   # get the soil N variables
   input_vars <- get_data_variables(
@@ -184,15 +233,43 @@ get_total_soil_n_per_volume <- function(array, config) {
     )
 }
 
+#' Calculate total soil nitrogen per mass
+#'
+#' Convert total soil nitrogen per volume to a mass basis.
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil nitrogen per mass.
+#' @export
+
 get_total_soil_n_per_mass <- function(array, config) {
   total_soil_n_per_volume <- get_total_soil_n_per_volume(array, config)
   convert_volume_to_mass_basis(total_soil_n_per_volume, config)
 }
 
+#' Calculate total soil nitrogen per area
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil nitrogen per area.
+#' @export
+
 get_total_soil_n_per_area <- function(array, config) {
   total_soil_n_per_volume <- get_total_soil_n_per_volume(array, config)
   convert_volume_to_area_basis(total_soil_n_per_volume, config)
 }
+
+#' Compute total soil phosphorus per volume
+#'
+#' Sum phosphorus pools from soil variable arrays.
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil phosphorus per volume.
+#' @export
 
 get_total_soil_p_per_volume <- function(array, config) {
   # get the soil P variables
@@ -232,10 +309,26 @@ get_total_soil_p_per_volume <- function(array, config) {
     )
 }
 
+#' Calculate total soil phosphorus per mass
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil phosphorus per mass.
+#' @export
+
 get_total_soil_p_per_mass <- function(array, config) {
   total_soil_p_per_volume <- get_total_soil_p_per_volume(array, config)
   convert_volume_to_mass_basis(total_soil_p_per_volume, config)
 }
+
+#' Calculate total soil phosphorus per area
+#'
+#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of total soil phosphorus per area.
+#' @export
 
 get_total_soil_p_per_area <- function(array, config) {
   total_soil_p_per_volume <- get_total_soil_p_per_volume(array, config)
