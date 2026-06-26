@@ -1,6 +1,5 @@
 """Module to generate test configurations for the virtual ecosystem."""
 
-import bottleneck as bn
 from virtual_ecosystem.core.config_builder import generate_configuration
 
 
