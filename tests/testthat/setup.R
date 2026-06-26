@@ -2,9 +2,13 @@
 
 library(testthat)
 library(withr)
+library(reticulate)
 source("../../tools/R/convert_array_to_nc.R")
 source("../../tools/R/get_data_variables.R")
 source("../../tools/R/get_derived_variables.R")
+
+
+# Mock data --------------------------------------------------------------
 
 element <- c("C", "N", "P")
 cell_id <- 0:2
@@ -100,6 +104,14 @@ create_mock_nc <- function() {
   defer_parent(unlink(mock_nc_path))
 }
 
-config <- toml::read_toml(
-  "../../data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
-)
+
+# Mock config ------------------------------------------------------------
+
+source_python("../../tools/python/generate_config_test.py")
+
+create_mock_cfg <- function() {
+  mock_cfg_path <- test_path("mock_config.TOML")
+  generate_test_config(mock_cfg_path)
+  config <- toml::read_toml(mock_cfg_path)
+  defer_parent(unlink(mock_cfg_path))
+}
