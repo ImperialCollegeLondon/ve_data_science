@@ -3,14 +3,29 @@
 # get_data_variables() extracts specific named arrays from a tidync object.
 # Tests mock get_data_variables() to provide controlled array data.
 
-test_that("get_derived_variables returns a named list", {
+test_that("get_derived_variables returns a named list of arrays", {
   create_mock_nc()
   result <-
     tidync::tidync(test_path("mock_data.nc")) |>
-    get_derived_variables()
+    get_derived_variables(config = config)
   expect_type(result, "list")
   expect_named(result)
-  expect_contains(names(result), "total_soil_c_per_volume")
+  expect_setequal(
+    names(result),
+    c(
+      "total_soil_c_per_volume",
+      "total_soil_c_per_mass",
+      "total_soil_c_per_area",
+      "soil_np_pool_microbial",
+      "total_soil_n_per_volume",
+      "total_soil_n_per_mass",
+      "total_soil_n_per_area",
+      "total_soil_p_per_volume",
+      "total_soil_p_per_mass",
+      "total_soil_p_per_area"
+    )
+  )
+  expect_true(is.array(result[[1]]))
 })
 
 # test_that("get_total_soil_c_per_volume sums all carbon pools", {
