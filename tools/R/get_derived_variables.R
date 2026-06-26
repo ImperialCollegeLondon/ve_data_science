@@ -4,6 +4,8 @@
 #' variables from the input NetCDF object.
 #'
 #' @param array Data arrays read from \code{tidync::tidync()}. See examples.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
 #' @return A named list with derived variables.
 #'
 #' @examples
@@ -19,9 +21,19 @@
 #'
 #' @export
 
-get_derived_variables <- function(array) {
-  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
-  return(list(total_soil_c_per_volume = total_soil_c_per_volume))
+get_derived_variables <- function(array, config) {
+  list(
+    total_soil_c_per_volume = get_total_soil_c_per_volume(array),
+    total_soil_c_per_mass = get_total_soil_c_per_mass(array, config),
+    total_soil_c_per_area = get_total_soil_c_per_area(array, config),
+    soil_np_pool_microbial = get_soil_np_pool_microbial(array, config),
+    total_soil_n_per_volume = get_total_soil_n_per_volume(array, config),
+    total_soil_n_per_mass = get_total_soil_n_per_mass(array, config),
+    total_soil_n_per_area = get_total_soil_n_per_area(array, config),
+    total_soil_p_per_volume = get_total_soil_p_per_volume(array, config),
+    total_soil_p_per_mass = get_total_soil_p_per_mass(array, config),
+    total_soil_p_per_area = get_total_soil_p_per_area(array, config)
+  )
 }
 
 #' Compute total soil carbon per volume
