@@ -1,4 +1,6 @@
-# comment on relative path and this file is meant to run with testthat::test_dir("tests/testthat")
+# Test setup script: Configure environment and create mock data for testthat tests.
+# Run via: testthat::test_dir("tests/testthat")
+# Note: Uses relative paths from tests/testthat/ directory
 
 library(testthat)
 library(withr)
@@ -10,10 +12,13 @@ source("../../tools/R/get_derived_variables.R")
 
 # Mock data --------------------------------------------------------------
 
+# Dimension definitions
 element <- c("C", "N", "P")
 cell_id <- 0:2
 time_index <- 0:1
 
+# Create mock arrays matching model output structure
+# Arrays with element dimension: [element × cell_id × time_index]
 mock_arrays <- list(
   soil_cnp_pool_lmwc = array(
     1:18,
@@ -51,6 +56,7 @@ mock_arrays <- list(
       time_index = time_index
     )
   ),
+  # Arrays without element dimension: [cell_id × time_index]
   soil_c_pool_arbuscular_mycorrhiza = array(
     5:8,
     dim = c(3, 2),
@@ -98,20 +104,27 @@ mock_arrays <- list(
   )
 )
 
+# Function to convert mock arrays to netCDF file for testing
 create_mock_nc <- function() {
   mock_nc_path <- test_path("mock_data.nc")
+  # save the mock data to a temporary netCDF file
   convert_array_to_nc(mock_arrays, mock_nc_path)
+  # Schedule cleanup (file deleted after test completes)
   defer_parent(unlink(mock_nc_path))
 }
 
 
 # Mock config ------------------------------------------------------------
 
+# Import Python config generator, which is a wrapper around VE's function
 source_python("../../tools/python/generate_config_test.py")
 
+# Function to create mock TOML config file for testing
 create_mock_cfg <- function() {
   mock_cfg_path <- test_path("mock_config.TOML")
+  # save the generated config file to a temporary TOML file
   generate_test_config(mock_cfg_path)
   config <- toml::read_toml(mock_cfg_path)
+  # Schedule cleanup
   defer_parent(unlink(mock_cfg_path))
 }
