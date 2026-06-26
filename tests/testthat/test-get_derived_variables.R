@@ -28,13 +28,30 @@ test_that("get_derived_variables returns a named list of arrays", {
   expect_true(is.array(result[[1]]))
 })
 
-# test_that("get_total_soil_c_per_volume sums all carbon pools", {
-#   result <- get_total_soil_c_per_volume(NULL)
-#   expect_equal(as.numeric(result[1, 1]), 8 * c_value)
-# })
+test_that("get_total_soil_c_per_volume sums all carbon pools", {
+  create_mock_nc()
+  result <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_c_per_volume()
+  expect_equal(result[1, 1], sum(1:8))
+})
 
-# test_that("get_total_soil_c_per_volume preserves spatial dimensions", {
-#   result <- get_total_soil_c_per_volume(NULL)
-#   # Dimensions should be (4, 5) after selecting C from CNP pools
-#   expect_equal(dim(result), c(4, 5))
-# })
+test_that("get_total_soil_c_per_volume preserves spatiotemporal dimensions", {
+  create_mock_nc()
+  result <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_c_per_volume()
+  expect_equal(dim(result), c(length(cell_id), length(time_index)))
+})
+
+test_that("get_total_soil_c_per_mass converts volume to mass basis correctly.", {
+  create_mock_nc()
+  result_volume_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_c_per_volume()
+  result_mass_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_c_per_mass(config = config)
+  bulk_density_VE <- 1175.0
+  expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
+})
