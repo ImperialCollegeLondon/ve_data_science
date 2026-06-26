@@ -66,6 +66,31 @@ mock_arrays <- list(
     8:11,
     dim = c(3, 2),
     dimnames = list(cell_id = cell_id, time_index = time_index)
+  ),
+  soil_n_pool_ammonium = array(
+    9:12,
+    dim = c(3, 2),
+    dimnames = list(cell_id = cell_id, time_index = time_index)
+  ),
+  soil_n_pool_nitrate = array(
+    10:13,
+    dim = c(3, 2),
+    dimnames = list(cell_id = cell_id, time_index = time_index)
+  ),
+  soil_p_pool_labile = array(
+    11:14,
+    dim = c(3, 2),
+    dimnames = list(cell_id = cell_id, time_index = time_index)
+  ),
+  soil_p_pool_primary = array(
+    12:15,
+    dim = c(3, 2),
+    dimnames = list(cell_id = cell_id, time_index = time_index)
+  ),
+  soil_p_pool_secondary = array(
+    13:16,
+    dim = c(3, 2),
+    dimnames = list(cell_id = cell_id, time_index = time_index)
   )
 )
 
@@ -74,3 +99,7 @@ create_mock_nc <- function() {
   convert_array_to_nc(mock_arrays, mock_nc_path)
   defer_parent(unlink(mock_nc_path))
 }
+
+config <- toml::read_toml(
+  "../../data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
+)
