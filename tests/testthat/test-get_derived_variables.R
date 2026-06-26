@@ -45,7 +45,7 @@ test_that("get_total_soil_c_per_volume preserves spatiotemporal dimensions", {
   expect_equal(dim(result), c(length(cell_id), length(time_index)))
 })
 
-test_that("get_total_soil_c_per_mass converts volume to mass and area basis correctly.", {
+test_that("get_total_soil_c_per_mass converts volume to mass and get_total_soil_c_per_area to area basis correctly.", {
   create_mock_nc()
   create_mock_cfg()
   result_volume_basis <-
@@ -148,4 +148,22 @@ test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_n_per_volume(config = config)
   expect_equal(dim(result), c(length(cell_id), length(time_index)))
+})
+
+test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_n_per_area to area basis correctly.", {
+  create_mock_nc()
+  create_mock_cfg()
+  result_volume_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_c_per_volume()
+  result_mass_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_c_per_mass(config = config)
+  result_area_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_c_per_area(config = config)
+  bulk_density_VE <- config$abiotic$constants$bulk_density_soil
+  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
+  expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
+  expect_equal(result_volume_basis * soil_layer_depth, result_area_basis)
 })
