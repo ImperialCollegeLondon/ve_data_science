@@ -155,13 +155,56 @@ test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_
   create_mock_cfg()
   result_volume_basis <-
     tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_volume()
+    get_total_soil_n_per_volume(config = config)
   result_mass_basis <-
     tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_mass(config = config)
+    get_total_soil_n_per_mass(config = config)
   result_area_basis <-
     tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_area(config = config)
+    get_total_soil_n_per_area(config = config)
+  bulk_density_VE <- config$abiotic$constants$bulk_density_soil
+  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
+  expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
+  expect_equal(result_volume_basis * soil_layer_depth, result_area_basis)
+})
+
+
+test_that("get_total_soil_p_per_volume sums all phosphorous pools", {
+  create_mock_nc()
+  create_mock_cfg()
+  stoich <-
+    config$soil$microbial_group_definition |>
+    purrr::map_vec(\(x) {
+      as.data.frame(x[c("name", "c_p_ratio")])
+    })
+  c_p_ratio <- stoich$c_p_ratio[c(3, 4, 2, 1)]
+  result <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_p_per_volume(config = config)
+  expect_equal(result[1, 1], sum(3:6) + sum((5:8) / c_p_ratio) + sum(11:13))
+})
+
+test_that("get_total_soil_p_per_volume preserves spatiotemporal dimensions", {
+  create_mock_nc()
+  create_mock_cfg()
+  result <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_p_per_volume(config = config)
+  expect_equal(dim(result), c(length(cell_id), length(time_index)))
+})
+
+test_that("get_total_soil_p_per_mass converts volume to mass and get_total_soil_p_per_area to area basis correctly.", {
+  create_mock_nc()
+  create_mock_cfg()
+  result_volume_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_p_per_volume(config = config)
+  result_mass_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_p_per_mass(config = config)
+  result_area_basis <-
+    tidync::tidync(test_path("mock_data.nc")) |>
+    get_total_soil_p_per_area(config = config)
   bulk_density_VE <- config$abiotic$constants$bulk_density_soil
   soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
   expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
