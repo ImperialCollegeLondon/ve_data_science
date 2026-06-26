@@ -1,5 +1,53 @@
-# Tests for get_derived_variables function
-
+#| ---
+#| title: Tests for soil derived variables functions
+#|
+#| description: |
+#|     Unit tests for the get_derived_variables function and related
+#|     functions that calculate total soil carbon, nitrogen, and
+#|     phosphorus pools per volume, mass, and area bases. Tests verify
+#|     correct summing of constituent pools, unit conversions, and
+#|     stoichiometric calculations from microbial C to N and P pools.
+#|
+#| virtual_ecosystem_module: Soil
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| source_files:
+#|   - name: get_derived_variables.R
+#|     path: tools/R/
+#|     description: |
+#|       Functions to calculate derived soil CNP pool variables
+#|   - name: get_data_variables.R
+#|     path: tools/R/
+#|     description: |
+#|       Function to extract data variables from netCDF
+#|
+#| input_files:
+#|   - name: mock_data.nc
+#|     path: tests/testthat/ (temporary)
+#|     description: |
+#|       Temporary mock netCDF file with soil pool arrays,
+#|       created by setup script
+#|   - name: mock_config.TOML
+#|     path: tests/testthat/ (temporary)
+#|     description: |
+#|       Temporary mock VE config file with stoichiometric
+#|       ratios, created by setup script
+#|
+#| package_dependencies:
+#|     - testthat
+#|     - tidync
+#|     - purrr
+#|
+#| usage_notes: |
+#|     Run via: testthat::test_dir("tests/testthat")
+#|     Requires setup.R to be executed first to define create_mock_nc(),
+#|     create_mock_cfg(), and source helper functions (this is automatic upon
+#|     running testthat::test_dir("tests/testthat"). All temporary files
+#|     are cleaned up after tests complete.
+#| ---
 test_that("get_derived_variables returns a named list of arrays", {
   # Create temporary mock netCDF file
   create_mock_nc()

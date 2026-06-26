@@ -1,6 +1,59 @@
-# Test setup script: Configure environment and create mock data for testthat tests.
-# Run via: testthat::test_dir("tests/testthat")
-# Note: Uses relative paths from tests/testthat/ directory
+#| ---
+#| title: Setup script for R testthat tests
+#|
+#| description: |
+#|     Configures the test environment and creates mock data for testthat tests
+#|     of R functions. Generates mock arrays matching Virtual Ecosystem model
+#|     output structure, and creates temporary netCDF and TOML config files for
+#|     testing functions.
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|   - name: mock_data.nc
+#|     path: tests/testthat/ (temporary)
+#|     description: |
+#|       Temporary mock netCDF file with soil pool arrays, deleted after test
+#|   - name: mock_config.TOML
+#|     path: tests/testthat/ (temporary)
+#|     description: |
+#|       Temporary mock VE config file, deleted after test
+#|
+#| source_files:
+#|   - name: convert_array_to_nc.R
+#|     path: tools/R/
+#|     description: |
+#|       Helper function to convert R arrays to netCDF format
+#|   - name: get_data_variables.R
+#|     path: tools/R/
+#|     description: |
+#|       Helper function to extract VE data variables
+#|   - name: get_derived_variables.R
+#|     path: tools/R/
+#|     description: |
+#|       Helper function to compute derived variables
+#|   - name: generate_config_test.py
+#|     path: tools/python/
+#|     description: |
+#|       Python wrapper around VE's config generation function
+#|
+#| package_dependencies:
+#|     - testthat
+#|     - withr
+#|     - reticulate
+#|     - toml
+#|
+#| usage_notes: |
+#|     Run via: testthat::test_dir("tests/testthat")
+#|     Uses relative paths from tests/testthat/ directory. All temporary files
+#|     are automatically cleaned up after tests complete via defer_parent().
+#| ---
 
 library(testthat)
 library(withr)
