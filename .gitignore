@@ -12,6 +12,8 @@
 *.txt
 *.rds
 *.RData
+
+# Primary data
 data/primary
 
 # Derived data
@@ -24,7 +26,9 @@ data/derived/troubleshoot/runtime_per_cell/*.png
 data/scenarios/*/*/*
 !data/scenarios/maliau/*/change_log.txt
 
-# notebooks
+# Notebooks
+/.quarto/
+**/*.quarto_ipynb
 analysis/soil/validation/*html
 
 # History files
@@ -497,7 +501,7 @@ FodyWeavers.xsd
 # .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-!.vscode/launch.json
+#!.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
@@ -560,6 +564,3 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
-
-/.quarto/
-**/*.quarto_ipynb
