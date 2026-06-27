@@ -16,7 +16,7 @@
 #'   config <- toml::read_toml(
 #'     "data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
 #'   )
-#'   get_derived_variables(array)
+#'   get_derived_variables(array, config)
 #' }
 #'
 #' @export
