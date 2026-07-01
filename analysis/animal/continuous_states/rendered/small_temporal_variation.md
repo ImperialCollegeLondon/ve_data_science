@@ -1,35 +1,8 @@
----
-jupyter:
-  jupytext:
-    cell_metadata_filter: all,-trusted
-    notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version
-    text_representation:
-      extension: .md
-      format_name: markdown
-      format_version: '1.3'
-  kernelspec:
-    display_name: R
-    language: r
-    name: ir
-title: Empty forest? We need a scenario with persistent animal populations over the simulation period
-author:
-  name: Lai, Hao Ran
-date: last-modified
-format: commonmark
-jupyter:
-  kernelspec:
-    display_name: R
-    language: r
-    name: ir
-fig-width: 8
-fig-height: 10
-fig-dpi: 300
-execute:
-  warning: false
----
+# Empty forest? We need a scenario with persistent animal populations over the simulation period
+Lai, Hao Ran
+2026-07-02
 
-```r
-#| label: load-packages
+``` r
 library(tidync)
 library(tidyverse)
 library(here)
@@ -39,9 +12,17 @@ source(here("tools/R/tidy_continuous_data.R"))
 
 # Preamble
 
-I am conducting a sensitivity analysis for the soil and litter modules. A sensitivity analysis examines how much of the variation in an output is attributed to variation in an input. **However, if an output never varies, it is meaningless to conduct a sensitivity analysis.** This happens to a few animal-related outputs in the `all_continuous_data.nc` file. My gut feeling is that the lack of temporal variation is due to the animal FGs dying off, hence the exploration here.
+I am conducting a sensitivity analysis for the soil and litter modules.
+A sensitivity analysis examines how much of the variation in an output
+is attributed to variation in an input. **However, if an output never
+varies, it is meaningless to conduct a sensitivity analysis.** This
+happens to a few animal-related outputs in the `all_continuous_data.nc`
+file. My gut feeling is that the lack of temporal variation is due to
+the animal FGs dying off, hence the exploration here.
 
-At the end of this report, I explain why we might want to design a scenario where there is at least some persistent animal populations, at least for the purpose of sensitivity analyses.
+At the end of this report, I explain why we might want to design a
+scenario where there is at least some persistent animal populations, at
+least for the purpose of sensitivity analyses.
 
 # Model and data summary
 
@@ -50,15 +31,73 @@ I ran the full `maliau_2` scenario available from Globus:
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
 - The animal functional group is
-|name                   |taxa   |diet                                   |metabolic_type |reproductive_environment |reproductive_type |development_type |development_status |offspring_functional_group |excretion_type |migration_type |vertical_occupancy | birth_mass| adult_mass|density_individuals_m2 |
-|:----------------------|:------|:--------------------------------------|:--------------|:------------------------|:-----------------|:----------------|:------------------|:--------------------------|:--------------|:--------------|:------------------|----------:|----------:|:----------------------|
-|Herbivorous_endotherms |mammal |wood_seeds_fruit_foliage_flowers_fungi |endothermic    |terrestrial              |iteroparous       |direct           |adult              |Herbivorous_endotherms     |ureotelic      |none           |ground             |        100|       2915|None
-- VE version: v0.2.0 (dev version; commit [3c6e75](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/3c6e752e6ca3a8a22239bf6112e14236528e32e3))
+
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 2%" />
+<col style="width: 13%" />
+<col style="width: 5%" />
+<col style="width: 8%" />
+<col style="width: 6%" />
+<col style="width: 5%" />
+<col style="width: 6%" />
+<col style="width: 9%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 6%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">name</th>
+<th style="text-align: left;">taxa</th>
+<th style="text-align: left;">diet</th>
+<th style="text-align: left;">metabolic_type</th>
+<th style="text-align: left;">reproductive_environment</th>
+<th style="text-align: left;">reproductive_type</th>
+<th style="text-align: left;">development_type</th>
+<th style="text-align: left;">development_status</th>
+<th style="text-align: left;">offspring_functional_group</th>
+<th style="text-align: left;">excretion_type</th>
+<th style="text-align: left;">migration_type</th>
+<th style="text-align: left;">vertical_occupancy</th>
+<th style="text-align: right;">birth_mass</th>
+<th style="text-align: right;">adult_mass</th>
+<th style="text-align: left;">density_individuals_m2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Herbivorous_endotherms</td>
+<td style="text-align: left;">mammal</td>
+<td
+style="text-align: left;">wood_seeds_fruit_foliage_flowers_fungi</td>
+<td style="text-align: left;">endothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Herbivorous_endotherms</td>
+<td style="text-align: left;">ureotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">2915</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+
+- VE version: v0.2.0 (dev version; commit
+  [3c6e75](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/3c6e752e6ca3a8a22239bf6112e14236528e32e3))
 - OS: Windows 11
 
 # Animal continuous state variables
 
-Currently, I'm examining:
+Currently, I’m examining:
 
 - `animal_arbuscular_mycorrhiza_consumption`
 - `animal_bacteria_consumption`
@@ -67,8 +106,7 @@ Currently, I'm examining:
 - `animal_saprotrophic_fungi_consumption`
 - `total_animal_respiration`
 
-```r
-#| label: get-data
+``` r
 animal_vars <- c(
   "animal_arbuscular_mycorrhiza_consumption",
   "animal_bacteria_consumption",
@@ -83,20 +121,29 @@ animal_cont <- tidy_continuous_data(
 )
 ```
 
-First I saw that the range of these state variables are very small. Are they truly very small, or are they numerical imprecisions that need to be clamped to zero?
+First I saw that the range of these state variables are very small. Are
+they truly very small, or are they numerical imprecisions that need to
+be clamped to zero?
 
-```r
-#| label: summary-table
+``` r
 animal_cont |>
   group_by(variable) |>
   summarise(min = min(value), max = max(value))
 ```
 
-Here's how the variables looked over simulation time steps:
+    # A tibble: 6 × 3
+      variable                                       min      max
+      <chr>                                        <dbl>    <dbl>
+    1 animal_arbuscular_mycorrhiza_consumption -4.18e-20 4.18e-20
+    2 animal_bacteria_consumption              -1.17e-16 2.33e-16
+    3 animal_ectomycorrhiza_consumption        -6.46e-18 6.46e-18
+    4 animal_pom_consumption_cnp               -3.53e-17 3.33e-17
+    5 animal_saprotrophic_fungi_consumption    -2.82e-17 2.80e-17
+    6 total_animal_respiration                  0        0       
 
-```r
-#| label: fig-temporal-trend
-#| fig-cap: "Temporal trends in animal state variables. Each semi-transparent line is a grid cell."
+Here’s how the variables looked over simulation time steps:
+
+``` r
 animal_cont |>
   unite("variable2", variable, element, na.rm = TRUE) |>
   ggplot() +
@@ -105,8 +152,9 @@ animal_cont |>
   theme_bw()
 ```
 
-```r
-#| label: last-cohort
+![](fig-temporal-trend-1.png)
+
+``` r
 animal_cohort <- read_csv(
   here("data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv")
 )
@@ -114,13 +162,13 @@ animal_cohort <- read_csv(
 max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
-Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step `r max_cohort_time`.
+Before proceeding, I checked the animal cohort data and saw that all
+cohorts went extinct after time step 132.
 
-Following Nick's suggestion, I also checked the temporal trends in resource availability:
+Following Nick’s suggestion, I also checked the temporal trends in
+resource availability:
 
-```r
-#| label: fig-resource-trend
-#| fig-cap: "Temporal trends in resource state variables. Each semi-transparent line is a grid cell."
+``` r
 resource_vars <- c(
   "soil_c_pool_arbuscular_mycorrhiza",
   "soil_c_pool_bacteria",
@@ -142,16 +190,35 @@ resource_cont |>
   theme_bw()
 ```
 
+![](fig-resource-trend-1.png)
+
 A few follow-up questions upon seeing the temporal graphs:
 
-- Why do we still see non-zero values in some variables long after all animals have gone extinct since time step `r max_cohort_time`?
-- Presumably these variables are positive only; what do the negative values mean? The way they fluctuate almost symmetrically around zero makes me suspect that the non-zero values are not true non-zeros but numerical imprecision.
-- There seems to be some relationship with resource availability. But there is no animal to consume then at later time steps?
+- Why do we still see non-zero values in some variables long after all
+  animals have gone extinct since time step 132?
+- Presumably these variables are positive only; what do the negative
+  values mean? The way they fluctuate almost symmetrically around zero
+  makes me suspect that the non-zero values are not true non-zeros but
+  numerical imprecision.
+- There seems to be some relationship with resource availability. But
+  there is no animal to consume then at later time steps?
 
-*If these trends are numerical artefacts rather than true consumption and respiration rates, then there is not much point to read on.*
+*If these trends are numerical artefacts rather than true consumption
+and respiration rates, then there is not much point to read on.*
 
 # Why do we need persistent animal populations
 
-Mainly so that we can include animal-related state variables into the sensitivity analyses. More importantly, the animal variables feed back into the non-animal variables. Unless we are truly aiming for an empty-forest scenario, we will be left with a half-complete sensitivity analysis.
+Mainly so that we can include animal-related state variables into the
+sensitivity analyses. More importantly, the animal variables feed back
+into the non-animal variables. Unless we are truly aiming for an
+empty-forest scenario, we will be left with a half-complete sensitivity
+analysis.
 
-Should we consider an alternative set of animal FG definitions? Currently `maliau_2` uses the level 1 definition, which contain only a single herbivorous endotherm that always go extinct very early on. Has anyone run VE with the level 2 definitions? If the level 2 groups also go extinct, should we consider an alternative set (perhaps more basal in tropic levels) that can persist over time, and hence continue to keep the animal and non-animal components coupled until the end of simulation?
+Should we consider an alternative set of animal FG definitions?
+Currently `maliau_2` uses the level 1 definition, which contain only a
+single herbivorous endotherm that always go extinct very early on. Has
+anyone run VE with the level 2 definitions? If the level 2 groups also
+go extinct, should we consider an alternative set (perhaps more basal in
+tropic levels) that can persist over time, and hence continue to keep
+the animal and non-animal components coupled until the end of
+simulation?

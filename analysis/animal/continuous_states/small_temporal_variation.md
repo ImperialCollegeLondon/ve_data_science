@@ -8,19 +8,15 @@ jupyter:
       format_name: markdown
       format_version: '1.3'
   kernelspec:
-    display_name: R
-    language: r
-    name: ir
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+    path: C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\share\jupyter\kernels\python3
 title: Empty forest? We need a scenario with persistent animal populations over the simulation period
 author:
   name: Lai, Hao Ran
 date: last-modified
 format: commonmark
-jupyter:
-  kernelspec:
-    display_name: R
-    language: r
-    name: ir
 fig-width: 8
 fig-height: 10
 fig-dpi: 300
@@ -28,7 +24,7 @@ execute:
   warning: false
 ---
 
-```r
+```{r}
 #| label: load-packages
 library(tidync)
 library(tidyverse)
@@ -50,9 +46,11 @@ I ran the full `maliau_2` scenario available from Globus:
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
 - The animal functional group is
+
 |name                   |taxa   |diet                                   |metabolic_type |reproductive_environment |reproductive_type |development_type |development_status |offspring_functional_group |excretion_type |migration_type |vertical_occupancy | birth_mass| adult_mass|density_individuals_m2 |
 |:----------------------|:------|:--------------------------------------|:--------------|:------------------------|:-----------------|:----------------|:------------------|:--------------------------|:--------------|:--------------|:------------------|----------:|----------:|:----------------------|
 |Herbivorous_endotherms |mammal |wood_seeds_fruit_foliage_flowers_fungi |endothermic    |terrestrial              |iteroparous       |direct           |adult              |Herbivorous_endotherms     |ureotelic      |none           |ground             |        100|       2915|None
+
 - VE version: v0.2.0 (dev version; commit [3c6e75](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/3c6e752e6ca3a8a22239bf6112e14236528e32e3))
 - OS: Windows 11
 
@@ -67,7 +65,7 @@ Currently, I'm examining:
 - `animal_saprotrophic_fungi_consumption`
 - `total_animal_respiration`
 
-```r
+```{r}
 #| label: get-data
 animal_vars <- c(
   "animal_arbuscular_mycorrhiza_consumption",
@@ -84,8 +82,7 @@ animal_cont <- tidy_continuous_data(
 ```
 
 First I saw that the range of these state variables are very small. Are they truly very small, or are they numerical imprecisions that need to be clamped to zero?
-
-```r
+```{r}
 #| label: summary-table
 animal_cont |>
   group_by(variable) |>
@@ -93,8 +90,7 @@ animal_cont |>
 ```
 
 Here's how the variables looked over simulation time steps:
-
-```r
+```{r}
 #| label: fig-temporal-trend
 #| fig-cap: "Temporal trends in animal state variables. Each semi-transparent line is a grid cell."
 animal_cont |>
@@ -105,7 +101,7 @@ animal_cont |>
   theme_bw()
 ```
 
-```r
+```{r}
 #| label: last-cohort
 animal_cohort <- read_csv(
   here("data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv")
@@ -117,8 +113,7 @@ max_cohort_time <- max(animal_cohort$time_index) + 1
 Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step `r max_cohort_time`.
 
 Following Nick's suggestion, I also checked the temporal trends in resource availability:
-
-```r
+```{r}
 #| label: fig-resource-trend
 #| fig-cap: "Temporal trends in resource state variables. Each semi-transparent line is a grid cell."
 resource_vars <- c(
