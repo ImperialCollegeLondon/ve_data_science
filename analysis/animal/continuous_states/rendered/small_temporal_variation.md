@@ -30,7 +30,9 @@ I ran the full `maliau_2` scenario available from Globus:
 
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
-- The animal functional group is
+- The animal functional group is from the file
+  `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level1.csv`,
+  which looks like:
 
 <table>
 <colgroup>

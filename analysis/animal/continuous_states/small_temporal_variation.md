@@ -45,7 +45,7 @@ I ran the full `maliau_2` scenario available from Globus:
 
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
-- The animal functional group is
+- The animal functional group is from the file `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level1.csv`, which looks like:
 
 |name                   |taxa   |diet                                   |metabolic_type |reproductive_environment |reproductive_type |development_type |development_status |offspring_functional_group |excretion_type |migration_type |vertical_occupancy | birth_mass| adult_mass|density_individuals_m2 |
 |:----------------------|:------|:--------------------------------------|:--------------|:------------------------|:-----------------|:----------------|:------------------|:--------------------------|:--------------|:--------------|:------------------|----------:|----------:|:----------------------|
