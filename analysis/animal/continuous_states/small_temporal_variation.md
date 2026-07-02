@@ -24,7 +24,7 @@ execute:
   warning: false
 ---
 
-<!-- markdownlint-disable MD013 -->
+<!-- markdownlint-disable MD013 MD031 MD055-->
 
 ```{r}
 #| label: load-packages
@@ -145,7 +145,7 @@ resource_cont |>
 
 ## Trophic interactions
 
-In contrast, the resource consumption by all animals stay at zero without any numeric imprecision.
+In contrast, the resource consumption by all animals stay at zero without any numeric imprecision. 
 
 ```{r}
 #| label: fig-resource-interactions
