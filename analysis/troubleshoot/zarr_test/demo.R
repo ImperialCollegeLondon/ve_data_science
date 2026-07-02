@@ -1,8 +1,62 @@
-# Note on R6 class and cross validation with zarr-python
-# https://zarr.dev/pizzarr/index.html#validation-with-zarr-python
+#| ---
+#| title: Demo for working with output Zarr files in R
+#|
+#| description: |
+#|     Demonstrates examining, manipulating, and converting
+#|     Virtual Ecosystem model output stored in Zarr format using pizzarr.
+#|     Includes array inspection, log transformation, saving
+#|     to modified Zarr stores, and conversion to NetCDF using
+#|     Python's xarray via reticulate.
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: model_data.zarr
+#|     path: analysis/troubleshoot/zarr_test/ve_example/out/
+#|     description: |
+#|       VE model output in Zarr format with init, inputs,
+#|       and outputs groups. This is created with the bash script
+#|       analysis/troubleshoot/zarr_test/setup.sh, see usage_notes below.
+#|
+#| output_files:
+#|   - name: model_data_modified.zarr
+#|     path: analysis/troubleshoot/zarr_test/ve_example/out/
+#|     description: |
+#|       Modified Zarr store with transformed arrays (this is gitignored)
+#|   - name: model_data.nc
+#|     path: analysis/troubleshoot/zarr_test/ve_example/out/
+#|     description: |
+#|       NetCDF converted from the Zarr outputs (this is gitignored)
+#|
+#| package_dependencies:
+#|     - pizzarr
+#|     - reticulate
+#|     - ncdf4
+#|
+#| usage_notes: |
+#|     This demo focuses on the R package, pizzarr. There are a few zarr-based
+#|     but I opted for pizzarr because it is well-supported and aims to
+#|     stay in touch with the sister Python package, zarr-python (see
+#|     https://zarr.dev/pizzarr/index.html#validation-with-zarr-python). It is
+#|     also R6 class so it will be familiar to Python users in terms of syntax.
+#|     See https://zarr.dev/pizzarr/ for more information.
+#|
+#|     To begin, setup VE in the right virtual environment and right version
+#|     using the bash script: analysis/troubleshoot/zarr_test/setup.sh
+#|     To run the bash script, run bash analysis/troubleshoot/zarr_test/setup.sh
+#|     in your terminal (I use Git Bash). This will also install the example
+#|     data and then run ve_run on it to obtain the new Zarr output files.
+#|
+#|     Then, go through this R script to get a sense of how Zarr works in R.
+#| ---
 
 library(pizzarr)
 library(reticulate)
+library(ncdf4)
 
 # Open the model output Zarr store
 zarr_path <- "analysis/troubleshoot/zarr_test/ve_example/out/model_data.zarr"
@@ -98,7 +152,6 @@ nc_path <- "analysis/troubleshoot/zarr_test/ve_example/out/model_data.nc"
 ds$to_netcdf(nc_path)
 
 # Verify in R
-library(ncdf4)
 nc <- nc_open(nc_path)
 print(nc)
 nc_close(nc)
