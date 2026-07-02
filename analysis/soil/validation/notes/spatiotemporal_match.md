@@ -13,7 +13,7 @@ model (i.e., the temporal resolution may not be monthly, or the spatial
 resolution may not be $100 \times 100$ m<sup>2</sup>).
 
 We need to agree on a decision tree of matching validation data to model
-predictions.
+predictions. Currently the task is tracked as Issue \#340.
 
 ## Scenario matrix
 
