@@ -1,0 +1,60 @@
+# Scenarios of data–prediction (mis)match for validation
+
+
+## Background
+
+For the Maliau scenarios, VE produces predictions of a state variable
+$X(i, t)$, where $i$ indexes a spatial cell ID and $t$ indexes a monthly
+time step. (Let’s ignore other dimensions such as element and PFT here.)
+However, empirical data used for validation are heterogeneous: a given
+dataset may or may not carry spatial coordinates and/or a time stamp.
+Where coordinates exist, their resolution may not match that of our
+model (i.e., the temporal resolution may not be monthly, or the spatial
+resolution may not be $100 \times 100$ m<sup>2</sup>).
+
+We need to agree on a decision tree of matching validation data to model
+predictions.
+
+## Scenario matrix
+
+Crossing the spatial and temporal dimensions — each with three levels
+(absent, exact match, resolution mismatch) — yields a $3 \time 3$ matrix
+of nine validation scenarios. Please check if I’ve missed anything.
+
+|  | **T0: no time coord** | **T1: exact (monthly)** | **T2: resolution mismatch** |
+|:---|:---|:---|:---|
+| **S0: no space coord** | Grand mean of $X$ over all $i$, $t$ | Spatial mean per $t$ | Spatial mean + agg finer side to coarser period |
+| **S1: exact grid match** | Temporal mean per cell | Direct match ⭐ | Agg finer side temporally, per cell |
+| **S2: resolution mismatch** | Agg finer side spatially + temporal mean | Agg finer side spatially per $t$ | Agg finer side in both dimensions |
+
+Note that “resolution mismatch” covers two sub-cases: data are finer
+than predictions and therefore need upscaling, and vice versa. But this
+is a detail that we can discuss next time.
+
+## Decision tree
+
+The matrix translates directly into a decision tree.  
+The first node split by spatial coordinates, and the second nodes by
+temporal coordinates.
+
+    Spatial coords in data?
+    ├── No
+    │   └── Temporal coords in data?
+    │       ├── No       →  grand mean of X over all i, t
+    │       ├── Exact    →  spatial mean per t
+    │       └── Mismatch →  spatial mean + agg finer side to coarser period
+    └── Yes
+        └── Spatial resolution vs. model grid?
+            ├── Exact
+            │   └── Temporal coords in data?
+            │       ├── No       →  temporal mean per cell
+            │       ├── Exact    →  direct match ⭐
+            │       └── Mismatch →  agg finer side temporally, per cell
+            └── Mismatch
+                └── Temporal coords in data?
+                    ├── No       →  agg finer side spatially + temporal mean
+                    ├── Exact    →  agg finer side spatially per t
+                    └── Mismatch →  agg finer side in both dimensions
+
+Discussing and deciding on this decision tree will help ui map it
+directly to a nested `if`-`else` chain in code.
