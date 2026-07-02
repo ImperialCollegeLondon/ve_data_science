@@ -6,7 +6,6 @@
 *.geotiff
 *.jpg
 *.jpeg
-*.png
 *.xlsx
 *.xls
 *.dat
@@ -74,8 +73,9 @@ rsconnect/
 # Python noise
 __pycache__
 
-# notebook caching
+# Jupyter notebook
 .ipynb_checkpoints
+.ipynb
 
 # Mac .DS_store
 .DS_store
@@ -556,8 +556,11 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
+# Quarto files
 /.quarto/
 **/*.quarto_ipynb
+**/*_files
+analysis/**/*.html
 
 # GitHub Issue Tracker report
 analysis/soil/issue_tracker/VE_Task Breakdown Soil Litter Hao Ran.html
