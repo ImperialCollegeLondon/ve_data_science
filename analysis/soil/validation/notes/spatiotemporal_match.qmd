@@ -8,7 +8,7 @@ format: gfm
 For the Maliau scenarios, VE produces predictions of a state variable $X(i, t)$,
 where $i$ indexes a spatial cell ID and $t$ indexes a monthly time step.
 (Let's ignore other dimensions such as element and PFT here.)
-However, empirical data used for validation are heterogeneous: 
+However, empirical data used for validation are heterogeneous:
 a given dataset may or may not carry spatial coordinates and/or a time stamp.
 Where coordinates exist, their resolution may not match that of our model
 (i.e., the temporal resolution may not be monthly, or the spatial resolution
