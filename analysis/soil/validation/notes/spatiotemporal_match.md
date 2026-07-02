@@ -1,6 +1,8 @@
 # Scenarios of data–prediction (mis)match for validation
 
 
+<!-- markdownlint-disable MD013 MD060 MD033 -->
+
 ## Background
 
 For the Maliau scenarios, VE produces predictions of a state variable
@@ -23,11 +25,11 @@ Crossing the spatial and temporal dimensions — each with three levels
 matrix of nine validation scenarios. Please check if I’ve missed
 anything.
 
-|  | **T0: no time coord** | **T1: exact (monthly)** | **T2: resolution mismatch** |
+|  | **T0: no time coord** | **T1: exact (monthly)** | **T2: resolution mismatch/range only** |
 |:---|:---|:---|:---|
 | **S0: no space coord** | Grand mean of $X$ over all $i$, $t$ | Spatial mean per $t$ | Spatial mean + agg finer side to coarser period |
 | **S1: exact grid match** | Temporal mean per cell | Direct match ⭐ | Agg finer side temporally, per cell |
-| **S2: resolution mismatch** | Agg finer side spatially + temporal mean | Agg finer side spatially per $t$ | Agg finer side in both dimensions |
+| **S2: resolution mismatch/range only** | Agg finer side spatially + temporal mean | Agg finer side spatially per $t$ | Agg finer side in both dimensions |
 
 Note that “resolution mismatch” covers two sub-cases: data are finer
 than predictions and therefore need upscaling, and vice versa. But this
@@ -52,7 +54,7 @@ coordinates.
             │       ├── No       →  temporal mean per cell
             │       ├── Exact    →  direct match ⭐
             │       └── Mismatch →  agg finer side temporally, per cell
-            └── Mismatch
+            └── Mismatch / provided range only
                 └── Temporal coords in data?
                     ├── No       →  agg finer side spatially + temporal mean
                     ├── Exact    →  agg finer side spatially per t
