@@ -15,12 +15,12 @@ Where coordinates exist, their resolution may not match that of our model
 may not be $100 \times 100$ m^2^).
 
 We need to agree on a decision tree of matching validation data to model
-predictions. Currently the task is tracked as Issue #340.
+predictions. Currently the task is tracked as Issue [#340](https://github.com/ImperialCollegeLondon/ve_data_science/issues/340).
 
 ## Scenario matrix
 
 Crossing the spatial and temporal dimensions --- each with three levels (absent,
-exact match, resolution mismatch) --- yields a $3 \time 3$ matrix of nine validation
+exact match, resolution mismatch) --- yields a $3 \times 3$ matrix of nine validation
 scenarios. Please check if I've missed anything.
 
 | | **T0: no time coord** | **T1: exact (monthly)** | **T2: resolution mismatch** |
@@ -35,8 +35,7 @@ discuss next time.
 
 ## Decision tree
 
-The matrix translates directly into a decision tree.  
-The first node split by spatial coordinates, and the second nodes by temporal coordinates.
+The matrix translates directly into a decision tree. The first node split by spatial coordinates, and the second nodes by temporal coordinates.
 
 ```
 Spatial coords in data?
@@ -59,5 +58,5 @@ Spatial coords in data?
                 └── Mismatch →  agg finer side in both dimensions
 ```
 
-Discussing and deciding on this decision tree will help ui map it directly to
-a nested `if`-`else` chain in code.
+**Discussing and deciding on this decision tree will help us map it directly to
+a nested `if`-`else` chain in code.**
