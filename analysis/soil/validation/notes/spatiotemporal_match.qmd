@@ -3,6 +3,8 @@ title: "Scenarios of data--prediction (mis)match for validation"
 format: gfm
 ---
 
+<!-- markdownlint-disable MD013 MD060 MD033 -->
+
 ## Background
 
 For the Maliau scenarios, VE produces predictions of a state variable $X(i, t)$,
