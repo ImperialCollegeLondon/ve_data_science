@@ -149,20 +149,19 @@ issue_table <-
 
 ## Lastest description
 
-I am finalising two main things to bring over to Silwood for in-person discussions:
+The Silwood visit had been great for resolving some PRs and Issues that were hard to explain in words.
 
-- Validation database and dataset screening pipeline for soil and litter; lots of discussion space around unit conversion and harmonisation
-- A draft sensitivity analysis pipeline for soil and litter; related to HPC use
+For the next few weeks I will continue to focus on validation workflow.
 
 ## Required elements ("Waiting for")
 
 - Urgent
-  - Code review for Set up soil and litter validation screening and database (PR [#339](https://github.com/ImperialCollegeLondon/ve_data_science/pull/339))
   - Taran to review 329 examine animal continuous state variables from maliau_2 (PR [#330](https://github.com/ImperialCollegeLondon/ve_data_science/pull/330))
   - VE Issue: Error: Trophic transfer masses must be non-negative [#1628](https://github.com/ImperialCollegeLondon/virtual_ecosystem/issues/1628)
+  - Data team to review PR [#370](https://github.com/ImperialCollegeLondon/ve_data_science/pull/370) to prepare a meeting to discuss how we harmonise spatial and temporal information of validation datasets
+  - Data team to review PR [#366](https://github.com/ImperialCollegeLondon/ve_data_science/pull/366) to incorporate functions to calculate derived variables from VE outputs
+  - Data team to review PR [#365](https://github.com/ImperialCollegeLondon/ve_data_science/pull/365) to prepare gitignore for Maliau scenario change log
 - Not urgent
-  - HPC tutorial: I am able to submit jobs, but want to double check some best practices
-  - Team to settle on reporting format
   - Team to settle on folder structure
   - A bug-free VE release that runs on Maliau 1 and 2 scenarios
 
