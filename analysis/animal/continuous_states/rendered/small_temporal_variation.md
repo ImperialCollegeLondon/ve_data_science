@@ -2,6 +2,8 @@
 Lai, Hao Ran
 2026-07-02
 
+<!-- markdownlint-disable MD013 -->
+
 ``` r
 library(tidync)
 library(tidyverse)
@@ -12,7 +14,7 @@ use_virtualenv(here("ve_latest"), required = TRUE)
 source(here("tools/R/tidy_continuous_data.R"))
 ```
 
-# Preamble
+## Preamble
 
 I am conducting a sensitivity analysis for the soil and litter modules.
 A sensitivity analysis examines how much of the variation in an output
@@ -26,7 +28,7 @@ At the end of this report, I explain why we might want to design a
 scenario where there is at least some persistent animal populations, at
 least for the purpose of sensitivity analyses.
 
-# Model and data summary
+## Model and data summary
 
 I ran the full `maliau_2` scenario available from Globus:
 
@@ -99,7 +101,7 @@ style="text-align: left;">wood_seeds_fruit_foliage_flowers_fungi</td>
   [3c6e75](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/3c6e752e6ca3a8a22239bf6112e14236528e32e3))
 - OS: Windows 11
 
-# Animal continuous state variables
+## Animal continuous state variables
 
 Currently, I’m examining:
 
@@ -169,7 +171,7 @@ max_cohort_time <- max(animal_cohort$time_index) + 1
 Before proceeding, I checked the animal cohort data and saw that all
 cohorts persisted until the final time step 132.
 
-# Resource continuous state variables
+## Resource continuous state variables
 
 Following Nick’s suggestion, I also checked the temporal trends in
 resource availability:
@@ -198,7 +200,7 @@ resource_cont |>
 
 ![](fig-resource-trend-1.png)
 
-# Trophic interactions
+## Trophic interactions
 
 In contrast, the resource consumption by all animals stay at zero
 without any numeric imprecision.
@@ -239,7 +241,7 @@ py_to_r(trophic_analysis$group_df) |>
 src="fig-resource-interactions-1.png"
 id="fig-resource-interactions" />
 
-# Questions
+## Questions
 
 A few follow-up questions upon seeing the temporal graphs:
 
@@ -255,7 +257,7 @@ A few follow-up questions upon seeing the temporal graphs:
 *If these trends are numerical artefacts rather than true consumption
 and respiration rates, then there is not much point to read on.*
 
-# Why do we need persistent animal populations
+## Why do we need persistent animal populations
 
 Mainly so that we can include animal-related state variables into the
 sensitivity analyses. More importantly, the animal variables feed back
