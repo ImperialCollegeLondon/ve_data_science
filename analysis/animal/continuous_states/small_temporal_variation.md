@@ -30,6 +30,8 @@ library(tidync)
 library(tidyverse)
 library(here)
 library(knitr)
+library(reticulate)
+use_virtualenv(here("ve_latest"), required = TRUE)
 source(here("tools/R/tidy_continuous_data.R"))
 ```
 
@@ -110,7 +112,9 @@ animal_cohort <- read_csv(
 max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
-Before proceeding, I checked the animal cohort data and saw that all cohorts went extinct after time step `r max_cohort_time`.
+Before proceeding, I checked the animal cohort data and saw that all cohorts persisted until the final time step `r max_cohort_time`.
+
+# Resource continuous state variables
 
 Following Nick's suggestion, I also checked the temporal trends in resource availability:
 ```{r}
@@ -136,6 +140,38 @@ resource_cont |>
   geom_line(aes(time_index, value, group = cell_id), alpha = 0.5) +
   theme_bw()
 ```
+
+# Trophic interactions
+
+In contrast, the resource consumption by all animals stay at zero without any numeric imprecision. 
+
+```{r}
+#| label: fig-resource-interactions
+#| fig-width: 6
+#| fig-height: 4
+#| fig-dpi: 300
+# source function to post-process trophic interactions from #243
+# this is a placeholder under Nick's PR is merged
+source_python(
+  "https://github.com/ImperialCollegeLondon/ve_data_science/raw/3706cdcb0281a021cafa91a081c74f9f1b678cfb/tools/python/animal/trophic_mass_flow.py"
+)
+
+# read the trophic interactions output and process them for plotting
+trophic_interactions <- read_csv(
+  here("data/scenarios/maliau/maliau_2/out/animal_trophic_interactions.csv")
+)
+trophic_analysis <- TrophicFlowAnalysis(trophic_interactions)
+trophic_analysis$group_and_aggregate()
+
+# plot
+py_to_r(trophic_analysis$group_df) |>
+  ggplot() +
+  geom_line(aes(time_index, C)) +
+  facet_wrap(~resource_kind, ncol = 1) +
+  theme_bw()
+```
+
+# Questions
 
 A few follow-up questions upon seeing the temporal graphs:
 

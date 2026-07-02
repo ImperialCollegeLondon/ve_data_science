@@ -7,6 +7,8 @@ library(tidync)
 library(tidyverse)
 library(here)
 library(knitr)
+library(reticulate)
+use_virtualenv(here("ve_latest"), required = TRUE)
 source(here("tools/R/tidy_continuous_data.R"))
 ```
 
@@ -141,7 +143,7 @@ animal_cont |>
     3 animal_ectomycorrhiza_consumption        -6.46e-18 6.46e-18
     4 animal_pom_consumption_cnp               -3.53e-17 3.33e-17
     5 animal_saprotrophic_fungi_consumption    -2.82e-17 2.80e-17
-    6 total_animal_respiration                  0        0
+    6 total_animal_respiration                  0        0       
 
 Here’s how the variables looked over simulation time steps:
 
@@ -165,7 +167,9 @@ max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
 Before proceeding, I checked the animal cohort data and saw that all
-cohorts went extinct after time step 132.
+cohorts persisted until the final time step 132.
+
+# Resource continuous state variables
 
 Following Nick’s suggestion, I also checked the temporal trends in
 resource availability:
@@ -193,6 +197,49 @@ resource_cont |>
 ```
 
 ![](fig-resource-trend-1.png)
+
+# Trophic interactions
+
+In contrast, the resource consumption by all animals stay at zero
+without any numeric imprecision.
+
+``` r
+# source function to post-process trophic interactions from #243
+# this is a placeholder under Nick's PR is merged
+source_python(
+  "https://github.com/ImperialCollegeLondon/ve_data_science/raw/3706cdcb0281a021cafa91a081c74f9f1b678cfb/tools/python/animal/trophic_mass_flow.py"
+)
+
+# read the trophic interactions output and process them for plotting
+trophic_interactions <- read_csv(
+  here("data/scenarios/maliau/maliau_2/out/animal_trophic_interactions.csv")
+)
+trophic_analysis <- TrophicFlowAnalysis(trophic_interactions)
+```
+
+    trophic flow initialised
+
+``` r
+trophic_analysis$group_and_aggregate()
+```
+
+    Grouping by ['time_index', 'resource_kind'] and summing C...
+     Successfully grouped 132 rows
+
+``` r
+# plot
+py_to_r(trophic_analysis$group_df) |>
+  ggplot() +
+  geom_line(aes(time_index, C)) +
+  facet_wrap(~resource_kind, ncol = 1) +
+  theme_bw()
+```
+
+<img
+src="fig-resource-interactions-1.png"
+id="fig-resource-interactions" />
+
+# Questions
 
 A few follow-up questions upon seeing the temporal graphs:
 
