@@ -1,9 +1,9 @@
 """Utilities for mapping VE."""
 
+import tomllib
 from pathlib import Path
 
 import folium
-import tomllib
 
 
 def map_scenario_extent(site_definition: str | Path, site_name: str) -> folium.Map:
