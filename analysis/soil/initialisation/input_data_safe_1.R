@@ -1,6 +1,6 @@
 library(tidyverse)
 library(readxl)
-library(toml)
+library(RcppTOML)
 library(sf)
 library(terra)
 library(autoFRK)
@@ -17,14 +17,14 @@ set.seed(20260703)
 
 # Soil metadata ---------------------------------------------------------
 
-soil_meta <- read_toml("data/scenarios/maliau/soil_litter_metadata.toml")
+soil_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
 soil_meta <- soil_meta$soil
 
 
 # SAFE site metadata ----------------------------------------------------
 
 safe <-
-  read_toml("data/derived/site/safe/safe_grid_definition.toml") |>
+  parseTOML("data/derived/site/safe/safe_grid_definition.toml") |>
   pluck("Scenario") |>
   pluck("safe_1")
 
@@ -38,8 +38,8 @@ n_sim <- with(safe, cell_nx * cell_ny)
 
 dat <-
   expand_grid(
-    cell_x = as.numeric(safe$cell_x_centres),
-    cell_y = as.numeric(safe$cell_y_centres)
+    cell_x = safe$cell_x_centres,
+    cell_y = safe$cell_y_centres
   )
 
 
@@ -110,3 +110,48 @@ dat <- bind_cols(dat, maliau_pred)
 
 # convert to raster and then plot it for a sanity check
 plot(rast(dat))
+
+
+# Soil variables that can be used as is -----------------------------------
+
+# There are soil variables collected from the SAFE soil campaign that can be
+# used directly in the Maliau scenario; they do not need further processing.
+# These include:
+# pH
+# clay_fraction
+
+dat <-
+  dat |>
+  rename(
+    pH = pH,
+    clay_fraction = clay
+  ) |>
+  mutate(clay_fraction = clay_fraction / 100)
+
+# The remaining total C, N and P will be split into separate pools
+
+# Split SAFE campaign variables into specific pools -----------------------
+
+# first we predict POM and MAOM carbon and nitrogen fractions:
+# soil_c_pool_pom
+# soil_c_pool_maom
+# soil_n_pool_particulate
+# soil_n_pool_maom
+
+#### Missing data ####
+
+# soil_c_pool_lmwc
+# using DOC as a proxy
+
+#### Missing data ####
+
+# Microbial C fractions, including:
+# soil_c_pool_arbuscular_mycorrhiza
+# soil_c_pool_bacteria
+# soil_c_pool_ectomycorrhiza
+# soil_c_pool_saprotrophic_fungi
+
+# first we estimate the total microbial fraction in the carbon pool
+source("analysis/soil/nutrient_pools/carbon_microbial.R")
+C_mic_perc_safe <- extract_microbial_to_soil_C_ratio(safe)
+soil_c_pool_microbe <- dat$total_carbon * C_mic_perc_safe / 100

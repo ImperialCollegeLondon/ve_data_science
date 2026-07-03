@@ -308,6 +308,7 @@ dat <-
 
 # first we estimate the total microbial fraction in the carbon pool
 source("analysis/soil/nutrient_pools/carbon_microbial.R")
+C_mic_perc_maliau <- extract_microbial_to_soil_C_ratio(maliau)
 soil_c_pool_microbe <- dat$total_carbon * C_mic_perc_maliau / 100
 
 # then we split the total microbial fraction by guild
