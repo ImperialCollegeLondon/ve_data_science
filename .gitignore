@@ -18,6 +18,7 @@ data/primary
 
 # Derived data
 data/derived/troubleshoot/runtime_per_cell/*.png
+data/derived/soil/validation/database
 
 # Scenario files, except the change_log.txt file
 # ignore the directory's contents (/*), not the directory itself — otherwise 
@@ -29,7 +30,8 @@ data/scenarios/*/*/*
 # Notebooks
 /.quarto/
 **/*.quarto_ipynb
-analysis/soil/validation/*html
+analysis/soil/validation/*/*.html
+analysis/soil/issue_tracker/*.html
 
 # History files
 .Rhistory
