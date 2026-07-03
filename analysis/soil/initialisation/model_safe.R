@@ -85,6 +85,8 @@
 #|
 #| usage_notes: |
 #|     The CBFM needs to be installed from https://github.com/fhui28/CBFM
+#|     The choice of predictors is subjected to change under the discussion
+#|     with Jacob Cook
 #| ---
 
 library(tidyverse)
@@ -99,7 +101,7 @@ library(modelr)
 
 # Data --------------------------------------------------------------------
 
-# Predictors (under discussion with Jacob Cook)
+# Predictors
 
 # Elevation
 # STRM-derived data
