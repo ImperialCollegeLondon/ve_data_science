@@ -1,5 +1,7 @@
 """Test file for TrophicFlowAnalysis class in trophic_mass_flow.py."""
 
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -13,11 +15,17 @@ def analysis():
 
     Create a clean object with these parameters for every test we run for every method.
     """
-    # which data file to use
-    test_file = "animal_trophic_interactions.csv"
+    # first create path relative to test file
+    data_file = (
+        Path(__file__).resolve().parent.parent.parent
+        / "testing_data"
+        / "animal_trophic_interactions.csv"
+    )
+    # load csv first, then pass df to class
+    df = pd.read_csv(data_file)
     # create new instance of the class
     return TrophicFlowAnalysis(
-        file_path=test_file,
+        df=df,
         config={"convert_to_grams": False, "value_to_sum": "C", "n_cols": 2},
     )
 
@@ -26,38 +34,20 @@ def test_class_initialisation(analysis):
     """Test that the class can be initialized correctly."""
     # check if object is an instance of our class.
     # Assert means "if this is false, fail the test."
-    assert isinstance(analysis, TrophicFlowAnalysis)
-    assert analysis.file_path == "animal_trophic_interactions.csv"
-    assert isinstance(analysis.config, dict)
-    # is None make sure the dataframe start as none
-    assert analysis.df is None
-    assert analysis.pivoted_df is None
-
-
-def test_load_data(analysis):
-    """Test load_data method."""
-    # call the method and store what it returns.
-    result = analysis.load_data()
-    # check method returns self (For method chaining)
-    assert result is analysis
-    # check whether data below was loaded
     assert isinstance(analysis.df, pd.DataFrame)
-    assert len(analysis.df) > 0
-    assert "time" in analysis.df.columns
-    assert "resource_kind" in analysis.df.columns
+    # make sure dataframe is not empty
+    assert not analysis.df.empty
+    assert analysis.config["convert_to_grams"] is False
+    assert isinstance(analysis.config, dict)
+    assert analysis.pivoted_df is None
 
 
 def test_process_data(analysis):
     """Test process_data pipeline."""
-    # call load_data() method
-    analysis.load_data()
     # calls process_data() running convert_units, group_and_aggregate(),pivot_data()
-    # store what method returns in "result" variable
-    result = analysis.process_data()
-    # checks if "result" is the same object as what we started
-    assert result is analysis
-    # checks again if its returns a dataframe that is populated
-    assert analysis.group_df is not None
+    analysis.process_data()
+    # checks if its returns a dataframe that is populated
+    assert analysis.grouped_df is not None
     assert analysis.pivoted_df is not None
     assert len(analysis.pivoted_df) > 0
 
@@ -71,7 +61,7 @@ def test_plot_faceted_saves_file(analysis, tmp_path):
 
     """
     # call load_data() and process_data method
-    analysis.load_data().process_data()
+    analysis.process_data()
     # create file path with pathlib to join files using "/"
     output_path = tmp_path / "test_plot.png"
     # calls plot_faceted() method, save plot into path, dont show graph

@@ -1,5 +1,6 @@
 """The trophic_mass_flow analyses the animal_trophic_interactions.csv."""
 
+import logging
 import math
 
 # these are from typing module and exit only for documentation and IDE linting
@@ -31,8 +32,13 @@ class TrophicFlowAnalysis:
 
     """
 
-    def __init__(self, df: pd.dataframe, config: dict | None = None):
+    def __init__(self, df: pd.DataFrame, config: dict | None = None):
         """Initialise the analysis with dataframe and config."""
+        # Get a logger and add a stream handler to write to
+        # stdout/stderr like print()
+        self.LOGGER = logging.getLogger(__name__)
+        self.LOGGER.addHandler(logging.StreamHandler())
+
         self.df = df
         # returns a dict of standard settings
         self.config = self._default_config()
@@ -44,11 +50,7 @@ class TrophicFlowAnalysis:
         self.grouped_df = None
         self.pivoted_df = None
 
-        print("trophic flow initialised")
-        # print(f" Mass flow: {self.config['element']}")
-        # print(f"  Data shape: {self.df.shape}")
-
-        # self.process_data()
+        self.LOGGER.info("trophic flow initialised")
 
     def _default_config(self) -> dict:
         """Use default values for config.
@@ -69,21 +71,6 @@ class TrophicFlowAnalysis:
             "dpi": 300,
         }
 
-    def load_data(self) -> None:
-        """Load the animal trophic interaction output.
-
-        Load data from the output CSV file from Virtual Ecosystem
-        into a dataframe.
-
-        Returns:
-            A dataframe.
-
-        """
-
-        print("loading data...")
-        self.df = pd.read_csv(self.file_path, parse_dates=["time"])
-        print(f" Loaded {len(self.df)} rows, {len(self.df.columns)} columns")
-
     def convert_units(
         self, columns: list[str] | None = None, multiplier: float = 1000
     ) -> None:
@@ -99,7 +86,7 @@ class TrophicFlowAnalysis:
         """
         cols = columns or self.config["column_values"]
         if self.config["convert_to_grams"]:
-            print(f"Converting {cols} by {multiplier} to grams")
+            self.LOGGER.info(f"Converting {cols} by {multiplier} to grams")
             self.df[cols] = self.df[cols] * multiplier
 
     # TODO: when needed, add convert time to datetime for plotting against time
@@ -127,9 +114,9 @@ class TrophicFlowAnalysis:
         groups = group_by or self.config["group_by"]
         agg_col = agg_column or self.config["value_to_sum"]
 
-        print(f"Grouping by {groups} and summing {agg_col}...")
+        self.LOGGER.info(f"Grouping by {groups} and summing {agg_col}...")
 
-        self.group_df = (
+        self.grouped_df = (
             # group rows by time index and resource
             self.df.groupby(groups)
             # selects column C, sums up values in each group
@@ -139,7 +126,7 @@ class TrophicFlowAnalysis:
             # turns groups back into columns
             .reset_index()
         )
-        print(f" Successfully grouped {len(self.group_df)} rows")
+        self.LOGGER.info(f" Successfully grouped {len(self.grouped_df)} rows")
 
     def pivot_data(
         self,
@@ -162,12 +149,14 @@ class TrophicFlowAnalysis:
         columns = columns_col or self.config["group_by"][1]
         values = values_col or self.config["value_to_sum"]
 
-        print(f"Pivoting by {index}, {columns}, {values}...")
+        self.LOGGER.info(f"Pivoting by {index}, {columns}, {values}...")
 
-        self.pivoted_df = self.group_df.pivot(
+        self.pivoted_df = self.grouped_df.pivot(
             index=index, columns=columns, values=values
         )
-        print(f"{self.pivoted_df.shape[0]} rows x {self.pivoted_df.shape[1]} columns")
+        self.LOGGER.info(
+            f"{self.pivoted_df.shape[0]} rows x {self.pivoted_df.shape[1]} columns"
+        )
 
     def process_data(self) -> None:
         """Run all the processing steps in correct order.
@@ -176,11 +165,11 @@ class TrophicFlowAnalysis:
             Does not return anything, only run processing
 
         """
-        print("\nProcessing data...")
+        self.LOGGER.info("\nProcessing data...")
         self.convert_units()
         self.group_and_aggregate()
         self.pivot_data()
-        print("Processing complete!")
+        self.LOGGER.info("Processing complete!")
 
     # =========================================================
     #  Plot data
@@ -291,7 +280,7 @@ class TrophicFlowAnalysis:
             Save a faceted plot into destination.
 
         """
-        print("Creating faceted plot...")
+        self.LOGGER.info("Creating faceted plot...")
 
         # list of resource kinds (from columns of pivoted_df)
         resources = self.pivoted_df.columns.tolist()
@@ -355,7 +344,7 @@ class TrophicFlowAnalysis:
 
         if save_path:
             plt.savefig(save_path, dpi=self.config["dpi"], bbox_inches="tight")
-            print(f"saved to: {save_path}")
+            self.LOGGER.info(f"saved to: {save_path}")
 
     # =================================================================
     # Add helper functions
