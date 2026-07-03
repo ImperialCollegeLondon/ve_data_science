@@ -33,8 +33,7 @@
 #|     - tidyverse
 #|     - glmmTMB
 #|
-#| usage_notes: |
-#|   Use the saved model output objects for downstream prediction later.
+#| usage_notes:
 #| ---
 
 library(tidyverse)
