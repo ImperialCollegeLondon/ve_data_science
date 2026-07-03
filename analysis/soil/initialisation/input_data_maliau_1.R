@@ -34,6 +34,40 @@
 #|   - name: convert_df_to_nc.R
 #|     path: tools/R/
 #|     description: Function to convert input dataframe to netCDF
+#|   - name: model_safe.R
+#|     path: analysis/soil/initialisation/
+#|     description: Code to fit a soil spatial model using SAFE soil campaign
+#|   - name: pom_maom_sayer.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate POM and MAOM organic nutrients
+#|   - name: doc_don.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate dissolved organic C and N
+#|   - name: doc_don.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate dissolved organic C and N
+#|   - name: carbon_microbial.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: |
+#|         Code to estimate total microbial fraction in the carbon pool
+#|   - name: carbon_microbial_guild.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to split the total microbial C by guild
+#|   - name: necromass.R
+#|     path: analysis/soil/necromass/
+#|     description: Code to estimate necromass nutrient pools
+#|   - name: phosphorous_pools.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate soil phosphorous pools
+#|   - name: model.R
+#|     path: analysis/soil/ammonium_nitrate/
+#|     description: Code to estimate inorganic soil nitrogen
+#|   - name: sporocarp_biomass.R
+#|     path: analysis/soil/sporocarp_biomass/
+#|     description: Code to estimate fungal fruiting body biomass
+#|   - name: enzyme_concentration.R
+#|     path: analysis/soil/enzyme/
+#|     description: Code to estimate soil enzymatic pools
 #|
 #| package_dependencies:
 #|     - tidyverse
