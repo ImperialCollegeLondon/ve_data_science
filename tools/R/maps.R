@@ -1,3 +1,27 @@
+#| ---
+#| title: Utilities to map VE
+#|
+#| description: |
+#|     A collection of mapping functions to visualise VE metadata and data
+#|
+#| virtual_ecosystem_module: All
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|
+#| output_files:
+#|
+#| package_dependencies:
+#|     - leaflet
+#|     - toml
+#|     - purrr
+#|
+#| usage_notes: See function documentation below.
+#| ---
+
 #' Map VE Scenario Extent
 #'
 #' Creates an interactive leaflet map showing the geographic extent of a

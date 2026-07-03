@@ -1,9 +1,32 @@
-"""Utilities for mapping VE."""
+"""
+---
+title: Utilities for mapping VE.
 
-import tomllib
+description: A collection of mapping functions to visualise VE metadata and data
+
+virtual_ecosystem_module: All
+
+author: Hao Ran Lai
+
+status: final
+
+input_files:
+
+output_files:
+
+package_dependencies:
+  - tomllib
+  - pathlib
+  - folium
+
+usage_notes: See function documentation below.
+---
+"""  # noqa: D205, D212
+
 from pathlib import Path
 
 import folium
+import tomllib
 
 
 def map_scenario_extent(site_definition: str | Path, site_name: str) -> folium.Map:
