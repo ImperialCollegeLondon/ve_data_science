@@ -28,16 +28,6 @@
 #|       Refer to metadata for more info: SayerEtAl2021_Metadata.docx
 #|
 #| output_files:
-#|   - name: model_C_POM_MAOM.rds
-#|     path: data/derived/soil/nutrient_pools
-#|     description: |
-#|       glmmTMB model to predict carbon content in POM and MAOM from total
-#|       soil carbon
-#|   - name: model_N_POM_MAOM.rds
-#|     path: data/derived/soil/nutrient_pools
-#|     description: |
-#|       glmmTMB model to predict nitrogen content in POM and MAOM from total
-#|       soil nitrogen
 #|
 #| package_dependencies:
 #|     - tidyverse
