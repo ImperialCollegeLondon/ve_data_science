@@ -24,16 +24,16 @@
 #|     description: |
 #|         Metadata for Maliau grids, primarily to define the data generation
 #|         area
-#|   - name:
-#|     path:
-#|     description: |
-#|
 #|
 #| output_files:
 #|   - name:
 #|     path:
 #|     description: |
 #|
+#| source_files:
+#|   - name: convert_df_to_nc.R
+#|     path: tools/R/
+#|     description: Function to convert input dataframe to netCDF
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -81,7 +81,9 @@ soil_meta <- soil_meta$soil
 # Maliau site metadata ----------------------------------------------------
 
 maliau <-
-  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
+  parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
+  pluck("Scenario") |>
+  pluck("maliau_1")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
