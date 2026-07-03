@@ -88,25 +88,25 @@ dat <-
   # regional mean), because for SAFE we have much fewer NA cells
   fill(acd)
 
-# new basis functions for the Maliau region
-maliau_basis <-
+# new basis functions for the SAFE region
+safe_basis <-
   mrts(soil[, c("X", "Y")], num_basis) |>
   predict(newx = dat[, c("cell_x", "cell_y")]) |>
   as.matrix()
 # remove intercept
-maliau_basis <- maliau_basis[, -1]
+safe_basis <- safe_basis[, -1]
 
-# predict onto the Maliau grids
-maliau_pred <- predict(
+# predict onto the SAFE grids
+safe_pred <- predict(
   fitcbfm,
   newdata = dat,
-  new_B_space = maliau_basis
+  new_B_space = safe_basis
 )
 # backtransform to observation scale
-maliau_pred[, -c(1, 2)] <- exp(maliau_pred[, -c(1, 2)])
+safe_pred[, -c(1, 2)] <- exp(safe_pred[, -c(1, 2)])
 
 # add predictions to dataset
-dat <- bind_cols(dat, maliau_pred)
+dat <- bind_cols(dat, safe_pred)
 
 # convert to raster and then plot it for a sanity check
 plot(rast(dat))
