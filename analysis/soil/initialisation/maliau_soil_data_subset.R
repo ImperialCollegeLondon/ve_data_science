@@ -45,7 +45,7 @@ library(tidync)
 library(purrr)
 source("tools/R/convert_array_to_nc.R")
 source("tools/R/subset_nc.R")
-source("tools/R/get_all_variables.R")
+source("tools/R/get_data_variables.R")
 
 
 # Maliau site metadata ----------------------------------------------------
