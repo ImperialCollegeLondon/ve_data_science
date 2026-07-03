@@ -135,8 +135,7 @@ evi <-
   rast("data/primary/plant/remote_biomass/Sabah_EVI_2024_Q1.tif")
 
 # Location details
-maliau <-
-  parseTOML("data/derived/site/maliau/maliau_grid_definition.toml")
+maliau <- parseTOML("data/derived/site/maliau/maliau_grid_definition.toml")
 # fill in missing coordinates
 extra_locations <-
   tribble(
