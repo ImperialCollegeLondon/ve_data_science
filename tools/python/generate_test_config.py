@@ -1,4 +1,29 @@
-"""Module to generate test configurations for the virtual ecosystem."""
+"""
+---
+title: Generate test configurations for the virtual ecosystem.
+
+description: |
+    This function writes the generated configuration to
+    ``mock_config_path`` and does not return the configuration object. It is
+    intended to generate a default-value template, not meant to be used with
+    ve_run.
+
+virtual_ecosystem_module: All
+
+author: Hao Ran Lai
+
+status: final
+
+input_files:
+
+output_files:
+
+package_dependencies:
+  - virtual_ecosystem
+
+usage_notes: See function documentation below.
+---
+"""  # noqa: D205, D212
 
 from virtual_ecosystem.core.config_builder import generate_configuration
 
@@ -14,13 +39,6 @@ def generate_test_config(mock_config_path):
     Returns
     -------
     None
-
-    Notes
-    -----
-    This function writes the generated configuration to
-    ``mock_config_path`` and does not return the configuration object. It is
-    intended to generate a default-value template, not meant to be used with
-    ve_run.
 
     """
     models = {
