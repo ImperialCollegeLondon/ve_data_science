@@ -48,15 +48,6 @@ dat <-
 # script that fits a spatial model to the SAFE data
 source("analysis/soil/initialisation/model_safe.R")
 
-# clip spatial covariates to the SAFE region
-# then fill in NAs using interpolation
-safe_extent <- with(safe, ext(c(ll_x, ur_x, ll_y, ur_y)))
-elev_safe <- crop(elev, safe_extent)
-topo_safe <- crop(topo, safe_extent)
-hydro_safe <- crop(hydro, safe_extent)
-acd_safe <- crop(acd, safe_extent)
-evi_safe <- crop(evi, safe_extent)
-
 # extract covariates to the SAFE region of interest
 dat <-
   dat |>
@@ -73,20 +64,18 @@ dat <-
     acd = terra::extract(acd, pick("cell_x", "cell_y"))[, "acd"],
     evi = terra::extract(evi, pick("cell_x", "cell_y"))[, "EVI"]
   ) |>
+  # fill in grids with missing ACD (LiDAR) and EVI values with the mean value
+  mutate(
+    acd = ifelse(is.na(acd), mean(acd, na.rm = TRUE), acd),
+    evi = ifelse(is.na(evi), mean(evi, na.rm = TRUE), evi)
+  ) |>
   mutate(
     elev = (elev - mean(soil$elev)) / sd(soil$elev),
     topo = (topo - mean(soil$topo)) / sd(soil$topo),
     hydro = (hydro - mean(soil$hydro)) / sd(soil$hydro),
     acd = (acd - mean(soil$acd)) / sd(soil$acd),
     evi = (evi - mean(soil$evi)) / sd(soil$evi)
-  ) |>
-  # we need to fill in some NA grids in the EVI layer,
-  # note sure what caused them, could be bare ground or cloud
-  fill(evi) |>
-  # also fill in NAs in the ACD layer
-  # I opted to fill them in this time (for Maliau I decided to take the
-  # regional mean), because for SAFE we have much fewer NA cells
-  fill(acd)
+  )
 
 # new basis functions for the SAFE region
 safe_basis <-

@@ -152,21 +152,23 @@ dat <-
     hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
       "SRTM_Log_Flow_Accum"
     ],
-    # set acd to mean because there is no full data coverage
-    # for the entire Maliau region
-    acd = mean(soil$acd),
+    acd = terra::extract(acd, pick("cell_x", "cell_y"))[, "acd"],
     evi = terra::extract(evi, pick("cell_x", "cell_y"))[, "EVI"]
   ) |>
+  # fill in grids with missing ACD (LiDAR) values with the mean value
+  mutate(acd = ifelse(is.na(acd), mean(acd, na.rm = TRUE), acd)) |>
+  # we need to fill in two NA grids in the EVI layer,
+  # I think they are due to rivers / water bodies
+  # I will simply use nearest neighbour values
+  fill(evi) |>
+  # scale predictors
   mutate(
     elev = (elev - mean(soil$elev)) / sd(soil$elev),
     topo = (topo - mean(soil$topo)) / sd(soil$topo),
     hydro = (hydro - mean(soil$hydro)) / sd(soil$hydro),
     acd = (acd - mean(soil$acd)) / sd(soil$acd),
     evi = (evi - mean(soil$evi)) / sd(soil$evi)
-  ) |>
-  # we need to fill in two NA grids in the EVI layer,
-  # I think they are due to rivers / water bodies
-  fill(evi)
+  )
 
 # new basis functions for the Maliau region
 maliau_basis <-
