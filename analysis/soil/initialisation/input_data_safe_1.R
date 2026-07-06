@@ -144,3 +144,24 @@ dat <-
 source("analysis/soil/nutrient_pools/carbon_microbial.R")
 C_mic_perc_safe <- extract_microbial_to_soil_C_ratio(safe)
 soil_c_pool_microbe <- dat$total_carbon * C_mic_perc_safe / 100
+
+# then we split the total microbial fraction by guild
+# use MLF plot-type predictions
+source("analysis/soil/nutrient_pools/carbon_microbial_guild.R")
+soil_c_pool_microbe_guild <-
+  sapply(
+    microbe_ratio |> filter(Plot_ID == "MLF") |> pull(p_carbon),
+    \(p) {
+      p * soil_c_pool_microbe
+    }
+  )
+colnames(soil_c_pool_microbe_guild) <-
+  c(
+    "soil_c_pool_saprotrophic_fungi",
+    "soil_c_pool_ectomycorrhiza",
+    "soil_c_pool_arbuscular_mycorrhiza",
+    "soil_c_pool_bacteria"
+  )
+
+# add to dataset
+dat <- bind_cols(dat, soil_c_pool_microbe_guild)

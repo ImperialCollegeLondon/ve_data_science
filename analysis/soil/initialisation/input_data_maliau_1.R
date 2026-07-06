@@ -314,9 +314,15 @@ C_mic_perc_maliau <- extract_microbial_to_soil_C_ratio(maliau)
 soil_c_pool_microbe <- dat$total_carbon * C_mic_perc_maliau / 100
 
 # then we split the total microbial fraction by guild
+# use OG plot-type predictions
 source("analysis/soil/nutrient_pools/carbon_microbial_guild.R")
 soil_c_pool_microbe_guild <-
-  sapply(microbe_ratio, function(ratio) ratio * soil_c_pool_microbe)
+  sapply(
+    microbe_ratio |> filter(Plot_ID == "OG") |> pull(p_carbon),
+    \(p) {
+      p * soil_c_pool_microbe
+    }
+  )
 colnames(soil_c_pool_microbe_guild) <-
   c(
     "soil_c_pool_saprotrophic_fungi",
