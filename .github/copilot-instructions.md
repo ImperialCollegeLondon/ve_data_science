@@ -1,12 +1,10 @@
 # Copilot cloud agent onboarding notes
 
-## Repository purpose and tech stack
+## Repository purpose
 
 - This repository stores analysis and parameterisation workflows for the
   Virtual Ecosystem project.
-- Primary languages are **R** (most analysis scripts) and **Python** (data
-  processing, downloads, docs tooling).
-- Python dependencies are managed with **Poetry** (`pyproject.toml`, `poetry.lock`).
+- Primary languages are **R** and **Python**.
 - Code quality checks are managed through **pre-commit**
   (`.pre-commit-config.yaml`) and include Python, Markdown, and R hooks.
 
@@ -15,32 +13,15 @@
 - `/analysis/`: analysis and parameterisation scripts, mostly by domain
   (`soil`, `plant`, `litter`, `abiotic`, `site`, `animal`).
 - `/data/`: project data assets (`primary`, `derived`, `scenarios`).
-- `/tools/R/`: shared R helper utilities used across workflows.
-- `/docs/` and `mkdocs.yml`: documentation sources and build configuration.
-- `/templates/`: starter templates for R, Python, notebooks, and metadata files.
-
-## Fast start commands
-
-Run from repository root:
-
-1. Install tooling and project dependencies:
-   - `python -m pip install --user poetry` (if Poetry is missing)
-   - `python -m poetry install`
-2. Run repository QA checks:
-   - `python -m poetry run pre-commit run --all-files`
-3. Validate docs build:
-   - `python -m poetry run mkdocs build`
+- `/tools/`: shared R and Python helper utilities used across workflows.
+- `/docs/`: documentation sources.
+- `/templates/`: starter templates for metadata in R, Python, and notebooks.
 
 ## Known issues and workarounds
 
 These were encountered during onboarding:
 
-1. Error: `poetry: command not found`
-   - Workaround: install Poetry with
-     `python -m pip install --user poetry` and invoke via
-     `python -m poetry ...`.
-
-2. Error from pre-commit: `Executable 'Rscript' not found`
+1. Error from pre-commit: `Executable 'Rscript' not found`
    - Cause: R hooks (`parsable-R`, `no-browser-statement`,
      `no-debug-statement`, `air-format`) require `Rscript` on `PATH`.
    - Workaround:
@@ -55,7 +36,3 @@ These were encountered during onboarding:
 - Use existing folder conventions (domain-specific subdirectories under
   `analysis/` and `data/`).
 - Prefer relative paths in scripts; avoid machine-specific absolute paths.
-- Do not introduce new dependency managers; use Poetry for Python and
-  existing R workflow conventions.
-- For Markdown/documentation-only changes, validate with markdown hooks
-  and `mkdocs build`.
