@@ -230,3 +230,19 @@ dat <-
     soil_n_pool_ammonium = ammonium_sim,
     soil_n_pool_nitrate = nitrate_sim
   )
+
+
+# Fungal fruiting body biomass:
+# fungal_fruiting_bodies
+source("analysis/soil/sporocarp_biomass/sporocarp_biomass.R")
+
+# simulate and add directly to dataset
+dat <-
+  dat |>
+  mutate(
+    fungal_fruiting_bodies = rnorm(
+      n_sim,
+      sporocarp_biomass_mean,
+      sporocarp_biomass_sd
+    )
+  )
