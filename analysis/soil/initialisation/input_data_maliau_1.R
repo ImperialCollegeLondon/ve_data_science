@@ -381,7 +381,7 @@ dat <- bind_cols(dat, p_fractions)
 source("analysis/soil/ammonium_nitrate/model.R")
 
 # find the row index of a SAFE forest site to approximate Maliau
-# (though note them are OG)
+# (though note them are OG, whereas the SAFE 'forest' are logged)
 # we will use the first site because it does not matter which site for the
 # simulation purpose (they have the same fixed effects)
 flux_forest_idx <- which(flux$landuse == "forest")[1]
