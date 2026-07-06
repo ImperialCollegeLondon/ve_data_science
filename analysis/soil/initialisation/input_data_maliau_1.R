@@ -26,9 +26,9 @@
 #|         area
 #|
 #| output_files:
-#|   - name:
-#|     path:
-#|     description: |
+#|   - name: soil_maliau.nc
+#|     path: data/scenarios/maliau/maliau_1/data/
+#|     description: Soil input data for the Maliau scenario
 #|
 #| source_files:
 #|   - name: convert_df_to_nc.R
