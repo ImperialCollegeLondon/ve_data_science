@@ -2,14 +2,18 @@
 
 ## Repository purpose and tech stack
 
-- This repository stores analysis and parameterisation workflows for the Virtual Ecosystem project.
-- Primary languages are **R** (most analysis scripts) and **Python** (data processing, downloads, docs tooling).
+- This repository stores analysis and parameterisation workflows for the
+  Virtual Ecosystem project.
+- Primary languages are **R** (most analysis scripts) and **Python** (data
+  processing, downloads, docs tooling).
 - Python dependencies are managed with **Poetry** (`pyproject.toml`, `poetry.lock`).
-- Code quality checks are managed through **pre-commit** (`.pre-commit-config.yaml`) and include Python, Markdown, and R hooks.
+- Code quality checks are managed through **pre-commit**
+  (`.pre-commit-config.yaml`) and include Python, Markdown, and R hooks.
 
 ## High-value directories
 
-- `/analysis/`: analysis and parameterisation scripts, mostly by domain (`soil`, `plant`, `litter`, `abiotic`, `site`, `animal`).
+- `/analysis/`: analysis and parameterisation scripts, mostly by domain
+  (`soil`, `plant`, `litter`, `abiotic`, `site`, `animal`).
 - `/data/`: project data assets (`primary`, `derived`, `scenarios`).
 - `/tools/R/`: shared R helper utilities used across workflows.
 - `/docs/` and `mkdocs.yml`: documentation sources and build configuration.
@@ -32,19 +36,26 @@ Run from repository root:
 These were encountered during onboarding:
 
 1. Error: `poetry: command not found`
-   - Workaround: install Poetry with `python -m pip install --user poetry` and invoke via `python -m poetry ...`.
+   - Workaround: install Poetry with
+     `python -m pip install --user poetry` and invoke via
+     `python -m poetry ...`.
 
 2. Error from pre-commit: `Executable 'Rscript' not found`
-   - Cause: R hooks (`parsable-R`, `no-browser-statement`, `no-debug-statement`, `air-format`) require `Rscript` on `PATH`.
+   - Cause: R hooks (`parsable-R`, `no-browser-statement`,
+     `no-debug-statement`, `air-format`) require `Rscript` on `PATH`.
    - Workaround:
      - Preferred: install R (project docs suggest R 4.4+) so `Rscript` is available.
      - Temporary (Python/docs-only changes): skip R hooks, e.g.
-       `SKIP=parsable-R,no-browser-statement,no-debug-statement,air-format python -m poetry run pre-commit run --all-files`
+       `SKIP=parsable-R,no-browser-statement,no-debug-statement,air-format`
+       `python -m poetry run pre-commit run --all-files`
 
 ## Working conventions for agents
 
 - Keep changes minimal and scoped to the requested domain/module.
-- Use existing folder conventions (domain-specific subdirectories under `analysis/` and `data/`).
+- Use existing folder conventions (domain-specific subdirectories under
+  `analysis/` and `data/`).
 - Prefer relative paths in scripts; avoid machine-specific absolute paths.
-- Do not introduce new dependency managers; use Poetry for Python and existing R workflow conventions.
-- For Markdown/documentation-only changes, validate with markdown hooks and `mkdocs build`.
+- Do not introduce new dependency managers; use Poetry for Python and
+  existing R workflow conventions.
+- For Markdown/documentation-only changes, validate with markdown hooks
+  and `mkdocs build`.
