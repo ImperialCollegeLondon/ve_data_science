@@ -1,3 +1,94 @@
+#| ---
+#| title: Compile initial soil data for the SAFE scenario
+#|
+#| description: |
+#|     This R script compiles initial soil data for the SAFE scenario
+#|     from various data analyses into a single netCDF file.
+#|     See the metadata in data/scenarios/safe/soil_litter_metadata.toml
+#|     for specific file paths that analysed each variable.
+#|
+#| virtual_ecosystem_module: Soil
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: soil_litter_metadata.toml
+#|     path: data/scenarios/safe
+#|     description: |
+#|         Metadata for soil and litter data analyses, currently including
+#|         file paths and units
+#|   - name: safe_grid_definition.toml
+#|     path: data/derived/site/safe
+#|     description: |
+#|         Metadata for SAFE grids, primarily to define the data generation
+#|         area
+#|
+#| output_files:
+#|   - name: soil_safe.nc
+#|     path: data/scenarios/safe/safe_1/data/
+#|     description: Soil input data for the SAFE scenario
+#|
+#| source_files:
+#|   - name: convert_df_to_nc.R
+#|     path: tools/R/
+#|     description: Function to convert input dataframe to netCDF
+#|   - name: model_safe.R
+#|     path: analysis/soil/initialisation/
+#|     description: Code to fit a soil spatial model using SAFE soil campaign
+#|   - name: pom_maom_sayer.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate POM and MAOM organic nutrients
+#|   - name: doc_don.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate dissolved organic C and N
+#|   - name: doc_don.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate dissolved organic C and N
+#|   - name: carbon_microbial.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: |
+#|         Code to estimate total microbial fraction in the carbon pool
+#|   - name: carbon_microbial_guild.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to split the total microbial C by guild
+#|   - name: necromass.R
+#|     path: analysis/soil/necromass/
+#|     description: Code to estimate necromass nutrient pools
+#|   - name: phosphorous_pools.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate soil phosphorous pools
+#|   - name: model.R
+#|     path: analysis/soil/ammonium_nitrate/
+#|     description: Code to estimate inorganic soil nitrogen
+#|   - name: sporocarp_biomass.R
+#|     path: analysis/soil/sporocarp_biomass/
+#|     description: Code to estimate fungal fruiting body biomass
+#|   - name: enzyme_concentration.R
+#|     path: analysis/soil/enzyme/
+#|     description: Code to estimate soil enzymatic pools
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - readxl
+#|     - RcppTOML
+#|     - sf
+#|     - terra
+#|     - autoFRK
+#|     - CBFM
+#|     - RNetCDF
+#|     - glmmTMB
+#|     - biogas
+#|     - lubridate
+#|     - hms
+#|
+#| usage_notes: |
+#|     For more details on statistical and data assumptions, see
+#|     data/scenarios/safe/soil_metadata.toml; The CBFM package needs to be
+#|     installed from https://github.com/fhui28/CBFM
+#| ---
+
 library(tidyverse)
 library(readxl)
 library(RcppTOML)
