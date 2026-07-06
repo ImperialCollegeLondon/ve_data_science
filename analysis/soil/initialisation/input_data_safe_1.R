@@ -165,3 +165,32 @@ colnames(soil_c_pool_microbe_guild) <-
 
 # add to dataset
 dat <- bind_cols(dat, soil_c_pool_microbe_guild)
+
+
+# Necromass nutrient pools, including:
+# soil_c_pool_necromass
+# soil_n_pool_necromass
+# soil_p_pool_necromass
+# Value are in kg / kg SOC (fraction of soil carbon), so we scale it off the
+# predicted total soil carbon
+source("analysis/soil/necromass/necromass.R")
+
+# Necromass nutrient pools, including:
+# soil_c_pool_necromass
+# soil_n_pool_necromass
+# soil_p_pool_necromass
+# Value are in kg / kg SOC (fraction of soil carbon), so we scale it off the
+# predicted total soil carbon
+source("analysis/soil/necromass/necromass.R")
+
+# calculate CNP in necromass as a proportion of total C
+# use secondary forest (SF) for logged forests of SAFE
+necromass <- extract_necromass("SF")
+
+dat <-
+  dat |>
+  mutate(
+    soil_c_pool_necromass = total_carbon * necromass$C,
+    soil_n_pool_necromass = total_carbon * necromass$N,
+    soil_p_pool_necromass = total_carbon * necromass$P
+  )

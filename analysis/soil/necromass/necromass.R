@@ -72,4 +72,6 @@ extract_necromass <- function(type) {
 
   # These necromass C, N and P are in kg / kg SOC, so in the post-hoc prediction
   # we will scale them off the predicted SOC (~ TOC in tropical-forest data)
+
+  return(c(C = necromass_C, N = necromass_N, P = necromass_P))
 }

@@ -343,12 +343,16 @@ dat <- bind_cols(dat, soil_c_pool_microbe_guild)
 # predicted total soil carbon
 source("analysis/soil/necromass/necromass.R")
 
+# calculate CNP in necromass as a proportion of total C
+# use primary rainforest (RF) for old-growth Maliau
+necromass <- extract_necromass("RF")
+
 dat <-
   dat |>
   mutate(
-    soil_c_pool_necromass = total_carbon * necromass_C,
-    soil_n_pool_necromass = total_carbon * necromass_N,
-    soil_p_pool_necromass = total_carbon * necromass_P
+    soil_c_pool_necromass = total_carbon * necromass$C,
+    soil_n_pool_necromass = total_carbon * necromass$N,
+    soil_p_pool_necromass = total_carbon * necromass$P
   )
 
 
