@@ -246,3 +246,30 @@ dat <-
       sporocarp_biomass_sd
     )
   )
+
+
+# Soil enzymatic pools, including
+# soil_enzyme_maom_bacteria
+# soil_enzyme_maom_fungi
+# soil_enzyme_pom_bacteria
+# soil_enzyme_pom_fungi
+# These are notoriously hard to find empirical data for, and will be the only
+# set of variables currently relying on crude guesstimates
+source("analysis/soil/enzyme/enzyme_concentration.R")
+
+# simulate total soil enzyme concentration [mg C / g soil]
+soil_enzyme <- exp(rnorm(n_sim, enzyme_conc_mean, enzyme_conc_sd))
+# raise the values by one order of magnitude following MEND guesstimate
+soil_enzyme <- soil_enzyme * MEND_factor
+# convert to unit [kg C / kg soil]
+soil_enzyme <- soil_enzyme / 1e3
+
+# split total enzyme equally among the four enzyme groups; add to dataset
+dat <-
+  dat |>
+  mutate(
+    soil_enzyme_maom_bacteria = soil_enzyme * 0.25,
+    soil_enzyme_maom_fungi = soil_enzyme * 0.25,
+    soil_enzyme_pom_bacteria = soil_enzyme * 0.25,
+    soil_enzyme_pom_fungi = soil_enzyme * 0.25
+  )
