@@ -1,4 +1,4 @@
-# Copilot cloud agent onboarding notes
+# Copilot instructions
 
 ## Repository purpose
 
