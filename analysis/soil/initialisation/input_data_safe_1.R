@@ -194,3 +194,39 @@ dat <-
     soil_n_pool_necromass = total_carbon * necromass$N,
     soil_p_pool_necromass = total_carbon * necromass$P
   )
+
+# Soil phosphorous pools
+# split total phosphorous in the SAFE dataset to separate pools
+
+#### Missing data ####
+
+# Variables that scale / are predicted independently from SAFE -----------
+
+# Inorganic nitrogen, including:
+# soil_n_pool_ammonium
+# soil_n_pool_nitrate
+
+source("analysis/soil/ammonium_nitrate/model.R")
+
+# find the row index of a SAFE forest site to approximate SAFE logged forests
+# this is the 'forest' sites in the dataset
+# we will use the first site because it does not matter which site for the
+# simulation purpose (they have the same fixed effects)
+flux_forest_idx <- which(flux$landuse == "forest")[1]
+
+# simulate ammonium and nitrate
+# 1 mg N cm-3 = 1 kg N m-3 so no conversion needed
+ammonium_sim <- as.numeric(
+  glmmTMB:::simulate.glmmTMB(mod_ammonium, nsim = n_sim)[flux_forest_idx, ]
+)
+nitrate_sim <- as.numeric(
+  glmmTMB:::simulate.glmmTMB(mod_nitrate, nsim = n_sim)[flux_forest_idx, ]
+)
+
+# add to dataset
+dat <-
+  dat |>
+  mutate(
+    soil_n_pool_ammonium = ammonium_sim,
+    soil_n_pool_nitrate = nitrate_sim
+  )
