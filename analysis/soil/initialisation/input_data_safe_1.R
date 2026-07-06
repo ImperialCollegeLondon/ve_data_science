@@ -273,3 +273,90 @@ dat <-
     soil_enzyme_pom_bacteria = soil_enzyme * 0.25,
     soil_enzyme_pom_fungi = soil_enzyme * 0.25
   )
+
+
+# Convert from per-mass to per-volume basis -------------------------------
+# The SAFE soil dataset measured nutrients in mass [nutrient] / kg soil
+# we need to convert this to mass [nutrient] / m^3 soil using bulk density
+
+dat <-
+  dat |>
+  mutate_at(
+    vars(
+      soil_c_pool_pom,
+      soil_c_pool_maom,
+      soil_c_pool_lmwc,
+      soil_c_pool_saprotrophic_fungi,
+      soil_c_pool_ectomycorrhiza,
+      soil_c_pool_arbuscular_mycorrhiza,
+      soil_c_pool_bacteria,
+      soil_c_pool_necromass,
+      soil_enzyme_maom_bacteria,
+      soil_enzyme_maom_fungi,
+      soil_enzyme_pom_bacteria,
+      soil_enzyme_pom_fungi,
+      soil_n_pool_particulate,
+      soil_n_pool_maom,
+      soil_n_pool_don,
+      soil_n_pool_necromass,
+      soil_p_pool_dop,
+      soil_p_pool_labile,
+      soil_p_pool_particulate,
+      soil_p_pool_maom,
+      soil_p_pool_secondary,
+      soil_p_pool_primary,
+      soil_p_pool_necromass
+    ),
+    ~ . * (bulk_density * 1e3)
+  ) |>
+  # combine C, N and P columns into a single list column
+  mutate(
+    soil_cnp_pool_lmwc = pmap(
+      list(soil_c_pool_lmwc, soil_n_pool_don, soil_p_pool_dop),
+      c
+    ),
+    soil_cnp_pool_maom = pmap(
+      list(soil_c_pool_maom, soil_n_pool_maom, soil_p_pool_maom),
+      c
+    ),
+    soil_cnp_pool_pom = pmap(
+      list(
+        soil_c_pool_pom,
+        soil_n_pool_particulate,
+        soil_p_pool_particulate
+      ),
+      c
+    ),
+    soil_cnp_pool_necromass = pmap(
+      list(
+        soil_c_pool_necromass,
+        soil_n_pool_necromass,
+        soil_p_pool_necromass
+      ),
+      c
+    ),
+    .keep = "unused"
+  )
+
+
+# Write data to netCDF ----------------------------------------------------
+
+# collect soil metadata to get variable names and units
+soil_meta_df <-
+  reshape2::melt(lapply(soil_meta, function(meta) meta$unit)) |>
+  select(
+    variable = L1,
+    unit = value
+  )
+
+# convert data to netCDF
+convert_df_to_nc(
+  data = dat,
+  filename = "data/scenarios/safe/safe_1/data/soil_safe.nc",
+  x = safe$cell_x_centres,
+  y = safe$cell_y_centres,
+  element = c("C", "N", "P"),
+  variables = soil_meta_df$variable,
+  units = soil_meta_df$unit,
+  description = "Soil data for the SAFE scenario"
+)
