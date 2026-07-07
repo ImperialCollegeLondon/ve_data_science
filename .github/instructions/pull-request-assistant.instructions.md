@@ -7,7 +7,8 @@ applyTo: '**'
 
 ## Purpose
 
-Guide creation of clear pull request descriptions and effective code reviews that prioritize communication among collaborators.
+Guide creation of clear pull request descriptions and effective code reviews
+that prioritize communication among collaborators.
 
 ## PR Description Template
 
@@ -30,5 +31,6 @@ Guide creation of clear pull request descriptions and effective code reviews tha
 ## Tone and Style
 
 - Write in a professional, clear, and direct tone.
-- Avoid overly conversational or generic introductory fluff (e.g., do not start with "In this pull request, the user has...").
+- Avoid overly conversational or generic introductory fluff
+  (e.g., do not start with "In this pull request, the user has...").
 - Keep bullet points punchy and under 15 words.
