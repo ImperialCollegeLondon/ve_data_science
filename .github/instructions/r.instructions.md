@@ -36,8 +36,7 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
 
 ## Tooling & Quality
 
-- **Formatting:** `styler` (tidyverse style), two-space indents, ~100-char lines.
-- **Linting:** `lintr` configured via `.lintr`.
+- **Formatting:** `air` (tidyverse style), two-space indents, 80-char lines.
 - **Pre-commit:** consider `precommit` hooks to lint/format automatically.
 - **Docs:** roxygen2 for exported functions (`@param`, `@return`, `@examples`).
 - **Tests:** prefer small, pure, composable functions that are easy to unit test.
@@ -47,8 +46,7 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
 ## Data Wrangling & I/O
 
 - **Data frames:** prefer tibbles in tidyverse-heavy files; otherwise base `data.frame()` is fine.
-- **Iteration:** use `purrr` in tidyverse code. In base-style code, prefer type-stable, vectorized patterns such as `vapply()`
-   (for atomic outputs) or `Map()` (for elementwise operations) instead of explicit `for` loops when they improve clarity or performance.
+- **Iteration:** use `purrr` in tidyverse code. In base-style code, prefer type-stable, vectorized patterns such as `vapply()` (for atomic outputs) or `Map()` (for elementwise operations) instead of explicit `for` loops when they improve clarity or performance.
 - **Strings & Dates:** use `stringr`/`lubridate` where already present; otherwise use clear base helpers (e.g., `nchar()`, `substr()`, `as.Date()` with explicit format).
 - **I/O:** prefer explicit, typed readers (e.g., `readr::read_csv()`); make parsing assumptions explicit.
 
