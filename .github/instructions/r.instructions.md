@@ -47,7 +47,9 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
 ## Data Wrangling & I/O
 
 - **Data frames:** prefer tibbles in tidyverse-heavy files; otherwise base `data.frame()` is fine.
-- **Iteration:** use `purrr` in tidyverse code. In base-style code, prefer type-stable, vectorized patterns such as `vapply()` (for atomic outputs) or `Map()` (for elementwise operations) instead of explicit `for` loops when they improve clarity or performance.
+- **Iteration:** use `purrr` in tidyverse code. In base-style code, prefer type-stable,
+  vectorized patterns such as `vapply()` (for atomic outputs) or `Map()` (for elementwise
+  operations) instead of explicit `for` loops when they improve clarity or performance.
 - **Strings & Dates:** use `stringr`/`lubridate` where already present; otherwise use clear base helpers (e.g., `nchar()`, `substr()`, `as.Date()` with explicit format).
 - **I/O:** prefer explicit, typed readers (e.g., `readr::read_csv()`); make parsing assumptions explicit.
 
@@ -59,10 +61,13 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
 
 - In tidyverse contexts, use `rlang::abort()` / `rlang::warn()` for structured conditions; in base-only code, use `stop()` / `warning()`.
 - For recoverable operations:
-- Use `purrr::possibly()` when you want a typed fallback value of the same type (simpler).
-- Use `purrr::safely()` when you need to capture both results and errors for later inspection or logging.
-- Use `tryCatch()` in base R for fine-grained control or compatibility with non-tidyverse code.
-- Prefer consistent return structures—typed outputs for normal flows, structured lists only when error details are required.
+  - Use `purrr::possibly()` when you want a typed fallback value of the same type (simpler).
+  - Use `purrr::safely()` when you need to capture both results and errors for later inspection
+    or logging.
+  - Use `tryCatch()` in base R for fine-grained control or compatibility with non-tidyverse
+    code.
+  - Prefer consistent return structures—typed outputs for normal flows, structured lists only
+    when error details are required.
 
 ## Security Best Practices
 
