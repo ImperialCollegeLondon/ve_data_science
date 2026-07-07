@@ -142,6 +142,7 @@ Before writing a comment, ask:
 ## Special Cases for Comments
 
 ### Public APIs
+
 ```r
 #' Calculate compound interest using the standard formula.
 #'
@@ -173,6 +174,7 @@ def calculate_compound_interest(principal, rate, time, compound_frequency=1):
 ```
 
 ### Configuration and Constants
+
 ```r
 # Good: Explains the source or reasoning
 MAX_RETRIES <- 3  # Based on network reliability studies
@@ -186,6 +188,7 @@ API_TIMEOUT = 5000  # AWS Lambda timeout is 15s, leaving buffer
 ```
 
 ### Annotations
+
 ```r
 # TODO: Replace with proper user authentication after security review
 # FIXME: Memory leak in production - investigate connection pooling
