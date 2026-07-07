@@ -116,8 +116,7 @@ soil_meta <- soil_meta$soil
 
 maliau <-
   parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
-  pluck("Scenario") |>
-  pluck("maliau_1")
+  pluck("Scenario", "maliau_1")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
@@ -350,9 +349,9 @@ necromass <- extract_necromass("RF")
 dat <-
   dat |>
   mutate(
-    soil_c_pool_necromass = total_carbon * necromass$C,
-    soil_n_pool_necromass = total_carbon * necromass$N,
-    soil_p_pool_necromass = total_carbon * necromass$P
+    soil_c_pool_necromass = total_carbon * necromass["C"],
+    soil_n_pool_necromass = total_carbon * necromass["N"],
+    soil_p_pool_necromass = total_carbon * necromass["P"]
   )
 
 
