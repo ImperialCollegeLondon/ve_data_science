@@ -3,6 +3,7 @@ description: 'R language and document formats (R, Rmd, Quarto): coding standards
 applyTo: '**/*.R, **/*.r, **/*.Rmd, **/*.rmd, **/*.qmd'
 ---
 
+<!-- markdownlint-disable MD013 -->
 # R Programming Language Instructions
 
 ## Purpose
