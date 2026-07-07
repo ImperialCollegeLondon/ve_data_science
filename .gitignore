@@ -19,6 +19,9 @@ data/primary
 data/scenarios/maliau/maliau_1
 data/scenarios/maliau/maliau_2
 
+# MkDocs build output
+site/
+
 # notebooks
 analysis/soil/validation/*html
 
