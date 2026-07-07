@@ -19,6 +19,7 @@ data/primary
 # Derived data
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/validation/database
+data/derived/soil/necromass/li_et_al_2023.csv
 
 # Scenario files, except the change_log.txt file
 # ignore the directory's contents (/*), not the directory itself — otherwise
