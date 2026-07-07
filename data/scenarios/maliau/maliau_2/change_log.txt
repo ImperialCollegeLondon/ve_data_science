@@ -9,6 +9,6 @@
 - Microbial C, N and P are now fully predicted from old-growth sites.
 - Necromass C, N and P based on amino sugars are now correctly calculated,
   though the adjustment is minor.
-- Reference: 
+- Reference:
   - PR #379 to close Issues #372, #374 and #375
   - PR #382 to close Issue #378
