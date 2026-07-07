@@ -20,13 +20,9 @@ data/primary
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/validation/database
 
-<<<<<<< HEAD
 # MkDocs build output
 site/
 
-# notebooks
-analysis/soil/validation/*html
-=======
 # Scenario files, except the change_log.txt file
 # ignore the directory's contents (/*), not the directory itself — otherwise
 # the ! negation for the file won't work (git can't un-ignore files inside an
@@ -39,7 +35,6 @@ data/scenarios/*/*/*
 **/*.quarto_ipynb
 analysis/soil/validation/*/*.html
 analysis/soil/issue_tracker/*.html
->>>>>>> origin/main
 
 # History files
 .Rhistory
