@@ -7,14 +7,17 @@ applyTo: '**'
 # Self-explanatory Code Commenting Instructions
 
 ## Core Principle
+
 **Write code that speaks for itself. Comment only when necessary to explain WHY, not WHAT.**
+
 We do not need comments most of the time.
 
 ## Commenting Guidelines
 
 ### ❌ AVOID These Comment Types
 
-**Obvious Comments**
+### Obvious Comments
+
 ```r
 # Bad: States the obvious
 counter <- 0  # Initialize counter to zero
@@ -27,7 +30,8 @@ counter = 0  # Initialize counter to zero
 counter += 1  # Increment counter by one
 ```
 
-**Redundant Comments**
+### Redundant Comments
+
 ```r
 # Bad: Comment repeats the code
 get_user_name <- function(user) {
@@ -41,7 +45,8 @@ def get_user_name(user):
     return user.name  # Return the user's name
 ```
 
-**Outdated Comments**
+### Outdated Comments
+
 ```r
 # Bad: Comment doesn't match the code
 # Calculate tax at 5% rate
@@ -56,7 +61,8 @@ tax = price * 0.08  # Actually 8%
 
 ### ✅ WRITE These Comment Types
 
-**Complex Business Logic**
+### Complex Business Logic
+
 ```r
 # Good: Explains WHY this specific calculation
 # Apply progressive tax brackets: 10% up to 10k, 20% above
@@ -69,7 +75,8 @@ tax <- calculate_progressive_tax(income, rates = c(0.10, 0.20), thresholds = c(1
 tax = calculate_progressive_tax(income, rates=[0.10, 0.20], thresholds=[10000])
 ```
 
-**Non-obvious Algorithms**
+### Non-obvious Algorithms
+
 ```r
 # Good: Explains the algorithm choice
 # Using Floyd-Warshall for all-pairs shortest paths
@@ -93,7 +100,8 @@ for k in range(vertices):
             # ... implementation
 ```
 
-**Regex Patterns**
+### Regex Patterns
+
 ```r
 # Good: Explains what the regex matches
 # Match email format: username@domain.extension
@@ -106,7 +114,8 @@ email_pattern <- "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
 email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 ```
 
-**API Constraints or Gotchas**
+### API Constraints or Gotchas
+
 ```r
 # Good: Explains external constraint
 # GitHub API rate limit: 5000 requests/hour for authenticated users
@@ -124,6 +133,7 @@ response = requests.get(github_api_url)
 ## Decision Framework
 
 Before writing a comment, ask:
+
 1. **Is the code self-explanatory?** → No comment needed
 2. **Would a better variable/function name eliminate the need?** → Refactor instead
 3. **Does this explain WHY, not WHAT?** → Good comment
@@ -205,6 +215,7 @@ API_TIMEOUT = 5000  # AWS Lambda timeout is 15s, leaving buffer
 ## Anti-Patterns to Avoid
 
 ### Dead Code Comments
+
 ```r
 # Bad: Don't comment out code
 # old_function <- function() { ... }
@@ -218,6 +229,7 @@ def new_function(): ...
 ```
 
 ### Changelog Comments
+
 ```r
 # Bad: Don't maintain history in comments
 # Modified by John on 2023-01-15
@@ -236,6 +248,7 @@ def process_data():
 ```
 
 ### Divider Comments
+
 ```r
 # Bad: Don't use decorative comments
 #=====================================
@@ -253,6 +266,7 @@ def process_data():
 ## Quality Checklist
 
 Before committing, ensure your comments:
+
 - [ ] Explain WHY, not WHAT
 - [ ] Are grammatically correct and clear
 - [ ] Will remain accurate as code evolves
