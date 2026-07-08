@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD046 -->
 # Setting up Python with `uv`
 
 `uv` handles Python installation, virtual environments, and dependencies in one place.
@@ -6,11 +7,11 @@
 
 You can switch between versions of `virtual-ecosystem` with one command:
 
-| What you want | Command |
-|---|---|
-| Stable release from PyPI | `uv sync` and `uv run ve_run ...` |
-| Latest `develop` branch build | `uv sync --group dev` and `uv run --group dev ve_run ...` |
-| Pinned known-good `develop` branch commit | `uv sync --group dev-stable` and `uv run --group dev-stable ve_run ...` |
+| What you want | Sync command | Run command |
+| --- | --- | --- |
+| Stable release from PyPI | `uv sync` | `uv run ve_run ...` |
+| Latest `develop` branch build | `uv sync --group dev` | `uv run --group dev ve_run ...` |
+| Pinned known-good `develop` branch commit | `uv sync --group dev-stable` | `uv run --group dev-stable ve_run ...` |
 
 That is the main workflow. No manual virtual-environment juggling needed.
 
@@ -137,3 +138,4 @@ environment just like the conventional way:
     source .venv/bin/activate
     ve_run
     ```
+<!-- markdownlint-enable MD046 -->
