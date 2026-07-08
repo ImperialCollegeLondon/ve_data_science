@@ -1,12 +1,11 @@
 ---
 jupyter:
   jupytext:
-    cell_metadata_filter: all,-trusted
-    notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version
     text_representation:
       extension: .md
       format_name: markdown
       format_version: '1.3'
+      jupytext_version: 1.19.3
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -33,7 +32,7 @@ library(tidyverse)
 library(here)
 library(knitr)
 library(reticulate)
-use_virtualenv(here("ve_latest"), required = TRUE)
+use_virtualenv(here(".venv"), required = TRUE)
 source(here("tools/R/tidy_continuous_data.R"))
 ```
 
@@ -47,6 +46,13 @@ At the end of this report, I explain why we might want to design a scenario wher
 
 I ran the full `maliau_2` scenario available from Globus:
 
+```bash
+uv run \
+  --group dev ve_run data/scenarios/maliau/maliau_2/config \
+  --out data/scenarios/maliau/maliau_2/out \
+  --log data/scenarios/maliau/maliau_2/out/logfile.txt
+```
+
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
 - The animal functional group is from the file `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level1.csv`, which looks like:
@@ -55,7 +61,31 @@ I ran the full `maliau_2` scenario available from Globus:
 |:----------------------|:------|:--------------------------------------|:--------------|:------------------------|:-----------------|:----------------|:------------------|:--------------------------|:--------------|:--------------|:------------------|----------:|----------:|:----------------------|
 |Herbivorous_endotherms |mammal |wood_seeds_fruit_foliage_flowers_fungi |endothermic    |terrestrial              |iteroparous       |direct           |adult              |Herbivorous_endotherms     |ureotelic      |none           |ground             |        100|       2915|None
 
-- VE version: v0.2.0 (dev version; commit [3c6e75](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/3c6e752e6ca3a8a22239bf6112e14236528e32e3))
+```{r}
+#| label: ve-version
+#| echo: false
+#| output: asis
+ve_dist_info <- c(
+  Sys.glob(here(".venv/Lib/site-packages/virtual_ecosystem-*.dist-info")), # Windows
+  Sys.glob(here(
+    ".venv/lib/python*/site-packages/virtual_ecosystem-*.dist-info"
+  )) # macOS/Linux
+)[1]
+direct_url <- file.path(ve_dist_info, "direct_url.json")
+if (file.exists(direct_url)) {
+  info <- jsonlite::fromJSON(direct_url)
+  commit <- info$vcs_info$commit_id
+  short <- substr(commit, 1, 7)
+  url <- paste0(info$url, "/commit/", commit)
+  cat(sprintf(
+    "- VE version: v0.2.0 (dev version; commit [%s](%s))\n",
+    short,
+    url
+  ))
+} else {
+  cat("- VE version: v0.2.0 (PyPI release)\n")
+}
+```
 - OS: Windows 11
 
 ## Animal continuous state variables
@@ -145,7 +175,7 @@ resource_cont |>
 
 ## Trophic interactions
 
-In contrast, the resource consumption by all animals stay at zero without any numeric imprecision.
+In contrast, the resource consumption by all animals stay at zero without any numeric imprecision. 
 
 ```{r}
 #| label: fig-resource-interactions
@@ -188,3 +218,4 @@ A few follow-up questions upon seeing the temporal graphs:
 Mainly so that we can include animal-related state variables into the sensitivity analyses. More importantly, the animal variables feed back into the non-animal variables. Unless we are truly aiming for an empty-forest scenario, we will be left with a half-complete sensitivity analysis.
 
 Should we consider an alternative set of animal FG definitions? Currently `maliau_2` uses the level 1 definition, which contain only a single herbivorous endotherm that always go extinct very early on. Has anyone run VE with the level 2 definitions? If the level 2 groups also go extinct, should we consider an alternative set (perhaps more basal in tropic levels) that can persist over time, and hence continue to keep the animal and non-animal components coupled until the end of simulation?
+<!-- #endregion -->

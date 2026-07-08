@@ -1,6 +1,6 @@
 # Empty forest? We need a scenario with persistent animal populations over the simulation period
 Lai, Hao Ran
-2026-07-02
+2026-07-08
 
 <!-- markdownlint-disable MD013 MD031 MD055-->
 
@@ -10,7 +10,7 @@ library(tidyverse)
 library(here)
 library(knitr)
 library(reticulate)
-use_virtualenv(here("ve_latest"), required = TRUE)
+use_virtualenv(here(".venv"), required = TRUE)
 source(here("tools/R/tidy_continuous_data.R"))
 ```
 
@@ -31,6 +31,13 @@ least for the purpose of sensitivity analyses.
 ## Model and data summary
 
 I ran the full `maliau_2` scenario available from Globus:
+
+``` bash
+uv run \
+  --group dev ve_run data/scenarios/maliau/maliau_2/config \
+  --out data/scenarios/maliau/maliau_2/out \
+  --log data/scenarios/maliau/maliau_2/out/logfile.txt
+```
 
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
@@ -98,7 +105,7 @@ style="text-align: left;">wood_seeds_fruit_foliage_flowers_fungi</td>
 </table>
 
 - VE version: v0.2.0 (dev version; commit
-  [3c6e75](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/3c6e752e6ca3a8a22239bf6112e14236528e32e3))
+  [c329eda](https://github.com/ImperialCollegeLondon/virtual_ecosystem.git/commit/c329edaecc5ef62382654033cd873989efe51a9d))
 - OS: Windows 11
 
 ## Animal continuous state variables
@@ -140,12 +147,12 @@ animal_cont |>
     # A tibble: 6 × 3
       variable                                       min      max
       <chr>                                        <dbl>    <dbl>
-    1 animal_arbuscular_mycorrhiza_consumption -4.18e-20 4.18e-20
+    1 animal_arbuscular_mycorrhiza_consumption -2.36e-20 2.36e-20
     2 animal_bacteria_consumption              -1.17e-16 2.33e-16
-    3 animal_ectomycorrhiza_consumption        -6.46e-18 6.46e-18
-    4 animal_pom_consumption_cnp               -3.53e-17 3.33e-17
-    5 animal_saprotrophic_fungi_consumption    -2.82e-17 2.80e-17
-    6 total_animal_respiration                  0        0
+    3 animal_ectomycorrhiza_consumption        -1.38e-17 1.38e-17
+    4 animal_pom_consumption_cnp               -3.45e-17 3.55e-17
+    5 animal_saprotrophic_fungi_consumption    -1.53e-17 2.24e-17
+    6 total_animal_respiration                  0        0       
 
 Here’s how the variables looked over simulation time steps:
 
@@ -169,7 +176,7 @@ max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
 Before proceeding, I checked the animal cohort data and saw that all
-cohorts persisted until the final time step 132.
+cohorts persisted until the final time step 86.
 
 ## Resource continuous state variables
 
@@ -226,7 +233,7 @@ trophic_analysis$group_and_aggregate()
 ```
 
     Grouping by ['time_index', 'resource_kind'] and summing C...
-     Successfully grouped 132 rows
+     Successfully grouped 86 rows
 
 ``` r
 # plot
@@ -246,7 +253,7 @@ id="fig-resource-interactions" />
 A few follow-up questions upon seeing the temporal graphs:
 
 - Why do we still see non-zero values in some variables long after all
-  animals have gone extinct since time step 132?
+  animals have gone extinct since time step 86?
 - Presumably these variables are positive only; what do the negative
   values mean? The way they fluctuate almost symmetrically around zero
   makes me suspect that the non-zero values are not true non-zeros but
