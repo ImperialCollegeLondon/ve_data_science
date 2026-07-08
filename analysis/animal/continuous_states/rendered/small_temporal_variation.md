@@ -152,7 +152,7 @@ animal_cont |>
     3 animal_ectomycorrhiza_consumption        -1.38e-17 1.38e-17
     4 animal_pom_consumption_cnp               -3.45e-17 3.55e-17
     5 animal_saprotrophic_fungi_consumption    -1.53e-17 2.24e-17
-    6 total_animal_respiration                  0        0       
+    6 total_animal_respiration                  0        0
 
 Here’s how the variables looked over simulation time steps:
 
