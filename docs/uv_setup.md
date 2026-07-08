@@ -1,17 +1,16 @@
 # Setting up Python with `uv`
 
-If Python environments have felt confusing before, this guide is for you.
 `uv` handles Python installation, virtual environments, and dependencies in one place.
 
-## The key idea (quickly)
+## Overview
 
 You can switch between versions of `virtual-ecosystem` with one command:
 
 | What you want | Command |
 |---|---|
-| Stable release from PyPI | `uv sync` |
-| Latest `main` branch build | `uv sync --group dev` |
-| Pinned known-good commit | `uv sync --group dev-stable` |
+| Stable release from PyPI | `uv sync` and `uv run ve_run ...` |
+| Latest `develop` branch build | `uv sync --group dev` and `uv run --group dev ve_run ...` |
+| Pinned known-good `develop` branch commit | `uv sync --group dev-stable` and `uv run --group dev-stable ve_run ...` |
 
 That is the main workflow. No manual virtual-environment juggling needed.
 
@@ -31,7 +30,7 @@ That is the main workflow. No manual virtual-environment juggling needed.
     curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
 
-Check it worked:
+Check that it works:
 
 ```sh
 uv --version
@@ -76,7 +75,7 @@ Usually, you do not.
 When you switch groups (`release` / `dev` / `dev-stable`), `uv sync` reinstalls
 `virtual-ecosystem` automatically if needed.
 
-Use this only when you stay on `dev` but want the newest upstream commit:
+Use this only when you want to upgrade `dev` to the newest upstream commit:
 
 ```sh
 uv sync --group dev --reinstall-package virtual-ecosystem
@@ -96,13 +95,14 @@ grep -A 2 "name = \"virtual-ecosystem\"" uv.lock
 ```
 
 `uv pip show virtual-ecosystem` is less useful here because it shows a version tag but
-not the commit hash for GitHub builds.
+not the commit hash for GitHub builds, i.e., the release and dev versions can have the
+same version tag.
 
 ---
 
-## Step 5: Run commands
+## Step 5: Running `ve_run` (or any other commands or `.py` scripts)
 
-Run project commands with `uv run`:
+Run commands or `.py` scripts with `uv run`. For example:
 
 ```sh
 uv run ve_run ...
@@ -117,7 +117,8 @@ uv run ve_run ...
     uv run --group dev ve_run ...
     ```
 
-If you are running many commands in one session, you can activate once:
+If you are running many commands in one session, you can activate the virtual
+environment just like the conventional way:
 
 === "Windows"
 
