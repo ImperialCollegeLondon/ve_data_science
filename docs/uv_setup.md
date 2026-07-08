@@ -162,10 +162,22 @@ You can run commands without manually activating the virtual environment by pref
 `uv run`. For example, to run the Virtual Ecosystem CLI:
 
 ```sh
-uv run ve_run
+uv run ve_run ...
 ```
 
-Or, in a more convention way, activate the environment once for the current terminal session and call commands directly:
+!!! warning "Match the group in `uv run`"
+
+    If you synced with a non-default group (e.g. `--group dev`), you must pass the same
+    group to `uv run`, otherwise `uv` will re-sync back to the default environment before
+    running:
+
+    ```sh
+    uv run --group dev ve_run ...
+    ```
+
+If you are running `ve_run` repeatedly in a session, it is more convenient to activate the
+environment once and call commands directly — activation prevents `uv run` from re-syncing
+on each call:
 
 === "Windows"
 
