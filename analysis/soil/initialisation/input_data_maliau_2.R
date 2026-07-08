@@ -1,5 +1,5 @@
 #| ---
-#| title: Subset initial soil data for the Maliau scenario
+#| title: Subset initial soil data for the Maliau 2 scenario
 #|
 #| description: |
 #|     This R script subsets the initial soil data for the Maliau
@@ -27,7 +27,7 @@
 #| output_files:
 #|   - name: soil_maliau.nc
 #|     path: data/scenarios/maliau/maliau_2/data
-#|     description: The subset soil input data
+#|     description: The subset soil input data for the Maliau 2 scenario
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -50,9 +50,9 @@ source("tools/R/get_all_variables.R")
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau_subset <- parseTOML(
-  "data/derived/site/maliau/maliau_grid_definition_100m_10x10.toml"
-)
+maliau_subset <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
+  pluck("Scenario", "maliau_2")
 ll_x <- maliau_subset$ll_x
 ll_y <- maliau_subset$ll_y
 ur_x <- maliau_subset$ur_x
