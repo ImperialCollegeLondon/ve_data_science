@@ -1,30 +1,22 @@
 # Setting up Python with `uv`
 
-This guide covers how to install `uv`, set up the project's Python environment, and
-switch between versions of the Virtual Ecosystem (`virtual-ecosystem`) package.
+`uv` handles Python installation, virtual environments, and dependencies in one place.
 
-## Why `uv`?
+## Overview
 
-This project previously used [Poetry](https://python-poetry.org/) for dependency management, which
-required setting up three separate virtual environments by hand — one for each version of
-`virtual-ecosystem` — and manually activating the right one before running any scripts. That
-workflow placed a real burden on new contributors unfamiliar with Python tooling.
+You can switch between versions of `virtual-ecosystem` with one command:
 
-[`uv`](https://docs.astral.sh/uv/) removes most of that friction. It is a fast, all-in-one Python
-package and environment manager that handles Python version installation, virtual environment
-creation, and dependency resolution automatically. Switching between the three versions of
-`virtual-ecosystem` is now a single command, and you never need to create or activate a virtual
-environment by hand. `uv` is also significantly faster than Poetry at resolving and installing
-packages.
+| What you want | Command |
+|---|---|
+| Stable release from PyPI | `uv sync` and `uv run ve_run ...` |
+| Latest `develop` branch build | `uv sync --group dev` and `uv run --group dev ve_run ...` |
+| Pinned known-good `develop` branch commit | `uv sync --group dev-stable` and `uv run --group dev-stable ve_run ...` |
 
-If you have used Poetry before, the main difference in day-to-day use is that you replace
-`poetry run` with `uv run`, and `poetry install` with `uv sync`. The concepts are similar, but the
-setup overhead — especially for a project that tracks multiple versions of one package — is much
-lower.
+That is the main workflow. No manual virtual-environment juggling needed.
 
 ---
 
-## Install `uv`
+## Step 1: Install `uv`
 
 === "Windows"
 
@@ -38,7 +30,7 @@ lower.
     curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
 
-Verify the installation:
+Check that it works:
 
 ```sh
 uv --version
@@ -46,138 +38,87 @@ uv --version
 
 ---
 
-## Install project dependencies
+## Step 2: Set up this repository
 
-After [cloning the repository](getting_started.md#getting-the-repository), navigate to
-the project root and run:
+After [cloning the repository](getting_started.md#getting-the-repository), move into the
+repository root and run:
 
 ```sh
 uv sync
 ```
 
-This will:
+This command will automatically:
 
-- Download and install the correct Python version automatically (as specified in
-  `.python-version`)
-- Create a `.venv` virtual environment in the project root if one does not already exist
-- Install all project dependencies, including the `virtual-ecosystem` PyPI release
+- Install the Python version required by this project (from `.python-version`)
+- Create a local `.venv` environment if needed
+- Install project dependencies
 
-`uv sync` creates and populates the virtual environment, but does **not** activate it in
-your current shell. You can use `uv run` to run commands inside it without activating, or
-activate it manually — see [Running scripts](#running-scripts) below.
+You do **not** need to activate the environment to start using it.
 
 ---
 
-## Verify the installation
+## Step 3: Switch versions of `virtual-ecosystem`
 
-Check that `virtual-ecosystem` is installed:
-
-```sh
-uv pip show virtual-ecosystem
-```
-
-This shows the installed version tag, but **the version tag alone is not a reliable
-indicator** — the PyPI release and GitHub builds all share the same version string
-(e.g. `0.2.0`). `uv pip show` does not expose the commit hash.
-
-The two more reliable ways to confirm what is installed are:
-
-1. **Read the `uv sync` output** (the easiest option). When `uv sync` runs, it prints
-   exactly what was installed, including the full commit hash for VCS sources:
-
-    ```
-    - virtual-ecosystem==0.2.0
-    + virtual-ecosystem==0.2.0 (from git+https://github.com/.../virtual_ecosystem.git@3c6e752e...)
-    ```
-
-2. **Search `uv.lock`** for the resolved source. The lock file records all three versions
-   with their full commit hashes. Run this from the project root:
-
-    ```sh
-    grep -A 2 "name = \"virtual-ecosystem\"" uv.lock
-    ```
-
-    The `source` field for each entry will show `registry = "https://pypi.org/simple"` for
-    the PyPI release, or a `git = "..."` URL with the full commit hash for GitHub builds.
-
-To see all installed packages:
+Use one of these commands any time you want to change version:
 
 ```sh
-uv pip freeze
+uv sync
+uv sync --group dev
+uv sync --group dev-stable
 ```
 
----
+Only one version is active at a time, and each command switches to that version.
 
-## Switch between versions of Virtual Ecosystem
+### When do I need `--reinstall-package`?
 
-The project provides three versions of `virtual-ecosystem` to install. Use the
-appropriate command depending on which version you need to test:
+Usually, you do not.
+When you switch groups (`release` / `dev` / `dev-stable`), `uv sync` reinstalls
+`virtual-ecosystem` automatically if needed.
 
-| Version | Description | Command |
-|---|---|---|
-| **release** | Latest stable release from PyPI (default) | `uv sync` |
-| **dev** | Latest commit on the `main` GitHub branch | `uv sync --group dev` |
-| **dev-stable** | A specific pinned commit know to "run well" | `uv sync --group dev-stable` |
-
-Only one version is active at a time. Running any of the above commands will switch
-your environment to that version.
-
-### Force reinstall
-
-When switching between the three groups, `uv sync` will automatically reinstall
-`virtual-ecosystem` if the source URL changes (e.g. moving from PyPI to GitHub, or
-between the two GitHub groups). You do not need to force reinstall in those cases.
-
-Force reinstall is only necessary when re-running the **same group** and the remote
-source has changed but the version tag has not — most commonly when the `dev` group
-tracks the `main` branch and new commits have been pushed without a version bump:
+Use this only when you want to upgrade `dev` to the newest upstream commit:
 
 ```sh
 uv sync --group dev --reinstall-package virtual-ecosystem
 ```
 
-This is not needed for `dev-stable` (pinned to a fixed commit) or `release` (PyPI only
-updates on new published versions).
-
 ---
 
-## Verify a version switch
+## Step 4: Confirm what is installed
 
-The most direct confirmation is the **`uv sync` output itself** — it prints the full
-commit hash inline whenever a VCS package is installed or reinstalled. If you need to
-check after the fact, search `uv.lock`:
+The most reliable check is the output from `uv sync`: it shows the source
+(PyPI or Git URL with commit hash).
+
+If you want to verify afterwards, inspect `uv.lock`:
 
 ```sh
 grep -A 2 "name = \"virtual-ecosystem\"" uv.lock
 ```
 
-Do not rely on `uv pip show`: it reports the version tag (`0.2.0`) but omits the commit
-hash, making it impossible to distinguish between builds that share a tag.
+`uv pip show virtual-ecosystem` is less useful here because it shows a version tag but
+not the commit hash for GitHub builds, i.e., the release and dev versions can have the
+same version tag.
 
 ---
 
-## Running scripts
+## Step 5: Running `ve_run` (or any other commands or `.py` scripts)
 
-You can run commands without manually activating the virtual environment by prefixing with
-`uv run`. For example, to run the Virtual Ecosystem CLI:
+Run commands or `.py` scripts with `uv run`. For example:
 
 ```sh
 uv run ve_run ...
 ```
 
-!!! warning "Match the group in `uv run`"
+!!! warning "Use the same group in `uv run`"
 
-    If you synced with a non-default group (e.g. `--group dev`), you must pass the same
-    group to `uv run`, otherwise `uv` will re-sync back to the default environment before
-    running:
+    If you synced with `--group dev` or `--group dev-stable`, pass the same group to
+    `uv run` to avoid switching back to the default:
 
     ```sh
     uv run --group dev ve_run ...
     ```
 
-If you are running `ve_run` repeatedly in a session, it is more convenient to activate the
-environment once and call commands directly — activation prevents `uv run` from re-syncing
-on each call:
+If you are running many commands in one session, you can activate the virtual
+environment just like the conventional way:
 
 === "Windows"
 
