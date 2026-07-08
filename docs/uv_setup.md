@@ -158,22 +158,25 @@ hash, making it impossible to distinguish between builds that share a tag.
 
 ## Running scripts
 
-You can run scripts without manually activating the virtual environment:
+You can run commands without manually activating the virtual environment by prefixing with
+`uv run`. For example, to run the Virtual Ecosystem CLI:
 
 ```sh
-uv run python your_script.py
+uv run ve_run
 ```
 
-Or activate the environment once for the current terminal session:
+Or, in a more convention way, activate the environment once for the current terminal session and call commands directly:
 
 === "Windows"
 
     ```powershell
     .venv\Scripts\activate
+    ve_run
     ```
 
 === "macOS / Linux"
 
     ```sh
     source .venv/bin/activate
+    ve_run
     ```
