@@ -141,7 +141,7 @@ updates on new published versions).
 
 ---
 
-## 5. Verify a version switch
+## Verify a version switch
 
 The most direct confirmation is the **`uv sync` output itself** — it prints the full
 commit hash inline whenever a VCS package is installed or reinstalled. If you need to
