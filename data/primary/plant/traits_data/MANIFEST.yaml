@@ -1,0 +1,14 @@
+directory: data/primary/plant/traits_data
+files:
+- md5: null
+  name: inagawa_nutrients_wood_density.xlsx
+  script: null
+  url: null
+- md5: null
+  name: both_tree_functional_traits.xlsx
+  script: null
+  url: null
+- md5: null
+  name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
+  script: null
+  url: null
