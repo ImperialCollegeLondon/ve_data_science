@@ -2,7 +2,7 @@
 
 `uv` handles Python installation, virtual environments, and dependencies in one place.
 
-## Overview
+## How it works
 
 You can switch between versions of `virtual-ecosystem` with one command:
 
@@ -13,6 +13,10 @@ You can switch between versions of `virtual-ecosystem` with one command:
 | Pinned known-good `develop` branch commit | `uv sync --group dev-stable` and `uv run --group dev-stable ve_run ...` |
 
 That is the main workflow. No manual virtual-environment juggling needed.
+
+The versions are defined in `pyproject.toml` in the project root.
+If you find a newer commit hash that works well as the pinned `dev-stable` version,
+you are welcome to update it via a Pull Request.
 
 ---
 
