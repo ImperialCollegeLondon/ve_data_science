@@ -31,7 +31,7 @@ dependencies = [
   "shapely>=2.1.1,<3",
   "tomli-w>=1.2.0,<2",
   "types-pyyaml>=6.0.12.20250516,<7",
-  "virtual-ecosystem", 
+  "virtual-ecosystem",
   "xarray[io]>=2026.4.0,<2027"
 ]
 
@@ -61,7 +61,7 @@ select = [
 # On top of the Google convention, disable:
 ignore = [
   "D202", # Blank line after docstring is ok
-  "D107", # Location of __init__ docstring in class not __init__"   
+  "D107", # Location of __init__ docstring in class not __init__"
 ]
 
 [tool.jupytext]
