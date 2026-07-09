@@ -3,14 +3,76 @@ name = "ve-data-science"
 version = "0.1.0"
 description = "This repository is the data science repository for the Virtual Ecosystem project. It is used to store all the research and analysis being used to parameterise and run the Virtual Ecosystem model."
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = ["virtual-ecosystem"]
+license = "BSD-3-Clause"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "cdsapi>=0.7.6,<0.8",
+  "cftime>=1.6.4.post1,<2",
+  "ipython>=8.32.0,<9",
+  "jupyterlab>=4.3.5,<5",
+  "jupyterlab-myst>=2.4.2,<3",
+  "jupytext>=1.16.7,<2",
+  "mkdocs>=1.6.1,<2",
+  "mkdocs-material>=9.6.12,<10",
+  "numpy>=2.1,<3",
+  "pre-commit>=4.1.0,<5",
+  "pyproj>=3.7.1,<4",
+  "pyyaml>=6.0.2,<7",
+  "radian>=0.6.13,<0.7",
+  "rasterio>=1.4.3,<2",
+  "rioxarray>=0.19.0,<0.20",
+  "ruff>=0.9.3,<0.10",
+  "shapely>=2.1.1,<3",
+  "tomli-w>=1.2.0,<2",
+  "types-pyyaml>=6.0.12.20250516,<7",
+  "virtual-ecosystem", 
+  "xarray[io]>=2026.4.0,<2027"
+]
+
+[project.urls]
+Repository = "https://github.com/ImperialCollegeLondon/ve_data_science"
 
 [dependency-groups]
 dev = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git"]
 dev-stable = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@3c6e75"]
 
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# Enable all `pydocstyle` rules, limiting to those that adhere to the
+# Google convention via `convention = "google"`, below.
+select = [
+  "E", # pycodestyle
+  "F", # pyflakes
+  "D", # pydocstyle
+  "I", # isort
+  "UP", # pyupgrade
+  "RUF", # ruff-only checking
+  "NPY201", # Numpy 2.0.1
+]
+
+# On top of the Google convention, disable:
+ignore = [
+  "D202", # Blank line after docstring is ok
+  "D107", # Location of __init__ docstring in class not __init__"   
+]
+
+[tool.jupytext]
+# Stop jupytext from removing mystnb and other settings in MyST Notebook YAML headers
+notebook_metadata_filter = "settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version"
+# Also stop it from stripping cell metadata, except for specific ones to lose.
+cell_metadata_filter = "all,-trusted"
+
 [tool.uv]
+# Dependency management only; do not try to build/install this repo as a Python package.
+package = false
 default-groups = []
 conflicts = [
   [{ group = "dev" }, { group = "dev-stable" }]
