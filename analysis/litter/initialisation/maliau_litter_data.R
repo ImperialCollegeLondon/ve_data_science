@@ -19,8 +19,8 @@
 #|     description: |
 #|         Metadata for soil and litter data analyses, currently including
 #|         file paths and units
-#|   - name: maliau_grid_definition_100m.toml
-#|     path: data/derived/site
+#|   - name: maliau_grid_definition.toml
+#|     path: data/derived/site/maliau/
 #|     description: |
 #|         Metadata for Maliau grids, primarily to define the data generation
 #|         area
