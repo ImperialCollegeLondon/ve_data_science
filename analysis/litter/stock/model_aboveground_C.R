@@ -39,6 +39,11 @@
 #|     description: |
 #|       Leaf litter decomposition in old-growth and selectively logged forest
 #|       at SAFE; downloaded from https://doi.org/10.5281/zenodo.3247639
+#|   - name: Fractal_point_nesting.xlsx
+#|     path: data/primary/site/
+#|     description: |
+#|       SAFE plot type information including site, habitat, logging treatment,
+#|       and plot nesting order; used to classify plots by logging group
 #|
 #| output_files:
 #|
@@ -87,7 +92,17 @@ safe_plot_info <-
     values_to = "Plot"
   ) |>
   filter(!is.na(Plot), Plot != "NA") |>
-  distinct(Site, Habitat, Logging, Order, Plot)
+  distinct(Site, Habitat, Logging, Order, Plot) |>
+  # reclassify logging
+  mutate(
+    Logging_grp = case_match(
+      Logging,
+      "LowIntensity" ~ "Logged",
+      "Twice" ~ "Logged",
+      "Variable" ~ "Logged",
+      .default = Logging
+    )
+  )
 
 # Litter composition data from litter traps by Ewers
 # https://zenodo.org/records/1198587
@@ -139,7 +154,7 @@ litter_compo <-
     values_to = "DW"
   ) |>
   # join SAFE plot type
-  left_join(safe_plot_info |> select(Plot, Logging))
+  left_join(safe_plot_info |> select(Plot, Logging_grp))
 
 # Leaf litter nutrient data
 # https://doi.org/10.5281/zenodo.3247639
@@ -176,7 +191,7 @@ mod_stock <- glmmTMB(
 # ideally this is a Dirichlet component to model composition as a simplex
 # but I will keep it simply here
 mod_compo <- glmmTMB(
-  DW ~ 0 + Type + (1 | Plot) + offset(log_days),
+  DW ~ 0 + Type * Logging_grp + (1 | Plot) + offset(log_days),
   dispformula = ~ 0 + Type,
   family = tweedie,
   data = litter_compo
@@ -184,39 +199,19 @@ mod_compo <- glmmTMB(
 
 # Leaf nutrient models
 mod_lignin_leaf <-
-  glmmTMB(
-    lignin ~ 1,
-    family = beta_family,
-    data = nutrient_leaf
-  )
+  glmmTMB(lignin ~ 1, family = beta_family, data = nutrient_leaf)
 
 mod_C_leaf <-
-  glmmTMB(
-    C ~ 1,
-    family = beta_family,
-    data = nutrient_leaf
-  )
+  glmmTMB(C ~ 1, family = beta_family, data = nutrient_leaf)
 
 mod_CN_leaf <-
-  glmmTMB(
-    C.N ~ 1,
-    family = lognormal,
-    data = nutrient_leaf
-  )
+  glmmTMB(C.N ~ 1, family = lognormal, data = nutrient_leaf)
 
 mod_CN_leaf <-
-  glmmTMB(
-    C.N ~ 1,
-    family = lognormal,
-    data = nutrient_leaf
-  )
+  glmmTMB(C.N ~ 1, family = lognormal, data = nutrient_leaf)
 
 mod_CP_leaf <-
-  glmmTMB(
-    C.P ~ 1,
-    family = lognormal,
-    data = nutrient_leaf
-  )
+  glmmTMB(C.P ~ 1, family = lognormal, data = nutrient_leaf)
 
 
 # Prediction --------------------------------------------------------------
