@@ -261,6 +261,4 @@ total_deadwood_stock <-
   ) |>
   # total up deadwood stock across decay classes
   group_by(Logging_grp) |>
-  summarise(deadwood_stock = sum(deadwood_stock)) |>
-  # simplify to named vector
-  pull(deadwood_stock, name = Logging_grp)
+  summarise(stock = sum(deadwood_stock))
