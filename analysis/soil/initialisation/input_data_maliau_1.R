@@ -19,21 +19,55 @@
 #|     description: |
 #|         Metadata for soil and litter data analyses, currently including
 #|         file paths and units
-#|   - name: maliau_grid_definition_100m.toml
-#|     path: data/derived/site
+#|   - name: maliau_grid_definition.toml
+#|     path: data/derived/site/maliau/
 #|     description: |
 #|         Metadata for Maliau grids, primarily to define the data generation
 #|         area
-#|   - name:
-#|     path:
-#|     description: |
-#|
 #|
 #| output_files:
-#|   - name:
-#|     path:
-#|     description: |
+#|   - name: soil_maliau.nc
+#|     path: data/scenarios/maliau/maliau_1/data/
+#|     description: Soil input data for the Maliau scenario
 #|
+#| source_files:
+#|   - name: convert_df_to_nc.R
+#|     path: tools/R/
+#|     description: Function to convert input dataframe to netCDF
+#|   - name: model_safe.R
+#|     path: analysis/soil/initialisation/
+#|     description: Code to fit a soil spatial model using SAFE soil campaign
+#|   - name: pom_maom_sayer.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate POM and MAOM organic nutrients
+#|   - name: doc_don.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate dissolved organic C and N
+#|   - name: doc_don.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate dissolved organic C and N
+#|   - name: carbon_microbial.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: |
+#|         Code to estimate total microbial fraction in the carbon pool
+#|   - name: carbon_microbial_guild.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to split the total microbial C by guild
+#|   - name: necromass.R
+#|     path: analysis/soil/necromass/
+#|     description: Code to estimate necromass nutrient pools
+#|   - name: phosphorous_pools.R
+#|     path: analysis/soil/nutrient_pools/
+#|     description: Code to estimate soil phosphorous pools
+#|   - name: model.R
+#|     path: analysis/soil/ammonium_nitrate/
+#|     description: Code to estimate inorganic soil nitrogen
+#|   - name: sporocarp_biomass.R
+#|     path: analysis/soil/sporocarp_biomass/
+#|     description: Code to estimate fungal fruiting body biomass
+#|   - name: enzyme_concentration.R
+#|     path: analysis/soil/enzyme/
+#|     description: Code to estimate soil enzymatic pools
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -81,7 +115,8 @@ soil_meta <- soil_meta$soil
 # Maliau site metadata ----------------------------------------------------
 
 maliau <-
-  parseTOML("data/derived/site/maliau/maliau_grid_definition_100m.toml")
+  parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
+  pluck("Scenario", "maliau_1")
 
 # total number of grids
 n_sim <- with(maliau, cell_nx * cell_ny)
@@ -116,21 +151,23 @@ dat <-
     hydro = terra::extract(hydro, pick("cell_x", "cell_y"))[,
       "SRTM_Log_Flow_Accum"
     ],
-    # set acd to mean because there is no full data coverage
-    # for the entire Maliau region
-    acd = mean(soil$acd),
+    acd = terra::extract(acd, pick("cell_x", "cell_y"))[, "acd"],
     evi = terra::extract(evi, pick("cell_x", "cell_y"))[, "EVI"]
   ) |>
+  # fill in grids with missing ACD (LiDAR) values with the mean value
+  mutate(acd = ifelse(is.na(acd), mean(acd, na.rm = TRUE), acd)) |>
+  # we need to fill in two NA grids in the EVI layer,
+  # I think they are due to rivers / water bodies
+  # I will simply use nearest neighbour values
+  fill(evi) |>
+  # scale predictors
   mutate(
     elev = (elev - mean(soil$elev)) / sd(soil$elev),
     topo = (topo - mean(soil$topo)) / sd(soil$topo),
     hydro = (hydro - mean(soil$hydro)) / sd(soil$hydro),
     acd = (acd - mean(soil$acd)) / sd(soil$acd),
     evi = (evi - mean(soil$evi)) / sd(soil$evi)
-  ) |>
-  # we need to fill in two NA grids in the EVI layer,
-  # I think they are due to rivers / water bodies
-  fill(evi)
+  )
 
 # new basis functions for the Maliau region
 maliau_basis <-
@@ -272,12 +309,19 @@ dat <-
 
 # first we estimate the total microbial fraction in the carbon pool
 source("analysis/soil/nutrient_pools/carbon_microbial.R")
+C_mic_perc_maliau <- extract_microbial_to_soil_C_ratio(maliau)
 soil_c_pool_microbe <- dat$total_carbon * C_mic_perc_maliau / 100
 
 # then we split the total microbial fraction by guild
+# use OG plot-type predictions
 source("analysis/soil/nutrient_pools/carbon_microbial_guild.R")
 soil_c_pool_microbe_guild <-
-  sapply(microbe_ratio, function(ratio) ratio * soil_c_pool_microbe)
+  sapply(
+    microbe_ratio |> filter(Plot_ID == "OG") |> pull(p_carbon),
+    \(p) {
+      p * soil_c_pool_microbe
+    }
+  )
 colnames(soil_c_pool_microbe_guild) <-
   c(
     "soil_c_pool_saprotrophic_fungi",
@@ -298,12 +342,16 @@ dat <- bind_cols(dat, soil_c_pool_microbe_guild)
 # predicted total soil carbon
 source("analysis/soil/necromass/necromass.R")
 
+# calculate CNP in necromass as a proportion of total C
+# use primary rainforest (RF) for old-growth Maliau
+necromass <- extract_necromass("RF")
+
 dat <-
   dat |>
   mutate(
-    soil_c_pool_necromass = total_carbon * necromass_C,
-    soil_n_pool_necromass = total_carbon * necromass_N,
-    soil_p_pool_necromass = total_carbon * necromass_P
+    soil_c_pool_necromass = total_carbon * necromass["C"],
+    soil_n_pool_necromass = total_carbon * necromass["N"],
+    soil_p_pool_necromass = total_carbon * necromass["P"]
   )
 
 
@@ -332,7 +380,7 @@ dat <- bind_cols(dat, p_fractions)
 source("analysis/soil/ammonium_nitrate/model.R")
 
 # find the row index of a SAFE forest site to approximate Maliau
-# (though note them are OG)
+# (though note them are OG, whereas the SAFE 'forest' are logged)
 # we will use the first site because it does not matter which site for the
 # simulation purpose (they have the same fixed effects)
 flux_forest_idx <- which(flux$landuse == "forest")[1]
