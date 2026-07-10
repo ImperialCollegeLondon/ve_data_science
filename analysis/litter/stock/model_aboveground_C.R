@@ -69,10 +69,25 @@ litter_stock <-
     "data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
     sheet = 4,
     skip = 5
-  ) %>%
-  select(field_name:ForestPlotsCode, LitterStock) %>%
+  ) |>
+  select(field_name:ForestPlotsCode, LitterStock) |>
   # convert litter stock from Mg C / ha to kg C / m2
   mutate(LitterStock = LitterStock * 0.1)
+
+# SAFE plot type information
+safe_plot_info <-
+  read_xlsx(
+    "data/primary/site/Fractal_point_nesting.xlsx",
+    sheet = 3,
+    skip = 5
+  ) |>
+  pivot_longer(
+    cols = ends_with("Order"),
+    names_to = "Order",
+    values_to = "Plot"
+  ) |>
+  filter(!is.na(Plot), Plot != "NA") |>
+  distinct(Site, Habitat, Logging, Order, Plot)
 
 # Litter composition data from litter traps by Ewers
 # https://zenodo.org/records/1198587
@@ -90,11 +105,11 @@ litter_compo <-
     "data/primary/litter/Ewers_LeafLitter.xlsx",
     sheet = 3,
     skip = 9
-  ) %>%
+  ) |>
   # use the first survey because only it has litter component weights
-  filter(SurveyNum == 1) %>%
+  filter(SurveyNum == 1) |>
   # make sure weights are numeric
-  mutate_at(vars(starts_with("WW") | starts_with("DW")), as.numeric) %>%
+  mutate(across(starts_with("WW") | starts_with("DW"), readr::parse_double)) |>
   mutate(
     # month of collection (in case there is phenological trend)
     # later: ok there were only four month (Apr - Jul) so I don't think it is
@@ -106,7 +121,7 @@ litter_compo <-
     DW.leaf = DW.leaves.photo + DW.leaves.other,
     # pool reproductive mass
     DW.reproduction = DW.flower + DW.fruit + DW.seed
-  ) %>%
+  ) |>
   # convert to long format for modelling
   select(
     Plot,
@@ -116,13 +131,15 @@ litter_compo <-
     DW.wood,
     DW.reproduction,
     DW.other
-  ) %>%
+  ) |>
   pivot_longer(
     cols = starts_with("DW"),
     names_to = "Type",
     names_prefix = "DW\\.",
     values_to = "DW"
-  )
+  ) |>
+  # join SAFE plot type
+  left_join(safe_plot_info |> select(Plot, Logging))
 
 # Leaf litter nutrient data
 # https://doi.org/10.5281/zenodo.3247639
@@ -132,14 +149,14 @@ nutrient_leaf <-
     "data/primary/litter/Both_litter_decomposition_experiment.xlsx",
     sheet = 3,
     skip = 7
-  ) %>%
+  ) |>
   select(
     litter_type,
     C = C_perc,
     C.N,
     C.P,
     lignin = lignin_recalcitrants
-  ) %>%
+  ) |>
   mutate(
     C = C / 100,
     lignin = lignin / 100
@@ -150,7 +167,7 @@ nutrient_leaf <-
 
 # Stock model
 mod_stock <- glmmTMB(
-  LitterStock ~ 1,
+  LitterStock ~ 0 + ForestType,
   family = lognormal,
   data = litter_stock
 )
