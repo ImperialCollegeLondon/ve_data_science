@@ -29,6 +29,17 @@
 #|     path: data/scenarios/maliau/maliau_2/data
 #|     description: The subset litter input data
 #|
+#| source_files:
+#|   - name: convert_array_to_nc.R
+#|     path: tools/R/
+#|     description: Function to convert arrays to netCDF
+#|   - name: subset_nc.R
+#|     path: tools/R/
+#|     description: Function to spatially subset netCDF files
+#|   - name: get_all_variables.R
+#|     path: tools/R/
+#|     description: Function to retrieve all variable names from a netCDF file
+#|
 #| package_dependencies:
 #|     - tidyverse
 #|     - RcppTOML
@@ -45,13 +56,14 @@ library(tidync)
 library(purrr)
 source("tools/R/convert_array_to_nc.R")
 source("tools/R/subset_nc.R")
+source("tools/R/get_all_variables.R")
 
 
 # Maliau site metadata ----------------------------------------------------
 
-maliau_subset <- parseTOML(
-  "data/derived/site/maliau/maliau_grid_definition_100m_10x10.toml"
-)
+maliau_subset <-
+  parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
+  pluck("Scenario", "maliau_2")
 ll_x <- maliau_subset$ll_x
 ll_y <- maliau_subset$ll_y
 ur_x <- maliau_subset$ur_x
