@@ -46,6 +46,8 @@
 #|     - glmmTMB
 #|
 #| usage_notes: |
+#|     Oil palm ("deforested") land-use type does not have a final estimated
+#|     stock at the moment; to be addressed when in oil palm input data later.
 #|     The final belowground structural and metabolic stocks seem quite high
 #|     and low, respectively. While they are plausible, we should bear in mind
 #|     that they depend on the litter decay model parameters, which did NOT
@@ -65,8 +67,8 @@ litter_root <-
     "data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
     sheet = 4,
     skip = 5
-  ) %>%
-  select(ForestType:ForestPlotsCode, Mortality_FR, Mortality_CR) %>%
+  ) |>
+  select(ForestType:ForestPlotsCode, Mortality_FR, Mortality_CR) |>
   mutate(root_litter_input = Mortality_FR + Mortality_CR)
 
 # root nutrients
@@ -77,7 +79,7 @@ nutrient_root <-
   read_xls(
     "data/primary/litter/41598_2015_BFsrep09940_MOESM2_ESM.xls",
     sheet = 2
-  ) %>%
+  ) |>
   select(
     lifeform = `Life form`,
     study = Reference,
@@ -87,7 +89,7 @@ nutrient_root <-
     N = `N (mg/g)`,
     P = `P (mg/g)`,
     lignin = `Lignin (%)`
-  ) %>%
+  ) |>
   # convert from percentage to proportion
   mutate(lignin = lignin / 100)
 
@@ -97,7 +99,7 @@ nutrient_root <-
 # root litter input model
 mod_litter_root <-
   glmmTMB(
-    root_litter_input ~ 1,
+    root_litter_input ~ 0 + ForestType,
     family = lognormal(),
     data = litter_root
   )
@@ -112,7 +114,7 @@ mod_lignin_root <-
   glmmTMB(
     lignin ~ 0 + lifeform + (1 | study),
     family = beta_family,
-    data = nutrient_root %>% filter(!is.na(lignin))
+    data = nutrient_root |> filter(!is.na(lignin))
   )
 
 # ditto for root C, N and P models
@@ -120,21 +122,21 @@ mod_C_root <-
   glmmTMB(
     C ~ 0 + lifeform + (1 | study),
     family = lognormal,
-    data = nutrient_root %>% filter(!is.na(C))
+    data = nutrient_root |> filter(!is.na(C))
   )
 
 mod_N_root <-
   glmmTMB(
     N ~ 0 + lifeform + (1 | study),
     family = lognormal,
-    data = nutrient_root %>% filter(!is.na(C))
+    data = nutrient_root |> filter(!is.na(C))
   )
 
 mod_P_root <-
   glmmTMB(
     P ~ 0 + lifeform + (1 | study),
     family = lognormal,
-    data = nutrient_root %>% filter(!is.na(C))
+    data = nutrient_root |> filter(!is.na(C))
   )
 
 
@@ -144,9 +146,9 @@ mod_P_root <-
 # https://github.com/ImperialCollegeLondon/ve_data_science/issues/60
 
 # first we need the parameters estimated from the litter decay model
-decay_params_df <- read_csv("data/derived/litter/turnover/decay_parameters.csv")
-decay_params <- decay_params_df$value
-names(decay_params) <- decay_params_df$Parameter
+decay_params <-
+  read_csv("data/derived/litter/turnover/decay_parameters.csv") |>
+  pull(value, name = Parameter)
 
 # root litter input rate
 # convert from MgC/ha/Year to kgC/m2/day
