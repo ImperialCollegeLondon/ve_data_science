@@ -53,6 +53,8 @@
 #|     - glmmTMB
 #|
 #| usage_notes: |
+#|   Oil palm ("deforested") land-use type does not have a final estimated
+#|   stock at the moment; to be addressed when we do oil palm input data later.
 #|   If more data is needed for even more accurate parameterisation, consider
 #|   Turner et al. (2019) https://zenodo.org/records/3265722
 #| ---
@@ -95,12 +97,11 @@ safe_plot_info <-
   distinct(Site, Habitat, Logging, Order, Plot) |>
   # reclassify logging
   mutate(
-    Logging_grp = case_match(
+    Logging_grp = replace_values(
       Logging,
       "LowIntensity" ~ "Logged",
       "Twice" ~ "Logged",
-      "Variable" ~ "Logged",
-      .default = Logging
+      "Variable" ~ "Logged"
     )
   )
 
@@ -225,9 +226,9 @@ mod_CP_leaf <-
 
 # leaf litter metabolic--structural fractions
 # first we need the parameters estimated from the litter decay model
-decay_params_df <- read_csv("data/derived/litter/turnover/decay_parameters.csv")
-decay_params <- decay_params_df$value
-names(decay_params) <- decay_params_df$Parameter
+decay_params <-
+  read_csv("data/derived/litter/turnover/decay_parameters.csv") |>
+  pull(value, name = Parameter)
 
 # leaf nutrient expected values
 C_leaf <- plogis(fixef(mod_C_leaf)$cond)
@@ -247,28 +248,52 @@ fm_leaf <-
       L_leaf * (decay_params["sN"] * CN_leaf + decay_params["sP"] * CP_leaf)
   )
 
-# Expected litter composition in proportions
-compo_hat <- exp(fixef(mod_compo)$cond)
-compo_hat <- compo_hat / sum(compo_hat)
-
-# split leaf into metabolic and structural
-leaf_metabolic <- compo_hat["Typeleaf"] * fm_leaf
-leaf_structural <- compo_hat["Typeleaf"] * (1 - fm_leaf)
-
-# reassign above litter to metabolic, structural and wood
-compo_pool <- c(
-  leaf_metabolic + compo_hat["Typereproduction"],
-  leaf_structural + compo_hat["Typeother"],
-  compo_hat["Typewood"]
-)
-names(compo_pool) <- c("metabolic", "structural", "wood")
-
 # Expected litter stock in kg C / m2
-stock_hat <- exp(fixef(mod_stock)$cond)
-
-# Expected litter stock by physical component in kg C / m2
-aboveground_stock <-
-  data.frame(
-    type = names(compo_pool),
-    stock = as.numeric(stock_hat * compo_pool)
+stock_hat <-
+  data.frame(stock = exp(fixef(mod_stock)$cond)) |>
+  rownames_to_column("Forest") |>
+  mutate(
+    Forest = str_remove(Forest, "ForestType"),
+    Logging_grp = replace_values(
+      Forest,
+      "Logged" ~ "Logged",
+      "Old-growth" ~ "Never"
+    )
   )
+
+# predict litter biomass composition
+new_dat_compo <-
+  litter_compo |>
+  distinct(Type, Logging_grp) |>
+  mutate(Plot = NA, log_days = 0)
+pred_compo <- predict(mod_compo, newdata = new_dat_compo, type = "response")
+
+# start calculating aboveground carbon in metabolic, structural and wood pools
+aboveground_stock <-
+  bind_cols(new_dat_compo, Estimate = pred_compo) |>
+  # convert litter biomass composition to proportion biomass
+  group_by(Logging_grp) |>
+  mutate(p = Estimate / sum(Estimate)) |>
+  ungroup() |>
+  select(Type, Logging_grp, p) |>
+  pivot_wider(names_from = Type, values_from = p) |>
+  # split leaf into metabolic and structural
+  mutate(
+    leaf_metabolic = leaf * fm_leaf,
+    leaf_structural = leaf * (1 - fm_leaf)
+  ) |>
+  # calculate metabolic, structural and wood pools
+  mutate(
+    metabolic = leaf_metabolic + reproduction,
+    structural = leaf_structural + other
+  ) |>
+  select(Logging_grp, metabolic, structural, wood) |>
+  pivot_longer(
+    cols = c(metabolic, structural, wood),
+    names_to = "type",
+    values_to = "p"
+  ) |>
+  # join litter stock predictions
+  left_join(stock_hat |> select(stock, Logging_grp)) |>
+  # calculate expected litter stock by physical component in kg C / m2
+  mutate(stock = stock * p)
