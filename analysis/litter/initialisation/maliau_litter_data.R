@@ -287,7 +287,7 @@ source("analysis/litter/nutrient_pool/initial_nutrient_woody.R")
 # find the row index of a Maliau site, there will be three rows for P, N and C
 # we will use the first site because it does not matter which site for the
 # simulation purpose (they have the same fixed effects)
-deadwood_maliau_idx <- which(nutrient_deadwood$Block == "OG")[1:3]
+deadwood_maliau_idx <- which(nutrient_deadwood$Logging_grp == "Never")[1:3]
 
 # simulate deadwood P, N and C
 nutrient_deadwood_sim <-
