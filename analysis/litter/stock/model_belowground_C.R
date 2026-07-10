@@ -185,3 +185,15 @@ D_structural <- decay_params["ks"] * exp(decay_params["r"] * L_root)
 # equilibrium stocks in kg C/m2
 P_metabolic <- I_metabolic / D_metabolic
 P_structural <- I_structural / D_structural
+belowground_stock <-
+  bind_cols(
+    Logging_grp = str_remove(names(P_metabolic), "ForestType"),
+    `belowground metabolic` = P_metabolic,
+    `belowground structural` = P_structural
+  ) |>
+  mutate(Logging_grp = replace_values(Logging_grp, "Old-growth" ~ "Never")) |>
+  pivot_longer(
+    cols = starts_with("belowground"),
+    names_to = "pool_raw",
+    values_to = "stock"
+  )
