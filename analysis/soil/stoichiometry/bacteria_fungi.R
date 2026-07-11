@@ -85,17 +85,19 @@ C_frac <-
   ) |>
   # rename / merge guilds into coarser groups that we want
   # and then sum their abundances
-  mutate(guild = case_when(
-    guild == "arbuscular_mycorrhizal" ~ "AM",
-    guild == "ectomycorrhizal" ~ "EM",
-    str_detect(guild, "saprotroph") ~ "saprotroph",
-    str_detect(guild, "pathogen") ~ "pathogen",
-    str_detect(guild, "parasite") ~ "parasite",
-    str_detect(guild, "endophyte") ~ "endophyte",
-    str_detect(guild, "lichenized") ~ "lichenized",
-    str_detect(guild, "epiphyte") ~ "epiphyte",
-    .default = "other"
-  )) |>
+  mutate(
+    guild = case_when(
+      guild == "arbuscular_mycorrhizal" ~ "AM",
+      guild == "ectomycorrhizal" ~ "EM",
+      str_detect(guild, "saprotroph") ~ "saprotroph",
+      str_detect(guild, "pathogen") ~ "pathogen",
+      str_detect(guild, "parasite") ~ "parasite",
+      str_detect(guild, "endophyte") ~ "endophyte",
+      str_detect(guild, "lichenized") ~ "lichenized",
+      str_detect(guild, "epiphyte") ~ "epiphyte",
+      .default = "other"
+    )
+  ) |>
   # FIXME if bacteria are added back in the future, need to manually
   # assign them a "guild" name, i.e., "bacteria" to keep this part working
   # next, only keep guild of interest

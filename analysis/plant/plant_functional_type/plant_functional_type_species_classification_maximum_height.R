@@ -59,7 +59,6 @@
 #|   the PFT maximum height).
 #| ---
 
-
 # Load packages
 
 library(readxl)
@@ -84,16 +83,15 @@ names(data)
 
 # Load PFT species classification base and clean up a bit
 
-PFT_species_classification_base <- read.csv( # nolint
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv", # nolint
+PFT_species_classification_base <- read.csv(
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[ # nolint
-  ,
+PFT_species_classification_base <- PFT_species_classification_base[,
   c("PFT", "PFT_name", "TaxaName")
 ]
-PFT_species_classification_base <- unique(PFT_species_classification_base) # nolint
+PFT_species_classification_base <- unique(PFT_species_classification_base)
 
 # Add PFT and PFT_name to data based on TaxaName and call it data_taxa
 
@@ -107,27 +105,60 @@ unique(data_taxa$PFT)
 # Give plots a logging indicator
 
 data_taxa$logging <- NA
-data_taxa$logging[data_taxa$Block %in%
-  c(
-    "LFE", "LF1", "LF2", "LF3"
-  )] <- "logged"
-data_taxa$logging[data_taxa$Block %in%
-  c(
-    "A", "B", "C", "D", "E", "F", "VJR", "OG1",
-    "OG2", "OG3"
-  )] <- "unlogged"
-data_taxa$logging[data_taxa$Block %in%
-  c(
-    "OP1", "OP2", "OP3"
-  )] <- "oil_palm"
+data_taxa$logging[
+  data_taxa$Block %in%
+    c(
+      "LFE",
+      "LF1",
+      "LF2",
+      "LF3"
+    )
+] <- "logged"
+data_taxa$logging[
+  data_taxa$Block %in%
+    c(
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "VJR",
+      "OG1",
+      "OG2",
+      "OG3"
+    )
+] <- "unlogged"
+data_taxa$logging[
+  data_taxa$Block %in%
+    c(
+      "OP1",
+      "OP2",
+      "OP3"
+    )
+] <- "oil_palm"
 
 unique(data_taxa$logging)
 
-data_taxa <- data_taxa[data_taxa$Block %in%
-  c(
-    "LFE", "LF1", "LF2", "LF3", "A", "B", "C", "D",
-    "E", "F", "VJR", "OG1", "OG2", "OG3"
-  ), ]
+data_taxa <- data_taxa[
+  data_taxa$Block %in%
+    c(
+      "LFE",
+      "LF1",
+      "LF2",
+      "LF3",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "VJR",
+      "OG1",
+      "OG2",
+      "OG3"
+    ),
+]
 
 
 ##########
@@ -143,9 +174,16 @@ plot_data$DBH2011_m <- plot_data$DBH2011_mm_clean / 1000 # Scale DBH to meters
 
 names(plot_data)
 
-ggplot(plot_data, aes(x = DBH2011_m, y = HeightTotal_m_2011, color = as.factor(PFT))) +
+ggplot(
+  plot_data,
+  aes(x = DBH2011_m, y = HeightTotal_m_2011, color = as.factor(PFT))
+) +
   geom_point() +
-  labs(x = "Diameter (m)", y = "Height (m)", title = "Height-Diameter Relationship")
+  labs(
+    x = "Diameter (m)",
+    y = "Height (m)",
+    title = "Height-Diameter Relationship"
+  )
 
 ##########
 
@@ -161,9 +199,17 @@ plot_data$maximum_height_Mahayani <- NA
 
 names(plot_data)
 temp <- plot_data[, c(
-  "TagStem_latest", "Family", "Genus", "Species",
-  "TaxaName", "TaxaLevel", "PFT", "HeightTotal_m_2011",
-  "maximum_height", "maximum_height_Mahayani", "DBH2011_m"
+  "TagStem_latest",
+  "Family",
+  "Genus",
+  "Species",
+  "TaxaName",
+  "TaxaLevel",
+  "PFT",
+  "HeightTotal_m_2011",
+  "maximum_height",
+  "maximum_height_Mahayani",
+  "DBH2011_m"
 )]
 temp <- temp[temp$TaxaLevel %in% c("species", "genus"), ]
 temp <- drop_na(temp, TaxaName)
@@ -172,10 +218,15 @@ temp <- drop_na(temp, TaxaName)
 # assigning species/genus into PFTs), it's good to keep this in mind when
 # calculating stem density.
 temp <- drop_na(temp, HeightTotal_m_2011)
-temp <- temp[order(
-  temp$PFT, temp$Family, temp$Genus,
-  temp$Species, temp$HeightTotal_m_2011
-), ]
+temp <- temp[
+  order(
+    temp$PFT,
+    temp$Family,
+    temp$Genus,
+    temp$Species,
+    temp$HeightTotal_m_2011
+  ),
+]
 taxa_names_species <- unique(temp$TaxaName[temp$TaxaLevel == "species"])
 taxa_names_genus <- unique(temp$TaxaName[temp$TaxaLevel == "genus"])
 
@@ -202,14 +253,15 @@ for (id in taxa_names_species) {
       temp$TaxaName == id &
         temp$HeightTotal_m_2011 >= height_threshold
     ] /
-      (
-        1 - exp(
-          -0.05 * temp$DBH2011_m[
-            temp$TaxaName == id &
-              temp$HeightTotal_m_2011 >= height_threshold
-          ] * 100
-        )
-      ),
+      (1 -
+        exp(
+          -0.05 *
+            temp$DBH2011_m[
+              temp$TaxaName == id &
+                temp$HeightTotal_m_2011 >= height_threshold
+            ] *
+            100
+        )),
     na.rm = TRUE
   )
 }
@@ -225,12 +277,15 @@ for (id in taxa_names_genus) {
       temp$TaxaName == id &
         temp$HeightTotal_m_2011 >= height_threshold
     ] /
-      (1 - exp(
-        -0.05 * temp$DBH2011_m[
-          temp$TaxaName == id &
-            temp$HeightTotal_m_2011 >= height_threshold
-        ] * 100
-      )),
+      (1 -
+        exp(
+          -0.05 *
+            temp$DBH2011_m[
+              temp$TaxaName == id &
+                temp$HeightTotal_m_2011 >= height_threshold
+            ] *
+            100
+        )),
     na.rm = TRUE
   )
 }
@@ -241,7 +296,7 @@ abline(lm(temp$maximum_height ~ temp$maximum_height_Mahayani))
 abline(a = 0, b = 1, col = "red", lty = 2)
 
 # Test out with second maximum height
-# temp$maximum_height <- temp$maximum_height_Mahayani # nolint
+# temp$maximum_height <- temp$maximum_height_Mahayani
 
 ##########
 
@@ -340,8 +395,12 @@ t_model_parameters <- read.csv(
 
 # Reassign species where PFT = 0 based on maximum height into PFT 1, 2, 3 or 4
 
-h_max_overstory <- t_model_parameters$h_max[t_model_parameters$name == "overstory"]
-h_max_understory <- t_model_parameters$h_max[t_model_parameters$name == "understory"]
+h_max_overstory <- t_model_parameters$h_max[
+  t_model_parameters$name == "overstory"
+]
+h_max_understory <- t_model_parameters$h_max[
+  t_model_parameters$name == "understory"
+]
 
 temp$PFT[
   temp$PFT == 0 &
@@ -450,8 +509,13 @@ for (id in taxa_names_final) {
 # Prepare data_taxa for saving
 
 data_taxa <- data_taxa[, c(
-  "PFT_final", "PFT_name", "TaxaName",
-  "TaxaLevel", "Species", "Genus", "Family",
+  "PFT_final",
+  "PFT_name",
+  "TaxaName",
+  "TaxaLevel",
+  "Species",
+  "Genus",
+  "Family",
   "maximum_height"
 )]
 
@@ -463,15 +527,19 @@ data_taxa$PFT_name[data_taxa$PFT_final == "4"] <- "understory"
 data_taxa <- na.omit(data_taxa)
 data_taxa <- unique(data_taxa)
 
-data_taxa <- data_taxa[order(
-  data_taxa$PFT_final, data_taxa$Family,
-  data_taxa$Genus, data_taxa$TaxaName
-), ]
+data_taxa <- data_taxa[
+  order(
+    data_taxa$PFT_final,
+    data_taxa$Family,
+    data_taxa$Genus,
+    data_taxa$TaxaName
+  ),
+]
 
 # Write CSV file
 
 write.csv(
   data_taxa,
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_maximum_height.csv", # nolint
+  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_maximum_height.csv",
   row.names = FALSE
 )

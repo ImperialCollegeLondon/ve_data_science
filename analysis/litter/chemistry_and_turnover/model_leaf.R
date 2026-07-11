@@ -114,9 +114,9 @@ litter_s <-
 # sampled efficiency
 form <-
   bf(xt ~ eta) +
-  # nlf(eta ~ log(metabolic + structural)) +        # nolint
-  # nlf(metabolic ~ fm * exp(-km * time)) +         # nolint
-  # nlf(structural ~ (1 - fm) * exp(-ks * time)) +  # nolint
+  # nlf(eta ~ log(metabolic + structural)) +
+  # nlf(metabolic ~ fm * exp(-km * time)) +
+  # nlf(structural ~ (1 - fm) * exp(-ks * time)) +
   nlf(eta ~ log_x0 + log_sum_exp(logmetabolic, logstructural)) +
   nlf(logmetabolic ~ log(fm) - km * time) +
   nlf(logstructural ~ log1m(fm) - ks * time) +
@@ -148,7 +148,7 @@ inits <- list(inits, inits, inits, inits)
 
 # source the lognormal mean-sd parameterisation
 # this will be passed to stanvars in brm
-source("analysis/litter/chemistry_and_turnover/lognormal_natural.R")
+source("tools/R/lognormal_natural.R")
 
 # fit the model
 mod_leaf <- brm(

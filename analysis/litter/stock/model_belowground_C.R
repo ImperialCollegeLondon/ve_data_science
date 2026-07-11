@@ -61,12 +61,11 @@ library(glmmTMB)
 
 # root litter inputs
 litter_root <-
-  # nolint start
-  read_xlsx("data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
+  read_xlsx(
+    "data/primary/litter/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx",
     sheet = 4,
     skip = 5
   ) %>%
-  # nolint end
   select(ForestType:ForestPlotsCode, Mortality_FR, Mortality_CR) %>%
   mutate(root_litter_input = Mortality_FR + Mortality_CR)
 
@@ -75,7 +74,8 @@ litter_root <-
 # patterns and controlling factors. Sci Rep 5, 9940 (2015).
 # https://doi.org/10.1038/srep09940
 nutrient_root <-
-  read_xls("data/primary/litter/41598_2015_BFsrep09940_MOESM2_ESM.xls",
+  read_xls(
+    "data/primary/litter/41598_2015_BFsrep09940_MOESM2_ESM.xls",
     sheet = 2
   ) %>%
   select(

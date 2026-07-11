@@ -15,7 +15,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: SayerEtAl2021_GLiMP_SoilCN_Fractions.csv
@@ -28,23 +28,12 @@
 #|       Refer to metadata for more info: SayerEtAl2021_Metadata.docx
 #|
 #| output_files:
-#|   - name: model_C_POM_MAOM.rds
-#|     path: data/derived/soil/nutrient_pools
-#|     description: |
-#|       glmmTMB model to predict carbon content in POM and MAOM from total
-#|       soil carbon
-#|   - name: model_N_POM_MAOM.rds
-#|     path: data/derived/soil/nutrient_pools
-#|     description: |
-#|       glmmTMB model to predict nitrogen content in POM and MAOM from total
-#|       soil nitrogen
 #|
 #| package_dependencies:
 #|     - tidyverse
 #|     - glmmTMB
 #|
-#| usage_notes: |
-#|   Use the saved model output objects for downstream prediction later.
+#| usage_notes:
 #| ---
 
 library(tidyverse)
@@ -63,10 +52,7 @@ sayer <-
 bulk <-
   sayer %>%
   filter(frac == "total") %>%
-  select(treatm:bulkD,
-    C_total = mgCgsoilBD,
-    N_total = mgNgsoilBD
-  )
+  select(treatm:bulkD, C_total = mgCgsoilBD, N_total = mgNgsoilBD)
 
 # the fraction measurements will be the response variables
 frac <-

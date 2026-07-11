@@ -41,7 +41,6 @@
 #|     minutes to run.
 #| ---
 
-
 library(tidybayes)
 
 
@@ -64,7 +63,9 @@ source("analysis/litter/chemistry_and_turnover/model_rate_lignin.R")
 # for consistency and simplicity, I will simply use the values that Arne took
 # for the plant stoichiometry script as of 24/8/2025
 # see analysis/plant/plant_stoichiometry/plant_stoichiometry.R
-plant_stoich <- read_csv("data/derived/plant/traits_data/plant_stoichiometry.csv")
+plant_stoich <- read_csv(
+  "data/derived/plant/traits_data/plant_stoichiometry.csv"
+)
 lignin_leaf <- mean(plant_stoich$leaf_lignin)
 lignin_wood <- mean(plant_stoich$stem_lignin)
 
@@ -104,9 +105,7 @@ param_summary <-
   ) %>%
   # summarise posterior
   group_by(Parameter) %>%
-  median_qi(value,
-    .width = 0.95
-  ) %>%
+  median_qi(value, .width = 0.95) %>%
   # join wood model parameter =============================================
   bind_rows(
     data.frame(
@@ -137,14 +136,24 @@ param_summary <-
 # lignin content; also this is a crude conversion because ideally we would
 # incorporate the parameter uncertainty of r, but I'm only using its mean
 # estimate for simplicity here
-# nolint start
-param_summary[param_summary$Parameter == "kw", c("value", ".lower", ".upper")] <-
-  param_summary[param_summary$Parameter == "kw", c("value", ".lower", ".upper")] /
-    exp(param_summary$value[param_summary$Parameter == "r"] * lignin_wood)
-param_summary[param_summary$Parameter == "ks", c("value", ".lower", ".upper")] <-
-  param_summary[param_summary$Parameter == "ks", c("value", ".lower", ".upper")] /
-    exp(param_summary$value[param_summary$Parameter == "r"] * lignin_leaf)
-# nolint end
+param_summary[
+  param_summary$Parameter == "kw",
+  c("value", ".lower", ".upper")
+] <-
+  param_summary[
+    param_summary$Parameter == "kw",
+    c("value", ".lower", ".upper")
+  ] /
+  exp(param_summary$value[param_summary$Parameter == "r"] * lignin_wood)
+param_summary[
+  param_summary$Parameter == "ks",
+  c("value", ".lower", ".upper")
+] <-
+  param_summary[
+    param_summary$Parameter == "ks",
+    c("value", ".lower", ".upper")
+  ] /
+  exp(param_summary$value[param_summary$Parameter == "r"] * lignin_leaf)
 
 # save output table
 write_csv(

@@ -51,7 +51,6 @@
 #|   to ensure that we reach the global optimum
 #| ---
 
-
 # packages
 library(tidyverse)
 library(readxl)
@@ -71,20 +70,23 @@ trait <-
 
 # site info from the SAFE dataset
 site <-
-  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+  read_xlsx(
+    paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
     sheet = 4,
     skip = 9
   )
 
 # taxonomic info from the SAFE dataset
 taxo <-
-  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+  read_xlsx(
+    paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
     sheet = 3
   )
 
 # community data from the SAFE dataset
 comm <-
-  read_xlsx(paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
+  read_xlsx(
+    paste0(filepath, "Soil_Mycelial_Fungi_SAFE_Dataset.xlsx"),
     sheet = 5,
     skip = 9
   ) %>%
@@ -107,17 +109,19 @@ comm <-
   ) %>%
   # rename / merge guilds into coarser groups that we want
   # and then sum their abundances
-  mutate(guild = case_when(
-    primary_lifestyle == "arbuscular_mycorrhizal" ~ "AM",
-    primary_lifestyle == "ectomycorrhizal" ~ "EM",
-    str_detect(primary_lifestyle, "saprotroph") ~ "saprotroph",
-    str_detect(primary_lifestyle, "pathogen") ~ "pathogen",
-    str_detect(primary_lifestyle, "parasite") ~ "parasite",
-    str_detect(primary_lifestyle, "endophyte") ~ "endophyte",
-    str_detect(primary_lifestyle, "lichenized") ~ "lichenized",
-    str_detect(primary_lifestyle, "epiphyte") ~ "epiphyte",
-    .default = "other"
-  )) %>%
+  mutate(
+    guild = case_when(
+      primary_lifestyle == "arbuscular_mycorrhizal" ~ "AM",
+      primary_lifestyle == "ectomycorrhizal" ~ "EM",
+      str_detect(primary_lifestyle, "saprotroph") ~ "saprotroph",
+      str_detect(primary_lifestyle, "pathogen") ~ "pathogen",
+      str_detect(primary_lifestyle, "parasite") ~ "parasite",
+      str_detect(primary_lifestyle, "endophyte") ~ "endophyte",
+      str_detect(primary_lifestyle, "lichenized") ~ "lichenized",
+      str_detect(primary_lifestyle, "epiphyte") ~ "epiphyte",
+      .default = "other"
+    )
+  ) %>%
   group_by(guild) %>%
   summarise_at(vars(starts_with("MYC_")), sum)
 
@@ -158,11 +162,20 @@ mod <- gllvm(
 
 summary(mod)
 
-# retrieve species intercepts (these should be their relative abundance
-# since we included an offset, which turns the modelled outcome into
-# count per unit sample)
-rel_abun <- plogis(mod$params$beta0)
-rel_abun
+# generate counterfactual new data from env
+newdat <- model.matrix(~Type, data = site |> distinct(Type))
+
+# predict species relative abundances across land-use types
+# (when offset = FALSE, it is equivalent to setting offset = log(1) = 0),
+# which is what we want to obtain relative abundances
+rel_abun <- predict(
+  mod,
+  newX = newdat[, -1],
+  level = 0,
+  type = "response",
+  offset = FALSE
+)
+dimnames(rel_abun) <- list(levels(as.factor(site$Type)), colnames(comm_matrix))
 
 # save output
 write_rds(rel_abun, "data/derived/soil/nutrient_pools/fungi_rel_abun.rds")
