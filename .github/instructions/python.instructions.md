@@ -1,5 +1,5 @@
 ---
-description: 'Python language: guidance aligned with Virtual Ecosystem code style and tooling.'
+description: 'Python language guidance for ve_data_science analysis, wrangling tools, and tests.'
 applyTo: '**/*.py, **/*.pyw, **/*.pyi'
 ---
 
@@ -8,16 +8,17 @@ applyTo: '**/*.py, **/*.pyw, **/*.pyi'
 
 ## Purpose
 
-Guide Copilot to generate Python code consistent with the style used in the
-`virtual_ecosystem` repository.
+Guide Copilot to generate Python code for this repository with emphasis on:
+1) analysis and visualisation scripts,
+2) reusable data-wrangling and derivation tools used by those scripts,
+3) tests.
 
-## Style Baseline (from `virtual_ecosystem`)
+## Style Baseline
 
 - **Python version:** Target Python 3.12+.
 - **Formatting/linting:** Ruff (`ruff-check` + `ruff-format`) via pre-commit.
-- **Typing checks:** mypy is part of pre-commit; code should be type-check friendly.
-- **Docstrings:** pydocstyle with **Google convention** (`Args`, `Returns`, `Raises`).
-- **Imports:** Prefer explicit imports and clear grouping.
+- **Docstrings:** Use Google-style sections (`Args`, `Returns`, `Raises`) when relevant.
+- **Imports:** Use explicit imports and consistent grouping.
 
 ## Core Coding Conventions
 
@@ -25,73 +26,91 @@ Guide Copilot to generate Python code consistent with the style used in the
 - **Use modern type hints:** `list[str]`, `dict[str, Any]`, `Path | None`, etc.
 - **Prefer explicit types** on public function signatures and key intermediate values.
 - **Naming:** `snake_case` (functions/variables), `PascalCase` (classes), `UPPER_CASE` (constants).
-- **Paths:** Use `pathlib.Path`; avoid machine-specific absolute paths.
-- **Use f-strings** for interpolation unless another style is already dominant in-file.
+- **Paths:** Use `pathlib.Path` and project-relative paths.
+- **Use f-strings** unless another style is already dominant in-file.
 
-## Docstring Conventions
+## Analysis and Visualisation Scripts
 
-- Use module docstrings at the top of files for public modules.
-- For public functions/methods/classes, use Google-style sections as needed:
-  - `Args:`
-  - `Returns:`
-  - `Raises:`
-- Keep docstrings descriptive and behavior-focused; avoid repeating obvious code.
-- In class APIs, document constructor parameters on the class docstring when that is the
-  existing pattern.
+- Prefer clear pipeline-style functions over a single long top-level script body.
+- Use `numpy`/`xarray`/`pandas` vectorized operations for numeric/data workloads.
+- Keep plotting code readable: setup, styling, then save/export.
+- Validate input files/columns/shapes before heavy computation.
+- Keep executable script logic under `if __name__ == "__main__":`.
+
+## Data Wrangling and Derivation Tools
+
+- Keep transformations modular (e.g., conversion, aggregation, reshaping, export).
+- Use explicit config dictionaries/dataclasses over hidden global configuration.
+- Return deterministic typed outputs (`DataFrame`, `Dataset`, arrays).
+- Keep helpers reusable by analysis scripts and notebook workflows.
+
+## Docstring and Metadata Conventions
+
+- Keep module docstrings where already used in this repository.
+- For public functions/classes/methods, document `Args`, `Returns`, and `Raises`.
+- For metadata-heavy scripts, preserve the existing front-matter-style module docstring.
+- Avoid comments that restate obvious code; explain non-obvious decisions only.
 
 ## Error Handling and Logging
 
 - Raise specific exceptions (`ValueError`, `TypeError`, `RuntimeError`, etc.).
 - Avoid broad catches unless re-raising with clear context.
 - Do not silently swallow errors.
-- For fatal/validation failures in modules that use logging, follow the project pattern:
-  create exception -> log it (`LOGGER.critical(...)`) -> raise it.
-- Preserve exception chaining with `raise ... from excep` when converting exception types.
+- Follow the tooling logging pattern (as seen in trophic mass-flow tooling):
+  - create a logger using `logging.getLogger(__name__)`,
+  - attach a `logging.StreamHandler()` when script-style console logging is intended,
+  - emit `LOGGER.info(...)` at key processing stages.
+- Log important failure context before raising when users need actionable diagnostics.
 
-## Scientific/Data Workflow Guidance
+## Testing Guidance
 
-- Prefer vectorized NumPy/xarray operations for array-heavy work.
-- Keep transformations deterministic and explicit.
-- Validate assumptions around shapes, dimensions, units, and coordinate systems.
-- Avoid hidden global state; keep functions composable and testable.
+- Use `pytest` and name test files/functions with `test_*`.
+- Test per-stage behavior for analysis tools (conversion, grouping, pivoting, plotting/export).
+- Use compact in-memory fixtures/dataframes for deterministic tests.
+- For file outputs (plots/netCDF/csv), write to temp paths and assert artifact creation.
+- Include negative-path tests for validation and error handling.
 
 ## Security and Safety
 
-- Avoid `eval()`/`exec()` on untrusted inputs.
+- Avoid `eval()`/`exec()` on untrusted input.
 - Prefer `subprocess.run([...], check=True)` with argument lists over shell strings.
 - Validate user-provided paths before file operations.
-- Never hardcode credentials; use environment variables or external secret storage.
+- Never hardcode credentials; use environment variables or secure external config.
 
 ## Copilot-Specific Guidance
 
-- Reuse existing helpers and patterns in the repository before introducing new utilities.
-- Prefer readability and type safety over clever or dense one-liners.
-- Keep comments rare and focused on **why**, not **what**.
-- For API-facing modules, keep docstrings complete and consistent with Google style.
+- Reuse existing helpers/patterns before adding new utilities.
+- Prioritise readability and type safety over dense one-liners.
+- Keep comments focused on **why**, not **what**.
+- When adding tools, include concise logging milestones and test hooks from the start.
 
 ---
 
-## Minimal Example (style-aligned)
+## Minimal Example (tool logging + wrangling style)
 
 ```python
-from pathlib import Path
+import logging
 
-from virtual_ecosystem.core.exceptions import ConfigurationError
-from virtual_ecosystem.core.logger import LOGGER
+import pandas as pd
 
 
-def require_existing_file(path: Path) -> None:
-    """Validate that a required input file exists.
+class AnalysisTool:
+    """Simple data-processing tool with explicit logging.
 
     Args:
-        path: Path to the required input file.
-
-    Raises:
-        ConfigurationError: If the provided path does not exist.
+        df: Input data containing numeric values.
     """
 
-    if not path.exists():
-        to_raise = ConfigurationError(f"Input file not found: {path}")
-        LOGGER.critical(to_raise)
-        raise to_raise
+    def __init__(self, df: pd.DataFrame) -> None:
+        self.logger = logging.getLogger(__name__)
+        if not self.logger.handlers:
+            self.logger.addHandler(logging.StreamHandler())
+        self.df = df
+
+    def process(self) -> pd.DataFrame:
+        """Process the input data and return a derived table."""
+        self.logger.info("Converting units")
+        out = self.df.assign(value_kg=self.df["value_g"] / 1000.0)
+        self.logger.info("Aggregating by group")
+        return out.groupby("group", as_index=False)["value_kg"].sum()
 ```
