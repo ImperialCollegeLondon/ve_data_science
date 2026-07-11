@@ -8,10 +8,10 @@ applyTo: '**/*.py, **/*.pyw, **/*.pyi'
 
 ## Purpose
 
-Guide Copilot to generate Python code consistent with the style used in the 
+Guide Copilot to generate Python code consistent with the style used in the
 `virtual_ecosystem` and `ve_data_science` repositories.
 
-## Style Baseline 
+## Style Baseline
 - **Python version:** Target Python 3.12+.
 - **Formatting/linting:** Ruff (`ruff-check` + `ruff-format`) via pre-commit.
 - **Typing checks:** mypy is part of pre-commit; code should be type-check friendly.
