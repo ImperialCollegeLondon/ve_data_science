@@ -8,11 +8,10 @@ applyTo: '**/*.py, **/*.pyw, **/*.pyi'
 
 ## Purpose
 
-Guide Copilot to generate Python code consistent with the style used in the local
-`virtual_ecosystem` repository.
+Guide Copilot to generate Python code consistent with the style used in the 
+`virtual_ecosystem` and `ve_data_science` repositories.
 
-## Style Baseline (from `virtual_ecosystem`)
-
+## Style Baseline 
 - **Python version:** Target Python 3.12+.
 - **Formatting/linting:** Ruff (`ruff-check` + `ruff-format`) via pre-commit.
 - **Typing checks:** mypy is part of pre-commit; code should be type-check friendly.
@@ -76,8 +75,31 @@ Guide Copilot to generate Python code consistent with the style used in the loca
 ## Minimal Examples
 
 ```python
-import logging
+# Example 1: Preserve existing VE-style error handling pattern
 from pathlib import Path
+
+from virtual_ecosystem.core.exceptions import ConfigurationError
+from virtual_ecosystem.core.logger import LOGGER
+
+
+def require_existing_file(path: Path) -> None:
+    """Validate that a required input file exists.
+
+    Args:
+        path: Path to the required input file.
+
+    Raises:
+        ConfigurationError: If the provided path does not exist.
+    """
+
+    if not path.exists():
+        to_raise = ConfigurationError(f"Input file not found: {path}")
+        LOGGER.critical(to_raise)
+        raise to_raise
+
+
+# Example 2: Tool/script logging standard + exception chaining
+import logging
 
 
 LOGGER = logging.getLogger(__name__)
