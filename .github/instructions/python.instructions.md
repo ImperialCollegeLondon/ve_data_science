@@ -8,7 +8,7 @@ applyTo: '**/*.py, **/*.pyw, **/*.pyi'
 
 ## Purpose
 
-Guide Copilot to generate Python code consistent with the style used in the local
+Guide Copilot to generate Python code consistent with the style used in the
 `virtual_ecosystem` repository.
 
 ## Style Baseline (from `virtual_ecosystem`)
