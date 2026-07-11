@@ -75,31 +75,8 @@ Guide Copilot to generate Python code consistent with the style used in the
 ## Minimal Examples
 
 ```python
-# Example 1: Preserve existing VE-style error handling pattern
-from pathlib import Path
-
-from virtual_ecosystem.core.exceptions import ConfigurationError
-from virtual_ecosystem.core.logger import LOGGER
-
-
-def require_existing_file(path: Path) -> None:
-    """Validate that a required input file exists.
-
-    Args:
-        path: Path to the required input file.
-
-    Raises:
-        ConfigurationError: If the provided path does not exist.
-    """
-
-    if not path.exists():
-        to_raise = ConfigurationError(f"Input file not found: {path}")
-        LOGGER.critical(to_raise)
-        raise to_raise
-
-
-# Example 2: Tool/script logging standard + exception chaining
 import logging
+from pathlib import Path
 
 
 LOGGER = logging.getLogger(__name__)
@@ -107,11 +84,45 @@ if not LOGGER.handlers:
     LOGGER.addHandler(logging.StreamHandler())
 
 
-def read_required_text(path: Path) -> str:
-    """Read a required text file with explicit logging and chained errors."""
+def load_text_file(path: Path) -> str:
+    """Load a required text file.
+
+    Args:
+        path: Path to the input text file.
+
+    Returns:
+        File contents as a string.
+
+    Raises:
+        ValueError: If the file is missing.
+        RuntimeError: If the file cannot be decoded as UTF-8.
+    """
+
     LOGGER.info("Reading input file: %s", path)
     try:
         return path.read_text(encoding="utf-8")
     except FileNotFoundError as excep:
         raise ValueError(f"Required input file does not exist: {path}") from excep
+    except UnicodeDecodeError as excep:
+        raise RuntimeError(f"Input file is not valid UTF-8: {path}") from excep
+
+
+def summarise_counts(values: list[int]) -> dict[str, float]:
+    """Compute simple summary statistics.
+
+    Args:
+        values: A list of integer counts.
+
+    Returns:
+        A dictionary with item count and mean value.
+
+    Raises:
+        ValueError: If no values are provided.
+    """
+
+    if not values:
+        raise ValueError("values must not be empty")
+
+    total = sum(values)
+    return {"n": float(len(values)), "mean": total / len(values)}
 ```
