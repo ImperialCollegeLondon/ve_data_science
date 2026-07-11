@@ -76,24 +76,20 @@ Guide Copilot to generate Python code consistent with the style used in the loca
 ## Minimal Examples
 
 ```python
+import logging
 from pathlib import Path
 
-from virtual_ecosystem.core.exceptions import ConfigurationError
-from virtual_ecosystem.core.logger import LOGGER
+
+LOGGER = logging.getLogger(__name__)
+if not LOGGER.handlers:
+    LOGGER.addHandler(logging.StreamHandler())
 
 
-def require_existing_file(path: Path) -> None:
-    """Validate that a required input file exists.
-
-    Args:
-        path: Path to the required input file.
-
-    Raises:
-        ConfigurationError: If the provided path does not exist.
-    """
-
-    if not path.exists():
-        to_raise = ConfigurationError(f"Input file not found: {path}")
-        LOGGER.critical(to_raise)
-        raise to_raise
+def read_required_text(path: Path) -> str:
+    """Read a required text file with explicit logging and chained errors."""
+    LOGGER.info("Reading input file: %s", path)
+    try:
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError as excep:
+        raise ValueError(f"Required input file does not exist: {path}") from excep
 ```
