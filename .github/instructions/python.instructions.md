@@ -1,6 +1,6 @@
 ---
-description: 'Python language: coding standards and Copilot guidance for idiomatic, safe, and consistent code generation.'
-applyTo: '**/*.py'
+description: 'Python language: guidance aligned with Virtual Ecosystem code style and tooling.'
+applyTo: '**/*.py, **/*.pyw, **/*.pyi'
 ---
 
 <!-- markdownlint-disable MD013 -->
@@ -8,69 +8,90 @@ applyTo: '**/*.py'
 
 ## Purpose
 
-Help GitHub Copilot generate idiomatic, safe, and maintainable Python code across projects.
+Guide Copilot to generate Python code consistent with the style used in the local
+`virtual_ecosystem` repository.
 
-## Core Conventions
+## Style Baseline (from `virtual_ecosystem`)
 
-- **Match the file's style.** Follow existing patterns and naming in the module.
-- **Prefer clear, typed code.** Add type hints for function signatures and key variables.
-- **Naming:** `snake_case` for variables/functions, `PascalCase` for classes, `UPPER_CASE` for constants.
-- **Imports:** Keep imports explicit and grouped (standard library, third-party, local).
-- **Paths:** Avoid hardcoded absolute paths; use `pathlib.Path` and project-relative paths.
-- **Reproducibility:** Seed stochastic workflows locally (`numpy.random.default_rng(seed)`).
-- **Validation:** Validate external or user inputs early with clear error messages.
-- **Safety:** Avoid `eval()`/`exec()` on untrusted input and shell command strings built from unchecked data.
+- **Python version:** Target Python 3.12+.
+- **Formatting/linting:** Ruff (`ruff-check` + `ruff-format`) via pre-commit.
+- **Typing checks:** mypy is part of pre-commit; code should be type-check friendly.
+- **Docstrings:** pydocstyle with **Google convention** (`Args`, `Returns`, `Raises`).
+- **Imports:** Prefer explicit imports and clear grouping.
 
-## Tooling & Quality
+## Core Coding Conventions
 
-- **Python version:** Target Python 3.12+ (`pyproject.toml`).
-- **Linting/formatting:** Use `ruff-check` and `ruff-format` via pre-commit.
-- **Line length:** 88 characters (`tool.ruff.line-length`).
-- **Docstrings:** Use Google-style docstrings for public functions and classes.
-- **Design:** Prefer small, composable functions with minimal side effects.
+- **Match local file patterns first.** Follow existing naming, structure, and API usage.
+- **Use modern type hints:** `list[str]`, `dict[str, Any]`, `Path | None`, etc.
+- **Prefer explicit types** on public function signatures and key intermediate values.
+- **Naming:** `snake_case` (functions/variables), `PascalCase` (classes), `UPPER_CASE` (constants).
+- **Paths:** Use `pathlib.Path`; avoid machine-specific absolute paths.
+- **Use f-strings** for interpolation unless another style is already dominant in-file.
 
-## Data & Scientific Workflows
+## Docstring Conventions
 
-- Prefer `numpy`/`xarray` vectorized operations over Python loops for array workloads.
-- Keep I/O explicit and typed; validate schema/coordinate assumptions when reading data.
-- Use descriptive variable names for scientific quantities and include units in names when helpful.
-- Keep transformations deterministic and avoid hidden global state.
+- Use module docstrings at the top of files for public modules.
+- For public functions/methods/classes, use Google-style sections as needed:
+  - `Args:`
+  - `Returns:`
+  - `Raises:`
+- Keep docstrings descriptive and behavior-focused; avoid repeating obvious code.
+- In class APIs, document constructor parameters on the class docstring when that is the
+  existing pattern.
 
-## Error Handling
+## Error Handling and Logging
 
-- Raise specific exceptions (`ValueError`, `TypeError`, `FileNotFoundError`, etc.).
-- Avoid broad `except Exception` unless re-raising with additional context.
-- Fail loudly on invalid states; do not silently swallow errors.
+- Raise specific exceptions (`ValueError`, `TypeError`, `RuntimeError`, etc.).
+- Avoid broad catches unless re-raising with clear context.
+- Do not silently swallow errors.
+- For fatal/validation failures in modules that use logging, follow the project pattern:
+  create exception -> log it (`LOGGER.critical(...)`) -> raise it.
+- Preserve exception chaining with `raise ... from excep` when converting exception types.
 
-## Security Best Practices
+## Scientific/Data Workflow Guidance
 
-- **Command execution:** Prefer `subprocess.run([...], check=True)` with argument lists (not shell strings).
-- **File paths:** Normalize and validate user-provided paths before access.
-- **Secrets:** Never hardcode credentials; use environment variables or secret managers.
-- **Serialization:** Avoid loading untrusted pickles.
+- Prefer vectorized NumPy/xarray operations for array-heavy work.
+- Keep transformations deterministic and explicit.
+- Validate assumptions around shapes, dimensions, units, and coordinate systems.
+- Avoid hidden global state; keep functions composable and testable.
+
+## Security and Safety
+
+- Avoid `eval()`/`exec()` on untrusted inputs.
+- Prefer `subprocess.run([...], check=True)` with argument lists over shell strings.
+- Validate user-provided paths before file operations.
+- Never hardcode credentials; use environment variables or external secret storage.
 
 ## Copilot-Specific Guidance
 
-- Prefer type-safe suggestions and standard library solutions before adding dependencies.
-- Reuse existing helpers in the repository before introducing new utilities.
-- Suggest readable implementations first, then optimize based on measured bottlenecks.
-- Keep comments focused on *why* when logic is non-obvious.
+- Reuse existing helpers and patterns in the repository before introducing new utilities.
+- Prefer readability and type safety over clever or dense one-liners.
+- Keep comments rare and focused on **why**, not **what**.
+- For API-facing modules, keep docstrings complete and consistent with Google style.
 
 ---
 
-## Minimal Examples
+## Minimal Example (style-aligned)
 
 ```python
 from pathlib import Path
 
-import numpy as np
+from virtual_ecosystem.core.exceptions import ConfigurationError
+from virtual_ecosystem.core.logger import LOGGER
 
 
-def read_positive_values(path: Path) -> np.ndarray:
-    """Load numeric values and return strictly positive entries."""
+def require_existing_file(path: Path) -> None:
+    """Validate that a required input file exists.
+
+    Args:
+        path: Path to the required input file.
+
+    Raises:
+        ConfigurationError: If the provided path does not exist.
+    """
+
     if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {path}")
-
-    values = np.loadtxt(path, dtype=float)
-    return values[values > 0]
+        to_raise = ConfigurationError(f"Input file not found: {path}")
+        LOGGER.critical(to_raise)
+        raise to_raise
 ```
