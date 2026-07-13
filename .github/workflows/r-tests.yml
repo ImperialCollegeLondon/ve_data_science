@@ -79,19 +79,27 @@ jobs:
         if: steps.pkg-manager.outputs.use_uv == 'false'
         run: poetry run pip install virtual-ecosystem
 
+      # --- System libraries required by R packages ---
+      - name: Install system dependencies
+        run: sudo apt-get install -y libudunits2-dev libnetcdf-dev
+
       # --- R dependencies ---
       - name: Install R dependencies
-        run: |
-          install.packages(c(
-            "here",
-            "testthat",
-            "withr",
-            "reticulate",
-            "toml",
-            "tidync",
-            "purrr"
-          ))
-        shell: Rscript {0}
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: any::sessioninfo
+          extra-packages: |
+            any::here
+            any::testthat
+            any::withr
+            any::reticulate
+            any::toml
+            any::tidync
+            any::purrr
+            any::RNetCDF
+            any::dplyr
+            any::stringr
+            any::cli
 
       # --- Tests ---
       - name: Run R tests
