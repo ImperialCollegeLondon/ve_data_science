@@ -38,7 +38,7 @@
 #|     path: tools/R/
 #|     description: |
 #|       Helper function to compute derived variables
-#|   - name: generate_config_test.py
+#|   - name: generate_test_config.py
 #|     path: tools/python/
 #|     description: |
 #|       Python wrapper around VE's config generation function
@@ -171,7 +171,7 @@ create_mock_nc <- function() {
 # Mock config ------------------------------------------------------------
 
 # Import Python config generator, which is a wrapper around VE's function
-source_python(here("tools/python/generate_config_test.py"))
+source_python(here("tools/python/generate_test_config.py"))
 
 # Function to create mock TOML config file for testing
 create_mock_cfg <- function() {
