@@ -6,11 +6,13 @@ on:
     branches: [main]
     paths:
       - "tools/R/**"
+      - "tools/python/**"
       - "tests/testthat/**"
       - ".github/workflows/r-tests.yml"
   pull_request:
     paths:
       - "tools/R/**"
+      - "tools/python/**"
       - "tests/testthat/**"
       - ".github/workflows/r-tests.yml"
 
@@ -27,19 +29,41 @@ jobs:
           r-version: "release"
           use-public-rspm: true # faster binary package installs
 
+      # --- Python: uv (preferred, used when uv.lock is present) ---
+      - name: Detect package manager
+        id: pkg-manager
+        run:
+          echo "use_uv=$(test -f uv.lock && echo true || echo false)" >>
+          "$GITHUB_OUTPUT"
+
+      - name: Set up uv
+        if: steps.pkg-manager.outputs.use_uv == 'true'
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies (uv)
+        if: steps.pkg-manager.outputs.use_uv == 'true'
+        run: uv sync
+
+      # --- Python: Poetry (fallback while PR #384 is not yet merged) ---
       - name: Set up Python
+        if: steps.pkg-manager.outputs.use_uv == 'false'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install Python dependencies (Poetry)
+        if: steps.pkg-manager.outputs.use_uv == 'false'
         run: |
-          pip install poetry
+          pipx install poetry
           poetry install --no-interaction
 
+      # --- R dependencies ---
       - name: Install R dependencies
         run: |
           install.packages(c(
+            "here",
             "testthat",
             "withr",
             "reticulate",
@@ -49,7 +73,22 @@ jobs:
           ))
         shell: Rscript {0}
 
+      # --- Tests ---
       - name: Run R tests
+        env:
+          # uv creates .venv in the repo root; Poetry path resolved at runtime below
+          RETICULATE_PYTHON:
+            ${{ steps.pkg-manager.outputs.use_uv == 'true' && '.venv/bin/python'
+            || '' }}
         run: |
-          testthat::test_dir("tests/testthat", reporter = "progress", stop_on_failure = TRUE)
+          if (Sys.getenv("RETICULATE_PYTHON") == "") {
+            # Poetry: resolve venv path at runtime
+            venv <- trimws(system("poetry env info --path", intern = TRUE))
+            Sys.setenv(RETICULATE_PYTHON = file.path(venv, "bin", "python"))
+          }
+          testthat::test_dir(
+            here::here("tests/testthat"),
+            reporter = "progress",
+            stop_on_failure = TRUE
+          )
         shell: Rscript {0}
