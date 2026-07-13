@@ -38,7 +38,7 @@
 #|     path: tools/R/
 #|     description: |
 #|       Helper function to compute derived variables
-#|   - name: generate_config_test.py
+#|   - name: generate_test_config.py
 #|     path: tools/python/
 #|     description: |
 #|       Python wrapper around VE's config generation function
