@@ -1,0 +1,55 @@
+name: R Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "tools/R/**"
+      - "tests/testthat/**"
+      - ".github/workflows/r-tests.yml"
+  pull_request:
+    paths:
+      - "tools/R/**"
+      - "tests/testthat/**"
+      - ".github/workflows/r-tests.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true # faster binary package installs
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies (Poetry)
+        run: |
+          pip install poetry
+          poetry install --no-interaction
+
+      - name: Install R dependencies
+        run: |
+          install.packages(c(
+            "testthat",
+            "withr",
+            "reticulate",
+            "toml",
+            "tidync",
+            "purrr"
+          ))
+        shell: Rscript {0}
+
+      - name: Run R tests
+        run: |
+          testthat::test_dir("tests/testthat", reporter = "progress", stop_on_failure = TRUE)
+        shell: Rscript {0}
