@@ -1,0 +1,79 @@
+name: Weekly soil report draft
+
+on:
+  schedule:
+    # Every Monday at 09:00 SGT/MYT (UTC+8 = 01:00 UTC)
+    - cron: "0 1 * * MON"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-issue-tracker
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+
+      - name: Install R packages
+        run: install.packages(c("gh", "dplyr", "purrr", "lubridate", "glue"))
+        shell: Rscript {0}
+
+      - name: Update "Waiting for" section in qmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: Rscript .github/scripts/draft_waiting_for.R
+
+      - name: Commit and push to draft branch
+        run: |
+          # Always reset the draft branch so skipped weeks don't break automation
+          git fetch origin
+          if git ls-remote --exit-code --heads origin chore/weekly-soil-draft; then
+            git push origin --delete chore/weekly-soil-draft
+          fi
+
+          git checkout -b chore/weekly-soil-draft
+          git add analysis/soil/issue_tracker/gh_progress_report.qmd
+          git diff --cached --quiet && echo "No changes, skipping PR." && exit 0
+          git commit -m "chore: update waiting-for section [skip ci]"
+          git push origin chore/weekly-soil-draft
+
+      - name: Open PR against gh-issue-tracker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          gh pr create \
+            --base gh-issue-tracker \
+            --head chore/weekly-soil-draft \
+            --title "chore: weekly soil report draft – ${DATE}" \
+            --body "This is an automated draft to remind you to update the weekly soil report.
+
+          ## What was updated
+          The **\"Required elements (Waiting for)\"** section in
+          \`analysis/soil/issue_tracker/gh_progress_report.qmd\` has been rewritten
+          based on your open PRs with pending reviewers as of ${DATE}.
+
+          ## What still needs your attention
+          Please manually update:
+          - [ ] **Latest description** — summarise what you worked on this week
+          - [ ] **Required elements** — review and edit the auto-generated bullets below if needed
+          - [ ] **Additional notes** — anything else worth noting
+
+          Once done, merge this PR to keep \`gh-issue-tracker\` up to date.
+
+          Finally, compile the Quarto report locally and move the compiled HTML to Dropbox."
