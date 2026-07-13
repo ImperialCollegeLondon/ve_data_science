@@ -77,23 +77,23 @@ library(glmmTMB)
 library(RNetCDF)
 source("tools/R/convert_df_to_nc.R")
 
-set.seed(20260312)
+set.seed(20260713)
 
 
 # Litter metadata ---------------------------------------------------------
 
-litter_meta <- parseTOML("data/scenarios/maliau/soil_litter_metadata.toml")
+litter_meta <- parseTOML("data/scenarios/safe/soil_litter_metadata.toml")
 litter_meta <- litter_meta$litter
 
 
-# Maliau site metadata ----------------------------------------------------
+# SAFE site metadata ----------------------------------------------------
 
-maliau <-
-  parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
-  pluck("Scenario", "maliau_1")
+safe <-
+  parseTOML("data/derived/site/safe/safe_grid_definition.toml") |>
+  pluck("Scenario", "safe_1")
 
 # total number of grids
-n_sim <- with(maliau, cell_nx * cell_ny)
+n_sim <- with(safe, cell_nx * cell_ny)
 
 
 # Set up dataframe --------------------------------------------------------
@@ -102,8 +102,8 @@ n_sim <- with(maliau, cell_nx * cell_ny)
 
 dat <-
   expand_grid(
-    cell_x = maliau$cell_x_centres,
-    cell_y = maliau$cell_y_centres
+    cell_x = safe$cell_x_centres,
+    cell_y = safe$cell_y_centres
   )
 
 
@@ -131,8 +131,8 @@ dat <-
 
 litter_stocks_c <-
   read_csv("data/derived/litter/stock/litter_stock.csv") |>
-  # extract old-growth (never logged) forest values for Maliau
-  filter(Logging_grp == "Never")
+  # extract logged forest values for SAFE
+  filter(Logging_grp == "Logged")
 
 # retrieve stock means and then calculate SDs
 # they are in log scales to generate stocks with a lognormal distribution
@@ -169,25 +169,28 @@ dat <- bind_cols(dat, litter_stocks_c_sim)
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_aboveground.R")
 
+# find the row index of a SAFE sample site (litter_type == "S")
+# any row works as they share the same fixed effects; take the first
+litter_above_safe_idx <- which(litter$litter_type == "S")[[1]]
+
 # predictions, added directly to the dataset
-# NB: the [1, ] index is to extract a Maliau sample site
 dat <-
   dat |>
   mutate(
     c_n_ratio_above_metabolic = as.numeric(simulate(
       mod_C.N_met_above,
       nsim = n_sim
-    )[1, ]),
+    )[litter_above_safe_idx, ]),
     c_n_ratio_above_structural = r_century * c_n_ratio_above_metabolic,
     c_p_ratio_above_metabolic = as.numeric(simulate(
       mod_C.P_met_above,
       nsim = n_sim
-    )[1, ]),
+    )[litter_above_safe_idx, ]),
     c_p_ratio_above_structural = r_century * c_p_ratio_above_metabolic,
     lignin_above_structural = as.numeric(simulate(
       mod_lignin_above,
       nsim = n_sim
-    )[1, ])
+    )[litter_above_safe_idx, ])
   ) |>
   # calculate litter N and P stocks from C stock and C:N & C:P ratios
   mutate(

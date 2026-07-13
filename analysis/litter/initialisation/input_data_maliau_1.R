@@ -169,25 +169,28 @@ dat <- bind_cols(dat, litter_stocks_c_sim)
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_aboveground.R")
 
+# find the row index of a Maliau sample site (litter_type == "M")
+# any row works as they share the same fixed effects; take the first
+litter_above_maliau_idx <- which(litter$litter_type == "M")[[1]]
+
 # predictions, added directly to the dataset
-# NB: the [1, ] index is to extract a Maliau sample site
 dat <-
   dat |>
   mutate(
     c_n_ratio_above_metabolic = as.numeric(simulate(
       mod_C.N_met_above,
       nsim = n_sim
-    )[1, ]),
+    )[litter_above_maliau_idx, ]),
     c_n_ratio_above_structural = r_century * c_n_ratio_above_metabolic,
     c_p_ratio_above_metabolic = as.numeric(simulate(
       mod_C.P_met_above,
       nsim = n_sim
-    )[1, ]),
+    )[litter_above_maliau_idx, ]),
     c_p_ratio_above_structural = r_century * c_p_ratio_above_metabolic,
     lignin_above_structural = as.numeric(simulate(
       mod_lignin_above,
       nsim = n_sim
-    )[1, ])
+    )[litter_above_maliau_idx, ])
   ) |>
   # calculate litter N and P stocks from C stock and C:N & C:P ratios
   mutate(
