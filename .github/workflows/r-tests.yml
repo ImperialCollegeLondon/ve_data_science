@@ -30,7 +30,7 @@ jobs:
           use-public-rspm: true # faster binary package installs
 
       # --- Python: uv (preferred, used when uv.lock is present) ---
-      - name: Detect package manager
+      - name: Detect Python package manager
         id: pkg-manager
         run:
           echo "use_uv=$(test -f uv.lock && echo true || echo false)" >>
@@ -58,6 +58,26 @@ jobs:
         run: |
           pipx install poetry
           poetry install --no-interaction
+
+      # virtual_ecosystem cannot be added to pyproject.toml under Poetry because
+      # rasterio's cligj dependency requires click <8 while virtual_ecosystem
+      # requires click >=8 (via dask). Once the uv migration (PR #384) is merged,
+      # remove these two steps and instead run:
+      #   uv add virtual-ecosystem
+      # uv's resolver handles the conflict via its more permissive dependency model.
+      - name: Install virtual_ecosystem (uv)
+        if: steps.pkg-manager.outputs.use_uv == 'true'
+        run: |
+          if grep -q "virtual.ecosystem" pyproject.toml; then
+            echo "virtual-ecosystem found in pyproject.toml — installed via uv sync, nothing to do."
+          else
+            echo "::warning::virtual-ecosystem is not in pyproject.toml. After the uv migration, run 'uv add virtual-ecosystem' and remove this step."
+            uv pip install virtual-ecosystem
+          fi
+
+      - name: Install virtual_ecosystem (Poetry)
+        if: steps.pkg-manager.outputs.use_uv == 'false'
+        run: poetry run pip install virtual-ecosystem
 
       # --- R dependencies ---
       - name: Install R dependencies
