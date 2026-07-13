@@ -178,7 +178,8 @@ create_mock_cfg <- function() {
   mock_cfg_path <- test_path("mock_config.TOML")
   # save the generated config file to a temporary TOML file, then read it
   generate_test_config(mock_cfg_path)
-  toml::read_toml(mock_cfg_path)
+  cfg <- toml::read_toml(mock_cfg_path)
   # Schedule cleanup
   defer_parent(unlink(mock_cfg_path))
+  cfg
 }

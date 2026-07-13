@@ -52,7 +52,7 @@ test_that("get_derived_variables returns a named list of arrays", {
   # Create temporary mock netCDF file
   create_mock_nc()
   # Create temporary mock config file
-  create_mock_cfg()
+  config <- create_mock_cfg()
   result <-
     tidync::tidync(test_path("mock_data.nc")) |>
     get_derived_variables(config = config)
@@ -100,7 +100,7 @@ test_that("get_total_soil_c_per_volume preserves spatiotemporal dimensions", {
 
 test_that("get_total_soil_c_per_mass converts volume to mass and get_total_soil_c_per_area to area basis correctly.", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   result_volume_basis <-
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_c_per_volume()
@@ -120,7 +120,7 @@ test_that("get_total_soil_c_per_mass converts volume to mass and get_total_soil_
 
 test_that("get_soil_np_pool_microbial converts C to N and P pools correctly.", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   # Extract C microbial pools
   soil_c_microbial <-
     tidync::tidync(test_path("mock_data.nc")) |>
