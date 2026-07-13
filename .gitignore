@@ -576,3 +576,6 @@ rsconnect/
 **/*.quarto_ipynb
 **/*_files
 analysis/**/*.html
+
+# AI files
+.posit/assistant/settings.json
