@@ -10,6 +10,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: weekly-soil-report-draft-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   draft:
     runs-on: ubuntu-latest
@@ -29,16 +33,23 @@ jobs:
           r-version: "release"
           use-public-rspm: true
 
-      - name: Install R packages
-        run: install.packages(c("gh", "dplyr", "purrr", "lubridate", "glue"))
-        shell: Rscript {0}
+      - name: Install R dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::gh
+            any::dplyr
+            any::purrr
+            any::lubridate
+            any::glue
 
-      - name: Update "Waiting for" section in qmd
+      - name: Update "Waiting for" section in report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: Rscript .github/scripts/draft_waiting_for.R
 
       - name: Commit and push to draft branch
+        id: push_draft
         run: |
           # Always reset the draft branch so skipped weeks don't break automation
           git fetch origin
@@ -48,15 +59,36 @@ jobs:
 
           git checkout -b chore/weekly-soil-draft
           git add analysis/soil/issue_tracker/gh_progress_report.qmd
-          git diff --cached --quiet && echo "No changes, skipping PR." && exit 0
+
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes, skipping push and PR."
+            exit 0
+          fi
+
           git commit -m "chore: update waiting-for section [skip ci]"
           git push origin chore/weekly-soil-draft
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
 
-      - name: Open PR against gh-issue-tracker
+      - name: Open or update PR against gh-issue-tracker
+        if: steps.push_draft.outputs.has_changes == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           DATE=$(date +%Y-%m-%d)
+
+          EXISTING_PR_URL=$(gh pr list \
+            --base gh-issue-tracker \
+            --head chore/weekly-soil-draft \
+            --state open \
+            --json url \
+            --jq '.[0].url')
+
+          if [ -n "$EXISTING_PR_URL" ]; then
+            echo "Open PR already exists: $EXISTING_PR_URL"
+            exit 0
+          fi
+
           gh pr create \
             --base gh-issue-tracker \
             --head chore/weekly-soil-draft \
