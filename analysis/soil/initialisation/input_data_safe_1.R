@@ -218,12 +218,86 @@ dat <-
 # soil_n_pool_particulate
 # soil_n_pool_maom
 
-#### Missing data ####
+# Both are predicted from control plots from a tropical forest in BCI
+source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
+
+dat <-
+  dat |>
+  mutate(
+    soil_c_pool_pom = predict(
+      mod_C,
+      newdata = dat |>
+        select(C_total = total_carbon) |>
+        mutate(
+          class = "POM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    ),
+    soil_c_pool_maom = predict(
+      mod_C,
+      newdata = dat |>
+        select(C_total = total_carbon) |>
+        mutate(
+          class = "MAOM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    ),
+    soil_n_pool_particulate = predict(
+      mod_N,
+      newdata = dat |>
+        select(N_total = total_nitrogen) |>
+        mutate(
+          class = "POM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    ),
+    soil_n_pool_maom = predict(
+      mod_N,
+      newdata = dat |>
+        select(N_total = total_nitrogen) |>
+        mutate(
+          class = "MAOM",
+          treatm = "CT",
+          block = NA
+        ),
+      allow.new.levels = TRUE,
+      type = "response"
+    )
+  )
 
 # soil_c_pool_lmwc
 # using DOC as a proxy
+# then convert units from [microgram / gram] to [kg/kg]
+# NB: the LWMC values are in the same order of magnitude as POM C, which is
+#     possible although we expected LMWC to be lower; I am letting this pass
+#     for now for the purpose of initialisation
 
-#### Missing data ####
+source("analysis/soil/nutrient_pools/doc_don.R")
+
+dat <-
+  dat |>
+  mutate(
+    soil_c_pool_lmwc = rnorm(n_sim, doc_mean, doc_sd),
+    soil_c_pool_lmwc = soil_c_pool_lmwc / 1e6
+  )
+
+# soil_n_pool_don
+# values are quite high compared to POM and MAOM, worth checking later
+dat <-
+  dat |>
+  mutate(
+    soil_n_pool_don = rnorm(n_sim, don_mean, don_sd),
+    soil_n_pool_don = soil_n_pool_don / 1e6
+  )
 
 # Microbial C fractions, including:
 # soil_c_pool_arbuscular_mycorrhiza
