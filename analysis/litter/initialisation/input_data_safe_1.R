@@ -210,74 +210,9 @@ dat <-
 # litter_pool_below_metabolic_cnp
 # litter_pool_below_structural_cnp
 
-# source models for prediction
-source("analysis/litter/nutrient_pool/initial_nutrient_belowground.R")
-
-# simulate predictions
-below_litter_sim <-
-  # first generate random C, N, P and lignin values
-  # using abs(rnorm(...)) to generate half-Normal random variates so that
-  # nutrient values are positive bound
-  data.frame(
-    C = abs(rnorm(n_sim, C_mean, C_sd)),
-    N = abs(rnorm(n_sim, N_mean, N_sd)),
-    P = abs(rnorm(n_sim, P_mean, P_sd)),
-    lignin = abs(rnorm(n_sim, lignin_mean, lignin_sd))
-  ) |>
-  # convert lignin from mass/mass to g C/g C
-  # the lignin C content = 62.5% comes from
-  # Martin et al. (2021) DOI: 10.1038/s41467-021-21149-9
-  mutate(lignin = lignin * 0.625 / C) |>
-  # convert N and P to litter content using resorption efficiencies
-  mutate(
-    N_resorption = abs(rnorm(n_sim, N_resorption_mean, N_resorption_sd)),
-    P_resorption = abs(rnorm(n_sim, P_resorption_mean, P_resorption_sd)),
-    N = N * N_resorption / 100,
-    P = P * P_resorption / 100
-  ) |>
-  # calculate C:N and C:P ratios
-  mutate(
-    CN = C / N,
-    CP = C / P
-  ) |>
-  # calculate metabolic fraction
-  mutate(
-    fm = plogis(
-      logitfM - lignin * (sN * CN + sP * CP)
-    )
-  ) |>
-  # calculate metabolic and structural nutrients
-  # see rearranged equation on the litter theory documentation
-  # https://virtual-ecosystem.readthedocs.io/en/latest/virtual_ecosystem/theory/soil/litter_theory.html#split-of-nutrient-inputs-between-pools
-  mutate(
-    c_n_ratio_below_metabolic = CN / (r_century + fm * (1 - r_century)),
-    c_p_ratio_below_metabolic = CP / (r_century + fm * (1 - r_century)),
-    c_n_ratio_below_structural = r_century * c_n_ratio_below_metabolic,
-    c_p_ratio_below_structural = r_century * c_p_ratio_below_metabolic
-  ) |>
-  select(
-    c_n_ratio_below_metabolic,
-    c_p_ratio_below_metabolic,
-    c_n_ratio_below_structural,
-    c_p_ratio_below_structural,
-    lignin_below_structural = lignin
-  )
-
-# add to the dataset
-dat <-
-  bind_cols(dat, below_litter_sim) |>
-  # calculate litter N and P stocks from C stock and C:N & C:P ratios
-  mutate(
-    litter_pool_below_metabolic_n = litter_pool_below_metabolic_c /
-      c_n_ratio_below_metabolic,
-    litter_pool_below_structural_n = litter_pool_below_structural_c /
-      c_n_ratio_below_structural,
-    litter_pool_below_metabolic_p = litter_pool_below_metabolic_c /
-      c_p_ratio_below_metabolic,
-    litter_pool_below_structural_p = litter_pool_below_structural_c /
-      c_p_ratio_below_structural
-  )
-
+############ Fine root stoichiometry is from undisturbed forest ###############
+# Worth discussing with Arne because the root nutrients were based on the
+# same input data for Maliau
 
 # Third, woody litter including:
 # lignin_woody
@@ -287,15 +222,15 @@ dat <-
 # source models for prediction
 source("analysis/litter/nutrient_pool/initial_nutrient_woody.R")
 
-# find the row index of a Maliau site, there will be three rows for P, N and C
+# find the row index of a SAFE site, there will be three rows for P, N and C
 # we will use the first site because it does not matter which site for the
 # simulation purpose (they have the same fixed effects)
-deadwood_maliau_idx <- which(nutrient_deadwood$Logging_grp == "Never")[1:3]
+deadwood_safe_idx <- which(nutrient_deadwood$Logging_grp == "Logged")[1:3]
 
 # simulate deadwood P, N and C
 nutrient_deadwood_sim <-
-  t(simulate(mod_nutrient_deadwood, nsim = n_sim)[deadwood_maliau_idx, ])
-colnames(nutrient_deadwood_sim) <- nutrient_deadwood$Type[deadwood_maliau_idx]
+  t(simulate(mod_nutrient_deadwood, nsim = n_sim)[deadwood_safe_idx, ])
+colnames(nutrient_deadwood_sim) <- nutrient_deadwood$Type[deadwood_safe_idx]
 
 # simulate deadwood lignin
 lignin_sim <- abs(rnorm(n_sim, lignin_mean, lignin_sd))
@@ -382,11 +317,11 @@ litter_meta_df <-
 # convert data to netCDF
 convert_df_to_nc(
   data = dat,
-  filename = "data/scenarios/maliau/maliau_1/data/litter_maliau.nc",
-  x = maliau$cell_x_centres,
-  y = maliau$cell_y_centres,
+  filename = "data/scenarios/safe/safe_1/data/litter_safe.nc",
+  x = safe$cell_x_centres,
+  y = safe$cell_y_centres,
   element = c("C", "N", "P"),
   variables = litter_meta_df$variable,
   units = litter_meta_df$unit,
-  description = "Litter data for the Maliau scenario"
+  description = "Litter data for the SAFE scenario"
 )
