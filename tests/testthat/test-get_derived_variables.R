@@ -188,7 +188,7 @@ test_that("get_soil_np_pool_microbial converts C to N and P pools correctly.", {
 
 test_that("get_total_soil_n_per_volume sums all nitrogen pools", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   # Extract C:N ratios for all microbial groups (order: ectomycorrhiza, saprotrophic_fungi, arbuscular_mycorrhiza, bacteria)
   stoich <-
     config$soil$microbial_group_definition |>
@@ -205,7 +205,7 @@ test_that("get_total_soil_n_per_volume sums all nitrogen pools", {
 
 test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   result <-
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_n_per_volume(config = config)
@@ -214,7 +214,7 @@ test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
 
 test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_n_per_area to area basis correctly.", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   result_volume_basis <-
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_n_per_volume(config = config)
@@ -233,7 +233,7 @@ test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_
 # Repeat soil N tests on soil P
 test_that("get_total_soil_p_per_volume sums all phosphorous pools", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   stoich <-
     config$soil$microbial_group_definition |>
     purrr::map_vec(\(x) {
@@ -248,7 +248,7 @@ test_that("get_total_soil_p_per_volume sums all phosphorous pools", {
 
 test_that("get_total_soil_p_per_volume preserves spatiotemporal dimensions", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   result <-
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_p_per_volume(config = config)
@@ -257,7 +257,7 @@ test_that("get_total_soil_p_per_volume preserves spatiotemporal dimensions", {
 
 test_that("get_total_soil_p_per_mass converts volume to mass and get_total_soil_p_per_area to area basis correctly.", {
   create_mock_nc()
-  create_mock_cfg()
+  config <- create_mock_cfg()
   result_volume_basis <-
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_p_per_volume(config = config)
