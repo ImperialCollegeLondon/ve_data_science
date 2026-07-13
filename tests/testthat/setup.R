@@ -55,12 +55,13 @@
 #|     are automatically cleaned up after tests complete via defer_parent().
 #| ---
 
+library(here)
 library(testthat)
 library(withr)
 library(reticulate)
-source("../../tools/R/convert_array_to_nc.R")
-source("../../tools/R/get_data_variables.R")
-source("../../tools/R/get_derived_variables.R")
+source(here("tools/R/convert_array_to_nc.R"))
+source(here("tools/R/get_data_variables.R"))
+source(here("tools/R/get_derived_variables.R"))
 
 
 # Mock data --------------------------------------------------------------
@@ -170,7 +171,7 @@ create_mock_nc <- function() {
 # Mock config ------------------------------------------------------------
 
 # Import Python config generator, which is a wrapper around VE's function
-source_python("../../tools/python/generate_config_test.py")
+source_python(here("tools/python/generate_config_test.py"))
 
 # Function to create mock TOML config file for testing
 create_mock_cfg <- function() {
