@@ -19,6 +19,11 @@
 #|     description: |
 #|         Deadwood decay and traits in the SAFE landscape.
 #|         Downloaded from https://zenodo.org/records/4899610
+#|   - name: Fractal_point_nesting.xlsx
+#|     path: data/primary/site/
+#|     description: |
+#|       SAFE plot type information including site, habitat, logging treatment,
+#|       and plot nesting order; used to classify plots by logging group
 #|
 #| output_files:
 #|
@@ -37,6 +42,30 @@ library(glmmTMB)
 
 
 # Data --------------------------------------------------------------------
+
+# SAFE plot type information
+safe_plot_info <-
+  read_xlsx(
+    "data/primary/site/Fractal_point_nesting.xlsx",
+    sheet = 3,
+    skip = 5
+  ) |>
+  pivot_longer(
+    cols = ends_with("Order"),
+    names_to = "Order",
+    values_to = "Plot"
+  ) |>
+  filter(!is.na(Plot), Plot != "NA") |>
+  distinct(Site, Habitat, Logging, Order, Plot) |>
+  # reclassify logging
+  mutate(
+    Logging_grp = replace_values(
+      Logging,
+      "LowIntensity" ~ "Logged",
+      "Twice" ~ "Logged",
+      "Variable" ~ "Logged"
+    )
+  )
 
 # N, C and P from SAFE deadwood survey
 nutrient_deadwood <-
@@ -60,7 +89,9 @@ nutrient_deadwood <-
   ) |>
   # remove a few zero P values, assuming that these are below detection
   # threshold and not true zeros
-  filter(Nutrient > 0)
+  filter(Nutrient > 0) |>
+  # join SAFE plot type
+  left_join(safe_plot_info |> select(PlotCode = Plot, Logging_grp))
 
 # lignin is hard to find and is unavailable from SAFE data
 # I will use a long-term tropical hardwood data compiled by CIRAD
@@ -80,7 +111,7 @@ lignin_sd <- lignin_mean * lignin_cv
 # predictive model for deadwood C, N and P (g/g)
 mod_nutrient_deadwood <-
   glmmTMB(
-    Nutrient ~ 0 + Type * Block + (1 | PlotCode),
+    Nutrient ~ 0 + Type * Logging_grp + (1 | PlotCode),
     family = lognormal(),
     data = nutrient_deadwood
   )

@@ -12,15 +12,28 @@
 *.txt
 *.rds
 *.RData
+
+# Primary data
 data/primary
 
-# scenario files (inputs for VE)
-# we are going to keep metadata files
-data/scenarios/maliau/maliau_1
-data/scenarios/maliau/maliau_2
+# Derived data
+data/derived/troubleshoot/runtime_per_cell/*.png
+data/derived/soil/validation/database
+data/derived/soil/necromass/li_et_al_2023.csv
+data/derived/litter/stock/litter_stock.csv
 
-# notebooks
-analysis/soil/validation/*html
+# Scenario files, except the change_log.txt file
+# ignore the directory's contents (/*), not the directory itself — otherwise
+# the ! negation for the file won't work (git can't un-ignore files inside an
+# ignored directory).
+data/scenarios/*/*/*
+!data/scenarios/maliau/*/change_log.txt
+
+# Notebooks
+/.quarto/
+**/*.quarto_ipynb
+analysis/soil/validation/*/*.html
+analysis/soil/issue_tracker/*.html
 
 # History files
 .Rhistory
@@ -492,7 +505,7 @@ FodyWeavers.xsd
 # .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-!.vscode/launch.json
+#!.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
