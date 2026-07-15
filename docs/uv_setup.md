@@ -88,7 +88,47 @@ uv sync --group dev --reinstall-package virtual-ecosystem
 
 ---
 
-## Step 4: Confirm what is installed
+## Step 4: Update `virtual-ecosystem`
+
+### A) Update to the latest PyPI release
+
+Run:
+
+```sh
+uv lock --upgrade-package virtual-ecosystem
+uv sync
+```
+
+This refreshes the lockfile entry for `virtual-ecosystem` and installs the newest
+compatible release from PyPI.
+
+### B) Update `dev` to the latest `develop` commit
+
+Run:
+
+```sh
+uv sync --group dev --reinstall-package virtual-ecosystem
+```
+
+Use this when `virtual-ecosystem` is pulled from the `develop` branch and you want
+new upstream changes.
+
+### C) Update the pinned `dev-stable` commit
+
+1. Edit `pyproject.toml` and change the pinned commit hash for the `dev-stable`
+   dependency.
+2. Refresh the lockfile and sync:
+
+```sh
+uv lock
+uv sync --group dev-stable
+```
+
+1. Verify the new commit hash in `uv.lock`.
+
+---
+
+## Step 5: Confirm what is installed
 
 The most reliable check is the output from `uv sync`: it shows the source
 (PyPI or Git URL with commit hash).
@@ -105,7 +145,7 @@ same version tag.
 
 ---
 
-## Step 5: Running `ve_run` (or any other commands or `.py` scripts)
+## Step 6: Running `ve_run` (or any other commands or `.py` scripts)
 
 Run commands or `.py` scripts with `uv run`. For example:
 
