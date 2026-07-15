@@ -22,6 +22,17 @@
 #|     description: |
 #|       Combined litter stock from three separate analyses
 #|
+#| source_files:
+#|   - name: model_aboveground_C.R
+#|     path: analysis/litter/stock/
+#|     description: Code to estimate aboveground litter stocks
+#|   - name: model_belowground_C.R
+#|     path: analysis/litter/stock/
+#|     description: Code to estimate belowground litter stocks
+#|   - name: model_deadwood_C.R
+#|     path: analysis/litter/stock/
+#|     description: Code to estimate deadwood litter stocks
+#|
 #| package_dependencies:
 #|     - tidyverse
 #|     - readxl
@@ -38,41 +49,32 @@ source("analysis/litter/stock/model_deadwood_C.R")
 # combine stocks to a single dataframe
 litter_stocks <-
   # aboveground stock with some housekeeping
-  aboveground_stock %>%
-  rename(pool_raw = type) %>%
+  aboveground_stock |>
+  select(Logging_grp, pool_raw = type, stock) |>
   mutate(
-    pool_raw = case_match(
+    pool_raw = recode_values(
       pool_raw,
       "metabolic" ~ "aboveground metabolic",
       "structural" ~ "aboveground structural",
       "wood" ~ "twig and branch"
     )
-  ) %>%
+  ) |>
   # deadwood stock
-  add_row(
-    pool_raw = "deadwood",
-    stock = total_deadwood_stock
-  ) %>%
+  bind_rows(
+    total_deadwood_stock |> mutate(pool_raw = "deadwood")
+  ) |>
   # belowground stock
-  add_row(
-    pool_raw = "belowground metabolic",
-    stock = P_metabolic
-  ) %>%
-  add_row(
-    pool_raw = "belowground structural",
-    stock = P_structural
-  ) %>%
+  bind_rows(belowground_stock) |>
   # aggregate to VE litter pools
   mutate(
-    pool = case_match(
+    pool = replace_values(
       pool_raw,
       "twig and branch" ~ "wood",
-      "deadwood" ~ "wood",
-      .default = pool_raw
+      "deadwood" ~ "wood"
     )
-  ) %>%
-  group_by(pool) %>%
-  summarise(stock = sum(stock)) %>%
+  ) |>
+  group_by(Logging_grp, pool) |>
+  summarise(stock = sum(stock)) |>
   # add a column of methodology
   mutate(
     method = case_when(
