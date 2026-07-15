@@ -1,6 +1,6 @@
 # Scenarios of data–prediction (mis)match for validation
 
-<!-- markdownlint-disable MD013 MD060 MD033 MD012 -->
+<!-- markdownlint-disable MD013 MD060 MD033 -->
 
 ## Background
 
