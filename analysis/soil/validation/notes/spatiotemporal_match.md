@@ -41,7 +41,7 @@ split by spatial coordinates, and the second nodes by temporal
 coordinates.
 
 ``` mermaid
-flowchart TD
+flowchart LR
     A[Spatial coords in data?]
 
     A -->|No| B[Temporal coords in data?]
