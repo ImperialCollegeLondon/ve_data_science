@@ -3,7 +3,7 @@ title: "Scenarios of data--prediction (mis)match for validation"
 format: gfm
 ---
 
-<!-- markdownlint-disable MD013 MD060 MD033 -->
+<!-- markdownlint-disable MD013 MD060 MD033 MD012 -->
 
 ## Background
 
@@ -39,25 +39,26 @@ discuss next time.
 
 The matrix translates directly into a decision tree. The first node split by spatial coordinates, and the second nodes by temporal coordinates.
 
-```
-Spatial coords in data?
-├── No
-│   └── Temporal coords in data?
-│       ├── No       →  grand mean of X over all i, t
-│       ├── Exact    →  spatial mean per t
-│       └── Mismatch →  spatial mean + agg finer side to coarser period
-└── Yes
-    └── Spatial resolution vs. model grid?
-        ├── Exact
-        │   └── Temporal coords in data?
-        │       ├── No       →  temporal mean per cell
-        │       ├── Exact    →  direct match ⭐
-        │       └── Mismatch →  agg finer side temporally, per cell
-        └── Mismatch / provided range only
-            └── Temporal coords in data?
-                ├── No       →  agg finer side spatially + temporal mean
-                ├── Exact    →  agg finer side spatially per t
-                └── Mismatch →  agg finer side in both dimensions
+```mermaid
+flowchart TD
+    A[Spatial coords in data?]
+
+    A -->|No| B[Temporal coords in data?]
+    B -->|No| C[Grand mean of X over all i, t]
+    B -->|Exact| D[Spatial mean per t]
+    B -->|Mismatch| E[Spatial mean + agg finer side to coarser period]
+
+    A -->|Yes| F[Spatial resolution vs. model grid?]
+
+    F -->|Exact| G[Temporal coords in data?]
+    G -->|No| H[Temporal mean per cell]
+    G -->|Exact| I[Direct match ⭐]
+    G -->|Mismatch| J[Agg finer side temporally, per cell]
+
+    F -->|Mismatch / provided range only| K[Temporal coords in data?]
+    K -->|No| L[Agg finer side spatially + temporal mean]
+    K -->|Exact| M[Agg finer side spatially per t]
+    K -->|Mismatch| N[Agg finer side in both dimensions]
 ```
 
 **Discussing and deciding on this decision tree will help us map it directly to a nested `if`-`else` chain in code.**
