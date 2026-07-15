@@ -578,4 +578,4 @@ rsconnect/
 analysis/**/*.html
 
 # AI files
-.posit/assistant/settings.json
+.posit/assistant/
