@@ -16,40 +16,81 @@ soil_constants_field_info <- tibble(
 )
 
 # Candidate constants for current scoping pass
-cand_vars <- c(
-  "maom_desorption_rate",
-  "lmwc_sorption_rate",
-  "necromass_decay_rate",
-  "necromass_sorption_rate"
-)
+cand_vars <- soil_constants_fields_names
 
-constant_scoping_table <-
-  soil_constants |>
-  reshape2::melt() |>
-  rename(constant = L1) |>
-  filter(constant %in% cand_vars) |>
-  left_join(soil_constants_field_info, by = "constant")
-
-# Extract constant -> caller -> callee documentation from soil pools source
 source_python(here::here("analysis/soil/llm/constant_call_doc_extractor.py"))
 
-soil_pools_file <- normalizePath(
-  here::here(".venv/Lib/site-packages/virtual_ecosystem/models/soil/pools.py"),
+soil_module_dir <- normalizePath(
+  here::here(".venv/Lib/site-packages/virtual_ecosystem/models/soil"),
   winslash = "/",
   mustWork = TRUE
 )
 
-constant_caller_callee_docs <-
-  py$extract_constant_call_doc_map(
-    file_path = soil_pools_file,
-    constants = as.list(cand_vars),
-    caller_qualified_name = "SoilPools.calculate_all_pool_updates"
-  ) |>
-  py_to_r() |>
-  as_tibble() |>
-  mutate(across(everything(), as.character))
+soil_files <- list.files(
+  soil_module_dir,
+  pattern = "\\.py$",
+  full.names = TRUE
+)
 
-# Join-ready final table for downstream review
-constant_scoping_with_docs <-
-  constant_scoping_table |>
-  left_join(constant_caller_callee_docs, by = "constant")
+entrypoints <- c(
+  "SoilPools.calculate_all_pool_updates",
+  "SoilPools.to_per_volume"
+)
+
+extract_constant_map_one <- function(
+  file_path,
+  caller_qualified_name,
+  constants,
+  max_depth = 10L
+) {
+  out <- py$extract_constant_call_doc_map(
+    file_path = file_path,
+    constants = as.list(constants),
+    caller_qualified_name = caller_qualified_name,
+    max_depth = max_depth
+  ) |>
+    py_to_r()
+
+  tibble(
+    file = basename(file_path),
+    source_entrypoint = caller_qualified_name,
+    constant = as.character(out$constant),
+    caller = as.character(out$caller),
+    callee = as.character(out$callee),
+    callee_param = as.character(out$callee_param),
+    depth = as.integer(out$depth),
+    callee_doc = as.character(out$callee_doc),
+    callee_param_doc = as.character(out$callee_param_doc)
+  )
+}
+
+constant_caller_map <-
+  expand_grid(
+    file_path = soil_files,
+    caller_qualified_name = entrypoints
+  ) |>
+  mutate(
+    extracted = map2(
+      file_path,
+      caller_qualified_name,
+      \(file_path, caller_qualified_name) {
+        extract_constant_map_one(
+          file_path = file_path,
+          caller_qualified_name = caller_qualified_name,
+          constants = cand_vars,
+          max_depth = 10L
+        )
+      }
+    )
+  ) |>
+  pull(extracted) |>
+  list_rbind() |>
+  distinct()
+
+constant_scoping_table <-
+  soil_constants |>
+  reshape2::melt() |>
+  select(constant = L1, value) |>
+  filter(constant %in% cand_vars) |>
+  left_join(soil_constants_field_info, by = "constant") |>
+  left_join(constant_caller_map, by = "constant")
