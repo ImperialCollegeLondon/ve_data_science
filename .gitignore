@@ -29,6 +29,9 @@ data/derived/litter/stock/litter_stock.csv
 data/scenarios/*/*/*
 !data/scenarios/maliau/*/change_log.txt
 
+# troubleshoot files
+analysis/troubleshoot/zarr_test/ve_example
+
 # Notebooks
 /.quarto/
 **/*.quarto_ipynb
