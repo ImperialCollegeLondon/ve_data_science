@@ -1,0 +1,25 @@
+# Change log of maliau_2 scenario input data
+
+2026-07-10
+- Module: Litter
+- Author: Hao Ran Lai
+- Initial woody litter nutrients are now split by land use type rather than
+  plot block ID
+- Aboveground litter carbon stock is now split by land use type
+- Belowground litter nutrient stock is now split by land use type
+- Woody (deadwood) litter stock is now split by land use type
+- References:
+  - PR #387 to close Issue #381
+
+2026-07-07
+- Module: Soil
+- Author: Hao Ran Lai
+- Almost all variables were updated. The changes should be slight, as most
+  analysis modifications were minor; primarily to generalise them beyond Maliau.
+  During this process, Hao Ran made several minor improvements.
+- Microbial C, N and P are now fully predicted from old-growth sites.
+- Necromass C, N and P based on amino sugars are now correctly calculated,
+  though the adjustment is minor.
+- Reference:
+  - PR #379 to close Issues #372, #374 and #375
+  - PR #382 to close Issue #378
