@@ -245,9 +245,7 @@ def _collect_argument_constant_bindings(
         # kw.arg is None for **kwargs expansion; skip because no direct target name.
         if kw.arg is None:
             continue
-        constants_found = _constants_from_expr(
-            kw.value, tracked_symbols, constants_set
-        )
+        constants_found = _constants_from_expr(kw.value, tracked_symbols, constants_set)
         if constants_found:
             callee_param_constants[kw.arg].update(constants_found)
 
@@ -286,8 +284,8 @@ def extract_constant_call_doc_map(
 
     Example:
         >>> result = extract_constant_call_doc_map(
-        ...     file_path="virtual_ecosystem/models/soil/pools.py",
-        ...     constants=["arrhenius_reference_temp", "activation_energy_microbial_uptake"],
+        ...     file_path=".venv/Lib/site-packages/virtual_ecosystem/models/soil/pools.py",
+        ...     constants=["maom_desorption_rate", "lmwc_sorption_rate"],
         ...     caller_qualified_name="SoilPools.calculate_all_pool_updates",
         ...     max_depth=5,
         ... )
