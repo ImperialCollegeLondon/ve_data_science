@@ -1,5 +1,16 @@
 # Change log of maliau_2 scenario input data
 
+2026-07-10
+- Module: Litter
+- Author: Hao Ran Lai
+- Initial woody litter nutrients are now split by land use type rather than
+  plot block ID
+- Aboveground litter carbon stock is now split by land use type
+- Belowground litter nutrient stock is now split by land use type
+- Woody (deadwood) litter stock is now split by land use type
+- References:
+  - PR #387 to close Issue #381
+
 2026-07-07
 - Module: Soil
 - Author: Hao Ran Lai

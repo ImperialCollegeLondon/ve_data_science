@@ -20,6 +20,7 @@ data/primary
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/validation/database
 data/derived/soil/necromass/li_et_al_2023.csv
+data/derived/litter/stock/litter_stock.csv
 
 # MkDocs build output
 site/
@@ -30,6 +31,9 @@ site/
 # ignored directory).
 data/scenarios/*/*/*
 !data/scenarios/maliau/*/change_log.txt
+
+# troubleshoot files
+analysis/troubleshoot/zarr_test/ve_example
 
 # Notebooks
 /.quarto/
