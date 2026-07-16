@@ -3,7 +3,7 @@ description: 'Guidelines for creating pull request summary by Copilot.'
 applyTo: '**'
 ---
 
-<!-- markdownlint-disable MD036 -->
+<!-- markdownlint-disable MD036 MD013 -->
 # Pull Request Assistant Instructions
 
 ## Purpose
