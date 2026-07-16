@@ -15,6 +15,10 @@ The folder contains a pure YAML file (`yaml_metadata_specification.yaml`) that c
 an example of the metadata specification we want to adopt. This is to show what YAML
 looks like and it should not be used directly as a template.
 
+The folder also contains a `Jupyter_notebook_tutorial/` subfolder with a worked
+example (`tutorial/Tutorial.md`) and rendered outputs (`tutorial/rendered/`) showing
+how notebook-style content and assets are produced.
+
 Each script file format has to include the YAML metadata in slightly different ways:
 
 * The RMarkdown notebook format (`.Rmd` files) and Myst Markdown notebook (`.md`) files
