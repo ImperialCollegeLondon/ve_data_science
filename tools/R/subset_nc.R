@@ -85,10 +85,10 @@ subset_array <- function(
         x = x > ll_x & x < ur_x,
         y = y > ll_y & y < ur_y
       ) |>
-      get_all_variables()
+      get_data_variables()
   } else {
     tidync(nc) |>
       hyper_filter(cell_id = cell_id %in% cell_ids) |>
-      get_all_variables()
+      get_data_variables()
   }
 }

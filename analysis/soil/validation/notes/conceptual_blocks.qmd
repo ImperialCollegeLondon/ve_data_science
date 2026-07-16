@@ -1,7 +1,7 @@
 ---
 title: "Some conceptual blocks on validation"
 author:
-  name: Hao Ran
+  name: Lai, Hao Ran
 date: last-modified
 format:
   html:
@@ -9,17 +9,20 @@ format:
     toc-location: left
     theme: sandstone
     embed-resources: true
+comments:
+  hypothesis: true
 ---
 
-# Preamble
-
-- I learned about "validation" from the statistical modelling perspective; there may be some nuanced difference from process-based or mechanistic modelling.
-- I try to move across modules but apologies in advance if I have gotten anything wrong.
-- The data team members added lots of useful and contrasting perspectives while reviewing this document. I have included a selection of them in boxes.
-
-# Conceptual blocks
+::: {.callout-note}
+The data team members added lots of useful and contrasting perspectives while reviewing this document. I have included a selection of them in boxes.
+:::
 
 ## How long should we run the simulation?
+
+::: {.callout-note}
+# This section has kinda been resolved during the 14 May 2026 meeting. You may want to jump to the section.
+We sketched a spin-up scenario for abiotic before activating other modules, though it's very rough. We also decided to validate an observation from a particular space and time (if these information are available), regardless of when and where the input data were collected for initialisation (there's a lot of nuances here that I don't know how to put down in words).
+:::
 
 A proper pair of input and validation datasets come from a study where you sampled at time $t_0$ and repeated at $t_{100}$. In this case, we would simply initiate the model with input data from $t_0$, run it for 100 time steps, and then validate the model outputs against data from $t_{100}$. This is the case for long-term monitoring datasets like Danum, BCI, or some SAFE plots (though we rarely have a full set of variables collected both at $t_0$ and $t_{100}$, so the points below still applies).
 
@@ -57,6 +60,11 @@ Jacob:
 :::
 
 ## Validate on Maliau or outside of Maliau?
+
+::: {.callout-note}
+# This section has been resolved during the 14 May 2026 meeting. You may want to jump to the section.
+We have a pretty clear consensus on this: "Maliau" represents mature tropical forests. If an observation for validation falls within our simulation landscape, great; if not, do some spatial averages.
+:::
 
 We have not decided whether the validation dataset should be from Maliau or not. If we initialise with Maliau or Maliau-like input data, then it makes sense to validation on another test dataset from Maliau. With the exception of abiotic, however, many input data are not exactly from Maliau, but similar forests. So it is probably okay to validate on non-Maliau datasets, plus there is often limited data for many of the state variables at Maliau.
 

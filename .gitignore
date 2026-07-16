@@ -6,29 +6,37 @@
 *.geotiff
 *.jpg
 *.jpeg
-*.png
 *.xlsx
 *.xls
 *.dat
 *.txt
 *.rds
 *.RData
+
+# Primary data
 data/primary
 
-# scenario files (inputs for VE)
-# we are going to keep metadata files
-data/scenarios/maliau/maliau_1*
-data/scenarios/maliau/maliau_2*
-data/scenarios/sensitivity_soil_litter
-data/scenarios/runtime*
-data/scenarios/ve_example
+# Derived data
+data/derived/troubleshoot/runtime_per_cell/*.png
+data/derived/soil/validation/database
+data/derived/soil/necromass/li_et_al_2023.csv
+data/derived/litter/stock/litter_stock.csv
 
-# notebooks
-analysis/soil/**/*.html
-analysis/soil/**/*_files/
+# Scenario files, except the change_log.txt file
+# ignore the directory's contents (/*), not the directory itself — otherwise
+# the ! negation for the file won't work (git can't un-ignore files inside an
+# ignored directory).
+data/scenarios/*/*/*
+!data/scenarios/maliau/*/change_log.txt
 
-# Quarto files
-.quarto
+# troubleshoot files
+analysis/troubleshoot/zarr_test/ve_example
+
+# Notebooks
+/.quarto/
+**/*.quarto_ipynb
+analysis/soil/validation/*/*.html
+analysis/soil/issue_tracker/*.html
 
 # History files
 .Rhistory
@@ -81,8 +89,9 @@ rsconnect/
 # Python noise
 __pycache__
 
-# notebook caching
+# Jupyter notebook
 .ipynb_checkpoints
+.ipynb
 
 # Mac .DS_store
 .DS_store
@@ -499,7 +508,7 @@ FodyWeavers.xsd
 # .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-!.vscode/launch.json
+#!.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
@@ -562,3 +571,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Quarto files
+/.quarto/
+**/*.quarto_ipynb
+**/*_files
+analysis/**/*.html
