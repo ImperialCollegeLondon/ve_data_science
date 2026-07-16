@@ -109,7 +109,7 @@ convert_volume_to_mass_basis <- function(volume_basis_data, config) {
 #' @return Array of soil nutrient per area.
 
 convert_volume_to_area_basis <- function(volume_basis_data, config) {
-  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
+  soil_layer_depth <- config$core$constants$microbial_simulation_depth
   volume_basis_data * soil_layer_depth
 }
 
