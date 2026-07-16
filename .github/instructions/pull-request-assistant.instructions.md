@@ -37,7 +37,7 @@ Lead with where to review first, not narrative background.
 | path/to/file.ts | logic/refactor/test/config/docs | High/Med/Low | one-line reviewer context |
 
 - Summarize remaining files as low-risk/mechanical
-- Examples: 
+- Examples:
   - "8 files are formatting-only and low-risk"
   - ".gitignore only adds reproducible large files to exclude"
 
