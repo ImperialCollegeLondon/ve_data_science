@@ -18,7 +18,7 @@
 - `/docs/`: documentation sources for building website.
 - `/templates/`: starter templates for metadata in R, Python, and notebooks.
 
-## High-value directories (token-efficient routing)
+## Efficient directory routing
 
 Use this section as the default routing policy. Prefer targeted access over full tree scans.
 
@@ -89,7 +89,7 @@ These rules optimise for in-IDE Copilot workflows (fast, low-token, low-disrupti
   If no reply, proceed with the most likely option and state assumptions briefly.
 - **Patch-first:** prefer minimal edits and show changed files + rationale + quick validation.
 - **Local edits first:** change the closest relevant file; avoid wide refactors unless requested.
-- **No broad restatement:** do not repeat repository overviews unless asked.
+- **No broad restatement:** do not repeat repository overviews unless asked. Remember that the users tend to have good understanding of the repo's structure.
 - **Narrow validation first:** suggest/run small, relevant checks before full test suites.
 - **Large-file discipline:** inspect only relevant functions/sections before scanning entire files.
 - **Dependency gate:** avoid adding dependencies unless necessary; ask before introducing new ones.
