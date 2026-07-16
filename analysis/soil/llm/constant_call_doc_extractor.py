@@ -41,6 +41,7 @@ class TraversalState:
         caller_qname: Qualified caller name currently being analyzed.
         tracked_symbols_key: Hashable representation of symbol->constants mapping.
         depth: Current traversal depth.
+
     """
 
     caller_qname: str
@@ -174,6 +175,7 @@ def _resolve_callee(
         When multiple local functions share a simple name, the resolver picks a
         stable best-effort candidate using deterministic sorting. This keeps
         output reproducible, but it is still a heuristic.
+
     """
     if isinstance(node.func, ast.Name):
         callee_name = node.func.id
@@ -291,6 +293,7 @@ def extract_constant_call_doc_map(
         ... )
         >>> result["constant"][:3]
         ['arrhenius_reference_temp', 'activation_energy_microbial_uptake', ...]
+
     """
     with open(file_path, encoding="utf-8") as f:
         source = f.read()
