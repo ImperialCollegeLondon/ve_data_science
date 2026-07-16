@@ -285,7 +285,7 @@ def extract_constant_call_doc_map(
     Example:
         >>> result = extract_constant_call_doc_map(
         ...     file_path=".venv/Lib/site-packages/virtual_ecosystem/models/soil/pools.py",
-        ...     constants=["maom_desorption_rate", "lmwc_sorption_rate"],
+        ...     constants=["maom_desorption_rate", "lmwc_sorption_rate", "necromass_decay_rate"],
         ...     caller_qualified_name="SoilPools.calculate_all_pool_updates",
         ...     max_depth=5,
         ... )
