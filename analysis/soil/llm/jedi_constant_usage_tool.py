@@ -43,16 +43,20 @@ def get_constant_references(
     Parameters
     ----------
     target_file_path : str, Path, or list of str/Path
-        Path(s) to the Python source file(s) to analyse (e.g. ``model_config.py``).
-        Accepts a single path or a list of paths; results are merged into one output.
+        Path(s) to the Python source file(s) to analyse, given relative to
+        ``project_root``. For example, if ``project_root`` is
+        ``/path/to/virtual_ecosystem``, then pass
+        ``virtual_ecosystem/models/soil/model_config.py``. Accepts a single path
+        or a list of paths; results are merged into one output.
     out_path : str or Path
-        Destination path for the TOML output file.  The file is always
-        overwritten.
+        Destination path for the TOML output file.  The file is always overwritten.
     project_root : str or Path, optional
-        Root directory of the ``virtual_ecosystem`` source tree, passed to
-        ``jedi.Project`` so that cross-file name resolution works correctly.
-        Defaults to ``Path("../virtual_ecosystem").resolve()``, which assumes
-        this script is run from within ``analysis/soil/llm/``.
+        Root directory of the ``virtual_ecosystem`` repository (i.e. the parent of
+        the ``virtual_ecosystem/`` source directory), passed to ``jedi.Project``
+        so that cross-file name resolution works correctly.  Defaults to
+        ``Path("../virtual_ecosystem").resolve()``, which resolves relative to the
+        current working directory and assumes the ``virtual_ecosystem`` repo is a
+        sibling of ``ve_data_science``.
 
     Returns
     -------
@@ -76,16 +80,16 @@ def get_constant_references(
     Analyse a single file and write results to ``output.toml``:
 
     >>> refs = get_constant_references(
-    ...     target_file_path="virtual_ecosystem/models/soil/soil_model.py",
+    ...     target_file_path="virtual_ecosystem/models/soil/model_config.py",
     ...     out_path="output.toml",
     ... )
 
     Analyse several model configuration files in one pass:
 
     >>> config_files = [
-    ...     "virtual_ecosystem/models/soil/soil_model.py",
-    ...     "virtual_ecosystem/models/plants/plants_model.py",
-    ...     "virtual_ecosystem/models/animals/animals_model.py",
+    ...     "virtual_ecosystem/models/soil/model_config.py",
+    ...     "virtual_ecosystem/models/plants/model_config.py",
+    ...     "virtual_ecosystem/models/animals/model_config.py",
     ... ]
     >>> refs = get_constant_references(
     ...     target_file_path=config_files,
@@ -100,8 +104,8 @@ def get_constant_references(
         library(reticulate)
         tool <- import_from_path("jedi_constant_usage_tool", path = "analysis/soil/llm")
         config_files <- c(
-            "virtual_ecosystem/models/soil/soil_model.py",
-            "virtual_ecosystem/models/plants/plants_model.py"
+            "virtual_ecosystem/models/soil/model_config.py",
+            "virtual_ecosystem/models/plants/model_config.py"
         )
         refs <- tool$get_constant_references(
             target_file_path = config_files,
@@ -127,11 +131,17 @@ def get_constant_references(
     script_references = {}
 
     for file_path in target_file_paths:
+        # Resolve file path relative to project_root if it's relative
+        if not file_path.is_absolute():
+            full_file_path = project_root / file_path
+        else:
+            full_file_path = file_path
+
         # Initialize a jedi Script with the source, path, and project scope
-        with open(file_path) as f:
+        with open(full_file_path) as f:
             source_code = f.read()
 
-        script = jedi.Script(code=source_code, path=file_path, project=project)
+        script = jedi.Script(code=source_code, path=full_file_path, project=project)
 
         # Get the top level names in the config - only some of these are config objects
         script_names = script.get_names()
@@ -152,19 +162,25 @@ def get_constant_references(
                 # Split into definition and reference and get reference details.
                 references.sort(key=lambda x: not x.is_definition())
                 definition = references.pop(0)
-                reference_list = [
-                    dict(
-                        caller=ref.parent().full_name,
-                        docstring=ref.parent().docstring(),
+                reference_list = []
+                for ref in references:
+                    parent = ref.parent()
+                    # jedi may return None for full_name or docstring; convert to empty
+                    # string to ensure TOML serialization doesn't fail with NoneType
+                    reference_list.append(
+                        dict(
+                            caller=parent.full_name or "",
+                            docstring=parent.docstring() or "",
+                        )
                     )
-                    for ref in references
-                ]
 
-                # Save the references and attribute details
+                # Save the references and attribute details.
+                # Use 'or ""' for all jedi-returned fields to handle None values,
+                # which tomli_w cannot serialize to TOML format.
                 script_references[definition.full_name] = dict(
-                    name=definition.name,
-                    description=definition.description,
-                    docstring=definition.docstring(),
+                    name=definition.name or "",
+                    description=definition.description or "",
+                    docstring=definition.docstring() or "",
                     referenced_in=reference_list,
                 )
 
