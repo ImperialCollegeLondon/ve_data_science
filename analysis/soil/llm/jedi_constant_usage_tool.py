@@ -147,19 +147,6 @@ def get_constant_references(
 
         for name in script_names:
             # Detect Configuration classes - there must be a way to do this from the name object
-            # TODO: Consider using regex to parse base classes from name.get_line_code()
-            # instead of naive string matching. Example:
-            #
-            #   import re
-            #   if name.type != 'class':
-            #       continue
-            #   bases_match = re.search(r'class\s+\w+\((.*?)\):', name.get_line_code())
-            #   if not (bases_match and 'Configuration' in bases_match.group(1)):
-            #       continue
-            #
-            # Benefits: (1) Filters by type first (more efficient), (2) Properly parses
-            # base classes from the class definition line, (3) More robust than string
-            # matching and clearer about intent, (4) Handles different formatting gracefully.
             if (name.type != "class") or (
                 "(Configuration)" not in name.get_line_code()
             ):
