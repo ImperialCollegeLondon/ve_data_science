@@ -7,13 +7,11 @@ on:
     paths:
       - "tools/R/**"
       - "tools/python/**"
-      - "tests/testthat/**"
       - ".github/workflows/r-tests.yml"
   pull_request:
     paths:
       - "tools/R/**"
       - "tools/python/**"
-      - "tests/testthat/**"
       - ".github/workflows/r-tests.yml"
 
 jobs:
@@ -115,7 +113,7 @@ jobs:
             Sys.setenv(RETICULATE_PYTHON = file.path(venv, "bin", "python"))
           }
           testthat::test_dir(
-            here::here("tests/testthat"),
+            here::here("tools/R/tests/testthat"),
             reporter = "progress",
             stop_on_failure = TRUE
           )
