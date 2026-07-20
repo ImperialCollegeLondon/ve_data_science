@@ -36,7 +36,7 @@
 #|
 #| source_files:
 #|     - tools/R/convert_array_to_nc.R
-#|     - tools/R/get_all_variables.R
+#|     - tools/R/get_data_variables.R
 #|     - tools/R/summarise_spatial.R
 #|
 #| usage_notes: |
@@ -51,32 +51,74 @@ library(RNetCDF)
 library(toml)
 library(mirai)
 source("tools/R/convert_array_to_nc.R")
-source("tools/R/get_all_variables.R")
+source("tools/R/get_data_variables.R")
 source("tools/R/summarise_spatial.R")
 
 
-# input and output directory paths
+# constants and paths
 in_dir <- "data/scenarios/maliau/maliau_1/data/"
 out_dir <- "data/scenarios/sensitivity_soil_litter/data/"
+out_config_dir <- "data/scenarios/sensitivity_soil_litter/config"
+grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
+soil_input_path <- file.path(in_dir, "soil_maliau.nc")
+litter_input_path <- file.path(in_dir, "litter_maliau.nc")
+elevation_input_path <- file.path(in_dir, "elevation_maliau_2010_2020_100m.nc")
+climate_input_path <- file.path(in_dir, "era5_maliau_2010_2020_100m.nc")
+plant_input_path <- file.path(in_dir, "plant_input_data_Maliau_50x50.nc")
+plant_cohort_input_path <- file.path(
+  in_dir,
+  "plant_cohort_data_Maliau_50x50.csv"
+)
+soil_microbial_config_path <- "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml"
+
+require_path <- function(path) {
+  if (!file.exists(path)) {
+    stop(sprintf("Required file does not exist: %s", path))
+  }
+}
+
+required_inputs <- c(
+  grid_definition_path,
+  soil_input_path,
+  litter_input_path,
+  elevation_input_path,
+  climate_input_path,
+  plant_input_path,
+  plant_cohort_input_path,
+  soil_microbial_config_path
+)
+purrr::walk(required_inputs, require_path)
+
+if (!dir.exists(out_dir)) {
+  dir.create(out_dir, recursive = TRUE)
+}
+if (!dir.exists(out_config_dir)) {
+  dir.create(out_config_dir, recursive = TRUE)
+}
+
+# sensitivity analysis settings
+n_sample <- 100
+sobol_seed <- 777
+parallel_daemons <- 128
 
 
 # Maliau input data -------------------------------------------------------
 # the site definition
 maliau_1 <-
-  read_toml("data/derived/site/maliau/maliau_grid_definition.toml") |>
+  read_toml(grid_definition_path) |>
   pluck("Scenario") |>
   pluck("maliau_1")
 
 # soil and litter input data for the maliau_2 scenario
 dat_maliau <- list(
-  soil = tidync(paste0(in_dir, "soil_maliau.nc")),
-  litter = tidync(paste0(in_dir, "litter_maliau.nc"))
+  soil = tidync(soil_input_path),
+  litter = tidync(litter_input_path)
 )
 
 # get the names of soil and litter input variables
 vars_maliau <-
   dat_maliau |>
-  map(get_all_variables) |>
+  map(get_data_variables) |>
   list_c()
 
 # get the range of soil and litter input variables
@@ -120,16 +162,13 @@ range_maliau <-
 # variable names
 maliau_vars_init <- range_maliau$variable
 
-# number of initial Sobol samples
-n_sample <- 100
-
 # generate the Sobol sampling matrices
 mat <- sobol_matrices(
   N = n_sample,
   params = maliau_vars_init,
   order = "first",
   type = "QRN",
-  seed = 777
+  seed = sobol_seed
 )
 
 # rescale to Maliau ranges
@@ -147,7 +186,16 @@ for (var in maliau_vars_init) {
 }
 
 # output the Sobol matrix for reuse in downstream analysis
-write_rds(mat, paste0(out_dir, "sobol_matrix.rds"))
+write_rds(mat, file.path(out_dir, "sobol_matrix.rds"))
+
+expected_sobol_rows <- n_sample * (length(maliau_vars_init) + 2)
+if (nrow(mat) != expected_sobol_rows) {
+  stop(sprintf(
+    "Sobol matrix row count mismatch: expected %s, got %s",
+    expected_sobol_rows,
+    nrow(mat)
+  ))
+}
 
 # convert to dataframe, and then combine CNP into triplet columns
 
@@ -220,7 +268,7 @@ dimnames <- list(
 )
 
 # set up the conversion in parallel
-daemons(128)
+daemons(parallel_daemons)
 sobol_df |>
   # split the Sobol matrix into list row-by-row
   mutate(row_id = row_number()) |>
@@ -253,7 +301,7 @@ sobol_df |>
         }) |>
         # convert the array to netCDF
         convert_array_to_nc(
-          filename = paste0(out_dir, "soil_litter_data_", idx, ".nc")
+          filename = file.path(out_dir, paste0("soil_litter_data_", idx, ".nc"))
         )
     },
     # required objects and namespace
@@ -271,6 +319,18 @@ sobol_df |>
   ))
 daemons(0)
 
+expected_soil_litter_files <- nrow(sobol_df)
+actual_soil_litter_files <-
+  list.files(out_dir, pattern = "^soil_litter_data_[0-9]+\\.nc$") |>
+  length()
+if (actual_soil_litter_files != expected_soil_litter_files) {
+  stop(sprintf(
+    "Generated soil/litter netCDF file count mismatch: expected %s, got %s",
+    expected_soil_litter_files,
+    actual_soil_litter_files
+  ))
+}
+
 
 # Generate mean arrays ---------------------------------------------------
 # For other modules, fix their values at spatial averages, so that the
@@ -282,19 +342,19 @@ daemons(0)
 # (they do not response to other inputs).
 
 # Elevation data
-tidync(paste0(in_dir, "elevation_maliau_2010_2020_100m.nc")) |>
-  get_all_variables() |>
+tidync(elevation_input_path) |>
+  get_data_variables() |>
   summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
-    filename = paste0(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
+    filename = file.path(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
   )
 
 # Climate / abiotic data
 # requires a special treatment because the variable `valid_time` is a temporal
 # variable that do not need to go through summarise_spatial() below
 clim_dat <-
-  tidync(paste0(in_dir, "era5_maliau_2010_2020_100m.nc")) |>
-  get_all_variables()
+  tidync(climate_input_path) |>
+  get_data_variables()
 clim_dat |>
   # summarise spatial mean of climate data, bypassing valid_time
   discard_at("valid_time") |>
@@ -302,23 +362,20 @@ clim_dat |>
   # put valid_time back before converting back to netCDF
   list_assign(valid_time = clim_dat$valid_time) |>
   convert_array_to_nc(
-    filename = paste0(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
+    filename = file.path(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
   )
 
 # Plant data
-tidync(paste0(in_dir, "plant_input_data_Maliau_50x50.nc")) |>
-  get_all_variables() |>
+tidync(plant_input_path) |>
+  get_data_variables() |>
   summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
-    filename = paste0(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
+    filename = file.path(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
   )
 
 # Plant cohorts
 plant_cohort <-
-  read_csv(
-    paste0(in_dir, "plant_cohort_data_Maliau_50x50.csv"),
-    show_col_types = FALSE
-  ) |>
+  read_csv(plant_cohort_input_path, show_col_types = FALSE) |>
   group_by(plant_cohorts_pft) |>
   # take average cohort size and DBH and floor cohort size to get integer
   summarise(
@@ -329,7 +386,7 @@ plant_cohort <-
   mutate(plant_cohorts_cell_id = 0)
 write_csv(
   plant_cohort,
-  paste0(out_dir, "plant_cohort_data_Maliau_50x50.csv")
+  file.path(out_dir, "plant_cohort_data_Maliau_50x50.csv")
 )
 
 # Copy over other data that do not need to be modified
@@ -337,9 +394,22 @@ files_to_copy <- c(
   "animal_functional_groups_Maliau_level1.csv",
   "plant_pft_definitions_Maliau_50x50.csv"
 )
-file.copy(paste0(in_dir, files_to_copy), out_dir, overwrite = TRUE)
-file.copy(
-  "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml",
-  "data/scenarios/sensitivity_soil_litter/config",
+copy_ok <- file.copy(
+  file.path(in_dir, files_to_copy),
+  out_dir,
   overwrite = TRUE
 )
+if (!all(copy_ok)) {
+  stop("One or more static files failed to copy to output directory.")
+}
+
+microbial_copy_ok <- file.copy(
+  soil_microbial_config_path,
+  out_config_dir,
+  overwrite = TRUE
+)
+if (!microbial_copy_ok) {
+  stop(
+    "soil_microbial_groups.toml failed to copy to sensitivity config directory."
+  )
+}

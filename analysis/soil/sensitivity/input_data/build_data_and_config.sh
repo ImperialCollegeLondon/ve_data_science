@@ -4,6 +4,8 @@
 #PBS -j oe
 #PBS -o /rds/general/user/hlai1/home/logs/
 
+set -euo pipefail
+
 # Initialise conda environment
 eval "$(~/miniforge3/bin/conda shell.bash hook)"
 conda activate r452

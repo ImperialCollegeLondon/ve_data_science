@@ -62,7 +62,7 @@ merged <-
       "data/scenarios/sensitivity_soil_litter/out/all_continuous_data_merged.parquet"
     )
   ) |>
-  filter(time_index == 24) %>%
+  filter(time_index == 24) |>
   collect()
 ```
 
