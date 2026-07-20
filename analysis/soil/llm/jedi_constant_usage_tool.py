@@ -18,7 +18,8 @@ Key assumptions
   remaining results are treated as usage sites.
 - ``project_root`` must point to a directory that ``jedi`` can use as the project
   root (i.e. the root of the installed/editable package source tree) so that
-  cross-file references are resolved correctly.
+  cross-file references are resolved correctly. It is expected that you clone
+  the `virtual_ecosystem` repo to a sibling folder as the `ve_data_science` repo.
 """
 
 from pathlib import Path
@@ -32,7 +33,7 @@ def get_constant_references(
     out_path,
     project_root=None,
 ):
-    """Find usages of configuration constants in one or more target files and write to TOML.
+    """Find usages of configuration constants in target file(s) and write to TOML.
 
     Scans each target file for classes that inherit from ``Configuration``,
     collects every attribute defined on those classes, and uses ``jedi`` to find
@@ -106,6 +107,7 @@ def get_constant_references(
             target_file_path = config_files,
             out_path = "all_constants.toml"
         )
+
     """
     if project_root is None:
         project_root = Path("../virtual_ecosystem").resolve()
