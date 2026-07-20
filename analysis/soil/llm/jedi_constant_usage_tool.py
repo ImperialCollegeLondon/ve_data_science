@@ -1,4 +1,4 @@
-"""Static analysis tool using jedi to find usage of constants."""
+"""Static analysis tool to find usage of constants."""
 
 from pathlib import Path
 
@@ -11,12 +11,13 @@ def get_constant_references(
     out_path,
     project_root=None,
 ):
-    """Find usages of configuration constants in a target file and write to TOML.
+    """Find usages of configuration constants in one or more target files and write to TOML.
 
     Parameters
     ----------
-    target_file_path : str or Path
-        Path to the Python source file to analyse (e.g. a model_config.py).
+    target_file_path : str, Path, or list of str/Path
+        Path(s) to the Python source file(s) to analyse (e.g. model_config.py).
+        Accepts a single path or a list of paths; results are merged into one output.
     out_path : str or Path
         Destination path for the TOML output file.
     project_root : str or Path, optional
@@ -26,57 +27,67 @@ def get_constant_references(
     Returns
     -------
     dict
-        Mapping of fully-qualified constant names to their reference details.
+        Mapping of fully-qualified constant names to their reference details,
+        merged across all target files.
     """
     if project_root is None:
         project_root = Path("../virtual_ecosystem").resolve()
 
     project_root = Path(project_root)
-    target_file_path = Path(target_file_path)
     out_path = Path(out_path)
+
+    # Normalise to a list so the loop below works for both single and multiple paths
+    if isinstance(target_file_path, (str, Path)):
+        target_file_paths = [Path(target_file_path)]
+    else:
+        target_file_paths = [Path(p) for p in target_file_path]
 
     project = jedi.Project(project_root)
 
-    # Initialize a jedi Script with the source, path, and project scope
-    with open(target_file_path) as f:
-        source_code = f.read()
-
-    script = jedi.Script(code=source_code, path=target_file_path, project=project)
-
-    # Get the top level names in the config - only some of these are config objects
-    script_names = script.get_names()
-
-    # Collect references in this file into a dictionary
+    # Collect references across all target files into a single dictionary
     script_references = {}
 
-    for name in script_names:
-        # Detect Configuration classes - there must be a way to do this from the name object
-        if "(Configuration)" not in name.get_line_code():
-            continue
+    for file_path in target_file_paths:
+        # Initialize a jedi Script with the source, path, and project scope
+        with open(file_path) as f:
+            source_code = f.read()
 
-        # Get the config class attributes
-        attributes = name.defined_names()
+        script = jedi.Script(code=source_code, path=file_path, project=project)
 
-        # Loop over attributes
-        for attr in attributes:
-            # Look for references to the attribute given the location in the file
-            references = script.get_references(line=attr.line, column=attr.column)
+        # Get the top level names in the config - only some of these are config objects
+        script_names = script.get_names()
 
-            # Split into definition and reference and get reference details.
-            references.sort(key=lambda x: not x.is_definition())
-            definition = references.pop(0)
-            reference_list = [
-                dict(caller=ref.parent().full_name, docstring=ref.parent().docstring())
-                for ref in references
-            ]
+        for name in script_names:
+            # Detect Configuration classes - there must be a way to do this from the name object
+            if "(Configuration)" not in name.get_line_code():
+                continue
 
-            # Save the references and attribute details
-            script_references[definition.full_name] = dict(
-                name=definition.name,
-                description=definition.description,
-                docstring=definition.docstring(),
-                referenced_in=reference_list,
-            )
+            # Get the config class attributes
+            attributes = name.defined_names()
+
+            # Loop over attributes
+            for attr in attributes:
+                # Look for references to the attribute given the location in the file
+                references = script.get_references(line=attr.line, column=attr.column)
+
+                # Split into definition and reference and get reference details.
+                references.sort(key=lambda x: not x.is_definition())
+                definition = references.pop(0)
+                reference_list = [
+                    dict(
+                        caller=ref.parent().full_name,
+                        docstring=ref.parent().docstring(),
+                    )
+                    for ref in references
+                ]
+
+                # Save the references and attribute details
+                script_references[definition.full_name] = dict(
+                    name=definition.name,
+                    description=definition.description,
+                    docstring=definition.docstring(),
+                    referenced_in=reference_list,
+                )
 
     # Save output as TOML
     with open(out_path, "wb") as f:
