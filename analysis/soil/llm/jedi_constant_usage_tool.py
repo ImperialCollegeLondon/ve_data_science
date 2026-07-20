@@ -51,12 +51,11 @@ def get_constant_references(
     out_path : str or Path
         Destination path for the TOML output file.  The file is always overwritten.
     project_root : str or Path, optional
-        Root directory of the ``virtual_ecosystem`` repository (i.e. the parent of
-        the ``virtual_ecosystem/`` source directory), passed to ``jedi.Project``
-        so that cross-file name resolution works correctly.  Defaults to
-        ``Path("../virtual_ecosystem").resolve()``, which resolves relative to the
-        current working directory and assumes the ``virtual_ecosystem`` repo is a
-        sibling of ``ve_data_science``.
+        Root directory of the ``virtual_ecosystem`` repository, passed to
+        ``jedi.Project`` so that cross-file name resolution works correctly.
+        Defaults to ``Path("../virtual_ecosystem").resolve()``, which resolves
+        relative to the current working directory and assumes the ``virtual_ecosystem``
+        repo is a sibling of ``ve_data_science``.
 
     Returns
     -------
