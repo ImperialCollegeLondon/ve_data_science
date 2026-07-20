@@ -50,9 +50,10 @@
 #|     - toml
 #|
 #| usage_notes: |
-#|     Run via: testthat::test_dir("tests/testthat")
-#|     Uses relative paths from tests/testthat/ directory. All temporary files
-#|     are automatically cleaned up after tests complete via defer_parent().
+#|     Run via: testthat::test_dir("tools/R/tests/testthat")
+#|     Uses relative paths from tools/R/tests/testthat directory.
+#|     All temporary files are automatically cleaned up after tests complete
+#|     via defer_parent().
 #| ---
 
 library(here)
