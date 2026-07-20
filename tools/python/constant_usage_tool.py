@@ -101,7 +101,7 @@ def get_constant_references(
     .. code-block:: r
 
         library(reticulate)
-        tool <- import_from_path("jedi_constant_usage_tool", path = "analysis/soil/llm")
+        tool <- import_from_path("constant_usage_tool", path = "analysis/soil/llm")
         config_files <- c(
             "virtual_ecosystem/models/soil/model_config.py",
             "virtual_ecosystem/models/plants/model_config.py"
