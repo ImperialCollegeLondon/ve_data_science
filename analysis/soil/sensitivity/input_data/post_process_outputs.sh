@@ -4,6 +4,8 @@
 #PBS -o /rds/general/user/hlai1/home/logs/
 #PBS -e /rds/general/user/hlai1/home/logs/
 
+set -euo pipefail
+
 # Initialise conda environment
 module purge
 eval "$(~/miniforge3/bin/conda shell.bash hook)"
@@ -11,6 +13,12 @@ conda activate r452
 
 # run from the submission directory (typically path/to/ve_data_science)
 cd "${PBS_O_WORKDIR}" || exit
+
+OUT_ROOT="data/scenarios/sensitivity_soil_litter/out"
+if [ ! -d "${OUT_ROOT}" ]; then
+  echo "Missing output root directory: ${OUT_ROOT}"
+  exit 1
+fi
 
 Rscript analysis/soil/sensitivity/input_data/post_process_outputs.R
 

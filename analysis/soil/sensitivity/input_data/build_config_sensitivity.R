@@ -3,12 +3,28 @@ library(toml)
 source("tools/R/build_config.R")
 source("tools/R/collect_data_paths.R")
 
+grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
+plant_constants_path <- "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
+config_dir <- "data/scenarios/sensitivity_soil_litter/config"
+soil_microbial_config_path <- "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml"
+
+required_inputs <- c(
+  grid_definition_path,
+  plant_constants_path,
+  soil_microbial_config_path
+)
+purrr::walk(required_inputs, \(path) {
+  if (!file.exists(path)) {
+    stop(sprintf("Required file does not exist: %s", path))
+  }
+})
+
 
 # Define config values -----------------------------------
 
 # core values
 core <-
-  read_toml("data/derived/site/maliau/maliau_grid_definition.toml") |>
+  read_toml(grid_definition_path) |>
   pluck("Scenario") |>
   pluck("maliau_1") |>
   pluck("core")
@@ -32,10 +48,7 @@ data_paths <- collect_data_paths(
 )
 
 # new values for plants.constants
-plants_contants <-
-  read.csv(
-    "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
-  )
+plants_contants <- read.csv(plant_constants_path)
 
 
 # Set up a list of new values --------------------------------------------
@@ -67,9 +80,8 @@ animal_config <- list(
 
 
 # Build configuration files ----------------------------------------------
-config_dir <- "data/scenarios/sensitivity_soil_litter/config"
 if (!dir.exists(config_dir)) {
-  dir.create(config_dir)
+  dir.create(config_dir, recursive = TRUE)
 } else {
   message("All good, config directory already exists.")
 }
@@ -90,8 +102,28 @@ build_config(
   path = config_dir
 )
 # Copy over soil microbial config that does not change across scenarios
-file.copy(
-  "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml",
+copy_ok <- file.copy(
+  soil_microbial_config_path,
   config_dir,
   overwrite = TRUE
 )
+if (!copy_ok) {
+  stop(
+    "soil_microbial_groups.toml failed to copy to sensitivity config directory."
+  )
+}
+
+expected_config_files <- c(
+  "ve_run.toml",
+  "core_config.toml",
+  "plants_config.toml",
+  "animal_config.toml",
+  "soil_microbial_groups.toml"
+)
+missing_config_files <- setdiff(expected_config_files, list.files(config_dir))
+if (length(missing_config_files) > 0) {
+  stop(sprintf(
+    "Missing expected config file(s): %s",
+    paste(missing_config_files, collapse = ", ")
+  ))
+}
