@@ -57,6 +57,3 @@ for name in script_names:
     # Save
     with open("test.toml", "wb") as out:
         tomli_w.dump(script_references, out)
-
-    with open("test.json", "w") as out:
-        json.dump(script_references, out)
