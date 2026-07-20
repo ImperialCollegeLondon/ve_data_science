@@ -16,11 +16,11 @@
 #|
 #| source_files:
 #|   - name: get_derived_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Functions to calculate derived soil CNP pool variables
 #|   - name: get_data_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Function to extract data variables from netCDF
 #|

@@ -27,15 +27,15 @@
 #|
 #| source_files:
 #|   - name: convert_array_to_nc.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Helper function to convert R arrays to netCDF format
 #|   - name: get_data_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Helper function to extract VE data variables
 #|   - name: get_derived_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Helper function to compute derived variables
 #|   - name: generate_test_config.py
@@ -59,9 +59,9 @@ library(here)
 library(testthat)
 library(withr)
 library(reticulate)
-source(here("tools/R/convert_array_to_nc.R"))
-source(here("tools/R/get_data_variables.R"))
-source(here("tools/R/get_derived_variables.R"))
+source(here("tools/R/R/convert_array_to_nc.R"))
+source(here("tools/R/R/get_data_variables.R"))
+source(here("tools/R/R/get_derived_variables.R"))
 
 
 # Mock data --------------------------------------------------------------

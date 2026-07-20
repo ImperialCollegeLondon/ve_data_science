@@ -5,12 +5,12 @@ on:
   push:
     branches: [main]
     paths:
-      - "tools/R/**"
+      - "tools/R/R/**"
       - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
   pull_request:
     paths:
-      - "tools/R/**"
+      - "tools/R/R/**"
       - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
 
