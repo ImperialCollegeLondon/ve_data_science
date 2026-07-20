@@ -1,4 +1,25 @@
-"""Static analysis tool to find usage of constants."""
+"""Static analysis tool to find usages of configuration constants across model files.
+
+This module uses `jedi` to statically analyse Python source files from the
+``virtual_ecosystem`` project, identifying every place in the codebase where a
+configuration constant (an attribute of a class that inherits from
+``Configuration``) is referenced.  Results are written to a TOML file, keyed by
+the fully-qualified constant name, and include the caller's fully-qualified name
+and docstring for each reference site.
+
+Key assumptions
+---------------
+- Configuration classes are identified by the presence of ``"(Configuration)"``
+  in the class definition line.  Classes that inherit from ``Configuration``
+  indirectly (i.e. through an intermediate base class) will **not** be detected.
+- Each class attribute is expected to appear exactly once as a definition; the
+  first result returned by ``jedi.Script.get_references`` with
+  ``is_definition() == True`` is treated as the canonical definition, and all
+  remaining results are treated as usage sites.
+- ``project_root`` must point to a directory that ``jedi`` can use as the project
+  root (i.e. the root of the installed/editable package source tree) so that
+  cross-file references are resolved correctly.
+"""
 
 from pathlib import Path
 
@@ -13,22 +34,78 @@ def get_constant_references(
 ):
     """Find usages of configuration constants in one or more target files and write to TOML.
 
+    Scans each target file for classes that inherit from ``Configuration``,
+    collects every attribute defined on those classes, and uses ``jedi`` to find
+    all reference sites across the project.  All results are merged into a single
+    TOML file at ``out_path``.
+
     Parameters
     ----------
     target_file_path : str, Path, or list of str/Path
-        Path(s) to the Python source file(s) to analyse (e.g. model_config.py).
+        Path(s) to the Python source file(s) to analyse (e.g. ``model_config.py``).
         Accepts a single path or a list of paths; results are merged into one output.
     out_path : str or Path
-        Destination path for the TOML output file.
+        Destination path for the TOML output file.  The file is always
+        overwritten.
     project_root : str or Path, optional
-        Root of the virtual_ecosystem project. Defaults to
-        ``Path("../virtual_ecosystem").resolve()``.
+        Root directory of the ``virtual_ecosystem`` source tree, passed to
+        ``jedi.Project`` so that cross-file name resolution works correctly.
+        Defaults to ``Path("../virtual_ecosystem").resolve()``, which assumes
+        this script is run from within ``analysis/soil/llm/``.
 
     Returns
     -------
     dict
-        Mapping of fully-qualified constant names to their reference details,
-        merged across all target files.
+        Mapping of fully-qualified constant names (e.g.
+        ``"virtual_ecosystem.models.soil.soil_model.SoilConsts.Dzs"``) to dicts
+        with the following keys:
+
+        ``name``
+            The bare attribute name.
+        ``description``
+            The jedi description string for the definition site.
+        ``docstring``
+            The docstring attached to the definition, if any.
+        ``referenced_in``
+            List of dicts, each with ``caller`` (fully-qualified name of the
+            enclosing scope) and ``docstring`` (docstring of that scope).
+
+    Examples
+    --------
+    Analyse a single file and write results to ``output.toml``:
+
+    >>> refs = get_constant_references(
+    ...     target_file_path="virtual_ecosystem/models/soil/soil_model.py",
+    ...     out_path="output.toml",
+    ... )
+
+    Analyse several model configuration files in one pass:
+
+    >>> config_files = [
+    ...     "virtual_ecosystem/models/soil/soil_model.py",
+    ...     "virtual_ecosystem/models/plants/plants_model.py",
+    ...     "virtual_ecosystem/models/animals/animals_model.py",
+    ... ]
+    >>> refs = get_constant_references(
+    ...     target_file_path=config_files,
+    ...     out_path="all_constants.toml",
+    ...     project_root="../virtual_ecosystem",
+    ... )
+
+    From R via reticulate, pass a character vector for multiple files:
+
+    .. code-block:: r
+
+        library(reticulate)
+        tool <- import_from_path("jedi_constant_usage_tool", path = "analysis/soil/llm")
+        config_files <- c(
+            "virtual_ecosystem/models/soil/soil_model.py",
+            "virtual_ecosystem/models/plants/plants_model.py"
+        )
+        refs <- tool$get_constant_references(
+            target_file_path = config_files,
+            out_path = "all_constants.toml"
+        )
     """
     if project_root is None:
         project_root = Path("../virtual_ecosystem").resolve()
