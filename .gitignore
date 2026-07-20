@@ -20,6 +20,7 @@ data/primary
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/validation/database
 data/derived/soil/necromass/li_et_al_2023.csv
+data/derived/soil/llm/soil_constant_usage.toml
 data/derived/litter/stock/litter_stock.csv
 
 # MkDocs build output
