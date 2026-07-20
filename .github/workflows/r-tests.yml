@@ -6,12 +6,12 @@ on:
     branches: [main]
     paths:
       - "tools/R/**"
-      - "tools/python/**"
+      - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
   pull_request:
     paths:
       - "tools/R/**"
-      - "tools/python/**"
+      - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
 
 jobs:
