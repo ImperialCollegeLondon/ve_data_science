@@ -1,17 +1,18 @@
 """Static analysis tool using jedi to find usage of constants."""
 
-import json
 from pathlib import Path
 
 import jedi
 import tomli_w
 
 # Get the project - should be run in VE repo root
-project_root = "virtual_ecosystem"
+project_root = Path("../virtual_ecosystem").resolve()
 project = jedi.Project(project_root)
 
 # Specify the config file path to be targeted (could obviously automate this)
-target_file_path = Path("virtual_ecosystem/models/soil/model_config.py")
+target_file_path = (
+    project_root / "virtual_ecosystem" / "models" / "soil" / "model_config.py"
+)
 
 # Initialize a jedi Script with the source, path, and project scope
 with open(target_file_path) as f:
@@ -54,6 +55,6 @@ for name in script_names:
             referenced_in=reference_list,
         )
 
-    # Save
-    with open("test.toml", "wb") as out:
-        tomli_w.dump(script_references, out)
+# Save output as TOML
+with open("test.toml", "wb") as out:
+    tomli_w.dump(script_references, out)
