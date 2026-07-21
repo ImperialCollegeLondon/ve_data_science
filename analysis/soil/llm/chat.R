@@ -42,8 +42,10 @@ prompt <- glue(
   
   For each constant entry, the metadata contain:
     - name: name of the constant.
-    - description: the preset value.
-    - docstring: a short description, unit, and citation (if any) of the constant
+    - description: the preset value, some with plausible bounds (le = less than 
+      or equal; lt = less than; gt = greater than; ge = greater than or equal)
+    - docstring: a short description, unit, and citation (if any) of the 
+      constant
   Then, nested under `[[referenced_in]]`:
     - caller: the function in virtual_ecosystem that calls the constant.
     - docstring: docstring of the caller function.
