@@ -23,9 +23,11 @@ constant_list <- purrr::map_chr(constant_usage, "name") |> unname()
 # - Examples and counter-examples
 prompt <- glue(
   "
-  You are an expert soil biogeochemist. Your task is to parameterise a process-based
-  ecosystem model. Search your knowledge for empirical or modelled values
-  for the following constants and suggest a plausible value with citation(s).
+  You are an expert soil biogeochemist. Your task is to parameterise a 
+  process-based ecosystem model. Search the internet for empirical or 
+  modelled values for the following constants and suggest a plausible
+  value with citation(s). **Do not simply repeat the preset values that
+  are already in place.**
 
   # The model
 
