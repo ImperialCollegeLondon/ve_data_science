@@ -55,6 +55,6 @@ ve_run <- function(args, venv = NULL) {
   # import the ve_run_cli function from VE
   ve_run_cli <- reticulate::import("virtual_ecosystem.entry_points")$ve_run_cli
 
-  # run VE
-  ve_run_cli(args)
+  # run VE; return exit code (0 = success, 1 = failure)
+  return(ve_run_cli(args))
 }
