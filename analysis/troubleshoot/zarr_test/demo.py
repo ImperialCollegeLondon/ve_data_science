@@ -90,11 +90,13 @@ print(t)
 # List inputs and outputs
 # ============================================================
 
-inputs = t["inputs"]
-inputs
-
 outputs = t["outputs"]
-outputs
+print("Available output variables:")
+print(list(outputs.data_vars))
+
+inputs = t["inputs"]
+print("Available input variables:")
+print(list(inputs.data_vars))
 
 # ============================================================
 # Looking at single array and its dimensions and attributes
