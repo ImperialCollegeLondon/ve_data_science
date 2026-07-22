@@ -21,6 +21,9 @@ ve_model_files <- c(
 
 # Candidate constants for current scoping pass
 candidates <- c(
+  "reference_cue_logit",
+  "cue_reference_temp",
+  "logit_cue_with_temperature",
   "maom_desorption_rate",
   "lmwc_sorption_rate",
   "necromass_decay_rate",
@@ -33,5 +36,19 @@ candidates <- c(
 soil_constant_usage <-
   cu$get_constant_references(
     target_file_path = ve_model_files,
-    out_path = "data/derived/soil/llm/soil_constant_usage.toml"
+    out_path = "data/derived/soil/llm/soil_constant_usage.toml",
+    include_tests = FALSE
   )
+
+# Subset a smaller test metadata, using only the candidate constants
+soil_constant_usage_test <-
+  keep(soil_constant_usage, \(x) {
+    pluck(x, "name") %in% candidates
+  })
+
+# Parse the docstrings to
+# - extract unit
+# - remove citation (to reduce self-confirmation bias)
+# -
+
+# RAGs
