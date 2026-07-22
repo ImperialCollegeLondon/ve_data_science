@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-CodeTour validator — bundled with the code-tour skill.
+"""CodeTour validator — bundled with the code-tour skill.
 
 Checks a .tour file for:
   - Valid JSON
@@ -21,14 +20,13 @@ Usage:
 Examples:
     python validate_tour.py .tours/new-joiner.tour
     python validate_tour.py .tours/new-joiner.tour --repo-root /path/to/repo
+
 """
 
 import json
 import re
 import sys
-import os
 from pathlib import Path
-
 
 RESET = "\033[0m"
 RED = "\033[31m"
@@ -85,16 +83,34 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
         errors.append("Missing required field: 'title'")
     if "steps" not in tour:
         errors.append("Missing required field: 'steps'")
-        return {"passed": False, "errors": errors, "warnings": warnings, "info": info, "stats": {}}
+        return {
+            "passed": False,
+            "errors": errors,
+            "warnings": warnings,
+            "info": info,
+            "stats": {},
+        }
 
     steps = tour["steps"]
     if not isinstance(steps, list):
         errors.append("'steps' must be an array")
-        return {"passed": False, "errors": errors, "warnings": warnings, "info": info, "stats": {}}
+        return {
+            "passed": False,
+            "errors": errors,
+            "warnings": warnings,
+            "info": info,
+            "stats": {},
+        }
 
     if len(steps) == 0:
         errors.append("Tour has no steps")
-        return {"passed": False, "errors": errors, "warnings": warnings, "info": info, "stats": {}}
+        return {
+            "passed": False,
+            "errors": errors,
+            "warnings": warnings,
+            "info": info,
+            "stats": {},
+        }
 
     # ── 3. Tour-level optional fields ───────────────────────────────────────
     if "nextTour" in tour:
@@ -146,9 +162,13 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
 
             # must be relative — no leading slash, no ./
             if raw_path.startswith("/"):
-                errors.append(f"{label}: File path must be relative (no leading /): {raw_path!r}")
+                errors.append(
+                    f"{label}: File path must be relative (no leading /): {raw_path!r}"
+                )
             elif raw_path.startswith("./"):
-                warnings.append(f"{label}: File path should not start with './': {raw_path!r}")
+                warnings.append(
+                    f"{label}: File path should not start with './': {raw_path!r}"
+                )
 
             file_path = repo / raw_path
             if not file_path.exists():
@@ -226,7 +246,9 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
             else:
                 for cmd in step["commands"]:
                     if not isinstance(cmd, str):
-                        errors.append(f"{label}: Each command must be a string, got {cmd!r}")
+                        errors.append(
+                            f"{label}: Each command must be a string, got {cmd!r}"
+                        )
 
     # ── 5. Content-only step count ──────────────────────────────────────────
     if content_only_count > 2:
@@ -238,8 +260,12 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
     # ── 6. Narrative arc checks ─────────────────────────────────────────────
     first = steps[0]
     last = steps[-1]
-    first_is_orient = "file" not in first and "directory" not in first and "uri" not in first
-    last_is_closing = "file" not in last and "directory" not in last and "uri" not in last
+    first_is_orient = (
+        "file" not in first and "directory" not in first and "uri" not in first
+    )
+    last_is_closing = (
+        "file" not in last and "directory" not in last and "uri" not in last
+    )
 
     if not first_is_orient and "directory" not in first:
         info.append(
@@ -329,7 +355,9 @@ def main():
         if tours_dir.exists():
             tour_files = [str(p) for p in sorted(tours_dir.glob("*.tour"))]
         if not tour_files:
-            print("No .tour files found. Pass a file path or run from a repo with a .tours/ directory.")
+            print(
+                "No .tour files found. Pass a file path or run from a repo with a .tours/ directory."
+            )
             sys.exit(1)
 
     all_passed = True

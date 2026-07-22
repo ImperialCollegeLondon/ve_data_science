@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Generate a tour skeleton from repo documentation (README, CONTRIBUTING, docs/).
+"""Generate a tour skeleton from repo documentation (README, CONTRIBUTING, docs/).
 
 Reads README.md (and optionally CONTRIBUTING.md, docs/) to extract:
   - File and directory references
@@ -18,15 +17,13 @@ Examples:
     python generate_from_docs.py
     python generate_from_docs.py --persona new-joiner --output .tours/from-readme.tour
     python generate_from_docs.py --repo-root /path/to/repo --persona vibecoder
+
 """
 
 import json
 import re
 import sys
-import os
 from pathlib import Path
-from typing import Optional
-
 
 # ── Markdown extraction helpers ──────────────────────────────────────────────
 
@@ -94,6 +91,7 @@ def _is_structure_section(heading: str) -> bool:
 
 # ── Step builders ─────────────────────────────────────────────────────────────
 
+
 def _make_content_step(title: str, hint: str) -> dict:
     return {
         "title": title,
@@ -128,12 +126,18 @@ def _make_uri_step(url: str, label: str) -> dict:
 
 # ── Core generator ────────────────────────────────────────────────────────────
 
+
 def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict:
     repo = Path(repo_root).resolve()
 
     # ── Read documentation files ─────────────────────────────────────────
     doc_files = ["README.md", "readme.md", "Readme.md"]
-    extra_docs = ["CONTRIBUTING.md", "ARCHITECTURE.md", "docs/architecture.md", "docs/README.md"]
+    extra_docs = [
+        "CONTRIBUTING.md",
+        "ARCHITECTURE.md",
+        "docs/architecture.md",
+        "docs/README.md",
+    ]
 
     readme_text = ""
     for name in doc_files:
@@ -175,9 +179,13 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
                     seen_paths.add(p)
                     full = repo / p
                     if full.is_dir():
-                        steps.append(_make_dir_step(p, f"mentioned under '{heading}' in README"))
+                        steps.append(
+                            _make_dir_step(p, f"mentioned under '{heading}' in README")
+                        )
                     elif full.is_file():
-                        steps.append(_make_file_step(p, f"mentioned under '{heading}' in README"))
+                        steps.append(
+                            _make_file_step(p, f"mentioned under '{heading}' in README")
+                        )
 
     # 3. Scan all text for file/dir references not yet captured
     all_paths = _extract_paths_from_text(all_text, repo)
@@ -196,7 +204,11 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
     if len(file_and_dir_steps) < 3:
         # add top-level directories
         for item in sorted(repo.iterdir()):
-            if item.name.startswith(".") or item.name in ("node_modules", "__pycache__", ".git"):
+            if item.name.startswith(".") or item.name in (
+                "node_modules",
+                "__pycache__",
+                ".git",
+            ):
                 continue
             rel = str(item.relative_to(repo))
             if rel in seen_paths:
@@ -204,7 +216,15 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
             seen_paths.add(rel)
             if item.is_dir():
                 steps.append(_make_dir_step(rel, "top-level directory"))
-            elif item.is_file() and item.suffix in (".ts", ".js", ".py", ".go", ".rs", ".java", ".rb"):
+            elif item.is_file() and item.suffix in (
+                ".ts",
+                ".js",
+                ".py",
+                ".go",
+                ".rs",
+                ".java",
+                ".rb",
+            ):
                 steps.append(_make_file_step(rel, "top-level source file"))
 
     # 5. URI steps from external links in README
@@ -234,7 +254,7 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
     return {
         "$schema": "https://aka.ms/codetour-schema",
         "title": f"[TODO: descriptive title for {persona} tour]",
-        "description": f"[TODO: one sentence — who this is for and what they'll understand]",
+        "description": "[TODO: one sentence — who this is for and what they'll understand]",
         "_skeleton_generated_by": "generate_from_docs.py",
         "_instructions": (
             "This is a skeleton. Fill in every [TODO: ...] with real content. "
@@ -253,7 +273,7 @@ def main():
 
     repo_root = "."
     persona = "new-joiner"
-    output: Optional[str] = None
+    output: str | None = None
 
     i = 0
     while i < len(args):
@@ -277,7 +297,7 @@ def main():
         Path(output).write_text(out_json)
         print(f"✅ Skeleton written to {output}")
         print(f"   {len(skeleton['steps'])} steps generated from docs")
-        print(f"   Fill in all [TODO: ...] entries before sharing")
+        print("   Fill in all [TODO: ...] entries before sharing")
     else:
         print(out_json)
 
