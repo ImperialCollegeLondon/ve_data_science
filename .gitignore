@@ -22,6 +22,9 @@ data/derived/soil/validation/database
 data/derived/soil/necromass/li_et_al_2023.csv
 data/derived/litter/stock/litter_stock.csv
 
+# MkDocs build output
+site/
+
 # Scenario files, except the change_log.txt file
 # ignore the directory's contents (/*), not the directory itself — otherwise
 # the ! negation for the file won't work (git can't un-ignore files inside an
@@ -577,3 +580,6 @@ rsconnect/
 **/*.quarto_ipynb
 **/*_files
 analysis/**/*.html
+
+# AI files
+.posit/assistant/
