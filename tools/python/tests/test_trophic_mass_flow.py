@@ -50,6 +50,7 @@ def test_plot_faceted_saves_file(analysis, tmp_path):
     Args:
         analysis: Fresh analysis instance for the test.
         tmp_path: Temporary directory provided by pytest.
+
     """
     # call load_data() and process_data method
     analysis.process_data()
