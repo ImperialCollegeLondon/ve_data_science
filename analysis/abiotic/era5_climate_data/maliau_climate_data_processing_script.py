@@ -126,9 +126,11 @@ references: |
 ---
 """  # noqa: D212, D205
 
-import importlib
 import sys
 from pathlib import Path
+
+from tools.python.abiotic import cdsapi_downloader as cds
+from tools.python.abiotic import climate_tools as ct
 
 # ============================================================
 # PROJECT ROOT
@@ -144,43 +146,6 @@ sys.path.insert(
     0,
     str(project_root),
 )
-
-# ============================================================
-# IMPORT CLIMATE DATA DOWNLOAD TOOLS
-# ============================================================
-# Import functions for downloading ERA5-Land monthly climate
-# variables and hourly 2 m air temperature from the Copernicus
-# Climate Data Store (CDS).
-
-cdsapi_downloader = importlib.import_module("tools.python.abiotic.cdsapi_downloader")
-cdsapi_era5_hourly_temperature_downloader = (
-    cdsapi_downloader.cdsapi_era5_hourly_temperature_downloader
-)
-cdsapi_era5_monthly_downloader = cdsapi_downloader.cdsapi_era5_monthly_downloader
-
-# ============================================================
-# IMPORT CLIMATE PROCESSING TOOLS
-# ============================================================
-# Import functions for processing, interpolating, and
-# formatting ERA5-Land climate data into a Virtual Ecosystem
-# climate forcing dataset.
-
-climate_tools = importlib.import_module("tools.python.abiotic.climate_tools")
-add_atmospheric_co2 = climate_tools.add_atmospheric_co2
-add_global_attributes = climate_tools.add_global_attributes
-add_mean_annual_temperature = climate_tools.add_mean_annual_temperature
-calculate_monthly_dtr = climate_tools.calculate_monthly_dtr
-calculate_relative_humidity = climate_tools.calculate_relative_humidity
-convert_units = climate_tools.convert_units
-create_ve_dataset = climate_tools.create_ve_dataset
-finalise_ve_dataset = climate_tools.finalise_ve_dataset
-get_target_grid = climate_tools.get_target_grid
-interpolate_dataset = climate_tools.interpolate_dataset
-interpolate_variable = climate_tools.interpolate_variable
-read_site_configuration = climate_tools.read_site_configuration
-save_dataset = climate_tools.save_dataset
-select_required_variables = climate_tools.select_required_variables
-
 
 # ============================================================
 # USER SETTINGS
@@ -239,7 +204,7 @@ grid_file = (
 # target grid and simulation period required for climate
 # data preparation for the selected scenario.
 
-scenario = read_site_configuration(
+scenario = ct.read_site_configuration(
     grid_file,
     scenario_name,
 )
@@ -254,7 +219,7 @@ run_length = int(timing["run_length"].split()[0])
 end_year = start_year + run_length - 1
 end_date = f"{end_year}-12-31"
 
-target_grid = get_target_grid(scenario)
+target_grid = ct.get_target_grid(scenario)
 
 years = list(range(start_year, end_year + 1))
 
@@ -311,14 +276,14 @@ output_file = derived_data_dir / f"era5_{scenario_name}_{start_year}_{end_year}.
 print("\nDownloading ERA5-Land climate data...")
 
 # Download monthly averaged ERA5-Land climate data.
-era5_ds = cdsapi_era5_monthly_downloader(
+era5_ds = cds.cdsapi_era5_monthly_downloader(
     years=years,
     bbox=bbox,
     outfile=monthly_file,
 )
 
 # Download hourly 2m air temperature ERA5-Land data.
-hourly_ds = cdsapi_era5_hourly_temperature_downloader(
+hourly_ds = cds.cdsapi_era5_hourly_temperature_downloader(
     start_date=start_date,
     end_date=end_date,
     bbox=bbox,
@@ -335,11 +300,11 @@ hourly_ds = cdsapi_era5_hourly_temperature_downloader(
 
 print("\nProcessing climate variables...")
 
-monthly_dtr = calculate_monthly_dtr(hourly_ds)
+monthly_dtr = ct.calculate_monthly_dtr(hourly_ds)
 
-era5_ds = convert_units(era5_ds)
-era5_ds = calculate_relative_humidity(era5_ds)
-era5_ds = select_required_variables(era5_ds)
+era5_ds = ct.convert_units(era5_ds)
+era5_ds = ct.calculate_relative_humidity(era5_ds)
+era5_ds = ct.select_required_variables(era5_ds)
 
 
 # ============================================================
@@ -365,12 +330,12 @@ era5_ds = select_required_variables(era5_ds)
 
 print("\nInterpolating climate variables...")
 
-interpolated = interpolate_dataset(
+interpolated = ct.interpolate_dataset(
     dataset=era5_ds,
     target_grid=target_grid,
 )
 
-interpolated["dtr"] = interpolate_variable(
+interpolated["dtr"] = ct.interpolate_variable(
     monthly_dtr,
     target_grid,
 )
@@ -383,7 +348,7 @@ interpolated["dtr"] = interpolate_variable(
 
 print("\nCreating climate forcing dataset...")
 
-climate_ds = create_ve_dataset(interpolated)
+climate_ds = ct.create_ve_dataset(interpolated)
 
 
 # ============================================================
@@ -394,8 +359,8 @@ climate_ds = create_ve_dataset(interpolated)
 
 print("\nAdding climate variables...")
 
-climate_ds = add_mean_annual_temperature(climate_ds)
-climate_ds = add_atmospheric_co2(climate_ds)
+climate_ds = ct.add_mean_annual_temperature(climate_ds)
+climate_ds = ct.add_atmospheric_co2(climate_ds)
 
 
 # ============================================================
@@ -406,8 +371,8 @@ climate_ds = add_atmospheric_co2(climate_ds)
 
 print("\nFinalising climate forcing dataset...")
 
-climate_ds = finalise_ve_dataset(climate_ds)
-climate_ds = add_global_attributes(
+climate_ds = ct.finalise_ve_dataset(climate_ds)
+climate_ds = ct.add_global_attributes(
     climate_ds,
     scenario_name,
 )
@@ -500,7 +465,7 @@ else:
 
 print("\nSaving climate forcing dataset...")
 
-save_dataset(
+ct.save_dataset(
     dataset=climate_ds,
     outfile=output_file,
 )
