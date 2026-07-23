@@ -1,0 +1,415 @@
+#| ---
+#| title: |
+#|     Generate datasets for the sensitivity analysis of soil and litter
+#|     input data
+#|
+#| description: |
+#|     This R script generates
+#|
+#| virtual_ecosystem_module: Soil, Litter
+#|
+#| author: Hao Ran Lai
+#|
+#| status: final
+#|
+#| input_files:
+#|   - name: Input file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       Source (short citation) and a brief explanation of what this input file
+#|       contains and its use case in this script
+#|
+#| output_files:
+#|   - name: Output file name
+#|     path: Full file path on shared drive
+#|     description: |
+#|       What the output file contains and its significance, are they used in any other
+#|       scripts?
+#|
+#| package_dependencies:
+#|     - tidyverse
+#|     - sensobol
+#|     - tidync
+#|     - RNetCDF
+#|     - toml
+#|     - mirai
+#|
+#| source_files:
+#|     - tools/R/convert_array_to_nc.R
+#|     - tools/R/get_data_variables.R
+#|     - tools/R/summarise_spatial.R
+#|
+#| usage_notes: |
+#|   Any known issues or bugs? Future plans for script/extensions or improvements
+#|   planned that should be noted?
+#| ---
+
+library(tidyverse)
+library(sensobol)
+library(tidync)
+library(RNetCDF)
+library(toml)
+library(mirai)
+source("tools/R/convert_array_to_nc.R")
+source("tools/R/get_data_variables.R")
+source("tools/R/summarise_spatial.R")
+
+
+# constants and paths
+in_dir <- "data/scenarios/maliau/maliau_1/data/"
+out_dir <- "data/scenarios/sensitivity_soil_litter/data/"
+out_config_dir <- "data/scenarios/sensitivity_soil_litter/config"
+grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
+soil_input_path <- file.path(in_dir, "soil_maliau.nc")
+litter_input_path <- file.path(in_dir, "litter_maliau.nc")
+elevation_input_path <- file.path(in_dir, "elevation_maliau_2010_2020_100m.nc")
+climate_input_path <- file.path(in_dir, "era5_maliau_2010_2020_100m.nc")
+plant_input_path <- file.path(in_dir, "plant_input_data_Maliau_50x50.nc")
+plant_cohort_input_path <- file.path(
+  in_dir,
+  "plant_cohort_data_Maliau_50x50.csv"
+)
+soil_microbial_config_path <- "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml"
+
+require_path <- function(path) {
+  if (!file.exists(path)) {
+    stop(sprintf("Required file does not exist: %s", path))
+  }
+}
+
+required_inputs <- c(
+  grid_definition_path,
+  soil_input_path,
+  litter_input_path,
+  elevation_input_path,
+  climate_input_path,
+  plant_input_path,
+  plant_cohort_input_path,
+  soil_microbial_config_path
+)
+purrr::walk(required_inputs, require_path)
+
+if (!dir.exists(out_dir)) {
+  dir.create(out_dir, recursive = TRUE)
+}
+if (!dir.exists(out_config_dir)) {
+  dir.create(out_config_dir, recursive = TRUE)
+}
+
+# sensitivity analysis settings
+n_sample <- 100
+sobol_seed <- 777
+parallel_daemons <- 128
+
+
+# Maliau input data -------------------------------------------------------
+# the site definition
+maliau_1 <-
+  read_toml(grid_definition_path) |>
+  pluck("Scenario") |>
+  pluck("maliau_1")
+
+# soil and litter input data for the maliau_2 scenario
+dat_maliau <- list(
+  soil = tidync(soil_input_path),
+  litter = tidync(litter_input_path)
+)
+
+# get the names of soil and litter input variables
+vars_maliau <-
+  dat_maliau |>
+  map(get_data_variables) |>
+  list_c()
+
+# get the range of soil and litter input variables
+# they will be used to rescaled the Sobol sampling matrix to observation scale
+# later; more on this later
+range_maliau <-
+  # get min
+  vars_maliau |>
+  summarise_spatial(FUN = min) |>
+  reshape2::melt(value.name = "min") |>
+  # get max
+  left_join(
+    vars_maliau |>
+      summarise_spatial(FUN = max) |>
+      reshape2::melt(value.name = "max")
+  ) |>
+  # paste variable names with their extra dimension names to treat them as
+  # individual variables; for example, litter_pool_above_metabolic_cnp needs
+  # to become litter_pool_above_metabolic_cnp_C,
+  # litter_pool_above_metabolic_cnp_N and litter_pool_above_metabolic_cnp_P to
+  # for their names to be unique
+  mutate(
+    variable = ifelse(is.na(element), L1, paste(L1, element, sep = "_"))
+  ) |>
+  select(variable, min, max)
+
+
+# Set up Sobol matrix -----------------------------------------------------
+# to efficiency sample the variable space of soil and litter data
+# the Sobol matrix should have N * (2 + k) rows
+
+# For more information about the Sobol sampling matrices, see
+# McKay MD, Beckman RJ, Conover WJ (1979). “Comparison of three methods for
+# selecting values of input variables in the analysis of output from a computer
+# code.” Technometrics, 21(2), 239–245. doi:10.1080/00401706.1979.10489755.
+# Sobol' IM (1967). “On the distribution of points in a cube and the approximate
+#  evaluation of integrals.” USSR Computational Mathematics and Mathematical
+# Physics, 7(4), 86–112. doi:10.1016/0041-5553(67)90144-9.
+# Or simply Google for it.
+
+# variable names
+maliau_vars_init <- range_maliau$variable
+
+# generate the Sobol sampling matrices
+mat <- sobol_matrices(
+  N = n_sample,
+  params = maliau_vars_init,
+  order = "first",
+  type = "QRN",
+  seed = sobol_seed
+)
+
+# rescale to Maliau ranges
+# Because the Sobol sampling matrices generate variables in unit space, with
+# each variable ranging [0, 1]. We need to rescale them back to the observation
+# scale (the scale of the input data variables) simply by making 0 correspond to
+#  min(variable) and 1 correspond to max(variable). The most straightforward
+# backscaling is the inverse function of the normalisation function, which is
+# x * (max(x) - min(x)) - min(x).
+for (var in maliau_vars_init) {
+  min <- range_maliau |> filter(variable == var) |> pull(min)
+  max <- range_maliau |> filter(variable == var) |> pull(max)
+  mat[, var] <-
+    mat[, var] * (max - min) + min
+}
+
+# output the Sobol matrix for reuse in downstream analysis
+write_rds(mat, file.path(out_dir, "sobol_matrix.rds"))
+
+expected_sobol_rows <- n_sample * (length(maliau_vars_init) + 2)
+if (nrow(mat) != expected_sobol_rows) {
+  stop(sprintf(
+    "Sobol matrix row count mismatch: expected %s, got %s",
+    expected_sobol_rows,
+    nrow(mat)
+  ))
+}
+
+# convert to dataframe, and then combine CNP into triplet columns
+
+# simple function to merge triplet
+merge_triplet <- function(C, N, P) {
+  pmap(list(C, N, P), c)
+}
+
+# apply the merge function
+sobol_df <-
+  mat |>
+  as.data.frame() |>
+  # combine C, N and P columns into a single list column
+  mutate(
+    soil_cnp_pool_lmwc = merge_triplet(
+      soil_cnp_pool_lmwc_C,
+      soil_cnp_pool_lmwc_N,
+      soil_cnp_pool_lmwc_P
+    ),
+    soil_cnp_pool_maom = merge_triplet(
+      soil_cnp_pool_maom_C,
+      soil_cnp_pool_maom_N,
+      soil_cnp_pool_maom_P
+    ),
+    soil_cnp_pool_pom = merge_triplet(
+      soil_cnp_pool_pom_C,
+      soil_cnp_pool_pom_N,
+      soil_cnp_pool_pom_P
+    ),
+    soil_cnp_pool_necromass = merge_triplet(
+      soil_cnp_pool_necromass_C,
+      soil_cnp_pool_necromass_N,
+      soil_cnp_pool_necromass_P
+    ),
+    litter_pool_above_metabolic_cnp = merge_triplet(
+      litter_pool_above_metabolic_cnp_C,
+      litter_pool_above_metabolic_cnp_N,
+      litter_pool_above_metabolic_cnp_P
+    ),
+    litter_pool_below_metabolic_cnp = merge_triplet(
+      litter_pool_below_metabolic_cnp_C,
+      litter_pool_below_metabolic_cnp_N,
+      litter_pool_below_metabolic_cnp_P
+    ),
+    litter_pool_above_structural_cnp = merge_triplet(
+      litter_pool_above_structural_cnp_C,
+      litter_pool_above_structural_cnp_N,
+      litter_pool_above_structural_cnp_P
+    ),
+    litter_pool_below_structural_cnp = merge_triplet(
+      litter_pool_below_structural_cnp_C,
+      litter_pool_below_structural_cnp_N,
+      litter_pool_below_structural_cnp_P
+    ),
+    litter_pool_woody_cnp = merge_triplet(
+      litter_pool_woody_cnp_C,
+      litter_pool_woody_cnp_N,
+      litter_pool_woody_cnp_P
+    ),
+    .keep = "unused"
+  )
+
+# each row in the Sobol matrix will be treated as a single-grid "scenario"
+# so we convert the Sobol matrix to a list of single-grid variable arrays,
+# which will be further converted to netCDF input data
+dimnames <- list(
+  x = maliau_1$cell_x_centres[1],
+  y = maliau_1$cell_y_centres[1],
+  element = c("C", "N", "P")
+)
+
+# set up the conversion in parallel
+daemons(parallel_daemons)
+sobol_df |>
+  # split the Sobol matrix into list row-by-row
+  mutate(row_id = row_number()) |>
+  group_split(row_id) |>
+  imap(in_parallel(
+    \(x, idx) {
+      x |>
+        as.list() |>
+        list_flatten() |>
+        # determine if there is an extra element dimension, and then convert to
+        # an array according to the right dimensionality
+        map(\(dat) {
+          if (length(dat) == 1) {
+            array(
+              dat,
+              dim = c(1, 1),
+              dimnames = list(x = dimnames$x, y = dimnames$y)
+            )
+          } else {
+            array(
+              dat,
+              dim = c(3, 1, 1),
+              dimnames = list(
+                element = dimnames$element,
+                x = dimnames$x,
+                y = dimnames$y
+              )
+            )
+          }
+        }) |>
+        # convert the array to netCDF
+        convert_array_to_nc(
+          filename = file.path(out_dir, paste0("soil_litter_data_", idx, ".nc"))
+        )
+    },
+    # required objects and namespace
+    convert_array_to_nc = convert_array_to_nc,
+    create.nc = RNetCDF::create.nc,
+    dim.def.nc = RNetCDF::dim.def.nc,
+    var.def.nc = RNetCDF::var.def.nc,
+    var.put.nc = RNetCDF::var.put.nc,
+    close.nc = RNetCDF::close.nc,
+    map = purrr::map,
+    flatten = purrr::flatten,
+    list_flatten = purrr::list_flatten,
+    dimnames = dimnames,
+    out_dir = out_dir
+  ))
+daemons(0)
+
+expected_soil_litter_files <- nrow(sobol_df)
+actual_soil_litter_files <-
+  list.files(out_dir, pattern = "^soil_litter_data_[0-9]+\\.nc$") |>
+  length()
+if (actual_soil_litter_files != expected_soil_litter_files) {
+  stop(sprintf(
+    "Generated soil/litter netCDF file count mismatch: expected %s, got %s",
+    expected_soil_litter_files,
+    actual_soil_litter_files
+  ))
+}
+
+
+# Generate mean arrays ---------------------------------------------------
+# For other modules, fix their values at spatial averages, so that the
+# sensitivity analysis does not vary them, i.e., we are not doing any
+# sensitivity analysis of these variables.
+# NB: plant input data does not vary across grid, so it is the same as using a
+# spatial average here. Abiotic input data cannot really be used for sensitivity
+# analysis because they are "forcings", which are pre-determined over time
+# (they do not response to other inputs).
+
+# Elevation data
+tidync(elevation_input_path) |>
+  get_data_variables() |>
+  summarise_spatial(FUN = mean) |>
+  convert_array_to_nc(
+    filename = file.path(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
+  )
+
+# Climate / abiotic data
+# requires a special treatment because the variable `valid_time` is a temporal
+# variable that do not need to go through summarise_spatial() below
+clim_dat <-
+  tidync(climate_input_path) |>
+  get_data_variables()
+clim_dat |>
+  # summarise spatial mean of climate data, bypassing valid_time
+  discard_at("valid_time") |>
+  summarise_spatial(FUN = mean) |>
+  # put valid_time back before converting back to netCDF
+  list_assign(valid_time = clim_dat$valid_time) |>
+  convert_array_to_nc(
+    filename = file.path(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
+  )
+
+# Plant data
+tidync(plant_input_path) |>
+  get_data_variables() |>
+  summarise_spatial(FUN = mean) |>
+  convert_array_to_nc(
+    filename = file.path(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
+  )
+
+# Plant cohorts
+plant_cohort <-
+  read_csv(plant_cohort_input_path, show_col_types = FALSE) |>
+  group_by(plant_cohorts_pft) |>
+  # take average cohort size and DBH and floor cohort size to get integer
+  summarise(
+    plant_cohorts_n = floor(mean(plant_cohorts_n)),
+    plant_cohorts_dbh = mean(plant_cohorts_dbh),
+  ) |>
+  # reset cell_id to start from zero here too
+  mutate(plant_cohorts_cell_id = 0)
+write_csv(
+  plant_cohort,
+  file.path(out_dir, "plant_cohort_data_Maliau_50x50.csv")
+)
+
+# Copy over other data that do not need to be modified
+files_to_copy <- c(
+  "animal_functional_groups_Maliau_level1.csv",
+  "plant_pft_definitions_Maliau_50x50.csv"
+)
+copy_ok <- file.copy(
+  file.path(in_dir, files_to_copy),
+  out_dir,
+  overwrite = TRUE
+)
+if (!all(copy_ok)) {
+  stop("One or more static files failed to copy to output directory.")
+}
+
+microbial_copy_ok <- file.copy(
+  soil_microbial_config_path,
+  out_config_dir,
+  overwrite = TRUE
+)
+if (!microbial_copy_ok) {
+  stop(
+    "soil_microbial_groups.toml failed to copy to sensitivity config directory."
+  )
+}
