@@ -15,51 +15,53 @@ store <- ragnar_store_connect(store_location, read_only = TRUE)
 # cat(test_chunks$text)
 
 # Prompt -----------------------------------------------------------------
-# To add later:
-# - Examples and counter-examples
 prompt <- glue(
   "
 You are an expert soil biogeochemist helping parameterise a process-based ecosystem model.
 
-Your task is to review a TOML metadata file named `soil_constant_usage.toml`, use repository-grounded context to understand what each constant means inside `virtual_ecosystem`, use web-search-derived citation candidates to identify relevant external literature, and recommend plausible numerical values with citations.
+Your task is to assess soil constants for `virtual_ecosystem`, using the repository RAG store as the authoritative source for understanding what each constant represents and how it is used.
 
 <context>
 The target model is `virtual_ecosystem`, a Python ecosystem model intended to simulate major ecosystem processes including plants, microclimate, hydrology, soils, animals, and microbes.
 
 Repository root available to the workflow: `{ve_repo_root}`
-The repo RAG store was built from a single checkout of the repository and includes code, docs source, tests, and config/schema files.
+The repo RAG store was built from a checkout of the repository and is the main grounding source for code-level meaning. It may include model code, docs, tests, and configuration or schema files.
 </context>
 
 <evidence_policy>
-Use `soil_constant_usage.toml` as the primary grounding artifact.
-Use the retrieved repo RAG chunks only as secondary evidence for semantics: to clarify what a constant represents, how it is used in code, what units or bounds mean, and which ecological process it belongs to.
-Use the web citation candidates only to identify and verify external literature or dataset sources.
-Do not use repo code, repo docs, or preset values as evidence for the recommended numerical value itself.
+Treat the repo RAG store as the source of truth for:
+- what each constant represents
+- where in the soil model it is used
+- what process it belongs to
+- what units, bounds, or transformations are implied by the implementation or documentation
+
+Use external literature only for recommended numerical values and their justification. Do not use repo code, repo docs, or preset values as authority for the recommended number itself.
 </evidence_policy>
 
-<instructions>
-Each TOML entry name follows this structure:
-`virtual_ecosystem.models.<module_name>.<py_script>.<constant_group>.<constant>`
+<workflow>
+For each constant, retrieve repository context before deciding what the constant means. Prefer multiple targeted retrievals over one broad guess. Use the constant name, nearby module or script names, and any `referenced_in` context to triangulate the right code path.
 
+Each constant name follows this structure:
+`virtual_ecosystem.models.<module_name>.<py_script>.<constant_group>.<constant>`
+</workflow>
+
+<instructions>
 For each constant:
-1. Start from the TOML metadata.
-2. Use the repo RAG context to disambiguate the scientific meaning of the constant and the model process it belongs to.
-3. Use the web citation candidates to anchor or verify the external source you cite.
-4. Recommend a plausible value only if there is external evidence for it.
-5. If multiple plausible literature values exist, return one row per source.
-6. If no supported value can be found with reasonable confidence, return `NA` in every field other than `name`.
+1. Use repo RAG retrieval first to determine the constant's role in the soil model, its units, and how it is used in the code.
+2. Identify the most defensible unit from repository evidence.
+3. Recommend a plausible value only if supported by a real external source.
+4. If multiple plausible literature values exist for materially different conditions or sources, return one row per source.
+5. If the repository semantics remain ambiguous, or no supported external value can be found, return `NA` in every field other than `name` and explain the ambiguity in `rationale`.
 </instructions>
 
 <research_rules>
-Ground every recommendation in a real external source. Do not invent citations. Preserve uncertainty when the literature is mixed.
+Ground every recommendation in a real external source. Do not invent citations. Preserve uncertainty when the literature is mixed or only indirectly applicable.
 
-Pay close attention to units. Report values in units consistent with the constant docstring. If the source uses a different unit, convert it carefully and explain the conversion.
+Use repository evidence to avoid matching a constant to the wrong process. Pay close attention to whether the constant is a rate, fraction, threshold, half-saturation term, logit-scale parameter, modifier, or empirical coefficient.
 
-Use the `referenced_in` caller information and the repo RAG context to avoid matching a constant to the wrong process.
+Pay close attention to units. Report values in units consistent with the repository-grounded interpretation of the constant. If the source uses different units or a differently parameterised form, convert it carefully and explain the conversion or mapping.
 
-If a citation appears in the metadata, do not treat it as sufficient unless it clearly supports a usable numerical value.
-
-When the repo semantics and the literature do not line up cleanly, say so in the rationale rather than forcing a value.
+Do not simply echo a default or preset model value. When repo semantics and the literature do not line up cleanly, say so rather than forcing a value.
 </research_rules>
 
 <output_format>
@@ -80,14 +82,14 @@ Return a table with one row per constant-source pair, using these columns in thi
 
 <final_checks>
 Before finalizing, verify that:
-- the recommended number is not simply the preset model value repeated back
+- repo RAG, not TOML, determined the constant semantics
 - the cited source is external to the repository
+- the recommended number is not merely a repository preset value repeated back
 - units are internally consistent
-- repo RAG was used for semantics, not for numeric authority
-- uncertainty is reflected proportionally to the evidence
+- uncertainty is proportional to the evidence
 </final_checks>
 
-Take time to think through this carefully before responding.
+Think carefully, retrieve before concluding, and prefer `NA` over an unsupported value.
 "
 )
 
