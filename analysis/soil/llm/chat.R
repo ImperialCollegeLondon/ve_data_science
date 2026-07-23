@@ -103,7 +103,7 @@ type_output <- type_array(
       "Name of the constant.",
       required = TRUE
     ),
-    value = type_number(
+    suggested_value = type_number(
       "Suggested value of the constant.",
       required = FALSE
     ),
@@ -111,27 +111,47 @@ type_output <- type_array(
       "Unit or dimension of the constant value.",
       required = FALSE
     ),
+    source_type = type_string(
+      "Type of source, e.g. empirical study, review, dataset, or model paper.",
+      required = FALSE
+    ),
     citation = type_string(
-      "The primary literature or dataset citation in bibtex format.",
+      "External literature or dataset citation.",
       required = FALSE
     ),
-    url = type_string(
-      "URL to the literature or dataset source(s).",
+    year = type_integer(
+      "Publication year of the cited source.",
       required = FALSE
     ),
-    doi = type_string(
-      "DOI to the literature or dataset source(s).",
+    url_or_doi = type_string(
+      "Resolvable URL or DOI for the cited source.",
+      required = FALSE
+    ),
+    original_value_reported = type_string(
+      "Original reported value from the source before any conversion.",
+      required = FALSE
+    ),
+    conversion_or_interpretation_notes = type_string(
+      "Notes on unit conversion or interpretation.",
+      required = FALSE
+    ),
+    relevance_to_model = type_string(
+      "How the source maps to the model constant.",
       required = FALSE
     ),
     confidence = type_enum(
       c("low", "medium", "high"),
-      "A confidence rating for the suggested value.",
+      "Confidence rating for the suggested value.",
+      required = FALSE
+    ),
+    rationale = type_string(
+      "Brief explanation of why the value is plausible.",
       required = FALSE
     )
   )
 )
 
-# Prompt the LLM
+# Prompt the LLM ---------------------------------------------------------
 chat <- chat_google_gemini(model = "gemini-3.5-flash")
 tictoc::tic()
 constant_search <- chat$chat_structured(
