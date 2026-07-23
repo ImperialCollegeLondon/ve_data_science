@@ -1,25 +1,21 @@
 library(ellmer)
+library(ragnar)
 library(glue)
-library(toml)
 
-# Input files
 data_folder <- "data/derived/soil/llm"
-constant_file <- "soil_constant_usage.toml"
-constant_filepath <- file.path(data_folder, constant_file)
 
-# Upload files
-constant_file_upload <- google_upload(
-  constant_filepath,
-  mime_type = "text/plain"
-)
 
-# Read data that needs to be passed to the LLM from R
-constant_usage <- read_toml(constant_filepath)
-constant_list <- purrr::map_chr(constant_usage, "name") |> unname()
+# Retrieve RAG store -----------------------------------------------------
 
-# Prompt
+store_location <- file.path(data_folder, "virtual_ecosystem_repo.ragnar.duckdb")
+store <- ragnar_store_connect(store_location, read_only = TRUE)
+
+# test the retrieval
+# test_chunks <- ragnar_retrieve(store, "What is reference_cue_logit")
+# cat(test_chunks$text)
+
+# Prompt -----------------------------------------------------------------
 # To add later:
-# - Encourage to think deeper
 # - Examples and counter-examples
 prompt <- glue(
   "
@@ -153,10 +149,14 @@ type_output <- type_array(
 
 # Prompt the LLM ---------------------------------------------------------
 chat <- chat_google_gemini(model = "gemini-3.5-flash")
+ragnar_register_tool_retrieve(chat, store)
+
+# Run a general chat first for tool calling (RAG)
 tictoc::tic()
-constant_search <- chat$chat_structured(
-  constant_file_upload,
-  prompt,
-  type = type_output
-)
+constant_search <- chat$chat(prompt)
+tictoc::toc()
+
+# Run a second chat to extract structured data
+tictoc::tic()
+constant_search_structured <- chat$chat_structured(type = type_output)
 tictoc::toc()
