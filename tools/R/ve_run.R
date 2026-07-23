@@ -45,6 +45,8 @@
 #'     "core.debug.truncate_run_at_update=4"
 #'   )
 #'   ve_run(args)
+#'
+#' @export
 
 ve_run <- function(args, venv = NULL) {
   if (!is.null(venv)) {
