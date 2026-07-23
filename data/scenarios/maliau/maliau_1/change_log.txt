@@ -1,5 +1,18 @@
 # Change log of maliau_1 scenario input data
 
+2026-07-23
+
+- Module: Core configuration
+- Author: Baizurah Malik
+- Files changed:
+  - Configuration files in the `maliau_1/config` folder (Globus)
+- Changes made:
+  - Replaced the previous scenario configuration files with the latest
+    configuration files generated using Virtual Ecosystem version 0.2.1.
+  - Users should verify the file-path entries before running the scenario
+    and add the plant output block where required.
+- References:
+  - Updating configurations for the new Zarr output format
 
 2026-07-20
 - Module: Abiotic & Hydrology
