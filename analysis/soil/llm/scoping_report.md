@@ -67,7 +67,7 @@ report back.
   my free tier to business tier.
 - Using local LLM with unlimited usage is an option only if we install it on a much
   powerful computer, then I remotely login to that computer's LLM.
-- Or I register a paid account of a LLM provide with pay-as-you-go pricing (e.g.,
+- Or I register a paid account with a LLM provider with pay-as-you-go pricing (e.g.,
   Claude), and get some temporary quotas for this particular exploration only.
   But we have explored this option before and it does not feel right.
 - Your thoughts...?
