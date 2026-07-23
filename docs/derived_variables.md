@@ -28,11 +28,11 @@ it out, load the functions:
 
 ```r
 # load dependencies
-box::use(tools/R/convert_array_to_nc[...])
-box::use(tools/R/get_data_variables[...])
+box::use(tools/R/R/convert_array_to_nc[...])
+box::use(tools/R/R/get_data_variables[...])
 
 # load the actual function to derive variables
-box::use(tools/R/get_derived_variables[...])
+box::use(tools/R/R/get_derived_variables[...])
 ```
 
 We are using `box::use()` in place of `source()` to load a function, because

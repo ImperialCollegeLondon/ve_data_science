@@ -31,13 +31,13 @@
 #|
 #| source_files:
 #|   - name: convert_array_to_nc.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: Function to convert arrays to netCDF
 #|   - name: subset_nc.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: Function to spatially subset netCDF files
 #|   - name: get_all_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: Function to retrieve all variable names from a netCDF file
 #|
 #| package_dependencies:
@@ -54,9 +54,9 @@ library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
-source("tools/R/convert_array_to_nc.R")
-source("tools/R/subset_nc.R")
-source("tools/R/get_all_variables.R")
+source("tools/R/R/convert_array_to_nc.R")
+source("tools/R/R/subset_nc.R")
+source("tools/R/R/get_all_variables.R")
 
 
 # Maliau site metadata ----------------------------------------------------
