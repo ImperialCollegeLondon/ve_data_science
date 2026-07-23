@@ -23,44 +23,76 @@ constant_list <- purrr::map_chr(constant_usage, "name") |> unname()
 # - Examples and counter-examples
 prompt <- glue(
   "
-  You are an expert soil biogeochemist. Your task is to parameterise a 
-  process-based ecosystem model. Search the internet for empirical or 
-  modelled values for the following constants and suggest a plausible
-  value with citation(s). **Do not simply repeat the preset values that
-  are already in place.**
+You are an expert soil biogeochemist helping parameterise a process-based ecosystem model.
 
-  # The model
+Your task is to review a TOML metadata file named `soil_constant_usage.toml`, use repository-grounded context to understand what each constant means inside `virtual_ecosystem`, use web-search-derived citation candidates to identify relevant external literature, and recommend plausible numerical values with citations.
 
-  The process-based model is `virtual_ecosystem`, which aims to simulation 
-  of all of the major processes involved in a real ecosystem including 
-  plants, microclimate, hydrology, soil, animals and microbes.
-  It is a Python program developed on https://github.com/ImperialCollegeLondon/virtual_ecosystem
-  and documented on https://virtual-ecosystem.readthedocs.io/en/latest/
-  
-  # Constant parameters
+<context>
+The target model is `virtual_ecosystem`, a Python ecosystem model intended to simulate major ecosystem processes including plants, microclimate, hydrology, soils, animals, and microbes.
 
-  You will understand the constant parameters using the TOML document: {constant_file}.
-  The entries' name structure is virtual_ecosystem.models.<module_name>.<py_script>.<constant_group>.<constant>
-  
-  For each constant entry, the metadata contain:
-    - name: name of the constant.
-    - description: the preset value, some with plausible bounds (le = less than 
-      or equal; lt = less than; gt = greater than; ge = greater than or equal)
-    - docstring: a short description, unit, and citation (if any) of the 
-      constant
-  Then, nested under `[[referenced_in]]`:
-    - caller: the function in virtual_ecosystem that calls the constant.
-    - docstring: docstring of the caller function.
-  
-  # Notes
+Repository root available to the workflow: `{ve_repo_root}`
+The repo RAG store was built from a single checkout of the repository and includes code, docs source, tests, and config/schema files.
+</context>
 
-  - A constant may be called by multiple functions.
-  - Use the unit in the docstring to understand the dimension of each constant.
-  - If you find multiple plausible values for a constant from the literature or
-    datasets, return one row for each source.
-  - If you cannot find a constant value from the literature or published
-    datasets with confidence, then return NA in the columns other than `name`.
-  "
+<evidence_policy>
+Use `soil_constant_usage.toml` as the primary grounding artifact.
+Use the retrieved repo RAG chunks only as secondary evidence for semantics: to clarify what a constant represents, how it is used in code, what units or bounds mean, and which ecological process it belongs to.
+Use the web citation candidates only to identify and verify external literature or dataset sources.
+Do not use repo code, repo docs, or preset values as evidence for the recommended numerical value itself.
+</evidence_policy>
+
+<instructions>
+Each TOML entry name follows this structure:
+`virtual_ecosystem.models.<module_name>.<py_script>.<constant_group>.<constant>`
+
+For each constant:
+1. Start from the TOML metadata.
+2. Use the repo RAG context to disambiguate the scientific meaning of the constant and the model process it belongs to.
+3. Use the web citation candidates to anchor or verify the external source you cite.
+4. Recommend a plausible value only if there is external evidence for it.
+5. If multiple plausible literature values exist, return one row per source.
+6. If no supported value can be found with reasonable confidence, return `NA` in every field other than `name`.
+</instructions>
+
+<research_rules>
+Ground every recommendation in a real external source. Do not invent citations. Preserve uncertainty when the literature is mixed.
+
+Pay close attention to units. Report values in units consistent with the constant docstring. If the source uses a different unit, convert it carefully and explain the conversion.
+
+Use the `referenced_in` caller information and the repo RAG context to avoid matching a constant to the wrong process.
+
+If a citation appears in the metadata, do not treat it as sufficient unless it clearly supports a usable numerical value.
+
+When the repo semantics and the literature do not line up cleanly, say so in the rationale rather than forcing a value.
+</research_rules>
+
+<output_format>
+Return a table with one row per constant-source pair, using these columns in this order:
+- `name`
+- `suggested_value`
+- `unit`
+- `source_type`
+- `citation`
+- `year`
+- `url_or_doi`
+- `original_value_reported`
+- `conversion_or_interpretation_notes`
+- `relevance_to_model`
+- `confidence`
+- `rationale`
+</output_format>
+
+<final_checks>
+Before finalizing, verify that:
+- the recommended number is not simply the preset model value repeated back
+- the cited source is external to the repository
+- units are internally consistent
+- repo RAG was used for semantics, not for numeric authority
+- uncertainty is reflected proportionally to the evidence
+</final_checks>
+
+Take time to think through this carefully before responding.
+"
 )
 
 # Define target output classes and types
