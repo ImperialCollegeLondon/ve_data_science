@@ -1,5 +1,22 @@
 # Change log of maliau_1 scenario input data
 
+
+2026-07-20
+- Module: Abiotic & Hydrology
+- Author: Lelavathy
+- Files changed:
+  - `era5_maliau_2010_2020_100m.nc` (Globus)
+- Changes made:
+  - Corrected the conversion of `downward_shortwave_radiation` and
+    `downward_longwave_radiation` from J m⁻² to W m⁻² using the correct
+    daily time conversion factor (86,400 seconds).
+  - Added `diurnal_temperature_range_ref`, calculated as the monthly
+    mean of the daily diurnal temperature range derived from ERA5-Land
+    hourly 2 m air temperature.
+- References:
+  - PR #414 to close Issue #415
+  - PR #415 to close Issue #416
+
 2026-07-10
 - Module: Litter
 - Author: Hao Ran Lai
