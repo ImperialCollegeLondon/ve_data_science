@@ -3,10 +3,11 @@
 title: Generate test configurations for the virtual ecosystem.
 
 description: |
-    This function writes the generated configuration to
-    ``mock_config_path`` and does not return the configuration object. It is
-    intended to generate a default-value template, not meant to be used with
-    ve_run.
+    This function writes a minimal TOML configuration to
+    ``mock_config_path``. It reproduces only the fields used by the R tests
+    (soil-CNP pool derivation) using default values from VE, so the tests
+    remain stable regardless of changes to ``virtual_ecosystem`` or
+    ``pyrealm`` internals.
 
 virtual_ecosystem_module: All
 
@@ -19,36 +20,51 @@ input_files:
 output_files:
 
 package_dependencies:
-  - virtual_ecosystem
+  - tomli-w
 
 usage_notes: See function documentation below.
 ---
 """  # noqa: D205, D212
 
-from virtual_ecosystem.core.config_builder import generate_configuration
+from pathlib import Path
+
+import tomli_w
 
 
-def generate_test_config(mock_config_path):
-    """Generate and export a test configuration as a TOML file.
+def generate_test_config(mock_config_path: str | Path) -> None:
+    """Write a minimal VE-compatible TOML config file for testing.
 
-    Parameters
-    ----------
-    mock_config_path : str or pathlib.Path
-        Path where the generated TOML configuration will be written.
+    Only the fields accessed by the R soil-CNP tests are included.
+    Values match Virtual Ecosystem defaults to keep test expectations stable.
 
-    Returns
-    -------
-    None
+    Args:
+        mock_config_path: Path where the TOML configuration will be written.
 
     """
-    models = {
-        "core": {},
-        "abiotic": {},
-        "hydrology": {},
-        "soil": {},
-        "plants": {},
-        "animal": {},
+    _MICROBIAL_GROUPS = [
+        "saprotrophic_fungi",
+        "ectomycorrhiza",
+        "arbuscular_mycorrhiza",
+        "bacteria",
+    ]
+
+    config: dict = {
+        "core": {
+            "constants": {
+                "microbial_simulation_depth": 0.25,
+            },
+        },
+        "abiotic": {
+            "constants": {
+                "bulk_density_soil": 1175.0,
+            },
+        },
+        "soil": {
+            "microbial_group_definition": [
+                {"name": name, "c_n_ratio": 5.2, "c_p_ratio": 16.0}
+                for name in _MICROBIAL_GROUPS
+            ],
+        },
     }
 
-    config = generate_configuration(models)
-    config.export_toml(mock_config_path)
+    Path(mock_config_path).write_bytes(tomli_w.dumps(config).encode())
