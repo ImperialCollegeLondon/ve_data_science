@@ -1,12 +1,23 @@
 library(calibrar)
-source("tools/R/ve_run.R")
+box::use(tools/R/ve_run[ve_run])
 
 
 # Model function ---------------------------------------------------------
 
 run_model <- function(par, ...) {
-  # run VE
-  ve_run(...)
+  venv <- ".venv"
+  config_path <- "data/scenarios/maliau/maliau_2/config"
+  out_path <- "data/scenarios/maliau/maliau_2/out"
+  args <- c(
+    config_path,
+    "--out",
+    out_path,
+    "--logfile",
+    paste0(out_path, "/logfile.log"),
+    "--config",
+    "core.debug.truncate_run_at_update=4"
+  )
+  ve_run(args, venv)
 
   # read VE output
   return(out)
