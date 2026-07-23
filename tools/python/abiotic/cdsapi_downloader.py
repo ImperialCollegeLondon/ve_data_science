@@ -259,13 +259,13 @@ def cdsapi_era5_monthly_downloader(
 
     Variables downloaded
     --------------------
-    - 2 m temperature
-    - 2 m dewpoint temperature
-    - surface pressure
-    - 10 m u wind component
-    - total precipitation
-    - surface solar radiation downward
-    - surface thermal radiation downward
+    - 2 m temperature (K)
+    - 2 m dewpoint temperature (K)
+    - surface pressure (Pa)
+    - 10 m u wind component(m s-1)
+    - total precipitation (m)
+    - surface solar radiation downward (Jm-2)
+    - surface thermal radiation downward (Jm-2)
 
     Parameters
     ----------
@@ -338,7 +338,7 @@ def cdsapi_era5_hourly_temperature_downloader(
     bbox,
     outfile,
 ):
-    """Download ERA5-Land hourly 2 m temperature.
+    """Download ERA5-Land hourly 2 m temperature (K).
 
     Hourly temperature is required to calculate the monthly mean
     diurnal temperature range.
