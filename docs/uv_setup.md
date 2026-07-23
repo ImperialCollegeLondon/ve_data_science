@@ -1,11 +1,11 @@
-<!-- markdownlint-disable MD046 -->
+<!-- markdownlint-disable MD046 MD024 -->
 # Setting up Python with `uv`
 
 `uv` handles Python installation, virtual environments, and dependencies in one place.
 
 ## How it works
 
-You can switch between versions of `virtual-ecosystem` with one command:
+You can switch between versions of `virtual-ecosystem` with one command in the terminal:
 
 | What you want | Sync command | Run command |
 | --- | --- | --- |
@@ -13,27 +13,29 @@ You can switch between versions of `virtual-ecosystem` with one command:
 | Latest `develop` branch build | `uv sync --group dev` | `uv run --group dev ve_run ...` |
 | Pinned known-good `develop` branch commit | `uv sync --group dev-stable` | `uv run --group dev-stable ve_run ...` |
 
-That is the main workflow. No manual virtual-environment juggling needed.
+You only maintain *one* virtual-environment folder `.venv`.
+No juggling among multiple virtual environments.
 
 The versions are defined in `pyproject.toml` in the project root.
 If you find a newer commit hash that works well as the pinned `dev-stable` version,
 you are welcome to update it via a Pull Request.
+You can also add required dependencies in `pyproject.toml` for the team.
 
 ---
 
 ## Step 1: Install `uv`
 
-=== "Windows"
+### Windows
 
-    ```powershell
-    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-    ```
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
 
-=== "macOS / Linux"
+### macOS / Linux
 
-    ```sh
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
+```sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
 Check that it works:
 
@@ -54,9 +56,15 @@ uv sync
 
 This command will automatically:
 
-- Install the Python version required by this project (from `.python-version`)
+- Install the Python version required by this project
+  (from `.python-version`, which we can all change)
 - Create a local `.venv` environment if needed
 - Install project dependencies
+
+`uv` uses a local package cache. If `virtual-ecosystem` (or other dependencies)
+is already in that cache *and is the exact version this project asks for*,
+`uv sync` will skip installing it again.
+That is why repeat syncs are typically much faster after the first run.
 
 You do **not** need to activate the environment to start using it.
 
@@ -73,18 +81,9 @@ uv sync --group dev-stable
 ```
 
 Only one version is active at a time, and each command switches to that version.
-
-### When do I need `--reinstall-package`?
-
-Usually, you do not.
-When you switch groups (`release` / `dev` / `dev-stable`), `uv sync` reinstalls
-`virtual-ecosystem` automatically if needed.
-
-Use this only when you want to upgrade `dev` to the newest upstream commit:
-
-```sh
-uv sync --group dev --reinstall-package virtual-ecosystem
-```
+Simply switching groups does not need any extra flags; `uv sync` will install
+whatever version that group needs. See [Step 4](#step-4-update-virtual-ecosystem)
+if you want to pull in new changes from upstream.
 
 ---
 
@@ -99,32 +98,34 @@ uv lock --upgrade-package virtual-ecosystem
 uv sync
 ```
 
-This refreshes the lockfile entry for `virtual-ecosystem` and installs the newest
-compatible release from PyPI.
+This updates `uv.lock`, a file that records the exact versions of all packages
+this project uses, and then installs the newest compatible release of
+`virtual-ecosystem` from PyPI.
 
 ### B) Update `dev` to the latest `develop` commit
 
-Run:
+Use this when you want a fresh (re)install with the newest upstream changes from
+the `develop` branch:
 
 ```sh
 uv sync --group dev --reinstall-package virtual-ecosystem
 ```
 
-Use this when `virtual-ecosystem` is pulled from the `develop` branch and you want
-new upstream changes.
+The `--reinstall-package` flag tells `uv` to ignore its cache and download
+`virtual-ecosystem` again, even if it already has a copy.
 
 ### C) Update the pinned `dev-stable` commit
 
 1. Edit `pyproject.toml` and change the pinned commit hash for the `dev-stable`
    dependency.
-2. Refresh the lockfile and sync:
+2. Update `uv.lock` (the file that records exact package versions) and sync:
 
 ```sh
 uv lock
 uv sync --group dev-stable
 ```
 
-1. Verify the new commit hash in `uv.lock`.
+Then verify the new commit hash in `uv.lock`.
 
 ---
 
@@ -133,7 +134,8 @@ uv sync --group dev-stable
 The most reliable check is the output from `uv sync`: it shows the source
 (PyPI or Git URL with commit hash).
 
-If you want to verify afterwards, inspect `uv.lock`:
+If you want to verify afterwards, inspect `uv.lock` (the file that records
+exact package versions):
 
 ```sh
 grep -A 2 "name = \"virtual-ecosystem\"" uv.lock
@@ -151,31 +153,30 @@ Run commands or `.py` scripts with `uv run`. For example:
 
 ```sh
 uv run ve_run ...
+uv run my_script.py
 ```
 
-!!! warning "Use the same group in `uv run`"
-
-    If you synced with `--group dev` or `--group dev-stable`, pass the same group to
-    `uv run` to avoid switching back to the default:
-
-    ```sh
-    uv run --group dev ve_run ...
-    ```
+> **Warning:**
+> If you synced with `--group dev` or `--group dev-stable`, pass the same group to
+> `uv run` to avoid switching back to the default:
+>
+> ```sh
+> uv run --group dev ve_run ...
+> ```
 
 If you are running many commands in one session, you can activate the virtual
 environment just like the conventional way:
 
-=== "Windows"
+### Windows
 
-    ```powershell
-    .venv\Scripts\activate
-    ve_run
-    ```
+```powershell
+.venv\Scripts\activate
+ve_run
+```
 
-=== "macOS / Linux"
+### macOS / Linux
 
-    ```sh
-    source .venv/bin/activate
-    ve_run
-    ```
-<!-- markdownlint-enable MD046 -->
+```sh
+source .venv/bin/activate
+ve_run
+```
