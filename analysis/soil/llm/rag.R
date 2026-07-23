@@ -4,7 +4,7 @@ library(ragnar)
 store_location <- "data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb"
 store <- ragnar_store_create(
   store_location,
-  embed = embed_google_gemini()
+  embed = embed_ollama(model = "embeddinggemma")
 )
 
 # Files to be inserted into the store
@@ -29,5 +29,8 @@ for (file in files) {
   ragnar_store_insert(store, chunks)
 }
 
-# finalise the store and build the index
+# Finalise the store and build the index
 ragnar_store_build_index(store)
+
+# close the connection
+DBI::dbDisconnect(store@con)
