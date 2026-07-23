@@ -1,0 +1,40 @@
+name: Python Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "tools/python/**"
+      - ".github/workflows/python-tests.yml"
+  pull_request:
+    paths:
+      - "tools/python/**"
+      - ".github/workflows/python-tests.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      MPLBACKEND: Agg
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install matplotlib numpy pandas pytest ruff
+
+      - name: Lint tools/python
+        run: |
+          ruff check tools/python
+          ruff format --check tools/python
+
+      - name: Run pytest
+        run: pytest -c tools/python/pyproject.toml tools/python/tests
