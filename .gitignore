@@ -22,6 +22,7 @@ data/derived/soil/validation/database
 data/derived/soil/necromass/li_et_al_2023.csv
 data/derived/soil/llm/soil_constant_usage.toml
 data/derived/litter/stock/litter_stock.csv
+*.duckdb
 
 # MkDocs build output
 site/
