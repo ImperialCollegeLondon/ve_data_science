@@ -1,8 +1,41 @@
 library(ellmer)
 library(ragnar)
 library(glue)
+library(reticulate)
 
 data_folder <- "data/derived/soil/llm"
+
+
+# Constant list ----------------------------------------------------------
+# Start with a small subset of candidate constants for scoping
+
+# Import SoilConstants from the installed virtual_ecosystem package
+soil_config_module <- import("virtual_ecosystem.models.soil.model_config")
+SoilConstants <- soil_config_module$SoilConstants
+
+# Instantiate SoilConstants with default values
+soil_constants <- SoilConstants()
+
+# Extract all constant names and values
+constants_list <-
+  py_to_r(soil_constants$model_dump()) |>
+  reshape2::melt()
+
+# Manually pick a few candidate constants
+candidate_constants <- c(
+  "maom_desorption_rate",
+  "lmwc_sorption_rate",
+  "litter_leaching_fraction_carbon",
+  "litter_leaching_fraction_nitrogen",
+  "litter_leaching_fraction_phosphorus",
+  "necromass_decay_rate"
+)
+
+# Format candidate constants as a bullet list
+candidate_list <- glue_collapse(
+  glue("  - {candidate_constants}"),
+  sep = "\n"
+)
 
 
 # Retrieve RAG store -----------------------------------------------------
@@ -15,6 +48,7 @@ store <- ragnar_store_connect(store_location, read_only = TRUE)
 # cat(test_chunks$text)
 
 # Prompt -----------------------------------------------------------------
+
 prompt <- glue(
   "
   You are an expert soil biogeochemist helping parameterise a process-based ecosystem model.
@@ -26,6 +60,14 @@ prompt <- glue(
 
   The repo RAG store was built from a checkout of the repository and is the main grounding source for code-level meaning. It includes model code, docs, and configuration or schema files.
   </context>
+
+  <scope>
+  Restrict your analysis to ONLY the following constants:
+  {candidate_list}
+
+  Do not assess any other constants. Focus exclusively on these
+  {length(candidate_constants)} parameters.
+  </scope>
 
   <evidence_policy>
   Treat the repo RAG store as the source of truth for:
@@ -42,7 +84,7 @@ prompt <- glue(
   </workflow>
 
   <instructions>
-  For each constant:
+  For each of the specified constants:
   1. Use repo RAG retrieval first to determine the constant's role in the soil model, its units, and how it is used in the code.
   2. Identify the most defensible unit from repository evidence.
   3. Recommend a plausible value only if supported by a real external source.
@@ -82,6 +124,7 @@ prompt <- glue(
   - the recommended number is not merely a repository preset value repeated back
   - units are internally consistent
   - uncertainty is proportional to the evidence
+  - you have assessed only and all of the constants in the specified scope
   </final_checks>
 
   Think carefully, retrieve before concluding, and prefer `NA` over an unsupported value.
@@ -92,7 +135,7 @@ prompt <- glue(
 type_output <- type_array(
   type_object(
     name = type_enum(
-      constant_list,
+      candidate_constants,
       "Name of the constant.",
       required = TRUE
     ),
