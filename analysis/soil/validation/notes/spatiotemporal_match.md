@@ -64,3 +64,19 @@ flowchart LR
 
 **Discussing and deciding on this decision tree will help us map it
 directly to a nested `if`-`else` chain in code.**
+
+## Possible solution
+
+This is very rough idea for getting feedback:
+
+- I imagine a function that finds the best-matching predicted data to each observed data
+- For such a matching, each observed data will need
+  - Spatial coordinates
+    - xmin, xmax, ymin, ymax
+    - for point coordinates, xmin = xmax and ymin = ymax
+  - Temporal coordinates
+    - time start, time end
+    - for point coordinates, time start = time end
+- Then search for best match prediction data
+  - If observation space and time window span multiple prediction data points,
+    aggregate the latter
