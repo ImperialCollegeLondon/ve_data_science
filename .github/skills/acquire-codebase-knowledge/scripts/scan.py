@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""scan.py — Collect project discovery information for the acquire-codebase-knowledge skill.
+"""Collect project discovery information.
+
 Run from the project root directory.
 
 Usage: python3 scan.py [OPTIONS]
@@ -361,8 +362,10 @@ PERFORMANCE_MARKERS = [
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Scan the current directory (project root) and output discovery information "
-        "for the acquire-codebase-knowledge skill.",
+        description=(
+            "Scan the current directory (project root) and output discovery "
+            "information for the acquire-codebase-knowledge skill."
+        ),
         add_help=True,
     )
     parser.add_argument(
@@ -463,7 +466,7 @@ def search_todos() -> list[str]:
     """Search for TODO/FIXME/HACK comments."""
     todos = []
     patterns = ["TODO", "FIXME", "HACK"]
-    exclude_dirs_str = "|".join(
+    "|".join(
         EXCLUDE_DIRS | {"test", "tests", "__tests__", "spec", "__mocks__", "fixtures"}
     )
 
@@ -573,7 +576,8 @@ def detect_monorepo() -> list[str]:
                 content = f.read()
                 if '"workspaces"' in content:
                     signals.append(
-                        "package.json has 'workspaces' field (npm/yarn workspaces monorepo)"
+                        "package.json has 'workspaces' field "
+                        "(npm/yarn workspaces monorepo)"
                     )
         except Exception:
             pass
@@ -759,7 +763,7 @@ def print_section(title: str, content: list[str], output_file=None) -> None:
 
 
 def main():
-    """Main entry point."""
+    """Run the project discovery scan."""
     args = parse_args()
 
     output_file = None
@@ -809,7 +813,8 @@ def main():
             print_section(
                 "ENTRY POINTS",
                 [
-                    "No common entry points found. Check 'main' or 'scripts.start' in manifest files above."
+                    "No common entry points found. "
+                    "Check 'main' or 'scripts.start' in manifest files above."
                 ],
                 output_file,
             )
@@ -817,7 +822,7 @@ def main():
         # Linting config
         lint = find_lint_config()
         if lint:
-            lint_content = [f"Found: {l}" for l in lint]
+            lint_content = [f"Found: {item}" for item in lint]
             print_section("LINTING AND FORMATTING CONFIG", lint_content, output_file)
         else:
             print_section(
@@ -838,7 +843,9 @@ def main():
             print_section(
                 "ENVIRONMENT VARIABLE TEMPLATES",
                 [
-                    "No .env.example or .env.template found. Identify required environment variables by searching the code and config for environment variable reads."
+                    "No .env.example or .env.template found. "
+                    "Identify required environment variables by searching the code "
+                    "and config for environment variable reads."
                 ],
                 output_file,
             )

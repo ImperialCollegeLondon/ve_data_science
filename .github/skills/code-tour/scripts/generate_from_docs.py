@@ -8,10 +8,12 @@ Reads README.md (and optionally CONTRIBUTING.md, docs/) to extract:
   - External links (becomes uri steps)
 
 Outputs a skeleton .tour JSON that the code-tour skill fills in with descriptions.
-The skill reads this skeleton and enriches it — it does NOT replace the skill's judgment.
+The skill reads this skeleton and enriches it.
+It does NOT replace the skill's judgment.
 
 Usage:
-    python generate_from_docs.py [--repo-root <path>] [--persona <persona>] [--output <file>]
+    python generate_from_docs.py [--repo-root <path>]
+                                 [--persona <persona>] [--output <file>]
 
 Examples:
     python generate_from_docs.py
@@ -120,7 +122,10 @@ def _make_uri_step(url: str, label: str) -> dict:
     return {
         "uri": url,
         "title": label,
-        "description": "[TODO: explain why this link is relevant and what the reader should notice]",
+        "description": (
+            "[TODO: explain why this link is relevant and what "
+            "the reader should notice]"
+        ),
     }
 
 
@@ -128,6 +133,7 @@ def _make_uri_step(url: str, label: str) -> dict:
 
 
 def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict:
+    """Generate a CodeTour skeleton from repository documentation."""
     repo = Path(repo_root).resolve()
 
     # ── Read documentation files ─────────────────────────────────────────
@@ -162,7 +168,11 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
     steps.append(
         _make_content_step(
             "Welcome",
-            f"Introduce the repo: what it does, who this {persona} tour is for, what they'll understand after finishing.",
+            (
+                "Introduce the repo: what it does, who this "
+                f"{persona} tour is for, and what they'll understand after "
+                "finishing."
+            ),
         )
     )
 
@@ -237,7 +247,8 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
     steps.append(
         _make_content_step(
             "What to Explore Next",
-            "Summarize what the reader now understands. List 2–3 follow-up tours they should read next.",
+            "Summarize what the reader now understands. "
+            "List 2-3 follow-up tours they should read next.",
         )
     )
 
@@ -254,7 +265,9 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
     return {
         "$schema": "https://aka.ms/codetour-schema",
         "title": f"[TODO: descriptive title for {persona} tour]",
-        "description": "[TODO: one sentence — who this is for and what they'll understand]",
+        "description": (
+            "[TODO: one sentence - who this is for and what they'll understand]"
+        ),
         "_skeleton_generated_by": "generate_from_docs.py",
         "_instructions": (
             "This is a skeleton. Fill in every [TODO: ...] with real content. "
@@ -266,6 +279,7 @@ def generate_skeleton(repo_root: str = ".", persona: str = "new-joiner") -> dict
 
 
 def main():
+    """Parse CLI arguments and write a generated skeleton."""
     args = sys.argv[1:]
     if "--help" in args or "-h" in args:
         print(__doc__)

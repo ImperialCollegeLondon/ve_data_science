@@ -52,6 +52,7 @@ def _file_content(path: Path) -> str:
 
 
 def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
+    """Validate a CodeTour file and return errors, warnings, and stats."""
     repo = Path(repo_root).resolve()
     errors = []
     warnings = []
@@ -129,7 +130,8 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
                 pass
         if not found_next:
             warnings.append(
-                f"nextTour '{next_title}' — no .tour file in .tours/ has a matching title"
+                "nextTour "
+                f"'{next_title}' - no .tour file in .tours/ has a matching title"
             )
 
     # ── 4. Per-step validation ───────────────────────────────────────────────
@@ -187,7 +189,8 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
                         errors.append(f"{label}: Line number must be >= 1, got {ln}")
                     elif ln > lc:
                         errors.append(
-                            f"{label}: Line {ln} exceeds file length ({lc} lines): {raw_path!r}"
+                            f"{label}: Line {ln} exceeds file length "
+                            f"({lc} lines): {raw_path!r}"
                         )
 
                 # selection
@@ -199,15 +202,18 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
                     e_line = end.get("line", 0)
                     if s_line > lc:
                         errors.append(
-                            f"{label}: Selection start line {s_line} exceeds file length ({lc})"
+                            f"{label}: Selection start line {s_line} "
+                            f"exceeds file length ({lc})"
                         )
                     if e_line > lc:
                         errors.append(
-                            f"{label}: Selection end line {e_line} exceeds file length ({lc})"
+                            f"{label}: Selection end line {e_line} "
+                            f"exceeds file length ({lc})"
                         )
                     if s_line > e_line:
                         errors.append(
-                            f"{label}: Selection start ({s_line}) is after end ({e_line})"
+                            f"{label}: Selection start ({s_line}) "
+                            f"is after end ({e_line})"
                         )
 
                 # pattern
@@ -217,7 +223,8 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
                         content = _file_content(file_path)
                         if not compiled.search(content):
                             errors.append(
-                                f"{label}: Pattern {step['pattern']!r} matches nothing in {raw_path!r}"
+                                f"{label}: Pattern {step['pattern']!r} "
+                                f"matches nothing in {raw_path!r}"
                             )
                     except re.error as e:
                         errors.append(f"{label}: Invalid regex pattern: {e}")
@@ -269,12 +276,13 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
 
     if not first_is_orient and "directory" not in first:
         info.append(
-            "First step is a file/uri step — consider starting with a content or directory "
-            "orientation step."
+            "First step is a file/uri step - consider starting with a "
+            "content or directory orientation step."
         )
     if not last_is_closing:
         info.append(
-            "Last step is not a content step — consider ending with a closing/summary step."
+            "Last step is not a content step - consider ending with a "
+            "closing/summary step."
         )
 
     stats = {
@@ -295,6 +303,7 @@ def validate_tour(tour_path: str, repo_root: str = ".") -> dict:
 
 
 def print_report(tour_path: str, result: dict) -> None:
+    """Print a formatted validation report to stdout."""
     title = f"{BOLD}{tour_path}{RESET}"
     print(f"\n{title}")
     print("─" * 60)
@@ -319,19 +328,20 @@ def print_report(tour_path: str, result: dict) -> None:
     for w in warnings:
         print(f"  {YELLOW}⚠ {w}{RESET}")
     for i in info:
-        print(f"  {DIM}ℹ {i}{RESET}")
+        print(f"  {DIM}i {i}{RESET}")
 
     if result["passed"] and not warnings:
         print(f"  {GREEN}✓ All checks passed{RESET}")
     elif result["passed"]:
         print(f"  {GREEN}✓ Passed{RESET} {YELLOW}(with warnings){RESET}")
     else:
-        print(f"  {RED}✗ Failed — {len(errors)} error(s){RESET}")
+        print(f"  {RED}✗ Failed - {len(errors)} error(s){RESET}")
 
     print()
 
 
 def main():
+    """Parse CLI arguments and validate one or more tour files."""
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
         print(__doc__)
@@ -356,7 +366,8 @@ def main():
             tour_files = [str(p) for p in sorted(tours_dir.glob("*.tour"))]
         if not tour_files:
             print(
-                "No .tour files found. Pass a file path or run from a repo with a .tours/ directory."
+                "No .tour files found. Pass a file path or run from a "
+                "repo with a .tours/ directory."
             )
             sys.exit(1)
 
