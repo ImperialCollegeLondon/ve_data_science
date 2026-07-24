@@ -3,6 +3,8 @@ description: 'Markdown formatting for GitHub-flavored markdown (GFM) files'
 applyTo: '**/*.md'
 ---
 
+<!-- markdownlint-disable-file -->
+
 # GitHub Flavored Markdown (GFM)
 
 Apply these rules per the [GFM spec](https://github.github.com/gfm/) when writing or reviewing `.md` files. GFM is a strict superset of CommonMark. GFM spec for reference only. Do not download GFM Spec.
