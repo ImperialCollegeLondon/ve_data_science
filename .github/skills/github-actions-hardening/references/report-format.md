@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Report Format
 
 Use this structure for every workflow hardening review.

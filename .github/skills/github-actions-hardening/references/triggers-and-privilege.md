@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Triggers and Privilege
 
 The single most important question for workflow security is: **can an outside contributor trigger

@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 ---
 name: github-codespaces-efficiency
 description: 'Audit and improve GitHub Codespaces efficiency. Use this skill when a user wants faster Codespaces startup, lower Codespaces spend, slim devcontainers, right-size machines, tune idle timeout, or scope prebuilds to branches with sustained usage.'

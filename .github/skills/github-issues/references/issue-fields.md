@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Issue Fields
 
 Issue fields are custom metadata (dates, text, numbers, single-select) defined at the organization level and set per-issue. They are separate from labels, milestones, and assignees. Common examples: Start Date, Target Date, Priority, Impact, Effort.

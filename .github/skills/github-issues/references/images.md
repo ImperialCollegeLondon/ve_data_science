@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Images in Issues and Comments
 
 How to embed images in GitHub issue bodies and comments programmatically via the CLI.

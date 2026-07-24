@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 ---
 name: dependabot
 description: >-

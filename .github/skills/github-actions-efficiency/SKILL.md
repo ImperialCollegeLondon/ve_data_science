@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 ---
 name: github-actions-efficiency
 description: 'Audit GitHub Actions workflow efficiency and recommend fixes to reduce CI minutes and costs.'

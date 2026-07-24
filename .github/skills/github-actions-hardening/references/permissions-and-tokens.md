@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Permissions and Tokens
 
 Every workflow run gets an automatic `GITHUB_TOKEN`. Its scope is the blast radius if a step is

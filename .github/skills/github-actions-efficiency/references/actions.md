@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # GitHub Actions Efficiency
 
 Load this reference only when the task involves GitHub Actions or CI workflow efficiency.

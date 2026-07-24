@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Issue Types (Advanced GraphQL)
 
 Issue types (Bug, Feature, Task, Epic, etc.) are defined at the **organization** level and inherited by repositories. They categorize issues beyond labels.

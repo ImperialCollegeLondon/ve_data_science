@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Efficiency Reporting and Follow-Up Review
 
 Load this reference when the user asks what changed, wants a before/after report, or asks for another pass over remaining expensive jobs.

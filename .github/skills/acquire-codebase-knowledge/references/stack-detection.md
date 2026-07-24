@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Stack Detection Reference
 
 Load this file when the tech stack is ambiguous — e.g., multiple manifest files present, unfamiliar file extensions, or no obvious `package.json` / `go.mod`.

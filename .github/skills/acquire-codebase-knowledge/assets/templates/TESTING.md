@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Testing Patterns
 
 ## Core Sections (Required)

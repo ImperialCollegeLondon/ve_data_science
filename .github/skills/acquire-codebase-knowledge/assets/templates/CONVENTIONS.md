@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Coding Conventions
 
 ## Core Sections (Required)

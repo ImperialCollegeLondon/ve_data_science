@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Canonical Patterns
 
 Load this reference only when you need concrete examples during implementation.

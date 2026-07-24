@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Codebase Structure
 
 ## Core Sections (Required)

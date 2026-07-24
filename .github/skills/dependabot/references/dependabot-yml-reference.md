@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Dependabot YAML Options Reference
 
 Complete reference for all configuration options in `.github/dependabot.yml`.

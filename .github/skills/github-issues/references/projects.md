@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Projects V2
 
 GitHub Projects V2 is managed via GraphQL. The MCP server provides three tools that wrap the GraphQL API, so you typically don't need raw GraphQL.

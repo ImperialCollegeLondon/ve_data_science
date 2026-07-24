@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Real-World CodeTour Examples
 
 Reference this file when you want to see how real repos use CodeTour features.

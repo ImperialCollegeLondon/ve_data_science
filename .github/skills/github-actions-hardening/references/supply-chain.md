@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Supply Chain
 
 A workflow runs other people's code every time it `uses:` an action. Those actions execute with

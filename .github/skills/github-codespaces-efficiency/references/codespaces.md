@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Codespaces and Devcontainer Efficiency
 
 Load this reference only when the task involves `.devcontainer/`, Codespaces sizing, prebuilds, or workspace cost.

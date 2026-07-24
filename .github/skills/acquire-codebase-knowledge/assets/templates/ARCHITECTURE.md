@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Architecture
 
 ## Core Sections (Required)

@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Script Injection
 
 `${{ <expr> }}` is substituted into the script **as text, before the shell runs**. Any expression

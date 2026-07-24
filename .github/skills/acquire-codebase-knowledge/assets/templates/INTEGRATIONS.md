@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # External Integrations
 
 ## Core Sections (Required)

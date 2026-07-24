@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Inquiry Checkpoints
 
 Per-template investigation questions for Phase 2 of the acquire-codebase-knowledge workflow. For each template area, look for answers in the scan output first, then read source files to fill gaps.

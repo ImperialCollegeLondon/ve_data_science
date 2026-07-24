@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file -->
 # Technology Stack
 
 ## Core Sections (Required)
