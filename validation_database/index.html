@@ -1,0 +1,780 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mydomain.org/mysite/validation_database/">
+      
+      
+        <link rel="prev" href="../using_globus/">
+      
+      
+        <link rel="next" href="../what_are_those_odd_files/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Building a database for (soil and litter) validation - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#building-a-database-for-soil-and-litter-validation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Building a database for (soil and litter) validation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Virtual Ecosystem data science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derived_variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derived and emergent variables from the Virtual Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started with the ve_data_science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Github Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R Script to a GitHub Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../using_globus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using GLOBUS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building a database for (soil and litter) validation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building a database for (soil and litter) validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-screening-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data screening workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-entering-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data entering workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regular-metadata-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regular metadata curation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What are all those odd files?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-screening-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data screening workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-entering-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data entering workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regular-metadata-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regular metadata curation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="building-a-database-for-soil-and-litter-validation">Building a database for (soil and litter) validation</h1>
+<!-- markdownlint-disable MD046 MD031 -->
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This is a draft document. Most of the workflow below is intended for the
+soil and litter modules.</p>
+</div>
+<p>Here we use a config-driven pipeline to read, wrangle, unit-convert, and
+combine multiple datasets into a single master file, hereafter referred to as
+the "validation database". We are not aiming for a full database backend, instead
+the main goal is to avoid having to write many custom codes that each only work
+for one dataset. The idea to run a single script to build the database, while YAML
+config metadata handles all dataset-specific idiosyncracies.</p>
+<p>The folder structure looks like this:</p>
+<div class="highlight"><pre><span></span><code>data/derived/soil
+└── validation
+    ├── config
+    │   ├── sources.yaml  # metadata about each dataset
+    │   ├── derived_variables.yaml   # derived variables and units
+    │   └── unit_conversions.csv   # unit conversion table
+    └── database
+        └── ...  # a master database in the .parquet format (.csv also possible)
+tools/R
+└── R
+    └── valdb.R
+    ├── add_schema()                 # function to add dataset metadata
+    ├── build_validation_database()  # main function to build database
+    └── log_dataset()                # function to screen datasets and autofill metadata
+</code></pre></div>
+<p>I have built the pipeline in two parts:</p>
+<ol>
+<li>data screening</li>
+<li>data entering</li>
+</ol>
+<p>Everything happens in <code>R</code> for now.</p>
+<h2 id="data-screening-workflow">Data screening workflow</h2>
+<p>The goal of this step is to log your decision whether to include or exclude a
+dataset that you have come across (plus notes) into a interactive table that
+guides data entering later.</p>
+<ol>
+<li>Search for a dataset as per your routine (e.g., Google)</li>
+<li>Obtain the DOI to the dataset</li>
+<li>Log the dataset. The following code will bring up an interactive session:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="n">box</span><span class="o">::</span><span class="nf">use</span><span class="p">(</span><span class="n">tools</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">valdb</span><span class="p">)</span>
+<span class="c1"># box::help(valdb$log_dataset)</span>
+<span class="n">valdb</span><span class="o">$</span><span class="nf">log_dataset</span><span class="p">()</span>
+</code></pre></div>
+<ol>
+<li>After filling up the questions, a YAML config or metadata file will be saved
+   to <code>data/derived/soil/validation/config/sources.yaml</code> (currently this is
+   hard-coded to the soil folder because I do not know if anyone would use it
+   outside of soil). An example YAML config or metadata looks like this:
+   <div class="highlight"><pre><span></span><code><span class="nt">doi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.5281/ZENODO.2024580</span>
+<span class="nt">decision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">included</span>
+<span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="nt">notes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contains soil nutrients, moisture, pH, bulk density etc.</span>
+<span class="nt">logged_at</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-05-21&quot;</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Landuse change and species invasion</span>
+<span class="w">  </span><span class="nt">author</span><span class="p">:</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Döbert, Timm and Webber, Bruce L. and Sugau, John B. and Dickinson,</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Katherine J. M. and Didham, Raphael K.</span>
+<span class="w">  </span><span class="nt">year</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2019&quot;</span>
+<span class="w">  </span><span class="nt">journal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.na.character</span>
+<span class="w">  </span><span class="nt">publisher</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Zenodo</span>
+<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://zenodo.org/record/2024580</span>
+<span class="w">  </span><span class="nt">keywords</span><span class="p">:</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">plant diversity, above-ground biomass, plant functional traits, biological</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">invasions, exotic plants, phylogenetic diversity, soil nutrients</span>
+</code></pre></div></li>
+<li>Repeat the steps above until you've finished searching and screening for
+   datasets.</li>
+<li>Build a table from these YAML metadata to view the screened datasets and your
+   decisions about them.
+   I opted to write a Quarto report with additional notes, and then include an
+   interactive table at the end of the html report. My report is saved in
+   <code>analysis/soil/validation/safe_database_screen/dataset_screening.qmd</code>.</li>
+</ol>
+<p>You have now completed the data screening phase and can proceed to entering data
+that you've decided to include for validation.</p>
+<h2 id="data-entering-workflow">Data entering workflow</h2>
+<p>This stage begins by adding more information to the <strong>included</strong> dataset's YAML
+config, and ends with building a single database for validation. The editing of
+YAML configs is to tell the single R script how to harmonise each dataset. (As
+these YAML configs act a bit like code instructions, I recommend to treat
+them like codes and commit to GitHub, although they are stored under the
+<code>data/derived</code> directory.)</p>
+<ol>
+<li>Using the report's table as a tool, revisit the screened datasets to be
+   included (e.g., by visiting its DOI link).</li>
+<li>Download the dataset to <code>data/primary/soil/&lt;author&gt;_&lt;year&gt;</code>. Note that I am
+   again using the soil folder as an example, and I have opted a <code>author_year</code>
+   folder naming convention. If there are conflicts, then the next folder should
+   be named <code>author_year_2</code> etc. We will work with CSV files. If the published
+   dataset is in other formats (e.g., Excel or zip), then manually convert the
+   desired data sheet into a CSV file. I opted not to accommodate for multiple
+   data formats because the cost of manual conversion is relatively minor even
+   in the long run.</li>
+<li>Add the dataset's schema, which tells the build script how to harmonise this
+   dataset. For example:
+   <div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">add_schema</span><span class="p">(</span>
+<span class="w">  </span><span class="s">&quot;10-5281-ZENODO-2024580.yaml&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">config_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;data/derived/soil/validation/config/sources&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+   This will append some template YAML sections to the dataset's config file,
+   which you have created during the data screening stage.</li>
+<li>Manually add and edit the schema. An example schema looks like this:
+   <div class="highlight"><pre><span></span><code><span class="nt">source_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dobert_2019</span>
+<span class="nt">data_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv</span>
+<span class="nt">skip_rows</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9</span>
+<span class="nt">variables</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">soilN</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">var_canonical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">total_soil_n_per_volume</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mg cm^-3</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Total soil nitrogen content</span>
+<span class="w">   </span><span class="nt">soilP</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">var_canonical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dissolved_phosphorus</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ug cm^-3</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Plant available soil phosphorus content</span>
+<span class="nt">dedup_key</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plot.code</span>
+</code></pre></div>
+   In this example, I assigned the dataset a <code>source_id</code> of <code>dobert_2019</code>
+   following the author-year convention. The <code>data_file</code> entry specifies where
+   the csv primary data have been stored. It informs the R script to skip 9 rows
+   in the original csv, and then read data from the variable columns named
+   <code>soilN</code> and <code>soilP</code>, as well as the unique sample ID from <code>plot.code</code>.</li>
+<li>The next important step is to set up the unit conversion. For each variable,
+   the metadata <code>var_canonical</code> tells the R script which VE data variable that
+   it should be mapped to; this also tells it about the target unit under the
+   hood, which is stored in an imported
+   <a href="https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml">TOML config from VE</a>.
+   When we key in the unit of measurement of the original variable in <code>unit</code>,
+   the R script will compare <code>unit</code> to the canonical target unit and do the
+   conversion based on a curated table in
+   <code>data/derived/soil/validation/config/unit_conversions.csv</code>. Sometimes the
+   original variable do not map 1:1 to any VE data variables (e.g., <strong>total</strong>
+   soil nitrogen). This requires another curated list of so-called derived
+   variables (a.k.a. emergent variables) in a similar TOML file to that of VE's
+   in <code>data/derived/soil/validation/config/derived_variables.toml</code>.</li>
+<li>Once you have added the schema for all datasets to be included, simply run
+   <div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">build_data_variables_table</span><span class="p">()</span>
+</code></pre></div>
+   once in R to (re)build the validation database.</li>
+</ol>
+<h2 id="regular-metadata-curation">Regular metadata curation</h2>
+<ul>
+<li>Update VE data variables table when there is a change upstream
+  <div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">build_data_variables_table</span><span class="p">()</span>
+</code></pre></div></li>
+<li>Add new unit conversion when there is a new pair of units, by editing
+  <code>data/derived/soil/validation/config/unit_conversions.csv</code></li>
+<li>Add new derived or emergent variables not defined in VE, by editing
+  <code>data/derived/soil/validation/config/derived_variables.toml</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
