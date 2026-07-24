@@ -16,11 +16,11 @@
 #|
 #| source_files:
 #|   - name: get_derived_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Functions to calculate derived soil CNP pool variables
 #|   - name: get_data_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Function to extract data variables from netCDF
 #|
@@ -112,7 +112,7 @@ test_that("get_total_soil_c_per_mass converts volume to mass and get_total_soil_
     get_total_soil_c_per_area(config = config)
   # Extract conversion factors from config
   bulk_density_VE <- config$abiotic$constants$bulk_density_soil
-  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
+  soil_layer_depth <- config$core$constants$microbial_simulation_depth
   # Verify unit conversions: mass = volume / bulk_density; area = volume * depth
   expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
   expect_equal(result_volume_basis * soil_layer_depth, result_area_basis)
@@ -225,7 +225,7 @@ test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_n_per_area(config = config)
   bulk_density_VE <- config$abiotic$constants$bulk_density_soil
-  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
+  soil_layer_depth <- config$core$constants$microbial_simulation_depth
   expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
   expect_equal(result_volume_basis * soil_layer_depth, result_area_basis)
 })
@@ -268,7 +268,7 @@ test_that("get_total_soil_p_per_mass converts volume to mass and get_total_soil_
     tidync::tidync(test_path("mock_data.nc")) |>
     get_total_soil_p_per_area(config = config)
   bulk_density_VE <- config$abiotic$constants$bulk_density_soil
-  soil_layer_depth <- config$core$constants$max_depth_of_microbial_activity
+  soil_layer_depth <- config$core$constants$microbial_simulation_depth
   expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
   expect_equal(result_volume_basis * soil_layer_depth, result_area_basis)
 })
