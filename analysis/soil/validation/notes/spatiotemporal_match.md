@@ -1,7 +1,5 @@
 # Scenarios of data–prediction (mis)match for validation
 
-<!-- markdownlint-disable MD013 MD060 MD033 -->
-
 ## Background
 
 For the Maliau scenarios, VE produces predictions of a state variable
@@ -11,9 +9,11 @@ However, empirical data used for validation are heterogeneous: a given
 dataset may or may not carry spatial coordinates and/or a time stamp.
 Where coordinates exist, their resolution may not match that of our
 model (i.e., the temporal resolution may not be monthly, or the spatial
-resolution may not be $100 \times 100$ m<sup>2</sup>).
+resolution may not be $100 \times 100$ m^2^).
 
-An old-growth forest dataset that resembles Maliau may also fall outside of the Maliau spatial extent. We decided to include this sort of dataset (?) but will need to decide how to link data to predictions spatially.
+An old-growth forest dataset that resembles Maliau may also fall outside of the
+Maliau spatial extent. We decided to include this sort of dataset (?) but will
+need to decide how to link data to predictions spatially.
 
 We need a decision tree of matching validation data to model
 predictions. Currently the task is tracked as Issue
@@ -26,11 +26,11 @@ Crossing the spatial and temporal dimensions — each with three levels
 matrix of nine validation scenarios. Please check if I’ve missed
 anything.
 
-|  | **T0: no time coord** | **T1: exact (monthly)** | **T2: resolution mismatch/range only** |
-|:---|:---|:---|:---|
-| **S0: no space coord** | Grand mean or discard data | Spatial mean per $t$ | Spatial mean + agg finer side to coarser period |
-| **S1: exact grid match** | Temporal mean per cell | Direct match ⭐ | Agg finer side temporally, per cell |
-| **S2: resolution mismatch/range only** | Agg finer side spatially + temporal mean | Agg finer side spatially per $t$ | Agg finer side in both dimensions |
+|                                        | **T0: no time coord**                    | **T1: exact (monthly)**          | **T2: resolution mismatch/range only**          |
+| :------------------------------------- | :--------------------------------------- | :------------------------------- | :---------------------------------------------- |
+| **S0: no space coord**                 | Grand mean or discard data               | Spatial mean per $t$             | Spatial mean + agg finer side to coarser period |
+| **S1: exact grid match**               | Temporal mean per cell                   | Direct match ⭐                  | Agg finer side temporally, per cell             |
+| **S2: resolution mismatch/range only** | Agg finer side spatially + temporal mean | Agg finer side spatially per $t$ | Agg finer side in both dimensions               |
 
 Note that “resolution mismatch” covers two sub-cases: data are finer
 than predictions and therefore need upscaling, and vice versa. But this
@@ -67,7 +67,8 @@ directly to a nested `if`-`else` chain in code.~~
 
 This is very rough idea for getting feedback:
 
-- I imagine a function that finds the best-matching predicted data to each observed data
+- I imagine a function that finds the best-matching predicted data to each
+  observed data
 - For such a matching, each observed data will need
   - Spatial coordinates
     - xmin, xmax, ymin, ymax
