@@ -26,11 +26,15 @@ Crossing the spatial and temporal dimensions — each with three levels
 matrix of nine validation scenarios. Please check if I’ve missed
 anything.
 
+<!-- markdownlint-disable MD013 -->
+
 |                                        | **T0: no time coord**                    | **T1: exact (monthly)**          | **T2: resolution mismatch/range only**          |
 | :------------------------------------- | :--------------------------------------- | :------------------------------- | :---------------------------------------------- |
 | **S0: no space coord**                 | Grand mean or discard data               | Spatial mean per $t$             | Spatial mean + agg finer side to coarser period |
 | **S1: exact grid match**               | Temporal mean per cell                   | Direct match ⭐                  | Agg finer side temporally, per cell             |
 | **S2: resolution mismatch/range only** | Agg finer side spatially + temporal mean | Agg finer side spatially per $t$ | Agg finer side in both dimensions               |
+
+<!-- markdownlint-enable MD013 -->
 
 Note that “resolution mismatch” covers two sub-cases: data are finer
 than predictions and therefore need upscaling, and vice versa. But this
