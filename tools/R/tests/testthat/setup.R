@@ -27,19 +27,19 @@
 #|
 #| source_files:
 #|   - name: convert_array_to_nc.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Helper function to convert R arrays to netCDF format
 #|   - name: get_data_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Helper function to extract VE data variables
 #|   - name: get_derived_variables.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|       Helper function to compute derived variables
 #|   - name: generate_test_config.py
-#|     path: tools/python/
+#|     path: tools/python/src/ve_data_tools/
 #|     description: |
 #|       Python wrapper around VE's config generation function
 #|
@@ -50,18 +50,19 @@
 #|     - toml
 #|
 #| usage_notes: |
-#|     Run via: testthat::test_dir("tests/testthat")
-#|     Uses relative paths from tests/testthat/ directory. All temporary files
-#|     are automatically cleaned up after tests complete via defer_parent().
+#|     Run via: testthat::test_dir("tools/R/tests/testthat")
+#|     Uses relative paths from tools/R/tests/testthat directory.
+#|     All temporary files are automatically cleaned up after tests complete
+#|     via defer_parent().
 #| ---
 
 library(here)
 library(testthat)
 library(withr)
 library(reticulate)
-source(here("tools/R/convert_array_to_nc.R"))
-source(here("tools/R/get_data_variables.R"))
-source(here("tools/R/get_derived_variables.R"))
+source(here("tools/R/R/convert_array_to_nc.R"))
+source(here("tools/R/R/get_data_variables.R"))
+source(here("tools/R/R/get_derived_variables.R"))
 
 
 # Mock data --------------------------------------------------------------
@@ -171,7 +172,7 @@ create_mock_nc <- function() {
 # Mock config ------------------------------------------------------------
 
 # Import Python config generator, which is a wrapper around VE's function
-source_python(here("tools/python/generate_test_config.py"))
+source_python(here("tools/python/src/ve_data_tools/generate_test_config.py"))
 
 # Function to create mock TOML config file for testing
 create_mock_cfg <- function() {
