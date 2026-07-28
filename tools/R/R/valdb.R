@@ -65,7 +65,7 @@
 #' @export
 #'
 #' @examples
-#' box::use(tools/R/valdb)
+#' box::use(tools/R/R/valdb)
 #' box::help(valdb$log_dataset)  # if you need a conventional R help page
 #' valdb$log_dataset()
 
@@ -152,10 +152,10 @@ log_dataset <- function(
 #'
 #' @export
 #' @examples
-#' box::use(tools/R/valdb)
+#' box::use(tools/R/R/valdb)
 #' valdb$add_schema(
-#'   "data/derived/soil/validation/config/sources.yaml",
-#'   doi = ""
+#'   source_yaml = "data/derived/soil/validation/config/sources.yaml",
+#'   doi = "10.5281/ZENODO.8158810"
 #' )
 
 add_schema <- function(
@@ -168,6 +168,13 @@ add_schema <- function(
   # Find target data source by DOI
   doi_list <- purrr::map_chr(sources, "doi")
   target_id <- which(tolower(doi_list) == tolower(doi))
+
+  # Abort unless DOI resolves to exactly one record
+  if (length(target_id) != 1) {
+    cli::cli_abort(
+      "DOI {.val {doi}} appears {length(target_id)} times in {.file {source_yaml}}; expected exactly one match."
+    )
+  }
 
   # warn if source_id already exists, indicating that a schema has already been
   # added previously
@@ -224,7 +231,7 @@ add_schema <- function(
 #'
 #' @export
 #' @examples
-#' box::use(tools/R/valdb)
+#' box::use(tools/R/R/valdb)
 #' valdb$build_validation_database()
 
 build_validation_database <- function(
