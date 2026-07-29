@@ -4,7 +4,8 @@
 - Module: All
 - Author: Baizurah Malik
 - Files changed:
-  - All configuration files in the `maliau_2/config` folder (Globus)
+  - All configuration files in the `data/scenarios/maliau/maliau_2/config`
+    folder (Globus)
 - Changes made:
   - Replaced the previous scenario configuration files to be compatible with
     Virtual Ecosystem version 0.2.1.
@@ -21,7 +22,7 @@
 - Module: Abiotic & Hydrology
 - Author: Lelavathy
 - Files changed:
-  - `era5_maliau_10x10_2010_2020.nc` (Globus)
+  - `data/scenarios/maliau/maliau_2/data/era5_maliau_2010_2020_100m.nc` (Globus)
 - Changes made:
   - Corrected the conversion of `downward_shortwave_radiation` and
     `downward_longwave_radiation` from J m⁻² to W m⁻² using the correct
