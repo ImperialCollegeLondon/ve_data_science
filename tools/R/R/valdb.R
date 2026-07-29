@@ -160,8 +160,16 @@ log_dataset <- function(
 
 add_schema <- function(
   source_yaml = "data/derived/soil/validation/config/sources.yaml",
-  doi = "10.5281/ZENODO.8158810"
+  doi
 ) {
+  # Validate input YAML exists before reading
+  if (!file.exists(source_yaml)) {
+    cli::cli_abort(c(
+      "Source YAML not found: {.file {source_yaml}}",
+      "Create it first with {.fn log_dataset}."
+    ))
+  }
+
   # Read existing YAML
   sources <- yaml::read_yaml(source_yaml)
 
