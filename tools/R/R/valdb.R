@@ -140,7 +140,7 @@ log_dataset <- function(
   yaml::write_yaml(sources, filename)
 
   # Completion message
-  cli::cli_alert_info("Dataset from {doi} is {decision}")
+  cli::cli_alert_info("Dataset from {.val {doi}} is {decision}")
   cli::cli_alert_success("Decision log saved to\n{filename}")
 }
 
