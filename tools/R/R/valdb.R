@@ -73,15 +73,18 @@ log_dataset <- function(
   filename = "data/derived/soil/validation/config/sources.yaml"
 ) {
   # prompt to enter DOI
-  doi <- readline("Enter DOI: ")
+  doi_input <- readline("Enter DOI: ")
+
+  # normalise DOI to ensure consistency
+  doi <- normalise_doi(doi_input)
 
   # read source yaml file if it already exists
   if (file.exists(filename)) {
     sources <- yaml::read_yaml(filename)
     # exit early if a DOI has already been logged
     doi_existing <- purrr::map_chr(sources, "doi")
-    if (tolower(doi) %in% tolower(doi_existing)) {
-      cli::cli_abort("{doi} has already been logged in {filename}.")
+    if (doi %in% normalise_doi(doi_existing)) {
+      cli::cli_abort("{.val {doi}} has already been logged in {filename}.")
     }
   }
 
@@ -174,29 +177,16 @@ add_schema <- function(
   sources <- yaml::read_yaml(source_yaml)
 
   # Find target data source by DOI
+  doi <- normalise_doi(doi)
   doi_list <- purrr::map_chr(sources, "doi")
-  target_id <- which(tolower(doi_list) == tolower(doi))
+  target_id <- which(normalise_doi(doi_list) == doi)
 
   # Abort unless DOI resolves to exactly one record
   if (length(target_id) != 1) {
     cli::cli_abort(
-      "DOI {.val {doi}} appears {length(target_id)} times in {.file {source_yaml}}; expected exactly one match."
+      "DOI {.val {doi}} appears {length(target_id)} times in {.file {source_yaml}}",
+      "Expected exactly one match."
     )
-  }
-
-  # warn if source_id already exists, indicating that a schema has already been
-  # added previously
-  if ("source_id" %in% names(sources[[target_id]])) {
-    if (
-      !yesno::yesno(
-        c(
-          "`source_id` already exists in the source YAML metadata.\n",
-          "Proceeding would overwrite the previous entries, are you sure?"
-        )
-      )
-    ) {
-      stop("Aborted.")
-    }
   }
 
   # Default template schema
