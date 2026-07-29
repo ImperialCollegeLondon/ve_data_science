@@ -31,7 +31,7 @@
     hourly 2 m air temperature.
 - References:
   - PR #414 to close Issue #415
-  - PR #415 to close Issue #416
+  - PR #417 to close Issue #416
 
 2026-07-10
 - Module: Litter
