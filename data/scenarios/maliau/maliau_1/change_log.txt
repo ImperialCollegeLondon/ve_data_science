@@ -36,6 +36,8 @@
 2026-07-10
 - Module: Litter
 - Author: Hao Ran Lai
+- Files changed:
+  - `data/scenarios/maliau/maliau_1/data/litter_maliau.nc`
 - Initial woody litter nutrients are now split by land use type rather than
   plot block ID
 - Aboveground litter carbon stock is now split by land use type
@@ -47,6 +49,8 @@
 2026-07-07
 - Module: Soil
 - Author: Hao Ran Lai
+- Files changed:
+  - `data/scenarios/maliau/maliau_1/data/soil_maliau.nc`
 - Almost all variables were updated. The changes should be slight, as most
   analysis modifications were minor; primarily to generalise them beyond Maliau.
   During this process, Hao Ran made several minor improvements.
