@@ -63,6 +63,7 @@ library(reticulate)
 source(here("tools/R/R/convert_array_to_nc.R"))
 source(here("tools/R/R/get_data_variables.R"))
 source(here("tools/R/R/get_derived_variables.R"))
+source(here("tools/R/R/valdb.R"))
 
 
 # Mock data --------------------------------------------------------------
