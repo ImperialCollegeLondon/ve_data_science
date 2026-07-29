@@ -297,8 +297,8 @@ build_validation_database <- function(
         ))) |>
         # combine dedup keys into a single ID column
         tidyr::unite("ID", tidyr::all_of(source_dat$dedup_key)) |>
-        # pivot to long format because this is the easiest way to convert units and
-        # remove NAs
+        # pivot to long format because this is the easiest way to convert units
+        # and remove NAs
         tidyr::pivot_longer(
           cols = names(source_dat$variables),
           names_to = "var_original"
