@@ -2,12 +2,12 @@
 #| title: Descriptive name of the script
 #|
 #| description: |
-#|     Brief description of what the script does, its main purpose, and any important
-#|     scientific context. Keep it concise but informative.
+#|     Brief description of what the script does, its main purpose, and any
+#|     important scientific context. Keep it concise but informative.
 #|
 #|     This can include multiple paragraphs.
 #|
-#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, None]
+#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, Litter, or All]
 #|
 #| author:
 #|   - David Orme
@@ -15,25 +15,29 @@
 #| status: final or wip
 #|
 #| input_files:
-#|   - name: Input file name
-#|     path: Full file path on shared drive
+#|   - name: Input file name with extension
+#|     path: Full relative path in the repository
 #|     description: |
-#|       Source (short citation) and a brief explanation of what this input file
-#|       contains and its use case in this script
+#|       Brief explanation of what this file contains and use case here
 #|
 #| output_files:
-#|   - name: Output file name
-#|     path: Full file path on shared drive
+#|   - name: Output file name with extension
+#|     path: Full relative path in the repository
 #|     description: |
-#|       What the output file contains and its significance, are they used in any other
-#|       scripts?
+#|       Brief explanation of what this file contains and use case here
+#|
+#| source_files:
+#|   - name: Source scripts used in source() or box::use()
+#|     path: Full relative path in the repository
+#|     description: |
+#|       Brief explanation of what this script contains and use case here
 #|
 #| package_dependencies:
 #|     - tools
 #|
 #| usage_notes: |
-#|   Any known issues or bugs? Future plans for script/extensions or improvements
-#|   planned that should be noted?
+#|   Any known issues or bugs? Future plans for extensions or improvements
+#|   that should be noted?
 #| ---
 
 # An R Script template
