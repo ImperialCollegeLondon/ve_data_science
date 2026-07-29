@@ -408,3 +408,79 @@ import_variables_table <- function(toml) {
     }() |>
     purrr::map(~ purrr::discard(.x, names(.x) == "name"))
 }
+
+#' Normalise DOI strings for consistent handling
+#'
+#' Normalises DOI strings by removing common URL prefixes, trimming whitespace,
+#' and converting to uppercase. This ensures consistent DOI representation
+#' across the database and supports downstream processing.
+#'
+#' @param doi A character vector of DOI strings to normalise.
+#'
+#' @returns A character vector of normalised DOI strings in the format `10.XXXX/XXXXX`
+#'   (uppercase, whitespace trimmed, URL prefixes removed).
+#'
+#' @details
+#' The function handles common DOI input variants:
+#' - DOI suffix: `10.1038/nphys1170`
+#' - Lowercase suffix: `10.1038/nphys1170`
+#' - HTTPS URL: `https://doi.org/10.1038/nphys1170`
+#' - HTTP DX URL: `http://dx.doi.org/10.1038/nphys1170`
+#' - DOI prefix: `doi:10.1038/nphys1170`
+#' - Whitespace variants: ` 10.1038/nphys1170 `
+#' The normalisation process:
+#' 1. Trim leading/trailing whitespace with [trimws()]
+#' 2. Remove common DOI URL prefixes (https://doi.org/, http://dx.doi.org/, doi:)
+#' 3. Convert to uppercase with [toupper()]
+#' All normalise to: `10.1038/NPHYS1170` (uppercase)
+#'
+#' @export
+#'
+#' @examples
+#' # Clean DOI suffix
+#' normalise_doi("10.1038/nphys1170")
+#'
+#' # Uppercase DOI
+#' normalise_doi("10.1038/NPHYS1170")
+#'
+#' # Full HTTPS URL
+#' normalise_doi("https://doi.org/10.1038/nphys1170")
+#'
+#' # Legacy HTTP DX URL
+#' normalise_doi("http://dx.doi.org/10.1038/nphys1170")
+#'
+#' # DOI prefix format
+#' normalise_doi("doi:10.1038/nphys1170")
+#'
+#' # With surrounding whitespace
+#' normalise_doi(" 10.1038/nphys1170 ")
+#'
+#' # Vector of mixed formats
+#' normalise_doi(c(
+#'   "10.1038/nphys1170",
+#'   "https://doi.org/10.1038/nphys1170",
+#'   "DOI:10.1038/NPHYS1170"
+#' ))
+
+normalise_doi <- function(doi) {
+  if (!is.character(doi)) {
+    rlang::abort(
+      c(
+        "Argument {.arg doi} must be a character vector.",
+        "Got {.cls {class(doi)}}."
+      )
+    )
+  }
+
+  # Step 1: Trim whitespace
+  doi <- trimws(doi)
+
+  # Step 2: Remove common URL prefixes (case-insensitive)
+  doi <- sub("^(?i)https?://(?:dx\\.)?doi\\.org/", "", doi, perl = TRUE)
+  doi <- sub("^(?i)doi:", "", doi, perl = TRUE)
+
+  # Step 3: Convert to uppercase
+  doi <- toupper(doi)
+
+  return(doi)
+}
