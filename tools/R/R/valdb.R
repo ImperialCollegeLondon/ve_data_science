@@ -473,14 +473,14 @@ normalise_doi <- function(doi) {
   }
 
   # Step 1: Trim whitespace
-  doi <- trimws(doi)
+  doi <- stringr::str_trim(doi)
 
   # Step 2: Remove common URL prefixes (case-insensitive)
-  doi <- sub("^(?i)https?://(?:dx\\.)?doi\\.org/", "", doi, perl = TRUE)
-  doi <- sub("^(?i)doi:", "", doi, perl = TRUE)
+  doi <- stringr::str_remove(doi, "^(?i)https?://(?:dx\\.)?doi\\.org/")
+  doi <- stringr::str_remove(doi, "^(?i)doi:")
 
   # Step 3: Convert to uppercase
-  doi <- toupper(doi)
+  doi <- stringr::str_to_upper(doi)
 
   return(doi)
 }
