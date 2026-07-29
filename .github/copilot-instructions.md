@@ -45,6 +45,7 @@ This repository contains analysis and parameterisation workflows for the Virtual
 - Use relative paths in scripts; avoid machine-specific absolute paths.
 - Match language to the touched module (`R` or `Python`).
 - If creating a new script without guidance, prefer Python.
+- UK spelling preferred throughout.
 
 ## Known issue and workaround
 
