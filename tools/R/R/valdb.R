@@ -279,7 +279,12 @@ build_validation_database <- function(
     build_data_variables_table() |>
     tibble::enframe(name = "var_canonical") |>
     tidyr::unnest_wider(value) |>
-    dplyr::select(var_canonical, unit_to = unit)
+    dplyr::select(var_canonical, unit_canonical = unit) |>
+    # remove elements denoted in the curly brackets
+    # because we do not need them for the subsequent unit conversion
+    dplyr::mutate(
+      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
+    )
 
   # Ingest datasets --------------------------------------------------------
 
