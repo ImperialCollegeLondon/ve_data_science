@@ -1,5 +1,7 @@
 # AGENTS.md
 
+<!-- markdownlint-disable MD013 -->
+
 ## Project overview
 
 This repository contains data science workflows used to parameterize and run the
