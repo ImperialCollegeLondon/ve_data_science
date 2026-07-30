@@ -367,6 +367,15 @@ build_validation_database <- function(
   database <-
     data_harmonised |>
     purrr::list_rbind() |>
+    # deparse values and units to base vector classes to be compatible
+    # with parquet or csv
+    dplyr::mutate(
+      value = purrr::map_dbl(value, as.numeric),
+      value_canonical = purrr::map_dbl(value_canonical, as.numeric),
+      unit_original = purrr::map_chr(unit_original, units::deparse_unit),
+      unit_canonical = purrr::map_chr(unit_canonical, units::deparse_unit)
+    ) |>
+    # cleanup
     dplyr::select(
       dataset,
       ID,
