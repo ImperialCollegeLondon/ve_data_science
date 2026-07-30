@@ -218,6 +218,9 @@ add_schema <- function(
       match_location_column = NA,
       # Coordinate columns in the locations file.
       # Defaults: "Latitude" and "Longitude", in decimal degrees (WGS84).
+      # NB: sources giving northing/easting instead will need
+      # `coordinate_system` (an EPSG code) here, and a reprojection to
+      # WGS84 in `add_coordinates()` via `sf::sf_project()`.
       latitude_column = NA,
       longitude_column = NA,
       # Use this INSTEAD of the entries above when the source gives only one
