@@ -302,7 +302,7 @@ build_validation_database <- function(
     )
   }
 
-  # Harmonise each dataset
+  # Harmonise each dataset ------------------------------------------------
   data_harmonised <-
     sources |>
     purrr::map(\(src) {
@@ -334,21 +334,30 @@ build_validation_database <- function(
         dplyr::left_join(
           src$variables |>
             tibble::enframe(name = "var_original") |>
-            tidyr::unnest_wider(value),
+            tidyr::unnest_wider(value) |>
+            dplyr::rename(unit_original = unit),
           by = dplyr::join_by(var_original)
         ) |>
         # Unit conversion
-        dplyr::rename(unit_from = unit) |>
         # join canonical or target units
         dplyr::left_join(units, by = dplyr::join_by(var_canonical)) |>
-        # join conversion function
-        dplyr::left_join(
-          unit_conversions,
-          by = dplyr::join_by(unit_from, unit_to)
+        # convert unit character string to units class
+        dplyr::mutate(
+          unit_canonical = purrr::map(unit_canonical, units::as_units),
+          unit_original = purrr::map(unit_original, units::as_units)
+        ) |>
+        # assign units to data values
+        # we need to use map2 because units does not accept mixed unit columns
+        dplyr::mutate(
+          value = purrr::map2(value, unit_original, \(x, y) {
+            x * y
+          })
         ) |>
         # convert the unit finally
         dplyr::mutate(
-          value_canonical = purrr::map2_dbl(value, convert_unit, ~ .y(.x))
+          value_canonical = purrr::map2(value, unit_canonical, \(x, y) {
+            units::set_units(x, y, mode = "standard")
+          })
         ) |>
         # add the source ID
         dplyr::mutate(dataset = src$source_id)
@@ -367,9 +376,9 @@ build_validation_database <- function(
       coordinate_source,
       var_original,
       value_original = value,
+      unit_original,
       var_canonical,
-      unit_from,
-      unit_to,
+      unit_canonical,
       value_canonical
     )
 
