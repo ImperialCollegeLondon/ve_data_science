@@ -22,7 +22,7 @@
 - Module: Abiotic & Hydrology
 - Author: Lelavathy
 - Files changed:
-  - `data/scenarios/maliau/maliau_2/data/era5_maliau_2010_2020_100m.nc` (Globus)
+  - `data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc` (Globus)
 - Changes made:
   - Corrected the conversion of `downward_shortwave_radiation` and
     `downward_longwave_radiation` from J m⁻² to W m⁻² using the correct
