@@ -92,14 +92,14 @@ temporary skipping of R hooks is documented in
 
 ### R tests (primary CI test suite)
 
-R tests live in [tests/testthat/](tests/testthat/) and are run in CI via
-[.github/workflows/r-tests.yml](.github/workflows/r-tests.yml).
+R tests live in [tools/R/tests/testthat/](tools/R/tests/testthat/) and are run
+in CI via [.github/workflows/r-tests.yml](.github/workflows/r-tests.yml).
 
 Run all R tests locally:
 
 ```r
 testthat::test_dir(
-  here::here("tests/testthat"),
+  here::here("tools/R/tests/testthat"),
   reporter = "progress",
   stop_on_failure = TRUE
 )
@@ -108,13 +108,13 @@ testthat::test_dir(
 Equivalent one-liner:
 
 ```bash
-Rscript -e "testthat::test_dir(here::here('tests/testthat'), reporter='progress', stop_on_failure=TRUE)"
+Rscript -e "testthat::test_dir(here::here('tools/R/tests/testthat'), reporter='progress', stop_on_failure=TRUE)"
 ```
 
 Run a specific R test file:
 
 ```bash
-Rscript -e "testthat::test_file('tests/testthat/test-get_derived_variables.R')"
+Rscript -e "testthat::test_file('tools/R/tests/testthat/test-get_derived_variables.R')"
 ```
 
 ### Python tests
@@ -189,7 +189,7 @@ poetry run pre-commit run --all-files
 ```
 
 ```bash
-Rscript -e "testthat::test_dir(here::here('tests/testthat'), reporter='progress', stop_on_failure=TRUE)"
+Rscript -e "testthat::test_dir(here::here('tools/R/tests/testthat'), reporter='progress', stop_on_failure=TRUE)"
 ```
 
 When changing Python modules with colocated tests, run the closest relevant
@@ -215,7 +215,8 @@ Use these directories first when routing work:
 
 - Domain modeling and parameterization: [analysis/](analysis/)
 - Shared helper logic: [tools/](tools/)
-- Tests: [tests/testthat/](tests/testthat/) and module-local Python tests
+- Tests: [tools/R/tests/testthat/](tools/R/tests/testthat/) and module-local
+  Python tests
 - Documentation/process questions: [docs/](docs/)
 - Data assets and scenarios: [data/](data/)
 
