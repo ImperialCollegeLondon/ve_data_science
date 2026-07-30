@@ -313,34 +313,34 @@ build_validation_database <- function(
   # Harmonise each dataset
   data_harmonised <-
     sources |>
-    purrr::map(\(source_dat) {
+    purrr::map(\(src) {
       # read dataset csv file
       readr::read_csv(
-        source_dat$data_file,
+        src$data_file,
         show_col_types = FALSE,
-        skip = source_dat$skip_rows
+        skip = src$skip_rows
       ) |>
         # select the relevant columns: unique IDs and validation variables
         dplyr::select(tidyr::all_of(c(
-          source_dat$dedup_key,
-          names(source_dat$variables)
+          src$dedup_key,
+          names(src$variables)
         ))) |>
         # attach spatial coordinates while the data is still one row per
         # observation, and before `unite()` consumes the dedup key columns
-        add_coordinates(source_dat) |>
+        add_coordinates(src) |>
         # combine dedup keys into a single ID column
-        tidyr::unite("ID", tidyr::all_of(source_dat$dedup_key)) |>
+        tidyr::unite("ID", tidyr::all_of(src$dedup_key)) |>
         # pivot to long format because this is the easiest way to convert units
         # and remove NAs
         tidyr::pivot_longer(
-          cols = names(source_dat$variables),
+          cols = names(src$variables),
           names_to = "var_original"
         ) |>
         dplyr::filter(!is.na(value)) |>
         # join variable information,
         # including unit and target validation variable
         dplyr::left_join(
-          source_dat$variables |>
+          src$variables |>
             tibble::enframe(name = "var_original") |>
             tidyr::unnest_wider(value),
           by = dplyr::join_by(var_original)
@@ -359,7 +359,7 @@ build_validation_database <- function(
           value_canonical = purrr::map2_dbl(value, convert_unit, ~ .y(.x))
         ) |>
         # add the source ID
-        dplyr::mutate(dataset = source_dat$source_id)
+        dplyr::mutate(dataset = src$source_id)
     })
 
   # combine datasets into a database
@@ -409,13 +409,13 @@ build_validation_database <- function(
 #'
 #' @param dat A dataset that is one row per observation, still carrying its raw
 #'   \code{dedup_key} columns.
-#' @param source_dat One source entry from the source YAML metadata.
+#' @param src One source entry from the source YAML metadata.
 #'
 #' @returns \code{dat} with the four coordinate columns added. The row count is
 #'   guaranteed to be unchanged.
 
-add_coordinates <- function(dat, source_dat) {
-  spec <- drop_blanks(source_dat$coordinates)
+add_coordinates <- function(dat, src) {
+  spec <- drop_blanks(src$coordinates)
   n_before <- nrow(dat)
 
   # Case 1: one blanket coordinate for the whole dataset
@@ -423,7 +423,7 @@ add_coordinates <- function(dat, source_dat) {
   if (length(blanket) > 0) {
     if (is.null(blanket$latitude) || is.null(blanket$longitude)) {
       cli::cli_abort(
-        "{.field same_for_all_rows} in {.val {source_dat$source_id}} needs both
+        "{.field same_for_all_rows} in {.val {src$source_id}} needs both
          a {.field latitude} and a {.field longitude}. You are getting this
          because you specified something in {.field same_for_all_rows} but left
          {.field latitude} and a {.field longitude} as blank."
@@ -440,15 +440,15 @@ add_coordinates <- function(dat, source_dat) {
 
   # Case 2: look the coordinates up from a locations file
   locations_file <- spec$from_file %||%
-    file.path(dirname(source_dat$data_file), "locations.csv")
+    file.path(dirname(src$data_file), "locations.csv")
 
   if (!file.exists(locations_file)) {
     cli::cli_warn(
-      "No coordinates for {.val {source_dat$source_id}}: cannot find
+      "No coordinates for {.val {src$source_id}}: cannot find
        {.file {locations_file}}. Export the {.field Locations} sheet of the
        source file to that path, or add a {.field coordinates} block to the
        source YAML. Currently NA coordinates are assigned for
-       {.val {source_dat$source_id}}"
+       {.val {src$source_id}}"
     )
     return(dplyr::mutate(
       dat,
@@ -463,14 +463,14 @@ add_coordinates <- function(dat, source_dat) {
   # only when that key is unambiguous
   key_data <- spec$match_data_column
   if (is.null(key_data)) {
-    if (length(source_dat$dedup_key) > 1) {
+    if (length(src$dedup_key) > 1) {
       cli::cli_abort(
-        "{.val {source_dat$source_id}} has a multi-column {.field dedup_key},
+        "{.val {src$source_id}} has a multi-column {.field dedup_key},
          so the location column is ambiguous. Name it explicitly with
          {.field coordinates: match_data_column} in the source YAML."
       )
     }
-    key_data <- source_dat$dedup_key
+    key_data <- src$dedup_key
   }
 
   # gather the location coordinates
@@ -497,9 +497,11 @@ add_coordinates <- function(dat, source_dat) {
     dat |>
     dplyr::left_join(
       locations,
+      # setNames() because the column name comes from a variable
       by = stats::setNames("location_key", key_data),
       # errors if the locations file has duplicated keys, which would
       # silently inflate the number of observations
+      # NB: many-to-one should also cover one-to-one
       relationship = "many-to-one"
     ) |>
     # cover the case of partial missingness in a location file
@@ -516,11 +518,11 @@ add_coordinates <- function(dat, source_dat) {
   if (nrow(dat) != n_before) {
     cli::cli_abort(
       "Joining coordinates changed the number of rows of
-       {.val {source_dat$source_id}} from {n_before} to {nrow(dat)}."
+       {.val {src$source_id}} from {n_before} to {nrow(dat)}."
     )
   }
 
-  validate_coordinates(dat, source_dat$source_id)
+  validate_coordinates(dat, src$source_id)
 
   dat
 }
