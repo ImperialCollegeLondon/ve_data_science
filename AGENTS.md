@@ -232,3 +232,9 @@ correct template, including
 [templates/R_script_template.r](templates/R_script_template.r),
 [templates/python_script_template.py](templates/python_script_template.py), and
 [templates/yaml_metadata_specification.yaml](templates/yaml_metadata_specification.yaml).
+
+For analysis scripts, prefer the local style already used in the same analysis
+folder. Scripts within a folder such as [analysis/soil/](analysis/soil/) or
+[analysis/litter/](analysis/litter/) usually share the same metadata phrasing,
+field ordering, and level of detail, so use nearby scripts there as the primary
+example when filling a template.
