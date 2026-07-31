@@ -495,14 +495,14 @@
       description: Total soil phosphorous concentration
   dedup_key: location_name
   temporal:
-  format: "%d/%m/%Y"
-  timezone: "Asia/Kuching"
-  same_for_all_rows:
-    start: 01/10/2014
-    end: 01/09/2018
-    precision: day
-    note:
-      Start and end dates specified in the Summary sheet of the original file.
+    format: "%d/%m/%Y"
+    timezone: "Asia/Kuching"
+    same_for_all_rows:
+      start: 01/10/2014
+      end: 01/09/2018
+      precision: day
+      note:
+        Start and end dates specified in the Summary sheet of the original file.
 - doi: 10.5281/ZENODO.3979295
   decision: excluded
   reason: no_soil_data
