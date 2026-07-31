@@ -59,7 +59,6 @@
 
 library(tidyverse)
 library(tidync)
-box::use(tools/R/get_data_variables[...])
 
 # Open NetCDF sources for soil and litter pools
 soil <- tidync("data/scenarios/maliau/maliau_2/data/soil_maliau.nc")
