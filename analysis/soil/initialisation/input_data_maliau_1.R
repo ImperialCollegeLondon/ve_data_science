@@ -101,7 +101,7 @@ library(glmmTMB)
 library(biogas)
 library(lubridate)
 library(hms)
-source("tools/R/convert_df_to_nc.R")
+box::use(tools/R/R/convert_df_to_nc[...])
 
 set.seed(20260313)
 
