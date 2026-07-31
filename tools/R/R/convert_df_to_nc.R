@@ -89,7 +89,7 @@ convert_df_to_nc <- function(
     if (str_detect(variables[i], "_cnp")) {
       var.def.nc(ncout, variables[i], "NC_DOUBLE", rev(c("x", "y", "element")))
       triplet_tmp <- do.call(rbind, data[[variables[i]]])
-      array_tmp <- array(triplet_tmp, dim = rev(c(n_x, n_y, n_element)))
+      array_tmp <- array(t(triplet_tmp), dim = rev(c(n_x, n_y, n_element)))
     } else {
       var.def.nc(ncout, variables[i], "NC_DOUBLE", rev(c("x", "y")))
       array_tmp <- array(data[[variables[i]]], dim = rev(c(n_x, n_y)))
