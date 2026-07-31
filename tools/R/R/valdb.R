@@ -359,6 +359,9 @@ build_validation_database <- function(
         # attach spatial coordinates while the data is still one row per
         # observation, and before `unite()` consumes the dedup key columns
         add_coordinates(src) |>
+        # likewise for temporal coordinates: the date column is often itself a
+        # dedup key, so this must run before `unite()`
+        add_temporal(src) |>
         # combine dedup keys into a single ID column
         tidyr::unite("ID", tidyr::all_of(src$dedup_key)) |>
         # pivot to long format because this is the easiest way to convert units
@@ -422,6 +425,12 @@ build_validation_database <- function(
       longitude,
       location_type,
       coordinate_source,
+      time_start,
+      time_end,
+      time_type,
+      time_precision,
+      time_source,
+      time_note,
       var_original,
       value_original = value,
       unit_original,
@@ -616,6 +625,415 @@ validate_coordinates <- function(dat, source_id) {
     )
   }
 
+  invisible(dat)
+}
+
+
+#' Attach temporal coordinates to a source dataset
+#'
+#' This is an unexported helper for [build_validation_database()]. It adds six
+#' columns to a dataset: \code{time_start}, \code{time_end}, \code{time_type},
+#' \code{time_precision}, \code{time_source} and \code{time_note}.
+#'
+#' Times are stored as a HALF-OPEN interval \code{[time_start, time_end)} in
+#' UTC, so that consecutive periods tile without overlapping. A point-in-time
+#' observation is widened to its precision granule: a date-only sample becomes
+#' a one-day interval rather than a zero-width one, because a zero-width
+#' half-open interval would match nothing under any filter.
+#'
+#' Note that \code{lubridate::\%within\%} is closed at BOTH ends, so it
+#' disagrees with the stored convention by one granule at \code{time_end}.
+#' Filter with \code{time_start <= t & t < time_end} instead.
+#'
+#' Unlike the spatial case there is no curation standard to fall back on: SAFE
+#' datasets are usually plot-level summaries carrying no per-row date, so the
+#' sampling period normally has to be read off the summary metadata and entered
+#' as \code{same_for_all_rows}. A source with no \code{temporal} block at all
+#' gets \code{NA} times and a \code{time_source} of \code{"missing"}.
+#'
+#' @param dat A dataset that is one row per observation, still carrying its raw
+#'   \code{dedup_key} columns.
+#' @param src One source entry from the source YAML metadata.
+#'
+#' @returns \code{dat} with the six temporal columns added. The row count is
+#'   ensured to be the same.
+
+add_temporal <- function(dat, src) {
+  spec <- drop_blanks(src$temporal)
+  n_before <- nrow(dat)
+
+  # UTC throughout, so that the build is reproducible regardless of the
+  # machine's locale. The source zone is only used to interpret the input.
+  tz_in <- spec$timezone %||% "UTC"
+  precision <- spec$precision %||% "day"
+
+  # Case 0: nothing configured at all. Note that `drop_blanks()` only strips
+  # blank scalars, so an unedited template still leaves an all-NA
+  # `same_for_all_rows` list behind; emptiness has to be judged after that
+  # nested block has itself been cleaned.
+  blanket <- drop_blanks(spec$same_for_all_rows)
+  temporal_top_settings <- purrr::discard_at(spec, "same_for_all_rows")
+  if (length(temporal_top_settings) == 0 && length(blanket) == 0) {
+    cli::cli_warn(
+      "No sampling time for {.val {src$source_id}}: add a {.field temporal}
+       block to the source YAML. If the dataset carry no per-row date, then
+       {.field same_for_all_rows} with the sampling period is usually what you
+       want. Currently {.val NA} times are assigned for {.val {src$source_id}}."
+    )
+    return(empty_temporal(dat))
+  }
+
+  # Case 1: one blanket sampling window for the whole dataset
+  if (length(blanket) > 0) {
+    if (is.null(blanket$start)) {
+      cli::cli_abort(
+        "{.field same_for_all_rows} in {.val {src$source_id}} needs at least a
+         {.field start} value. You are getting this because you specified
+         something in {.field same_for_all_rows} but left {.field start} blank."
+      )
+    }
+    precision <- blanket$precision %||% precision
+    start <- parse_time(blanket$start, spec$format, tz_in, src$source_id)
+    # an "open" end marks an ongoing or unbounded campaign
+    if (is.null(blanket$end) || identical(blanket$end, "open")) {
+      end <- lubridate::NA_POSIXct_
+    } else {
+      # the YAML end is written as the last INCLUSIVE granule, so widen it to
+      # get the exclusive bound we store
+      end <- widen_time(
+        parse_time(blanket$end, spec$format, tz_in, src$source_id),
+        precision,
+        tz_in
+      )
+    }
+    dat <- dplyr::mutate(
+      dat,
+      time_start = start,
+      time_end = end,
+      time_type = "whole dataset",
+      time_precision = precision,
+      time_source = "same_for_all_rows",
+      time_note = blanket$note %||% NA_character_
+    )
+    validate_temporal(dat, src$source_id)
+    return(dat)
+  }
+
+  # Case 2: per-row times read from the data itself
+  if (!is.null(spec$date_column)) {
+    if (!is.null(spec$start_column) || !is.null(spec$end_column)) {
+      cli::cli_abort(
+        "{.val {src$source_id}} sets both {.field date_column} and
+         {.field start_column}/{.field end_column} in its {.field temporal}
+         block. Use one or the other: {.field date_column} for point-in-time
+         observations, the pair for windows."
+      )
+    }
+    check_time_columns(dat, spec$date_column, src$source_id)
+    dat <- dplyr::mutate(
+      dat,
+      time_start = parse_time(
+        .data[[spec$date_column]],
+        spec$format,
+        tz_in,
+        src$source_id
+      ),
+      # widen the instant to its precision granule
+      time_end = widen_time(time_start, precision, tz_in),
+      time_type = "instant"
+    )
+  } else if (!is.null(spec$start_column) && !is.null(spec$end_column)) {
+    check_time_columns(
+      dat,
+      c(spec$start_column, spec$end_column),
+      src$source_id
+    )
+    dat <- dplyr::mutate(
+      dat,
+      time_start = parse_time(
+        .data[[spec$start_column]],
+        spec$format,
+        tz_in,
+        src$source_id
+      ),
+      # the source end is the last inclusive granule; store the exclusive bound
+      time_end = widen_time(
+        parse_time(
+          .data[[spec$end_column]],
+          spec$format,
+          tz_in,
+          src$source_id
+        ),
+        precision,
+        tz_in
+      ),
+      time_type = "interval"
+    )
+  } else {
+    cli::cli_abort(
+      "The {.field temporal} block of {.val {src$source_id}} supplies neither
+       {.field date_column}, nor both of {.field start_column} and
+       {.field end_column}, nor {.field same_for_all_rows}. Give one of these,
+       or delete the block entirely."
+    )
+  }
+
+  dat <-
+    dat |>
+    dplyr::mutate(
+      time_precision = precision,
+      # cover partial missingness within an otherwise valid date column
+      time_source = dplyr::if_else(
+        is.na(time_start),
+        "missing",
+        "data_column"
+      ),
+      time_note = NA_character_
+    )
+
+  if (nrow(dat) != n_before) {
+    cli::cli_abort(
+      "Attaching times changed the number of rows of {.val {src$source_id}}
+       from {n_before} to {nrow(dat)}."
+    )
+  }
+
+  validate_temporal(dat, src$source_id)
+
+  dat
+}
+
+
+#' Sanity-check the temporal coordinates of one source dataset
+#'
+#' An unexported helper for [add_temporal()]. Following the spatial
+#' convention, structurally impossible times are an error, because they
+#' usually mean the columns were swapped or the date format was misread.
+#' Missing times are only a warning, because many sources genuinely never
+#' record when they sampled.
+#'
+#' @param dat A dataset with the six temporal columns.
+#' @param source_id The source ID, used in messages.
+#'
+#' @returns \code{dat}, invisibly.
+
+validate_temporal <- function(dat, source_id) {
+  # an end before its start is the temporal analogue of swapped lat/lon
+  reversed <- dat |>
+    dplyr::filter(!is.na(time_start), !is.na(time_end), time_end < time_start)
+
+  if (nrow(reversed) > 0) {
+    cli::cli_abort(
+      c(
+        "{nrow(reversed)} row{?s} of {.val {source_id}} end before they
+         start.",
+        "i" = "Are the start and end columns swapped, or is the date
+               {.field format} being misread?"
+      )
+    )
+  }
+
+  # an implausible year almost always means a misparsed format, or an Excel
+  # serial number that survived the manual CSV conversion
+  out_of_range <- dat |>
+    dplyr::filter(dplyr::if_any(
+      c(time_start, time_end),
+      \(x) !is.na(x) & !dplyr::between(lubridate::year(x), 1900, 2100)
+    ))
+
+  if (nrow(out_of_range) > 0) {
+    cli::cli_abort(
+      c(
+        "{nrow(out_of_range)} row{?s} of {.val {source_id}} fall outside
+         1900-2100.",
+        "i" = "Is the {.field format} entry wrong, or did an Excel serial
+               date number survive the manual CSV conversion?"
+      )
+    )
+  }
+
+  n_missing <- sum(dat$time_source == "missing")
+  if (n_missing > 0) {
+    cli::cli_warn(
+      "{n_missing} of {nrow(dat)} row{?s} of {.val {source_id}} have no
+       sampling time."
+    )
+  }
+
+  invisible(dat)
+}
+
+
+#' Assign wholly missing temporal columns
+#'
+#' An unexported helper for [add_temporal()], used when a source configures no
+#' times at all. Kept separate so that the six columns always appear with the
+#' same names and types, which matters because the sources are row-bound into
+#' one database.
+#'
+#' @param dat A dataset.
+#'
+#' @returns \code{dat} with the six temporal columns added, all missing.
+
+empty_temporal <- function(dat) {
+  dplyr::mutate(
+    dat,
+    time_start = lubridate::NA_POSIXct_,
+    time_end = lubridate::NA_POSIXct_,
+    time_type = NA_character_,
+    time_precision = NA_character_,
+    time_source = "missing",
+    time_note = NA_character_
+  )
+}
+
+
+#' Parse a source date or datetime into UTC
+#'
+#' An unexported helper for [add_temporal()]. Everything is stored in UTC so
+#' that the build does not depend on the machine's locale; \code{tz_in} says
+#' how to interpret the source strings, which for SAFE field data is usually
+#' \code{"Asia/Kuching"} rather than UTC.
+#'
+#' @param x A character, Date or POSIXct vector from the source.
+#' @param format A strptime-style format, or \code{NULL} to guess.
+#' @param tz_in IANA time zone the source values are expressed in.
+#' @param source_id The source ID, used in messages.
+#'
+#' @returns A POSIXct vector in UTC.
+
+parse_time <- function(x, format = NULL, tz_in = "UTC", source_id = NULL) {
+  # a bare number is almost certainly an Excel serial date, which would parse
+  # into a nonsense year and be caught much later
+  if (is.numeric(x)) {
+    cli::cli_abort(
+      c(
+        "The date column of {.val {source_id}} is numeric.",
+        "i" = "This usually indicates Excel serial numbers were exported instead
+               of dates. Reformat the column as a date before converting the
+               sheet to CSV."
+      )
+    )
+  }
+
+  if (inherits(x, "POSIXct")) {
+    return(lubridate::with_tz(x, "UTC"))
+  }
+
+  # a bare Date carries no zone, so anchor it at midnight in the source zone
+  if (inherits(x, "Date")) {
+    return(lubridate::with_tz(
+      lubridate::force_tz(
+        as.POSIXct(format(x), tz = "UTC"),
+        tz_in
+      ),
+      "UTC"
+    ))
+  }
+
+  x <- as.character(x)
+  parsed <- if (is.null(format)) {
+    # Only unambiguous ISO-like strings are safe to guess at. Without this
+    # guard `ymd_hms(truncated = 3)` happily reads "14/03/2015" as the year
+    # 2014, which is silent corruption rather than an error.
+    non_iso <- x[!is.na(x) & x != "" & !grepl("^\\d{4}[-/]\\d{2}", x)]
+    if (length(non_iso) > 0) {
+      n_non_iso <- length(non_iso)
+      example <- non_iso[[1]]
+      cli::cli_abort(
+        c(
+          "{.val {source_id}} has {n_non_iso} date{?s} that {?is/are} not in
+           ISO order, e.g. {.val {example}}.",
+          "i" = "Set an explicit {.field format} in the {.field temporal}
+                 block, e.g. {.val %d/%m/%Y}. Guessing is refused here because
+                 {.val 03/04/2015} is ambiguous between March and April."
+        )
+      )
+    }
+    lubridate::ymd_hms(x, tz = tz_in, quiet = TRUE, truncated = 3)
+  } else {
+    as.POSIXct(x, format = format, tz = tz_in)
+  }
+
+  n_failed <- sum(is.na(parsed) & !is.na(x) & x != "")
+  if (n_failed > 0) {
+    cli::cli_abort(
+      c(
+        "{n_failed} date{?s} of {.val {source_id}} could not be parsed.",
+        "i" = "Set an explicit {.field format} in the {.field temporal} block,
+               e.g. {.val %d/%m/%Y}. Note that {.val 03/04/2015} is ambiguous
+               and cannot be guessed reliably."
+      )
+    )
+  }
+
+  lubridate::with_tz(parsed, "UTC")
+}
+
+
+#' Widen a time instant to the exclusive end of its precision granule
+#'
+#' An unexported helper for [add_temporal()]. Because intervals are stored
+#' half-open, an instant stored as a zero-width interval would match nothing.
+#' Widening a date-only value to the following midnight keeps
+#' \code{time_start <= t & t < time_end} meaningful while
+#' \code{time_precision} records that the underlying observation was a point.
+#'
+#' @param x A POSIXct vector.
+#' @param precision One of \code{"second"}, \code{"day"}, \code{"month"} or
+#'   \code{"year"}.
+#' @param tz_in IANA time zone whose calendar defines the granule. This must
+#'   be the zone the source dates were expressed in, not UTC: a Malaysian
+#'   midnight is 16:00 UTC the previous day, so flooring in UTC would widen
+#'   the value onto the wrong calendar day.
+#'
+#' @returns A POSIXct vector in UTC.
+
+widen_time <- function(x, precision, tz_in = "UTC") {
+  # `period` rather than `duration`, so that months and years stay calendrical
+  if (!precision %in% c("second", "day", "month", "year")) {
+    cli::cli_abort(
+      "Unknown {.field precision} {.val {precision}}. Use one of
+       {.val second}, {.val day}, {.val month} or {.val year}."
+    )
+  }
+  step <- lubridate::period(1, units = precision)
+  # do the calendar arithmetic in the source zone, then return to UTC storage
+  local <- lubridate::with_tz(x, tz_in)
+  # floor first, so that a mid-day timestamp with day precision still yields a
+  # clean granule boundary
+  lubridate::with_tz(
+    lubridate::floor_date(local, unit = precision) + step,
+    "UTC"
+  )
+}
+
+
+#' Check that configured time columns exist in the data
+#'
+#' An unexported helper for [add_temporal()]. Named columns that are absent
+#' are an error rather than a warning, because a typo in the YAML would
+#' otherwise silently produce a dataset with no times at all.
+#'
+#' @param dat A dataset.
+#' @param cols Column names named in the \code{temporal} block.
+#' @param source_id The source ID, used in messages.
+#'
+#' @returns \code{dat}, invisibly.
+
+check_time_columns <- function(dat, cols, source_id) {
+  missing_cols <- setdiff(cols, names(dat))
+  if (length(missing_cols) > 0) {
+    cli::cli_abort(
+      c(
+        "The {.field temporal} block of {.val {source_id}} names
+         {.field {missing_cols}}, which {?is/are} not in the dataset.",
+        "i" = "Note that only the {.field dedup_key} and {.field variables}
+               columns are read from {.field data_file}, so a date column must
+               also be listed in {.field dedup_key} to pass."
+      )
+    )
+  }
   invisible(dat)
 }
 
