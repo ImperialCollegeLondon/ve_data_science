@@ -58,7 +58,7 @@ convert_df_to_nc <- function(
   description = NULL
 ) {
   # create netCDF file
-  ncout <- create.nc(filename, format = "netcdf4")
+  ncout <- RNetCDF::create.nc(filename, format = "netcdf4")
 
   # some dimension attributes
   # length of x
@@ -69,43 +69,54 @@ convert_df_to_nc <- function(
   n_element <- length(element)
 
   # define dimensions
-  dim.def.nc(ncout, "x", n_x)
-  dim.def.nc(ncout, "y", n_y)
-  dim.def.nc(ncout, "element", n_element)
-  var.def.nc(ncout, "x", "NC_FLOAT", "x")
-  var.def.nc(ncout, "y", "NC_FLOAT", "y")
-  var.def.nc(ncout, "element", "NC_STRING", "element")
-  att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
-  att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
-  var.put.nc(ncout, "x", x)
-  var.put.nc(ncout, "y", y)
-  var.put.nc(ncout, "element", element)
+  RNetCDF::dim.def.nc(ncout, "x", n_x)
+  RNetCDF::dim.def.nc(ncout, "y", n_y)
+  RNetCDF::dim.def.nc(ncout, "element", n_element)
+  RNetCDF::var.def.nc(ncout, "x", "NC_FLOAT", "x")
+  RNetCDF::var.def.nc(ncout, "y", "NC_FLOAT", "y")
+  RNetCDF::var.def.nc(ncout, "element", "NC_STRING", "element")
+  RNetCDF::att.put.nc(ncout, "x", "units", "NC_CHAR", "m")
+  RNetCDF::att.put.nc(ncout, "y", "units", "NC_CHAR", "m")
+  RNetCDF::var.put.nc(ncout, "x", x)
+  RNetCDF::var.put.nc(ncout, "y", y)
+  RNetCDF::var.put.nc(ncout, "element", element)
 
   # define and put variables
   # raw data from data.frame are converted to array before being put into netCDF
   # note that I am explicitly using rev() to reverse the order of the element
   # dimension here in R so in Python it is ordered in the 'right' way
   for (i in seq_along(variables)) {
-    if (str_detect(variables[i], "_cnp")) {
-      var.def.nc(ncout, variables[i], "NC_DOUBLE", rev(c("x", "y", "element")))
+    if (stringr::str_detect(variables[i], "_cnp")) {
+      RNetCDF::var.def.nc(
+        ncout,
+        variables[i],
+        "NC_DOUBLE",
+        rev(c("x", "y", "element"))
+      )
       triplet_tmp <- do.call(rbind, data[[variables[i]]])
       array_tmp <- array(t(triplet_tmp), dim = rev(c(n_x, n_y, n_element)))
     } else {
-      var.def.nc(ncout, variables[i], "NC_DOUBLE", rev(c("x", "y")))
+      RNetCDF::var.def.nc(ncout, variables[i], "NC_DOUBLE", rev(c("x", "y")))
       array_tmp <- array(data[[variables[i]]], dim = rev(c(n_x, n_y)))
     }
     # put variables into netCDF
-    var.put.nc(ncout, variables[i], array_tmp)
+    RNetCDF::var.put.nc(ncout, variables[i], array_tmp)
     # add units
     # more metadata can be added here
-    att.put.nc(ncout, variables[i], "units", "NC_CHAR", units[i])
+    RNetCDF::att.put.nc(ncout, variables[i], "units", "NC_CHAR", units[i])
   }
 
   # add global attributes; currently only the description field
   if (!is.null(description)) {
-    att.put.nc(ncout, "NC_GLOBAL", "description", "NC_CHAR", description)
+    RNetCDF::att.put.nc(
+      ncout,
+      "NC_GLOBAL",
+      "description",
+      "NC_CHAR",
+      description
+    )
   }
 
   # close the file, writing data to disk
-  close.nc(ncout)
+  RNetCDF::close.nc(ncout)
 }
