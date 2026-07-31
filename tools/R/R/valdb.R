@@ -24,6 +24,7 @@
 #|     - arrow
 #|     - cli
 #|     - dplyr
+#|     - lubridate
 #|     - purrr
 #|     - rcrossref
 #|     - readr
@@ -229,6 +230,44 @@ add_schema <- function(
       same_for_all_rows = list(
         latitude = NA,
         longitude = NA,
+        note = NA
+      )
+    ),
+    # Temporal coordinates. Every entry below is OPTIONAL, exactly like the
+    # `coordinates` block above. Most SAFE datasets are plot-level summaries
+    # with no per-row date, so `same_for_all_rows` is usually the default (and
+    # only) entry to fill. Delete what you do not need, or delete the whole
+    # `temporal` block.
+    #
+    # Times are stored as a HALF-OPEN interval [time_start, time_end) in UTC.
+    # A point-in-time observation is widened to its `precision` granule, so a
+    # date-only sample spans one whole day.
+    temporal = list(
+      # Column in `data_file` holding a single date/time per row. Use this for
+      # point-in-time observations.
+      date_column = NA,
+      # Use these two INSTEAD of `date_column` when each row carries its own
+      # start and end, e.g. a deployment or incubation window.
+      start_column = NA,
+      end_column = NA,
+      # strptime-style format, e.g. "%d/%m/%Y". Leave blank to let the parser
+      # guess, which only works for unambiguous ISO-like strings.
+      format = NA,
+      # IANA time zone the source dates are expressed in.
+      # Default: "UTC". SAFE field data is usually "Asia/Kuching".
+      # TODO: possible to validate this against spatial coordinates?
+      timezone = NA,
+      # Granularity actually known: "second", "day", "month" or "year".
+      # Default: "day".
+      precision = NA,
+      # Use this INSTEAD of the entries above when the source gives only one
+      # sampling window for every row, e.g. a campaign period named in the
+      # paper but never recorded per sample. Set `end` to the string "open"
+      # for an ongoing or unbounded campaign.
+      same_for_all_rows = list(
+        start = NA,
+        end = NA,
+        precision = NA,
         note = NA
       )
     )
