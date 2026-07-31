@@ -42,10 +42,10 @@
 #|     - purrr
 #|
 #| usage_notes: |
-#|     Run via: testthat::test_dir("tests/testthat")
+#|     Run via: testthat::test_dir("tools/R/tests/testthat")
 #|     Requires setup.R to be executed first to define create_mock_nc(),
 #|     create_mock_cfg(), and source helper functions (this is automatic upon
-#|     running testthat::test_dir("tests/testthat"). All temporary files
+#|     running testthat::test_dir("tools/R/tests/testthat"). All temporary files
 #|     are cleaned up after tests complete.
 #| ---
 test_that("get_derived_variables returns a named list of arrays", {
