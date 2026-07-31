@@ -257,40 +257,6 @@
     publisher: Zenodo
     url: https://zenodo.org/record/3247592
     keywords: soil CO2 flux, 24 hour cycle, partitioning
-  source_id: author_year
-  data_file: data/primary/soil/source_id/*.csv
-  skip_rows: 0
-  variables:
-    var_original_1:
-      var_canonical: var_ve_1
-      unit: unit
-      description: .na
-  dedup_key:
-    - sample_id
-    - date
-    - site_id
-  coordinates:
-    from_file: .na
-    match_data_column: .na
-    match_location_column: .na
-    latitude_column: .na
-    longitude_column: .na
-    same_for_all_rows:
-      latitude: .na
-      longitude: .na
-      note: .na
-  temporal:
-    date_column: .na
-    start_column: .na
-    end_column: .na
-    format: .na
-    timezone: .na
-    precision: .na
-    same_for_all_rows:
-      start: .na
-      end: .na
-      precision: .na
-      note: .na
 - doi: 10.5281/ZENODO.3251901
   decision: excluded
   reason: used_elsewhere
