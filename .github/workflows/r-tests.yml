@@ -5,15 +5,13 @@ on:
   push:
     branches: [main]
     paths:
-      - "tools/R/**"
-      - "tools/python/**"
-      - "tests/testthat/**"
+      - "tools/R/R/**"
+      - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
   pull_request:
     paths:
-      - "tools/R/**"
-      - "tools/python/**"
-      - "tests/testthat/**"
+      - "tools/R/R/**"
+      - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
 
 jobs:
@@ -74,10 +72,11 @@ jobs:
             echo "::warning::virtual-ecosystem is not in pyproject.toml. After the uv migration, run 'uv add virtual-ecosystem' and remove this step."
             uv pip install virtual-ecosystem
           fi
+          uv pip install "pyrealm==2.0.0"
 
       - name: Install virtual_ecosystem (Poetry)
         if: steps.pkg-manager.outputs.use_uv == 'false'
-        run: poetry run pip install virtual-ecosystem
+        run: poetry run pip install virtual-ecosystem "pyrealm==2.0.0"
 
       # --- System libraries required by R packages ---
       - name: Install system dependencies
@@ -115,7 +114,7 @@ jobs:
             Sys.setenv(RETICULATE_PYTHON = file.path(venv, "bin", "python"))
           }
           testthat::test_dir(
-            here::here("tests/testthat"),
+            here::here("tools/R/tests/testthat"),
             reporter = "progress",
             stop_on_failure = TRUE
           )

@@ -1,27 +1,19 @@
-"""Test file for TrophicFlowAnalysis class in trophic_mass_flow.py."""
-
-from pathlib import Path
+"""Tests for the TrophicFlowAnalysis class."""
 
 import pandas as pd
 import pytest
 
-# Import class (adjust path when needed)
-from trophic_mass_flow import TrophicFlowAnalysis  # Change filename when different
+# Import class to be tested after setting up sys.path in conftest.py
+from ve_data_tools.trophic_mass_flow import TrophicFlowAnalysis
 
 
 @pytest.fixture
-def analysis():
-    """Fixture for flow analysis used in tests.
+def analysis(testing_data_dir):
+    """Create a clean analysis instance for each test."""
+    # create path to the test data file
+    data_file = testing_data_dir / "animal_trophic_interactions.csv"
 
-    Create a clean object with these parameters for every test we run for every method.
-    """
-    # first create path relative to test file
-    data_file = (
-        Path(__file__).resolve().parent.parent.parent
-        / "testing_data"
-        / "animal_trophic_interactions.csv"
-    )
-    # load csv first, then pass df to class
+    # load csv, then pass df to class
     df = pd.read_csv(data_file)
     # create new instance of the class
     return TrophicFlowAnalysis(
@@ -56,8 +48,8 @@ def test_plot_faceted_saves_file(analysis, tmp_path):
     """Test plot_faceted saves a file without showing a plot.
 
     Args:
-        analysis: class method
-        tmp_path: a temporary folder to save file during testing.
+        analysis: Fresh analysis instance for the test.
+        tmp_path: Temporary directory provided by pytest.
 
     """
     # call load_data() and process_data method

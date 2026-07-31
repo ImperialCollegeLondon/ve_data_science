@@ -39,7 +39,7 @@
 #|
 #| source_files:
 #|   - name: convert_df_to_nc.R
-#|     path: tools/R/
+#|     path: tools/R/R/
 #|     description: |
 #|         Function to convert input dataframe to netCDF
 #|   - name: initial_nutrient_aboveground.R
@@ -75,7 +75,7 @@ library(RcppTOML)
 library(readxl)
 library(glmmTMB)
 library(RNetCDF)
-source("tools/R/convert_df_to_nc.R")
+source("tools/R/R/convert_df_to_nc.R")
 
 set.seed(20260713)
 
