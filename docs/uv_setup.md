@@ -13,15 +13,15 @@ terminal:
 | --- | --- | --- |
 | Stable release from PyPI | `uv sync` | `uv run ve_run ...` |
 | Latest `develop` branch build | `uv sync --group dev` | `uv run --group dev ve_run ...` |
-| Pinned known-good `develop` branch commit | `uv sync --group dev-stable` | `uv run --group dev-stable ve_run ...` |
+| Pinned `develop` branch commit for testing and comparison | `uv sync --group dev-pinned` | `uv run --group dev-pinned ve_run ...` |
 
 You only maintain *one* virtual-environment folder `.venv`.
 No juggling among multiple virtual environments.
 
-The versions are defined in `pyproject.toml` in the project root. If you find a
-newer commit hash that works well as the pinned `dev-stable` version, you are
-welcome to update it via a Pull Request. You can also add required dependencies
-in `pyproject.toml` for the team.
+The versions are defined in `pyproject.toml` in the project root. The pinned
+`dev-pinned` version can be changed at any time; it is to pin a specific version
+in case we need to troubleshoot with a particular commit. You can also add
+required dependencies in `pyproject.toml` for the team.
 
 ---
 
@@ -79,7 +79,7 @@ Use one of these commands any time you want to change version:
 ```sh
 uv sync
 uv sync --group dev
-uv sync --group dev-stable
+uv sync --group dev-pinned
 ```
 
 Only one version is active at a time, and each command switches to that version.
@@ -120,15 +120,15 @@ uv sync --group dev --upgrade-package virtual-ecosystem
 `--upgrade-package` asks `uv` to look for a newer allowed version/commit for
 that package, instead of only reinstalling what is already pinned in `uv.lock`.
 
-### C) Update the pinned `dev-stable` commit
+### C) Update the pinned `dev-pinned` commit
 
-1. Edit `pyproject.toml` and change the pinned commit hash for the `dev-stable`
+1. Edit `pyproject.toml` and change the pinned commit hash for the `dev-pinned`
    dependency.
 2. Update `uv.lock` (the file that records exact package versions) and sync:
 
 ```sh
 uv lock
-uv sync --group dev-stable
+uv sync --group dev-pinned
 ```
 
 Then verify the new commit hash in `uv.lock`.
@@ -162,7 +162,7 @@ uv run ve_run ...
 uv run my_script.py
 ```
 
-> **Warning:** If you synced with `--group dev` or `--group dev-stable`, pass
+> **Warning:** If you synced with `--group dev` or `--group dev-pinned`, pass
 > the same group to `uv run` to avoid switching back to the default:
 >
 > ```sh

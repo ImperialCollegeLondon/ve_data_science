@@ -77,5 +77,5 @@ cell_metadata_filter = "all,-trusted"
 package = false
 default-groups = []
 conflicts = [
-  [{ group = "dev" }, { group = "dev-stable" }]
+  [{ group = "dev" }, { group = "dev-pinned" }]
 ]
