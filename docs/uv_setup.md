@@ -1,11 +1,13 @@
 <!-- markdownlint-disable MD046 MD024 -->
 # Setting up Python with `uv`
 
-`uv` handles Python installation, virtual environments, and dependencies in one place.
+`uv` handles Python installation, virtual environments, and dependencies in one
+place.
 
 ## How it works
 
-You can switch between versions of `virtual-ecosystem` with one command in the terminal:
+You can switch between versions of `virtual-ecosystem` with one command in the
+terminal:
 
 | What you want | Sync command | Run command |
 | --- | --- | --- |
@@ -16,10 +18,10 @@ You can switch between versions of `virtual-ecosystem` with one command in the t
 You only maintain *one* virtual-environment folder `.venv`.
 No juggling among multiple virtual environments.
 
-The versions are defined in `pyproject.toml` in the project root.
-If you find a newer commit hash that works well as the pinned `dev-stable` version,
-you are welcome to update it via a Pull Request.
-You can also add required dependencies in `pyproject.toml` for the team.
+The versions are defined in `pyproject.toml` in the project root. If you find a
+newer commit hash that works well as the pinned `dev-stable` version, you are
+welcome to update it via a Pull Request. You can also add required dependencies
+in `pyproject.toml` for the team.
 
 ---
 
@@ -47,8 +49,8 @@ uv --version
 
 ## Step 2: Set up this repository
 
-After [cloning the repository](getting_started.md#getting-the-repository), move into the
-repository root and run:
+After [cloning the repository](getting_started.md#getting-the-repository), move
+into the repository root and run:
 
 ```sh
 uv sync
@@ -82,8 +84,9 @@ uv sync --group dev-stable
 
 Only one version is active at a time, and each command switches to that version.
 Simply switching groups does not need any extra flags; `uv sync` will install
-whatever version that group needs. See [Step 4](#step-4-update-virtual-ecosystem)
-if you want to pull in new changes from upstream.
+whatever version that group needs. See
+[Step 4](#step-4-update-virtual-ecosystem) if you want to pull in new changes
+from upstream.
 
 ---
 
@@ -98,21 +101,24 @@ uv lock --upgrade-package virtual-ecosystem
 uv sync
 ```
 
-This updates `uv.lock`, a file that records the exact versions of all packages
-this project uses, and then installs the newest compatible release of
-`virtual-ecosystem` from PyPI.
+This updates `uv.lock` (the file that records exact package versions), then
+installs the newest compatible PyPI release of `virtual-ecosystem`.
+
+Note: `uv.lock` is shared across groups. So `uv lock --upgrade-package
+virtual-ecosystem` can update lock entries for that package in multiple groups,
+not only the one you are currently using.
 
 ### B) Update `dev` to the latest `develop` commit
 
-Use this when you want a fresh (re)install with the newest upstream changes from
-the `develop` branch:
+Use this when you only want the `dev` group to move to the newest upstream
+commit from `develop`:
 
 ```sh
-uv sync --group dev --reinstall-package virtual-ecosystem
+uv sync --group dev --upgrade-package virtual-ecosystem
 ```
 
-The `--reinstall-package` flag tells `uv` to ignore its cache and download
-`virtual-ecosystem` again, even if it already has a copy.
+`--upgrade-package` asks `uv` to look for a newer allowed version/commit for
+that package, instead of only reinstalling what is already pinned in `uv.lock`.
 
 ### C) Update the pinned `dev-stable` commit
 
@@ -141,9 +147,9 @@ exact package versions):
 grep -A 2 "name = \"virtual-ecosystem\"" uv.lock
 ```
 
-`uv pip show virtual-ecosystem` is less useful here because it shows a version tag but
-not the commit hash for GitHub builds, i.e., the release and dev versions can have the
-same version tag.
+`uv pip show virtual-ecosystem` is less useful here because it shows a version
+tag but not the commit hash for GitHub builds, i.e., the release and dev
+versions can have the same version tag.
 
 ---
 
@@ -156,9 +162,8 @@ uv run ve_run ...
 uv run my_script.py
 ```
 
-> **Warning:**
-> If you synced with `--group dev` or `--group dev-stable`, pass the same group to
-> `uv run` to avoid switching back to the default:
+> **Warning:** If you synced with `--group dev` or `--group dev-stable`, pass
+> the same group to `uv run` to avoid switching back to the default:
 >
 > ```sh
 > uv run --group dev ve_run ...
