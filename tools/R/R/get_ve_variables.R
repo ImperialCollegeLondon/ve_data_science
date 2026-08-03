@@ -144,18 +144,22 @@ get_data_variables <- function(
 get_derived_variables <- function(zarr_path, config_path, ...) {
   config <- toml::read_toml(config_path)
 
+  # first collect the derived variables that are returned as a single array
   list(
     total_soil_c_per_volume = get_total_soil_c_per_volume(zarr_path),
     total_soil_c_per_mass = get_total_soil_c_per_mass(zarr_path, config),
     total_soil_c_per_area = get_total_soil_c_per_area(zarr_path, config),
-    soil_np_pool_microbial = get_soil_np_pool_microbial(zarr_path, config),
     total_soil_n_per_volume = get_total_soil_n_per_volume(zarr_path, config),
     total_soil_n_per_mass = get_total_soil_n_per_mass(zarr_path, config),
     total_soil_n_per_area = get_total_soil_n_per_area(zarr_path, config),
     total_soil_p_per_volume = get_total_soil_p_per_volume(zarr_path, config),
     total_soil_p_per_mass = get_total_soil_p_per_mass(zarr_path, config),
     total_soil_p_per_area = get_total_soil_p_per_area(zarr_path, config)
-  )
+  ) |>
+    # then collect the derived variables that are returned as a list of arrays
+    append(
+      get_soil_np_pool_microbial(zarr_path, config)
+    )
 }
 
 #' Compute total soil carbon per volume
