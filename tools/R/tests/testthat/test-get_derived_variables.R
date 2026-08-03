@@ -76,35 +76,31 @@ test_that("get_derived_variables returns a named list of arrays", {
 })
 
 test_that("get_total_soil_c_per_volume sums all carbon pools", {
-  create_mock_nc()
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_volume()
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  result <- get_total_soil_c_per_volume(mock_zarr)
   # Total C values should sums from all 8 pools in the mock data
   expect_equal(result[1, 1], sum(1:8))
 })
 
 test_that("get_total_soil_c_per_volume preserves spatiotemporal dimensions", {
-  create_mock_nc()
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_volume()
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  result <- get_total_soil_c_per_volume(mock_zarr)
   # Output dims: [cell_id × time_index]
   expect_equal(dim(result), c(length(cell_id), length(time_index)))
 })
 
 test_that("get_total_soil_c_per_mass converts volume to mass and get_total_soil_c_per_area to area basis correctly.", {
-  create_mock_nc()
-  config <- create_mock_cfg()
-  result_volume_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_volume()
-  result_mass_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_mass(config = config)
-  result_area_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_c_per_area(config = config)
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
+  result_volume_basis <- get_total_soil_c_per_volume(mock_zarr)
+  result_mass_basis <- get_total_soil_c_per_mass(mock_zarr, config = config)
+  result_area_basis <- get_total_soil_c_per_area(mock_zarr, config = config)
+
   # Extract conversion factors from config
   bulk_density_VE <- config$abiotic$constants$bulk_density_soil
   soil_layer_depth <- config$core$constants$microbial_simulation_depth
@@ -114,28 +110,29 @@ test_that("get_total_soil_c_per_mass converts volume to mass and get_total_soil_
 })
 
 test_that("get_soil_np_pool_microbial converts C to N and P pools correctly.", {
-  create_mock_nc()
-  config <- create_mock_cfg()
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
   # Extract C microbial pools
-  soil_c_microbial <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_data_variables(
-      c(
-        "soil_c_pool_bacteria",
-        "soil_c_pool_arbuscular_mycorrhiza",
-        "soil_c_pool_ectomycorrhiza",
-        "soil_c_pool_saprotrophic_fungi"
-      )
+  soil_c_microbial <- get_data_variables(
+    mock_zarr,
+    group = "outputs",
+    variables = c(
+      "soil_c_pool_bacteria",
+      "soil_c_pool_arbuscular_mycorrhiza",
+      "soil_c_pool_ectomycorrhiza",
+      "soil_c_pool_saprotrophic_fungi"
     )
+  )
   # Extract stoichiometric ratios (C:N and C:P) for each microbial group
   stoich <-
     config$soil$microbial_group_definition |>
     purrr::map_vec(\(x) {
       as.data.frame(x[c("name", "c_n_ratio", "c_p_ratio")])
     })
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_soil_np_pool_microbial(config = config)
+  result <- get_soil_np_pool_microbial(mock_zarr, config = config)
   # Verify N pools: N = C / C:N ratio
   expect_equal(
     result$soil_n_pool_bacteria[1, 1],
@@ -182,8 +179,11 @@ test_that("get_soil_np_pool_microbial converts C to N and P pools correctly.", {
 })
 
 test_that("get_total_soil_n_per_volume sums all nitrogen pools", {
-  create_mock_nc()
-  config <- create_mock_cfg()
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
   # Extract C:N ratios for all microbial groups (order: ectomycorrhiza, saprotrophic_fungi, arbuscular_mycorrhiza, bacteria)
   stoich <-
     config$soil$microbial_group_definition |>
@@ -191,34 +191,31 @@ test_that("get_total_soil_n_per_volume sums all nitrogen pools", {
       as.data.frame(x[c("name", "c_n_ratio")])
     })
   c_n_ratio <- stoich$c_n_ratio[c(3, 4, 2, 1)]
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_n_per_volume(config = config)
+  result <- get_total_soil_n_per_volume(mock_zarr, config = config)
   # Mock data pools: organic N (2:5) + microbial N (C pools 5:8 divided by C:N) + inorganic N (9:10)
   expect_equal(result[1, 1], sum(2:5) + sum((5:8) / c_n_ratio) + sum(9:10))
 })
 
 test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
-  create_mock_nc()
-  config <- create_mock_cfg()
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_n_per_volume(config = config)
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
+  result <- get_total_soil_n_per_volume(mock_zarr, config = config)
   expect_equal(dim(result), c(length(cell_id), length(time_index)))
 })
 
 test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_n_per_area to area basis correctly.", {
-  create_mock_nc()
-  config <- create_mock_cfg()
-  result_volume_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_n_per_volume(config = config)
-  result_mass_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_n_per_mass(config = config)
-  result_area_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_n_per_area(config = config)
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
+  result_volume_basis <- get_total_soil_n_per_volume(mock_zarr, config = config)
+  result_mass_basis <- get_total_soil_n_per_mass(mock_zarr, config = config)
+  result_area_basis <- get_total_soil_n_per_area(mock_zarr, config = config)
+
   bulk_density_VE <- config$abiotic$constants$bulk_density_soil
   soil_layer_depth <- config$core$constants$microbial_simulation_depth
   expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
@@ -227,41 +224,41 @@ test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_
 
 # Repeat soil N tests on soil P
 test_that("get_total_soil_p_per_volume sums all phosphorous pools", {
-  create_mock_nc()
-  config <- create_mock_cfg()
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
   stoich <-
     config$soil$microbial_group_definition |>
     purrr::map_vec(\(x) {
       as.data.frame(x[c("name", "c_p_ratio")])
     })
   c_p_ratio <- stoich$c_p_ratio[c(3, 4, 2, 1)]
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_p_per_volume(config = config)
+  result <- get_total_soil_p_per_volume(mock_zarr, config = config)
   expect_equal(result[1, 1], sum(3:6) + sum((5:8) / c_p_ratio) + sum(11:13))
 })
 
 test_that("get_total_soil_p_per_volume preserves spatiotemporal dimensions", {
-  create_mock_nc()
-  config <- create_mock_cfg()
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_p_per_volume(config = config)
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
+  result <- get_total_soil_p_per_volume(mock_zarr, config = config)
   expect_equal(dim(result), c(length(cell_id), length(time_index)))
 })
 
 test_that("get_total_soil_p_per_mass converts volume to mass and get_total_soil_p_per_area to area basis correctly.", {
-  create_mock_nc()
-  config <- create_mock_cfg()
-  result_volume_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_p_per_volume(config = config)
-  result_mass_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_p_per_mass(config = config)
-  result_area_basis <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_total_soil_p_per_area(config = config)
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
+  result_volume_basis <- get_total_soil_p_per_volume(mock_zarr, config = config)
+  result_mass_basis <- get_total_soil_p_per_mass(mock_zarr, config = config)
+  result_area_basis <- get_total_soil_p_per_area(mock_zarr, config = config)
+
   bulk_density_VE <- config$abiotic$constants$bulk_density_soil
   soil_layer_depth <- config$core$constants$microbial_simulation_depth
   expect_equal(result_volume_basis / bulk_density_VE, result_mass_basis)
