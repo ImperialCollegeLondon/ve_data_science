@@ -108,10 +108,15 @@ get_data_variables <- function(
   }
 
   # extract each variable's array
+  # also need to put the dimension names back from the attributes
   out <- purrr::map(
     variables,
     \(variable) {
-      ve_vars$get_item(variable)$as.array()
+      tmp_zarr <- ve_vars$get_item(variable)
+      out_array <- tmp_zarr$as.array()
+      dimnames(out_array) <- tmp_zarr$get_attrs()$to_list()$dimension_names |>
+        purrr::map(unlist)
+      return(out_array)
     },
     .progress = TRUE
   )

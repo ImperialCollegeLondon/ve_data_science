@@ -129,13 +129,16 @@ convert_array_to_zarr <- function(
 
   # fill the Zarr store
   for (var in names(array)) {
-    output_store$create_dataset(var, array[[var]], shape = dim(array[[var]]))
+    var_store <- output_store$create_dataset(
+      var,
+      array[[var]],
+      shape = dim(array[[var]])
+    )
+    # store dimension names as attributes
+    # for Zarr V2 this is the only option
+    dimension_names <- dimnames(array[[var]])
+    var_store$get_attrs()$set_item("dimension_names", dimension_names)
   }
-
-  # store dimension names as attributes
-  # for Zarr V2 this is the only option
-  dimension_names <- dimnames(array[[var]])
-  output_store$get_attrs()$set_item("dimension_names", dimension_names)
 
   # add global attributes
   output_store$get_attrs()$set_item("description", description)
