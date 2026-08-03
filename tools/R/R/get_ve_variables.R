@@ -32,6 +32,8 @@
 #' Retrieve (non-dimension) state variables from a Zarr dataset
 #'
 #' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param group Character string for which Zarr group to retrieve data from.
+#'   One of `"outputs"` (default), `"inputs"`, or `"init"`.
 #' @param variables Optional character vector of variable names to retrieve.
 #'   If `NULL` (default), all non-dimension state variables are retrieved.
 #'
@@ -40,24 +42,29 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # Retrieve all variables
-#'   all_vars <- get_data_variables("out/model_state.zarr")
+#'   # Retrieve all variables from outputs group
+#'   all_vars <- get_data_variables("out/model_state.zarr", group = "outputs")
 #'
-#'   # Retrieve specific variables
+#'   # Retrieve specific variables from inputs group
 #'   subset_vars <- get_data_variables(
 #'     "out/model_state.zarr",
+#'     group = "inputs",
 #'     variables = c("air_temperature", "precipitation")
 #'   )
 #' }
 #'
 #' @export
 
-get_data_variables <- function(zarr_path, variables = NULL) {
-  # read Zarr outputs from VE
-  outputs <- pizzarr::zarr_open(zarr_path)$get_item("outputs")
+get_data_variables <- function(
+  zarr_path,
+  group = c("outputs", "inputs", "init"),
+  variables = NULL
+) {
+  # read Zarr variables from VE
+  ve_vars <- pizzarr::zarr_open(zarr_path)$get_item(group)
 
   # retrieve all non-dimension state variables
-  vars <- outputs$get_store()$listdir("outputs")
+  vars <- ve_vars$get_store()$listdir(group)
   var_discard <- c(
     ".zattrs",
     ".zgroup",
@@ -90,7 +97,7 @@ get_data_variables <- function(zarr_path, variables = NULL) {
 
   # check that all variables have shape
   var_dims <- purrr::map_int(variables, \(var) {
-    outputs$get_item(var)$get_ndim()
+    ve_vars$get_item(var)$get_ndim()
   })
   if (any(var_dims == 0)) {
     var_zero_dim <- variables[var_dims == 0]
@@ -104,7 +111,7 @@ get_data_variables <- function(zarr_path, variables = NULL) {
   out <- purrr::map(
     variables,
     \(variable) {
-      outputs$get_item(variable)$as.array()
+      ve_vars$get_item(variable)$as.array()
     },
     .progress = TRUE
   )
