@@ -65,7 +65,7 @@ get_data_variables <- function(
 
   # retrieve state variables
   vars <- ve_vars$get_store()$listdir(group)
-  var_discard <- c(".zattrs", ".zgroup", "number")
+  var_discard <- c(".zattrs", ".zgroup", "number", "spatial_ref")
   vars <- vars[vars %notin% var_discard]
 
   # use all variables if none specified,
@@ -187,10 +187,10 @@ get_total_soil_c_per_volume <- function(zarr_path) {
   # summation
   with(
     input_vars,
-    soil_cnp_pool_lmwc["C", , ] +
-      soil_cnp_pool_maom["C", , ] +
-      soil_cnp_pool_necromass["C", , ] +
-      soil_cnp_pool_pom["C", , ] +
+    soil_cnp_pool_lmwc[,, "C"] +
+      soil_cnp_pool_maom[,, "C"] +
+      soil_cnp_pool_necromass[,, "C"] +
+      soil_cnp_pool_pom[,, "C"] +
       soil_c_pool_arbuscular_mycorrhiza +
       soil_c_pool_bacteria +
       soil_c_pool_ectomycorrhiza +
@@ -354,10 +354,10 @@ get_total_soil_n_per_volume <- function(zarr_path, config) {
   # summation
   with(
     input_vars,
-    soil_cnp_pool_lmwc["N", , ] +
-      soil_cnp_pool_maom["N", , ] +
-      soil_cnp_pool_necromass["N", , ] +
-      soil_cnp_pool_pom["N", , ] +
+    soil_cnp_pool_lmwc[,, "N"] +
+      soil_cnp_pool_maom[,, "N"] +
+      soil_cnp_pool_necromass[,, "N"] +
+      soil_cnp_pool_pom[,, "N"] +
       soil_n_pool_ammonium +
       soil_n_pool_nitrate
   ) +
@@ -430,10 +430,10 @@ get_total_soil_p_per_volume <- function(zarr_path, config) {
   # summation
   with(
     input_vars,
-    soil_cnp_pool_lmwc["P", , ] +
-      soil_cnp_pool_maom["P", , ] +
-      soil_cnp_pool_necromass["P", , ] +
-      soil_cnp_pool_pom["P", , ] +
+    soil_cnp_pool_lmwc[,, "P"] +
+      soil_cnp_pool_maom[,, "P"] +
+      soil_cnp_pool_necromass[,, "P"] +
+      soil_cnp_pool_pom[,, "P"] +
       soil_p_pool_labile +
       soil_p_pool_primary +
       soil_p_pool_secondary

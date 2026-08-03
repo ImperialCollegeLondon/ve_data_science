@@ -45,6 +45,7 @@
 #|     running testthat::test_dir("tools/R/tests/testthat"). All temporary files
 #|     are cleaned up after tests complete.
 #| ---
+
 test_that("get_derived_variables returns a named list of arrays", {
   # Create temporary mock Zarr and config file
   dir <- withr::local_tempdir()
@@ -88,7 +89,7 @@ test_that("get_total_soil_c_per_volume preserves spatiotemporal dimensions", {
   mock_zarr <- create_mock_zarr(dir)
   result <- get_total_soil_c_per_volume(mock_zarr)
   # Output dims: [cell_id × time_index]
-  expect_equal(dim(result), c(length(cell_id), length(time_index)))
+  expect_equal(dim(result), c(length(time_index), length(cell_id)))
 })
 
 test_that("get_total_soil_c_per_mass converts volume to mass and get_total_soil_c_per_area to area basis correctly.", {
@@ -192,8 +193,15 @@ test_that("get_total_soil_n_per_volume sums all nitrogen pools", {
     })
   c_n_ratio <- stoich$c_n_ratio[c(3, 4, 2, 1)]
   result <- get_total_soil_n_per_volume(mock_zarr, config = config)
-  # Mock data pools: organic N (2:5) + microbial N (C pools 5:8 divided by C:N) + inorganic N (9:10)
-  expect_equal(result[1, 1], sum(2:5) + sum((5:8) / c_n_ratio) + sum(9:10))
+  # Mock data pools: organic N (element slice "N") +
+  # microbial N (C pools 5:8 divided by C:N) + inorganic N (9:10)
+  organic_n <- sum(c(
+    mock_arrays$soil_cnp_pool_lmwc[1, 1, "N"],
+    mock_arrays$soil_cnp_pool_maom[1, 1, "N"],
+    mock_arrays$soil_cnp_pool_necromass[1, 1, "N"],
+    mock_arrays$soil_cnp_pool_pom[1, 1, "N"]
+  ))
+  expect_equal(result[1, 1], organic_n + sum((5:8) / c_n_ratio) + sum(9:10))
 })
 
 test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
@@ -203,7 +211,7 @@ test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
   config <- toml::read_toml(mock_config)
 
   result <- get_total_soil_n_per_volume(mock_zarr, config = config)
-  expect_equal(dim(result), c(length(cell_id), length(time_index)))
+  expect_equal(dim(result), c(length(time_index), length(cell_id)))
 })
 
 test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_n_per_area to area basis correctly.", {
@@ -236,7 +244,13 @@ test_that("get_total_soil_p_per_volume sums all phosphorous pools", {
     })
   c_p_ratio <- stoich$c_p_ratio[c(3, 4, 2, 1)]
   result <- get_total_soil_p_per_volume(mock_zarr, config = config)
-  expect_equal(result[1, 1], sum(3:6) + sum((5:8) / c_p_ratio) + sum(11:13))
+  organic_p <- sum(c(
+    mock_arrays$soil_cnp_pool_lmwc[1, 1, "P"],
+    mock_arrays$soil_cnp_pool_maom[1, 1, "P"],
+    mock_arrays$soil_cnp_pool_necromass[1, 1, "P"],
+    mock_arrays$soil_cnp_pool_pom[1, 1, "P"]
+  ))
+  expect_equal(result[1, 1], organic_p + sum((5:8) / c_p_ratio) + sum(11:13))
 })
 
 test_that("get_total_soil_p_per_volume preserves spatiotemporal dimensions", {
@@ -246,7 +260,7 @@ test_that("get_total_soil_p_per_volume preserves spatiotemporal dimensions", {
   config <- toml::read_toml(mock_config)
 
   result <- get_total_soil_p_per_volume(mock_zarr, config = config)
-  expect_equal(dim(result), c(length(cell_id), length(time_index)))
+  expect_equal(dim(result), c(length(time_index), length(cell_id)))
 })
 
 test_that("get_total_soil_p_per_mass converts volume to mass and get_total_soil_p_per_area to area basis correctly.", {
