@@ -1,38 +1,36 @@
 #' Get derived variables
 #'
-#' Wrapper around \code{get_*()} to compute derived
-#' variables from the input NetCDF object.
+#' Wrapper around \code{get_*()} to compute derived variables from a
+#' Virtual Ecosystem Zarr output dataset.
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}. See examples.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return A named list with derived variables.
 #'
 #' @examples
 #' \dontrun{
-#'   array <- tidync::tidync(
-#'     "data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"
-#'   )
+#'   zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 #'   config <- toml::read_toml(
 #'     "data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
 #'   )
-#'   get_derived_variables(array, config)
+#'   get_derived_variables(zarr_path, config)
 #' }
 #'
 #' @export
 
-get_derived_variables <- function(array, config) {
+get_derived_variables <- function(zarr_path, config) {
   list(
-    total_soil_c_per_volume = get_total_soil_c_per_volume(array),
-    total_soil_c_per_mass = get_total_soil_c_per_mass(array, config),
-    total_soil_c_per_area = get_total_soil_c_per_area(array, config),
-    soil_np_pool_microbial = get_soil_np_pool_microbial(array, config),
-    total_soil_n_per_volume = get_total_soil_n_per_volume(array, config),
-    total_soil_n_per_mass = get_total_soil_n_per_mass(array, config),
-    total_soil_n_per_area = get_total_soil_n_per_area(array, config),
-    total_soil_p_per_volume = get_total_soil_p_per_volume(array, config),
-    total_soil_p_per_mass = get_total_soil_p_per_mass(array, config),
-    total_soil_p_per_area = get_total_soil_p_per_area(array, config)
+    total_soil_c_per_volume = get_total_soil_c_per_volume(zarr_path),
+    total_soil_c_per_mass = get_total_soil_c_per_mass(zarr_path, config),
+    total_soil_c_per_area = get_total_soil_c_per_area(zarr_path, config),
+    soil_np_pool_microbial = get_soil_np_pool_microbial(zarr_path, config),
+    total_soil_n_per_volume = get_total_soil_n_per_volume(zarr_path, config),
+    total_soil_n_per_mass = get_total_soil_n_per_mass(zarr_path, config),
+    total_soil_n_per_area = get_total_soil_n_per_area(zarr_path, config),
+    total_soil_p_per_volume = get_total_soil_p_per_volume(zarr_path, config),
+    total_soil_p_per_mass = get_total_soil_p_per_mass(zarr_path, config),
+    total_soil_p_per_area = get_total_soil_p_per_area(zarr_path, config)
   )
 }
 
@@ -40,15 +38,15 @@ get_derived_variables <- function(array, config) {
 #'
 #' Sum carbon pools from soil variable arrays.
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}. See examples.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset. See examples.
 #' @return Array of total soil carbon per volume.
 #'
 #' @export
 
-get_total_soil_c_per_volume <- function(array) {
+get_total_soil_c_per_volume <- function(zarr_path) {
   # get the soil C variables
   input_vars <- get_data_variables(
-    array,
+    zarr_path,
     c(
       "soil_cnp_pool_lmwc",
       "soil_cnp_pool_maom",
@@ -118,43 +116,43 @@ convert_volume_to_area_basis <- function(volume_basis_data, config) {
 #'
 #' Convert total soil carbon per volume to a mass basis.
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil carbon per mass.
 #' @export
 
-get_total_soil_c_per_mass <- function(array, config) {
-  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
+get_total_soil_c_per_mass <- function(zarr_path, config) {
+  total_soil_c_per_volume <- get_total_soil_c_per_volume(zarr_path)
   convert_volume_to_mass_basis(total_soil_c_per_volume, config)
 }
 
 
 #' Calculate total soil carbon per area
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil carbon per area.
 #' @export
 
-get_total_soil_c_per_area <- function(array, config) {
-  total_soil_c_per_volume <- get_total_soil_c_per_volume(array)
+get_total_soil_c_per_area <- function(zarr_path, config) {
+  total_soil_c_per_volume <- get_total_soil_c_per_volume(zarr_path)
   convert_volume_to_area_basis(total_soil_c_per_volume, config)
 }
 
 
 #' Calculate soil nitrogen and phosphorus in microbial pools
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return List of arrays of nitrogen and phosphorus in the microbial pools.
 
-get_soil_np_pool_microbial <- function(array, config) {
+get_soil_np_pool_microbial <- function(zarr_path, config) {
   # get the soil C in the microbial pools
   soil_c_microbial <- get_data_variables(
-    array,
+    zarr_path,
     c(
       "soil_c_pool_bacteria",
       "soil_c_pool_arbuscular_mycorrhiza",
@@ -203,16 +201,16 @@ get_soil_np_pool_microbial <- function(array, config) {
 #'
 #' Sum nitrogen pools from soil variable arrays.
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil nitrogen per volume.
 #' @export
 
-get_total_soil_n_per_volume <- function(array, config) {
+get_total_soil_n_per_volume <- function(zarr_path, config) {
   # get the soil N variables
   input_vars <- get_data_variables(
-    array,
+    zarr_path,
     c(
       "soil_cnp_pool_lmwc",
       "soil_cnp_pool_maom",
@@ -224,7 +222,7 @@ get_total_soil_n_per_volume <- function(array, config) {
   )
 
   # convert the microbial C to N
-  soil_np_pool_microbial <- get_soil_np_pool_microbial(array, config)
+  soil_np_pool_microbial <- get_soil_np_pool_microbial(zarr_path, config)
 
   # summation
   with(
@@ -249,27 +247,27 @@ get_total_soil_n_per_volume <- function(array, config) {
 #'
 #' Convert total soil nitrogen per volume to a mass basis.
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil nitrogen per mass.
 #' @export
 
-get_total_soil_n_per_mass <- function(array, config) {
-  total_soil_n_per_volume <- get_total_soil_n_per_volume(array, config)
+get_total_soil_n_per_mass <- function(zarr_path, config) {
+  total_soil_n_per_volume <- get_total_soil_n_per_volume(zarr_path, config)
   convert_volume_to_mass_basis(total_soil_n_per_volume, config)
 }
 
 #' Calculate total soil nitrogen per area
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil nitrogen per area.
 #' @export
 
-get_total_soil_n_per_area <- function(array, config) {
-  total_soil_n_per_volume <- get_total_soil_n_per_volume(array, config)
+get_total_soil_n_per_area <- function(zarr_path, config) {
+  total_soil_n_per_volume <- get_total_soil_n_per_volume(zarr_path, config)
   convert_volume_to_area_basis(total_soil_n_per_volume, config)
 }
 
@@ -277,16 +275,16 @@ get_total_soil_n_per_area <- function(array, config) {
 #'
 #' Sum phosphorus pools from soil variable arrays.
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil phosphorus per volume.
 #' @export
 
-get_total_soil_p_per_volume <- function(array, config) {
+get_total_soil_p_per_volume <- function(zarr_path, config) {
   # get the soil P variables
   input_vars <- get_data_variables(
-    array,
+    zarr_path,
     c(
       "soil_cnp_pool_lmwc",
       "soil_cnp_pool_maom",
@@ -299,7 +297,7 @@ get_total_soil_p_per_volume <- function(array, config) {
   )
 
   # convert the microbial C to P
-  soil_np_pool_microbial <- get_soil_np_pool_microbial(array, config)
+  soil_np_pool_microbial <- get_soil_np_pool_microbial(zarr_path, config)
 
   # summation
   with(
@@ -323,26 +321,26 @@ get_total_soil_p_per_volume <- function(array, config) {
 
 #' Calculate total soil phosphorus per mass
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil phosphorus per mass.
 #' @export
 
-get_total_soil_p_per_mass <- function(array, config) {
-  total_soil_p_per_volume <- get_total_soil_p_per_volume(array, config)
+get_total_soil_p_per_mass <- function(zarr_path, config) {
+  total_soil_p_per_volume <- get_total_soil_p_per_volume(zarr_path, config)
   convert_volume_to_mass_basis(total_soil_p_per_volume, config)
 }
 
 #' Calculate total soil phosphorus per area
 #'
-#' @param array Data arrays read from \code{tidync::tidync()}.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config A list of VE configuration read from the exported full
 #' configuration TOML file.
 #' @return Array of total soil phosphorus per area.
 #' @export
 
-get_total_soil_p_per_area <- function(array, config) {
-  total_soil_p_per_volume <- get_total_soil_p_per_volume(array, config)
+get_total_soil_p_per_area <- function(zarr_path, config) {
+  total_soil_p_per_volume <- get_total_soil_p_per_volume(zarr_path, config)
   convert_volume_to_area_basis(total_soil_p_per_volume, config)
 }
