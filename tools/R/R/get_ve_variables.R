@@ -1,9 +1,9 @@
 #| ---
-#| title: Retrieve (non-dimension) state variables from a Zarr dataset
+#| title: Virtual Ecosystem variable retrieval and derivation
 #|
 #| description: |
-#|     Retrieve (non-dimension) state variables from a Virtual Ecosystem Zarr
-#|     output dataset into a named list of arrays.
+#|     Functions for retrieving and computing derived Virtual Ecosystem
+#|     variables from Zarr output datasets.
 #|
 #| virtual_ecosystem_module: All
 #|
@@ -12,14 +12,21 @@
 #| status: final
 #|
 #| input_files:
+#|     - Virtual Ecosystem Zarr output dataset (.zarr)
+#|     - Virtual Ecosystem configuration TOML file (.toml)
 #|
-#| output_files:
+#| output_files: None (returns R objects)
 #|
 #| package_dependencies:
 #|     - pizzarr
 #|     - purrr
+#|     - dplyr
+#|     - stringr
+#|     - toml
+#|     - cli
 #|
-#| usage_notes: See function documentation below.
+#| usage_notes: |
+#|     See individual function documentation below for details and examples.
 #| ---
 
 #' Retrieve (non-dimension) state variables from a Zarr dataset
