@@ -121,13 +121,20 @@ convert_array_to_zarr <- function(
   description = NULL
 ) {
   # create a Zarr store
-  zarr_store <- pizzarr::zarr_create_group(filename)
+  zarr_store <- pizzarr::zarr_create_group(filename, zarr_format = 2L)
   # Note: currently this function stores the variables as outputs only
   #       because it is intended for mock unit tests only;
   #       in the future we will include options for inputs and init
   output_store <- zarr_store$create_group("outputs")
 
-  # fill the Zarr store
+  # some dimension attributes
+  dims <-
+    lapply(array, dimnames) |>
+    purrr::flatten() |>
+    (\(x) split(x, names(x)))() |>
+    purrr::map(~ unique(unlist(.x)))
+
+  # fill the Zarr store with data variables
   for (var in names(array)) {
     var_store <- output_store$create_dataset(
       var,
@@ -136,8 +143,18 @@ convert_array_to_zarr <- function(
     )
     # store dimension names as attributes
     # for Zarr V2 this is the only option
-    dimension_names <- dimnames(array[[var]])
-    var_store$get_attrs()$set_item("dimension_names", dimension_names)
+    dimension_names <- names(dimnames(array[[var]]))
+    var_store$get_attrs()$set_item("_ARRAY_DIMENSIONS", dimension_names)
+  }
+
+  # fill the Zarr store with dimension variables
+  for (i in seq_along(dims)) {
+    output_store$create_dataset(
+      names(dims)[i],
+      dims[[i]],
+      shape = length(dims[[i]]),
+      dtype = "<U10"
+    )
   }
 
   # add global attributes

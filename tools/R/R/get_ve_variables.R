@@ -63,22 +63,9 @@ get_data_variables <- function(
   # read Zarr variables from VE
   ve_vars <- pizzarr::zarr_open(zarr_path)$get_item(group)
 
-  # retrieve all non-dimension state variables
+  # retrieve state variables
   vars <- ve_vars$get_store()$listdir(group)
-  var_discard <- c(
-    ".zattrs",
-    ".zgroup",
-    "x",
-    "y",
-    "cell_id",
-    "element",
-    "layers",
-    "number",
-    "pft",
-    "spatial_ref",
-    "time_index",
-    "timestamp"
-  )
+  var_discard <- c(".zattrs", ".zgroup", "number")
   vars <- vars[vars %notin% var_discard]
 
   # use all variables if none specified,
@@ -108,14 +95,23 @@ get_data_variables <- function(
   }
 
   # extract each variable's array
-  # also need to put the dimension names back from the attributes
+  # also put the dimension names back from the attributes
+  # for Zarr V2 the dimension-name is a clunky round-about process
   out <- purrr::map(
     variables,
     \(variable) {
       tmp_zarr <- ve_vars$get_item(variable)
       out_array <- tmp_zarr$as.array()
-      dimnames(out_array) <- tmp_zarr$get_attrs()$to_list()$dimension_names |>
-        purrr::map(unlist)
+      dimnames_names <-
+        tmp_zarr$get_attrs()$to_list()$`_ARRAY_DIMENSIONS` |>
+        unlist()
+      dimnames <-
+        dimnames_names |>
+        purrr::map(\(name) {
+          ve_vars$get_item(name)$as.array()
+        })
+      names(dimnames) <- dimnames_names
+      dimnames(out_array) <- dimnames
       return(out_array)
     },
     .progress = TRUE
