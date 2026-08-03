@@ -1,10 +1,9 @@
 #| ---
-#| title: Retrieve (non-dimension) state variables from a netCDF data
+#| title: Retrieve (non-dimension) state variables from a Zarr dataset
 #|
 #| description: |
-#|     Retrieve (non-dimension) state variables from a netCDF data into a
-#|     list of arrays for all non-dimension state variables, including
-#|     each of their dimension names.
+#|     Retrieve (non-dimension) state variables from a Virtual Ecosystem Zarr
+#|     output dataset into a named list of arrays.
 #|
 #| virtual_ecosystem_module: All
 #|
@@ -17,41 +16,56 @@
 #| output_files:
 #|
 #| package_dependencies:
-#|     - tidync
+#|     - pizzarr
 #|     - purrr
-#|     - dplyr
 #|
 #| usage_notes: See function documentation below.
 #| ---
 
-#' Retrieve (non-dimension) state variables from a netCDF file
+#' Retrieve (non-dimension) state variables from a Zarr dataset
 #'
-#' @param tidync A tidync object from tidync(), which reads in data from
-#'   a netCDF file.
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param variables Optional character vector of variable names to retrieve.
 #'   If `NULL` (default), all non-dimension state variables are retrieved.
 #'
-#' @returns A list of arrays for all non-dimension state variables, including
-#'   each of their dimension names. Names correspond to variable names.
+#' @returns A named list of arrays for the requested non-dimension state
+#'   variables. Names correspond to variable names.
 #'
 #' @examples
 #' \dontrun{
 #'   # Retrieve all variables
-#'   nc <- tidync::tidync("data.nc")
-#'   all_vars <- get_data_variables(nc)
+#'   all_vars <- get_data_variables("out/model_state.zarr")
 #'
 #'   # Retrieve specific variables
-#'   subset_vars <- get_data_variables(nc, variables = c("temp", "precip"))
+#'   subset_vars <- get_data_variables(
+#'     "out/model_state.zarr",
+#'     variables = c("air_temperature", "precipitation")
+#'   )
 #' }
 #'
 #' @export
 
-get_data_variables <- function(tidync, variables = NULL) {
+get_data_variables <- function(zarr_path, variables = NULL) {
+  # read Zarr outputs from VE
+  outputs <- pizzarr::zarr_open(zarr_path)$get_item("outputs")
+
   # retrieve all non-dimension state variables
-  vars <-
-    tidync$variable |>
-    dplyr::filter(dim_coord == FALSE) |>
-    dplyr::pull(name)
+  vars <- outputs$get_store()$listdir("outputs")
+  var_discard <- c(
+    ".zattrs",
+    ".zgroup",
+    "x",
+    "y",
+    "cell_id",
+    "element",
+    "layers",
+    "number",
+    "pft",
+    "spatial_ref",
+    "time_index",
+    "timestamp"
+  )
+  vars <- vars[vars %notin% var_discard]
 
   # use all variables if none specified,
   # otherwise validate requested variables exist
@@ -64,19 +78,30 @@ get_data_variables <- function(tidync, variables = NULL) {
       )
     }
   } else {
-    # default to all available variables
     variables <- vars
   }
 
-  # activate each variable and extract its array iteratively
-  out <-
-    variables |>
-    purrr::map(\(var) {
-      tidync |>
-        tidync::activate(var) |>
-        tidync::hyper_array(drop = FALSE) |>
-        purrr::pluck(var)
-    })
+  # check that all variables have shape
+  var_dims <- purrr::map_int(variables, \(var) {
+    outputs$get_item(var)$get_ndim()
+  })
+  if (any(var_dims == 0)) {
+    var_zero_dim <- variables[var_dims == 0]
+    cli::cli_abort(
+      "The following variables have zero dimension: {.val {var_zero_dim}}.
+      Did you intend to remove them?"
+    )
+  }
+
+  # extract each variable's array
+  out <- purrr::map(
+    variables,
+    \(variable) {
+      outputs$get_item(variable)$as.array()
+    },
+    .progress = TRUE
+  )
+
   names(out) <- variables
   return(out)
 }
