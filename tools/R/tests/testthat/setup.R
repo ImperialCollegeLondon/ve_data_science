@@ -4,7 +4,7 @@
 #| description: |
 #|     Configures the test environment and creates mock data for testthat tests
 #|     of R functions. Generates mock arrays matching Virtual Ecosystem model
-#|     output structure, and creates temporary netCDF and TOML config files for
+#|     output structure, and creates temporary Zarr and TOML config files for
 #|     testing functions.
 #|
 #| virtual_ecosystem_module: All
@@ -16,28 +16,20 @@
 #| input_files:
 #|
 #| output_files:
-#|   - name: mock_data.nc
+#|   - name: mock_data.zarr
 #|     path: tests/testthat/ (temporary)
 #|     description: |
-#|       Temporary mock netCDF file with soil pool arrays, deleted after test
+#|       Temporary mock Zarr dataset with soil pool arrays, deleted after test
 #|   - name: mock_config.TOML
 #|     path: tests/testthat/ (temporary)
 #|     description: |
 #|       Temporary mock VE config file, deleted after test
 #|
 #| source_files:
-#|   - name: convert_array_to_nc.R
+#|   - name: get_ve_variables.R
 #|     path: tools/R/R/
 #|     description: |
-#|       Helper function to convert R arrays to netCDF format
-#|   - name: get_data_variables.R
-#|     path: tools/R/R/
-#|     description: |
-#|       Helper function to extract VE data variables
-#|   - name: get_derived_variables.R
-#|     path: tools/R/R/
-#|     description: |
-#|       Helper function to compute derived variables
+#|       Functions to retrieve and compute derived Virtual Ecosystem variables
 #|   - name: generate_test_config.py
 #|     path: tools/python/src/ve_data_tools/
 #|     description: |
@@ -48,6 +40,7 @@
 #|     - withr
 #|     - reticulate
 #|     - toml
+#|     - pizzarr
 #|
 #| usage_notes: |
 #|     Run via: testthat::test_dir("tools/R/tests/testthat")
@@ -60,9 +53,9 @@ library(here)
 library(testthat)
 library(withr)
 library(reticulate)
-source(here("tools/R/R/convert_array_to_nc.R"))
-source(here("tools/R/R/get_data_variables.R"))
-source(here("tools/R/R/get_derived_variables.R"))
+library(pizzarr)
+source(here("tools/R/R/get_ve_variables.R"))
+source(here("tools/R/R/convert_array.R"))
 source(here("tools/R/R/valdb.R"))
 
 
@@ -160,13 +153,11 @@ mock_arrays <- list(
   )
 )
 
-# Function to convert mock arrays to netCDF file for testing
-create_mock_nc <- function() {
-  mock_nc_path <- test_path("mock_data.nc")
-  # save the mock data to a temporary netCDF file
-  convert_array_to_nc(mock_arrays, mock_nc_path)
-  # Schedule cleanup (file deleted after test completes)
-  defer_parent(unlink(mock_nc_path))
+# Function to convert mock arrays to a temporary Zarr file for testing
+create_mock_zarr <- function(dir) {
+  mock_nc_path <- file.path(dir, "mock_data.nc")
+  convert_array_to_zarr(mock_arrays, mock_nc_path)
+  return(mock_nc_path)
 }
 
 
@@ -175,13 +166,9 @@ create_mock_nc <- function() {
 # Import Python config generator, which is a wrapper around VE's function
 source_python(here("tools/python/src/ve_data_tools/generate_test_config.py"))
 
-# Function to create mock TOML config file for testing
-create_mock_cfg <- function() {
-  mock_cfg_path <- test_path("mock_config.TOML")
-  # save the generated config file to a temporary TOML file, then read it
+# Function to create a temporary mock TOML config file for testing
+create_mock_cfg <- function(dir) {
+  mock_cfg_path <- file.path(dir, "mock_config.TOML")
   generate_test_config(mock_cfg_path)
-  cfg <- toml::read_toml(mock_cfg_path)
-  # Schedule cleanup
-  defer_parent(unlink(mock_cfg_path))
-  cfg
+  return(mock_cfg_path)
 }

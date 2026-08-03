@@ -15,20 +15,17 @@
 #| status: final
 #|
 #| source_files:
-#|   - name: get_derived_variables.R
+#|   - name: get_ve_variables.R
 #|     path: tools/R/R/
 #|     description: |
-#|       Functions to calculate derived soil CNP pool variables
-#|   - name: get_data_variables.R
-#|     path: tools/R/R/
-#|     description: |
-#|       Function to extract data variables from netCDF
+#|       Functions to retrieve and calculate derived Virtual Ecosystem variables
+#|       from Zarr output datasets
 #|
 #| input_files:
-#|   - name: mock_data.nc
+#|   - name: mock_data.zarr
 #|     path: tests/testthat/ (temporary)
 #|     description: |
-#|       Temporary mock netCDF file with soil pool arrays,
+#|       Temporary mock Zarr dataset with soil pool arrays,
 #|       created by setup script
 #|   - name: mock_config.TOML
 #|     path: tests/testthat/ (temporary)
@@ -38,24 +35,22 @@
 #|
 #| package_dependencies:
 #|     - testthat
-#|     - tidync
+#|     - pizzarr
 #|     - purrr
 #|
 #| usage_notes: |
 #|     Run via: testthat::test_dir("tools/R/tests/testthat")
-#|     Requires setup.R to be executed first to define create_mock_nc(),
+#|     Requires setup.R to be executed first to define create_mock_zarr(),
 #|     create_mock_cfg(), and source helper functions (this is automatic upon
 #|     running testthat::test_dir("tools/R/tests/testthat"). All temporary files
 #|     are cleaned up after tests complete.
 #| ---
 test_that("get_derived_variables returns a named list of arrays", {
-  # Create temporary mock netCDF file
-  create_mock_nc()
-  # Create temporary mock config file
-  config <- create_mock_cfg()
-  result <-
-    tidync::tidync(test_path("mock_data.nc")) |>
-    get_derived_variables(config = config)
+  # Create temporary mock Zarr and config file
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+  result <- get_derived_variables(mock_zarr, mock_config, group = "outputs")
   # Result is a list
   expect_type(result, "list")
   # List has names
