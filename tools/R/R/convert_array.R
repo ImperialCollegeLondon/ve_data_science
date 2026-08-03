@@ -121,18 +121,22 @@ convert_array_to_zarr <- function(
   description = NULL
 ) {
   # create a Zarr store
-  mock_zarr <- pizzarr::zarr_create_group(filename)
+  zarr_store <- pizzarr::zarr_create_group(filename)
+  # Note: currently this function stores the variables as outputs only
+  #       because it is intended for mock unit tests only;
+  #       in the future we will include options for inputs and init
+  output_store <- zarr_store$create_group("outputs")
 
   # fill the Zarr store
   for (var in names(array)) {
-    mock_zarr$create_dataset(var, array[[var]], shape = dim(array[[var]]))
+    output_store$create_dataset(var, array[[var]], shape = dim(array[[var]]))
   }
 
   # store dimension names as attributes
   # for Zarr V2 this is the only option
   dimension_names <- dimnames(array[[var]])
-  mock_zarr$get_attrs()$set_item("dimension_names", dimension_names)
+  output_store$get_attrs()$set_item("dimension_names", dimension_names)
 
   # add global attributes
-  mock_zarr$get_attrs()$set_item("description", description)
+  output_store$get_attrs()$set_item("description", description)
 }

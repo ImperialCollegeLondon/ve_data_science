@@ -127,6 +127,7 @@ get_data_variables <- function(
 #'
 #' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config_path Path to the exported full VE configuration TOML file.
+#' @param ... Additional arguments passed to \code{get_data_variables()}.
 #' @return A named list with derived variables.
 #'
 #' @examples
@@ -139,7 +140,7 @@ get_data_variables <- function(
 #'
 #' @export
 
-get_derived_variables <- function(zarr_path, config_path) {
+get_derived_variables <- function(zarr_path, config_path, ...) {
   config <- toml::read_toml(config_path)
 
   list(
@@ -169,7 +170,8 @@ get_total_soil_c_per_volume <- function(zarr_path) {
   # get the soil C variables
   input_vars <- get_data_variables(
     zarr_path,
-    c(
+    group = "outputs",
+    variables = c(
       "soil_cnp_pool_lmwc",
       "soil_cnp_pool_maom",
       "soil_cnp_pool_necromass",
@@ -275,7 +277,8 @@ get_soil_np_pool_microbial <- function(zarr_path, config) {
   # get the soil C in the microbial pools
   soil_c_microbial <- get_data_variables(
     zarr_path,
-    c(
+    group = "outputs",
+    variables = c(
       "soil_c_pool_bacteria",
       "soil_c_pool_arbuscular_mycorrhiza",
       "soil_c_pool_ectomycorrhiza",
@@ -333,7 +336,8 @@ get_total_soil_n_per_volume <- function(zarr_path, config) {
   # get the soil N variables
   input_vars <- get_data_variables(
     zarr_path,
-    c(
+    group = "outputs",
+    variables = c(
       "soil_cnp_pool_lmwc",
       "soil_cnp_pool_maom",
       "soil_cnp_pool_necromass",
@@ -407,7 +411,8 @@ get_total_soil_p_per_volume <- function(zarr_path, config) {
   # get the soil P variables
   input_vars <- get_data_variables(
     zarr_path,
-    c(
+    group = "outputs",
+    variables = c(
       "soil_cnp_pool_lmwc",
       "soil_cnp_pool_maom",
       "soil_cnp_pool_necromass",
