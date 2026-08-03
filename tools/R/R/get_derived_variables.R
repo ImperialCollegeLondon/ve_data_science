@@ -4,22 +4,22 @@
 #' Virtual Ecosystem Zarr output dataset.
 #'
 #' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
-#' @param config A list of VE configuration read from the exported full
-#' configuration TOML file.
+#' @param config_path Path to the exported full VE configuration TOML file.
 #' @return A named list with derived variables.
 #'
 #' @examples
 #' \dontrun{
 #'   zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
-#'   config <- toml::read_toml(
+#'   config_path <-
 #'     "data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
-#'   )
-#'   get_derived_variables(zarr_path, config)
+#'   get_derived_variables(zarr_path, config_path)
 #' }
 #'
 #' @export
 
-get_derived_variables <- function(zarr_path, config) {
+get_derived_variables <- function(zarr_path, config_path) {
+  config <- toml::read_toml(config_path)
+
   list(
     total_soil_c_per_volume = get_total_soil_c_per_volume(zarr_path),
     total_soil_c_per_mass = get_total_soil_c_per_mass(zarr_path, config),
