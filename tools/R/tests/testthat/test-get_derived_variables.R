@@ -46,34 +46,50 @@
 #|     are cleaned up after tests complete.
 #| ---
 
-test_that("get_derived_variables returns a named list of arrays", {
+test_that("get_derived_variables returns the expected top-level names", {
   # Create temporary mock Zarr and config file
   dir <- withr::local_tempdir()
   mock_zarr <- create_mock_zarr(dir)
   mock_config <- create_mock_cfg(dir)
+  config <- toml::read_toml(mock_config)
+
   result <- get_derived_variables(mock_zarr, mock_config, group = "outputs")
-  # Result is a list
+
   expect_type(result, "list")
-  # List has names
   expect_named(result)
-  # Verify all expected derived variables are present
   expect_setequal(
     names(result),
     c(
       "total_soil_c_per_volume",
       "total_soil_c_per_mass",
       "total_soil_c_per_area",
-      "soil_np_pool_microbial",
       "total_soil_n_per_volume",
       "total_soil_n_per_mass",
       "total_soil_n_per_area",
       "total_soil_p_per_volume",
       "total_soil_p_per_mass",
-      "total_soil_p_per_area"
+      "total_soil_p_per_area",
+      "soil_n_pool_bacteria",
+      "soil_n_pool_arbuscular_mycorrhiza",
+      "soil_n_pool_ectomycorrhiza",
+      "soil_n_pool_saprotrophic_fungi",
+      "soil_p_pool_bacteria",
+      "soil_p_pool_arbuscular_mycorrhiza",
+      "soil_p_pool_ectomycorrhiza",
+      "soil_p_pool_saprotrophic_fungi"
     )
   )
-  # List elements are arrays
-  expect_true(is.array(result[[1]]))
+})
+
+test_that("get_derived_variables returns a flat list of arrays", {
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  mock_config <- create_mock_cfg(dir)
+
+  result <- get_derived_variables(mock_zarr, mock_config, group = "outputs")
+
+  expect_true(all(vapply(result, is.array, logical(1))))
+  expect_false(any(vapply(result, is.list, logical(1))))
 })
 
 test_that("get_total_soil_c_per_volume sums all carbon pools", {
