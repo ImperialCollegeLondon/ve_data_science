@@ -4,7 +4,10 @@ library(here)
 
 # set Python virtual environment and import functions
 use_virtualenv(here(".venv"), required = TRUE)
-cu <- import_from_path("constant_usage_tool", path = "tools/python")
+cu <- import_from_path(
+  "constant_usage_tool",
+  path = "tools/python/src/ve_data_tools"
+)
 
 
 # Map VE constants to the caller functions -------------------------------
