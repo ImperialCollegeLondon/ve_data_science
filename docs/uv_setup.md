@@ -43,9 +43,9 @@ Check that it works:
 
 ```sh
 uv --version
-
-If this doesn't work, make sure that uv's install location is added to PATH.
 ```
+
+If this doesn't work, make sure that `uv`'s install location is added to PATH.
 
 ---
 
