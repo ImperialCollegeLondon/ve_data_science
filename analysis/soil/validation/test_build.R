@@ -3,7 +3,9 @@ library(reshape2)
 library(arrow)
 library(pizzarr)
 library(sf)
+library(toml)
 box::use(tools/R/R/get_ve_variables[...])
+
 
 db_path <- "data/derived/soil/validation/database"
 
@@ -18,11 +20,17 @@ vars <- unique(validation_database$var_canonical)
 zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 
+# Maliau scenario information
+maliau <- read_toml(config_path)
+
+
+#
 xy <-
   get_data_variables(zarr_path, group = "outputs", variables = c("x", "y")) |>
   melt() |>
   pivot_wider(names_from = L1, values_from = value)
 
+#
 time <-
   get_data_variables(
     zarr_path,
@@ -50,11 +58,11 @@ vars_derived <-
     lon = st_coordinates(geometry)[, 1],
     lat = st_coordinates(geometry)[, 2]
   ) |>
-  st_drop_geometry()
+  st_drop_geometry() |>
+  mutate(date = ymd(maliau$core$timing$start_date) + timestamp)
 
 
-summary(xy)
-summary(time)
+vars_derived |> select(lon, lat, date) |> map(range)
 
 foo <- validation_database |>
   group_by(dataset) |>
