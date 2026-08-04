@@ -102,8 +102,9 @@ maliau_2_bounds <- with(
 )
 
 # Classify observations against maliau_2 bounds
+# Vectorized function that checks if spatial coordinates fall within bounds.
+# bounds_spatial: c(xmin, ymin, xmax, ymax)
 classify_spatial_bounds <- function(lat, lon, bounds_spatial) {
-  # bounds_spatial: c(xmin, ymin, xmax, ymax)
   xmin <- bounds_spatial[1]
   ymin <- bounds_spatial[2]
   xmax <- bounds_spatial[3]
@@ -112,13 +113,20 @@ classify_spatial_bounds <- function(lat, lon, bounds_spatial) {
   (lon >= xmin & lon <= xmax) & (lat >= ymin & lat <= ymax)
 }
 
+# Vectorized function that classifies temporal overlap with a reference interval.
+# Returns one of: "within" (fully inside), "partial" (overlapping), "outside"
+# (no overlap), or NA if time_start is missing.
 classify_temporal_bounds <- function(
   time_start,
   time_end,
-  bounds_start,
-  bounds_end
+  bounds_temporal,
+  tz = "UTC"
 ) {
   obs_end <- coalesce(time_end, time_start)
+
+  bounds_temporal <- as.POSIXct(bounds_temporal, tz = tz)
+  bounds_start <- bounds_temporal[1]
+  bounds_end <- bounds_temporal[2]
 
   no_overlap <- obs_end <= bounds_start | time_start >= bounds_end
   fully_within <- time_start >= bounds_start & obs_end <= bounds_end
@@ -131,26 +139,19 @@ classify_temporal_bounds <- function(
   )
 }
 
-# Apply classifiers
-bounds_temporal_posixct <- as.POSIXct(maliau_2_bounds$temporal, tz = "UTC")
-
-validation_database_classified <- tibble(
-  validation_database,
-  spatial_bounds_class = classify_spatial_bounds(
-    lat = validation_database$latitude,
-    lon = validation_database$longitude,
-    bounds_spatial = maliau_2_bounds$spatial
-  ),
-  temporal_bounds_class = classify_temporal_bounds(
-    time_start = validation_database$time_start,
-    time_end = validation_database$time_end,
-    bounds_start = bounds_temporal_posixct[1],
-    bounds_end = bounds_temporal_posixct[2]
-  )
-) |>
+validation_database_classified <-
+  validation_database |>
   mutate(
-    within_bounds = spatial_bounds_class == "within" &
-      temporal_bounds_class == "within"
+    spatial_bounds_class = classify_spatial_bounds(
+      latitude,
+      longitude,
+      maliau_2_bounds$spatial
+    ),
+    temporal_bounds_class = classify_temporal_bounds(
+      time_start,
+      time_end,
+      maliau_2_bounds$temporal
+    )
   )
 
 # Summary
