@@ -15,6 +15,7 @@
 - Notes:
   - Users should verify the file-path entries before running the scenario
     and add the plant output block where required.
+  - Added the custom [plants.constants] block, using the scenario-specific values provided in data/scenarios
 - References:
   - PR #1667 (virtual_ecosystem repo)
 
