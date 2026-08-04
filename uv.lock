@@ -2991,7 +2991,7 @@ requires-dist = [
     { name = "tomli-w", specifier = ">=1.2.0,<2" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20260724,<7" },
     { name = "virtual-ecosystem" },
-    { name = "xarray", extras = ["io"], specifier = ">=2026.4.0,<2027" },
+    { name = "xarray", extras = ["io"], specifier = ">=2026.7.0,<2027" },
 ]
 
 [package.metadata.requires-dev]
