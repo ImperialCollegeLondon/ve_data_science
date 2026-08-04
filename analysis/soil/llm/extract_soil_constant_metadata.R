@@ -45,10 +45,3 @@ soil_constant_usage_test <-
   keep(soil_constant_usage, \(x) {
     pluck(x, "name") %in% candidates
   })
-
-# Parse the docstrings to
-# - extract unit
-# - remove citation (to reduce self-confirmation bias)
-# -
-
-# RAGs
