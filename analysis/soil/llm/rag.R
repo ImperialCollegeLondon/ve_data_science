@@ -1,3 +1,43 @@
+#| ---
+#| title: Build a soil-model RAG store for Virtual Ecosystem
+#|
+#| description: |
+#|   Build a DuckDB-backed retrieval-augmented generation (RAG) store from the
+#|   Virtual Ecosystem soil model source tree. The resulting store is used as a
+#|   grounding layer for later analysis scripts that need code-level context
+#|   about soil constants, processes, and implementation details.
+#|
+#| VE_module: Soil
+#|
+#| author: Hao Ran Lai
+#|
+#| status: wip
+#|
+#| input_files:
+#|   - name: .py scripts in the soil module
+#|     path: ../virtual_ecosystem/virtual_ecosystem/models/soil
+#|     description: |
+#|       Python source files, documentation, and related assets used to build
+#|       the retrieval corpus for soil-model questions.
+#|
+#| output_files:
+#|   - name: virtual_ecosystem_repo.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       DuckDB RAG store containing chunked markdown representations of the
+#|       soil-model repository content.
+#|
+#| package_dependencies:
+#|   - ragnar
+#|   - purrr
+#|   - DBI
+#|
+#| usage_notes: |
+#|   Run this script before any downstream analysis that connects to the RAG
+#|   store. The output is a derived artifact and should be regenerated whenever
+#|   the underlying Virtual Ecosystem source code changes.
+#| ---
+
 library(ragnar)
 
 # Create RAG store

@@ -1,3 +1,43 @@
+#| ---
+#| title: Scoping LLM to parameterise soil constant parameters in VE
+#|
+#| description: |
+#|   Use an existing DuckDB-backed RAG store built from the Virtual Ecosystem
+#|   repository to gather grounded context for soil constant data mining. This
+#|   script depends on the store created by rag.R and should only be run after
+#|   that derived artifact has been built.
+#|
+#| VE_module: Soil
+#|
+#| author: Hao Ran Lai
+#|
+#| status: wip
+#|
+#| input_files:
+#|   - name: virtual_ecosystem_repo.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       DuckDB RAG store created by rag.R and used as the grounding source for
+#|       retrieval during the chat workflow.
+#|
+#| output_files:
+#|
+#| source_files:
+#|
+#| package_dependencies:
+#|   - ellmer
+#|   - ragnar
+#|   - glue
+#|   - reticulate
+#|   - reshape2
+#|   - tictoc
+#|
+#| usage_notes: |
+#|   Ensure rag.R has been run successfully before executing this script. The
+#|   chat workflow assumes the RAG store already exists and will connect to it
+#|   in read-only mode.
+#| ---
+
 library(ellmer)
 library(ragnar)
 library(glue)
