@@ -71,14 +71,14 @@ def check_required_columns(
 
     Raises:
         ValueError: If one or more required columns are missing.
+
     """
     missing_columns = required_columns - set(dataframe.columns)
 
     if missing_columns:
         missing_text = ", ".join(sorted(missing_columns))
         raise ValueError(
-            "Input dataframe is missing the following required columns: "
-            f"{missing_text}"
+            f"Input dataframe is missing the following required columns: {missing_text}"
         )
 
 
@@ -94,6 +94,7 @@ def get_area_conversion(density_unit: str) -> float:
 
     Raises:
         ValueError: If density_unit is unsupported.
+
     """
     area_conversions = {
         "m2": 1.0,
@@ -102,9 +103,7 @@ def get_area_conversion(density_unit: str) -> float:
     }
 
     if density_unit not in area_conversions:
-        raise ValueError(
-            "density_unit must be one of: 'm2', 'ha', or 'km2'."
-        )
+        raise ValueError("density_unit must be one of: 'm2', 'ha', or 'km2'.")
 
     return area_conversions[density_unit]
 
@@ -118,9 +117,7 @@ def get_unit_label(density_unit: str) -> str:
     }
 
     if density_unit not in unit_labels:
-        raise ValueError(
-            "density_unit must be one of: 'm2', 'ha', or 'km2'."
-        )
+        raise ValueError("density_unit must be one of: 'm2', 'ha', or 'km2'.")
 
     return unit_labels[density_unit]
 
@@ -147,6 +144,7 @@ def check_grid_dimensions(
     Raises:
         ValueError: If the number of observed grid cells exceeds the supplied
             grid dimensions.
+
     """
     if grid_cell_column not in cohort_df.columns:
         return
@@ -175,6 +173,7 @@ def parse_territory_cells(territory_value: object) -> set[int]:
 
     Raises:
         ValueError: If the territory value cannot be interpreted as a list.
+
     """
     if isinstance(territory_value, str):
         try:
@@ -186,9 +185,7 @@ def parse_territory_cells(territory_value: object) -> set[int]:
             ) from error
 
     if not isinstance(territory_value, list):
-        raise ValueError(
-            "Territory values must be lists of grid-cell identifiers."
-        )
+        raise ValueError("Territory values must be lists of grid-cell identifiers.")
 
     return set(territory_value)
 
@@ -227,11 +224,10 @@ def calculate_fg_population_density(
 
     Raises:
         ValueError: If required columns are missing or settings are invalid.
+
     """
     if density_scope not in {"landscape", "territory"}:
-        raise ValueError(
-            "density_scope must be either 'landscape' or 'territory'."
-        )
+        raise ValueError("density_scope must be either 'landscape' or 'territory'.")
 
     required_columns = {
         "time_index",
@@ -289,14 +285,12 @@ def calculate_fg_population_density(
 
     else:
         territory_df = cohort_df.copy()
-        territory_df["_territory_cells"] = territory_df[
-            territory_column
-        ].apply(parse_territory_cells)
+        territory_df["_territory_cells"] = territory_df[territory_column].apply(
+            parse_territory_cells
+        )
 
         territory_cells_df = (
-            territory_df.groupby(
-                ["time_index", "functional_group"]
-            )["_territory_cells"]
+            territory_df.groupby(["time_index", "functional_group"])["_territory_cells"]
             .apply(lambda territories: len(set().union(*territories)))
             .reset_index(name="territory_cells")
         )
@@ -307,9 +301,7 @@ def calculate_fg_population_density(
             how="left",
         )
 
-        density_df["area_m2"] = (
-            density_df["territory_cells"] * cell_area_m2
-        )
+        density_df["area_m2"] = density_df["territory_cells"] * cell_area_m2
 
         zero_area_groups = density_df.loc[
             density_df["territory_cells"] == 0,
@@ -318,8 +310,7 @@ def calculate_fg_population_density(
 
         if not zero_area_groups.empty:
             affected_groups = "; ".join(
-                f"time_index={row.time_index}, "
-                f"functional_group={row.functional_group}"
+                f"time_index={row.time_index}, functional_group={row.functional_group}"
                 for row in zero_area_groups.itertuples(index=False)
             )
             raise ValueError(
@@ -335,9 +326,9 @@ def calculate_fg_population_density(
     density_df["density_scope"] = density_scope
     density_df["density_unit"] = density_unit
 
-    return density_df.sort_values(
-        ["functional_group", "time_index"]
-    ).reset_index(drop=True)
+    return density_df.sort_values(["functional_group", "time_index"]).reset_index(
+        drop=True
+    )
 
 
 def plot_fg_population_density(
@@ -359,11 +350,10 @@ def plot_fg_population_density(
     Raises:
         ValueError: If required columns are missing, the dataframe is empty,
             or settings are invalid.
+
     """
     if density_scope not in {"landscape", "territory"}:
-        raise ValueError(
-            "density_scope must be either 'landscape' or 'territory'."
-        )
+        raise ValueError("density_scope must be either 'landscape' or 'territory'.")
 
     unit_label = get_unit_label(density_unit)
 
@@ -381,9 +371,7 @@ def plot_fg_population_density(
 
     figure, axis = plt.subplots()
 
-    for functional_group, group_data in density_df.groupby(
-        "functional_group"
-    ):
+    for functional_group, group_data in density_df.groupby("functional_group"):
         group_data = group_data.sort_values("time_index")
         axis.plot(
             group_data["time_index"],
@@ -399,8 +387,7 @@ def plot_fg_population_density(
     axis.set_xlabel("Time step")
     axis.set_ylabel(f"Population density (individuals/{unit_label})")
     axis.set_title(
-        f"{scope_labels[density_scope]} functional group population density "
-        "over time"
+        f"{scope_labels[density_scope]} functional group population density over time"
     )
     axis.legend()
 
