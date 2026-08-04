@@ -7,6 +7,8 @@ library(toml)
 box::use(tools/R/R/get_ve_variables[...])
 
 
+# Validation database ----------------------------------------------------
+
 db_path <- "data/derived/soil/validation/database"
 
 validation_database <-
@@ -16,12 +18,13 @@ validation_database <-
 vars <- unique(validation_database$var_canonical)
 
 
-# Read VE outputs
+# VE outputs -------------------------------------------------------------
+
 zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 
 # Maliau scenario information
-maliau <- read_toml(config_path)
+maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
 
 
 #
@@ -59,12 +62,18 @@ vars_derived <-
     lat = st_coordinates(geometry)[, 2]
   ) |>
   st_drop_geometry() |>
-  mutate(date = ymd(maliau$core$timing$start_date) + timestamp)
+  mutate(
+    date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
+  )
 
+
+# Join VE outputs to Validation database ---------------------------------
+
+# Spatial and temporal bounds classification
 
 vars_derived |> select(lon, lat, date) |> map(range)
 
-foo <- validation_database |>
+validation_database |>
   group_by(dataset) |>
   summarise(
     time_start = min(time_start, na.rm = TRUE),
@@ -74,3 +83,76 @@ foo <- validation_database |>
     xmin = min(longitude, na.rm = TRUE),
     xmax = max(longitude, na.rm = TRUE)
   )
+
+maliau_2_run_length <-
+  str_split_1(maliau$Scenario$maliau_2$core$timing$run_length, " ")
+maliau_2_bounds <- with(
+  maliau$Scenario$maliau_2,
+  list(
+    spatial = unlist(wgs84_bounds),
+    temporal = c(
+      ymd(core$timing$start_date),
+      ymd(core$timing$start_date) +
+        lubridate::duration(
+          as.numeric(maliau_2_run_length[1]),
+          maliau_2_run_length[2]
+        )
+    )
+  )
+)
+
+# Classify observations against maliau_2 bounds
+classify_spatial_bounds <- function(lat, lon, bounds_spatial) {
+  # bounds_spatial: c(xmin, ymin, xmax, ymax)
+  xmin <- bounds_spatial[1]
+  ymin <- bounds_spatial[2]
+  xmax <- bounds_spatial[3]
+  ymax <- bounds_spatial[4]
+
+  (lon >= xmin & lon <= xmax) & (lat >= ymin & lat <= ymax)
+}
+
+classify_temporal_bounds <- function(
+  time_start,
+  time_end,
+  bounds_start,
+  bounds_end
+) {
+  obs_end <- coalesce(time_end, time_start)
+
+  no_overlap <- obs_end <= bounds_start | time_start >= bounds_end
+  fully_within <- time_start >= bounds_start & obs_end <= bounds_end
+
+  case_when(
+    is.na(time_start) ~ NA_character_,
+    no_overlap ~ "outside",
+    fully_within ~ "within",
+    .default = "partial"
+  )
+}
+
+# Apply classifiers
+bounds_temporal_posixct <- as.POSIXct(maliau_2_bounds$temporal, tz = "UTC")
+
+validation_database_classified <- tibble(
+  validation_database,
+  spatial_bounds_class = classify_spatial_bounds(
+    lat = validation_database$latitude,
+    lon = validation_database$longitude,
+    bounds_spatial = maliau_2_bounds$spatial
+  ),
+  temporal_bounds_class = classify_temporal_bounds(
+    time_start = validation_database$time_start,
+    time_end = validation_database$time_end,
+    bounds_start = bounds_temporal_posixct[1],
+    bounds_end = bounds_temporal_posixct[2]
+  )
+) |>
+  mutate(
+    within_bounds = spatial_bounds_class == "within" &
+      temporal_bounds_class == "within"
+  )
+
+# Summary
+validation_database_classified |>
+  count(dataset, spatial_bounds_class, temporal_bounds_class)
