@@ -42,7 +42,7 @@ dev = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual
 # the specific pinned version of VE by GitHub commit hash, which is rarely
 # useful outside of testing and development; this will likely be removed once
 # the release version on PyPI is always tested to be stable
-dev-stable = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@3c6e75"]
+dev-pinned = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@3c6e75"]
 
 [tool.ruff]
 line-length = 88
