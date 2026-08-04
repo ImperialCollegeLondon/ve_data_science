@@ -61,7 +61,7 @@ jobs:
       # --- Tests ---
       - name: Run R tests
         env:
-          RETICULATE_PYTHON: .venv/bin/python
+          RETICULATE_PYTHON: ${{ github.workspace }}/.venv/bin/python
         run: |
           testthat::test_dir(
             here::here("tools/R/tests/testthat"),
