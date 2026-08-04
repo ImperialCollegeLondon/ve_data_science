@@ -164,12 +164,13 @@ uv run ve_run ...
 uv run my_script.py
 ```
 
-> **Warning:** If you synced with `--group dev` or `--group dev-pinned`, pass
-> the same group to `uv run` to avoid switching back to the default:
->
-> ```sh
-> uv run --group dev ve_run ...
-> ```
+If you want to run VE using the developmental version, then pass the same group
+to `uv run` to make sure that you are on the right developmental version:
+
+```sh
+uv run --group dev ve_run ...
+uv run --group dev my_script.py
+```
 
 If you are running many commands in one session, you can activate the virtual
 environment just like the conventional way:
