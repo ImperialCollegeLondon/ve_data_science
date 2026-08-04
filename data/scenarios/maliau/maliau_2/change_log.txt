@@ -1,8 +1,44 @@
 # Change log of maliau_2 scenario input data
 
+2026-07-23
+- Module: All
+- Author: Baizurah Malik
+- Files changed:
+  - All configuration files in the `data/scenarios/maliau/maliau_2/config`
+    folder (Globus)
+- Changes made:
+  - Replaced the previous scenario configuration files to be compatible with
+    Virtual Ecosystem version 0.2.1.
+  - soil.microbial_group_definition and soil.enzyme_class_definition have been
+    updated to use more realistic values that differentiate the guilds,
+    following the same values from the VE example data.
+- Notes:
+  - Users should verify the file-path entries before running the scenario
+    and add the plant output block where required.
+- References:
+  - PR #1667 (virtual_ecosystem repo)
+
+2026-07-20
+- Module: Abiotic & Hydrology
+- Author: Lelavathy
+- Files changed:
+  - `data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc` (Globus)
+- Changes made:
+  - Corrected the conversion of `downward_shortwave_radiation` and
+    `downward_longwave_radiation` from J m⁻² to W m⁻² using the correct
+    daily time conversion factor (86,400 seconds).
+  - Added `diurnal_temperature_range_ref`, calculated as the monthly
+    mean of the daily diurnal temperature range derived from ERA5-Land
+    hourly 2 m air temperature.
+- References:
+  - PR #414 to close Issue #415
+  - PR #417 to close Issue #416
+
 2026-07-10
 - Module: Litter
 - Author: Hao Ran Lai
+- Files changed:
+  - `data/scenarios/maliau/maliau_2/data/litter_maliau.nc`
 - Initial woody litter nutrients are now split by land use type rather than
   plot block ID
 - Aboveground litter carbon stock is now split by land use type
@@ -14,6 +50,8 @@
 2026-07-07
 - Module: Soil
 - Author: Hao Ran Lai
+- Files changed:
+  - `data/scenarios/maliau/maliau_2/data/soil_maliau.nc`
 - Almost all variables were updated. The changes should be slight, as most
   analysis modifications were minor; primarily to generalise them beyond Maliau.
   During this process, Hao Ran made several minor improvements.

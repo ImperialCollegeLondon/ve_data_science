@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # This is python specific linting and formatting using ruff
-    rev: v0.15.21
+    rev: v0.15.22
     hooks:
     # Run the linter.
     - id: ruff-check
@@ -22,7 +22,7 @@ repos:
     - id: ruff-format
   - repo: https://github.com/igorshubovych/markdownlint-cli
     # This is markdown linting
-    rev: v0.49.0
+    rev: v0.49.1
     hooks:
       - id: markdownlint
         exclude: '(^|/)rendered/|\.ipynb_checkpoints'
