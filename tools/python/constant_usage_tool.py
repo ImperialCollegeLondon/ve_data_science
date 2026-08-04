@@ -146,7 +146,8 @@ def get_constant_references(
         script_names = script.get_names()
 
         for name in script_names:
-            # Detect Configuration classes - there must be a way to do this from the name object
+            # Detect Configuration classes
+            # there must be a way to do this from the name object
             if (name.type != "class") or (
                 "(Configuration)" not in name.get_line_code()
             ):
