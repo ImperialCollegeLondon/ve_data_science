@@ -218,8 +218,8 @@ validation_database_classified |>
 # Function to find the matching VE prediction for each row in the validation
 # database
 # #########or "mutate_ve_outputs" ?
-# For non-missing inputs, this function is intended to return one numeric value.
-join_ve_outputs <- function(
+# For non-missing inputs, this function returns three quantiles.
+join_ve_outputs_per_row <- function(
   var_canonical,
   time_start,
   time_end,
@@ -227,15 +227,22 @@ join_ve_outputs <- function(
   longitude,
   spatiotemporal_join_class
 ) {
-  # function to calculate median from filtered VE outputs
-  get_median_value <- function(data) {
+  empty_quantiles <- c(
+    value_VE_q05 = NA_real_,
+    value_VE_q50 = NA_real_,
+    value_VE_q95 = NA_real_
+  )
+
+  # function to summarise or aggregate from filtered VE outputs
+  summarise_ve_outputs <- function(data) {
     values <- data |> pull(value)
 
     if (length(values) == 0) {
-      return(NA_real_)
+      return(empty_quantiles)
     }
 
-    median(values)
+    quantile(values, probs = c(0.05, 0.5, 0.95)) |>
+      setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95"))
   }
 
   switch(
@@ -248,15 +255,15 @@ join_ve_outputs <- function(
           lat_min <= latitude & latitude <= lat_max,
           lon_min <= longitude & longitude <= lon_max
         ) |>
-        get_median_value()
+        summarise_ve_outputs()
     },
     "spatial_within_temporal_outside" = {
       # do thing B
-      NA_real_
+      empty_quantiles
     },
     "spatial_within_temporal_partial" = {
       # do thing C
-      NA_real_
+      empty_quantiles
     },
     "spatial_outside_temporal_within" = {
       ve_variables |>
@@ -264,15 +271,15 @@ join_ve_outputs <- function(
           var_canonical == !!var_canonical,
           date %within% interval(time_start, time_end)
         ) |>
-        get_median_value()
+        summarise_ve_outputs()
     },
     "spatial_outside_temporal_outside" = {
       # do thing B
-      NA_real_
+      empty_quantiles
     },
     "spatial_outside_temporal_partial" = {
       # do thing C
-      NA_real_
+      empty_quantiles
     },
     stop("Unknown case: ", spatiotemporal_join_class)
   )
@@ -282,7 +289,7 @@ join_ve_outputs <- function(
 validation_database_classified <-
   validation_database_classified |>
   mutate(
-    value_VE = pmap_dbl(
+    value_VE = pmap(
       list(
         var_canonical,
         time_start,
@@ -291,6 +298,7 @@ validation_database_classified <-
         longitude,
         spatiotemporal_join_class
       ),
-      join_ve_outputs
+      join_ve_outputs_per_row
     )
-  )
+  ) |>
+  unnest_wider(value_VE)
