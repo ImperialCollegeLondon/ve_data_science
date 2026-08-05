@@ -222,13 +222,15 @@ dat <-
 # Both are predicted from control plots from a tropical forest in BCI
 source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
 
+# Predict soil_c(or n)_pool_pom(or maom), after converting total_carbon and
+# total_nitrogen from [%] to [g/g] (which is the same as [kg/kg])
 dat <-
   dat |>
   mutate(
     soil_c_pool_pom = predict(
       mod_C,
       newdata = dat |>
-        select(C_total = total_carbon) |>
+        mutate(C_total = total_carbon / 100, .keep = "none") |>
         mutate(
           class = "POM",
           treatm = "CT",
@@ -240,7 +242,7 @@ dat <-
     soil_c_pool_maom = predict(
       mod_C,
       newdata = dat |>
-        select(C_total = total_carbon) |>
+        mutate(C_total = total_carbon / 100, .keep = "none") |>
         mutate(
           class = "MAOM",
           treatm = "CT",
@@ -252,7 +254,7 @@ dat <-
     soil_n_pool_particulate = predict(
       mod_N,
       newdata = dat |>
-        select(N_total = total_nitrogen) |>
+        mutate(N_total = total_nitrogen / 100, .keep = "none") |>
         mutate(
           class = "POM",
           treatm = "CT",
@@ -264,7 +266,7 @@ dat <-
     soil_n_pool_maom = predict(
       mod_N,
       newdata = dat |>
-        select(N_total = total_nitrogen) |>
+        mutate(N_total = total_nitrogen / 100, .keep = "none") |>
         mutate(
           class = "MAOM",
           treatm = "CT",
