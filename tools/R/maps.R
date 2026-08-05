@@ -56,8 +56,8 @@ map_scenario_extent <- function(site_definition, site_name) {
     unlist()
 
   # serve the leaflet map
-  leaflet::leaflet() %>%
-    leaflet::addProviderTiles("Esri.WorldImagery") %>%
+  leaflet::leaflet() |>
+    leaflet::addProviderTiles("Esri.WorldImagery") |>
     leaflet::fitBounds(
       site_extent[1],
       site_extent[2],
