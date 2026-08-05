@@ -27,11 +27,50 @@ config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
 
 
-#
+grid_offset <- maliau$Scenario$maliau_2$res / 2
+
 xy <-
   get_data_variables(zarr_path, group = "outputs", variables = c("x", "y")) |>
   melt() |>
-  pivot_wider(names_from = L1, values_from = value)
+  pivot_wider(names_from = L1, values_from = value) |>
+  mutate(
+    x_min = x - grid_offset,
+    x_max = x + grid_offset,
+    y_min = y - grid_offset,
+    y_max = y + grid_offset,
+    geometry = pmap(
+      list(x_min, x_max, y_min, y_max),
+      \(xmin, xmax, ymin, ymax) {
+        st_polygon(list(matrix(
+          c(
+            xmin,
+            ymin,
+            xmax,
+            ymin,
+            xmax,
+            ymax,
+            xmin,
+            ymax,
+            xmin,
+            ymin
+          ),
+          ncol = 2,
+          byrow = TRUE
+        )))
+      }
+    )
+  ) |>
+  st_as_sf(sf_column_name = "geometry", crs = 32650) |>
+  st_transform(crs = 4326) |>
+  mutate(
+    bbox = map(geometry, st_bbox),
+    lon_min = map_dbl(bbox, \(b) b[["xmin"]]),
+    lon_max = map_dbl(bbox, \(b) b[["xmax"]]),
+    lat_min = map_dbl(bbox, \(b) b[["ymin"]]),
+    lat_max = map_dbl(bbox, \(b) b[["ymax"]])
+  ) |>
+  select(-bbox) |>
+  st_drop_geometry()
 
 #
 time <-
@@ -43,8 +82,6 @@ time <-
   melt() |>
   pivot_wider(names_from = L1, values_from = value)
 
-grid_offset <- maliau$Scenario$maliau_2$res / 2
-
 vars_derived <-
   get_derived_variables(
     zarr_path,
@@ -54,32 +91,17 @@ vars_derived <-
   ) |>
   melt() |>
   rename(var_canonical = L1) |>
-  left_join(xy) |>
-  mutate(
-    x_min = x - grid_offset,
-    x_max = x + grid_offset,
-    y_min = y - grid_offset,
-    y_max = y + grid_offset
-  ) |>
-  st_as_sf(coords = c("x", "y"), crs = 32650) |>
-  st_transform(crs = 4326) |>
-  mutate(
-    lon = st_coordinates(geometry)[, 1],
-    lat = st_coordinates(geometry)[, 2]
-  ) |>
-  st_drop_geometry() |>
+  left_join(xy |> select(cell_id, starts_with("lon"), starts_with("lat"))) |>
   left_join(time) |>
   mutate(
     date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
   )
 
+# TODO think about spatial having a footprint but not date, in vars_derived
 
 # Join VE outputs to Validation database ---------------------------------
 
 # Spatial and temporal bounds classification
-
-vars_derived |> select(lon, lat, date) |> map(range)
-
 validation_database |>
   group_by(dataset) |>
   summarise(
