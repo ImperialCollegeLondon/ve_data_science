@@ -1,0 +1,18 @@
+directory: data/derived/abiotic/era5_climate_data_monthly
+files:
+- md5: null
+  name: climate_maliau_2010_2020.nc
+  script: null
+  url: null
+- md5: null
+  name: example_climate_90m_small_Maliau_data.nc
+  script: null
+  url: null
+- md5: null
+  name: climate_danum_2010_2020.nc
+  script: null
+  url: null
+- md5: null
+  name: climate_danum_2000_2020.nc
+  script: null
+  url: null
