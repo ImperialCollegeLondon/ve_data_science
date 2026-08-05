@@ -258,11 +258,9 @@ join_ve_outputs_per_row <- function(
         summarise_ve_outputs()
     },
     "spatial_within_temporal_outside" = {
-      # do thing B
       empty_quantiles
     },
     "spatial_within_temporal_partial" = {
-      # do thing C
       empty_quantiles
     },
     "spatial_outside_temporal_within" = {
@@ -274,15 +272,39 @@ join_ve_outputs_per_row <- function(
         summarise_ve_outputs()
     },
     "spatial_outside_temporal_outside" = {
-      # do thing B
       empty_quantiles
     },
     "spatial_outside_temporal_partial" = {
-      # do thing C
       empty_quantiles
     },
     stop("Unknown case: ", spatiotemporal_join_class)
   )
+}
+
+# Warn once about unimplemented summary classes before rowwise apply
+unimplemented_summary_classes <- c(
+  "spatial_within_temporal_outside",
+  "spatial_within_temporal_partial",
+  "spatial_outside_temporal_outside",
+  "spatial_outside_temporal_partial"
+)
+
+unimplemented_counts <-
+  validation_database_classified |>
+  count(spatiotemporal_join_class, name = "n") |>
+  filter(spatiotemporal_join_class %in% unimplemented_summary_classes)
+
+if (nrow(unimplemented_counts) > 0) {
+  counts_text <- paste0(
+    unimplemented_counts$spatiotemporal_join_class,
+    "=",
+    unimplemented_counts$n,
+    collapse = ", "
+  )
+  cli::cli_warn(c(
+    "Summary method not implemented yet for selected classes.",
+    "i" = "Rows will return NA quantiles for: {.val {counts_text}}"
+  ))
 }
 
 # Apply rowwise
