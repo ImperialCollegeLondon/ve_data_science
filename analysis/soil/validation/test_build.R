@@ -188,7 +188,11 @@ validation_database_classified |>
   count(dataset, spatial_bounds_class, temporal_bounds_class)
 
 
-test_row <- validation_database_classified[1, ]
+test_row <- validation_database_classified |>
+  dplyr::slice(1)
+test_row2 <- validation_database_classified |>
+  filter(spatial_bounds_class) |>
+  dplyr::slice(1)
 
 # TODO check that test_row$var_canonical is length 1 (select one var only)
 
@@ -203,10 +207,9 @@ vars_derived |>
 # spatial within of bound, temporal within bound
 vars_derived |>
   filter(
-    var_canonical == test_row$var_canonical,
-    date %within% interval(test_row$time_start, test_row$time_end),
-    lat,
-    lon
+    var_canonical == test_row2$var_canonical,
+    date %within% interval(test_row2$time_start, test_row2$time_end),
+    lat_min <= test_row2$latitude & test_row2$latitude <= lat_max,
+    lon_min <= test_row2$longitude & test_row2$longitude <= lon_max
   ) |>
-  group_by(date) |>
   summarise(value = median(value))
