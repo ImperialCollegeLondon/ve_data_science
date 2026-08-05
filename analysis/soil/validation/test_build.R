@@ -43,6 +43,7 @@ time <-
   melt() |>
   pivot_wider(names_from = L1, values_from = value)
 
+grid_offset <- maliau$Scenario$maliau_2$res / 2
 
 vars_derived <-
   get_derived_variables(
@@ -54,7 +55,12 @@ vars_derived <-
   melt() |>
   rename(var_canonical = L1) |>
   left_join(xy) |>
-  left_join(time) |>
+  mutate(
+    x_min = x - grid_offset,
+    x_max = x + grid_offset,
+    y_min = y - grid_offset,
+    y_max = y + grid_offset
+  ) |>
   st_as_sf(coords = c("x", "y"), crs = 32650) |>
   st_transform(crs = 4326) |>
   mutate(
@@ -62,6 +68,7 @@ vars_derived <-
     lat = st_coordinates(geometry)[, 2]
   ) |>
   st_drop_geometry() |>
+  left_join(time) |>
   mutate(
     date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
   )
@@ -157,3 +164,27 @@ validation_database_classified <-
 # Summary
 validation_database_classified |>
   count(dataset, spatial_bounds_class, temporal_bounds_class)
+
+
+test_row <- validation_database_classified[1, ]
+
+# TODO check that test_row$var_canonical is length 1 (select one var only)
+
+# spatial out of bound, temporal within bound
+vars_derived |>
+  filter(
+    var_canonical == test_row$var_canonical,
+    date %within% interval(test_row$time_start, test_row$time_end)
+  ) |>
+  summarise(value = median(value))
+
+# spatial within of bound, temporal within bound
+vars_derived |>
+  filter(
+    var_canonical == test_row$var_canonical,
+    date %within% interval(test_row$time_start, test_row$time_end),
+    lat,
+    lon
+  ) |>
+  group_by(date) |>
+  summarise(value = median(value))
