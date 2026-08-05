@@ -49,18 +49,7 @@ xy <-
       list(x_min, x_max, y_min, y_max),
       \(xmin, xmax, ymin, ymax) {
         st_polygon(list(matrix(
-          c(
-            xmin,
-            ymin,
-            xmax,
-            ymin,
-            xmax,
-            ymax,
-            xmin,
-            ymax,
-            xmin,
-            ymin
-          ),
+          c(xmin, ymin, xmax, ymin, xmax, ymax, xmin, ymax, xmin, ymin),
           ncol = 2,
           byrow = TRUE
         )))
@@ -90,19 +79,33 @@ time <-
   pivot_wider(names_from = L1, values_from = value)
 
 # Extract the VE outputs
-# We have data variables, which are directly from VE and can be extracted with
-# get_data_variables(), but none of them are in the validation dataset currently
-# so we only calculate the other set, which is the derived variables calculated
-# from get_derived_variables()
-vars_derived <-
+# extract the data variables directly from VE outputs
+# change will be needed when this includes variables with extra dimensions,
+# such as element and pft, I think
+vars_ve_output <-
+  zarr_open(zarr_path)$get_item("outputs")$get_store()$listdir("outputs")
+data_variables <-
+  get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = intersect(vars_target, vars_ve_output)
+  ) |>
+  melt() |>
+  rename(var_canonical = L1)
+
+# extract the derived variables, calculated from the direct data variables
+derived_variables <-
   get_derived_variables(
     zarr_path,
     config_path,
-    group = "outputs",
-    variables = vars_target[vars_target != "groundwater_storage"]
+    group = "outputs"
   ) |>
   melt() |>
-  rename(var_canonical = L1) |>
+  rename(var_canonical = L1)
+
+# combine data variables and derived variables
+ve_variables <-
+  bind_rows(data_variables, derived_variables) |>
   # join spatial information
   left_join(xy |> select(cell_id, starts_with("lon"), starts_with("lat"))) |>
   # join temporal information
@@ -111,7 +114,7 @@ vars_derived <-
     date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
   )
 
-# TODO think about spatial having a footprint but not date, in vars_derived
+# TODO think about spatial having a footprint but not date, in derived_variables
 
 # Join VE outputs to Validation Database ---------------------------------
 
@@ -222,9 +225,6 @@ join_ve_outputs <- function(
   longitude,
   spatiotemporal_join_class
 ) {
-  # handle time_end missingness
-  obs_end <- coalesce(time_end, time_start)
-
   # function to calculate median from filtered VE outputs
   get_median_value <- function(data) {
     values <- data |> pull(value)
@@ -239,10 +239,10 @@ join_ve_outputs <- function(
   switch(
     spatiotemporal_join_class,
     "spatial_within_temporal_within" = {
-      vars_derived |>
+      derived_variables |>
         filter(
           var_canonical == !!var_canonical,
-          date %within% interval(time_start, obs_end),
+          date %within% interval(time_start, time_end),
           lat_min <= latitude & latitude <= lat_max,
           lon_min <= longitude & longitude <= lon_max
         ) |>
@@ -257,10 +257,10 @@ join_ve_outputs <- function(
       NA_real_
     },
     "spatial_outside_temporal_within" = {
-      vars_derived |>
+      derived_variables |>
         filter(
           var_canonical == !!var_canonical,
-          date %within% interval(time_start, obs_end)
+          date %within% interval(time_start, time_end)
         ) |>
         get_median_value()
     },
