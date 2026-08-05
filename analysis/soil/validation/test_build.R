@@ -213,78 +213,82 @@ validation_database_classified |>
   )
 
 # #########or "mutate_ve_outputs" ?
-join_ve_outputs <- function(datum) {
+# For non-missing inputs, this function is intended to return one numeric value.
+join_ve_outputs <- function(
+  var_canonical,
+  time_start,
+  time_end,
+  latitude,
+  longitude,
+  spatiotemporal_join_class
+) {
+  # handle time_end missingness
+  obs_end <- coalesce(time_end, time_start)
+
+  # function to calculate median from filtered VE outputs
+  get_median_value <- function(data) {
+    values <- data |> pull(value)
+
+    if (length(values) == 0) {
+      return(NA_real_)
+    }
+
+    median(values)
+  }
+
   switch(
-    datum$spatiotemporal_join_class,
+    spatiotemporal_join_class,
     "spatial_within_temporal_within" = {
       vars_derived |>
         filter(
-          var_canonical == datum$var_canonical,
-          date %within% interval(datum$time_start, datum$time_end),
-          lat_min <= datum$latitude & datum$latitude <= lat_max,
-          lon_min <= datum$longitude & datum$longitude <= lon_max
+          var_canonical == !!var_canonical,
+          date %within% interval(time_start, obs_end),
+          lat_min <= latitude & latitude <= lat_max,
+          lon_min <= longitude & longitude <= lon_max
         ) |>
-        pull(value) |>
-        median()
+        get_median_value()
     },
     "spatial_within_temporal_outside" = {
       # do thing B
-      NA
+      NA_real_
     },
     "spatial_within_temporal_partial" = {
       # do thing C
-      NA
+      NA_real_
     },
     "spatial_outside_temporal_within" = {
       vars_derived |>
         filter(
-          var_canonical == datum$var_canonical,
-          date %within% interval(datum$time_start, datum$time_end)
+          var_canonical == !!var_canonical,
+          date %within% interval(time_start, obs_end)
         ) |>
-        pull(value) |>
-        median()
+        get_median_value()
     },
     "spatial_outside_temporal_outside" = {
       # do thing B
-      NA
+      NA_real_
     },
     "spatial_outside_temporal_partial" = {
       # do thing C
-      NA
+      NA_real_
     },
     stop("Unknown case: ", spatiotemporal_join_class)
   )
 }
 
-join_ve_outputs(validation_database_classified[1, ])
-
 # Apply rowwise
-validation_database_classified %>%
-  pmap_dbl(join_ve_outputs)
-
-
-test_row <- validation_database_classified |>
-  dplyr::slice(1)
-test_row2 <- validation_database_classified |>
-  filter(spatial_join_class) |>
-  dplyr::slice(1)
-
-# TODO check that test_row$var_canonical is length 1 (select one var only)
-
-# spatial out of bound, temporal within bound
-vars_derived |>
-  filter(
-    var_canonical == test_row$var_canonical,
-    date %within% interval(test_row$time_start, test_row$time_end)
-  ) |>
-  summarise(value = median(value))
-
-# spatial within of bound, temporal within bound
-vars_derived |>
-  filter(
-    var_canonical == test_row2$var_canonical,
-    date %within% interval(test_row2$time_start, test_row2$time_end),
-    lat_min <= test_row2$latitude & test_row2$latitude <= lat_max,
-    lon_min <= test_row2$longitude & test_row2$longitude <= lon_max
-  ) |>
-  summarise(value = median(value))
+validation_database_classified <-
+  validation_database_classified |>
+  mutate(
+    value_VE = pmap_dbl(
+      list(
+        var_canonical,
+        time_start,
+        time_end,
+        latitude,
+        longitude,
+        spatiotemporal_join_class
+      ),
+      join_ve_outputs
+    )
+  )
