@@ -9,30 +9,37 @@ box::use(tools/R/R/get_ve_variables[...])
 
 # Validation database ----------------------------------------------------
 
+# Read the full validation database
 db_path <- "data/derived/soil/validation/database"
+validation_database <- open_dataset(db_path) |> collect()
 
-validation_database <-
-  open_dataset(db_path) |>
-  collect()
-
-vars <- unique(validation_database$var_canonical)
+# List the variables to be validated in the database
+# this is to narrow down the target variables to be extracted from VE outputs
+vars_target <- unique(validation_database$var_canonical)
 
 
 # VE outputs -------------------------------------------------------------
 
+# File paths to the VE outputs and configurations
+# we are using Maliau 2 for now
 zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 
-# Maliau scenario information
+# Maliau scenario information, mainly to extract spatiotemporal bounds
 maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
 
-
+# Calculate grid offset to convert grid centroids to grid bounds later
+# we use grid bounds to locate grids that contain a validation data point
+# this remove the need to find the nearest neighbour, which is computationally
+# more demanding
 grid_offset <- maliau$Scenario$maliau_2$res / 2
 
+# xy coordinates from VE simulation
 xy <-
   get_data_variables(zarr_path, group = "outputs", variables = c("x", "y")) |>
   melt() |>
   pivot_wider(names_from = L1, values_from = value) |>
+  # convert grid centroids to grid bounds
   mutate(
     x_min = x - grid_offset,
     x_max = x + grid_offset,
@@ -72,7 +79,7 @@ xy <-
   select(-bbox) |>
   st_drop_geometry()
 
-#
+# timestamp from VE simulation
 time <-
   get_data_variables(
     zarr_path,
@@ -82,16 +89,23 @@ time <-
   melt() |>
   pivot_wider(names_from = L1, values_from = value)
 
+# Extract the VE outputs
+# We have data variables, which are directly from VE and can be extracted with
+# get_data_variables(), but none of them are in the validation dataset currently
+# so we only calculate the other set, which is the derived variables calculated
+# from get_derived_variables()
 vars_derived <-
   get_derived_variables(
     zarr_path,
     config_path,
     group = "outputs",
-    variables = vars[vars != "groundwater_storage"]
+    variables = vars_target[vars_target != "groundwater_storage"]
   ) |>
   melt() |>
   rename(var_canonical = L1) |>
+  # join spatial information
   left_join(xy |> select(cell_id, starts_with("lon"), starts_with("lat"))) |>
+  # join temporal information
   left_join(time) |>
   mutate(
     date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
@@ -99,20 +113,10 @@ vars_derived <-
 
 # TODO think about spatial having a footprint but not date, in vars_derived
 
-# Join VE outputs to Validation database ---------------------------------
+# Join VE outputs to Validation Database ---------------------------------
 
 # Spatial and temporal bounds classification
-validation_database |>
-  group_by(dataset) |>
-  summarise(
-    time_start = min(time_start, na.rm = TRUE),
-    time_end = max(time_end, na.rm = TRUE),
-    ymin = min(latitude, na.rm = TRUE),
-    ymax = max(latitude, na.rm = TRUE),
-    xmin = min(longitude, na.rm = TRUE),
-    xmax = max(longitude, na.rm = TRUE)
-  )
-
+# first, retrieve the total spatiotemporal extent/bounds of Maliau 2
 maliau_2_run_length <-
   str_split_1(maliau$Scenario$maliau_2$core$timing$run_length, " ")
 maliau_2_bounds <- with(
@@ -131,7 +135,7 @@ maliau_2_bounds <- with(
 )
 
 # Classify observations against maliau_2 bounds
-# Vectorized function that checks if spatial coordinates fall within bounds.
+# Function that checks if spatial coordinates fall within bounds.
 # bounds_spatial: c(xmin, ymin, xmax, ymax)
 classify_spatial_bounds <- function(lat, lon, bounds_spatial) {
   xmin <- bounds_spatial[1]
@@ -139,10 +143,15 @@ classify_spatial_bounds <- function(lat, lon, bounds_spatial) {
   xmax <- bounds_spatial[3]
   ymax <- bounds_spatial[4]
 
-  (lon >= xmin & lon <= xmax) & (lat >= ymin & lat <= ymax)
+  within <- (lon >= xmin & lon <= xmax) & (lat >= ymin & lat <= ymax)
+
+  case_when(
+    within ~ "within",
+    !within ~ "outside"
+  )
 }
 
-# Vectorized function that classifies temporal overlap with a reference interval.
+# Function that classifies temporal overlap with a reference interval.
 # Returns one of: "within" (fully inside), "partial" (overlapping), "outside"
 # (no overlap), or NA if time_start is missing.
 classify_temporal_bounds <- function(
@@ -168,30 +177,96 @@ classify_temporal_bounds <- function(
   )
 }
 
+# Classify each validation datum into a spatiotemporal-match category
 validation_database_classified <-
   validation_database |>
   mutate(
-    spatial_bounds_class = classify_spatial_bounds(
+    spatial_join_class = classify_spatial_bounds(
       latitude,
       longitude,
       maliau_2_bounds$spatial
     ),
-    temporal_bounds_class = classify_temporal_bounds(
+    temporal_join_class = classify_temporal_bounds(
       time_start,
       time_end,
       maliau_2_bounds$temporal
+    )
+  ) |>
+  # combining both spatial and temporal categories
+  mutate(
+    spatiotemporal_join_class = paste(
+      "spatial",
+      spatial_join_class,
+      "temporal",
+      temporal_join_class,
+      sep = "_"
     )
   )
 
 # Summary
 validation_database_classified |>
-  count(dataset, spatial_bounds_class, temporal_bounds_class)
+  count(
+    dataset,
+    # spatial_join_class,
+    # temporal_join_class,
+    spatiotemporal_join_class
+  )
+
+# #########or "mutate_ve_outputs" ?
+join_ve_outputs <- function(datum) {
+  switch(
+    datum$spatiotemporal_join_class,
+    "spatial_within_temporal_within" = {
+      vars_derived |>
+        filter(
+          var_canonical == datum$var_canonical,
+          date %within% interval(datum$time_start, datum$time_end),
+          lat_min <= datum$latitude & datum$latitude <= lat_max,
+          lon_min <= datum$longitude & datum$longitude <= lon_max
+        ) |>
+        pull(value) |>
+        median()
+    },
+    "spatial_within_temporal_outside" = {
+      # do thing B
+      NA
+    },
+    "spatial_within_temporal_partial" = {
+      # do thing C
+      NA
+    },
+    "spatial_outside_temporal_within" = {
+      vars_derived |>
+        filter(
+          var_canonical == datum$var_canonical,
+          date %within% interval(datum$time_start, datum$time_end)
+        ) |>
+        pull(value) |>
+        median()
+    },
+    "spatial_outside_temporal_outside" = {
+      # do thing B
+      NA
+    },
+    "spatial_outside_temporal_partial" = {
+      # do thing C
+      NA
+    },
+    stop("Unknown case: ", spatiotemporal_join_class)
+  )
+}
+
+join_ve_outputs(validation_database_classified[1, ])
+
+# Apply rowwise
+validation_database_classified %>%
+  pmap_dbl(join_ve_outputs)
 
 
 test_row <- validation_database_classified |>
   dplyr::slice(1)
 test_row2 <- validation_database_classified |>
-  filter(spatial_bounds_class) |>
+  filter(spatial_join_class) |>
   dplyr::slice(1)
 
 # TODO check that test_row$var_canonical is length 1 (select one var only)
