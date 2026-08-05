@@ -114,7 +114,7 @@ ve_variables <-
     date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
   )
 
-# TODO think about spatial having a footprint but not date, in derived_variables
+# TODO think about spatial having a footprint but not date, in ve_variables
 
 # Join VE outputs to Validation Database ---------------------------------
 
@@ -215,6 +215,8 @@ validation_database_classified |>
     spatiotemporal_join_class
   )
 
+# Function to find the matching VE prediction for each row in the validation
+# database
 # #########or "mutate_ve_outputs" ?
 # For non-missing inputs, this function is intended to return one numeric value.
 join_ve_outputs <- function(
@@ -239,7 +241,7 @@ join_ve_outputs <- function(
   switch(
     spatiotemporal_join_class,
     "spatial_within_temporal_within" = {
-      derived_variables |>
+      ve_variables |>
         filter(
           var_canonical == !!var_canonical,
           date %within% interval(time_start, time_end),
@@ -257,7 +259,7 @@ join_ve_outputs <- function(
       NA_real_
     },
     "spatial_outside_temporal_within" = {
-      derived_variables |>
+      ve_variables |>
         filter(
           var_canonical == !!var_canonical,
           date %within% interval(time_start, time_end)
