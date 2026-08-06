@@ -219,7 +219,7 @@ convert_volume_to_mass_basis <- function(volume_basis_data, config) {
   if (is.null(bulk_density_soil)) {
     bulk_density_soil <- 1175.0
     data_name <- deparse(substitute(volume_basis_data))
-    cli::cli_alert_warning(c(
+    cli::cli_alert_warning(paste0(
       "Soil bulk density is not found in the scenario config file while ",
       "converting {.var {data_name}}. ",
       "Assigning VE default value {.val {bulk_density_soil}}."
