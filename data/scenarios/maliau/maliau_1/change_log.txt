@@ -1,5 +1,16 @@
 # Change log of maliau_1 scenario input data
 
+2026-08-07
+- Module: Soil, Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+- Changes made:
+  - Fixed a missing conversion of [%] to [kg/kg], causing total soil carbon and
+    nitrogen to take on erroreously high values
+- References:
+  - PR #492 addressing Issue #471
+
 2026-07-31
 - Module: Soil, Litter
 - Author: Hao Ran Lai
