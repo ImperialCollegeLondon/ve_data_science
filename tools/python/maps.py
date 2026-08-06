@@ -75,8 +75,8 @@ fit_bounds = [
     )
 
     # create the folium map
-    m = folium.Map(location=center, tiles=esri_tiles, attr="Esri")
-    m.fit_bounds(fit_bounds)
+    folium_map = folium.Map(location=center, tiles=esri_tiles, attr="Esri")
+    folium_map.fit_bounds(fit_bounds)
 
     # add the extent rectangle
     folium.Rectangle(
@@ -84,6 +84,6 @@ fit_bounds = [
         color="#FFFF00",
         fill=False,
         weight=2,
-    ).add_to(m)
+    ).add_to(folium_map)
 
-    return m
+    return folium_map
