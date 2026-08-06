@@ -59,14 +59,14 @@ def map_scenario_extent(site_definition: str | Path, site_name: str) -> folium.M
     # unpack the spatial extents
     min_lon, min_lat, max_lon, max_lat = config["Scenario"][site_name]["wgs84_bounds"]
 
-center = (
-(min_lat + max_lat) / 2,
-(min_lon + max_lon) / 2,
-)
-fit_bounds = [
-[min_lat, min_lon],
-[max_lat, max_lon],
-]
+    center = (
+        (min_lat + max_lat) / 2,
+        (min_lon + max_lon) / 2,
+    )
+    fit_bounds = [
+        [min_lat, min_lon],
+        [max_lat, max_lon],
+    ]
 
     # define the map background layer
     esri_tiles = (
