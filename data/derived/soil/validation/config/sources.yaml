@@ -1,0 +1,727 @@
+- doi: 10.5281/ZENODO.1198460
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil surface moisture.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      The Effect Of Forest Modification On Ectoparasite Density And Diversity
+    author: Kendall, Alex
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1198460
+    keywords: Leech, ectoparasite, body size
+- doi: 10.5281/ZENODO.1198471
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil temperature.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Microclimate Change, Forest Disturbance And Twig-Dwelling Ants
+    author: Lane Shaw, Isolde
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1198471
+    keywords:
+      twig-nesting ant, colonisation, termite, microclimate, soil temperature,
+      Ctmax
+- doi: 10.5281/ZENODO.1198584
+  decision: excluded
+  reason: no_soil_data
+  notes: Soil keyword was about canopy cover.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Forest Quality And Land Use Intensity Indicators
+    author: Pfeifer, Marion and Ewers, Rob
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1198584
+    keywords:
+      Leaf area index, Canopy cover, above ground biomass, AGB,
+      Photosynthetically active radiation
+- doi: 10.5281/ZENODO.1198832
+  decision: excluded
+  reason: no_soil_data
+  notes: Ant and termite samples in soil pits.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      "Ant And Termite Assemblages Along A Tropical Forest Disturbance Gradient
+      In Sabah, Malaysia: A Study Of Co-Variation And Trophic Interactions"
+    author: Luke, Sarah
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1198832
+    keywords: termite, community composition, soil pit, deadwood
+- doi: 10.5281/ZENODO.1198839
+  decision: excluded
+  reason: no_soil_data
+  notes: ""
+  logged_at: "2026-05-21"
+  metadata:
+    title: Abundance And Morphometrics Of Ant Genera
+    author: Bishop, Tom and Ewers, Rob
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1198839
+    keywords: ants, functional diversity, morphometrics, soil communities
+- doi: 10.5281/ZENODO.1220269
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Contains soil pH, and litter depth and decay data, but not useful for
+    validation targets.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      The Impact Of Invertebrates And Fungi On Litter Decomposition Rate In
+      Modified Forests
+    author: Plowman, Nicola and Ewers, Robert M.
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1220269
+    keywords:
+      leaf litter, decomposition, exclusion experiment, invertebrate, fungi
+- doi: 10.5281/ZENODO.1228189
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains only soil surface temperature.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Forest Soil Temperature Data
+    author: Ewers, Robert M.
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1228189
+    keywords: microclimate, soil temperature, belowground
+- doi: 10.5281/ZENODO.1237724
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil type which is not a validation target.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Seedling-Habitat Associations Of Dipterocarps Across Elevation Gradients
+    author: Singh Ramesh, Arun and Ewers, Robert M.
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1237724
+    keywords: seedling, elevation, soil
+- doi: 10.5281/ZENODO.1303011
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil temperature.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Microclimate Stratification In Modified Forests
+    author:
+      Hardwick, Stephen and Toumi, Ralf and Nilus, Reuben and Ewers, Robert M.
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1303011
+    keywords:
+      microclimate, air temperature, relative humidity, stratification, soil
+      temperature, edge effect
+- doi: 10.5281/ZENODO.1303019
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil temperature.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Microclimate And The Development Rate Of Mosquito Vectors
+    author: Psomas, Elizabeth and Chung, Arthur C. and Ewers, Robert M.
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1303019
+    keywords:
+      Mosquito-bourne disease, microclimate, vectorial capacity, development
+      rate, soil temperature, body size
+- doi: 10.5281/ZENODO.13122107
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Contains microbial diversity data but not soil or litter. The microbial
+    diversity variables are not validation target for now.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Mycelial soil fungal communty attributes and mycelial production across a
+      forest disturbance gradient
+    author:
+      Robinson, Samuel JB and Elias, Dafydd and Johnson, David and Both, Sabine
+      and Riutta, Terhi and Goodall, Tim and Majalap, Noreen and McNamara, Niall
+      P and Griffiths, Robert and Ostle, Nick
+    year: "2024"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/doi/10.5281/zenodo.13122107
+    keywords:
+      soil, soil fungal communities, mycelium, hyphal growth, mycorrhizae,
+      selectively logged forest, oil palm
+- doi: 10.5281/ZENODO.13341608
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Contains microbial diversity data but we do not consider them validation
+    targets for now.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Soil microbial communities from tropical forest and oil palm
+    author:
+      Elias, Dafydd and Both, Sabine and Goodall, Tim and Robinson, Samuel and
+      Majalap-Lee, Noreen and Griffiths, Robert and Ostle, Nick and McNamara,
+      Niall
+    year: "2024"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/doi/10.5281/zenodo.13341608
+    keywords: soil, soil microbial communities
+- doi: 10.5281/ZENODO.1400561
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil moisture and temperature.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Myrmecophilous Pselaphine Beetles In Tropical Forests
+    author: Psomas, Elizabeth
+    year: "2018"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/1400561
+    keywords:
+      Ecosystem functioning, Functional traits, Myrmecophily, Pselaphinae
+- doi: 10.5281/ZENODO.2024580
+  decision: included
+  reason: ""
+  notes: Contains soil nutrients, moisture, pH, bulk density etc.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Landuse change and species invasion
+    author:
+      Döbert, Timm and Webber, Bruce L. and Sugau, John B. and Dickinson,
+      Katherine J. M. and Didham, Raphael K.
+    year: "2019"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/2024580
+    keywords:
+      plant diversity, above-ground biomass, plant functional traits, biological
+      invasions, exotic plants, phylogenetic diversity, soil nutrients
+  source_id: dobert_2019
+  data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
+  skip_rows: 9
+  variables:
+    soilN:
+      var_canonical: total_soil_n_per_volume
+      unit: mg cm^-3
+      description: Total soil nitrogen content
+    soilP:
+      var_canonical: dissolved_phosphorus
+      unit: ug cm^-3
+      description: Plant available soil phosphorus content
+  dedup_key: plot.code
+- doi: 10.5281/ZENODO.3247592
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil carbon flux that are not validation targets.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Daily cycles in soil carbon flux
+    author:
+      Orme, C David L and Riutta, Terhi and Fraser, Adam and Mackintosh, Emma
+      and Vollans, Maisie and Graves, Kristina and Roxby, Gabrielle and Baynham,
+      Georgina and Noble, Ciar and Adzhar, Rahayu and MacLean, Catherine and
+      Martin, Stephanie and McKinlay, Amelia and Poznansky, Frederica and
+      Prairie, Aaron and Brasington, Ella and Wiederkehr, Fabienne
+    year: "2019"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3247592
+    keywords: soil CO2 flux, 24 hour cycle, partitioning
+- doi: 10.5281/ZENODO.3251901
+  decision: excluded
+  reason: used_elsewhere
+  notes:
+    Suspected to be the same SAFE dataset on
+    https://doi.org/10.5281/zenodo.3258117, which was used in
+    analysis/soil/ammonium_nitrate/model.R
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Linking potential greenhouse gas and nitric oxide fluxes to soil microbial
+      communities in incubation experiments with soil from the SAFE landscape
+    author:
+      Drewer, Julia and Leduning, Melissa and Zhao, Jun and Gubry-Rangin, Cécile
+      and Skiba, Ute
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3251901
+    keywords:
+      Soil microbial activity, N2O, CH4, CO2, NO, Soil moisture, Soil pH, SAFE
+      project, HTMF, Oil palm, riparian, nitrous oxide, carbon dioxide, methane,
+      nitric oxide
+- doi: 10.5281/ZENODO.3258117
+  decision: included
+  reason: used_elsewhere
+  notes:
+    NH4-N and NO3-N in the 'data one off field' sheet was used for input data in
+    analysis\soil\ammonium_nitrate\model.R; but there are other soil variables
+    such as soil_N, soil_C and soil_moisture worth validating. Contains litter C
+    and N but they are percentage of litter mass, but the latter was not
+    provided.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Soil greenhouse gas fluxes and associated parameters from forest and oil
+      palm in the SAFE landscape
+    author:
+      Drewer, Julia and Leduning, Melissa and Sentian, Justin and Skiba, Ute
+    year: "2019"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3258117
+    keywords:
+      HTMF, soil, methane, gas exchange, SAFE project, biogeochemistry,
+      greenhouse gases, GHG, nitrous oxide
+  source_id: drewer_2019
+  data_file: data/primary/soil/drewer_2019/3_GHG_jdrewer.csv
+  skip_rows: 5
+  variables:
+    soil_N:
+      var_canonical: total_soil_n_per_volume
+      unit: g cm^-3
+      description:
+        Percentage of soil N. Calculated in the CSV sheet as 'soil_N% *
+        bulk_density'.
+    soil_C:
+      var_canonical: total_soil_c_per_volume
+      unit: g cm^-3
+      description:
+        Percentage of soil C. Calculated in the CSV sheet as 'soil_C% *
+        bulk_density'.
+  dedup_key: Location
+- doi: 10.5281/ZENODO.3265745
+  decision: included
+  reason: ""
+  notes:
+    Contains mineralization rates of plant available soil nutrients, which may
+    align with litter_mineralisation_rate_cnp. Also contains soil moisture.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Termite abundance and ecosystem processes in Maliau Basin, 2015-2016
+      [HMTF]
+    author:
+      Ashton, Louise and Griffiths, Hannah and Parr, Catherine and Evans,
+      Theodore and Eggleton, Paul and Vairappan, Charles
+    year: "2019"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3265745
+    keywords:
+      Bulbitermtes, Coptotermes, Dicuspiditermes, Globertermes, Hetertermes,
+      HMTF, Homallotermes, Human-modified tropical forest, Hypotermes,
+      invertebrates, leaf litter, litter bags, Macrotermes, Malaysia,
+      Malaysiotermes, Maliau Basin Conservation Area, Microcerotermes,
+      Odontotermes, Parrhinotermes, Procapritermes, Prohamitermes, rainfall,
+      Sabah, Schedorhinotermes, soil moisture, soil nutrients, Termes, termites
+- doi: 10.5281/ZENODO.3266821
+  decision: excluded
+  reason: no_soil_data
+  notes: Poorly documented. Seems to contain soil temperature only.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Microclimate proxy measurements from a logging gradient in Malaysian
+      Borneo (BALI project)
+    author:
+      Blonder, Benjamin and Both, Sabine and Coomes, David A and Elias, Dafydd
+      and Jucker, Tommaso and Kvasnica, Jakub and Majalap, Noreen and Malhi,
+      Yadvinder and Milodowski, David and Riutta, Terhi and Svátek, Martin
+    year: "2019"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3266821
+    keywords: Mircoclimate, LiDAR, SAFE Project, HTMF, Tempreture
+- doi: 10.5281/ZENODO.3354067
+  decision: excluded
+  reason: no_soil_data
+  notes: Soil keyword was only about disturbance.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Core - invert biomass + ordinal sort
+    author:
+      Sawang, Anati and Sharp, Adam and Chung, Arthur and Ewers, Robert M and
+      Barclay, Max
+    year: "2019"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3354067
+    keywords: Insect sorting, Core data, SAFE project, Insect trapping, Beetles
+- doi: 10.5281/ZENODO.3698115
+  decision: excluded
+  reason: ""
+  notes:
+    The 'data one off field' sheet seems to be the same as the one in
+    https://zenodo.org/records/3258117, which has been included as 'drewer_2019'
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Soil VOC emission rates and associated parameters from forest and oil palm
+      in the SAFE landscape
+    author:
+      Drewer, Julia and Leduning, Melissa and Sentian, Justin and Skiba, Ute
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3698115
+    keywords:
+      HTMF, soil, monoterpenes, gas exchange, SAFE project, biogeochemistry, VOC
+- doi: 10.5281/ZENODO.3857210
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Contains soil variables such as soil depth, infiltration, bulk density etc.
+    but these are either static states or are not validation targets.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Land use effect on earthworms
+    author: Rao, Sri
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3857210
+    keywords: Earthworms, Soil pits, Soil structure, Below ground biodiversity
+- doi: 10.5281/ZENODO.3888374
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil water content and soil temperature.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Microclimate at SAFE Flux Tower
+    author:
+      Riutta, Terhi and Malhi, Yadvinder and Ewers, Robert M and Majalap, Noreen
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3888374
+    keywords:
+      microclimate, temperature, humidity, moisture, water content, radiation,
+      weather, data logger, rainfall, precipitation
+- doi: 10.5281/ZENODO.3897376
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains river bank soil cover, which is not a validation target.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Investigating the Distribution and Occupancy of Otter Species across
+      Human-modified Landscapes in Sabah, Malaysia.
+    author:
+      Pianzin, Annabel and Wong, Anna and Bernard, Henry and Struebig, Matthew
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3897376
+    keywords:
+      Otter, Land-use change, distribution, occupancy, riparian reserve,
+      human-modified landscapes, oil palm, SAFE project, Aonyx cinereus,
+      Lutrogale perspicillata
+- doi: 10.5281/ZENODO.3929632
+  decision: included
+  reason: used_elsewhere
+  notes:
+    Used in various microbial and litter input data analyses, but there are
+    leftover soil variables such as soil_N, _C and _P worth validating.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Soil and litter chemistry, soil microbial communities and litter
+      decomposition from tropical forest and oil palm
+    author:
+      Elias, Dafydd and Robinson, Samuel and Both, Sabine and Goodall, Tim and
+      Majalap-Lee, Noreen and Ostle, Nick and McNamara, Niall
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3929632
+    keywords:
+      soil, soil microbial communities, PLFA, litter decomposition, litter,
+      functional dissimilarity
+  source_id: elias_2020
+  data_file: data/primary/soil/elias_2020/SAFE_Dataset.csv
+  skip_rows: 9
+  variables:
+    soil_N:
+      var_canonical: total_soil_n_per_mass
+      unit: g g^-1
+      description: Total soil nitrogen concentration
+    soil_C:
+      var_canonical: total_soil_c_per_mass
+      unit: g g^-1
+      description: Total soil carbon concentration
+    soil_P:
+      var_canonical: total_soil_p_per_mass
+      unit: ug g^-1
+      description: Total soil phosphorous concentration
+  dedup_key: location_name
+- doi: 10.5281/ZENODO.3979295
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Contains soil bulk density which is neither updated nor a validation target.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      The impacts of tropical forest degradation and fragmentation on ant-plant
+      mutualisms, and consequences for plant community dynamics
+    author: Houadria, Mikal and Chung, Arthur
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/3979295
+    keywords:
+      M.pearsonii, Macaranga, Ants, Herbivory, mutualism, soil nutrient content
+- doi: 10.5281/ZENODO.4297672
+  decision: excluded
+  reason: no_soil_data
+  notes: Soil keyword was only about sampling methodology.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      The Resilience of Tropical Forest Invertebrates to Microclimate Change
+    author:
+      Boyle, Michael and Evans, Theo and Van Breugel, Michiel and Chung, Arthur
+      and Ewers, Robert
+    year: "2020"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/4297672
+    keywords:
+      "Ants, CTmax, Microclimate, Physiology, FOS: Biological sciences, FOS:
+      Biological sciences"
+- doi: 10.5281/ZENODO.4542881
+  decision: included
+  reason: ""
+  notes:
+    Used in various soil and litter input data analysis, but contains some
+    unused variables that can be validated, e.g., Soil carbon stock
+    SOC_0to100cm.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Total and partitioned soil respiration and below-ground carbon budget in
+      SAFE intensive carbon plots
+    author:
+      Riutta, Terhi and Ewers, Robert M and Malhi, Yadvinder and Majalap, Noreen
+      and Khoon, Kho Lip
+    year: "2021"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/4542881
+    keywords:
+      Soil respiration, Carbon dioxide, CO2, SAFE core data, SAFE project,
+      Carbon plot, Soil moisture, Soil temperature, Total respiration, Partioned
+      respiration, Heterotropchic respiration, Autotrophic respiration, Soil
+      carbon cycle, Below-ground, Roots, Litter, Soil organic matter, Flux
+- doi: 10.5281/ZENODO.4630979
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Contains litter decompositions but these are useful for input data or
+    constant parameterisation, not validation.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Effect of vertebrate exclusion on ecosystem functioning
+    author:
+      Mackintosh, Emma and Fraser, Adam and Banks-Leite, Cristina and Ewers,
+      Robert M and Chung, Arthur
+    year: "2021"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/4630979
+    keywords:
+      Vertebrate exclusion, invertebrate, aboveground, leaf litter, belowground,
+      decomposition rate, herbivory rate, ecosystem functioning, forest quality
+      gradient, trophic cascade
+- doi: 10.5281/ZENODO.4899609
+  decision: excluded
+  reason: used_elsewhere
+  notes: Used in woody litter pool input data analyses.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Deadwood decay and traits in the SAFE landscape
+    author:
+      Riutta, Terhi and Ewers, Robert M and Malhi, Yadvinder and Majalap, Noreen
+      and Cornelissen, Hans and Robert, Roland
+    year: "2021"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/4899609
+    keywords:
+      Deadwood, Decay, Deadwood traits, Coarse woody debris, SAFE project, Soil
+      moisture, Wood density, Decay class, Nitrogen, Phophorus, Carbon
+- doi: 10.5281/ZENODO.5113428
+  decision: included
+  reason: ""
+  notes:
+    Contains delta-15 N and delta-13 C isotopes in soil, deadwood, litter and
+    leaves. Need to ask Jacob if these can be validated against
+    litter_mineralisation_rate_cnp etc.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Using stable isotopes to link biogeochemical processes to biodiversity of
+      conservation concern
+    author:
+      Kemp, Victoria and Hemprich-Bennett, David and Bernard, Henry and Lewis,
+      Owen and Struebig, Matthew and Kratina, Pavel and Clare, Elizabeth L and
+      Rossiter, Stephen and Grey, Jonathan
+    year: "2021"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/5113428
+    keywords:
+      bats, community, logging, forest, trophic, consumer, predator, HTMF, SAFE
+      Project
+- doi: 10.5281/ZENODO.5113430
+  decision: included
+  reason: ""
+  notes:
+    Contains delta-15 N and delta-13 C of soil and leaf, need to ask Jacob if
+    they can be validated against variables such as
+    litter_mineralisation_rate_cnp.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Delta-15N values for leaf and soil samples from a mesocosm experiment
+      looking at dung beetle presence and the movement of dung-derived nitrogen
+      (DDN)
+    author:
+      Kemp, Victoria and Bernard, Henry and Kratina, Pavel and Grey, Jonathan
+      and Slade, Eleanor
+    year: "2021"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/5113430
+    keywords:
+      dung beetles, nitrogen, forest, function, mineralisation, oil palm,
+      agriculture, 15N, stable isotope, SAFE project, HTMF
+- doi: 10.5281/ZENODO.5519571
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil CO2 efflux, soil moisture and temperature.
+  logged_at: "2026-05-21"
+  metadata:
+    title:
+      Large contribution of recent photosynthate to soil respiration in tropical
+      dipterocarp forest revealed by girdling
+    author:
+      Nottingham, Andrew and Cheeseman, Alexander and Riutta, Terhi and Doughty,
+      Christopher and Telford, Elizabeth and Huasco, Walter Huaraca and Svátek,
+      Martin and Kvasnica, Jakub and Majalap, Noreen and Malhi, Yadvinder and
+      Meir, Patrick and Teh, Yit Arn
+    year: "2021"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/5519571
+    keywords: Girdling, Licor, Carbon, Tree, Mortality
+- doi: 10.5281/ZENODO.5562259
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Mostly invertebrate samples. Contains soil temperature and texture, but the
+    latter is categorical.
+  logged_at: "2026-05-21"
+  metadata:
+    title: The Maliau Quantitative Inventory
+    author:
+      Carpenter, Daniel and Calloway, Kerry and Brown, Keiron and Rahman,
+      Homathevi and Effendi, Bahktiar and Eggleton, Paul
+    year: "2021"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/5562259
+    keywords: invertebrates, deadwood
+- doi: 10.5281/ZENODO.6477761
+  decision: excluded
+  reason: no_soil_data
+  notes: Contains soil disturbance but is not a validation target.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Pig rooting surveys
+    author: Heon, Sui P and Berhard, Henry and Ewers, Robert M
+    year: "2022"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/6477761
+    keywords: Bearded Pigs, African swine fever, Rooting, Soil disturbance
+- doi: 10.5281/ZENODO.7307448
+  decision: excluded
+  reason: no_soil_data
+  notes:
+    Contains net primary productivity and carbon balance data, may be worth
+    revisiting for emergent properties.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Components of the complete budget for SAFE intensive carbon plots
+    author:
+      Riutta, Terhi and Ewers, Robert M and Malhi, Yadvinder and Majalap, Noreen
+      and Khoon, Kho Lip and Mills, Maria
+    year: "2022"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/7307448
+    keywords:
+      Carbon balance, Respiration, Carbon flux, SAFE core data, SAFE project,
+      Carbon plot, Heterotropchic respiration, Autotrophic respiration, Soil
+      carbon cycle, Productivity, Litter, Soil organic matter, Flux
+- doi: 10.5281/ZENODO.7789415
+  decision: excluded
+  reason: no_soil_data
+  notes: Soil keyword was about animal feeding guild.
+  logged_at: "2026-05-21"
+  metadata:
+    title: Functional trait data for taxa recorded at SAFE
+    author:
+      Ewers, Robert M. and Fraser, Adam and Normal, Danielle and Folkard-Tapp,
+      Hollie
+    year: "2023"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/7789415
+    keywords:
+      functional traits, morphology, morphological traits, species traits,
+      function
+- doi: 10.5281/ZENODO.8158810
+  decision: included
+  reason: ""
+  notes:
+    Heartwood nutrient may be able to approximate woody litter nutrient pools.
+  logged_at: "2026-06-05"
+  metadata:
+    title:
+      Nutrients and wood density in coarse root, trunk and branches in Bornean
+      tree species
+    author:
+      Inagawa, Takeshi and Riutta, Terhi and Malhi, Yadvinder and Majalap,
+      Noreen and Nilus, Reuben and Josue, James
+    year: "2023"
+    journal: .na.character
+    publisher: Zenodo
+    url: https://zenodo.org/record/8158810
+    keywords:
+      wood traits, bark, sapwood, heartwood, coarse root, branch, carbon,
+      nitrogen, phosphorus, potassium, calcium, magnesium, wood specific
+      gravity, nutrient cycling, wood resorption, wood density
