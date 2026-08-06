@@ -23,10 +23,31 @@ vars_target <- unique(validation_database$var_canonical)
 # Helper that reads a scenario TOML and returns a flat list of the fields used
 # downstream. Isolating all maliau$Scenario$<name>$... access here makes the
 # dependency easy to swap out or remove later.
-read_scenario_definition <- function(toml_path, scenario_name) {
-  scenario <- read_toml(toml_path) |> pluck("Scenario", scenario_name)
+read_scenario_definition <- function(toml_path) {
+  scenario <- read_toml(toml_path)
+  scenario$res <- sqrt(scenario$core$grid$cell_area)
   run_length_parts <- str_split_1(scenario$core$timing$run_length, " ")
   start_date <- ymd(scenario$core$timing$start_date)
+
+  utm_bounds <- c(
+    xmin = scenario$core$grid$xoff,
+    ymin = scenario$core$grid$yoff,
+    xmax = scenario$core$grid$xoff +
+      scenario$core$grid$cell_nx * scenario$res,
+    ymax = scenario$core$grid$yoff +
+      scenario$core$grid$cell_ny * scenario$res
+  )
+
+  wgs84_bbox <-
+    st_bbox(utm_bounds, crs = st_crs(32650)) |>
+    st_as_sfc() |>
+    st_transform(crs = 4326) |>
+    st_bbox()
+
+  scenario$wgs84_bounds <- setNames(
+    as.numeric(wgs84_bbox),
+    names(wgs84_bbox)
+  )
 
   list(
     grid_res = scenario$res,
@@ -47,10 +68,11 @@ read_scenario_definition <- function(toml_path, scenario_name) {
 zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 
-scenario_def <- read_scenario_definition(
-  "data/derived/site/maliau/maliau_grid_definition.toml",
-  scenario_name = "maliau_2"
-)
+# Retrieve a list of scenario metadata for use downstream.
+# NOTE: some metdata are directly available from the maliau site definition
+#       TOML file, but we want to remove a dependency on it, so I am reverse-
+#       engineering these metadata directly from the saved config from ve_run
+scenario_def <- read_scenario_definition(config_path)
 
 # Half-cell offset used to convert grid centroids to grid bounds.
 # Grid bounds allow point-in-cell lookup without nearest-neighbour search.
