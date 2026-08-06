@@ -1477,9 +1477,10 @@ join_ve_outputs <- function(validation_database, zarr_path, config_path) {
         cell_id,
         dplyr::starts_with("lon"),
         dplyr::starts_with("lat")
-      )
+      ),
+      by = dplyr::join_by(cell_id)
     ) |>
-    dplyr::left_join(timestamp_ve) |>
+    dplyr::left_join(timestamp_ve, by = dplyr::join_by(time_index)) |>
     dplyr::mutate(date = scenario_def$start_date + timestamp)
 
   scenario_bounds <- list(
