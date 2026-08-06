@@ -16,22 +16,19 @@
 #| status: in progress
 #|
 #| scripts:
-#|   - order: 1
-#|     path: analysis/plant/input_data/data_library/pfts_maliau.R
-#|   - order: 2
-#|     path: analysis/plant/input_data/data_library/t_model_maliau.R
-#|   - order: 3
-#|     path: analysis/plant/input_data/data_library/pfts_maximum_height_maliau.R
+#|   - path: analysis/plant/input_data/data_library/pfts_maliau.R
+#|   - path: analysis/plant/input_data/data_library/t_model_maliau.R
+#|   - path: analysis/plant/input_data/data_library/pfts_maximum_height_maliau.R
 #|
 #| package_dependencies:
-#|     - yaml
+#|   - yaml
 #|
 #| usage_notes: |
 #|   Run this script to regenerate all plant input data files.
 #|   To update a single file, run the individual script directly.
 #|   When adding a new script to the data library, add it to the scripts
-#|   section above in the correct order, and add a corresponding source()
-#|   call in the script body below.
+#|   section above in the correct order. The scripts are run in the order they
+#|   appear in that list.
 #| ---
 
 # ==============================================================================
@@ -71,87 +68,103 @@ print_script_summary <- function(meta, order, script_path) {
   ))
   cat("   Description:\n")
   cat(sprintf("     %s\n", gsub("\n", "\n     ", trimws(meta$description))))
-  cat("   Package dependencies:\n")
-  for (p in meta$package_dependencies) {
-    cat(sprintf("     - %s\n", p))
+
+  if (!is.null(meta$package_dependencies)) {
+    cat("   Package dependencies:\n")
+    for (p in meta$package_dependencies) {
+      cat(sprintf("     - %s\n", p))
+    }
   }
-  cat("   Input files:\n")
-  for (f in meta$input_files) {
-    cat(sprintf("     - %s/%s\n", f$path, f$name))
-    cat(sprintf("       %s\n", gsub("\n", "\n       ", trimws(f$description))))
+
+  if (!is.null(meta$input_files)) {
+    cat("   Input files:\n")
+    for (f in meta$input_files) {
+      cat(sprintf("     - %s/%s\n", f$path, f$name))
+      cat(sprintf("       %s\n", gsub("\n", "\n       ", trimws(f$description))))
+    }
   }
-  cat("   Output files:\n")
-  for (f in meta$output_files) {
-    cat(sprintf("     - %s/%s\n", f$path, f$name))
-    cat(sprintf("       %s\n", gsub("\n", "\n       ", trimws(f$description))))
-    if (!is.null(f$variables)) {
-      cat("       Variables:\n")
-      for (v in f$variables) {
-        cat(sprintf(
-          "         - %s (%s, %s): %s\n",
-          v$name,
-          v$type,
-          v$units,
-          trimws(v$description)
-        ))
+
+  if (!is.null(meta$output_files)) {
+    cat("   Output files:\n")
+    for (f in meta$output_files) {
+      cat(sprintf("     - %s/%s\n", f$path, f$name))
+      cat(sprintf("       %s\n", gsub("\n", "\n       ", trimws(f$description))))
+      if (!is.null(f$variables)) {
+        cat("       Variables:\n")
+        for (v in f$variables) {
+          cat(sprintf(
+            "         - %s (%s, %s): %s\n",
+            v$name,
+            v$type,
+            v$units,
+            trimws(v$description)
+          ))
+        }
       }
     }
   }
-  cat("   Usage notes:\n")
-  cat(sprintf("     %s\n", gsub("\n", "\n     ", trimws(meta$usage_notes))))
+
+  if (!is.null(meta$usage_notes)) {
+    cat("   Usage notes:\n")
+    cat(sprintf("     %s\n", gsub("\n", "\n     ", trimws(meta$usage_notes))))
+  }
+
   cat(
     "================================================================================\n"
   )
+}
+
+run_script_quietly <- function(script_path, order) {
+  meta <- read_script_metadata(script_path)
+  print_script_summary(meta, order = order, script_path = script_path)
+
+  elapsed <- system.time({
+    pdf(NULL)
+    output_file <- tempfile()
+    output_connection <- file(output_file, open = "wt")
+
+    sink(output_connection)
+    sink(output_connection, type = "message")
+
+    on.exit({
+      while (sink.number(type = "message") > 0) {
+        sink(type = "message")
+      }
+      while (sink.number() > 0) {
+        sink()
+      }
+      close(output_connection)
+      if (dev.cur() > 1) {
+        dev.off()
+      }
+      if (file.exists(output_file)) {
+        unlink(output_file)
+      }
+    }, add = TRUE)
+
+    suppressWarnings(
+      suppressMessages(
+        source(script_path, local = new.env())
+      )
+    )
+  })["elapsed"]
+
+  cat(sprintf("   Completed in %.1f seconds.\n", elapsed))
 }
 
 # ==============================================================================
 # Run individual scripts
 # ==============================================================================
 
-# ------------------------------------------------------------------------------
-# 1. Plant functional types (PFTs) - Maliau
-# ------------------------------------------------------------------------------
-
-script_1 <- "pfts_maliau.R"
-print_script_summary(
-  read_script_metadata(script_1),
-  order = 1,
-  script_path = script_1
+scripts <- c(
+  "pfts_maliau.R",
+  "t_model_maliau.R",
+  "pfts_maximum_height_maliau.R"
 )
-t_start <- proc.time()
-suppressMessages(source(script_1, local = new.env()))
-t_end <- proc.time()
-cat(sprintf("   Completed in %.1f seconds.\n", (t_end - t_start)["elapsed"]))
 
-# ------------------------------------------------------------------------------
-# 2. T model parameters - Maliau
-# ------------------------------------------------------------------------------
-
-script_2 <- "t_model_maliau.R"
-print_script_summary(
-  read_script_metadata(script_2),
-  order = 2,
-  script_path = script_2
-)
-t_start <- proc.time()
-suppressMessages(source(script_2, local = new.env()))
-t_end <- proc.time()
-cat(sprintf("   Completed in %.1f seconds.\n", (t_end - t_start)["elapsed"]))
-
-# ------------------------------------------------------------------------------
-# 3. Plant functional types (PFTs) - Maliau maximum height
-# ------------------------------------------------------------------------------
-
-script_3 <- "pfts_maximum_height_maliau.R"
-print_script_summary(
-  read_script_metadata(script_3),
-  order = 3,
-  script_path = script_3
-)
-t_start <- proc.time()
-suppressMessages(source(script_3, local = new.env()))
-t_end <- proc.time()
-cat(sprintf("   Completed in %.1f seconds.\n", (t_end - t_start)["elapsed"]))
+for (i in seq_along(scripts)) {
+  run_script_quietly(scripts[i], order = i)
+}
 
 # ==============================================================================
 
