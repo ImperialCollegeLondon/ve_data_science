@@ -42,6 +42,7 @@ library(ellmer)
 library(ragnar)
 library(glue)
 library(reticulate)
+py_require("virtual_ecosystem")
 
 data_folder <- "data/derived/soil/llm"
 
