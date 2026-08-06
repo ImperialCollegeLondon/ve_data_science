@@ -24,7 +24,7 @@ are in [mkdocs.yml](mkdocs.yml).
 Primary tooling and conventions:
 
 - Python 3.12+
-- Poetry for Python environment/dependency management
+- uv for Python environment/dependency management
 - R 4.4+ expected for local workflows
 - pre-commit for QA checks
 - Ruff for Python linting/formatting (line length 88)
@@ -40,16 +40,16 @@ git clone https://github.com/ImperialCollegeLondon/ve_data_science.git
 cd ve_data_science
 ```
 
-Install Python tooling with Poetry:
+Install Python tooling with uv:
 
 ```bash
-poetry install
+uv sync
 ```
 
 Install pre-commit hooks:
 
 ```bash
-poetry run pre-commit install
+uv run pre-commit install
 ```
 
 Ensure R is installed and available on `PATH` as `Rscript`.
@@ -70,19 +70,19 @@ For routine development, run targeted checks before broad checks.
 Run pre-commit on all files:
 
 ```bash
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 Run only Python hooks when iterating on Python files:
 
 ```bash
-poetry run pre-commit run ruff-check ruff-format --all-files
+uv run pre-commit run ruff-check ruff-format --all-files
 ```
 
 Run only R-related hooks when iterating on R files (requires `Rscript`):
 
 ```bash
-poetry run pre-commit run parsable-R no-browser-statement no-debug-statement air-format --all-files
+uv run pre-commit run parsable-R no-browser-statement no-debug-statement air-format --all-files
 ```
 
 Known local issue: if pre-commit reports `Executable 'Rscript' not found`,
@@ -127,7 +127,7 @@ Python tests are present in module locations such as
 Run a specific Python test module:
 
 ```bash
-poetry run pytest tools/python/animal/test_trophic_mass_flow.py
+uv run pytest tools/python/animal/test_trophic_mass_flow.py
 ```
 
 If `pytest` is unavailable in the environment, install it in the active Python
@@ -136,6 +136,13 @@ environment before running module tests.
 ## Code style and file conventions
 
 Follow existing local style in the file you are editing.
+
+### Function interface design
+
+When proposing or adding functions, prefer simple, human-intuitive interfaces.
+Use clear function names and argument names that make the workflow easy to
+understand at a glance. Do not introduce extra abstraction layers or defensive
+engineering unless the script clearly needs them.
 
 ### R
 
@@ -162,14 +169,14 @@ Keep Markdown line length at 88 where possible (see
 Local docs preview:
 
 ```bash
-poetry run mkdocs serve
+uv run mkdocs serve
 ```
 
 Deploy docs (same command pattern as CI in
 [.github/workflows/gh_deploy.yml](.github/workflows/gh_deploy.yml)):
 
 ```bash
-poetry run mkdocs gh-deploy --force
+uv run mkdocs gh-deploy --force
 ```
 
 ## CI/CD notes
@@ -179,15 +186,14 @@ R test workflow: [.github/workflows/r-tests.yml](.github/workflows/r-tests.yml).
 Documentation deploy workflow:
 [.github/workflows/gh_deploy.yml](.github/workflows/gh_deploy.yml).
 
-The R test workflow currently detects `uv.lock` and uses `uv` when present,
-otherwise falls back to Poetry for Python dependency setup.
+The R test workflow uses `uv` for Python dependency setup.
 
 ## Pull request and change guidelines
 
 Before opening or updating a PR, run local QA and relevant tests:
 
 ```bash
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ```bash
