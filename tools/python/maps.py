@@ -52,6 +52,7 @@ def map_scenario_extent(site_definition: str | Path, site_name: str) -> folium.M
 
     """
     # read the site definition TOML file
+    site_definition = Path(site_definition)
     with open(site_definition, "rb") as f:
         config = tomllib.load(f)
 
