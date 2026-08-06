@@ -1,13 +1,13 @@
 #| ---
-#| title: T model parameterisation
+#| title: t_model_maliau
 #|
 #| description: |
-#|     This script focuses on updating the base values for the parameters in
-#|     the T model to values more closely aligned with the SAFE project.
+#|     This script updates the base values for the T model parameters to values
+#|     more closely aligned with the SAFE project and Maliau input-data workflow.
 #|     The script works with multiple datasets and calculates values for the
-#|     T model, ideally at PFT level. Species are linked to their PFT by working
-#|     with the output of the PFT species classification base script. Some extra
-#|     traits that are part of the plant constants are also added.
+#|     T model, ideally at PFT level. Taxa are linked to their PFT by using the
+#|     pfts_maliau output. Some additional traits that are part of the plant
+#|     constants are also included in the final output.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -16,7 +16,6 @@
 #|   - Arne Scheire
 #|
 #| status: final
-#|
 #|
 #| input_files:
 #|   - name: tree_census_11_20.xlsx
@@ -27,15 +26,14 @@
 #|       Data includes measurements of DBH and estimates of tree height for all
 #|       stems, fruiting and flowering estimates,
 #|       estimates of epiphyte and liana cover, and taxonomic IDs.
-#|   - name: plant_functional_type_species_classification_base.csv
-#|     path: data/derived/plant/plant_functional_type
+#|   - name: pfts_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a list of species and their respective PFT.
+#|       This CSV file contains the base list of taxa and their assigned PFT.
 #|   - name: inagawa_nutrients_wood_density.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.8158811
-#|       Tree census data from the SAFE Project 2011–2020.
 #|       Nutrients and wood density in coarse root, trunk and branches in
 #|       Bornean tree species.
 #|   - name: both_tree_functional_traits.xlsx
@@ -51,24 +49,125 @@
 #|       Components of the complete budget for SAFE intensive carbon plots.
 #|
 #| output_files:
-#|   - name: t_model_parameters.csv
-#|     path: data/derived/plant/traits_data
+#|   - name: t_model_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a summary of updated T model parameters for each PFT.
+#|       This CSV file contains a summary of updated T model parameters for each
+#|       plant functional type used in the Maliau data library workflow.
+#|     variables:
+#|       - name: name
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Human-readable plant functional type name.
+#|       - name: h_max
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Maximum canopy height parameter for the T model.
+#|       - name: a_hd
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Initial slope parameter of the height–diameter relationship.
+#|       - name: ca_ratio
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Initial ratio of crown area to stem cross-sectional area.
+#|       - name: rho_s
+#|         type: numeric
+#|         units: kg C m-3
+#|         description: |
+#|           Sapwood density expressed as carbon mass per unit volume.
+#|       - name: sla
+#|         type: numeric
+#|         units: m2 kg-1 C
+#|         description: |
+#|           Specific leaf area expressed per unit carbon mass.
+#|       - name: lai
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Leaf area index.
+#|       - name: par_ext
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Light extinction coefficient for photosynthetically active radiation.
+#|       - name: tau_f
+#|         type: numeric
+#|         units: years
+#|         description: |
+#|           Leaf turnover time.
+#|       - name: tau_rt
+#|         type: numeric
+#|         units: years
+#|         description: |
+#|           Reproductive tissue turnover time.
+#|       - name: tau_r
+#|         type: numeric
+#|         units: years
+#|         description: |
+#|           Fine root turnover time.
+#|       - name: resp_r
+#|         type: numeric
+#|         units: year-1
+#|         description: |
+#|           Fine root maintenance respiration rate.
+#|       - name: resp_f
+#|         type: numeric
+#|         units: year-1
+#|         description: |
+#|           Leaf maintenance respiration rate.
+#|       - name: resp_s
+#|         type: numeric
+#|         units: year-1
+#|         description: |
+#|           Wood maintenance respiration rate.
+#|       - name: resp_rt
+#|         type: numeric
+#|         units: year-1
+#|         description: |
+#|           Reproductive tissue respiration parameter.
+#|       - name: yld
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Yield factor used in the T model.
+#|       - name: zeta
+#|         type: numeric
+#|         units: kg C m-2
+#|         description: |
+#|           Fine root carbon mass to foliage area ratio.
+#|       - name: root_exudates
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Root exudate carbon fraction parameter.
+#|       - name: per_stem_annual_mortality_probability
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Annual probability of mortality per stem.
+#|       - name: per_propagule_annual_recruitment_probability
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Annual probability of recruitment per propagule.
 #|
 #| package_dependencies:
-#|     - readxl
-#|     - dplyr
-#|     - ggplot2
-#|     - stringr
+#|   - readxl
+#|   - dplyr
+#|   - ggplot2
+#|   - stringr
 #|
 #| usage_notes: |
 #|   This script is intended to run entirely from start to finish in order to
 #|   preserve the flow and links between different datasets, so that the final
-#|   output file contains all necessary parts. The units are the same as the
-#|   ones in Li et al. (2014) unless specified otherwise in the script.
-#|   A summary of the unit for each variable can also be found at the end of
-#|   this script. Variable names have been matched with those used by the VE.
+#|   output file contains all necessary parts. Variable names are matched to
+#|   those used by the Virtual Ecosystem model. This script can be run on its
+#|   own or via master_data_library.R.
 #| ---
 
 # Load packages
@@ -81,7 +180,7 @@ library(stringr)
 # Load SAFE tree census data and clean up a bit
 
 tree_census_11_20 <- read_excel(
-  "../../../data/primary/plant/tree_census/tree_census_11_20.xlsx",
+  "../../../../data/primary/plant/tree_census/tree_census_11_20.xlsx",
   sheet = "Census11_20",
   col_names = FALSE
 )
@@ -93,21 +192,19 @@ colnames(data) <- data[10, ]
 data <- data[11:40511, ]
 names(data)
 
-# Load PFT species classification base and clean up a bit
+# Load PFT classification and clean up a bit
 
-PFT_species_classification_base <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
+pfts_maliau <- read.csv(
+  "../../../../data/derived/plant/input_data/data_library/pfts_maliau.csv",
   header = TRUE
 )
 
-PFT_species_classification_base <- PFT_species_classification_base[,
-  c("PFT", "PFT_name", "TaxaName")
-]
-PFT_species_classification_base <- unique(PFT_species_classification_base)
+pfts_maliau <- pfts_maliau[, c("PFT", "PFT_name", "TaxaName")]
+pfts_maliau <- unique(pfts_maliau)
 
 # Add PFT and PFT_name to data based on TaxaName and call it data_taxa
 
-data_taxa <- left_join(data, PFT_species_classification_base, by = "TaxaName")
+data_taxa <- left_join(data, pfts_maliau, by = "TaxaName")
 
 # Give plots a logging indicator
 
@@ -811,7 +908,7 @@ ggplot(
 # Load wood nutrients data and clean up a bit
 
 inagawa_nutrients_wood_density <- read_excel(
-  "../../../data/primary/plant/traits_data/inagawa_nutrients_wood_density.xlsx",
+  "../../../../data/primary/plant/traits_data/inagawa_nutrients_wood_density.xlsx",
   sheet = "Nutrients",
   col_names = FALSE
 )
@@ -849,7 +946,7 @@ mean(temp$C_total_mean) # Use 45.9% carbon content for sapwood later in calculat
 # More traits (wood density and SLA)
 
 both_tree_functional_traits <- read_excel(
-  "../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
+  "../../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
   sheet = "Tree_functional_traits",
   col_names = FALSE
 )
@@ -882,14 +979,14 @@ data <- data[, c(1:9, 86, 10:85)]
 # Match by species first
 data1 <- left_join(
   data,
-  PFT_species_classification_base,
+  pfts_maliau,
   by = c("species" = "TaxaName")
 )
 
 # Match by genus only for rows where PFT is still NA
 data2 <- left_join(
   data,
-  PFT_species_classification_base,
+  pfts_maliau,
   by = c("genus" = "TaxaName")
 )
 
@@ -1423,7 +1520,7 @@ summary <- left_join(summary, niiyama_data, by = "PFT_name")
 # dataset, which has the NPP and GPP for several plots at SAFE.
 
 SAFE_carbon_balance_components <- read_excel(
-  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
+  "../../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
   sheet = "Data",
   col_names = FALSE
 )
@@ -1587,8 +1684,14 @@ colnames(summary) <- c(
 
 # Write CSV file
 
+dir.create(
+  "../../../../data/derived/plant/input_data/data_library",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
 write.csv(
   summary,
-  "../../../data/derived/plant/traits_data/t_model_parameters.csv",
+  "../../../../data/derived/plant/input_data/data_library/t_model_maliau.csv",
   row.names = FALSE
 )
