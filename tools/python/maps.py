@@ -57,7 +57,7 @@ def map_scenario_extent(site_definition: str | Path, site_name: str) -> folium.M
         config = tomllib.load(f)
 
     # unpack the spatial extents
-    lng1, lat1, lng2, lat2 = config["Scenario"][site_name]["wgs84_bounds"]
+    min_lon, min_lat, max_lon, max_lat = config["Scenario"][site_name]["wgs84_bounds"]
 
 center = (
 (min_lat + max_lat) / 2,
