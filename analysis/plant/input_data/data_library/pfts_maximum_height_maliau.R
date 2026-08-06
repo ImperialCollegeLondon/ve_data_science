@@ -30,12 +30,11 @@
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       This CSV file contains the base list of taxa and their assigned PFT.
-#|   - name: t_model_parameters.csv
-#|     path: data/derived/plant/traits_data
+#|   - name: t_model_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a summary of updated T model parameters, as well
-#|       as additional PFT traits for leaf and sapwood stoichiometry derived
-#|       from the same datasets.
+#|       This CSV file contains a summary of updated T model parameters for each
+#|       plant functional type used in the Maliau data library workflow.
 #|
 #| output_files:
 #|   - name: pfts_maximum_height_maliau.csv
@@ -99,11 +98,11 @@
 #|   - tidyr
 #|
 #| usage_notes: |
-#|   This script is intended to run after pfts_maliau has generated the base PFT
-#|   classification. If the base PFT species classification is updated in the
-#|   future, pfts_maliau as well as the t_model_parameters script should be
-#|   updated prior to running this script, because the output of this script
-#|   relies on the PFT maximum height values.
+#|   This script is intended to run after pfts_maliau and t_model_maliau have
+#|   generated the base PFT classification and T model parameters. If the base
+#|   PFT species classification is updated in the future, pfts_maliau as well as
+#|   t_model_maliau should be updated prior to running this script, because the
+#|   output of this script relies on the PFT maximum height values.
 #| ---
 
 # Load packages
@@ -433,20 +432,20 @@ ggplot(
 
 ##########
 
-# Load t_model_parameters so that we can access the PFT maximum height values
+# Load t_model_maliau so that we can access the PFT maximum height values
 
-t_model_parameters <- read.csv(
-  "../../../../data/derived/plant/traits_data/t_model_parameters.csv",
+t_model_maliau <- read.csv(
+  "../../../../data/derived/plant/input_data/data_library/t_model_maliau.csv",
   header = TRUE
 )
 
 # Reassign taxa where PFT = 0 based on maximum height into PFT 1, 2, 3 or 4
 
-h_max_overstory <- t_model_parameters$h_max[
-  t_model_parameters$name == "overstory"
+h_max_overstory <- t_model_maliau$h_max[
+  t_model_maliau$name == "overstory"
 ]
-h_max_understory <- t_model_parameters$h_max[
-  t_model_parameters$name == "understory"
+h_max_understory <- t_model_maliau$h_max[
+  t_model_maliau$name == "understory"
 ]
 
 temp$PFT[
@@ -480,11 +479,11 @@ ggplot(
   aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
 ) +
   geom_hline(
-    yintercept = t_model_parameters$Hm[t_model_parameters$PFT == "2"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$name == "overstory"],
     linetype = "dashed"
   ) +
   geom_hline(
-    yintercept = t_model_parameters$Hm[t_model_parameters$PFT == "1"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$name == "emergent"],
     linetype = "dashed"
   ) +
   geom_point() +
@@ -496,11 +495,11 @@ ggplot(
   aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
 ) +
   geom_hline(
-    yintercept = t_model_parameters$Hm[t_model_parameters$PFT == "2"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$name == "overstory"],
     linetype = "dashed"
   ) +
   geom_hline(
-    yintercept = t_model_parameters$Hm[t_model_parameters$PFT == "3"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$name == "pioneer"],
     linetype = "dashed"
   ) +
   geom_point() +
@@ -512,11 +511,11 @@ ggplot(
   aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
 ) +
   geom_hline(
-    yintercept = t_model_parameters$Hm[t_model_parameters$PFT == "3"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$name == "pioneer"],
     linetype = "dashed"
   ) +
   geom_hline(
-    yintercept = t_model_parameters$Hm[t_model_parameters$PFT == "4"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$name == "understory"],
     linetype = "dashed"
   ) +
   geom_point() +
@@ -528,7 +527,7 @@ ggplot(
   aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
 ) +
   geom_hline(
-    yintercept = t_model_parameters$Hm[t_model_parameters$PFT == "4"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$name == "understory"],
     linetype = "dashed"
   ) +
   geom_point() +
