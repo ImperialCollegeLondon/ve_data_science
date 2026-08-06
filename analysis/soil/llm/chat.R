@@ -81,6 +81,8 @@ candidate_list <- glue_collapse(
 
 # Retrieve RAG store -----------------------------------------------------
 
+# Make sure that Ollama is running
+
 store_location <- file.path(data_folder, "virtual_ecosystem_repo.ragnar.duckdb")
 store <- ragnar_store_connect(store_location, read_only = TRUE)
 
@@ -232,6 +234,10 @@ type_output <- type_array(
 chat <- chat_google_gemini(model = "gemini-3.5-flash")
 # Increase top_k to 10 later
 ragnar_register_tool_retrieve(chat, store, top_k = 3)
+
+chat$chat(
+  "Tell me what you know about the constant parameter `maom_desorption_rate`."
+)
 
 # Run a general chat first for tool calling (RAG)
 tictoc::tic()
