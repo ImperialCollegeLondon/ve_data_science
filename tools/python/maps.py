@@ -59,7 +59,10 @@ def map_scenario_extent(site_definition: str | Path, site_name: str) -> folium.M
     # unpack the spatial extents
     lng1, lat1, lng2, lat2 = config["Scenario"][site_name]["wgs84_bounds"]
 
-    center = ((lat1 + lat2) / 2, (lng1 + lng2) / 2)
+center = (
+(min_lat + max_lat) / 2,
+(min_lon + max_lon) / 2,
+)
 fit_bounds = [
 [min_lat, min_lon],
 [max_lat, max_lon],
