@@ -41,6 +41,8 @@
 #|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
 #| ---
 
+box::use(./get_ve_variables[...])
+
 #' Log decision on whether a dataset should be included for validation purposes
 #'
 #' This function is intended to be used as \code{log_dataset()}, which will display
@@ -484,7 +486,7 @@ read_scenario_definition <- function(config_path) {
   list(
     grid_res = scenario$res,
     start_date = start_date,
-    spatial_bounds = setNames(as.numeric(wgs84_bbox), names(wgs84_bbox)),
+    spatial_bounds = stats::setNames(as.numeric(wgs84_bbox), names(wgs84_bbox)),
     temporal_bounds = c(
       start_date,
       start_date +
@@ -590,8 +592,8 @@ join_ve_outputs_per_row <- function(
     if (length(values) == 0) {
       return(empty_quantiles)
     }
-    quantile(values, probs = c(0.05, 0.5, 0.95)) |>
-      setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95"))
+    stats::quantile(values, probs = c(0.05, 0.5, 0.95)) |>
+      stats::setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95"))
   }
 
   switch(
@@ -717,7 +719,7 @@ join_ve_outputs <- function(validation_database, zarr_path, config_path) {
     tidyr::pivot_wider(names_from = L1, values_from = value)
 
   # Direct data variables from the Zarr store.
-  vars_target <- unique(validation_database$var_canonical)
+  vars_target <- base::unique(validation_database$var_canonical)
   vars_ve_output <-
     pizzarr::zarr_open(zarr_path)$get_item("outputs")$get_store()$listdir(
       "outputs"
@@ -726,7 +728,7 @@ join_ve_outputs <- function(validation_database, zarr_path, config_path) {
     get_data_variables(
       zarr_path,
       group = "outputs",
-      variables = intersect(vars_target, vars_ve_output)
+      variables = base::intersect(vars_target, vars_ve_output)
     ) |>
     reshape2::melt() |>
     dplyr::rename(var_canonical = L1)

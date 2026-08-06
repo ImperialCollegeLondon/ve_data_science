@@ -1,5 +1,5 @@
+library(dplyr)
 library(arrow)
-box::use(tools/R/R/get_ve_variables[...])
 box::use(tools/R/R/valdb)
 
 
@@ -11,4 +11,5 @@ config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 db_path <- "data/derived/soil/validation/database"
 validation_database <- open_dataset(db_path) |> collect()
 
-valdb$join_ve_outputs(validation_database, zarr_path, config_path)
+combined_database <-
+  valdb$join_ve_outputs(validation_database, zarr_path, config_path)
