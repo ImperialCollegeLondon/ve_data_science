@@ -235,8 +235,10 @@ chat <- chat_google_gemini(model = "gemini-3.5-flash")
 # Increase top_k to 10 later
 ragnar_register_tool_retrieve(chat, store, top_k = 3)
 
+# quick check about the knowledge store
 chat$chat(
-  "Tell me what you know about the constant parameter `maom_desorption_rate`."
+  "Tell me what you know about the constant parameter `maom_desorption_rate`.
+   Respond in GitHub flavoured Markdown format."
 )
 
 # Run a general chat first for tool calling (RAG)
