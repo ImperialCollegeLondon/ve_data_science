@@ -308,7 +308,7 @@ if (nrow(unimplemented_counts) > 0) {
 }
 
 # Apply rowwise
-validation_database_classified <-
+out <-
   validation_database_classified |>
   mutate(
     value_VE = pmap(
