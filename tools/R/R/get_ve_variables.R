@@ -218,10 +218,12 @@ convert_volume_to_mass_basis <- function(volume_basis_data, config) {
   bulk_density_soil <- config$abiotic$constants$bulk_density_soil
   if (is.null(bulk_density_soil)) {
     bulk_density_soil <- 1175.0
-    cli::cli_alert_warning("Soil bulk density is not found in the config file.")
-    cli::cli_alert_warning(
-      "Assigning it the default value {bulk_density_soil} from VE."
-    )
+    data_name <- deparse(substitute(volume_basis_data))
+    cli::cli_alert_warning(c(
+      "Soil bulk density is not found in the scenario config file while ",
+      "converting {.var {data_name}}. ",
+      "Assigning VE default value {.val {bulk_density_soil}}."
+    ))
   }
 
   # convert nutrient per volume to nutrient per mass
