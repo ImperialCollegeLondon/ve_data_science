@@ -41,8 +41,6 @@
 #|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
 #| ---
 
-box::use(tools/R/R/get_ve_variables[get_data_variables, get_derived_variables])
-
 #' Log decision on whether a dataset should be included for validation purposes
 #'
 #' This function is intended to be used as \code{log_dataset()}, which will display
@@ -592,7 +590,7 @@ join_ve_outputs_per_row <- function(
     if (length(values) == 0) {
       return(empty_quantiles)
     }
-    stats::quantile(values, probs = c(0.05, 0.5, 0.95)) |>
+    quantile(values, probs = c(0.05, 0.5, 0.95)) |>
       setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95"))
   }
 
