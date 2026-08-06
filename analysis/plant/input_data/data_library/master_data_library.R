@@ -18,6 +18,8 @@
 #| scripts:
 #|   - order: 1
 #|     path: analysis/plant/input_data/data_library/pfts_maliau.R
+#|   - order: 2
+#|     path: analysis/plant/input_data/data_library/pfts_maximum_height_maliau.R
 #|
 #| package_dependencies:
 #|     - yaml
@@ -120,17 +122,19 @@ t_end <- proc.time()
 cat(sprintf("   Completed in %.1f seconds.\n", (t_end - t_start)["elapsed"]))
 
 # ------------------------------------------------------------------------------
-# 2. Plant functional types (PFTs) - SAFE
-# Example of how to add a new script to the data library.
-# Uncomment the lines below and update the script name and order as needed.
+# 2. Plant functional types (PFTs) - Maliau maximum height
 # ------------------------------------------------------------------------------
 
-# script_2 <- "pfts_safe.R"
-# print_script_summary(read_script_metadata(script_2), order = 2, script_path = script_2)
-# t_start <- proc.time()
-# suppressMessages(source(script_2, local = new.env()))
-# t_end <- proc.time()
-# cat(sprintf("   Completed in %.1f seconds.\n", (t_end - t_start)["elapsed"]))
+script_2 <- "pfts_maximum_height_maliau.R"
+print_script_summary(
+  read_script_metadata(script_2),
+  order = 2,
+  script_path = script_2
+)
+t_start <- proc.time()
+suppressMessages(source(script_2, local = new.env()))
+t_end <- proc.time()
+cat(sprintf("   Completed in %.1f seconds.\n", (t_end - t_start)["elapsed"]))
 
 # ==============================================================================
 
