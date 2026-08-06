@@ -213,7 +213,13 @@ dat <-
 
 # Split SAFE campaign variables into specific pools -----------------------
 
-# first we predict POM and MAOM carbon and nitrogen fractions:
+# First, the SAFE campaign measured total_carbon and total_nitrogen in [%]
+# convert them to [g/g] = [kg/kg] for the downstream conversions
+dat <-
+  dat |>
+  mutate(across(c(total_carbon, total_nitrogen), ~ .x / 100))
+
+# Predict POM and MAOM carbon and nitrogen fractions:
 # soil_c_pool_pom
 # soil_c_pool_maom
 # soil_n_pool_particulate
@@ -222,15 +228,14 @@ dat <-
 # Both are predicted from control plots from a tropical forest in BCI
 source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
 
-# Predict soil_c(or n)_pool_pom(or maom), after converting total_carbon and
-# total_nitrogen from [%] to [g/g] (which is the same as [kg/kg])
+# Predict soil_c(or n)_pool_pom(or maom)
 dat <-
   dat |>
   mutate(
     soil_c_pool_pom = predict(
       mod_C,
       newdata = dat |>
-        mutate(C_total = total_carbon / 100, .keep = "none") |>
+        mutate(C_total = total_carbon, .keep = "none") |>
         mutate(
           class = "POM",
           treatm = "CT",
@@ -242,7 +247,7 @@ dat <-
     soil_c_pool_maom = predict(
       mod_C,
       newdata = dat |>
-        mutate(C_total = total_carbon / 100, .keep = "none") |>
+        mutate(C_total = total_carbon, .keep = "none") |>
         mutate(
           class = "MAOM",
           treatm = "CT",
@@ -254,7 +259,7 @@ dat <-
     soil_n_pool_particulate = predict(
       mod_N,
       newdata = dat |>
-        mutate(N_total = total_nitrogen / 100, .keep = "none") |>
+        mutate(N_total = total_nitrogen, .keep = "none") |>
         mutate(
           class = "POM",
           treatm = "CT",
@@ -266,7 +271,7 @@ dat <-
     soil_n_pool_maom = predict(
       mod_N,
       newdata = dat |>
-        mutate(N_total = total_nitrogen / 100, .keep = "none") |>
+        mutate(N_total = total_nitrogen, .keep = "none") |>
         mutate(
           class = "MAOM",
           treatm = "CT",
