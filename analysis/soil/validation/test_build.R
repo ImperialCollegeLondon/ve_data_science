@@ -35,7 +35,7 @@ maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
 grid_offset <- maliau$Scenario$maliau_2$res / 2
 
 # xy coordinates from VE simulation
-xy <-
+xy_ve <-
   get_data_variables(zarr_path, group = "outputs", variables = c("x", "y")) |>
   melt() |>
   pivot_wider(names_from = L1, values_from = value) |>
@@ -69,7 +69,7 @@ xy <-
   st_drop_geometry()
 
 # timestamp from VE simulation
-time <-
+timestamp_ve <-
   get_data_variables(
     zarr_path,
     group = "outputs",
@@ -107,9 +107,9 @@ derived_variables <-
 ve_variables <-
   bind_rows(data_variables, derived_variables) |>
   # join spatial information
-  left_join(xy |> select(cell_id, starts_with("lon"), starts_with("lat"))) |>
+  left_join(xy_ve |> select(cell_id, starts_with("lon"), starts_with("lat"))) |>
   # join temporal information
-  left_join(time) |>
+  left_join(timestamp_ve) |>
   mutate(
     date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
   )
