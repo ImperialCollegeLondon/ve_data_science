@@ -6,6 +6,8 @@
 #|     It runs all individual data library scripts sequentially and generates
 #|     the full set of plant input data files for the data library.
 #|     Each individual script is self-contained and can also be run independently.
+#|     In addition, this script generates a metadata catalogue summarising the
+#|     metadata from all scripts in the data library workflow.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -19,6 +21,13 @@
 #|   - path: analysis/plant/input_data/data_library/pfts_maliau.R
 #|   - path: analysis/plant/input_data/data_library/t_model_maliau.R
 #|   - path: analysis/plant/input_data/data_library/pfts_maximum_height_maliau.R
+#|
+#| output_files:
+#|   - name: master_data_library_metadata.yml
+#|     path: analysis/plant/input_data/metadata
+#|     description: |
+#|       This YAML file contains the combined metadata from all scripts listed
+#|       in master_data_library.R.
 #|
 #| package_dependencies:
 #|   - yaml
@@ -44,9 +53,11 @@ read_script_metadata <- function(script_path) {
   if (!file.exists(script_path)) {
     stop(sprintf("Script not found: %s", script_path))
   }
+
   lines <- readLines(script_path)
   yaml_lines <- lines[grepl("^#\\|", lines)]
   yaml_text <- gsub("^#\\| ?", "", yaml_lines)
+
   yaml::yaml.load(paste(yaml_text, collapse = "\n"))
 }
 
@@ -92,6 +103,7 @@ print_script_summary <- function(meta, index, total, script_path) {
         sprintf("     - %s/%s", f$path, f$name),
         sprintf("       %s", gsub("\n", "\n       ", trimws(f$description)))
       )
+
       if (!is.null(f$variables)) {
         summary_lines <- c(summary_lines, "       Variables:")
         for (v in f$variables) {
@@ -128,6 +140,7 @@ print_script_summary <- function(meta, index, total, script_path) {
 
 run_script <- function(script_path, index, total) {
   meta <- read_script_metadata(script_path)
+
   print_script_summary(
     meta = meta,
     index = index,
@@ -157,6 +170,36 @@ run_script <- function(script_path, index, total) {
   )
 }
 
+build_metadata_summary <- function(script_paths) {
+  script_metadata <- lapply(script_paths, function(script_path) {
+    meta <- read_script_metadata(script_path)
+    c(list(script_path = script_path), meta)
+  })
+
+  list(
+    title = "master_data_library_metadata",
+    generated_by = "analysis/plant/input_data/data_library/master_data_library.R",
+    generated_on = as.character(Sys.Date()),
+    scripts = script_metadata
+  )
+}
+
+write_metadata_summary <- function(metadata_summary) {
+  output_path <- "../metadata/master_data_library_metadata.yml"
+  output_dir <- dirname(output_path)
+
+  if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+  }
+
+  writeLines(
+    yaml::as.yaml(metadata_summary),
+    con = output_path
+  )
+
+  message(sprintf("Metadata catalogue written to: %s", output_path))
+}
+
 # ==============================================================================
 # Run individual scripts
 # ==============================================================================
@@ -172,6 +215,9 @@ n_scripts <- length(scripts)
 for (i in seq_along(scripts)) {
   run_script(scripts[i], index = i, total = n_scripts)
 }
+
+metadata_summary <- build_metadata_summary(scripts)
+write_metadata_summary(metadata_summary)
 
 # ==============================================================================
 
