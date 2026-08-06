@@ -216,10 +216,10 @@ validation_database_classified |>
   )
 
 # Function to find the matching VE prediction for each row in the validation
-# database
-# #########or "mutate_ve_outputs" ?
+# database.
 # For non-missing inputs, this function returns three quantiles.
 join_ve_outputs_per_row <- function(
+  ve_data,
   var_canonical,
   time_start,
   time_end,
@@ -248,7 +248,7 @@ join_ve_outputs_per_row <- function(
   switch(
     spatiotemporal_join_class,
     "spatial_within_temporal_within" = {
-      ve_variables |>
+      ve_data |>
         filter(
           var_canonical == !!var_canonical,
           date %within% interval(time_start, time_end),
@@ -264,7 +264,7 @@ join_ve_outputs_per_row <- function(
       empty_quantiles
     },
     "spatial_outside_temporal_within" = {
-      ve_variables |>
+      ve_data |>
         filter(
           var_canonical == !!var_canonical,
           date %within% interval(time_start, time_end)
@@ -320,7 +320,7 @@ out <-
         longitude,
         spatiotemporal_join_class
       ),
-      join_ve_outputs_per_row
+      \(...) join_ve_outputs_per_row(ve_data = ve_variables, ...)
     )
   ) |>
   unnest_wider(value_VE)
