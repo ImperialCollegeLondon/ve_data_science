@@ -68,7 +68,7 @@ source = [
 "Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
 "Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
-source_type = "Global and SAFE"
+source_type = "Global and SAFE old-growth"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil.soil_c_pool_saprotrophic_fungi]
@@ -83,7 +83,7 @@ source = [
 "Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
 "Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
-source_type = "Global and SAFE"
+source_type = "Global and SAFE old-growth"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil.soil_c_pool_arbuscular_mycorrhiza]
@@ -98,7 +98,7 @@ source = [
 "Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
 "Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
-source_type = "Global and SAFE"
+source_type = "Global and SAFE old-growth"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil.soil_c_pool_ectomycorrhiza]
@@ -113,7 +113,7 @@ source = [
 "Robinson et al. (2024) https://doi.org/10.5281/zenodo.13122106" ,
 "Andrieux et al. (2021) https://doi.org/10.1111/geb.13265"
 ]
-source_type = "Global and SAFE"
+source_type = "Global and SAFE old-growth"
 comment = "To scale microbial carbon from total carbon, first we obtained a global map of estimated microbe-to-soil carbon ratio (Serna-Chavez et al. 2013).Then, the predicted microbe carbon was split into bacteria and fungal guilds using SAFE data (Robinson et al. 2024). Finally, the bacteria and fungi biomass are converted to carbon content using stoichiometry from a stoichiometric traits of heterotrophs by Andrieux et al. (2021)"
 
 [soil.soil_cnp_pool_pom]
@@ -175,7 +175,7 @@ unit = "kg N m^-3"
 description = "Amount of nitrogen contained in the soil ammonium (NH4+) pool. Measured by the static chamber method at SAFE."
 script_path = "analysis/soil/ammonium_nitrate/model.R"
 source = "Drewer et al. (2019) https://doi.org/10.5281/zenodo.3258117"
-source_type = "SAFE"
+source_type = "SAFE old-growth"
 comment = "The soil cores in this dataset was collected from 0-10 cm soil depth. VE soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties hold until 25 cm. We may want to revisit this assumption later."
 
 [soil.soil_n_pool_nitrate]
@@ -183,7 +183,7 @@ unit = "kg N m^-3"
 description = "Amount of nitrogen contained in the soil nitrate (NO3-) pool. Measured by the static chamber method at SAFE."
 script_path = "analysis/soil/ammonium_nitrate/model.R"
 source = "Drewer et al. (2019) https://doi.org/10.5281/zenodo.3258117"
-source_type = "SAFE"
+source_type = "SAFE old-growth"
 comment = "The soil cores in this dataset was collected from 0-10 cm soil depth. VE soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties hold until 25 cm. We may want to revisit this assumption later."
 
 [soil.soil_p_pool_primary]
@@ -237,7 +237,7 @@ source = [
 "Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
 "Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
 ]
-source_type = "SAFE, global and first principle"
+source_type = "SAFE old-growth, global and first principle"
 comment = "First we estimated aboveground litter carbon stock from SAFE datasets: one that measured total aboveground litter stock and another dataset that measured *physical* litter composition to estimate litter stock per physical composition. After the litter pool was split into leaf, reproductive, wood and other, they are reassigned to aboveground metabolic, aboveground structural and wood. Reproductive litter is assumed to be entirely aboveground metabolic; 'Other' is assumed to be entirely aboveground structural; Leaf is the only physical component that was further split into aboveground metabolic and structural using leaf nutrient data. Then, we took the ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) from Kirschbaum and Paul (2002; since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio). The C:N and C:P ratios are then used to derive the aboveground litter nitrogen and phosphorous stocks."
 
 [litter.litter_pool_above_structural_cnp]
@@ -255,7 +255,7 @@ source = [
 "Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
 "Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
 ]
-source_type = "SAFE"
+source_type = "SAFE old-growth"
 comment = "First we estimated aboveground litter carbon stock from SAFE datasets: one that measured total aboveground litter stock and another dataset that measured *physical* litter composition to estimate litter stock per physical composition. After the litter pool was split into leaf, reproductive, wood and other, they are reassigned to aboveground metabolic, aboveground structural and wood. Reproductive litter is assumed to be entirely aboveground metabolic; 'Other' is assumed to be entirely aboveground structural; Leaf is the only physical component that was further split into aboveground metabolic and structural using leaf nutrient data. Then, we took the ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) from Kirschbaum and Paul (2002; since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio). The C:N and C:P ratios are then used to derive the aboveground litter nitrogen and phosphorous stocks."
 
 [litter.litter_pool_woody_cnp]
@@ -271,7 +271,7 @@ source = [
 "Ewers et al. (2021) https://zenodo.org/records/4899608",
 "Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
 ]
-source_type = "SAFE"
+source_type = "SAFE old-growth"
 comment = "Estimated through a few hoops: first estimate deadwood count per area, then estimate deadwood volume distribution, then deadwood density distribution, and then combine their expected value with deadwood carbon content from a global study (Martin et al. 2021) to get deadwood carbon stock. Finally, the C:N and C:P ratios are used to derive the woody litter nitrogen and phosphorous stocks."
 
 [litter.litter_pool_below_metabolic_cnp]
@@ -289,8 +289,8 @@ source = [
 "Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
 "Wang et al. (2025) https://doi.org/10.1111/nph.70001"
 ]
-source_type = "SAFE, lowland tropical rain forest in Sabah, global dataset, and first principle"
-comment = "First we estimated the equilibrium belowground litter carbon stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach. Then, belowground litter nitrogen and phosphorous stocks were estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
+source_type = "SAFE old-growth, lowland tropical rain forest in Sabah, global dataset, and first principle"
+comment = "First we estimated the equilibrium belowground litter carbon stock. We took root litter input data from SAFE (Terhi et al. 2021) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach. Then, belowground litter nitrogen and phosphorous stocks were estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [litter.litter_pool_below_structural_cnp]
 unit = "kg m^-2"
@@ -307,7 +307,7 @@ source = [
 "Imai et al. (2010) https://doi.org/10.1017/S0266467410000350",
 "Wang et al. (2025) https://doi.org/10.1111/nph.70001"
 ]
-source_type = "SAFE, lowland tropical rain forest in Sabah, global dataset, and first principle"
+source_type = "SAFE old-growth, lowland tropical rain forest in Sabah, global dataset, and first principle"
 comment = "First we estimated the equilibrium belowground litter carbon stock. We took root litter input data from SAFE (Terhi et al. (2021)) and root decomposition data from a global study (Zhang and Wang 2015), and then combine them to estimate the belowground litter stock at equilibrium. We expect this equilibrium to be less accurate / more sensitive to data quality and model specification compared to direct data on litter stock. Unfortunately belowground litter stock is hard to come by, that's why we are using this alternative approach. Then, belowground litter nitrogen and phosphorous stocks were estimated with a combination of root stoichiometry (Imai et al. 2010) and root nutrient resorption rates (Wang et al. 2025). Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [litter.lignin_above_structural]
@@ -319,7 +319,7 @@ source = [
 "Kirschbaum and Paul (2002) https://doi.org/10.1016/S0038-0717(01)00189-4",
 "Martin et al. (2021) https://doi.org/10.1038/s41467-021-21149-9"
 ]
-source_type = "SAFE, global and first principle"
+source_type = "SAFE old-growth, global and first principle"
 comment = "Ratio of structural vs metabolic C:N and C:P (r in the CENTURY model) was taken from Kirschbaum and Paul (2002). Since the structural and metabolic pools are abstract pools, there is no reason to modify this abstract ratio."
 
 [litter.lignin_woody]

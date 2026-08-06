@@ -120,8 +120,8 @@ library(tidync)
 library(ncdf4)
 library(purrr)
 library(toml)
-source("tools/R/convert_array_to_nc.R")
-source("tools/R/subset_nc.R")
+source("tools/R/R/convert_array_to_nc.R")
+source("tools/R/R/subset_nc.R")
 
 
 # Maliau site metadata ----------------------------------------------------

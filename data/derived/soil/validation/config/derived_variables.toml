@@ -1,0 +1,53 @@
+[[variable]]
+name = "total_soil_n_per_volume"
+description = "Total soil nitrogen per volume"
+unit = "kg{N} m^-3"
+function = "get_total_soil_n_per_volume"
+
+[[variable]]
+name = "total_soil_c_per_volume"
+description = "Total soil carbon per volume"
+unit = "kg{C} m^-3"
+function = "get_total_soil_c_per_volume"
+
+[[variable]]
+name = "total_soil_p_per_volume"
+description = "Total soil phosphorous per volume"
+unit = "kg{P} m^-3"
+function = "get_total_soil_p_per_volume"
+
+[[variable]]
+name = "total_soil_n_per_mass"
+description = "Total soil nitrogen per mass"
+unit = "kg{N} kg^-1"
+function = "get_total_soil_n_per_mass"
+
+[[variable]]
+name = "total_soil_c_per_mass"
+description = "Total soil carbon per mass"
+unit = "kg{C} kg^-1"
+function = "get_total_soil_c_per_mass"
+
+[[variable]]
+name = "total_soil_p_per_mass"
+description = "Total soil phosphorous per mass"
+unit = "kg{P} kg^-1"
+function = "get_total_soil_p_per_mass"
+
+[[variable]]
+name = "total_soil_c_per_area"
+description = "Total soil carbon per area"
+unit = "kg{C} m^-2"
+function = "get_total_soil_c_per_area"
+
+[[variable]]
+name = "total_soil_n_per_area"
+description = "Total soil nitrogen per area"
+unit = "kg{N} m^-2"
+function = "get_total_soil_n_per_area"
+
+[[variable]]
+name = "total_soil_p_per_area"
+description = "Total soil phosphorous per area"
+unit = "kg{P} m^-2"
+function = "get_total_soil_p_per_area"

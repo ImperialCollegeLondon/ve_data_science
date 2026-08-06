@@ -3,10 +3,10 @@ library(RcppTOML)
 library(RNetCDF)
 library(tidync)
 library(purrr)
-source("tools/R/convert_array_to_nc.R")
-source("tools/R/subset_nc.R")
-source("tools/R/get_mean_array.R")
-source("tools/R/cell_id_to_xy.R")
+source("tools/R/R/convert_array_to_nc.R")
+source("tools/R/R/subset_nc.R")
+source("tools/R/R/get_mean_array.R")
+source("tools/R/R/cell_id_to_xy.R")
 
 
 # Maliau site metadata ----------------------------------------------------

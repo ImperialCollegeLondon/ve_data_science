@@ -66,27 +66,50 @@ C_fraction_microbe <- c(
 
 # Calculation -------------------------------------------------------------
 
-# the goal is to convert abundance ratios of fungal guilds and bacteria to
-# carbon ratios
+# first, split fungi into saprotroph, AM and EM
+fungi_rel_abun <-
+  as.data.frame(fungi_rel_abun) |>
+  rownames_to_column("land_use") |>
+  select(land_use, saprotroph, EM, AM) |>
+  # re-normalise the relative abundance using these three groups only
+  mutate(
+    new_total = saprotroph + EM + AM,
+    across(c(saprotroph, EM, AM), ~ .x / new_total)
+  ) |>
+  select(-new_total)
 
-# start with fungal to bacteria ratio
-# set bacteria as baseline (=1)
-microbe_ratio <- c(
-  fungi = as.numeric(fungal_bacteria_ratio),
-  bacteria = 1
-)
-
-# then split fungi into saprotroph, AM and EM
-# re-normalise the relative abundance using these three groups only
-fungi_rel_abun <- fungi_rel_abun[c("saprotroph", "EM", "AM")]
-fungi_rel_abun <- fungi_rel_abun / sum(fungi_rel_abun)
-microbe_ratio <- c(
-  microbe_ratio["fungi"] * fungi_rel_abun,
-  microbe_ratio["bacteria"]
-)
-
-# lastly convert biomass ratios to carbon ratios
-microbe_ratio <- microbe_ratio * C_fraction_microbe[names(microbe_ratio)]
-# re-normalise again so the values sum to one
-# this will be used to split total microbial carbon into each pool
-microbe_ratio <- microbe_ratio / sum(microbe_ratio)
+# convert abundance ratios of fungal guilds and bacteria to carbon ratios
+microbe_ratio <-
+  fungal_bacteria_ratio |>
+  select(Plot_ID, Fungal, Bacteria) |>
+  rename(bacteria = Bacteria) |>
+  # assign land-use category: HLF and MLF are both logged forest (SL = selectively logged)
+  mutate(land_use = ifelse(Plot_ID %in% c("HLF", "MLF"), "SL", Plot_ID)) |>
+  # join the fungal guild relative abundances (saprotroph, EM, AM) by land_use
+  left_join(fungi_rel_abun) |>
+  # scale each guild's relative abundance by the total fungal abundance
+  # to get absolute abundance relative to bacteria (= 1)
+  # compute the new total of all microbial groups (bacteria + fungi)
+  # re-normalise so that all four groups sum to 1 (i.e., relative biomass)
+  mutate(
+    across(c(saprotroph, EM, AM), ~ .x * Fungal),
+    new_total = bacteria + saprotroph + EM + AM,
+    across(c(saprotroph, EM, AM, bacteria), ~ .x / new_total),
+  ) |>
+  select(Plot_ID, land_use, saprotroph, EM, AM, bacteria) |>
+  pivot_longer(
+    cols = c(saprotroph, EM, AM, bacteria),
+    names_to = "guild",
+    values_to = "p_biomass"
+  ) |>
+  # join the carbon fraction per unit biomass for each guild
+  left_join(
+    C_fraction_microbe |> as.data.frame() |> rownames_to_column("guild")
+  ) |>
+  # convert relative biomass to relative carbon by multiplying by the
+  # guild-specific carbon fraction
+  mutate(p_carbon = p_biomass * C_fraction_microbe) |>
+  # renormalise p_carbon within each plot so that the four guilds' carbon
+  # contributions sum to 1 (i.e., relative carbon contribution)
+  group_by(Plot_ID) |>
+  mutate(p_carbon = p_carbon / sum(p_carbon))
