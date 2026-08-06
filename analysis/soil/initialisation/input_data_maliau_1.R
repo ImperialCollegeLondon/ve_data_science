@@ -247,7 +247,7 @@ dat <-
     soil_c_pool_maom = predict(
       mod_C,
       newdata = dat |>
-        mutate(C_total = total_carbon, .keep = "none") |>
+        select(C_total = total_carbon) |>
         mutate(
           class = "MAOM",
           treatm = "CT",
@@ -259,7 +259,7 @@ dat <-
     soil_n_pool_particulate = predict(
       mod_N,
       newdata = dat |>
-        mutate(N_total = total_nitrogen, .keep = "none") |>
+        select(N_total = total_nitrogen) |>
         mutate(
           class = "POM",
           treatm = "CT",
@@ -271,7 +271,7 @@ dat <-
     soil_n_pool_maom = predict(
       mod_N,
       newdata = dat |>
-        mutate(N_total = total_nitrogen, .keep = "none") |>
+        select(N_total = total_nitrogen) |>
         mutate(
           class = "MAOM",
           treatm = "CT",
