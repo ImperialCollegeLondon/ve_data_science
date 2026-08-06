@@ -2,13 +2,17 @@
 #| title: Functions to build a validation database
 #|
 #| description: |
-#|     Here we use a config-driven pipeline to read, wrangle, unit-convert, and
-#|     combine multiple datasets into a single master file, hereafter referred to as
-#|     the "validation database". We are not aiming for a full database backend, instead
-#|     the main goal is to avoid having to write many custom codes that each only work
-#|     for one dataset. The idea to run a single script to build the database, while YAML
-#|     config metadata handles all dataset-specific idiosyncracies.
-#|     Please refer to `docs/validation_database.md` for a full documentation.
+#|     Here we use a config-driven pipeline to read, wrangle, unit-convert,
+#|     and combine multiple datasets into a single master file, hereafter
+#|     referred to as the "validation database". We are not aiming for a full
+#|     database backend; instead, the main goal is to avoid writing many custom
+#|     codes that each only work for one dataset. The idea is to run a single
+#|     script to build the database while YAML config metadata handles all
+#|     dataset-specific idiosyncracies.
+#|     This script now also includes `join_ve_outputs()` and helper functions
+#|     to append VE outputs to the validation database based on spatial and
+#|     temporal matching.
+#|     Please refer to `docs/validation_database.md` for full documentation.
 #|
 #| virtual_ecosystem_module: [Soil, Litter]
 #|
@@ -28,7 +32,9 @@
 #|     - purrr
 #|     - rcrossref
 #|     - readr
+#|     - reshape2
 #|     - rlang
+#|     - sf
 #|     - stats
 #|     - tibble
 #|     - tidyr
