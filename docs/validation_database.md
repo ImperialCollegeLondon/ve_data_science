@@ -46,6 +46,7 @@ After `source()`, call them as `function_name()`.
 3. Add schema fields to included datasets in `sources.yaml`.
 4. Fill schema manually (file path, variable mapping, units, keys).
 5. Build the harmonised validation database.
+6. Combine the validation database with VE outputs.
 
 ## 1) Download the dataset and convert it to CSV
 
@@ -240,6 +241,47 @@ Default behavior:
 
 Only sources that have a `source_id` are built, so screening records that were
 never given a schema are ignored.
+
+## 6) Combine the validation database with VE outputs
+
+Use
+[analysis/soil/validation/combine_validation_database.R](analysis/soil/validation/combine_validation_database.R)
+as a reference workflow.
+
+```r
+library(arrow)
+box::use(tools/R/R/valdb)
+
+validation_database <-
+  open_dataset("data/derived/soil/validation/database") |>
+  dplyr::collect()
+
+combined_database <-
+  valdb$join_ve_outputs(
+    validation_database,
+    zarr_path = "data/scenarios/maliau/maliau_2/out/model_data.zarr",
+    config_path = "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
+  )
+
+combined_database |>
+  dplyr::group_by(dataset) |>
+  write_dataset("data/derived/soil/validation/database_combined", format = "parquet")
+```
+
+`join_ve_outputs()` takes the validation database and VE scenario outputs (from
+a Zarr store), then join the spatiotemporally aggregated VE outputs for each
+row. It reads direct and derived VE variables, classifies each observation by
+spatial/temporal overlap with the scenario bounds, and then returns three added
+columns: the lower quantile `value_VE_q05`, median `value_VE_q50`, and the upper
+quantile `value_VE_q95`.
+
+Current implementation supports:
+
+- full spatial and temporal matching (`spatial_within_temporal_within`)
+- temporal-only matching for observations outside VE spatial bounds
+  (`spatial_outside_temporal_within`)
+
+Other spatiotemporal classes currently return `NA` quantiles with a warning.
 
 ## Ongoing metadata curation
 
