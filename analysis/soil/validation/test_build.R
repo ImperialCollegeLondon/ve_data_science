@@ -18,21 +18,46 @@ validation_database <- open_dataset(db_path) |> collect()
 vars_target <- unique(validation_database$var_canonical)
 
 
-# VE outputs -------------------------------------------------------------
+# VE outputs: load ----------------------------------------------------------
 
-# File paths to the VE outputs and configurations
-# we are using Maliau 2 for now
+# Helper that reads a scenario TOML and returns a flat list of the fields used
+# downstream. Isolating all maliau$Scenario$<name>$... access here makes the
+# dependency easy to swap out or remove later.
+read_scenario_definition <- function(toml_path, scenario_name) {
+  scenario <- read_toml(toml_path) |> pluck("Scenario", scenario_name)
+  run_length_parts <- str_split_1(scenario$core$timing$run_length, " ")
+  start_date <- ymd(scenario$core$timing$start_date)
+
+  list(
+    grid_res = scenario$res,
+    start_date = start_date,
+    spatial_bounds = unlist(scenario$wgs84_bounds),
+    temporal_bounds = c(
+      start_date,
+      start_date +
+        lubridate::duration(
+          as.numeric(run_length_parts[1]),
+          run_length_parts[2]
+        )
+    )
+  )
+}
+
+# File paths to the VE outputs and configuration for the target scenario
 zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 
-# Maliau scenario information, mainly to extract spatiotemporal bounds
-maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
+scenario_def <- read_scenario_definition(
+  "data/derived/site/maliau/maliau_grid_definition.toml",
+  scenario_name = "maliau_2"
+)
 
-# Calculate grid offset to convert grid centroids to grid bounds later
-# we use grid bounds to locate grids that contain a validation data point
-# this remove the need to find the nearest neighbour, which is computationally
-# more demanding
-grid_offset <- maliau$Scenario$maliau_2$res / 2
+# Half-cell offset used to convert grid centroids to grid bounds.
+# Grid bounds allow point-in-cell lookup without nearest-neighbour search.
+grid_offset <- scenario_def$grid_res / 2
+
+
+# VE outputs: spatiotemporal coordinates -----------------------------------
 
 # xy coordinates from VE simulation
 xy_ve <-
@@ -78,10 +103,11 @@ timestamp_ve <-
   melt() |>
   pivot_wider(names_from = L1, values_from = value)
 
-# Extract the VE outputs
-# extract the data variables directly from VE outputs
-# change will be needed when this includes variables with extra dimensions,
-# such as element and pft, I think
+# VE outputs: data and derived variables -----------------------------------
+
+# Data variables, directly from the Zarr store.
+# NOTE: variables with extra dimensions (e.g. element, pft) will need
+# additional handling here.
 vars_ve_output <-
   zarr_open(zarr_path)$get_item("outputs")$get_store()$listdir("outputs")
 data_variables <-
@@ -93,7 +119,7 @@ data_variables <-
   melt() |>
   rename(var_canonical = L1)
 
-# extract the derived variables, calculated from the direct data variables
+# Derived variables, calculated from the direct data variables
 derived_variables <-
   get_derived_variables(
     zarr_path,
@@ -103,7 +129,8 @@ derived_variables <-
   melt() |>
   rename(var_canonical = L1)
 
-# combine data variables and derived variables
+# Combine direct and derived variables, then join spatial and temporal lookup
+# tables to produce a flat VE output table ready for row-level matching.
 ve_variables <-
   bind_rows(data_variables, derived_variables) |>
   # join spatial information
@@ -111,35 +138,22 @@ ve_variables <-
   # join temporal information
   left_join(timestamp_ve) |>
   mutate(
-    date = ymd(maliau$Scenario$maliau_2$core$timing$start_date) + timestamp
+    date = scenario_def$start_date + timestamp
   )
 
-# TODO think about spatial having a footprint but not date, in ve_variables
+# TODO think about spatial having a footprint but not date, in `ve_variables`
 
-# Join VE outputs to Validation Database ---------------------------------
+# Classify validation observations against scenario bounds ------------------
 
-# Spatial and temporal bounds classification
-# first, retrieve the total spatiotemporal extent/bounds of Maliau 2
-maliau_2_run_length <-
-  str_split_1(maliau$Scenario$maliau_2$core$timing$run_length, " ")
-maliau_2_bounds <- with(
-  maliau$Scenario$maliau_2,
-  list(
-    spatial = unlist(wgs84_bounds),
-    temporal = c(
-      ymd(core$timing$start_date),
-      ymd(core$timing$start_date) +
-        lubridate::duration(
-          as.numeric(maliau_2_run_length[1]),
-          maliau_2_run_length[2]
-        )
-    )
-  )
+# Derive the spatiotemporal extent of the target scenario run.
+scenario_bounds <- list(
+  spatial = scenario_def$spatial_bounds,
+  temporal = scenario_def$temporal_bounds
 )
 
 # Classify observations against maliau_2 bounds
 # Function that checks if spatial coordinates fall within bounds.
-# bounds_spatial: c(xmin, ymin, xmax, ymax)
+# bounds_spatial: named or positional c(xmin, ymin, xmax, ymax)
 classify_spatial_bounds <- function(lat, lon, bounds_spatial) {
   xmin <- bounds_spatial[1]
   ymin <- bounds_spatial[2]
@@ -187,12 +201,12 @@ validation_database_classified <-
     spatial_join_class = classify_spatial_bounds(
       latitude,
       longitude,
-      maliau_2_bounds$spatial
+      scenario_bounds$spatial
     ),
     temporal_join_class = classify_temporal_bounds(
       time_start,
       time_end,
-      maliau_2_bounds$temporal
+      scenario_bounds$temporal
     )
   ) |>
   # combining both spatial and temporal categories
@@ -206,7 +220,8 @@ validation_database_classified <-
     )
   )
 
-# Summary
+# Spatiotemporal classification summary (diagnostic)
+# THIS SHOULD NOT BE IN THE FUNCTION; MOVE IT OUTSIDE LATER
 validation_database_classified |>
   count(
     dataset,
@@ -215,9 +230,10 @@ validation_database_classified |>
     spatiotemporal_join_class
   )
 
-# Function to find the matching VE prediction for each row in the validation
-# database.
-# For non-missing inputs, this function returns three quantiles.
+# Join VE outputs to validation database -----------------------------------
+
+# Row-level join function: returns VE quantiles for a single validation datum.
+# For non-missing inputs, returns three quantiles (q05, q50, q95).
 join_ve_outputs_per_row <- function(
   ve_data,
   var_canonical,
@@ -281,19 +297,17 @@ join_ve_outputs_per_row <- function(
   )
 }
 
-# Warn once about unimplemented summary classes before rowwise apply
+# Warn about unimplemented summary classes before applying rowwise.
 unimplemented_summary_classes <- c(
   "spatial_within_temporal_outside",
   "spatial_within_temporal_partial",
   "spatial_outside_temporal_outside",
   "spatial_outside_temporal_partial"
 )
-
 unimplemented_counts <-
   validation_database_classified |>
   count(spatiotemporal_join_class, name = "n") |>
   filter(spatiotemporal_join_class %in% unimplemented_summary_classes)
-
 if (nrow(unimplemented_counts) > 0) {
   counts_text <- paste0(
     unimplemented_counts$spatiotemporal_join_class,
@@ -307,7 +321,7 @@ if (nrow(unimplemented_counts) > 0) {
   ))
 }
 
-# Apply rowwise
+# Apply rowwise to append VE quantile columns to the validation database.
 out <-
   validation_database_classified |>
   mutate(
