@@ -38,11 +38,7 @@
 # analysis/plant/input_data/data_library/
 # ==============================================================================
 
-# Load packages
-
 library(yaml)
-
-# Helper functions to extract and parse metadata from an individual script
 
 read_script_metadata <- function(script_path) {
   if (!file.exists(script_path)) {
@@ -54,102 +50,111 @@ read_script_metadata <- function(script_path) {
   yaml::yaml.load(paste(yaml_text, collapse = "\n"))
 }
 
-print_script_summary <- function(meta, order, script_path) {
-  cat(
-    "================================================================================\n"
+print_script_summary <- function(meta, index, total, script_path) {
+  summary_lines <- c(
+    "================================================================================",
+    sprintf("Script %d/%d: %s", index, total, meta$title),
+    sprintf("   Script:      %s", script_path),
+    sprintf("   Status:      %s", meta$status),
+    sprintf("   Author:      %s", paste(meta$author, collapse = ", ")),
+    sprintf(
+      "   Module:      %s",
+      paste(meta$virtual_ecosystem_module, collapse = ", ")
+    ),
+    "   Description:",
+    sprintf("     %s", gsub("\n", "\n     ", trimws(meta$description)))
   )
-  cat(sprintf("%d. %s\n", order, meta$title))
-  cat(sprintf("   Script:      %s\n", script_path))
-  cat(sprintf("   Status:      %s\n", meta$status))
-  cat(sprintf("   Author:      %s\n", paste(meta$author, collapse = ", ")))
-  cat(sprintf(
-    "   Module:      %s\n",
-    paste(meta$virtual_ecosystem_module, collapse = ", ")
-  ))
-  cat("   Description:\n")
-  cat(sprintf("     %s\n", gsub("\n", "\n     ", trimws(meta$description))))
 
   if (!is.null(meta$package_dependencies)) {
-    cat("   Package dependencies:\n")
-    for (p in meta$package_dependencies) {
-      cat(sprintf("     - %s\n", p))
-    }
+    summary_lines <- c(
+      summary_lines,
+      "   Package dependencies:",
+      sprintf("     - %s", meta$package_dependencies)
+    )
   }
 
   if (!is.null(meta$input_files)) {
-    cat("   Input files:\n")
+    summary_lines <- c(summary_lines, "   Input files:")
     for (f in meta$input_files) {
-      cat(sprintf("     - %s/%s\n", f$path, f$name))
-      cat(sprintf("       %s\n", gsub("\n", "\n       ", trimws(f$description))))
+      summary_lines <- c(
+        summary_lines,
+        sprintf("     - %s/%s", f$path, f$name),
+        sprintf("       %s", gsub("\n", "\n       ", trimws(f$description)))
+      )
     }
   }
 
   if (!is.null(meta$output_files)) {
-    cat("   Output files:\n")
+    summary_lines <- c(summary_lines, "   Output files:")
     for (f in meta$output_files) {
-      cat(sprintf("     - %s/%s\n", f$path, f$name))
-      cat(sprintf("       %s\n", gsub("\n", "\n       ", trimws(f$description))))
+      summary_lines <- c(
+        summary_lines,
+        sprintf("     - %s/%s", f$path, f$name),
+        sprintf("       %s", gsub("\n", "\n       ", trimws(f$description)))
+      )
       if (!is.null(f$variables)) {
-        cat("       Variables:\n")
+        summary_lines <- c(summary_lines, "       Variables:")
         for (v in f$variables) {
-          cat(sprintf(
-            "         - %s (%s, %s): %s\n",
-            v$name,
-            v$type,
-            v$units,
-            trimws(v$description)
-          ))
+          summary_lines <- c(
+            summary_lines,
+            sprintf(
+              "         - %s (%s, %s): %s",
+              v$name,
+              v$type,
+              v$units,
+              trimws(v$description)
+            )
+          )
         }
       }
     }
   }
 
   if (!is.null(meta$usage_notes)) {
-    cat("   Usage notes:\n")
-    cat(sprintf("     %s\n", gsub("\n", "\n     ", trimws(meta$usage_notes))))
+    summary_lines <- c(
+      summary_lines,
+      "   Usage notes:",
+      sprintf("     %s", gsub("\n", "\n     ", trimws(meta$usage_notes)))
+    )
   }
 
-  cat(
-    "================================================================================\n"
+  summary_lines <- c(
+    summary_lines,
+    "================================================================================"
   )
+
+  message(paste(summary_lines, collapse = "\n"))
 }
 
-run_script_quietly <- function(script_path, order) {
+run_script <- function(script_path, index, total) {
   meta <- read_script_metadata(script_path)
-  print_script_summary(meta, order = order, script_path = script_path)
+  print_script_summary(
+    meta = meta,
+    index = index,
+    total = total,
+    script_path = script_path
+  )
 
-  elapsed <- system.time({
-    pdf(NULL)
-    output_file <- tempfile()
-    output_connection <- file(output_file, open = "wt")
-
-    sink(output_connection)
-    sink(output_connection, type = "message")
-
-    on.exit({
-      while (sink.number(type = "message") > 0) {
-        sink(type = "message")
-      }
-      while (sink.number() > 0) {
-        sink()
-      }
-      close(output_connection)
+  pdf(NULL)
+  on.exit(
+    {
       if (dev.cur() > 1) {
         dev.off()
       }
-      if (file.exists(output_file)) {
-        unlink(output_file)
-      }
-    }, add = TRUE)
+    },
+    add = TRUE
+  )
 
-    suppressWarnings(
+  invisible(
+    capture.output(
       suppressMessages(
-        source(script_path, local = new.env())
-      )
+        suppressPackageStartupMessages(
+          source(script_path, local = new.env())
+        )
+      ),
+      type = "output"
     )
-  })["elapsed"]
-
-  cat(sprintf("   Completed in %.1f seconds.\n", elapsed))
+  )
 }
 
 # ==============================================================================
@@ -162,16 +167,21 @@ scripts <- c(
   "pfts_maximum_height_maliau.R"
 )
 
+n_scripts <- length(scripts)
+
 for (i in seq_along(scripts)) {
-  run_script_quietly(scripts[i], order = i)
+  run_script(scripts[i], index = i, total = n_scripts)
 }
 
 # ==============================================================================
 
-cat(
-  "================================================================================\n"
-)
-cat("All scripts completed successfully.\n")
-cat(
-  "================================================================================\n"
+message(
+  paste(
+    c(
+      "================================================================================",
+      "All scripts completed successfully.",
+      "================================================================================"
+    ),
+    collapse = "\n"
+  )
 )
