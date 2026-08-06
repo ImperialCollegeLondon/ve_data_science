@@ -6,7 +6,7 @@ description: A collection of mapping functions to visualise VE metadata and data
 
 virtual_ecosystem_module: All
 
-author: Hao Ran Lai
+author: Hao Ran Lai, Lelavathy
 
 status: final
 
