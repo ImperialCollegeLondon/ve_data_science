@@ -18,10 +18,10 @@ data/primary
 
 # Derived data
 data/derived/troubleshoot/runtime_per_cell/*.png
-data/derived/soil/validation/database
 data/derived/soil/necromass/li_et_al_2023.csv
 data/derived/litter/stock/litter_stock.csv
 analysis/troubleshoot/cnp_ratios/*png
+*.parquet
 
 # MkDocs build output
 site/
