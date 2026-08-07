@@ -120,6 +120,70 @@ print_script_summary <- function(meta, index, total, script_path) {
               trimws(v$description)
             )
           )
+
+          if (!is.null(v$citation)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf("           citation: %s", trimws(v$citation))
+            )
+          }
+          if (!is.null(v$doi)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf("           doi: %s", trimws(v$doi))
+            )
+          }
+          if (!is.null(v$url)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf("           url: %s", trimws(v$url))
+            )
+          }
+          if (!is.null(v$origin)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf("           origin: %s", trimws(v$origin))
+            )
+          }
+          if (!is.null(v$biome)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf("           biome: %s", trimws(v$biome))
+            )
+          }
+          if (!is.null(v$vegetation_type)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf(
+                "           vegetation_type: %s",
+                trimws(v$vegetation_type)
+              )
+            )
+          }
+          if (!is.null(v$site_condition)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf(
+                "           site_condition: %s",
+                trimws(v$site_condition)
+              )
+            )
+          }
+          if (!is.null(v$date)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf("           date: %s", trimws(v$date))
+            )
+          }
+          if (!is.null(v$assumptions)) {
+            summary_lines <- c(
+              summary_lines,
+              sprintf(
+                "           assumptions: %s",
+                gsub("\n", "\n             ", trimws(v$assumptions))
+              )
+            )
+          }
         }
       }
     }
