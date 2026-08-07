@@ -50,38 +50,101 @@
 #|         description: |
 #|           Numeric plant functional type code.
 #|           1 = emergent, 2 = overstory, 3 = pioneer, 4 = understory.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "PFT assignments combine literature-based genus and species classification rules applied to SAFE census taxa."
 #|       - name: PFT_name
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Human-readable plant functional type label.
 #|           One of: emergent, overstory, pioneer, understory.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Labels are derived directly from the numeric PFT codes assigned in this script."
 #|       - name: TaxaName
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Full binomial species name (genus + species epithet) as recorded
 #|           in the SAFE tree census dataset.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Taxon names are taken directly from the SAFE census input file."
 #|       - name: TaxaLevel
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Taxonomic resolution of the identification (e.g. species, genus).
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Taxonomic resolution is inherited from the SAFE census input file."
 #|       - name: Species
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Species epithet component of the binomial name.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Species epithets are taken directly from the SAFE census input file."
 #|       - name: Genus
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Genus component of the binomial name.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Genus names are taken directly from the SAFE census input file."
 #|       - name: Family
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Plant family as recorded in the SAFE tree census dataset.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Family names are taken directly from the SAFE census input file."
 #|
 #| package_dependencies:
 #|     - readxl
