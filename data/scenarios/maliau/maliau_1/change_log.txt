@@ -1,5 +1,6 @@
 # Change log of maliau_1 scenario input data
 
+2026-08-07
 - Module: Animal
 - Author: Baizurah Malik
 - Files changed:
@@ -20,6 +21,7 @@
     proxies or published allometric relationships are used and documented in
     the associated input-data records.
 
+2026-07-23
 - Module: All
 - Author: Baizurah Malik
 - Files changed:
