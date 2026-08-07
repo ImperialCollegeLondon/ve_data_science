@@ -22,6 +22,7 @@
 #|   - path: analysis/plant/input_data/data_library/t_model_maliau.R
 #|   - path: analysis/plant/input_data/data_library/pfts_maximum_height_maliau.R
 #|   - path: analysis/plant/input_data/data_library/stoichiometry_maliau.R
+#|   - path: analysis/plant/input_data/data_library/subcanopy_maliau.R
 #|
 #| output_files:
 #|   - name: master_data_library_metadata.yml
@@ -209,7 +210,8 @@ scripts <- c(
   "pfts_maliau.R",
   "t_model_maliau.R",
   "pfts_maximum_height_maliau.R",
-  "stoichiometry_maliau.R"
+  "stoichiometry_maliau.R",
+  "subcanopy_maliau.R"
 )
 
 n_scripts <- length(scripts)
