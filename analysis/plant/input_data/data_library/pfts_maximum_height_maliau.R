@@ -23,9 +23,9 @@
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.14882506
 #|       Tree census data from the SAFE Project 2011–2020.
-#|       Data includes measurements of DBH and estimates of tree height for all
-#|       stems, fruiting and flowering estimates,
-#|       estimates of epiphyte and liana cover, and taxonomic IDs.
+#|       Data includes measurements of DBH and estimates of tree height for
+#|       all stems, fruiting and flowering estimates, estimates of epiphyte
+#|       and liana cover, and taxonomic IDs.
 #|   - name: pfts_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
