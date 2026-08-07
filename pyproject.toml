@@ -26,7 +26,7 @@ dependencies = [
   "rasterio>=1.4.3,<2",
   "rioxarray>=0.23.0,<0.24",
   "ruff>=0.16.1,<0.17",
-  "SALib",
+  "SALib>=1.5.1,<2",
   "shapely>=2.1.1,<3",
   "tomli-w>=1.2.0,<2",
   "types-pyyaml>=6.0.12.20260724,<7",

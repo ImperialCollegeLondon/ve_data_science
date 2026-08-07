@@ -4,7 +4,7 @@ title: Sobol sampling and job configuration generation for sensitivity analysis
 
 description: |
   This script generates Sobol samples for selected Virtual Ecosystem model
-  parameters/constants and creates a `job_config.toml` file for batch model runs.
+  parameters/constants and creates a `job_config_sobol.toml` file for batch model runs.
 
   It can be used for any Virtual Ecosystem module (e.g. hydrology, soil,
   abiotic, plants, animals or litter) by defining the required parameter groups
@@ -13,7 +13,7 @@ description: |
   The script reads parameter and group definitions from
   `sensitivity_parameters.toml`, constructs a Sobol problem, generates samples
   using the configured base sample size and interaction-order setting, and then
-  exports run definitions to `job_config.toml`.
+  exports run definitions to `job_config_sobol.toml`.
 
   The workflow is generic and can be used for constants from any Virtual
   Ecosystem module, provided the relevant parameter/constant ranges are defined
@@ -29,27 +29,34 @@ status: final
 
 input_files:
   - name: sensitivity_parameters.toml
-    path: data/scenarios/sensitivity/config/sensitivity_parameters.toml
+    path: data/sensitivity/hydrology/config/sensitivity_parameters.toml
     description: |
       Defines the parameter groups, parameter names and sampling bounds used
       for sensitivity analysis.
 
-  - name: Base model configuration
-    path: data/scenarios/sensitivity/config/default_job_config.toml
+  - name: hydrology_base_config.toml
+    path: data/sensitivity/hydrology/config/hydrology_base_config.toml
     description: |
-      Base Virtual Ecosystem configuration used for every generated run.
+      Base configuration containing the default hydrology constants, parameter
+      values, and model settings for the Virtual Ecosystem hydrology module.
+      Each sensitivity analysis simulation inherits this configuration, with
+      only the selected parameters replaced by the sampled values specified in
+      the generated `job_config_sobol.toml`.
 
 output_files:
-  - name: job_config.toml
-    path: data/scenarios/sensitivity/config/job_config.toml
+  - name: job_config_sobol.toml
+    path: data/sensitivity/hydrology/config/job_config_sobol.toml
     description: |
-      Virtual Ecosystem batch job configuration containing one sampled
-      parameter set for each model run.
+      HPC batch job configuration generated from the Sobol
+      sampling workflow. Each `[[jobs]]` entry represents a single Virtual
+      Ecosystem simulation with a unique set of sampled parameter values. This
+      file is used as input to the HPC batch submission workflow to execute the
+      complete sensitivity analysis experiment.
 
 package_dependencies:
   - pathlib
-  - tools.python.job_config_tools
-  - tools.python.sensitivity_tools
+  - tools.python.abiotic.job_config_tools
+  - tools.python.abiotic.sensitivity_tools
 
 usage_notes: |
   1. Edit `sensitivity_parameters.toml` to define the parameters and bounds.
@@ -57,7 +64,7 @@ usage_notes: |
   3. Adjust the Sobol base sample size (`base_sample_size`).
   4. Set `calculate_second_order=True` if second-order Sobol indices are
      required.
-  5. Run as "python sobol_sample.py"  to generate `job_config.toml`.
+  5. Run as "python sobol_sample.py"  to generate `job_config_sobol.toml`.
   6. Submit the generated job configuration using your preferred execution
      workflow (e.g. HPC batch submission).
 
@@ -94,25 +101,51 @@ from tools.python.abiotic.sensitivity_tools import (  # noqa: E402
 # =============================================================================
 # USER SETTINGS
 # =============================================================================
-# Description: define input/output paths, target parameter groups, and sampling options.
+# Configure the sensitivity analysis by selecting the parameter groups to
+# analyse and specifying the Sobol sampling options used to generate the
+# parameter sets for each simulation run.
 
-parameter_file = Path("data/scenarios/sensitivity/config/sensitivity_parameters.toml")
-
-# Select one or more parameter groups defined in
-# sensitivity_parameters.toml.
+# Parameter groups defined in `sensitivity_parameters.toml` to include in the
+# sensitivity analysis. Multiple groups (e.g. hydrology, soil, abiotic) can be
+# specified.
 groups = [
     "hydrology",
 ]
-
-base_config = "data/scenarios/sensitivity/config/hydrology_base_config.toml"
-
-site_directory = "data/scenarios/sensitivity/config/"
-
-output_file = Path("data/scenarios/sensitivity/config/job_config_sobol.toml")
+# Sobol sampling settings.
+#
+# base_sample_size:
+#     Number of base Sobol samples (N). The total number of Virtual Ecosystem
+#     simulations depends on both the number of selected parameters and whether
+#     second-order sensitivity indices are calculated.
 
 base_sample_size = 100
 
+# calculate_second_order:
+#     If True, generate additional samples required to estimate second-order
+#     Sobol sensitivity indices. Setting this to False reduces the total number
+#     of model runs and computes only first-order and total-order indice
 calculate_second_order = True
+
+# =============================================================================
+# DIRECTORY SETTINGS
+# =============================================================================
+# Configuration directory containing the sensitivity analysis input files,
+# including parameter definitions, the base VE configuration, and the generated
+# HPC job configuration.
+
+config_directory = Path("data/sensitivity/hydrology/config")
+
+parameter_file = config_directory / "sensitivity_parameters.toml"
+
+base_config = config_directory / "hydrology_base_config.toml"
+
+output_file = config_directory / "job_config_sobol.toml"
+
+# Scenario data directory containing the Virtual Ecosystem input datasets
+# (e.g. climate, soil, vegetation and other site-specific data) required to
+# execute each simulation. This directory is referenced by the generated
+# `job_config.toml` and is used by the HPC workflow when running VE.
+site_directory = Path("data/sensitivity/hydrology/data")
 
 # =============================================================================
 # LOAD PARAMETER DEFINTIONS
@@ -140,12 +173,11 @@ samples = generate_sobol_samples(
 # =============================================================================
 # Write sampled parameter sets into a VE job configuration TOML file.
 
-generate_job_config(
+metadata = generate_job_config(
     samples=samples,
     parameter_names=problem["names"],
     common_config_paths=[base_config],
-    site_directory="data/scenarios/sensitivity/config",
-    config_paths=[],
+    site_directory=site_directory,
     output_file=output_file,
 )
 
@@ -157,7 +189,6 @@ generate_job_config(
 print("=" * 60)
 print("Sobol sampling completed successfully")
 print("=" * 60)
-
 print(f"Parameter groups : {groups}")
-print(f"Parameters       : {problem['num_vars']}")
-print(f"VE runs          : {len(samples)}")
+print(f"VE runs          : {metadata['num_jobs']}")
+print(f"Output file      : {metadata['output_file']}")

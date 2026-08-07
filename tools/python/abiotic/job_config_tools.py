@@ -34,6 +34,7 @@ status: final
 package_dependencies:
   - pathlib
   - numpy
+  - tomli_w
 
 usage_notes: |
   This module is intended to be imported by sensitivity analysis scripts
@@ -47,6 +48,7 @@ usage_notes: |
 from pathlib import Path
 
 import numpy as np
+import tomli_w
 
 # =============================================================================
 # GENERATE JOB CONFIGURATION
@@ -58,12 +60,12 @@ import numpy as np
 def generate_job_config(
     samples: np.ndarray,
     parameter_names: list[str],
-    common_config_paths: list[str],
-    site_directory: str,
+    common_config_paths: list[str | Path],
+    site_directory: str | Path,
     output_file: str | Path,
-    config_paths: list[str] | None = None,
+    config_paths: list[str | Path] | None = None,
     repeats: int = 1,
-) -> None:
+) -> dict:
     """Generate a Virtual Ecosystem HPC job configuration file.
 
     The generated TOML file contains one job definition for every sampled
@@ -93,6 +95,9 @@ def generate_job_config(
         repeats:
             Number of repeated simulations for each parameter set.
 
+    Returns:
+        dict: Metadata including number of jobs, output file path, and parameter names.
+
     Raises:
         ValueError:
             If the number of parameter names does not match the number of
@@ -101,72 +106,53 @@ def generate_job_config(
     """
 
     output_file = Path(output_file)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    output_file.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    # Convert Path objects to strings for TOML serialization.
+    common_config_paths = [str(path) for path in common_config_paths]
+
+    site_directory = str(site_directory)
 
     if config_paths is None:
         config_paths = []
+    else:
+        config_paths = [str(path) for path in config_paths]
 
     if samples.shape[1] != len(parameter_names):
         raise ValueError("Number of parameter names does not match sample columns.")
 
-    with open(output_file, "w") as file:
-        # ==============================================================
-        # Common configuration
-        # ==============================================================
-        # Write settings shared by all runs, including base config paths
-        # and the scenario site directory.
+    # Build structured TOML data
+    jobs = []
+    for run_id, values in enumerate(samples, start=1):
+        job = {
+            "name": f"run_{run_id:04d}",
+            "repeats": repeats,
+            "config": {
+                parameter: (
+                    float(value) if isinstance(value, (float, np.floating)) else value
+                )
+                for parameter, value in zip(parameter_names, values)
+            },
+        }
 
-        file.write("common_config_paths = [\n")
+    if config_paths:
+        job["config_paths"] = config_paths
 
-        for config in common_config_paths:
-            file.write(f'    "{config}",\n')
+    jobs.append(job)
 
-        file.write("]\n\n")
+    data = {
+        "common_config_paths": [str(c) for c in common_config_paths],  # convert to str
+        "site_directory": str(site_directory),  # ensure string
+        "jobs": jobs,
+    }
 
-        file.write(f'site_directory = "{site_directory}"\n\n')
+    # Write TOML file using tomli_w
+    with open(output_file, "wb") as f:
+        tomli_w.dump(data, f)
 
-        # ==============================================================
-        # Individual simulation jobs
-        # ==============================================================
-        # Write one `[[jobs]]` block per sample with run name, repeats,
-        # optional job-specific config paths, and parameter overrides.
-
-        for run_id, values in enumerate(samples, start=1):
-            file.write("[[jobs]]\n")
-
-            file.write("config_paths = [")
-
-            if config_paths:
-                file.write(",".join(f'"{config}"' for config in config_paths))
-
-            file.write("]\n")
-
-            file.write(f'name = "run_{run_id:04d}"\n')
-
-            file.write(f"repeats = {repeats}\n\n")
-
-            file.write("[jobs.config]\n")
-
-            for parameter, value in zip(
-                parameter_names,
-                values,
-            ):
-                if isinstance(
-                    value,
-                    (float, np.floating),
-                ):
-                    file.write(f'"{parameter}" = {value:.12g}\n')
-                else:
-                    file.write(f'"{parameter}" = {value}\n')
-
-            file.write("\n")
-
-    print("=" * 60)
-    print("Virtual Ecosystem job configuration generated successfully")
-    print("=" * 60)
-    print(f"Simulation runs : {len(samples)}")
-    print(f"Output file     : {output_file.resolve()}")
+    # Return metadata instead of printing
+    return {
+        "num_jobs": len(samples),
+        "output_file": str(output_file.resolve()),
+        "parameters": parameter_names,
+    }
