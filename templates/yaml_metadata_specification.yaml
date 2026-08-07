@@ -7,15 +7,15 @@
 title: Descriptive name of the script
 
 description: |
-    Brief description of what the script does, its main purpose, and any important
-    scientific context. Keep it concise but informative.
+  Brief description of what the script does, its main purpose, and any important
+  scientific context. Keep it concise but informative.
 
-    This can include multiple paragraphs.
+  This can include multiple paragraphs.
 
-VE_module: Animal, Plant, Abiotic, Soil, None, etc
+VE_module: [Animal, Plant, Abiotic, Soil, None]
 
 author:
-  - name: David Orme
+  - David Orme
 
 status: final or wip
 
@@ -34,8 +34,8 @@ output_files:
       scripts?
 
 package_dependencies:
-    - vegan
-    - MASS
+  - vegan
+  - MASS
 
 usage_notes: |
   Any known issues or bugs? Future plans for script/extensions or improvements
