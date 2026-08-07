@@ -1,16 +1,16 @@
 #| ---
-#| title: Plant stoichiometry
+#| title: stoichiometry_maliau
 #|
 #| description: |
 #|     This script focuses on collecting stoichiometric ratios and lignin content
-#|     for each of the biomass pools in the plant model:leaves, sapwood, roots
+#|     for each of the biomass pools in the plant model: leaves, sapwood, roots
 #|     and reproductive tissue, which consists of propagules (fruits/seeds) and
 #|     non-propagules (flowers).
-#|     The script works with multiple datasets and ideally calculates the ratios
-#|     at PFT level. Species are linked to their PFT by working with the output
-#|     of the PFT species classification base script.
-#|     If PFT specific values are not available, values for tropical rain forests
-#|     in Sabah are aimed for.
+#|     The script works with multiple datasets and calculates the ratios at PFT
+#|     level where possible. Species are linked to their PFT using the output of
+#|     the PFT classification script in the plant input data library workflow.
+#|     If PFT-specific values are not available, values for tropical rain forests
+#|     in Sabah are used.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -18,19 +18,15 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: final
-#|
+#| status: in progress
 #|
 #| input_files:
-#|   - name: plant_functional_type_species_classification_base.csv
-#|     path: data/derived/plant/plant_functional_type
+#|   - name: pfts_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a list of species and their respective PFT.
-#|       This CSV file can be loaded when working with other datasets
-#|       (particularly those related to updating T model parameters).
-#|       In a follow up script, the remaining species that have not been assigned
-#|       a PFT yet will be assigned into one based on
-#|       their species maximum height relative to the PFT maximum height.
+#|       This CSV file contains the plant functional type classification used to
+#|       link species records to plant functional types in the stoichiometry
+#|       workflow.
 #|   - name: inagawa_nutrients_wood_density.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |
@@ -51,20 +47,134 @@
 #|       Element concentrations of litter fractions.
 #|
 #| output_files:
-#|   - name: plant_stoichiometry.csv
-#|     path: data/derived/plant/traits_data
+#|   - name: stoichiometry_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       This CSV file contains a summary of stoichiometric ratios and lignin
-#|       content for different biomass pools for each PFT.
+#|       content for different biomass pools for each plant functional type.
+#|     variables:
+#|       - name: name
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Plant functional type name.
+#|       - name: deadwood_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for sapwood / deadwood tissue.
+#|       - name: deadwood_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for sapwood / deadwood tissue.
+#|       - name: stem_lignin
+#|         type: numeric
+#|         units: g lignin C g^-1 stem C
+#|         description: |
+#|           Fraction of stem carbon mass present as lignin.
+#|       - name: foliage_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for foliage.
+#|       - name: foliage_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for foliage.
+#|       - name: leaf_lignin
+#|         type: numeric
+#|         units: g lignin C g^-1 leaf C
+#|         description: |
+#|           Fraction of leaf carbon mass present as lignin.
+#|       - name: leaf_turnover_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for senesced leaf turnover material.
+#|       - name: leaf_turnover_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for senesced leaf turnover material.
+#|       - name: senesced_leaf_lignin
+#|         type: numeric
+#|         units: g lignin C g^-1 senesced leaf C
+#|         description: |
+#|           Fraction of senesced leaf carbon mass present as lignin.
+#|       - name: plant_reproductive_tissue_turnover_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for reproductive tissue turnover.
+#|       - name: plant_reproductive_tissue_turnover_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for reproductive tissue turnover.
+#|       - name: mature_fruit_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for mature fruit tissue.
+#|       - name: mature_fruit_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for mature fruit tissue.
+#|       - name: mature_fruit_c_mass
+#|         type: numeric
+#|         units: g C
+#|         description: |
+#|           Carbon mass per mature fruit.
+#|       - name: carbon_mass_per_propagule
+#|         type: numeric
+#|         units: g C
+#|         description: |
+#|           Carbon mass per propagule, represented here by seed carbon mass.
+#|       - name: plant_reproductive_tissue_lignin
+#|         type: numeric
+#|         units: g lignin C g^-1 reproductive tissue C
+#|         description: |
+#|           Fraction of reproductive tissue carbon mass present as lignin.
+#|       - name: flower_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for flower tissue.
+#|       - name: flower_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for flower tissue.
+#|       - name: root_turnover_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for fine root turnover material.
+#|       - name: root_turnover_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for fine root turnover material.
+#|       - name: root_lignin
+#|         type: numeric
+#|         units: g lignin C g^-1 root C
+#|         description: |
+#|           Fraction of fine root carbon mass present as lignin.
 #|
 #| package_dependencies:
-#|     - readxl
-#|     - dplyr
-#|     - ggplot2
-#|     - stringr
+#|   - readxl
+#|   - dplyr
+#|   - ggplot2
+#|   - stringr
 #|
 #| usage_notes: |
-#|   This script can be expanded when additional biomass pools are added to the model.
+#|   This script can be expanded when additional biomass pools are added to the
+#|   model.
+#|   Before running via master_data_library.R, remaining console output and
+#|   plotting code should be cleaned up or made optional.
 #| ---
 
 # Load packages
@@ -74,10 +184,10 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 
-# Load PFT species classification base and clean up a bit
+# Load PFT classification and clean up a bit
 
 PFT_species_classification_base <- read.csv(
-  "../../../data/derived/plant/plant_functional_type/plant_functional_type_species_classification_base.csv",
+  "../../../../data/derived/plant/input_data/data_library/pfts_maliau.csv",
   header = TRUE
 )
 
@@ -95,7 +205,7 @@ data_taxa <- PFT_species_classification_base
 # Load wood nutrients data and clean up a bit
 
 inagawa_nutrients_wood_density <- read_excel(
-  "../../../data/primary/plant/traits_data/inagawa_nutrients_wood_density.xlsx",
+  "../../../../data/primary/plant/traits_data/inagawa_nutrients_wood_density.xlsx",
   sheet = "Nutrients",
   col_names = FALSE
 )
@@ -208,7 +318,7 @@ summary$stem_lignin <- stem_lignin_C_of_stem_C
 # stoichiometry for senesced leaves. For lignin content values are the same.
 
 both_tree_functional_traits <- read_excel(
-  "../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
+  "../../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
   sheet = "Tree_functional_traits",
   col_names = FALSE
 )
@@ -577,7 +687,7 @@ summary$lignin_senesced_leaf_mean <-
 # for a range of forests on Mount Kinabalu, Borneo
 
 kitayama_litter_stoichiometry <- read_excel(
-  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
+  "../../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
   sheet = "Sheet1",
   col_names = FALSE
 )
@@ -726,7 +836,7 @@ summary$mature_fruit_CP <- mature_fruit_CP
 
 ###
 
-# Thoughts om both approaches:
+# Thoughts on both approaches:
 # There seems to be quite a large difference in the CP ratio between the two
 # approaches, and I'm not sure which one is the best
 # Also, when comparing Kitayama values for leaf stoichiometry with our PFT values,
@@ -741,8 +851,8 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # Because of this, it may be better to choose Kitayama derived stoichiometric
 # values for reproductive tissue (and not use the ones derived from Ichie)
 
-# Note that when using the ratio derived from Kityama's data we do not have
-# different ratios for propagule and non-propagules, which is is not ideal
+# Note that when using the ratio derived from Kitayama's data we do not have
+# different ratios for propagule and non-propagules, which is not ideal
 
 # Note that we'll likely use Ichie to determine the ratio between non-propagule
 # and propagule mass
@@ -914,8 +1024,14 @@ colnames(summary) <- c(
 
 # Write CSV file
 
+dir.create(
+  "../../../../data/derived/plant/input_data/data_library",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
 write.csv(
   summary,
-  "../../../data/derived/plant/traits_data/plant_stoichiometry.csv",
+  "../../../../data/derived/plant/input_data/data_library/stoichiometry_maliau.csv",
   row.names = FALSE
 )
