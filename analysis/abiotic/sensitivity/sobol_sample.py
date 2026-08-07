@@ -104,7 +104,7 @@ groups = [
     "hydrology",
 ]
 
-base_config = "data/scenarios/sensitivity/config/hydrlogy_base_config.toml"
+base_config = "data/scenarios/sensitivity/config/hydrology_base_config.toml"
 
 site_directory = "data/scenarios/sensitivity/config/"
 
