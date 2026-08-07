@@ -29,7 +29,7 @@
 #|   - name: pfts_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains the base list of taxa and their assigned PFT.
+#|       A CSV file listing species by PFT.
 #|   - name: inagawa_nutrients_wood_density.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |

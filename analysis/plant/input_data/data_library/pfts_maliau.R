@@ -42,7 +42,7 @@
 #|   - name: pfts_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a list of species and their respective PFT.
+#|       A CSV file listing species by PFT.
 #|     variables:
 #|       - name: PFT
 #|         type: integer
