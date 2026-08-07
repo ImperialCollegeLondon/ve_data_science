@@ -1,5 +1,30 @@
 # Change log of maliau_2 scenario input data
 
+2026-08-07
+- Module: Soil, Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/soil_maliau.nc
+- Changes made:
+  - Fixed a missing conversion of [%] to [kg/kg], causing total soil carbon and
+    nitrogen to take on erroreously high values
+- References:
+  - PR #492 addressing Issue #471
+
+2026-07-31
+- Module: Soil, Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/litter_maliau.nc
+  - data/scenarios/maliau/maliau_2/data/soil_maliau.nc
+- Changes made:
+  - Fixed a missing transpose in the converter function
+    tools/R/R/convert_df_to_nc.R; all soil and litter input variables should
+    now be in the right dimensions. Notably, stoichiometric ratios should be
+    much more sensible.
+- References:
+  - PR #464 addressing Issue #455
+
 2026-07-23
 - Module: All
 - Author: Baizurah Malik
