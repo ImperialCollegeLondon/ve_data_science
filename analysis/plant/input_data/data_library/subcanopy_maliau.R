@@ -1,9 +1,10 @@
 #| ---
-#| title: Subcanopy parameterisation
+#| title: subcanopy_maliau
 #|
 #| description: |
-#|     This script collects the subcanopy parameters. Maliau is the
-#|     preferred target area, if/when available.
+#|     This script collects the subcanopy parameters for the plant input data
+#|     library workflow. Maliau is the preferred target area, if and when
+#|     available.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -11,41 +12,128 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: final
-#|
+#| status: in progress
 #|
 #| input_files:
 #|   - name: dobert_2017_species_trait_data.csv
 #|     path: data/primary/plant/traits_data
 #|     description: |
 #|       https://doi.org/10.5061/dryad.f77p7
-#|       This CSV file contains a set of traits (e.g., maximum height, fruit,
+#|       This CSV file contains a set of traits (e.g. maximum height, fruit,
 #|       dispersal, pollination type, etc.) for each species, measured across the
 #|       SAFE project and Maliau.
 #|   - name: dobert_2017_plot_species_data.csv
 #|     path: data/primary/plant/subcanopy
 #|     description: |
 #|       https://doi.org/10.5061/dryad.f77p7
-#|       This csv file contains a matrix of biomass values for 691 plant taxa
-#|       sampled across 180 vegetation plots (2 x 2m) located at the Stability
+#|       This CSV file contains a matrix of biomass values for 691 plant taxa
+#|       sampled across 180 vegetation plots (2 x 2 m) located at the Stability
 #|       of Altered Forest Ecosystems (SAFE) project in Sabah, Malaysia.
-#|   - name: plant_stoichiometry.csv
-#|     path: data/derived/plant/traits_data
+#|   - name: stoichiometry_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a summary of stoichiometric ratios and lignin
-#|       content for different biomass pools for each PFT.
+#|       This CSV file contains stoichiometric ratios and lignin content for
+#|       plant biomass pools used by the plant input data library workflow.
 #|
 #| output_files:
-#|   - name: subcanopy_parameters.csv
-#|     path: data/derived/plant/subcanopy
+#|   - name: subcanopy_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains the subcanopy parameters, which are part of the
-#|       plant model constants.
+#|       This CSV file contains the subcanopy parameters used as plant model
+#|       constants in the plant input data library workflow.
+#|     variables:
+#|       - name: subcanopy_vegetation_biomass
+#|         type: numeric
+#|         units: kg C m^-2
+#|         description: |
+#|           Mean standing subcanopy vegetation carbon mass per unit ground area.
+#|       - name: subcanopy_seedbank_biomass
+#|         type: numeric
+#|         units: kg C m^-2
+#|         description: |
+#|           Estimated seedbank carbon mass per unit ground area.
+#|       - name: subcanopy_specific_leaf_area
+#|         type: numeric
+#|         units: m^2 kg^-1 C
+#|         description: |
+#|           Specific leaf area of subcanopy vegetation expressed per unit carbon mass.
+#|       - name: subcanopy_reproductive_allocation
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Fraction of aboveground subcanopy biomass allocated to reproductive tissue.
+#|       - name: subcanopy_respiration_fraction
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Fraction of gross primary productivity lost to respiration in subcanopy vegetation.
+#|       - name: subcanopy_extinction_coef
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Light extinction coefficient used for subcanopy vegetation.
+#|       - name: subcanopy_yield
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Carbon yield of subcanopy vegetation after growth respiration losses.
+#|       - name: subcanopy_vegetation_turnover
+#|         type: numeric
+#|         units: year^-1
+#|         description: |
+#|           Annual turnover rate of subcanopy vegetation biomass.
+#|       - name: subcanopy_vegetation_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio of subcanopy vegetation biomass.
+#|       - name: subcanopy_vegetation_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio of subcanopy vegetation biomass.
+#|       - name: subcanopy_vegetation_lignin
+#|         type: numeric
+#|         units: g lignin C g^-1 vegetation C
+#|         description: |
+#|           Fraction of subcanopy vegetation carbon mass present as lignin.
+#|       - name: subcanopy_seedbank_turnover
+#|         type: numeric
+#|         units: year^-1
+#|         description: |
+#|           Annual turnover rate of the subcanopy seedbank.
+#|       - name: subcanopy_sprout_rate
+#|         type: numeric
+#|         units: year^-1
+#|         description: |
+#|           Annual sprouting rate from the viable subcanopy seedbank.
+#|       - name: subcanopy_sprout_yield
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Carbon yield associated with sprouting from the subcanopy seedbank.
+#|       - name: subcanopy_seedbank_c_n_ratio
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio of seedbank material used for subcanopy inputs.
+#|       - name: subcanopy_seedbank_c_p_ratio
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio of seedbank material used for subcanopy inputs.
+#|       - name: subcanopy_seedbank_lignin
+#|         type: numeric
+#|         units: g lignin C g^-1 seedbank C
+#|         description: |
+#|           Fraction of seedbank carbon mass present as lignin.
 #|
 #| package_dependencies:
-#|     -
+#|   -
 #|
 #| usage_notes: |
+#|   This script currently retains the original exploratory structure and should
+#|   be cleaned further before inclusion in the full master workflow.
 #| ---
 
 # Load packages
@@ -60,7 +148,7 @@
 # Load Dobert et al. (2017) dataset on species trait data and clean up a bit
 
 dobert_2017_species_trait_data <- read.csv(
-  "../../../data/primary/plant/traits_data/dobert_2017_species_trait_data.csv",
+  "../../../../data/primary/plant/traits_data/dobert_2017_species_trait_data.csv",
   header = TRUE
 )
 
@@ -113,7 +201,7 @@ taxa <- unique(data$species.code)
 # Load Dobert plot species data
 
 dobert_2017_plot_species_data <- read.csv(
-  "../../../data/primary/plant/subcanopy/dobert_2017_plot_species_data.csv",
+  "../../../../data/primary/plant/subcanopy/dobert_2017_plot_species_data.csv",
   header = TRUE
 )
 
@@ -292,7 +380,7 @@ data$subcanopy_vegetation_lignin <- 0.121875 / 0.41747
 
 ##################################################
 
-# Add seedbank turnover (i.e., seeds lost from soil seed bank)
+# Add seedbank turnover (i.e. seeds lost from soil seed bank)
 # based on (Dalling et al. (1998; https://doi.org/10.2307/176953))
 # Calculated as 1-fraction seeds expected to still be viable after one year
 
@@ -317,7 +405,7 @@ data$subcanopy_sprout_yield <- 1 - 0.32
 # We'll load these from the stoichiometry input data file
 
 plant_stoichiometry <- read.csv(
-  "../../../data/derived/plant/traits_data/plant_stoichiometry.csv",
+  "../../../../data/derived/plant/input_data/data_library/stoichiometry_maliau.csv",
   header = TRUE
 )
 
@@ -332,9 +420,15 @@ data$subcanopy_seedbank_lignin <-
 
 # Write CSV file
 
+dir.create(
+  "../../../../data/derived/plant/input_data/data_library",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
 write.csv(
   data,
-  "../../../data/derived/plant/subcanopy/subcanopy_parameters.csv",
+  "../../../../data/derived/plant/input_data/data_library/subcanopy_maliau.csv",
   row.names = FALSE
 )
 
