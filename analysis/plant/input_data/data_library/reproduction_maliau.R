@@ -1,11 +1,11 @@
 #| ---
-#| title: Plant allocation to reproductive tissues
+#| title: reproduction_maliau
 #|
 #| description: |
-#|     This script focuses on calculating the ratio that allows to derive
-#|     reproductive tissue carbon mass from foliage carbon mass.
-#|     It also calculates the ratio to separate reproductive tissue carbon mass
-#|     into propagule (fruits/seeds) and non-propagule (flowers) carbon mass.
+#|     This script calculates the ratios needed to derive reproductive tissue
+#|     carbon mass from foliage carbon mass. It also calculates the ratios used
+#|     to separate reproductive tissue carbon mass into propagule
+#|     (fruits/seeds) and non-propagule (flowers) carbon mass.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -13,7 +13,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: final
+#| status: in progress
 #|
 #| input_files:
 #|   - name: SAFE_CarbonBalanceComponents.xlsx
@@ -37,30 +37,53 @@
 #|       Element concentrations of litter fractions.
 #|
 #| output_files:
-#|   - name: reproductive_tissue_allocation.csv
-#|     path: data/derived/plant/reproductive_tissue_allocation
+#|   - name: reproduction_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       This CSV file contains a summary of the ratios needed to calculate
-#|       reproductive tissue allocation, and to separate propagules from non-
-#|       propagules.
+#|       reproductive tissue allocation, and to separate propagules from
+#|       non-propagules.
+#|     variables:
+#|       - name: approach
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Identifier for the approach used to derive the ratio or allocation.
+#|       - name: source
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Literature source or dataset used for the estimate.
+#|       - name: reproductive_to_leaf_ratio_C
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Ratio used to derive reproductive tissue carbon mass from foliage
+#|           carbon mass, or carbon allocation fraction for propagule and
+#|           non-propagule components depending on the row.
+#|       - name: notes
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Additional context describing forest type, assumptions, or tissue
+#|           class used for the estimate.
 #|
 #| package_dependencies:
-#|     - readxl
-#|     - dplyr
-#|     - ggplot2
+#|   - readxl
+#|   - dplyr
+#|   - ggplot2
 #|
 #| usage_notes: |
-#|     The summary output file provides the ratio of reproductive tissue carbon
-#|     mass to leaf carbon mass, for a range of studies. At the moment, no decision
-#|     has been made yet which ratio to use or to use an average across studies.
-#|     The summary also provides the ratio between non-propagule and propagule
-#|     carbon mass, using one approach based on litter fall and one approach
-#|     based on estimated live organs.
-#|     If I had to pick, I would recommend using the ratio obtained from the SAFE
-#|     carbon balance components dataset, focusing on old growth plots, with the
-#|     Aoyagi reproductive tissue carbon content (so the ratio on row 3). With
-#|     regards to the ratio between non-propagule and propagule, I would recommend
-#|     the one based on litter fall.
+#|   The summary output file provides the ratio of reproductive tissue carbon
+#|   mass to leaf carbon mass for a range of studies.
+#|   At the moment, no decision has been made yet on which ratio to use, or
+#|   whether to use an average across studies.
+#|   The summary also provides the ratio between non-propagule and propagule
+#|   carbon mass, using one approach based on litter fall and one approach
+#|   based on estimated live organs.
+#|   If a single option had to be selected, the SAFE carbon balance components
+#|   dataset focusing on old-growth plots with the Aoyagi reproductive tissue
+#|   carbon content correction would currently be a reasonable candidate.
 #| ---
 
 # Load packages
@@ -81,7 +104,7 @@ library(ggplot2)
 # Load SAFE carbon balance components dataset and clean up a bit
 
 safe_carbon_balance_components <- read_excel(
-  "../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
+  "../../../../data/primary/plant/carbon_balance_components/SAFE_CarbonBalanceComponents.xlsx",
   sheet = "Data",
   col_names = FALSE
 )
@@ -121,7 +144,7 @@ data <- data[,
 # value across plots is fine, as the rest of reproductive allocation does not
 # work on a PFT basis (it actually works on plot basis for the first approach).
 both_tree_functional_traits <- read_excel(
-  "../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
+  "../../../../data/primary/plant/traits_data/both_tree_functional_traits.xlsx",
   sheet = "Tree_functional_traits",
   col_names = FALSE
 )
@@ -168,7 +191,7 @@ data$leaf_C_perc[data$ForestType == "Logged"] <-
 # reproductive organ litter carbon content across the different plots.
 
 kitayama_litter_stoichiometry <- read_excel(
-  "../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
+  "../../../../data/primary/plant/traits_data/kitayama_2015_element_concentrations_of_litter_fractions.xlsx",
   sheet = "Sheet1",
   col_names = FALSE
 )
@@ -250,8 +273,7 @@ summary <- data.frame(
     data$ForestType == "Old-growth"
   ]),
   notes = c(
-    "old growth, litter fall from SAFE, leaf carbon from same plots,
-      reproductive tissue carbon from Kitayama"
+    "old growth, litter fall from SAFE, leaf carbon from same plots, reproductive tissue carbon from Kitayama"
   )
 )
 
@@ -262,8 +284,7 @@ summary[2, ] <-
     mean(data$reproductive_to_leaf_ratio_C_kitayama[
       data$ForestType == "Logged"
     ]),
-    "selectively logged, litter fall from SAFE, leaf carbon from same plots,
-      reproductive tissue carbon from Kitayama"
+    "selectively logged, litter fall from SAFE, leaf carbon from same plots, reproductive tissue carbon from Kitayama"
   )
 
 summary[3, ] <-
@@ -273,8 +294,7 @@ summary[3, ] <-
     mean(data$reproductive_to_leaf_ratio_C_aoyagi[
       data$ForestType == "Old-growth"
     ]),
-    "old growth, litter fall from SAFE, leaf carbon from same plots,
-      reproductive tissue carbon from Aoyagi"
+    "old growth, litter fall from SAFE, leaf carbon from same plots, reproductive tissue carbon from Aoyagi"
   )
 
 summary[4, ] <-
@@ -282,8 +302,7 @@ summary[4, ] <-
     "1",
     "safe_carbon_balance_components",
     mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Logged"]),
-    "selectively logged, litter fall from SAFE, leaf carbon from same plots,
-      reproductive tissue carbon from Aoyagi"
+    "selectively logged, litter fall from SAFE, leaf carbon from same plots, reproductive tissue carbon from Aoyagi"
   )
 
 #####
@@ -772,7 +791,7 @@ ichie_data$flower_live_organ_carbon_mass <-
 ichie_data$fruit_live_organ_carbon_mass <-
   sum(ichie_data$live_organ_carbon_mass[ichie_data$tissue_type == "fruit"])
 
-# Calculate ratio (i.e., which percentage is flowers, which is fruits)
+# Calculate ratio (i.e. which percentage is flowers, which is fruits)
 
 ichie_data$flower_allocation_litter <-
   ichie_data$flower_litter_carbon_mass /
@@ -828,8 +847,14 @@ summary[20, ] <-
 
 # Save summary output file
 
+dir.create(
+  "../../../../data/derived/plant/input_data/data_library",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
 write.csv(
   summary,
-  "../../../data/derived/plant/reproductive_tissue_allocation/reproductive_tissue_allocation.csv",
+  "../../../../data/derived/plant/input_data/data_library/reproduction_maliau.csv",
   row.names = FALSE
 )
