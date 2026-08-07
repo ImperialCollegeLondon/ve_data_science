@@ -6,23 +6,23 @@ description: |
   This module provides reusable utility functions for generating Virtual
   Ecosystem High Performance Computing (HPC) job configuration files.
 
-  The utilities convert sampled parameter values produced by global
-  sensitivity analysis methods (e.g. Sobol or Morris sampling) into the
-  `job_config.toml` format required by the Virtual Ecosystem HPC batch
-  workflow.
+  Its primary role is to take parameter samples produced by global sensitivity
+  analysis methods (such as Sobol or Morris sampling) and translate them into
+  the `job_config.toml` format required by the Virtual Ecosystem batch
+  simulation workflow. Each row of sampled parameter values becomes a distinct
+  simulation job definition, ensuring that large-scale sensitivity experiments
+  can be executed consistently across HPC environments.
 
-  The generated configuration file defines the shared model configuration,
-  scenario data directory and individual simulation runs.
-
-  It is designed to bridge sampling outputs (for example Sobol or Morris sample
-  generator) and the `job_config.toml` structure expected by the batch workflow.
-  For each sampled parameter set, the module writes one `[[jobs]]` entry with a
-  unique run name, repeat count, optional per-job configuration files, and a
-  `[jobs.config]` block of parameter overrides.
-
-  The generated file also includes shared settings (`common_config_paths` and
-  `site_directory`) that apply to all runs. This allows large parameter sweeps
-  to be generated reproducibly and consistently across experiments.
+  The generated configuration file contains:
+    - **Shared model configuration**: A list of `common_config_paths` pointing
+      to base configuration files that apply to all runs.
+    - **Scenario data directory**: The `site_directory` path, which specifies
+      the input datasets (e.g. climate, soil, plant, animal) copied to compute
+      nodes before execution.
+    - **Individual job entries**: Each `[[jobs]]` block includes a unique run
+      name, repeat count, optional per-job configuration files, and a
+      `[jobs.config]` section with parameter overrides corresponding to the
+      sampled values.
 
 virtual_ecosystem_module: all
 
@@ -108,9 +108,8 @@ def generate_job_config(
     output_file = Path(output_file)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    # Convert Path objects to strings for TOML serialization.
+    # Convert Path objects to strings for TOML serialization
     common_config_paths = [str(path) for path in common_config_paths]
-
     site_directory = str(site_directory)
 
     if config_paths is None:
@@ -134,15 +133,13 @@ def generate_job_config(
                 for parameter, value in zip(parameter_names, values)
             },
         }
-
-    if config_paths:
-        job["config_paths"] = config_paths
-
-    jobs.append(job)
+        if config_paths:
+            job["config_paths"] = config_paths
+        jobs.append(job)  # ✅ ensure this is inside the loop
 
     data = {
-        "common_config_paths": [str(c) for c in common_config_paths],  # convert to str
-        "site_directory": str(site_directory),  # ensure string
+        "common_config_paths": common_config_paths,
+        "site_directory": site_directory,
         "jobs": jobs,
     }
 
@@ -150,7 +147,7 @@ def generate_job_config(
     with open(output_file, "wb") as f:
         tomli_w.dump(data, f)
 
-    # Return metadata instead of printing
+    # Return metadata
     return {
         "num_jobs": len(samples),
         "output_file": str(output_file.resolve()),
