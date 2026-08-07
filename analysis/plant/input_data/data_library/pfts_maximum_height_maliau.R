@@ -53,43 +53,115 @@
 #|           Numeric plant functional type code after applying the
 #|           maximum-height-based classification.
 #|           1 = emergent, 2 = overstory, 3 = pioneer, 4 = understory.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Unclassified taxa are assigned to PFTs using observed maximum height thresholds from the derived T model output."
 #|       - name: PFT_name
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Human-readable plant functional type label.
 #|           One of: emergent, overstory, pioneer, understory.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Labels are derived from the final numeric PFT assignments after height-based reassignment."
 #|       - name: TaxaName
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Full taxon name as recorded in the SAFE tree census dataset.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Taxon names are taken directly from the SAFE census input file."
 #|       - name: TaxaLevel
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Taxonomic resolution of the identification (e.g. species, genus).
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Taxonomic resolution is inherited from the SAFE census input file."
 #|       - name: Species
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Species epithet component of the taxon name, where available.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Species epithets are taken directly from the SAFE census input file and may be blank for higher-level identifications."
 #|       - name: Genus
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Genus component of the taxon name.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Genus names are taken directly from the SAFE census input file."
 #|       - name: Family
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Plant family as recorded in the SAFE tree census dataset.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Family names are taken directly from the SAFE census input file."
 #|       - name: maximum_height
 #|         type: numeric
 #|         units: m
 #|         description: |
 #|           Estimated maximum height for each taxon, derived from the tallest
 #|           observed individual in the filtered SAFE tree census dataset.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.14882506"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Maximum height is taken as the tallest observed individual per taxon in the filtered SAFE census data."
 #|
 #| package_dependencies:
 #|   - readxl
