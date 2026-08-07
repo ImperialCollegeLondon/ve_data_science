@@ -49,11 +49,29 @@
 #|         units: dimensionless
 #|         description: |
 #|           Identifier for the approach used to derive the ratio or allocation.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: ""
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Approach labels distinguish mixed-source derivation methods rather than measured variables."
 #|       - name: source
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Literature source or dataset used for the estimate.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: ""
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Source values identify the primary dataset or paper used for each summary row, but some rows still depend on additional correction sources."
 #|       - name: reproductive_to_leaf_ratio_C
 #|         type: numeric
 #|         units: dimensionless
@@ -61,12 +79,30 @@
 #|           Ratio used to derive reproductive tissue carbon mass from foliage
 #|           carbon mass, or carbon allocation fraction for propagule and
 #|           non-propagule components depending on the row.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: ""
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "This field contains mixed derived quantities across rows, including reproductive-to-leaf ratios and propagule allocation fractions, so provenance varies by approach."
 #|       - name: notes
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Additional context describing forest type, assumptions, or tissue
 #|           class used for the estimate.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: ""
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Notes summarise row-level provenance and interpretation because the output table combines several incompatible source types."
 #|
 #| package_dependencies:
 #|   - readxl
