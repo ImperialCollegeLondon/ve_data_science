@@ -58,111 +58,309 @@
 #|         units: dimensionless
 #|         description: |
 #|           Plant functional type name.
+#|         citation: ""
+#|         doi: ""
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "PFT names are inherited from the pfts_maliau classification used to aggregate trait data."
 #|       - name: deadwood_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for sapwood / deadwood tissue.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.8158811"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Calculated from sapwood nutrient concentrations and averaged across the limited species sample rather than by PFT."
 #|       - name: deadwood_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for sapwood / deadwood tissue.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.8158811"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Calculated from sapwood nutrient concentrations and averaged across the limited species sample rather than by PFT."
 #|       - name: stem_lignin
 #|         type: numeric
 #|         units: g lignin C g^-1 stem C
 #|         description: |
 #|           Fraction of stem carbon mass present as lignin.
+#|         citation: "White et al. 2000; Muddasar et al. 2024"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: ""
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Derived by combining literature lignin fraction with mean sapwood carbon content from the SAFE wood nutrient dataset."
 #|       - name: foliage_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for foliage.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.3247631"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Calculated from leaf trait measurements and aggregated to PFT using species-to-PFT matching, with genus-level matching where species-level matching is unavailable."
 #|       - name: foliage_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for foliage.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.3247631"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Calculated from leaf trait measurements and aggregated to PFT using species-to-PFT matching, with genus-level matching where species-level matching is unavailable."
 #|       - name: leaf_lignin
 #|         type: numeric
 #|         units: g lignin C g^-1 leaf C
 #|         description: |
 #|           Fraction of leaf carbon mass present as lignin.
+#|         citation: "Muddasar et al. 2024"
+#|         doi: "10.5281/zenodo.3247631"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Derived by converting dry-mass lignin measurements in the leaf trait dataset to a carbon-mass basis."
 #|       - name: leaf_turnover_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for senesced leaf turnover material.
+#|         citation: "Han et al. 2013"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: "evergreen broadleaf forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Derived from foliage C:N using a fixed nitrogen resorption efficiency rather than direct senesced leaf measurements."
 #|       - name: leaf_turnover_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for senesced leaf turnover material.
+#|         citation: "Han et al. 2013"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: "evergreen broadleaf forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Derived from foliage C:P using a fixed phosphorus resorption efficiency rather than direct senesced leaf measurements."
 #|       - name: senesced_leaf_lignin
 #|         type: numeric
 #|         units: g lignin C g^-1 senesced leaf C
 #|         description: |
 #|           Fraction of senesced leaf carbon mass present as lignin.
+#|         citation: ""
+#|         doi: "10.5281/zenodo.3247631"
+#|         url: ""
+#|         origin: "SAFE Project, Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "lowland tropical rain forest"
+#|         site_condition: "old-growth and selectively logged"
+#|         date: "2011-2020"
+#|         assumptions: "Assumed equal to live foliage lignin because senesced leaf-specific lignin data were not separately derived."
 #|       - name: plant_reproductive_tissue_turnover_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for reproductive tissue turnover.
+#|         citation: ""
+#|         doi: "10.1111/1365-2745.12379"
+#|         url: ""
+#|         origin: "Mount Kinabalu, Borneo"
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
 #|       - name: plant_reproductive_tissue_turnover_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for reproductive tissue turnover.
+#|         citation: ""
+#|         doi: "10.1111/1365-2745.12379"
+#|         url: ""
+#|         origin: "Mount Kinabalu, Borneo"
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
 #|       - name: mature_fruit_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for mature fruit tissue.
+#|         citation: "Ichie et al. 2005"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
 #|       - name: mature_fruit_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for mature fruit tissue.
+#|         citation: "Ichie et al. 2005"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
 #|       - name: mature_fruit_c_mass
 #|         type: numeric
 #|         units: g C
 #|         description: |
 #|           Carbon mass per mature fruit.
+#|         citation: "Ichie et al. 2005"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Calculated from mature fruit dry mass and carbon percentage for Dipterocarpus tempehes."
 #|       - name: carbon_mass_per_propagule
 #|         type: numeric
 #|         units: g C
 #|         description: |
 #|           Carbon mass per propagule, represented here by seed carbon mass.
+#|         citation: "Ichie et al. 2005; Nakagawa and Nakashizuka 2004"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration."
 #|       - name: plant_reproductive_tissue_lignin
 #|         type: numeric
 #|         units: g lignin C g^-1 reproductive tissue C
 #|         description: |
 #|           Fraction of reproductive tissue carbon mass present as lignin.
+#|         citation: "Nakagawa and Nakashizuka 2004; Muddasar et al. 2024"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Estimated from seed lignin and carbon content, so it serves as a propagule-based proxy for broader reproductive tissue lignin."
 #|       - name: flower_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for flower tissue.
+#|         citation: "Ichie et al. 2005"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Calculated as the mean across several flower developmental stages for Dipterocarpus tempehes."
 #|       - name: flower_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for flower tissue.
+#|         citation: "Ichie et al. 2005"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: "tropical"
+#|         vegetation_type: "dipterocarp forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Calculated as the mean across several flower developmental stages for Dipterocarpus tempehes."
 #|       - name: root_turnover_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for fine root turnover material.
+#|         citation: "Imai et al. 2010"
+#|         doi: ""
+#|         url: ""
+#|         origin: "Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "mixed dipterocarp lowland tropical rain forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Used directly from fine-root stoichiometry values rather than derived separately for turnover material."
 #|       - name: root_turnover_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for fine root turnover material.
+#|         citation: "Imai et al. 2010"
+#|         doi: ""
+#|         url: ""
+#|         origin: "Sabah, Malaysia"
+#|         biome: "tropical"
+#|         vegetation_type: "mixed dipterocarp lowland tropical rain forest"
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Used directly from fine-root stoichiometry values rather than derived separately for turnover material."
 #|       - name: root_lignin
 #|         type: numeric
 #|         units: g lignin C g^-1 root C
 #|         description: |
 #|           Fraction of fine root carbon mass present as lignin.
+#|         citation: "White et al. 2000; Muddasar et al. 2024"
+#|         doi: ""
+#|         url: ""
+#|         origin: ""
+#|         biome: ""
+#|         vegetation_type: ""
+#|         site_condition: ""
+#|         date: ""
+#|         assumptions: "Derived from a global mean fine-root lignin fraction combined with fine-root carbon content from Imai et al. rather than from site-specific lignin measurements."
 #|
 #| package_dependencies:
 #|   - readxl
