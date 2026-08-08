@@ -55,17 +55,17 @@ These are mainly observed state variables, with no derivation or aggregation req
 
 *Datasets needed:* Published diet composition datasets, trophic transfer studies, food-web network datasets, and diet guild summaries for the same taxonomic groups.
 
-### 2.4 Thermal activity opportunity
+### 2.4 Thermal opportunity proxy (abiotic context)
 
-*Definition:* Thermal context for animal activity and metabolism.
+*Definition:* Abiotic thermal context used as a proxy for potential activity opportunity; this is not a direct functional-group activity output.
 
-*State variables:* air_temperature, soil_temperature, net_radiation, wind_speed.
+*State variables:* air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, net_radiation, wind_speed.
 
 *Source:* output.zarr.
 
-*Validation approach:* Compare ambient thermal and energy context against thermal ecology studies that report activity periods, preferred temperatures, and behavioural restriction under heat or cold stress.
+*Validation approach:* Characterise ambient thermal and energy conditions and evaluate whether periods of potential activity opportunity are plausible. Treat this target as abiotic context only; explicit modelled activity-window checks are handled in 3.5b.
 
-*Datasets needed:* Thermal ecology datasets, activity budget studies, and species-specific or taxon-specific thermal performance curves.
+*Datasets needed:* Thermal ecology datasets, microclimate and activity-budget studies, and species-specific or taxon-specific thermal performance curves.
 
 ### 2.5 Space-use proxy
 
@@ -135,15 +135,25 @@ Targets in this section are site specific.
 
 *Datasets needed:* Mortality-rate datasets, carcass production studies, and survival data by age or size class.
 
-### 3.5 Animal respiration and energy fluxes
+### 3.5a Respiration-intake consistency
 
-*Derivation:* From intake and stoichiometric or assimilation assumptions, plus available heat or plant-related flux context.
+*Derivation:* Compare aggregated respiration and trophic intake using harmonised units and normalised diagnostics.
 
-*Inputs:* total_animal_respiration, C, N, P, air_temperature, soil_temperature, net_radiation, wind_speed.
+*Inputs:* total_animal_respiration, C, N, P.
 
-*Validation approach:* Compare respiration and associated thermal context against metabolic scaling studies, field measurements of animal respiration, and studies linking activity to thermal conditions.
+*Validation approach:* Evaluate respiration-intake coupling against metabolic scaling studies and field respiration data, focusing on temporal coherence and expected direction of response.
 
-*Datasets needed:* Metabolic rate datasets, respiration-allometry datasets, and energy-budget or thermal ecology datasets.
+*Datasets needed:* Metabolic rate datasets, respiration-allometry datasets, and animal energy-budget datasets.
+
+### 3.5b Modelled activity window and available foraging time
+
+*Derivation:* Reconstruct activity-window fraction and available foraging time from model equations and configuration metadata.
+
+*Inputs:* air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, metabolic_type, t_opt, t_max_crit, t_min_crit, tau_f, diet_category_count, timestep duration.
+
+*Validation approach:* Estimate activity-window fraction and derived foraging-time availability, then compare predicted active-time patterns against empirical activity-budget and thermal-performance datasets. If required internal variables are unavailable for exact reconstruction, record this target as a validation gap pending exporter support.
+
+*Datasets needed:* Diel activity datasets, thermal performance curves, and time-budget studies.
 
 ### 3.6 Nutrient cycling contributions from animals
 
@@ -282,7 +292,7 @@ Bracketed numbers in this section refer to the numbered source references used b
 | 2.1 | Site-specific | Population density by functional group | Direct | individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Derive group-level density from abundance and occupied area, then compare against published abundance or density ranges for comparable ecosystems | Site abundance and density datasets, PREDICTS-style benchmarks, GBIF-linked occupancy studies | TBD site dataset |
 | 2.2 | Site-specific | Cohort state and life-history | Direct | is_mature, time_to_maturity, time_since_maturity, largest_mass_achieved, mass_carbon, mass_nitrogen, mass_phosphorus, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus, is_alive | animal_cohort_data.csv | Compare maturity timing, growth state, and stoichiometric trajectories against published life-history and trait datasets | Trait datasets, growth-curve datasets, stoichiometric composition datasets | TBD site dataset |
 | 2.3 | Site-specific | Trophic interaction coverage | Direct | resource_kind, C, N, P, consumer_cohort_id, resource_id, resource_cell_id | animal_trophic_interactions.csv | Compare resource pathways and feeding guild structure against trophic studies | Food-web network datasets, diet composition studies | TBD site dataset |
-| 2.4 | Site-specific | Thermal activity opportunity | Direct | air_temperature, soil_temperature, net_radiation, wind_speed | output.zarr | Compare thermal and energy context against thermal ecology and activity-budget studies | Thermal ecology datasets, activity budget studies, thermal performance curves | TBD site dataset |
+| 2.4 | Site-specific | Thermal opportunity proxy (abiotic context) | Direct | air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, net_radiation, wind_speed | output.zarr | Characterise abiotic thermal opportunity and stress exposure; treat this as potential opportunity only, with explicit modelled activity checks in 3.5b | Thermal ecology datasets, microclimate and activity-budget studies, thermal performance curves | TBD site dataset |
 | 2.5 | Site-specific | Space-use proxy | Direct | occupancy_proportion, territory_size, centroid_key, territory, location_status | animal_cohort_data.csv | Compare occupancy and territory use against movement and home-range datasets | Telemetry datasets, home-range studies, territory-use summaries | TBD site dataset |
 | 2.6 | Site-specific | Direct consumption partitions | Direct | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp | animal_trophic_interactions.csv, output.zarr | Compare resource-specific intake partitions against diet and feeding studies | Resource-specific intake studies, feeding guild comparisons, litter and soil consumption datasets | TBD site dataset |
 | 3.1a | Site-specific | Equilibrium density range | Direct | individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Derive post-spin-up density by functional group and compare against empirical density ranges | Site-level abundance or density datasets | TBD site dataset |
@@ -294,8 +304,8 @@ Bracketed numbers in this section refer to the numbered source references used b
 | 3.3b | Site-specific | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, functional_group | animal_cohort_data.csv | Compare time-to-maturity scaling against allometric maturity datasets | Allometric maturity datasets | TBD site dataset |
 | 3.3c | Site-specific | Stoichiometric mass ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus | animal_cohort_data.csv | Compare C:N:P composition against stoichiometric trait datasets | Stoichiometric composition datasets by taxa | TBD site dataset |
 | 3.4 | Site-specific | Mortality partitioning | Emergent | individuals, is_alive, cohort_id, location_status, decomposed_carcasses_cnp, decomposed_excrement_cnp | animal_cohort_data.csv, output.zarr | Compare mortality and carcass-production patterns against survival and carcass datasets | Mortality-rate datasets, carcass production studies | TBD site dataset |
-| 3.5a | Site-specific | Respiration-intake consistency | Emergent | total_animal_respiration, C, N, P | output.zarr, animal_trophic_interactions.csv | Compare respiration to metabolic scaling and field respiration data | Metabolic rate datasets, respiration-allometry datasets | TBD site dataset |
-| 3.5b | Site-specific | Activity-thermal-energy coupling | Emergent | total_animal_respiration, air_temperature, soil_temperature, net_radiation, wind_speed | output.zarr | Compare activity and respiration responses to thermal ecology datasets | Thermal ecology datasets, energy-budget studies | TBD site dataset |
+| 3.5a | Site-specific | Respiration-intake consistency | Emergent | total_animal_respiration, C, N, P | output.zarr, animal_trophic_interactions.csv | Compare normalised respiration-intake coupling against metabolic scaling and field respiration data | Metabolic rate datasets, respiration-allometry datasets, energy-budget studies | TBD site dataset |
+| 3.5b | Site-specific | Modelled activity window and available foraging time | Emergent | air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, metabolic_type, t_opt, t_max_crit, t_min_crit, tau_f, diet_category_count, timestep duration | output.zarr, functional-group definitions, model constants | Reconstruct activity-window fraction and available foraging time, then compare predicted activity patterns against empirical activity budgets and thermal performance data | Diel activity datasets, thermal performance curves, time-budget studies | TBD site dataset |
 | 3.6 | Site-specific | Soil microbe consumption realism | Direct and emergent | animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, animal_pom_consumption_cnp | output.zarr | Compare soil-microbe consumption against microbial intake or soil-feeding studies | Soil microbe consumption datasets, soil-feeding comparisons | TBD site dataset |
 | 3.7 | Site-specific | Herbivory and detritus flow consistency | Direct and emergent | C, N, P, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp | animal_trophic_interactions.csv, output.zarr | Compare herbivory and detritus uptake against published intake partitioning studies | Resource-specific intake studies, detritus consumption datasets | TBD site dataset |
 | 3.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare animal response to plant productivity and herbivory datasets | Plant productivity datasets, herbivory impact datasets, coupled interaction studies | TBD site dataset |
@@ -350,8 +360,10 @@ Units below are taken from model metadata in data_variables.toml and the cohort/
 | reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | kg element per individual | Difference over timesteps for reproductive allocation rates; multiply by individuals for cohort totals |
 | C, N, P | animal_trophic_interactions.csv | kg element per interaction record (per update step) | Aggregate by cell/time/consumer group; divide by timestep duration for daily rates where needed |
 | air_temperature, soil_temperature | output.zarr | deg C | Convert to Kelvin for thermodynamic equations: K = deg C + 273.15 |
+| canopy_temperature, diurnal_temperature_range | output.zarr | deg C | Use for thermal-opportunity diagnostics and activity-window reconstruction; aggregate to territory-level means where needed |
 | net_radiation | output.zarr | W m^-2 | Aggregate by mean or integral over the same window as biological response variables |
 | wind_speed | output.zarr | m s^-1 | Aggregate by mean, quantiles, or threshold exceedance frequency |
+| sigma_f_t (derived), available_foraging_time_per_diet (derived) | Computed from model equations and configuration metadata | unitless fraction [0,1]; days | Compute sigma_f_t from activity-window equations, then available_foraging_time_per_diet = dt x tau_f x sigma_f_t / diet_category_count |
 | total_animal_respiration | output.zarr | ppm | Compare with intake using normalised anomalies (z-scores) rather than direct mass-ratio arithmetic |
 | decomposed_excrement_cnp, decomposed_carcasses_cnp | output.zarr | kg m^-2 day^-1 | Integrate over timestep window: mass = flux x days |
 | herbivory_waste_leaf_cnp | output.zarr | kg | Divide by grid-cell area for areal comparisons when needed |
@@ -426,7 +438,7 @@ $$
 
 where $r^e_{i,t}$ is reproductive_mass for element $e$.
 
-Trophic intake aggregation from interaction records (for 2.3, 2.6, 3.5, 3.7, V4.1, V4.2, V5.1):
+Trophic intake aggregation from interaction records (for 2.3, 2.6, 3.5a, 3.7, V4.1, V4.2, V5.1):
 
 $$
 I^e_{c,t} = \sum_{k \in (c,t)} e_k
@@ -452,13 +464,25 @@ $$
 NR^e_{c,t} = decomposed\_excrement\_cnp^e_{c,t} + decomposed\_carcasses\_cnp^e_{c,t} + \frac{herbivory\_waste\_leaf\_cnp^e_{c,t}}{A_c}
 $$
 
-Respiration-intake consistency with unit harmonisation (for V5.1, V5.2):
+Respiration-intake consistency with unit harmonisation (for 3.5a):
 
 $$
 Z(X_{c,t}) = \frac{X_{c,t} - \mu_X}{\sigma_X}
 $$
 
 Use $Z(total\_animal\_respiration)$ and $Z(I^C)$ in correlation/regression models rather than raw mass ratios because respiration is reported in ppm while intake is mass-based.
+
+Activity-window fraction and available foraging time (for 3.5b):
+
+$$
+\sigma_{f,t} = f\left(T_{i,t}, \Delta T_{i,t}, metabolic\_type_i, t_{opt,i}, t_{max,i}^{crit}, t_{min,i}^{crit}\right)
+$$
+
+$$
+\Delta t^{avail}_{i,t,d} = \Delta t \cdot \tau_f \cdot \sigma_{f,t} / n^{diet}_i
+$$
+
+where $n^{diet}_i$ is diet_category_count for cohort $i$, and $d$ indexes diet categories.
 
 Biomass pyramid and herbivore:producer ratio (for 4.6):
 
