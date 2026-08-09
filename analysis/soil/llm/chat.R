@@ -231,7 +231,10 @@ type_output <- type_array(
 )
 
 # Prompt the LLM ---------------------------------------------------------
-chat <- chat_google_gemini(model = "gemini-3.5-flash")
+chat <- chat_openai_compatible(
+  base_url = "https://ellmer.openai.azure.com/openai/v1",
+  model = "gpt-5.6-terra"
+)
 # Increase top_k to 10 later
 ragnar_register_tool_retrieve(chat, store, top_k = 3)
 
