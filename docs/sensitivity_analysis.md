@@ -440,10 +440,7 @@ Reduce parameter set
 Sobol analysis
         │
         ▼
-Influential parameters
-        │
-        ▼
-  Calibration
+Calibration
         │
         ▼
 Model validation
