@@ -1,5 +1,5 @@
 #' ---
-#' title: Plot functional group population density over time
+#' title: Calculate functional group population density over time
 #'
 #' description: |
 #'     Calculate the total number of individuals in each functional group at
@@ -30,11 +30,6 @@
 #'     description: |
 #'         A CSV file containing total individuals, area used, and population
 #'         density for each functional group at every simulation time step.
-#'
-#'   - name: functional group population density plot
-#'     path: user-defined
-#'     description: |
-#'         A line plot of functional group population density over time.
 #'
 #' package_dependencies:
 #'   - pandas
@@ -403,17 +398,12 @@ def plot_fg_population_density(
 def main() -> None:
     """Run the functional group population density analysis."""
     # Path to the cohort-level animal output CSV.
-    cohort_file = (
-        r"C:\Projects\ve_simulation_user"
-        r"\scenarios\maliau_test_blocks"
-        r"\out_test_01"
-        r"\animal_cohort_data.csv"
-    )
+    cohort_file = "tools/python/testing_data/animal_cohort_data_tool_test.csv"
 
     # Grid settings for the simulation being analysed.
     cell_size = 100
-    n_cells_x = 50
-    n_cells_y = 50
+    n_cells_x = 10
+    n_cells_y = 10
 
     # Population density settings.
     density_unit = "km2"
@@ -421,7 +411,6 @@ def main() -> None:
 
     # Output file names. Set to None to skip saving.
     output_csv = "fg_population_density_output.csv"
-    output_plot = "fg_population_density_plot.png"
 
     cohort_df = pd.read_csv(cohort_file)
 
@@ -440,14 +429,6 @@ def main() -> None:
     if output_csv is not None:
         density_df.to_csv(output_csv, index=False)
         print(f"Density table saved to {output_csv}")
-
-    plot_fg_population_density(
-        density_df=density_df,
-        density_unit=density_unit,
-        density_scope=density_scope,
-        output_path=output_plot,
-    )
-
 
 if __name__ == "__main__":
     main()
