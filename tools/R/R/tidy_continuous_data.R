@@ -25,6 +25,8 @@
 #|    analysis/soil/sensitivity/visualise_continuous_data.R
 #| ---
 
+box::use(tools/R/R/get_ve_variables[...])
+
 #' Extract continuous state variables into long-format dataframe
 #'
 #' Tidy up continuous state variables into a long-format dataframe. Currently
@@ -37,80 +39,45 @@
 #'
 #' @returns A long-format dataframe of continuous state variables.
 
-# libraries to add to @Import later
-require(tidync)
-require(tidyverse)
-
-tidy_continuous_data <- function(continuous, variables, initial = NULL) {
+tidy_continuous_data <- function(path, variables, initial = FALSE) {
   # load continuous data file
-  cont <- tidync(continuous)
+  outputs <- get_data_variables(path, group = "outputs", variables)
 
-  # extract the index of spatial and temporal dimensions
-  dims_cont <-
-    list(space = "cell_id", time = "time_index") |>
-    map(\(dim_name) {
-      cont |> hyper_dims() |> filter(name == dim_name) |> pull(id)
-    })
   # spatial coordinates to join by cell_id
-  coords_cont <-
-    cont |>
-    activate(paste0("D", dims_cont$space)) |>
-    hyper_tibble()
+  xy <-
+    get_data_variables(path, group = "outputs", variables = c("x", "y")) |>
+    reshape2::melt() |>
+    pivot_wider(names_from = L1)
   # temporal coordinates to join by time_index
-  time_cont <-
-    cont |>
-    activate(paste0("D", dims_cont$time)) |>
-    hyper_tibble()
+  timestamp <-
+    get_data_variables(path, group = "outputs", variables = "timestamp") |>
+    reshape2::melt() |>
+    pivot_wider(names_from = L1)
 
   # tidy, long-format version of the continuous data
   tidy_cont <-
-    variables |>
-    map(\(variable) {
-      cont |>
-        activate(variable) |>
-        hyper_tibble() |>
-        pivot_longer(
-          cols = all_of(variable),
-          names_to = "variable"
-        ) |>
-        # add spatial and temporal coordinates
-        left_join(coords_cont, by = join_by(cell_id)) |>
-        left_join(time_cont, by = join_by(time_index))
-    }) |>
-    list_c() |>
+    outputs |>
+    reshape2::melt() |>
+    left_join(xy, by = join_by(cell_id)) |>
+    left_join(timestamp, by = join_by(time_index)) |>
     mutate(time_index = as.numeric(time_index))
 
   # if initial data is requested, ditto the tidying process above and then
   # merge it with the continuous data;
   # the initial values are assigned a time_index of -1
-  if (!is.null(initial)) {
-    init <- tidync(initial)
-    dims_init <-
-      init |> hyper_dims() |> filter(name == "cell_id") |> pull(id)
-    coords_init <-
-      init |>
-      activate(paste0("D", dims_init)) |>
-      hyper_tibble() |>
-      select(cell_id, x, y)
+  if (initial) {
+    init <- get_data_variables(path, group = "init", variables)
 
     tidy_init <-
-      variables |>
-      map(\(variable) {
-        init |>
-          activate(variable) |>
-          hyper_tibble() |>
-          pivot_longer(
-            cols = all_of(variable),
-            names_to = "variable"
-          ) |>
-          left_join(coords_init, by = join_by(cell_id))
-      }) |>
-      list_c() |>
+      init |>
+      reshape2::melt() |>
+      left_join(xy, by = join_by(cell_id)) |>
       mutate(timestamp = -1, time_index = -1)
 
     # merge initial and continuous data
     tidy_cont <- bind_rows(tidy_init, tidy_cont)
   }
 
-  return(tidy_cont)
+  # finalise output
+  tidy_cont |> rename(variable = L1) |> as_tibble()
 }
