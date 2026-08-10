@@ -1,30 +1,31 @@
 <!-- markdownlint-disable-file -->
+
 # Technology Stack
 
 ## Core Sections (Required)
 
 ### 1) Runtime Summary
 
-| Area | Value | Evidence |
-|------|-------|----------|
-| Primary language | [VALUE] | [FILE_PATH] |
-| Runtime + version | [VALUE] | [FILE_PATH] |
-| Package manager | [VALUE] | [FILE_PATH] |
-| Module/build system | [VALUE] | [FILE_PATH] |
+| Area                | Value     | Evidence      |
+| ------------------- | --------- | ------------- |
+| Primary language    | \[VALUE\] | \[FILE_PATH\] |
+| Runtime + version   | \[VALUE\] | \[FILE_PATH\] |
+| Package manager     | \[VALUE\] | \[FILE_PATH\] |
+| Module/build system | \[VALUE\] | \[FILE_PATH\] |
 
 ### 2) Production Frameworks and Dependencies
 
 List only high-impact production dependencies (frameworks, data, transport, auth).
 
-| Dependency | Version | Role in system | Evidence |
-|------------|---------|----------------|----------|
-| [NAME] | [VERSION] | [ROLE] | [FILE_PATH] |
+| Dependency | Version     | Role in system | Evidence      |
+| ---------- | ----------- | -------------- | ------------- |
+| \[NAME\]   | \[VERSION\] | \[ROLE\]       | \[FILE_PATH\] |
 
 ### 3) Development Toolchain
 
-| Tool | Purpose | Evidence |
-|------|---------|----------|
-| [TOOL] | [LINT/FORMAT/TEST/BUILD] | [FILE_PATH] |
+| Tool     | Purpose                    | Evidence      |
+| -------- | -------------------------- | ------------- |
+| \[TOOL\] | \[LINT/FORMAT/TEST/BUILD\] | \[FILE_PATH\] |
 
 ### 4) Key Commands
 
@@ -37,15 +38,15 @@ List only high-impact production dependencies (frameworks, data, transport, auth
 
 ### 5) Environment and Config
 
-- Config sources: [LIST FILES]
-- Required env vars: [VAR_1], [VAR_2], [TODO]
-- Deployment/runtime constraints: [SHORT NOTE]
+- Config sources: \[LIST FILES\]
+- Required env vars: \[VAR_1\], \[VAR_2\], \[TODO\]
+- Deployment/runtime constraints: \[SHORT NOTE\]
 
 ### 6) Evidence
 
-- [path/to/manifest]
-- [path/to/runtime-config]
-- [path/to/build-or-ci-config]
+- \[path/to/manifest\]
+- \[path/to/runtime-config\]
+- \[path/to/build-or-ci-config\]
 
 ## Extended Sections (Optional)
 

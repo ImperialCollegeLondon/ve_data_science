@@ -1,13 +1,16 @@
 # Getting started with the `ve_data_science` repository
 
 <!-- markdownlint-disable MD046 -->
+
 <!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
 indented content of the admonition is code. It then complains about the mixture of
 fenced code blocks (e.g. ```sh) and indented code blocks.-->
 
 !!! IMPORTANT
 
-    This is a draft document
+```
+This is a draft document
+```
 
 This is a how to guide to getting started with the `ve_data_science` repository
 
@@ -21,7 +24,7 @@ will need to install it:
 Next, in your terminal, change directory to the location where you want the repository
 to live and then run the following command.
 
-``` sh
+```sh
 git clone https://github.com/ImperialCollegeLondon/ve_data_science.git
 ```
 
@@ -43,15 +46,15 @@ to use.
    [Python setup guide](uv_setup.md). This will install the correct Python version and
    all project dependencies automatically. You do not need to install Python separately.
 
-2. You now need to setup the `pre-commit` tool, which is used to run a standard set of
-    checks on files when `git commit` is run. At the command line, enter:
+1. You now need to setup the `pre-commit` tool, which is used to run a standard set of
+   checks on files when `git commit` is run. At the command line, enter:
 
-    `uv run pre-commit install`
+   `uv run pre-commit install`
 
-    This command can take quite a long time to run - among other things, it is installing
-    a separate version of R just to be used for file checking!
+   This command can take quite a long time to run - among other things, it is installing
+   a separate version of R just to be used for file checking!
 
-3. If you do not have R 4.4 installed, you will now need to install it.
+1. If you do not have R 4.4 installed, you will now need to install it.
 
-4. You now need to configure VSCode to work with R. This involves changing some of the
-   settings so that it [TBD]
+1. You now need to configure VSCode to work with R. This involves changing some of the
+   settings so that it \[TBD\]

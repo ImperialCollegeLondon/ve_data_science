@@ -4,8 +4,10 @@
 
 !!! IMPORTANT
 
-    This is a draft document. Most of the workflow below is intended for the
-    soil and litter modules.
+```
+This is a draft document. Most of the workflow below is intended for the
+soil and litter modules.
+```
 
 Here we use a config-driven pipeline to read, wrangle, unit-convert, and
 combine multiple datasets into a single master file, hereafter referred to as
@@ -36,7 +38,7 @@ tools/R
 I have built the pipeline in two parts:
 
 1. data screening
-2. data entering
+1. data entering
 
 Everything happens in `R` for now.
 
@@ -47,8 +49,10 @@ dataset that you have come across (plus notes) into a interactive table that
 guides data entering later.
 
 1. Search for a dataset as per your routine (e.g., Google)
-2. Obtain the DOI to the dataset
-3. Log the dataset. The following code will bring up an interactive session:
+
+1. Obtain the DOI to the dataset
+
+1. Log the dataset. The following code will bring up an interactive session:
 
    ```r
    box::use(tools/R/R/valdb)
@@ -56,10 +60,11 @@ guides data entering later.
    valdb$log_dataset()
    ```
 
-4. After filling up the questions, a YAML config or metadata file will be saved
+1. After filling up the questions, a YAML config or metadata file will be saved
    to `data/derived/soil/validation/config/sources.yaml` (currently this is
    hard-coded to the soil folder because I do not know if anyone would use it
    outside of soil). An example YAML config or metadata looks like this:
+
    ```yaml
    doi: 10.5281/ZENODO.2024580
    decision: included
@@ -79,9 +84,11 @@ guides data entering later.
        plant diversity, above-ground biomass, plant functional traits, biological
        invasions, exotic plants, phylogenetic diversity, soil nutrients
    ```
-5. Repeat the steps above until you've finished searching and screening for
+
+1. Repeat the steps above until you've finished searching and screening for
    datasets.
-6. Build a table from these YAML metadata to view the screened datasets and your
+
+1. Build a table from these YAML metadata to view the screened datasets and your
    decisions about them.
    I opted to write a Quarto report with additional notes, and then include an
    interactive table at the end of the html report. My report is saved in
@@ -101,7 +108,7 @@ them like codes and commit to GitHub, although they are stored under the
 
 1. Using the report's table as a tool, revisit the screened datasets to be
    included (e.g., by visiting its DOI link).
-2. Download the dataset to `data/primary/soil/<author>_<year>`. Note that I am
+1. Download the dataset to `data/primary/soil/<author>_<year>`. Note that I am
    again using the soil folder as an example, and I have opted a `author_year`
    folder naming convention. If there are conflicts, then the next folder should
    be named `author_year_2` etc. We will work with CSV files. If the published
@@ -109,7 +116,7 @@ them like codes and commit to GitHub, although they are stored under the
    desired data sheet into a CSV file. I opted not to accommodate for multiple
    data formats because the cost of manual conversion is relatively minor even
    in the long run.
-3. Add the dataset's schema, which tells the build script how to harmonise this
+1. Add the dataset's schema, which tells the build script how to harmonise this
    dataset. For example:
    ```r
    valdb$add_schema(
@@ -119,7 +126,7 @@ them like codes and commit to GitHub, although they are stored under the
    ```
    This will append some template YAML sections to the dataset's config file,
    which you have created during the data screening stage.
-4. Manually add and edit the schema. An example schema looks like this:
+1. Manually add and edit the schema. An example schema looks like this:
    ```yaml
    source_id: dobert_2019
    data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
@@ -141,7 +148,7 @@ them like codes and commit to GitHub, although they are stored under the
    the csv primary data have been stored. It informs the R script to skip 9 rows
    in the original csv, and then read data from the variable columns named
    `soilN` and `soilP`, as well as the unique sample ID from `plot.code`.
-5. The next important step is to set up the unit conversion. For each variable,
+1. The next important step is to set up the unit conversion. For each variable,
    the metadata `var_canonical` tells the R script which VE data variable that
    it should be mapped to; this also tells it about the target unit under the
    hood, which is stored in an imported
@@ -154,7 +161,7 @@ them like codes and commit to GitHub, although they are stored under the
    soil nitrogen). This requires another curated list of so-called derived
    variables (a.k.a. emergent variables) in a similar TOML file to that of VE's
    in `data/derived/soil/validation/config/derived_variables.toml`.
-6. Once you have added the schema for all datasets to be included, simply run
+1. Once you have added the schema for all datasets to be included, simply run
    ```r
    valdb$build_data_variables_table()
    ```

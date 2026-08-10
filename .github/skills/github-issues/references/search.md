@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-file -->
+
 # Advanced Issue Search
 
 The `search_issues` MCP tool uses GitHub's issue search query format for cross-repo searches, supporting implicit-AND queries, date ranges, and metadata filters (but not explicit OR/NOT operators).
@@ -7,21 +8,22 @@ The `search_issues` MCP tool uses GitHub's issue search query format for cross-r
 
 There are three ways to find issues, each with different capabilities:
 
-| Capability | `list_issues` (MCP) | `search_issues` (MCP) | Advanced search (`gh api`) |
-|-----------|---------------------|----------------------|---------------------------|
-| **Scope** | Single repo only | Cross-repo, cross-org | Cross-repo, cross-org |
-| **Issue field filters** (`field.priority:P0`) | No | No | **Yes** (dot notation) |
-| **Issue type filter** (`type:Bug`) | No | Yes | Yes |
-| **Boolean logic** (AND/OR/NOT, nesting) | No | Yes (implicit AND only) | **Yes** (explicit AND/OR/NOT) |
-| **Label/state/date filters** | Yes | Yes | Yes |
-| **Assignee/author/mentions** | No | Yes | Yes |
-| **Negation** (`-label:x`, `no:label`) | No | Yes | Yes |
-| **Text search** (title/body/comments) | No | Yes | Yes |
-| **`since` filter** | Yes | No | No |
-| **Result limit** | No cap (paginate all) | 1,000 max | 1,000 max |
-| **How to call** | MCP tool directly | MCP tool directly | `gh api` with `advanced_search=true` |
+| Capability                                    | `list_issues` (MCP)   | `search_issues` (MCP)   | Advanced search (`gh api`)           |
+| --------------------------------------------- | --------------------- | ----------------------- | ------------------------------------ |
+| **Scope**                                     | Single repo only      | Cross-repo, cross-org   | Cross-repo, cross-org                |
+| **Issue field filters** (`field.priority:P0`) | No                    | No                      | **Yes** (dot notation)               |
+| **Issue type filter** (`type:Bug`)            | No                    | Yes                     | Yes                                  |
+| **Boolean logic** (AND/OR/NOT, nesting)       | No                    | Yes (implicit AND only) | **Yes** (explicit AND/OR/NOT)        |
+| **Label/state/date filters**                  | Yes                   | Yes                     | Yes                                  |
+| **Assignee/author/mentions**                  | No                    | Yes                     | Yes                                  |
+| **Negation** (`-label:x`, `no:label`)         | No                    | Yes                     | Yes                                  |
+| **Text search** (title/body/comments)         | No                    | Yes                     | Yes                                  |
+| **`since` filter**                            | Yes                   | No                      | No                                   |
+| **Result limit**                              | No cap (paginate all) | 1,000 max               | 1,000 max                            |
+| **How to call**                               | MCP tool directly     | MCP tool directly       | `gh api` with `advanced_search=true` |
 
 **Decision guide:**
+
 - **Single repo, simple filters (state, labels, recent updates):** use `list_issues`
 - **Cross-repo, text search, author/assignee, issue types:** use `search_issues`
 - **Issue field values (Priority, dates, custom fields) or complex boolean logic:** use `gh api` with `advanced_search=true`
@@ -127,36 +129,43 @@ A space between terms without an explicit operator is treated as AND.
 ## Common Query Patterns
 
 **Unassigned bugs:**
+
 ```
 repo:owner/repo type:"Bug" no:assignee is:open
 ```
 
 **Issues closed this week:**
+
 ```
 repo:owner/repo is:closed closed:>=2026-03-01
 ```
 
 **Stale open issues (no updates in 90 days):**
+
 ```
 repo:owner/repo is:open updated:<2026-01-01
 ```
 
 **Open issues without a linked PR (needs work):**
+
 ```
 repo:owner/repo is:open -linked:pr
 ```
 
 **Issues I'm involved in across an org:**
+
 ```
 org:github involves:@me is:open
 ```
 
 **High-activity issues:**
+
 ```
 repo:owner/repo is:open comments:>20
 ```
 
 **Issues by type and priority label:**
+
 ```
 repo:owner/repo type:"Epic" label:P1 is:open
 ```
@@ -208,16 +217,19 @@ no:field.priority                  # Has no value set
 ### Common Field Search Patterns
 
 **P0 epics across an org:**
+
 ```
 org:github field.priority:P0 type:Epic is:open
 ```
 
 **Issues with a target date this quarter:**
+
 ```
 org:github field.target-date:>=2026-04-01 field.target-date:<=2026-06-30 is:open
 ```
 
 **Open bugs missing priority:**
+
 ```
 org:github no:field.priority type:Bug is:open
 ```

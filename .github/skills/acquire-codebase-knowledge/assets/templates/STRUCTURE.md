@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-file -->
+
 # Codebase Structure
 
 ## Core Sections (Required)
@@ -7,33 +8,33 @@
 
 List only meaningful top-level directories and files.
 
-| Path | Purpose | Evidence |
-|------|---------|----------|
-| [path/] | [purpose] | [source] |
+| Path      | Purpose     | Evidence   |
+| --------- | ----------- | ---------- |
+| \[path/\] | \[purpose\] | \[source\] |
 
 ### 2) Entry Points
 
-- Main runtime entry: [FILE]
-- Secondary entry points (worker/cli/jobs): [FILES or NONE]
-- How entry is selected (script/config): [NOTE]
+- Main runtime entry: \[FILE\]
+- Secondary entry points (worker/cli/jobs): \[FILES or NONE\]
+- How entry is selected (script/config): \[NOTE\]
 
 ### 3) Module Boundaries
 
-| Boundary | What belongs here | What must not be here |
-|----------|-------------------|------------------------|
-| [module/layer] | [responsibility] | [forbidden logic] |
+| Boundary         | What belongs here  | What must not be here |
+| ---------------- | ------------------ | --------------------- |
+| \[module/layer\] | \[responsibility\] | \[forbidden logic\]   |
 
 ### 4) Naming and Organization Rules
 
-- File naming pattern: [kebab/camel/Pascal + examples]
-- Directory organization pattern: [feature/layer/domain]
-- Import aliasing or path conventions: [RULE]
+- File naming pattern: \[kebab/camel/Pascal + examples\]
+- Directory organization pattern: \[feature/layer/domain\]
+- Import aliasing or path conventions: \[RULE\]
 
 ### 5) Evidence
 
-- [path/to/root-tree-source]
-- [path/to/entry-config]
-- [path/to/key-module]
+- \[path/to/root-tree-source\]
+- \[path/to/entry-config\]
+- \[path/to/key-module\]
 
 ## Extended Sections (Optional)
 

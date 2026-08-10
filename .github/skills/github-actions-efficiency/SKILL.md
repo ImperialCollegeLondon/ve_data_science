@@ -1,8 +1,8 @@
 <!-- markdownlint-disable-file -->
----
-name: github-actions-efficiency
-description: 'Audit GitHub Actions workflow efficiency and recommend fixes to reduce CI minutes and costs.'
----
+
+______________________________________________________________________
+
+## name: github-actions-efficiency description: 'Audit GitHub Actions workflow efficiency and recommend fixes to reduce CI minutes and costs.'
 
 # GitHub Actions Efficiency
 
@@ -43,21 +43,21 @@ Look for: missing dependency caches, missing `concurrency` cancellation, over-br
 Check each proposed fix against these rules before recommending it:
 
 1. Does not hide required validation — drop any fix that removes release, schema, migration, or shared-library checks.
-2. Does not reduce parallelism without justification — drop unless the user prioritised cost over latency *and* the new critical path stays within 1.25× the original.
-3. Preserves only documented matrix legs — drop matrix legs with no explicit version or platform commitment.
-4. Write-back jobs use opt-in triggers — flag (do not drop) formatter or bot jobs that run automatically; recommend an opt-in trigger instead.
-5. Repo changes stay separate from org settings — split any fix that mixes repo-editable YAML with org-level or GitHub-account settings into two distinct recommendations.
+1. Does not reduce parallelism without justification — drop unless the user prioritised cost over latency *and* the new critical path stays within 1.25× the original.
+1. Preserves only documented matrix legs — drop matrix legs with no explicit version or platform commitment.
+1. Write-back jobs use opt-in triggers — flag (do not drop) formatter or bot jobs that run automatically; recommend an opt-in trigger instead.
+1. Repo changes stay separate from org settings — split any fix that mixes repo-editable YAML with org-level or GitHub-account settings into two distinct recommendations.
 
 ### 3. Select the top 3 fixes
 
 From the six candidates below, keep only those supported by audit evidence from step 1 *and* passing all guardrails from step 2. Rank survivors by estimated daily CI minutes saved (per-run savings × runs per day). Select all candidates that meet both criteria, up to a maximum of 3.
 
 1. Add dependency caching with lockfile-based keys
-2. Add or correct `concurrency` cancellation
-3. Remove duplicate workflow coverage before merging jobs
-4. Narrow workflow or job triggers safely
-5. Reduce matrix breadth to match risk and event type
-6. Parallelize independent jobs on the critical path
+1. Add or correct `concurrency` cancellation
+1. Remove duplicate workflow coverage before merging jobs
+1. Narrow workflow or job triggers safely
+1. Reduce matrix breadth to match risk and event type
+1. Parallelize independent jobs on the critical path
 
 ### 4. Verify
 
@@ -68,9 +68,9 @@ From the six candidates below, keep only those supported by audit evidence from 
 ## Required Output
 
 1. **Waste sources** — top cost or latency drivers found in step 1
-2. **Proposed fixes** — top 3 (or all remaining) with supporting audit evidence
-3. **Validation** — what was proven live, what was checked locally only, and any remaining risk
-4. **Impact** — expected savings vs. measured savings; separate PR wall-clock time from total runner time
+1. **Proposed fixes** — top 3 (or all remaining) with supporting audit evidence
+1. **Validation** — what was proven live, what was checked locally only, and any remaining risk
+1. **Impact** — expected savings vs. measured savings; separate PR wall-clock time from total runner time
 
 ## References
 

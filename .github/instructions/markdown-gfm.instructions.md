@@ -1,7 +1,6 @@
----
-description: 'Markdown formatting for GitHub-flavored markdown (GFM) files'
-applyTo: '**/*.md'
----
+______________________________________________________________________
+
+## description: 'Markdown formatting for GitHub-flavored markdown (GFM) files' applyTo: '\*\*/\*.md'
 
 <!-- markdownlint-disable-file -->
 

@@ -1,6 +1,7 @@
 # Uploading an R Script to a GitHub Repository
 
 <!-- markdownlint-disable MD046 -->
+
 <!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
 indented content of the admonition is code. It then complains about the mixture of
 fenced code blocks (e.g. ```sh) and indented code blocks.-->
@@ -16,34 +17,36 @@ management, and code formatting
 
 Before you start, make sure you have the following in place:
 
-* Git is installed and configured
-* You have access to the ve_data_science GitHub repository
-* R (at least version 4.4.2) is installed and added to your system PATH
-* Visual Studio Code (VSC) is installed, with Git integration enabled
-* Pre-commit hooks are installed
+- Git is installed and configured
+- You have access to the ve_data_science GitHub repository
+- R (at least version 4.4.2) is installed and added to your system PATH
+- Visual Studio Code (VSC) is installed, with Git integration enabled
+- Pre-commit hooks are installed
 
 ## 1️⃣ Create a GitHub Issue
 
-* In your GitHub repository, create a new **Issue** describing your task, e.g.,
+- In your GitHub repository, create a new **Issue** describing your task, e.g.,
   **"Uploading script X"**. This helps track your work and adds context for
   collaborators.
 
 ## 2️⃣ Prepare Your Local Repository
 
-* Clone the repository (if not done already).
-* Navigate into the cloned folder and open it in **Visual Studio Code**
-* Check the status of the repository and update it from the remote repository
+- Clone the repository (if not done already).
 
-    ```sh
+- Navigate into the cloned folder and open it in **Visual Studio Code**
 
-    git status
-    git fetch
-    git pull
-    ```
+- Check the status of the repository and update it from the remote repository
 
-    These commands ensure your local `main` branch is up to date.
+  ```sh
 
-##  3️⃣ Create a New Branch
+  git status
+  git fetch
+  git pull
+  ```
+
+  These commands ensure your local `main` branch is up to date.
+
+## 3️⃣ Create a New Branch
 
 Create a new branch for your changes:
 
@@ -56,10 +59,10 @@ like `my_feature_branch`.
 
 ## 4️⃣ Make Your Changes
 
-* Create any new folders under `data` or `analysis`.
-* Use the **template scripts** provided in the repository.</li>
-* Move your R script into the appropriate folder.</li>
-* Ensure local datasets are placed in correct subfolders within `data/`.
+- Create any new folders under `data` or `analysis`.
+- Use the **template scripts** provided in the repository.</li>
+- Move your R script into the appropriate folder.</li>
+- Ensure local datasets are placed in correct subfolders within `data/`.
 
 ## 5️⃣ Stage and Commit Changes
 
@@ -86,19 +89,21 @@ git commit -m "Uploading script X"
 If the commit fails due to pre-commit hook issues then fix the issues, re-add the
 updated files and re-commit the changes. Some common problems and fixes:
 
-Error | Solution
--- | --
-Rscript not found | Add R to system environment PATH
-Air formatter issues | Follow suggested fixes or use # fmt: skip where appropriate
-Variable/function names too long | Rename using snake_case, max 30 characters
-Lines > 88 characters | Reformat or split lines carefully
+| Error                            | Solution                                                    |
+| -------------------------------- | ----------------------------------------------------------- |
+| Rscript not found                | Add R to system environment PATH                            |
+| Air formatter issues             | Follow suggested fixes or use # fmt: skip where appropriate |
+| Variable/function names too long | Rename using snake_case, max 30 characters                  |
+| Lines > 88 characters            | Reformat or split lines carefully                           |
 
 !!! TIP
 
-    Use **VS Code's syntax highlighting** and **Ctrl + Click** to quickly navigate and
-    fix code issues.
+```
+Use **VS Code's syntax highlighting** and **Ctrl + Click** to quickly navigate and
+fix code issues.
+```
 
-##  7️⃣ Push Your Branch
+## 7️⃣ Push Your Branch
 
 Once your commit passes:
 
@@ -108,15 +113,17 @@ git push -u origin your-branch-name
 
 ## 8️⃣ Create a Pull Request (PR)
 
-* Go to your GitHub repo
-* Click **"Compare & pull request"**
-* Add a title and description
-* Assign reviewers and submit
+- Go to your GitHub repo
+- Click **"Compare & pull request"**
+- Add a title and description
+- Assign reviewers and submit
 
 !!! TIP
 
-    Any new commits pushed to this branch automatically update the same PR — no need to
-    create a new one.
+```
+Any new commits pushed to this branch automatically update the same PR — no need to
+create a new one.
+```
 
 ## 9️⃣ Address Review Feedback
 
@@ -135,23 +142,23 @@ data <- readxl::read_excel(
 )
 ```
 
-* `../` moves one directory up.
-* Always ensure you're working in the correct working directory (e.g., by opening the
+- `../` moves one directory up.
+- Always ensure you're working in the correct working directory (e.g., by opening the
   script directly or by setting the working directory manually).
 
 ## 🔐 Final Merge & Cleanup
 
 Once the PR is approved
 
-* Merge it via GitHub
-* Update your local `main`:
+- Merge it via GitHub
+- Update your local `main`:
 
 ```sh
 git checkout main
 git pull origin main
 ```
 
-* Clean up your feature branch (optional):
+- Clean up your feature branch (optional):
 
 ```sh
 git branch -d your-branch-name
@@ -159,9 +166,9 @@ git branch -d your-branch-name
 
 ## 🤝 Collaboration Best Practices
 
-* Always pull latest changes before starting new work
-* Keep commits clear and descriptive
-* Never push directly to `main`
-* Communicate clearly in PRs and commit messages
-* Ask for help if `lintr` feedback is confusing — even paste the code into ChatGPT
+- Always pull latest changes before starting new work
+- Keep commits clear and descriptive
+- Never push directly to `main`
+- Communicate clearly in PRs and commit messages
+- Ask for help if `lintr` feedback is confusing — even paste the code into ChatGPT
   for help!

@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-file -->
+
 # Permissions and Tokens
 
 Every workflow run gets an automatic `GITHUB_TOKEN`. Its scope is the blast radius if a step is
@@ -38,10 +39,10 @@ Common scopes: `contents`, `pull-requests`, `issues`, `actions`, `packages`, `id
 
 ## Findings to Flag
 
-* No `permissions:` block anywhere → MEDIUM (inherits possibly-broad default).
-* `permissions: write-all` → HIGH.
-* A `write` scope the job's steps never use → HIGH (drop it).
-* Top-level `write` that should live on one job → MEDIUM (move it down).
+- No `permissions:` block anywhere → MEDIUM (inherits possibly-broad default).
+- `permissions: write-all` → HIGH.
+- A `write` scope the job's steps never use → HIGH (drop it).
+- Top-level `write` that should live on one job → MEDIUM (move it down).
 
 ## OIDC Instead of Long-Lived Cloud Secrets
 
@@ -70,8 +71,8 @@ specific branch/environment so a fork or another repo cannot assume the role.
 
 ## Secret Hygiene
 
-* Reference secrets only in the jobs that need them.
-* Never `echo` a secret or enable shell tracing (`set -x`) in a step that handles one.
-* Don't pass secrets into third-party actions you haven't pinned and reviewed.
-* Remember fork `pull_request` runs get no secrets — don't try to "fix" that by switching to
+- Reference secrets only in the jobs that need them.
+- Never `echo` a secret or enable shell tracing (`set -x`) in a step that handles one.
+- Don't pass secrets into third-party actions you haven't pinned and reviewed.
+- Remember fork `pull_request` runs get no secrets — don't try to "fix" that by switching to
   `pull_request_target` (see `triggers-and-privilege.md`).

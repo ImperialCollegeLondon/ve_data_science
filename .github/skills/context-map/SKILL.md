@@ -1,7 +1,6 @@
----
-name: context-map
-description: 'Generate a map of all files relevant to a task before making changes'
----
+______________________________________________________________________
+
+## name: context-map description: 'Generate a map of all files relevant to a task before making changes'
 
 # Context Map
 
@@ -14,9 +13,9 @@ Before implementing any changes, analyze the codebase and create a context map.
 ## Instructions
 
 1. Search the codebase for files related to this task
-2. Identify direct dependencies (imports/exports)
-3. Find related tests
-4. Look for similar patterns in existing code
+1. Identify direct dependencies (imports/exports)
+1. Find related tests
+1. Look for similar patterns in existing code
 
 ## Output Format
 

@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-file -->
+
 # Supply Chain
 
 A workflow runs other people's code every time it `uses:` an action. Those actions execute with
@@ -20,11 +21,11 @@ immutable.
 
 Rules:
 
-* Third-party actions (anything not `actions/*` or `github/*`) → **MUST** be SHA-pinned. Flag tags
+- Third-party actions (anything not `actions/*` or `github/*`) → **MUST** be SHA-pinned. Flag tags
   and branches as HIGH.
-* `@main` / `@master` → HIGH regardless of publisher; that is unversioned "latest".
-* First-party `actions/*` → SHA-pinning is the hardened recommendation (LOW if only tag-pinned).
-* Keep a trailing `# vX.Y.Z` comment so humans and Dependabot can read the intended version.
+- `@main` / `@master` → HIGH regardless of publisher; that is unversioned "latest".
+- First-party `actions/*` → SHA-pinning is the hardened recommendation (LOW if only tag-pinned).
+- Keep a trailing `# vX.Y.Z` comment so humans and Dependabot can read the intended version.
 
 This is not theoretical: real incidents have seen popular actions' tags repointed to code that
 exfiltrated secrets from every workflow that referenced the mutable tag.
@@ -46,10 +47,10 @@ updates:
 
 ## Artifact and Cache Poisoning
 
-* An artifact uploaded by an untrusted `pull_request` build is **untrusted data**. A privileged
+- An artifact uploaded by an untrusted `pull_request` build is **untrusted data**. A privileged
   `workflow_run` may download it, but must treat it as data only — never execute it, and validate
   paths when extracting (a crafted artifact can contain `../` path-traversal entries).
-* Caches are keyed and can be populated by less-privileged runs; do not trust cached build outputs
+- Caches are keyed and can be populated by less-privileged runs; do not trust cached build outputs
   to be untampered in a privileged context.
 
 ## Self-Hosted Runners on Public Repos
@@ -57,9 +58,9 @@ updates:
 Default (GitHub-hosted) runners are ephemeral — a fresh VM per job, destroyed after. **Self-hosted
 runners persist**, so untrusted fork PR code running on one can:
 
-* Leave behind tools/backdoors for the next job,
-* Read other repositories' checkouts or credentials on the same machine,
-* Pivot into your network.
+- Leave behind tools/backdoors for the next job,
+- Read other repositories' checkouts or credentials on the same machine,
+- Pivot into your network.
 
 Never use self-hosted runners for workflows that public forks can trigger. If you must, use
 ephemeral, isolated, single-use runners and never expose secrets to fork-triggered jobs.

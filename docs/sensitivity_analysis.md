@@ -24,7 +24,7 @@ because their behaviour is often nonlinear, involves interactions between
 parameters, and represents multiple interconnected physical and biological
 processes (Pianosi et al., 2016).
 
----
+______________________________________________________________________
 
 # Local versus Global Sensitivity Analysis
 
@@ -54,7 +54,7 @@ Local sensitivity analysis is useful for simple models but becomes less
 representative for highly nonlinear systems because it only explores a small
 region of the parameter space (Saltelli et al., 2004; Pianosi et al., 2016).
 
----
+______________________________________________________________________
 
 ## Global Sensitivity Analysis (GSA)
 
@@ -76,28 +76,28 @@ Global sensitivity analysis is generally recommended for hydrological and
 ecosystem models because these systems exhibit complex interactions between
 parameters and processes (Pianosi et al., 2016).
 
----
+______________________________________________________________________
 
 # Common Global Sensitivity Analysis Methods
 
 Several approaches are available for global sensitivity analysis.
 
-| Method | Category | Captures interactions | Computational cost | Typical application |
-|---------|----------|----------------------|--------------------|--------------------|
-| One-at-a-Time (OAT) | Local | No | Very low | Model debugging |
-| Morris | Screening | Partial | Low | Initial parameter screening |
-| Sobol | Variance-based | Yes | High | Detailed sensitivity analysis |
-| eFAST | Variance-based | Yes | Moderate | Alternative to Sobol |
-| Regression-based | Statistical | Limited | Low | Linear models |
-| PAWN | Density-based | Yes | Moderate | Distribution-based analysis |
-| Random Forest | Machine learning | Implicit | Moderate | Large simulation datasets |
+| Method              | Category         | Captures interactions | Computational cost | Typical application           |
+| ------------------- | ---------------- | --------------------- | ------------------ | ----------------------------- |
+| One-at-a-Time (OAT) | Local            | No                    | Very low           | Model debugging               |
+| Morris              | Screening        | Partial               | Low                | Initial parameter screening   |
+| Sobol               | Variance-based   | Yes                   | High               | Detailed sensitivity analysis |
+| eFAST               | Variance-based   | Yes                   | Moderate           | Alternative to Sobol          |
+| Regression-based    | Statistical      | Limited               | Low                | Linear models                 |
+| PAWN                | Density-based    | Yes                   | Moderate           | Distribution-based analysis   |
+| Random Forest       | Machine learning | Implicit              | Moderate           | Large simulation datasets     |
 
 For the Virtual Ecosystem, the **Morris** and **Sobol** methods are currently
 implemented using the **SALib** Python library. Morris provides efficient
 parameter screening, while Sobol performs a rigorous variance decomposition of
 model outputs (Saltelli et al., 2004; Wang & Solomatine, 2019).
 
----
+______________________________________________________________________
 
 # Morris Method
 
@@ -133,7 +133,7 @@ The Morris method has been widely applied in hydrological modelling as an
 efficient first-stage screening tool before more computationally intensive
 methods are applied (van Griensven et al., 2006; Zhan et al., 2013).
 
----
+______________________________________________________________________
 
 # Sobol Method
 
@@ -167,18 +167,18 @@ Sobol analysis is widely regarded as one of the most comprehensive methods for
 quantifying parameter importance in nonlinear environmental models (Sobol,
 2001; Saltelli et al., 2004).
 
----
+______________________________________________________________________
 
 # Morris versus Sobol
 
-| Feature | Morris | Sobol |
-|----------|--------|--------|
-| Method type | Screening | Variance decomposition |
-| Parameter ranking | Qualitative | Quantitative |
-| Parameter interactions | Indirect | Explicit |
-| Computational cost | Low | High |
-| Suitable for many parameters | Yes | Limited |
-| Recommended stage | Before calibration | Detailed analysis |
+| Feature                      | Morris             | Sobol                  |
+| ---------------------------- | ------------------ | ---------------------- |
+| Method type                  | Screening          | Variance decomposition |
+| Parameter ranking            | Qualitative        | Quantitative           |
+| Parameter interactions       | Indirect           | Explicit               |
+| Computational cost           | Low                | High                   |
+| Suitable for many parameters | Yes                | Limited                |
+| Recommended stage            | Before calibration | Detailed analysis      |
 
 Comparative studies consistently recommend Morris for efficiently identifying
 influential parameters with relatively few model evaluations, while Sobol is
@@ -186,7 +186,7 @@ better suited for detailed quantitative analysis once the parameter space has
 been reduced (van Griensven et al., 2006; Wang & Solomatine, 2019; Zhan et al.,
 2013).
 
----
+______________________________________________________________________
 
 # Python Sensitivity Analysis Workflow
 
@@ -228,7 +228,7 @@ Run batch HPC simulations
 (Output extraction, sensitivity analysis and reporting)
 ```
 
----
+______________________________________________________________________
 
 ## Step 1. Define parameter ranges
 
@@ -260,7 +260,7 @@ The parameter definition file specifies:
 Adding a new module simply requires defining a new parameter group within
 `sensitivity_parameters.toml`.
 
----
+______________________________________________________________________
 
 ## Step 2. Load parameter definitions
 
@@ -295,7 +295,7 @@ problem = {
 
 This problem dictionary is then passed directly to SALib sampling routines.
 
----
+______________________________________________________________________
 
 ## Step 3. Generate parameter samples
 
@@ -331,7 +331,7 @@ analysis/abiotic/sensitivity/sobol_sample.py
 
 The generated sample matrix contains one parameter combination per simulation.
 
----
+______________________________________________________________________
 
 ## Step 4. Generate HPC job configuration
 
@@ -359,6 +359,7 @@ data/sensitivity/hydrology/config/hydrology_base_config.toml
 The base configuration provides the default Virtual Ecosystem model settings.
 Only the sampled parameters are overridden for each simulation.
 ```
+
 ### Output
 
 ```text
@@ -374,7 +375,7 @@ are intended to be used by the Virtual Ecosystem HPC batch workflow to execute
 ensembles of model runs. Each `[[jobs]]` entry represents a single simulation
 with a unique set of sampled parameter values.
 
----
+______________________________________________________________________
 
 ## Step 5. Execute Virtual Ecosystem simulations *(planned)*
 
@@ -396,7 +397,7 @@ Multiple Virtual Ecosystem simulations
 
 Each `[[jobs]]` entry represents one simulation with a unique parameter set.
 
----
+______________________________________________________________________
 
 ## Step 6. Post-processing sensitivity analysis(planned)
 
@@ -408,7 +409,7 @@ workflow will be developed to:
 
 - extract Virtual Ecosystem model outputs;
 - aggregate model outputs across simulations;
-- compute Morris elementary effects (μ, μ*, σ);
+- compute Morris elementary effects (μ, μ\*, σ);
 - compute Sobol sensitivity indices (S₁, ST and S₂);
 - rank influential parameters;
 - identify parameter interactions;
@@ -422,7 +423,7 @@ The planned implementation will make use of the SALib analysis routines
 (`SALib.analyze.morris` and `SALib.analyze.sobol`) (Herman & Usher, 2017;
 Iwanaga et al., 2022).
 
----
+______________________________________________________________________
 
 # Recommended Strategy
 
@@ -450,7 +451,7 @@ rigorous variance decomposition of Sobol, reducing computational cost while
 retaining robust parameter ranking and interaction analysis (van Griensven et
 al., 2006; Wang & Solomatine, 2019; Pianosi et al., 2016).
 
----
+______________________________________________________________________
 
 # SALib
 
@@ -484,7 +485,7 @@ GitHub repository:
 
 https://github.com/SALib/SALib
 
----
+______________________________________________________________________
 
 # References
 

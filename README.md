@@ -16,15 +16,15 @@ Started](https://imperialcollegelondon.github.io/ve_data_science/getting_started
 
 As a brief overview, this involves setting up the following tools:
 
-* **Python**. Obviously, we use Python for running the `virtual_ecosystem` but it may also
+- **Python**. Obviously, we use Python for running the `virtual_ecosystem` but it may also
   be used within this repository for analyses and we also require it to run some QA
   tools.
-* **Poetry**. This is a Python package manager that we use to manage a shared set of
+- **Poetry**. This is a Python package manager that we use to manage a shared set of
   Python packages used across the project.
-* **R**. We will be using R extensively for analysis and data visualisation. At the
+- **R**. We will be using R extensively for analysis and data visualisation. At the
   moment, we are managing package use and versioning with a simple list of packages.
   This is currently very light touch and we may use something stricter in the future.
-* **pre-commit**. This is a QA tool - we have a set of configured checks that run
+- **pre-commit**. This is a QA tool - we have a set of configured checks that run
   whenever you try and `git commit` some changes to the repo. If the changes fail any of
   the checks, then you will have to fix them and try again. Sometimes, the QA checks can
   automatically fix issues for you - in which case you just need to add the new changes

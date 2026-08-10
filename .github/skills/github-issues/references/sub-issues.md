@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-file -->
+
 # Sub-Issues and Parent Issues
 
 Sub-issues let you break down work into hierarchical tasks. Each parent issue can have up to 100 sub-issues, nested up to 8 levels deep. Sub-issues can span repositories within the same owner.
@@ -35,16 +36,19 @@ There is no MCP tool for creating sub-issues directly. Use the workflow above or
 ## Using REST API
 
 **List sub-issues:**
+
 ```bash
 gh api repos/{owner}/{repo}/issues/{issue_number}/sub_issues
 ```
 
 **Get parent issue:**
+
 ```bash
 gh api repos/{owner}/{repo}/issues/{issue_number}/parent
 ```
 
 **Add an existing issue as a sub-issue:**
+
 ```bash
 # sub_issue_id is the numeric issue ID (not the issue number)
 # Get it from the .id field when creating or fetching an issue
@@ -54,11 +58,13 @@ echo '{"sub_issue_id": 12345}' | gh api repos/{owner}/{repo}/issues/{parent_numb
 To move a sub-issue that already has a parent, add `"replace_parent": true` to the JSON body.
 
 **Remove a sub-issue:**
+
 ```bash
 echo '{"sub_issue_id": 12345}' | gh api repos/{owner}/{repo}/issues/{parent_number}/sub_issue -X DELETE --input -
 ```
 
 **Reprioritize a sub-issue:**
+
 ```bash
 echo '{"sub_issue_id": 6, "after_id": 5}' | gh api repos/{owner}/{repo}/issues/{parent_number}/sub_issues/priority -X PATCH --input -
 ```
@@ -68,6 +74,7 @@ Use `after_id` or `before_id` to position the sub-issue relative to another.
 ## Using GraphQL
 
 **Read parent and sub-issues:**
+
 ```graphql
 {
   repository(owner: "OWNER", name: "REPO") {
@@ -83,6 +90,7 @@ Use `after_id` or `before_id` to position the sub-issue relative to another.
 ```
 
 **Add a sub-issue:**
+
 ```graphql
 mutation {
   addSubIssue(input: {
@@ -98,6 +106,7 @@ mutation {
 You can also use `subIssueUrl` instead of `subIssueId` (pass the issue's HTML URL). Add `replaceParent: true` to move a sub-issue from another parent.
 
 **Create an issue directly as a sub-issue:**
+
 ```graphql
 mutation {
   createIssue(input: {
@@ -111,6 +120,7 @@ mutation {
 ```
 
 **Remove a sub-issue:**
+
 ```graphql
 mutation {
   removeSubIssue(input: {
@@ -123,6 +133,7 @@ mutation {
 ```
 
 **Reprioritize a sub-issue:**
+
 ```graphql
 mutation {
   reprioritizeSubIssue(input: {
