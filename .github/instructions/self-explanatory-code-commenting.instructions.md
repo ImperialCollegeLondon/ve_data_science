@@ -1,9 +1,9 @@
-______________________________________________________________________
-
-## description: 'Guidelines for GitHub Copilot to write comments to achieve self-explanatory code with fewer comments. Examples are in R and Python but it should work on any language that has comments.' applyTo: '\*\*'
+---
+description: 'Guidelines for GitHub Copilot to write comments to achieve self-explanatory code with fewer comments. Examples are in R and Python but it should work on any language that has comments.'
+applyTo: '**'
+---
 
 <!-- markdownlint-disable MD013 -->
-
 # Self-explanatory Code Commenting Instructions
 
 ## Core Principle
@@ -135,9 +135,9 @@ response = requests.get(github_api_url)
 Before writing a comment, ask:
 
 1. **Is the code self-explanatory?** → No comment needed
-1. **Would a better variable/function name eliminate the need?** → Refactor instead
-1. **Does this explain WHY, not WHAT?** → Good comment
-1. **Will this help future maintainers?** → Good comment
+2. **Would a better variable/function name eliminate the need?** → Refactor instead
+3. **Does this explain WHY, not WHAT?** → Good comment
+4. **Will this help future maintainers?** → Good comment
 
 ## Special Cases for Comments
 

@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # Efficiency Reporting and Follow-Up Review
 
 Load this reference when the user asks what changed, wants a before/after report, or asks for another pass over remaining expensive jobs.
@@ -19,9 +18,9 @@ Use this phrasing when data is incomplete:
 Gather:
 
 1. A baseline sample before the change
-1. A post-change sample after caches warm
-1. Per-workflow or per-job duration comparisons
-1. Avoided runs, skipped jobs, or avoided matrix legs
+2. A post-change sample after caches warm
+3. Per-workflow or per-job duration comparisons
+4. Avoided runs, skipped jobs, or avoided matrix legs
 
 Always separate:
 

@@ -1,5 +1,4 @@
 <!-- markdownlint-disable MD046 MD024 -->
-
 # Setting up Python with `uv`
 
 `uv` handles Python installation, virtual environments, and dependencies in one
@@ -10,10 +9,10 @@ place.
 You can switch between versions of `virtual-ecosystem` with one command in the
 terminal:
 
-| What you want                                             | Sync command                 | Run command                            |
-| --------------------------------------------------------- | ---------------------------- | -------------------------------------- |
-| Stable release from PyPI                                  | `uv sync`                    | `uv run ve_run ...`                    |
-| Latest `develop` branch build                             | `uv sync --group dev`        | `uv run --group dev ve_run ...`        |
+| What you want | Sync command | Run command |
+| --- | --- | --- |
+| Stable release from PyPI | `uv sync` | `uv run ve_run ...` |
+| Latest `develop` branch build | `uv sync --group dev` | `uv run --group dev ve_run ...` |
 | Pinned `develop` branch commit for testing and comparison | `uv sync --group dev-pinned` | `uv run --group dev-pinned ve_run ...` |
 
 You only maintain *one* virtual-environment folder `.venv`.
@@ -24,7 +23,7 @@ The versions are defined in `pyproject.toml` in the project root. The pinned
 in case we need to troubleshoot with a particular commit. You can also add
 required dependencies in `pyproject.toml` for the team.
 
-______________________________________________________________________
+---
 
 ## Step 1: Install `uv`
 
@@ -48,7 +47,7 @@ uv --version
 
 If this doesn't work, make sure that `uv`'s install location is added to PATH.
 
-______________________________________________________________________
+---
 
 ## Step 2: Set up this repository
 
@@ -73,7 +72,7 @@ That is why repeat syncs are typically much faster after the first run.
 
 You do **not** need to activate the environment to start using it.
 
-______________________________________________________________________
+---
 
 ## Step 3: Switch versions of `virtual-ecosystem`
 
@@ -91,7 +90,7 @@ whatever version that group needs. See
 [Step 4](#step-4-update-virtual-ecosystem) if you want to pull in new changes
 from upstream.
 
-______________________________________________________________________
+---
 
 ## Step 4: Update `virtual-ecosystem`
 
@@ -107,7 +106,8 @@ uv sync
 This updates `uv.lock` (the file that records exact package versions), then
 installs the newest compatible PyPI release of `virtual-ecosystem`.
 
-Note: `uv.lock` is shared across groups. So `uv lock --upgrade-package virtual-ecosystem` can update lock entries for that package in multiple groups,
+Note: `uv.lock` is shared across groups. So `uv lock --upgrade-package
+virtual-ecosystem` can update lock entries for that package in multiple groups,
 not only the one you are currently using.
 
 ### B) Update `dev` to the latest `develop` commit
@@ -126,7 +126,7 @@ that package, instead of only reinstalling what is already pinned in `uv.lock`.
 
 1. Edit `pyproject.toml` and change the pinned commit hash for the `dev-pinned`
    dependency.
-1. Update `uv.lock` (the file that records exact package versions) and sync:
+2. Update `uv.lock` (the file that records exact package versions) and sync:
 
 ```sh
 uv lock
@@ -135,7 +135,7 @@ uv sync --group dev-pinned
 
 Then verify the new commit hash in `uv.lock`.
 
-______________________________________________________________________
+---
 
 ## Step 5: Confirm what is installed
 
@@ -153,7 +153,7 @@ grep -A 2 "name = \"virtual-ecosystem\"" uv.lock
 tag but not the commit hash for GitHub builds, i.e., the release and dev
 versions can have the same version tag.
 
-______________________________________________________________________
+---
 
 ## Step 6: Running `ve_run` (or any other commands or `.py` scripts)
 

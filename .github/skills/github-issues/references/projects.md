@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # Projects V2
 
 GitHub Projects V2 is managed via GraphQL. The MCP server provides three tools that wrap the GraphQL API, so you typically don't need raw GraphQL.
@@ -27,9 +26,9 @@ Call `mcp__github__projects_write` with `method: "delete_project_item"`, `projec
 ## Workflow for project operations
 
 1. **Find the project** — see [Finding a project by name](#finding-a-project-by-name) below
-1. **Discover fields** - use `projects_list` with `list_project_fields` to get field IDs and option IDs
-1. **Find items** - use `projects_list` with `list_project_items` to get item IDs
-1. **Mutate** - use `projects_write` to add, update, or delete items
+2. **Discover fields** - use `projects_list` with `list_project_fields` to get field IDs and option IDs
+3. **Find items** - use `projects_list` with `list_project_items` to get item IDs
+4. **Mutate** - use `projects_write` to add, update, or delete items
 
 ## Finding a project by name
 
@@ -38,7 +37,6 @@ Call `mcp__github__projects_write` with `method: "delete_project_item"`, `projec
 Use this priority order:
 
 ### 1. Direct lookup (if you know the number)
-
 ```bash
 gh api graphql -f query='{
   organization(login: "ORG") {
@@ -48,7 +46,6 @@ gh api graphql -f query='{
 ```
 
 ### 2. Reverse lookup from a known issue (most reliable)
-
 If the user mentions an issue, epic, or milestone that's in the project, query that issue's `projectItems` to discover the project:
 
 ```bash
@@ -69,7 +66,6 @@ gh api graphql -f query='{
 This is the most reliable approach for large orgs where name search fails.
 
 ### 3. GraphQL name search with client-side filtering (fallback)
-
 Query a large page and filter client-side for an exact title match:
 
 ```bash
@@ -85,8 +81,7 @@ gh api graphql -f query='{
 If this returns nothing, paginate with `after` cursor or broaden the regex. Results are sorted by recency so older projects require pagination.
 
 ### 4. MCP tool (small orgs only)
-
-Call `mcp__github__projects_list` with `method: "list_projects"`. This works well for orgs with \<50 projects but has no name filter, so you must scan all results.
+Call `mcp__github__projects_list` with `method: "list_projects"`. This works well for orgs with <50 projects but has no name filter, so you must scan all results.
 
 ## Project discovery for progress reports
 
@@ -94,11 +89,11 @@ When a user asks for a progress update on a project (e.g., "Give me a progress u
 
 1. **Find the project** — use the [finding a project](#finding-a-project-by-name) strategies above. Ask the user for a known issue number if name search fails.
 
-1. **Discover fields** - call `projects_list` with `list_project_fields` to find the Status field (its options tell you the workflow stages) and any Iteration field (to scope to the current sprint).
+2. **Discover fields** - call `projects_list` with `list_project_fields` to find the Status field (its options tell you the workflow stages) and any Iteration field (to scope to the current sprint).
 
-1. **Get all items** - call `projects_list` with `list_project_items`. For large projects (100+ items), paginate through all pages. Each item includes its field values (status, iteration, assignees).
+3. **Get all items** - call `projects_list` with `list_project_items`. For large projects (100+ items), paginate through all pages. Each item includes its field values (status, iteration, assignees).
 
-1. **Build the report** - group items by Status field value and count them. For iteration-based projects, filter to the current iteration first. Present a breakdown like:
+4. **Build the report** - group items by Status field value and count them. For iteration-based projects, filter to the current iteration first. Present a breakdown like:
 
    ```
    Project: Issue Fields (Iteration 42, Mar 2-8)
@@ -110,14 +105,14 @@ When a user asks for a progress update on a project (e.g., "Give me a progress u
      Blocked:        2
    ```
 
-1. **Add context** - if items have sub-issues, include `subIssuesSummary` counts. If items have dependencies, note blocked items and what blocks them.
+5. **Add context** - if items have sub-issues, include `subIssuesSummary` counts. If items have dependencies, note blocked items and what blocks them.
 
 ## OAuth Scope Requirements
 
-| Operation                                    | Required scope |
-| -------------------------------------------- | -------------- |
-| Read projects, fields, items                 | `read:project` |
-| Add/update/delete items, change field values | `project`      |
+| Operation | Required scope |
+|-----------|---------------|
+| Read projects, fields, items | `read:project` |
+| Add/update/delete items, change field values | `project` |
 
 **Common pitfall:** The default `gh auth` token often only has `read:project`. Mutations will fail with `INSUFFICIENT_SCOPES`. To add the write scope:
 
@@ -162,7 +157,6 @@ This returns the item ID, project info, and current field values in one query.
 Use `gh api graphql` to run GraphQL queries and mutations. This is more reliable than MCP tools for write operations.
 
 **Find a project and its Status field options:**
-
 ```bash
 gh api graphql -f query='
 {
@@ -182,7 +176,6 @@ gh api graphql -f query='
 ```
 
 **List all fields (including iterations):**
-
 ```bash
 gh api graphql -f query='
 {
@@ -201,7 +194,6 @@ gh api graphql -f query='
 ```
 
 **Update a field value (e.g., set Status to "In Progress"):**
-
 ```bash
 gh api graphql -f query='
 mutation {
@@ -219,7 +211,6 @@ mutation {
 Value accepts one of: `text`, `number`, `date`, `singleSelectOptionId`, `iterationId`.
 
 **Add an item:**
-
 ```bash
 gh api graphql -f query='
 mutation {
@@ -233,7 +224,6 @@ mutation {
 ```
 
 **Delete an item:**
-
 ```bash
 gh api graphql -f query='
 mutation {
@@ -280,7 +270,5 @@ gh api graphql -f query='mutation {
     value: { singleSelectOptionId: "IN_PROGRESS_OPTION_ID" }
   }) { projectV2Item { id } }
 }'
-```
-
 ```
 ```

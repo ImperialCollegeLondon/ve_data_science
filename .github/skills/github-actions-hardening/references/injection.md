@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # Script Injection
 
 `${{ <expr> }}` is substituted into the script **as text, before the shell runs**. Any expression
@@ -9,17 +8,17 @@ that resolves to data an outside contributor controls is therefore a command-inj
 
 These can be set by anyone who can open an issue, PR, or comment:
 
-| Context                                                  | Set by                  |
-| -------------------------------------------------------- | ----------------------- |
-| `github.event.issue.title` / `.body`                     | Issue author            |
-| `github.event.pull_request.title` / `.body`              | PR author               |
-| `github.event.pull_request.head.ref` / `.head.label`     | PR author (branch name) |
-| `github.head_ref`                                        | PR author (branch name) |
-| `github.event.comment.body`                              | Commenter               |
-| `github.event.review.body` / `.review_comment.body`      | Reviewer                |
-| `github.event.commits.*.message` / `head_commit.message` | Commit author           |
-| `github.event.commits.*.author.email` / `.name`          | Commit author           |
-| `github.event.pages.*.page_name`                         | Wiki editor             |
+| Context | Set by |
+| --- | --- |
+| `github.event.issue.title` / `.body` | Issue author |
+| `github.event.pull_request.title` / `.body` | PR author |
+| `github.event.pull_request.head.ref` / `.head.label` | PR author (branch name) |
+| `github.head_ref` | PR author (branch name) |
+| `github.event.comment.body` | Commenter |
+| `github.event.review.body` / `.review_comment.body` | Reviewer |
+| `github.event.commits.*.message` / `head_commit.message` | Commit author |
+| `github.event.commits.*.author.email` / `.name` | Commit author |
+| `github.event.pages.*.page_name` | Wiki editor |
 
 A branch named `$(<attacker-command>)` or an issue titled `"; <attacker-command> #` becomes shell
 when interpolated into a `run:` step.
@@ -81,8 +80,8 @@ should match `^[A-Za-z0-9._/-]+$`).
 ## Quick Audit Checklist
 
 1. Grep every `run:` and `script:` for `${{`.
-1. For each, resolve what the expression points to.
-1. If it can be set by a non-collaborator → rewrite via `env:` with a quoted shell variable.
-1. `github.actor`, `github.repository`, `github.sha`, `github.ref` (for branch protection contexts)
+2. For each, resolve what the expression points to.
+3. If it can be set by a non-collaborator → rewrite via `env:` with a quoted shell variable.
+4. `github.actor`, `github.repository`, `github.sha`, `github.ref` (for branch protection contexts)
    and similar server-controlled values are not attacker-set, but a defense-in-depth `env:` rewrite
    costs nothing.

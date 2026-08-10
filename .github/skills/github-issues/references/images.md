@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # Images in Issues and Comments
 
 How to embed images in GitHub issue bodies and comments programmatically via the CLI.
@@ -68,9 +67,9 @@ gh gist create --public -f description.md <<< "Image hosting gist"
 The most reliable way to get permanent image URLs is through the GitHub web UI:
 
 1. Open the issue/comment in a browser
-1. Drag-drop or paste the image into the comment editor
-1. GitHub generates a permanent `https://github.com/user-attachments/assets/{UUID}` URL
-1. These URLs work for anyone, even without repo access, and render in email notifications
+2. Drag-drop or paste the image into the comment editor
+3. GitHub generates a permanent `https://github.com/user-attachments/assets/{UUID}` URL
+4. These URLs work for anyone, even without repo access, and render in email notifications
 
 > **Why the API can't do this:** GitHub's `upload/policies/assets` endpoint requires a browser session (CSRF token + cookies). It returns an HTML error page when called with API tokens. There is no public API for generating `user-attachments` URLs.
 
@@ -102,12 +101,12 @@ await browser.close();
 
 ## Quick reference
 
-| Method                                 | Private repos | Permanent | No auth needed |    API-only    |
-| -------------------------------------- | :-----------: | :-------: | :------------: | :------------: |
-| Contents API + `github.com/raw/`       |      ✅       |    ✅     |       ❌       |       ✅       |
-| Browser drag-drop (`user-attachments`) |      ✅       |    ✅     |       ✅       |       ❌       |
-| `raw.githubusercontent.com`            |   ❌ (404)    |    ✅     |       ❌       |       ✅       |
-| Gist                                   |  Public only  |    ✅     |       ✅       | ❌ (no binary) |
+| Method | Private repos | Permanent | No auth needed | API-only |
+|--------|:---:|:---:|:---:|:---:|
+| Contents API + `github.com/raw/` | ✅ | ✅ | ❌ | ✅ |
+| Browser drag-drop (`user-attachments`) | ✅ | ✅ | ✅ | ❌ |
+| `raw.githubusercontent.com` | ❌ (404) | ✅ | ❌ | ✅ |
+| Gist | Public only | ✅ | ✅ | ❌ (no binary) |
 
 ## Common pitfalls
 

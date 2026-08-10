@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # Dependabot PR Comment Commands
 
 Interact with Dependabot pull requests by commenting `@dependabot <command>`. Dependabot acknowledges commands with a thumbs-up reaction.
@@ -11,29 +10,29 @@ Interact with Dependabot pull requests by commenting `@dependabot <command>`. De
 
 ## Commands for Individual PRs
 
-| Command                                              | Description                                                         |
-| ---------------------------------------------------- | ------------------------------------------------------------------- |
-| `@dependabot rebase`                                 | Rebase the PR against the target branch                             |
-| `@dependabot recreate`                               | Recreate the PR from scratch, overwriting any manual edits          |
-| `@dependabot ignore this dependency`                 | Close the PR and stop all future updates for this dependency        |
-| `@dependabot ignore this major version`              | Close and stop updates for this major version                       |
-| `@dependabot ignore this minor version`              | Close and stop updates for this minor version                       |
-| `@dependabot ignore this patch version`              | Close and stop updates for this patch version                       |
+| Command | Description |
+|---|---|
+| `@dependabot rebase` | Rebase the PR against the target branch |
+| `@dependabot recreate` | Recreate the PR from scratch, overwriting any manual edits |
+| `@dependabot ignore this dependency` | Close the PR and stop all future updates for this dependency |
+| `@dependabot ignore this major version` | Close and stop updates for this major version |
+| `@dependabot ignore this minor version` | Close and stop updates for this minor version |
+| `@dependabot ignore this patch version` | Close and stop updates for this patch version |
 | `@dependabot show DEPENDENCY_NAME ignore conditions` | Display a table of all current ignore conditions for the dependency |
 
 ## Commands for Grouped Updates
 
 These commands work on Dependabot PRs created by grouped version or security updates.
 
-| Command                                                 | Description                                                                                    |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `@dependabot ignore DEPENDENCY_NAME`                    | Close the PR and stop updating this dependency in the group                                    |
-| `@dependabot ignore DEPENDENCY_NAME major version`      | Stop updating this dependency's major version                                                  |
-| `@dependabot ignore DEPENDENCY_NAME minor version`      | Stop updating this dependency's minor version                                                  |
-| `@dependabot ignore DEPENDENCY_NAME patch version`      | Stop updating this dependency's patch version                                                  |
-| `@dependabot unignore *`                                | Close current PR, clear ALL ignore conditions for ALL dependencies in the group, open a new PR |
-| `@dependabot unignore DEPENDENCY_NAME`                  | Close current PR, clear all ignores for a specific dependency, open a new PR with its updates  |
-| `@dependabot unignore DEPENDENCY_NAME IGNORE_CONDITION` | Close current PR, clear a specific ignore condition, open a new PR                             |
+| Command | Description |
+|---|---|
+| `@dependabot ignore DEPENDENCY_NAME` | Close the PR and stop updating this dependency in the group |
+| `@dependabot ignore DEPENDENCY_NAME major version` | Stop updating this dependency's major version |
+| `@dependabot ignore DEPENDENCY_NAME minor version` | Stop updating this dependency's minor version |
+| `@dependabot ignore DEPENDENCY_NAME patch version` | Stop updating this dependency's patch version |
+| `@dependabot unignore *` | Close current PR, clear ALL ignore conditions for ALL dependencies in the group, open a new PR |
+| `@dependabot unignore DEPENDENCY_NAME` | Close current PR, clear all ignores for a specific dependency, open a new PR with its updates |
+| `@dependabot unignore DEPENDENCY_NAME IGNORE_CONDITION` | Close current PR, clear a specific ignore condition, open a new PR |
 
 ## Usage Examples
 

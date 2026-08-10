@@ -1,8 +1,16 @@
 <!-- markdownlint-disable-file -->
-
-______________________________________________________________________
-
-## name: dependabot description: >- Comprehensive guide for configuring and managing GitHub Dependabot. Use this skill when users ask about creating or optimizing dependabot.yml files, managing Dependabot pull requests, configuring dependency update strategies, setting up grouped updates, monorepo patterns, multi-ecosystem groups, security update configuration, auto-triage rules, or any GitHub Advanced Security (GHAS) supply chain security topic related to Dependabot. For pre-commit dependency vulnerability scanning in AI coding agents via the GitHub MCP Server, this skill references the Advanced Security plugin (`advanced-security@copilot-plugins`). Use this skill when an agent needs to scan dependencies for known vulnerabilities before committing.
+---
+name: dependabot
+description: >-
+  Comprehensive guide for configuring and managing GitHub Dependabot. Use this skill when
+  users ask about creating or optimizing dependabot.yml files, managing Dependabot pull requests,
+  configuring dependency update strategies, setting up grouped updates, monorepo patterns,
+  multi-ecosystem groups, security update configuration, auto-triage rules, or any GitHub
+  Advanced Security (GHAS) supply chain security topic related to Dependabot. For pre-commit
+  dependency vulnerability scanning in AI coding agents via the GitHub MCP Server, this skill
+  references the Advanced Security plugin (`advanced-security@copilot-plugins`). Use this skill
+  when an agent needs to scan dependencies for known vulnerabilities before committing.
+---
 
 # Dependabot Configuration & Management
 
@@ -11,8 +19,8 @@ ______________________________________________________________________
 Dependabot is GitHub's built-in dependency management tool with three core capabilities:
 
 1. **Dependabot Alerts** — Notify when dependencies have known vulnerabilities (CVEs)
-1. **Dependabot Security Updates** — Auto-create PRs to fix vulnerable dependencies
-1. **Dependabot Version Updates** — Auto-create PRs to keep dependencies current
+2. **Dependabot Security Updates** — Auto-create PRs to fix vulnerable dependencies
+3. **Dependabot Version Updates** — Auto-create PRs to keep dependencies current
 
 All configuration lives in a **single file**: `.github/dependabot.yml` on the default branch. GitHub does **not** support multiple `dependabot.yml` files per repository.
 
@@ -24,35 +32,34 @@ Follow this process when creating or optimizing a `dependabot.yml`:
 
 Scan the repository for dependency manifests. Look for:
 
-| Ecosystem         | YAML Value       | Manifest Files                                                     |
-| ----------------- | ---------------- | ------------------------------------------------------------------ |
-| npm/pnpm/yarn     | `npm`            | `package.json`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock` |
-| pip/pipenv/poetry | `pip`            | `requirements.txt`, `Pipfile`, `pyproject.toml`, `setup.py`        |
-| uv                | `uv`             | `pyproject.toml`, `uv.lock`                                        |
-| Docker            | `docker`         | `Dockerfile`                                                       |
-| Docker Compose    | `docker-compose` | `docker-compose.yml`                                               |
-| GitHub Actions    | `github-actions` | `.github/workflows/*.yml`                                          |
-| Go modules        | `gomod`          | `go.mod`                                                           |
-| Bundler (Ruby)    | `bundler`        | `Gemfile`                                                          |
-| Cargo (Rust)      | `cargo`          | `Cargo.toml`                                                       |
-| Composer (PHP)    | `composer`       | `composer.json`                                                    |
-| NuGet (.NET)      | `nuget`          | `*.csproj`, `packages.config`                                      |
-| .NET SDK          | `dotnet-sdk`     | `global.json`                                                      |
-| Maven (Java)      | `maven`          | `pom.xml`                                                          |
-| Gradle (Java)     | `gradle`         | `build.gradle`                                                     |
-| Terraform         | `terraform`      | `*.tf`                                                             |
-| OpenTofu          | `opentofu`       | `*.tf`                                                             |
-| Helm              | `helm`           | `Chart.yaml`                                                       |
-| Hex (Elixir)      | `mix`            | `mix.exs`                                                          |
-| Swift             | `swift`          | `Package.swift`                                                    |
-| Pub (Dart)        | `pub`            | `pubspec.yaml`                                                     |
-| Bun               | `bun`            | `bun.lockb`                                                        |
-| Dev Containers    | `devcontainers`  | `devcontainer.json`                                                |
-| Git Submodules    | `gitsubmodule`   | `.gitmodules`                                                      |
-| Pre-commit        | `pre-commit`     | `.pre-commit-config.yaml`                                          |
+| Ecosystem | YAML Value | Manifest Files |
+|---|---|---|
+| npm/pnpm/yarn | `npm` | `package.json`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock` |
+| pip/pipenv/poetry | `pip` | `requirements.txt`, `Pipfile`, `pyproject.toml`, `setup.py` |
+| uv | `uv` | `pyproject.toml`, `uv.lock` |
+| Docker | `docker` | `Dockerfile` |
+| Docker Compose | `docker-compose` | `docker-compose.yml` |
+| GitHub Actions | `github-actions` | `.github/workflows/*.yml` |
+| Go modules | `gomod` | `go.mod` |
+| Bundler (Ruby) | `bundler` | `Gemfile` |
+| Cargo (Rust) | `cargo` | `Cargo.toml` |
+| Composer (PHP) | `composer` | `composer.json` |
+| NuGet (.NET) | `nuget` | `*.csproj`, `packages.config` |
+| .NET SDK | `dotnet-sdk` | `global.json` |
+| Maven (Java) | `maven` | `pom.xml` |
+| Gradle (Java) | `gradle` | `build.gradle` |
+| Terraform | `terraform` | `*.tf` |
+| OpenTofu | `opentofu` | `*.tf` |
+| Helm | `helm` | `Chart.yaml` |
+| Hex (Elixir) | `mix` | `mix.exs` |
+| Swift | `swift` | `Package.swift` |
+| Pub (Dart) | `pub` | `pubspec.yaml` |
+| Bun | `bun` | `bun.lockb` |
+| Dev Containers | `devcontainers` | `devcontainer.json` |
+| Git Submodules | `gitsubmodule` | `.gitmodules` |
+| Pre-commit | `pre-commit` | `.pre-commit-config.yaml` |
 
 Notes:
-
 - pnpm and yarn both use the `npm` ecosystem value.
 - Prefer `uv` ecosystem value when `uv.lock` is present; otherwise use `pip`.
 
@@ -116,7 +123,6 @@ groups:
 This creates one PR per dependency across all specified directories, reducing CI costs and review burden.
 
 Limitations:
-
 - All directories must use the same package ecosystem
 - Applies to version updates only
 - Incompatible version constraints create separate PRs
@@ -163,7 +169,6 @@ groups:
 ```
 
 Key behaviors:
-
 - Dependencies matching multiple groups go to the **first** match
 - `applies-to` defaults to `version-updates` when absent
 - Ungrouped dependencies get individual PRs
@@ -309,17 +314,16 @@ Interact with Dependabot PRs using `@dependabot` comments.
 > **Note:** As of January 2026, merge/close/reopen commands have been deprecated.
 > Use GitHub's native UI, CLI (`gh pr merge`), or auto-merge instead.
 
-| Command                                 | Effect                                 |
-| --------------------------------------- | -------------------------------------- |
-| `@dependabot rebase`                    | Rebase the PR                          |
-| `@dependabot recreate`                  | Recreate the PR from scratch           |
-| `@dependabot ignore this dependency`    | Close and never update this dependency |
-| `@dependabot ignore this major version` | Ignore this major version              |
-| `@dependabot ignore this minor version` | Ignore this minor version              |
-| `@dependabot ignore this patch version` | Ignore this patch version              |
+| Command | Effect |
+|---|---|
+| `@dependabot rebase` | Rebase the PR |
+| `@dependabot recreate` | Recreate the PR from scratch |
+| `@dependabot ignore this dependency` | Close and never update this dependency |
+| `@dependabot ignore this major version` | Ignore this major version |
+| `@dependabot ignore this minor version` | Ignore this minor version |
+| `@dependabot ignore this patch version` | Ignore this patch version |
 
 For grouped PRs, additional commands:
-
 - `@dependabot ignore DEPENDENCY_NAME` — ignore specific dependency in group
 - `@dependabot unignore DEPENDENCY_NAME` — clear ignores, reopen with updates
 - `@dependabot unignore *` — clear all ignores for all dependencies in group
@@ -364,13 +368,13 @@ exclude-paths:
 
 Controls how Dependabot edits version constraints:
 
-| Value                   | Behavior                                          |
-| ----------------------- | ------------------------------------------------- |
-| `auto`                  | Default — increase for apps, widen for libraries  |
-| `increase`              | Always increase minimum version                   |
+| Value | Behavior |
+|---|---|
+| `auto` | Default — increase for apps, widen for libraries |
+| `increase` | Always increase minimum version |
 | `increase-if-necessary` | Only change if current range excludes new version |
-| `lockfile-only`         | Only update lockfiles, ignore manifests           |
-| `widen`                 | Widen range to include both old and new versions  |
+| `lockfile-only` | Only update lockfiles, ignore manifests |
+| `widen` | Widen range to include both old and new versions |
 
 ### Rebase Strategy
 
@@ -425,25 +429,21 @@ For scanning code changes for vulnerable dependencies inside an AI coding agent 
 Install the **Advanced Security plugin** which provides dedicated dependency scanning tools and the `/dependency-scanning` skill.
 
 **GitHub Copilot CLI (shell):**
-
 ```bash
 # Enable the dependabot toolset for the GitHub MCP Server
 copilot --add-github-mcp-toolset dependabot
 ```
 
 **GitHub Copilot CLI (inside `copilot`):**
-
 ```text
 > /plugin install advanced-security@copilot-plugins
 ```
 
 **Visual Studio Code:**
-
 - Add `"X-MCP-Toolsets": "dependabot"` to your GitHub MCP Server headers, or pick **Dependabot** from the toolset selector in Copilot Chat
 - Install the `advanced-security` plugin, then use `/dependency-scanning` in Copilot Chat
 
 **Example prompt:**
-
 > Scan the dependencies I added on this branch for known vulnerabilities and tell me which versions to upgrade to before I commit.
 
 See: [Advanced Security Plugin — Dependency Scanning Skill](https://github.com/github/copilot-plugins/blob/main/plugins/advanced-security/skills/dependency-scanning/SKILL.md)

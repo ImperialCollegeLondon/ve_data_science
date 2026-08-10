@@ -2,7 +2,7 @@
 
 Real-world `dependabot.yml` configurations for common scenarios.
 
-______________________________________________________________________
+---
 
 ## 1. Basic Single Ecosystem
 
@@ -17,7 +17,7 @@ updates:
       interval: "weekly"
 ```
 
-______________________________________________________________________
+---
 
 ## 2. Monorepo with Glob Patterns
 
@@ -50,7 +50,7 @@ updates:
       include: "scope"
 ```
 
-______________________________________________________________________
+---
 
 ## 3. Grouped Dev vs Production Dependencies
 
@@ -77,7 +77,7 @@ updates:
           - "@typescript-eslint*"
 ```
 
-______________________________________________________________________
+---
 
 ## 4. Cross-Directory Grouping (Monorepo)
 
@@ -100,7 +100,7 @@ updates:
 
 When `lodash` updates in all three directories, Dependabot creates a single PR.
 
-______________________________________________________________________
+---
 
 ## 5. Multi-Ecosystem Group (Docker + Terraform)
 
@@ -128,7 +128,7 @@ updates:
     multi-ecosystem-group: "infrastructure"
 ```
 
-______________________________________________________________________
+---
 
 ## 6. Security Updates Only (Version Updates Disabled)
 
@@ -155,7 +155,7 @@ updates:
     open-pull-requests-limit: 0
 ```
 
-______________________________________________________________________
+---
 
 ## 7. Private Registries
 
@@ -192,7 +192,7 @@ updates:
       interval: "weekly"
 ```
 
-______________________________________________________________________
+---
 
 ## 8. Cooldown Periods
 
@@ -216,7 +216,7 @@ updates:
         - "@company/internal-*"
 ```
 
-______________________________________________________________________
+---
 
 ## 9. Cron Scheduling
 
@@ -239,7 +239,7 @@ updates:
       cronjob: "0 6 1 * *"  # First day of each month at 6:00 AM
 ```
 
-______________________________________________________________________
+---
 
 ## 10. Full-Featured Configuration
 
@@ -351,7 +351,7 @@ updates:
       prefix: "infra"
 ```
 
-______________________________________________________________________
+---
 
 ## 11. Ignore Patterns and Versioning Strategy
 
@@ -381,7 +381,7 @@ updates:
       - "test/fixtures/**"
 ```
 
-______________________________________________________________________
+---
 
 ## 12. Target Non-Default Branch
 

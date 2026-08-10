@@ -1,13 +1,35 @@
-______________________________________________________________________
-
-## jupyter: jupytext: cell_metadata_filter: all,-trusted formats: ipynb,md notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version text_representation: extension: .md format_name: markdown format_version: '1.3' kernelspec: display_name: Python 3 (ipykernel) language: python name: python3 language_info: codemirror_mode: name: ipython version: 3 file_extension: .py mimetype: text/x-python name: python nbconvert_exporter: python pygments_lexer: ipython3 version: 3.12.8
+---
+jupyter:
+  jupytext:
+    cell_metadata_filter: all,-trusted
+    formats: ipynb,md
+    notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version
+    text_representation:
+      extension: .md
+      format_name: markdown
+      format_version: '1.3'
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+  language_info:
+    codemirror_mode:
+      name: ipython
+      version: 3
+    file_extension: .py
+    mimetype: text/x-python
+    name: python
+    nbconvert_exporter: python
+    pygments_lexer: ipython3
+    version: 3.12.8
+---
 
 # Notebook Workflows
 
 ## Setting Everything Up
 
 1. In the `ve_data_science/notebooks` folder, create a new folder for your notebook.
-1. Create a virtual environment and install the dependencies using the code below.
+2. Create a virtual environment and install the dependencies using the code below.
 
 ```text
 # Create and activate a new venv
@@ -31,8 +53,8 @@ pip install matplotlib
 ```
 
 1. In your terminal, run `jupyter lab` and it should automatically open a browser.
-1. Create a new `.ipynb` notebook and name it appropriately.
-1. Click "File" -> "Jupytext" -> "Pair Notebook with Markdown"
+2. Create a new `.ipynb` notebook and name it appropriately.
+3. Click "File" -> "Jupytext" -> "Pair Notebook with Markdown"
 
 Now you are ready to start your data analysis! Make sure you include any data files that
 you are using in the same folder that your notebook is in.
@@ -43,19 +65,19 @@ When you are ready to push your changes to GitHub, you will need to first export
 rendered version of the markdown file.
 
 1. First you need to make sure your markdown file is properly formatted to pass the
-   linting. In your terminal run `pre-commit` and read through any errors. You will likely
-   have to fix them manually - this will be easiest to do in VSCode by opening the markdown
-   file there.
-1. In your `.ipynb` file, click "Run" and "Run All Cells".
-1. Click "File" -> "Save and Export Notebook As" -> "Markdown". This will save the
-   rendered markdown file and any images (such as graphs) as a png. These files will be zipped.
-1. Unzip the files and move them into a "Rendered" folder in the same place as your
-   source files.
-1. Commit the following files and push them to github:
+linting. In your terminal run `pre-commit` and read through any errors. You will likely
+have to fix them manually - this will be easiest to do in VSCode by opening the markdown
+file there.
+2. In your `.ipynb` file, click "Run" and "Run All Cells".
+3. Click "File" -> "Save and Export Notebook As" -> "Markdown". This will save the
+rendered markdown file and any images (such as graphs) as a png. These files will be zipped.
+4. Unzip the files and move them into a "Rendered" folder in the same place as your
+source files.
+5. Commit the following files and push them to github:
 
-- The markdown source file
-- Any source data files used in your markdown notebook
-- The "rendered" markdown file and the images.
+* The markdown source file
+* Any source data files used in your markdown notebook
+* The "rendered" markdown file and the images.
 
 Notably the `.ipynb` file should not be pushed to github.
 

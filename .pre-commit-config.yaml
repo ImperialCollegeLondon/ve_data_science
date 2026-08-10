@@ -20,12 +20,11 @@ repos:
       args: [--fix, --exit-non-zero-on-fix, --target-version, py312]
     # Run the formatter.
     - id: ruff-format
-  - repo: https://github.com/executablebooks/mdformat
-    # This is markdown formatting (pure Python alternative)
-    rev: 0.7.17
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    # This is markdown linting
+    rev: v0.49.1
     hooks:
-      - id: mdformat
-        additional_dependencies: ['mdformat-gfm']
+      - id: markdownlint
         exclude: '(^|/)rendered/|\.ipynb_checkpoints'
   - repo: https://github.com/lorenzwalthert/precommit
     # These are R specific tools to format and lint the code and check for common errors

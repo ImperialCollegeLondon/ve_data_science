@@ -19,11 +19,9 @@ the original output variables as "derived variables".
 
 !!! TIP
 
-```
-This is a growing section. We expect to include more derived variables
-as we develop the Virtual Ecosystem. Currently there is only R functions,
-but we expect to have python functions soon.
-```
+    This is a growing section. We expect to include more derived variables
+    as we develop the Virtual Ecosystem. Currently there is only R functions,
+    but we expect to have python functions soon.
 
 Currently, we derive variables using custom post-processing scripts. To try
 it out, load the functions:

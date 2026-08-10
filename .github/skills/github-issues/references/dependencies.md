@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # Issue Dependencies (Blocked By / Blocking)
 
 Dependencies let you mark that an issue is blocked by another issue. This creates a formal dependency relationship visible in the UI and trackable via API. No MCP tools exist for dependencies; use REST or GraphQL directly.
@@ -7,13 +6,11 @@ Dependencies let you mark that an issue is blocked by another issue. This create
 ## Using REST API
 
 **List issues blocking this issue:**
-
 ```
 GET /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by
 ```
 
 **Add a blocking dependency:**
-
 ```
 POST /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by
 Body: { "issue_id": 12345 }
@@ -22,7 +19,6 @@ Body: { "issue_id": 12345 }
 The `issue_id` is the numeric issue **ID** (not the issue number).
 
 **Remove a blocking dependency:**
-
 ```
 DELETE /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by/{issue_id}
 ```
@@ -30,7 +26,6 @@ DELETE /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by/{issu
 ## Using GraphQL
 
 **Read dependencies:**
-
 ```graphql
 {
   repository(owner: "OWNER", name: "REPO") {
@@ -44,7 +39,6 @@ DELETE /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by/{issu
 ```
 
 **Add a dependency:**
-
 ```graphql
 mutation {
   addBlockedBy(input: {
@@ -57,7 +51,6 @@ mutation {
 ```
 
 **Remove a dependency:**
-
 ```graphql
 mutation {
   removeBlockedBy(input: {

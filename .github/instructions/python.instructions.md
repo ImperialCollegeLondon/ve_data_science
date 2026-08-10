@@ -1,9 +1,9 @@
-______________________________________________________________________
-
-## description: 'Python language: guidance aligned with Virtual Ecosystem code style and tooling.' applyTo: '\*\*/*.py, \*\*/*.pyw, \*\*/\*.pyi'
+---
+description: 'Python language: guidance aligned with Virtual Ecosystem code style and tooling.'
+applyTo: '**/*.py, **/*.pyw, **/*.pyi'
+---
 
 <!-- markdownlint-disable MD013 -->
-
 # Python Programming Language Instructions
 
 ## Purpose
@@ -71,7 +71,7 @@ Guide Copilot to generate Python code consistent with the style used in the
 - Keep comments rare and focused on **why**, not **what**.
 - For API-facing modules, keep docstrings complete and consistent with Google style.
 
-______________________________________________________________________
+---
 
 ## Minimal Examples
 

@@ -1,9 +1,9 @@
-______________________________________________________________________
-
-## description: 'R language and document formats (R, Rmd, Quarto): coding standards and Copilot guidance for idiomatic, safe, and consistent code generation.' applyTo: '\*\*/*.R, \*\*/*.r, \*\*/*.Rmd, \*\*/*.rmd, \*\*/\*.qmd'
+---
+description: 'R language and document formats (R, Rmd, Quarto): coding standards and Copilot guidance for idiomatic, safe, and consistent code generation.'
+applyTo: '**/*.R, **/*.r, **/*.Rmd, **/*.rmd, **/*.qmd'
+---
 
 <!-- markdownlint-disable MD013 -->
-
 # R Programming Language Instructions
 
 ## Purpose
@@ -104,7 +104,7 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
   unless explicitly requested.
 - When multiple approaches are equivalent, prefer readability and type stability and explain the trade-offs.
 
-______________________________________________________________________
+---
 
 ## Minimal Examples
 

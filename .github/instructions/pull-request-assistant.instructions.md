@@ -1,9 +1,9 @@
-______________________________________________________________________
-
-## description: 'Guidelines for creating pull request summary by Copilot.' applyTo: '\*\*'
+---
+description: 'Guidelines for creating pull request summary by Copilot.'
+applyTo: '**'
+---
 
 <!-- markdownlint-disable MD036 MD013 -->
-
 # Pull Request Assistant Instructions
 
 ## Purpose
@@ -32,8 +32,8 @@ Lead with where to review first, not narrative background.
 - Group by feature area when possible
 - Mark each file with priority
 
-| File            | Change type                     | Priority     | Why focus here            |
-| --------------- | ------------------------------- | ------------ | ------------------------- |
+| File | Change type | Priority | Why focus here |
+| --- | --- | --- | --- |
 | path/to/file.ts | logic/refactor/test/config/docs | High/Med/Low | one-line reviewer context |
 
 - Summarize remaining files as low-risk/mechanical

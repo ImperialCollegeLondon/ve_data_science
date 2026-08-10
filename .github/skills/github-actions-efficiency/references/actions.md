@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # GitHub Actions Efficiency
 
 Load this reference only when the task involves GitHub Actions or CI workflow efficiency.
@@ -11,19 +10,19 @@ If the repo is onboarding GitHub Actions for the first time, define a minimal ba
 Inspect in this order:
 
 1. If `.github/workflows/` is missing or empty, gather baseline requirements first: triggering events, required checks, runtime versions, and repository-specific validation policy.
-1. `.github/workflows/*.yml`
-1. Docs describing CI expectations
-1. Existing reports or run history if the user wants measured impact
+2. `.github/workflows/*.yml`
+3. Docs describing CI expectations
+4. Existing reports or run history if the user wants measured impact
 
 For new setups, start with a small workflow that proves core checks, then add matrix breadth or additional jobs only when needed.
 
 Start with common, low-risk waste:
 
 1. Missing dependency caches
-1. Missing `concurrency` cancellation
-1. Over-broad workflow triggers
-1. Duplicate workflow coverage across files or jobs
-1. Expensive jobs that run on every change regardless of scope
+2. Missing `concurrency` cancellation
+3. Over-broad workflow triggers
+4. Duplicate workflow coverage across files or jobs
+5. Expensive jobs that run on every change regardless of scope
 
 ## Actions-Specific Guidance
 

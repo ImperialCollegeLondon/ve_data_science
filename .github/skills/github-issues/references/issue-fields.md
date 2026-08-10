@@ -1,5 +1,4 @@
 <!-- markdownlint-disable-file -->
-
 # Issue Fields
 
 Issue fields are custom metadata (dates, text, numbers, single-select) defined at the organization level and set per-issue. They are separate from labels, milestones, and assignees. Common examples: Start Date, Target Date, Priority, Impact, Effort.
@@ -33,12 +32,10 @@ EOF
 ```
 
 **Important:** The payload must be a JSON object with an `issue_field_values` array. Each entry has:
-
 - `field_id` (integer): the field's numeric ID from the org fields list
 - `value` (string): the **option name** for single-select fields (e.g., `"P1"`, `"High"`), or the literal value for text/number/date fields
 
 Common mistakes to avoid:
-
 - Passing the option ID instead of the option name as `value` (the API expects the display name)
 - Sending `field_id` and `value` as top-level keys without wrapping in `issue_field_values` array
 - Using `-f` flags instead of `--input` with JSON body
@@ -74,8 +71,8 @@ EOF
 ### Workflow for setting fields (REST)
 
 1. **Discover fields** - `gh api orgs/{org}/issue-fields` to get field IDs and option names
-1. **Set values** - POST to `repos/{owner}/{repo}/issues/{number}/issue-field-values` with JSON body
-1. **Batch when possible** - multiple fields can be set in a single request
+2. **Set values** - POST to `repos/{owner}/{repo}/issues/{number}/issue-field-values` with JSON body
+3. **Batch when possible** - multiple fields can be set in a single request
 
 ## GraphQL API (alternative)
 
@@ -159,12 +156,12 @@ mutation {
 
 Each entry in `issueFields` takes a `fieldId` plus exactly one value parameter:
 
-| Field type    | Value parameter        | Format                                    |
-| ------------- | ---------------------- | ----------------------------------------- |
-| Date          | `dateValue`            | ISO 8601 date string, e.g. `"2026-04-15"` |
-| Text          | `textValue`            | String                                    |
-| Number        | `numberValue`          | Float                                     |
-| Single select | `singleSelectOptionId` | Node ID from the field's `options` list   |
+| Field type | Value parameter | Format |
+|-----------|----------------|--------|
+| Date | `dateValue` | ISO 8601 date string, e.g. `"2026-04-15"` |
+| Text | `textValue` | String |
+| Number | `numberValue` | Float |
+| Single select | `singleSelectOptionId` | Node ID from the field's `options` list |
 
 To clear a field value, set `delete: true` instead of a value parameter.
 
@@ -207,7 +204,6 @@ gh api graphql -H "GraphQL-Features: issue_fields" -f query='
 ```
 
 **Schema notes for `IssueFieldSingleSelectValue`:**
-
 - The selected option's display text is in `.name` (not `.value`)
 - Also available: `.color`, `.description`, `.id`
 - The parent field reference is in `.field` (use inline fragment to get the field name)
