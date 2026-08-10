@@ -26,7 +26,7 @@ processes (Pianosi et al., 2016).
 
 ---
 
-# Local versus Global Sensitivity Analysis
+## Local versus Global Sensitivity Analysis
 
 Sensitivity analysis methods are generally classified into **local** and
 **global** approaches.
@@ -78,12 +78,12 @@ parameters and processes (Pianosi et al., 2016).
 
 ---
 
-# Common Global Sensitivity Analysis Methods
+## Common Global Sensitivity Analysis Methods
 
 Several approaches are available for global sensitivity analysis.
 
 | Method | Category | Captures interactions | Computational cost | Typical application |
-|---------|----------|----------------------|--------------------|--------------------|
+| ------ | -------- | -------------------- | ------------------ | ------------------- |
 | One-at-a-Time (OAT) | Local | No | Very low | Model debugging |
 | Morris | Screening | Partial | Low | Initial parameter screening |
 | Sobol | Variance-based | Yes | High | Detailed sensitivity analysis |
@@ -99,7 +99,7 @@ model outputs (Saltelli et al., 2004; Wang & Solomatine, 2019).
 
 ---
 
-# Morris Method
+## Morris Method
 
 The Morris method, also known as the **Method of Elementary Effects**, is a
 computationally efficient screening technique designed to identify influential
@@ -109,21 +109,21 @@ Rather than providing exact variance contributions, Morris estimates the
 overall importance of each parameter using repeated elementary effects
 calculated across the parameter space.
 
-## Outputs
+### Morris Outputs
 
 - **μ** — mean elementary effect;
 - **μ\*** — mean absolute elementary effect (overall parameter importance);
 - **σ** — variability of elementary effects, indicating nonlinear behaviour or
   parameter interactions.
 
-## Advantages
+### Morris Advantages
 
 - computationally efficient;
 - suitable for large parameter sets;
 - identifies influential parameters quickly;
 - ideal before calibration.
 
-## Limitations
+### Morris Limitations
 
 - qualitative rather than quantitative;
 - interaction effects are inferred indirectly;
@@ -135,7 +135,7 @@ methods are applied (van Griensven et al., 2006; Zhan et al., 2013).
 
 ---
 
-# Sobol Method
+## Sobol Method
 
 Sobol analysis is a variance-based global sensitivity analysis method that
 decomposes model output variance into contributions from individual
@@ -144,20 +144,20 @@ parameters and their interactions (Sobol, 2001).
 Unlike Morris, Sobol provides quantitative sensitivity indices and explicitly
 measures parameter interactions.
 
-## Outputs
+### Sobol Outputs
 
 - **S₁** — first-order sensitivity index;
 - **S₂** — second-order interaction index;
 - **ST** — total-order sensitivity index.
 
-## Advantages
+### Sobol Advantages
 
 - quantitative parameter ranking;
 - captures parameter interactions;
 - suitable for highly nonlinear models;
 - regarded as one of the most rigorous global sensitivity analysis methods.
 
-## Limitations
+### Sobol Limitations
 
 - computationally expensive;
 - requires substantially more model evaluations;
@@ -169,10 +169,10 @@ quantifying parameter importance in nonlinear environmental models (Sobol,
 
 ---
 
-# Morris versus Sobol
+## Morris versus Sobol
 
 | Feature | Morris | Sobol |
-|----------|--------|--------|
+| ------- | ------ | ----- |
 | Method type | Screening | Variance decomposition |
 | Parameter ranking | Qualitative | Quantitative |
 | Parameter interactions | Indirect | Explicit |
@@ -188,7 +188,7 @@ been reduced (van Griensven et al., 2006; Wang & Solomatine, 2019; Zhan et al.,
 
 ---
 
-# Python Sensitivity Analysis Workflow
+## Python Sensitivity Analysis Workflow
 
 The current Python workflow implements **global sensitivity analysis for the
 Virtual Ecosystem hydrology module**. However, the workflow has been designed
@@ -205,26 +205,26 @@ The workflow consists of the following stages.
 
 ```text
 Define parameter ranges
-        │
-        ▼
+    │
+    ▼
 Load parameter definitions
-        │
-        ▼
+    │
+    ▼
 Generate parameter samples
 (Morris / Sobol)
-        │
-        ▼
+    │
+    ▼
 Generate HPC job configuration
 (job_config.toml)
-        │
-        ▼
+    │
+    ▼
 Submit HPC batch jobs
-        │
-        ▼
+    │
+    ▼
 Run batch HPC simulations
-        │
-        ▼
-    Future work
+    │
+    ▼
+Future work
 (Output extraction, sensitivity analysis and reporting)
 ```
 
@@ -243,13 +243,13 @@ key (for example,
 
 together with lower and upper sampling bounds.
 
-### Files
+### Step 1 Files
 
 ```text
 data/sensitivity/hydrology/config/sensitivity_parameters.toml
 ```
 
-### Purpose
+### Step 1 Purpose
 
 The parameter definition file specifies:
 
@@ -277,13 +277,13 @@ definition containing:
 - sampling bounds;
 - number of variables.
 
-### Tool
+### Step 2 Tool
 
 ```text
 tools/python/abiotic/sensitivity_tools.py
 ```
 
-### Output
+### Step 2 Output
 
 ```python
 problem = {
@@ -297,7 +297,7 @@ This problem dictionary is then passed directly to SALib sampling routines.
 
 ---
 
-## Step 3. Generate parameter samples
+## Step 3: Generate parameter samples
 
 Parameter samples are generated using either
 
@@ -313,13 +313,13 @@ generate_sobol_samples(...)
 
 implemented using the SALib Python package (Herman & Usher, 2017; Iwanaga et al., 2022).
 
-### Tool
+### Step 3 Tool
 
 ```text
 tools/python/abiotic/sensitivity_tools.py
 ```
 
-### Driver scripts
+### Step 3 Driver scripts
 
 ```text
 analysis/abiotic/sensitivity/morris_sample.py
@@ -327,7 +327,7 @@ analysis/abiotic/sensitivity/morris_sample.py
 analysis/abiotic/sensitivity/sobol_sample.py
 ```
 
-### Output
+### Step 3 Output
 
 The generated sample matrix contains one parameter combination per simulation.
 
@@ -345,21 +345,22 @@ generate_job_config(...)
 Each sampled parameter set becomes one independent Virtual Ecosystem
 simulation.
 
-### Tool
+### Step 4 Tool
 
 ```text
 tools/python/abiotic/job_config_tools.py
 ```
 
-### Input files
-
-```text
-data/sensitivity/hydrology/config/hydrology_base_config.toml
+### Step 4 Input files
 
 The base configuration provides the default Virtual Ecosystem model settings.
 Only the sampled parameters are overridden for each simulation.
+
+```text
+data/sensitivity/hydrology/config/hydrology_base_config.toml
 ```
-### Output
+
+### Step 4 Output
 
 ```text
 data/sensitivity/hydrology/config/job_config_sobol.toml
@@ -376,7 +377,7 @@ with a unique set of sampled parameter values.
 
 ---
 
-## Step 5. Execute Virtual Ecosystem simulations *(planned)*
+## Step 5: Execute Virtual Ecosystem simulations *(planned)*
 
 This stage is **currently under development** and has **not yet been
 implemented**. Once the sensitivity sampling workflow is complete, the
@@ -398,7 +399,7 @@ Each `[[jobs]]` entry represents one simulation with a unique parameter set.
 
 ---
 
-## Step 6. Post-processing sensitivity analysis(planned)
+## Step 6: Post-processing sensitivity analysis *(planned)*
 
 This stage has **not yet been implemented** and represents the next phase of
 the sensitivity analysis pipeline.
@@ -424,7 +425,7 @@ Iwanaga et al., 2022).
 
 ---
 
-# Recommended Strategy
+## Recommended Strategy
 
 For the Virtual Ecosystem, a staged sensitivity analysis strategy is
 recommended.
@@ -452,7 +453,7 @@ al., 2006; Wang & Solomatine, 2019; Pianosi et al., 2016).
 
 ---
 
-# SALib
+## SALib
 
 The Virtual Ecosystem sensitivity analysis workflow is implemented using
 **SALib**, an open-source Python library for global sensitivity analysis
@@ -474,29 +475,34 @@ SALib is expected to become a core project dependency managed using the
 project's `uv` environment, ensuring consistent package versions across local
 development, continuous integration and HPC system.
 
-## SALib documentation
+### SALib Documentation
 
-Official documentation:
+Official documentation: [SALib Documentation](https://salib.readthedocs.io/)
 
-https://salib.readthedocs.io/
-
-GitHub repository:
-
-https://github.com/SALib/SALib
+GitHub repository: [SALib GitHub](https://github.com/SALib/SALib)
 
 ---
 
-# References
+## References
 
-- Herman, J., & Usher, W. (2017). *SALib: An open-source Python library for sensitivity analysis.* Journal of Open Source Software, 2(9), 97.
+- Herman, J., & Usher, W. (2017). *SALib: An open-source Python library for
+  sensitivity analysis.* Journal of Open Source Software, 2(9), 97.
 
-- Iwanaga, T., Usher, W., & Herman, J. (2022). *Toward SALib 2.0: Advancing the accessibility and interpretability of global sensitivity analyses.* Socio-Environmental Systems Modelling, 4, 18155.
+- Iwanaga, T., Usher, W., & Herman, J. (2022). *Toward SALib 2.0: Advancing the
+  accessibility and interpretability of global sensitivity analyses.*
+  Socio-Environmental Systems Modelling, 4, 18155.
 
-- Morris, M. D. (1991). *Factorial sampling plans for preliminary computational experiments.* Technometrics, 33(2), 161–174.
+- Morris, M. D. (1991). *Factorial sampling plans for preliminary computational
+  experiments.* Technometrics, 33(2), 161–174.
 
-- Pianosi, F., Beven, K., Freer, J., Hall, J. W., Rougier, J., Stephenson, D. B., & Wagener, T. (2016). *Sensitivity analysis of environmental models: A systematic review with practical workflow.* Environmental Modelling & Software, 79, 214–232.
+- Pianosi, F., Beven, K., Freer, J., Hall, J. W., Rougier, J., Stephenson, D.
+  B., & Wagener, T. (2016). *Sensitivity analysis of environmental models: A
+  systematic review with practical workflow.* Environmental Modelling & Software,
+  79, 214–232.
 
-- Saltelli, A., Tarantola, S., Campolongo, F., & Ratto, M. (2004). *Sensitivity Analysis in Practice: A Guide to Assessing Scientific Models.* John Wiley & Sons.
+- Saltelli, A., Tarantola, S., Campolongo, F., & Ratto, M. (2004). *Sensitivity
+  Analysis in Practice: A Guide to Assessing Scientific Models.* John Wiley &
+  Sons.
 
 - Sobol, I. M. (2001). *Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates.* Mathematics and Computers in Simulation, 55(1–3), 271–280.
 
