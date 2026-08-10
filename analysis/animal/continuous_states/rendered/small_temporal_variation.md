@@ -1,6 +1,6 @@
 # Empty forest? We need a scenario with persistent animal populations over the simulation period
 Lai, Hao Ran
-2026-07-08
+2026-08-10
 
 <!-- markdownlint-disable MD013 MD031 MD055-->
 
@@ -11,7 +11,8 @@ library(here)
 library(knitr)
 library(reticulate)
 use_virtualenv(here(".venv"), required = TRUE)
-source(here("tools/R/tidy_continuous_data.R"))
+source(here("tools/R/R/tidy_continuous_data.R"))
+source(here("tools/R/R/get_ve_variables.R"))
 ```
 
 ## Preamble
@@ -33,35 +34,41 @@ least for the purpose of sensitivity analyses.
 I ran the full `maliau_2` scenario available from Globus:
 
 ``` bash
-uv run \
-  --group dev ve_run data/scenarios/maliau/maliau_2/config \
+uv run --group dev-pinned \
+  ve_run data/scenarios/maliau/maliau_2/config/abiotic_simple_config.toml \
+  data/scenarios/maliau/maliau_2/config/animal_config.toml \
+  data/scenarios/maliau/maliau_2/config/data_config.toml \
+  data/scenarios/maliau/maliau_2/config/hydrology_config.toml \
+  data/scenarios/maliau/maliau_2/config/litter_config.toml \
+  data/scenarios/maliau/maliau_2/config/plant_config.toml \
+  data/scenarios/maliau/maliau_2/config/soil_config.toml \
   --out data/scenarios/maliau/maliau_2/out \
-  --log data/scenarios/maliau/maliau_2/out/logfile.txt
+  --log data/scenarios/maliau/maliau_2/out/logfile.log
 ```
 
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
 - The animal functional group is from the file
-  `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level1.csv`,
+  `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv`,
   which looks like:
 
 <table>
 <colgroup>
-<col style="width: 8%" />
-<col style="width: 2%" />
-<col style="width: 13%" />
-<col style="width: 5%" />
-<col style="width: 8%" />
-<col style="width: 6%" />
-<col style="width: 5%" />
-<col style="width: 6%" />
-<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 3%" />
+<col style="width: 17%" />
+<col style="width: 4%" />
+<col style="width: 7%" />
 <col style="width: 5%" />
 <col style="width: 5%" />
-<col style="width: 6%" />
+<col style="width: 5%" />
+<col style="width: 11%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 5%" />
 <col style="width: 3%" />
 <col style="width: 3%" />
-<col style="width: 8%" />
+<col style="width: 6%" />
 </colgroup>
 <thead>
 <tr>
@@ -84,10 +91,147 @@ uv run \
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Herbivorous_endotherms</td>
+<td style="text-align: left;">Carnivorous_arboreal_endotherms</td>
+<td style="text-align: left;">bird</td>
+<td style="text-align: left;">vertebrates</td>
+<td style="text-align: left;">endothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Carnivorous_arboreal_endotherms</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">canopy</td>
+<td style="text-align: right;">3.32e-02</td>
+<td style="text-align: right;">5.550e-01</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Herbivorous_arboreal_endotherms</td>
+<td style="text-align: left;">bird</td>
+<td style="text-align: left;">fruit_nectar</td>
+<td style="text-align: left;">endothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Herbivorous_arboreal_endotherms</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">canopy</td>
+<td style="text-align: right;">1.16e-03</td>
+<td style="text-align: right;">7.000e-03</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Omnivorous_endotherms</td>
+<td style="text-align: left;">bird</td>
+<td style="text-align: left;">fruit_invertebrates_seeds_foliage</td>
+<td style="text-align: left;">endothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Omnivorous_endotherms</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">8.80e-02</td>
+<td style="text-align: right;">1.960e+00</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Detritivorous_soil_earthworms</td>
+<td style="text-align: left;">invertebrate</td>
+<td style="text-align: left;">detritus_fungi_pom_bacteria</td>
+<td style="text-align: left;">ectothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Detritivorous_soil_earthworms</td>
+<td style="text-align: left;">ureotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">soil</td>
+<td style="text-align: right;">5.70e-06</td>
+<td style="text-align: right;">1.237e-03</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wood_bark_feeding_ground_mammals</td>
+<td style="text-align: left;">mammal</td>
+<td style="text-align: left;">wood_foliage_fruit_seeds</td>
+<td style="text-align: left;">endothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Wood_bark_feeding_ground_mammals</td>
+<td style="text-align: left;">ureotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">3.67e-01</td>
+<td style="text-align: right;">1.091e+01</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Herbivorous_terrestrial_invertebrates</td>
+<td style="text-align: left;">invertebrate</td>
+<td style="text-align: left;">detritus_fungi_algae</td>
+<td style="text-align: left;">ectothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Herbivorous_terrestrial_invertebrates</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">4.00e-05</td>
+<td style="text-align: right;">1.500e-02</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Omnivorous_ground_reptile</td>
+<td style="text-align: left;">reptile</td>
+<td
+style="text-align: left;">foliage_mushrooms_fruit_flowers_invertebrates_vertebrates</td>
+<td style="text-align: left;">ectothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Omnivorous_ground_reptile</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">5.25e-02</td>
+<td style="text-align: right;">1.300e+01</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Omnivorous_arboreal_endotherms</td>
 <td style="text-align: left;">mammal</td>
 <td
-style="text-align: left;">wood_seeds_fruit_foliage_flowers_fungi</td>
+style="text-align: left;">foliage_invertebrates_fruit_flowers_seeds</td>
+<td style="text-align: left;">endothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Omnivorous_arboreal_endotherms</td>
+<td style="text-align: left;">ureotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">canopy</td>
+<td style="text-align: right;">4.00e-01</td>
+<td style="text-align: right;">3.992e+00</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Herbivorous_endotherms</td>
+<td style="text-align: left;">mammal</td>
+<td style="text-align: left;">foliage_fungi_fruit_flowers_seeds</td>
 <td style="text-align: left;">endothermic</td>
 <td style="text-align: left;">terrestrial</td>
 <td style="text-align: left;">iteroparous</td>
@@ -97,15 +241,101 @@ style="text-align: left;">wood_seeds_fruit_foliage_flowers_fungi</td>
 <td style="text-align: left;">ureotelic</td>
 <td style="text-align: left;">none</td>
 <td style="text-align: left;">ground</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">2915</td>
+<td style="text-align: right;">1.06e-01</td>
+<td style="text-align: right;">2.000e+00</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Carnivorous_endotherms</td>
+<td style="text-align: left;">mammal</td>
+<td style="text-align: left;">vertebrates</td>
+<td style="text-align: left;">endothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Carnivorous_endotherms</td>
+<td style="text-align: left;">ureotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">1.50e-01</td>
+<td style="text-align: right;">2.050e+01</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Carnivorous_terrestrial_ectotherms</td>
+<td style="text-align: left;">reptile</td>
+<td
+style="text-align: left;">invertebrates_fish_carcasses_vertebrates</td>
+<td style="text-align: left;">ectothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Carnivorous_terrestrial_ectotherms</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">4.00e-02</td>
+<td style="text-align: right;">3.000e+01</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Carnivorous_arboreal_ectotherms</td>
+<td style="text-align: left;">reptile</td>
+<td style="text-align: left;">invertebrates</td>
+<td style="text-align: left;">ectothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Carnivorous_arboreal_ectotherms</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">canopy</td>
+<td style="text-align: right;">2.11e-03</td>
+<td style="text-align: right;">4.870e-02</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Blood_feeding_ectoparasites</td>
+<td style="text-align: left;">invertebrate</td>
+<td style="text-align: left;">blood</td>
+<td style="text-align: left;">ectothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Blood_feeding_ectoparasites</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">ground</td>
+<td style="text-align: right;">0.00e+00</td>
+<td style="text-align: right;">1.800e-06</td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Herbivorous_arboreal_invertebrates</td>
+<td style="text-align: left;">invertebrate</td>
+<td style="text-align: left;">foliage</td>
+<td style="text-align: left;">ectothermic</td>
+<td style="text-align: left;">terrestrial</td>
+<td style="text-align: left;">iteroparous</td>
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">adult</td>
+<td style="text-align: left;">Herbivorous_arboreal_invertebrates</td>
+<td style="text-align: left;">uricotelic</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">canopy</td>
+<td style="text-align: right;">1.00e-07</td>
+<td style="text-align: right;">9.850e-04</td>
 <td style="text-align: left;">None</td>
 </tr>
 </tbody>
 </table>
 
-- VE version: v0.2.0 (dev version; commit
-  [c329eda](https://github.com/ImperialCollegeLondon/virtual_ecosystem.git/commit/c329edaecc5ef62382654033cd873989efe51a9d))
+- VE version: v0.2.1 (dev-pinned; commit
+  [0f67349](https://github.com/ImperialCollegeLondon/virtual_ecosystem/commit/0f673499b4af7d8f19d7c3990a77ae903f0b1f7f))
 - OS: Windows 11
 
 ## Animal continuous state variables
@@ -128,10 +358,10 @@ animal_vars <- c(
   "animal_saprotrophic_fungi_consumption",
   "total_animal_respiration"
 )
-animal_cont <- tidy_continuous_data(
-  here("data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"),
-  variables = animal_vars
-)
+
+ve_output_path <- here("data/scenarios/maliau/maliau_2/out/model_data.zarr")
+
+animal_cont <- tidy_continuous_data(ve_output_path, variables = animal_vars)
 ```
 
 First I saw that the range of these state variables are very small. Are
@@ -145,14 +375,14 @@ animal_cont |>
 ```
 
     # A tibble: 6 × 3
-      variable                                       min      max
-      <chr>                                        <dbl>    <dbl>
-    1 animal_arbuscular_mycorrhiza_consumption -2.36e-20 2.36e-20
-    2 animal_bacteria_consumption              -1.17e-16 2.33e-16
-    3 animal_ectomycorrhiza_consumption        -1.38e-17 1.38e-17
-    4 animal_pom_consumption_cnp               -3.45e-17 3.55e-17
-    5 animal_saprotrophic_fungi_consumption    -1.53e-17 2.24e-17
-    6 total_animal_respiration                  0        0
+      variable                                       min         max
+      <chr>                                        <dbl>       <dbl>
+    1 animal_arbuscular_mycorrhiza_consumption -8.09e-22 0.000000784
+    2 animal_bacteria_consumption              -7.30e-18 0.00596    
+    3 animal_ectomycorrhiza_consumption        -1.05e-19 0.000398   
+    4 animal_pom_consumption_cnp               -1.17e-16 0.00881    
+    5 animal_saprotrophic_fungi_consumption    -2.92e-17 0.00119    
+    6 total_animal_respiration                  0        0          
 
 Here’s how the variables looked over simulation time steps:
 
@@ -176,7 +406,7 @@ max_cohort_time <- max(animal_cohort$time_index) + 1
 ```
 
 Before proceeding, I checked the animal cohort data and saw that all
-cohorts persisted until the final time step 86.
+cohorts persisted until the final time step 132.
 
 ## Resource continuous state variables
 
@@ -192,10 +422,7 @@ resource_vars <- c(
   "soil_cnp_pool_pom"
 )
 
-resource_cont <- tidy_continuous_data(
-  here("data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"),
-  variables = resource_vars
-)
+resource_cont <- tidy_continuous_data(ve_output_path, variables = resource_vars)
 
 resource_cont |>
   unite("variable2", variable, element, na.rm = TRUE) |>
@@ -233,7 +460,7 @@ trophic_analysis$group_and_aggregate()
 ```
 
     Grouping by ['time_index', 'resource_kind'] and summing C...
-     Successfully grouped 86 rows
+     Successfully grouped 224 rows
 
 ``` r
 # plot
@@ -253,7 +480,7 @@ id="fig-resource-interactions" />
 A few follow-up questions upon seeing the temporal graphs:
 
 - Why do we still see non-zero values in some variables long after all
-  animals have gone extinct since time step 86?
+  animals have gone extinct since time step 132?
 - Presumably these variables are positive only; what do the negative
   values mean? The way they fluctuate almost symmetrically around zero
   makes me suspect that the non-zero values are not true non-zeros but

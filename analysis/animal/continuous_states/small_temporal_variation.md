@@ -1,11 +1,12 @@
 ---
 jupyter:
   jupytext:
+    cell_metadata_filter: all,-trusted
+    notebook_metadata_filter: settings,mystnb,language_info,ve_data_science,-jupytext.text_representation.jupytext_version
     text_representation:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.19.3
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -33,7 +34,8 @@ library(here)
 library(knitr)
 library(reticulate)
 use_virtualenv(here(".venv"), required = TRUE)
-source(here("tools/R/tidy_continuous_data.R"))
+source(here("tools/R/R/tidy_continuous_data.R"))
+source(here("tools/R/R/get_ve_variables.R"))
 ```
 
 ## Preamble
@@ -47,43 +49,91 @@ At the end of this report, I explain why we might want to design a scenario wher
 I ran the full `maliau_2` scenario available from Globus:
 
 ```bash
-uv run \
-  --group dev ve_run data/scenarios/maliau/maliau_2/config \
+uv run --group dev-pinned \
+  ve_run data/scenarios/maliau/maliau_2/config/abiotic_simple_config.toml \
+  data/scenarios/maliau/maliau_2/config/animal_config.toml \
+  data/scenarios/maliau/maliau_2/config/data_config.toml \
+  data/scenarios/maliau/maliau_2/config/hydrology_config.toml \
+  data/scenarios/maliau/maliau_2/config/litter_config.toml \
+  data/scenarios/maliau/maliau_2/config/plant_config.toml \
+  data/scenarios/maliau/maliau_2/config/soil_config.toml \
   --out data/scenarios/maliau/maliau_2/out \
-  --log data/scenarios/maliau/maliau_2/out/logfile.txt
+  --log data/scenarios/maliau/maliau_2/out/logfile.log
 ```
 
 - config in `data/scenarios/maliau/maliau_2/config`
 - data in `data/scenarios/maliau/maliau_2/data`
-- The animal functional group is from the file `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level1.csv`, which looks like:
+- The animal functional group is from the file `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv`, which looks like:
 
-|name                   |taxa   |diet                                   |metabolic_type |reproductive_environment |reproductive_type |development_type |development_status |offspring_functional_group |excretion_type |migration_type |vertical_occupancy | birth_mass| adult_mass|density_individuals_m2 |
-|:----------------------|:------|:--------------------------------------|:--------------|:------------------------|:-----------------|:----------------|:------------------|:--------------------------|:--------------|:--------------|:------------------|----------:|----------:|:----------------------|
-|Herbivorous_endotherms |mammal |wood_seeds_fruit_foliage_flowers_fungi |endothermic    |terrestrial              |iteroparous       |direct           |adult              |Herbivorous_endotherms     |ureotelic      |none           |ground             |        100|       2915|None
+```{r}
+#| label: animal-fg-table
+#| echo: false
+#| results: asis
+read_csv(
+  here(
+    "data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv"
+  ),
+  show_col_types = FALSE
+) |>
+  knitr::kable(format = "pipe")
+```
 
 ```{r}
 #| label: ve-version
 #| echo: false
 #| output: asis
-ve_dist_info <- c(
-  Sys.glob(here(".venv/Lib/site-packages/virtual_ecosystem-*.dist-info")), # Windows
-  Sys.glob(here(
-    ".venv/lib/python*/site-packages/virtual_ecosystem-*.dist-info"
-  )) # macOS/Linux
-)[1]
-direct_url <- file.path(ve_dist_info, "direct_url.json")
-if (file.exists(direct_url)) {
-  info <- jsonlite::fromJSON(direct_url)
-  commit <- info$vcs_info$commit_id
-  short <- substr(commit, 1, 7)
-  url <- paste0(info$url, "/commit/", commit)
-  cat(sprintf(
-    "- VE version: v0.2.0 (dev version; commit [%s](%s))\n",
-    short,
-    url
-  ))
+lock_path <- here("uv.lock")
+
+if (!file.exists(lock_path)) {
+  cat("- VE version: unknown (`uv.lock` not found)\n")
 } else {
-  cat("- VE version: v0.2.0 (PyPI release)\n")
+  lock_lines <- readLines(lock_path, warn = FALSE)
+
+  get_group_block <- function(group) {
+    start <- grep(paste0("^", group, " = \\["), lock_lines)[1]
+    if (is.na(start)) {
+      return(character())
+    }
+    end_rel <- which(lock_lines[(start + 1):length(lock_lines)] == "]")[1]
+    if (is.na(end_rel)) {
+      return(character())
+    }
+    lock_lines[(start + 1):(start + end_rel - 1)]
+  }
+
+  ve_entry <- get_group_block("dev-pinned")
+  ve_entry <- ve_entry[grepl('name = "virtual-ecosystem"', ve_entry)][1]
+
+  if (is.na(ve_entry)) {
+    ve_entry <- lock_lines[grepl(
+      'name = "virtual-ecosystem"',
+      lock_lines,
+      fixed = TRUE
+    )][1]
+  }
+
+  if (is.na(ve_entry)) {
+    cat("- VE version: unknown (no `virtual-ecosystem` entry in `uv.lock`)\n")
+  } else {
+    version <- sub('.*version = "([^"]+)".*', '\\1', ve_entry)
+    git_src <- sub('.*source = \\{ git = "([^"]+)" \\}.*', '\\1', ve_entry)
+
+    if (identical(git_src, ve_entry)) {
+      cat(sprintf("- VE version: v%s (PyPI release)\n", version))
+    } else {
+      commit <- sub(".*#", "", git_src)
+      short <- substr(commit, 1, 7)
+      repo <- sub("\\?.*", "", sub("#.*", "", git_src))
+      url <- paste0(sub("\\.git$", "", repo), "/commit/", commit)
+
+      cat(sprintf(
+        "- VE version: v%s (dev-pinned; commit [%s](%s))\n",
+        version,
+        short,
+        url
+      ))
+    }
+  }
 }
 ```
 - OS: Windows 11
@@ -109,10 +159,10 @@ animal_vars <- c(
   "animal_saprotrophic_fungi_consumption",
   "total_animal_respiration"
 )
-animal_cont <- tidy_continuous_data(
-  here("data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"),
-  variables = animal_vars
-)
+
+ve_output_path <- here("data/scenarios/maliau/maliau_2/out/model_data.zarr")
+
+animal_cont <- tidy_continuous_data(ve_output_path, variables = animal_vars)
 ```
 
 First I saw that the range of these state variables are very small. Are they truly very small, or are they numerical imprecisions that need to be clamped to zero?
@@ -160,10 +210,7 @@ resource_vars <- c(
   "soil_cnp_pool_pom"
 )
 
-resource_cont <- tidy_continuous_data(
-  here("data/scenarios/maliau/maliau_2/out/all_continuous_data.nc"),
-  variables = resource_vars
-)
+resource_cont <- tidy_continuous_data(ve_output_path, variables = resource_vars)
 
 resource_cont |>
   unite("variable2", variable, element, na.rm = TRUE) |>
@@ -175,7 +222,7 @@ resource_cont |>
 
 ## Trophic interactions
 
-In contrast, the resource consumption by all animals stay at zero without any numeric imprecision.
+In contrast, the resource consumption by all animals stay at zero without any numeric imprecision. 
 
 ```{r}
 #| label: fig-resource-interactions
