@@ -131,9 +131,9 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 *Reference anchor:* Harfoot et al. (2014), Figure 3A.
 
-*Validation approach:* Compare emergent growth-rate scaling against observed growth data for vertebrates and fish.
+*Validation approach:* Compare emergent growth-rate scaling against observed growth data for terrestrial vertebrates and invertebrates.
 
-*Datasets needed:* Growth datasets for reptiles, mammals, birds, and fish from Case (1978), Ricklefs (1968, 1973), and related compiled sources [46–48]. Where growth rates were derived from body length, use the length-mass conversions cited by Harfoot et al. [58–61].
+*Datasets needed:* Growth datasets for reptiles, mammals, birds, and terrestrial invertebrates from Case (1978), Ricklefs (1968, 1973), and related compiled sources [46–48]. Where growth rates were derived from body length, use the length-mass conversions cited by Harfoot et al. [58–61].
 
 ### 3.2 Body mass versus time to maturity
 
@@ -145,7 +145,7 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 *Validation approach:* Compare modelled age at maturity against published maturation datasets and check that larger-bodied cohorts mature later.
 
-*Datasets needed:* Maturation and life-history datasets for invertebrates, reptiles, mammals, birds, and fish [49–57], with length-mass conversions where necessary [58–61].
+*Datasets needed:* Maturation and life-history datasets for invertebrates, reptiles, mammals, and birds [49–53,57], with length-mass conversions where necessary [58–60].
 
 ### 3.3 Body mass versus mortality rate
 
@@ -157,7 +157,7 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 *Validation approach:* Compare estimated mortality scaling against published natural mortality datasets and inspect whether the model reproduces the observed decline in mortality with increasing body mass.
 
-*Datasets needed:* Natural mortality datasets for invertebrates, mammals, birds, and fish from McCoy and Gillooly (2008) [62].
+*Datasets needed:* Natural mortality datasets for invertebrates, mammals, and birds from terrestrial mortality compilations and trait syntheses.
 
 ### 3.4 Body mass versus lifetime reproductive success
 
@@ -181,7 +181,7 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 *Validation approach:* Compare density-body-mass slopes and biomass density of large herbivores against observed community assemblages.
 
-*Datasets needed:* Biomass and abundance estimates for large African herbivores in Uganda [72], global herbivore-to-producer biomass summaries [73], and fish assemblage abundance-density datasets [74,75].
+*Datasets needed:* Biomass and abundance estimates for large African herbivores in Uganda [72], terrestrial herbivore-to-producer biomass summaries [73], and terrestrial assemblage abundance-density datasets.
 
 ### 3.6 Biomass pyramids and herbivore:producer ratios
 
@@ -191,9 +191,9 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 *Reference anchor:* Harfoot et al. (2014), Figure 4A and 4C, Tables S3 and S5.
 
-*Validation approach:* Compare terrestrial biomass pyramids, marine inverted pyramids, and herbivore-to-producer biomass ratios against geographically located ecosystem summaries.
+*Validation approach:* Compare terrestrial biomass pyramids and herbivore-to-producer biomass ratios against geographically located terrestrial ecosystem summaries.
 
-*Datasets needed:* The Cebrian et al. global ecosystem structure dataset with 14 geographically located sites [73], plus the terrestrial benchmark summaries used for Table S5 [80].
+*Datasets needed:* Terrestrial subsets of the Cebrian et al. global ecosystem structure dataset [73], plus the terrestrial benchmark summaries used for Table S5 [80].
 
 ### 3.7 Trophic structure along productivity gradients
 
@@ -203,9 +203,9 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 *Reference anchor:* Harfoot et al. (2014), Figure 6 and Figure S6.
 
-*Validation approach:* Compare modelled changes in trophic structure along marine and terrestrial productivity gradients against empirical community trophic-structure datasets.
+*Validation approach:* Compare modelled changes in trophic structure along terrestrial productivity gradients against empirical terrestrial community trophic-structure datasets.
 
-*Datasets needed:* Productivity-gradient datasets from freshwater, intertidal, and reef fish communities [99–103], together with observed NPP as the basal resource proxy [97].
+*Datasets needed:* Productivity-gradient datasets from terrestrial forest, woodland, and grassland communities, together with observed NPP as the basal resource proxy [97].
 
 ### 3.8 Global biomass patterns and latitudinal structure
 
@@ -217,7 +217,7 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 *Validation approach:* Compare global heterotroph biomass density, herbivore:autotroph ratios, and latitudinal variation in biomass density against broad empirical and prior-model estimates.
 
-*Datasets needed:* Global trophic-structure summaries from Cebrian et al. [73], global NPP data [97], prior global biomass estimates [76,88–90], and empirical mesopelagic fish biomass from Irigoien et al. [90].
+*Datasets needed:* Global terrestrial trophic-structure summaries from Cebrian et al. [73], global terrestrial NPP data [97], and prior terrestrial biomass estimates from terrestrial macroecological compilations.
 
 ## 4. Target summary table
 
@@ -238,14 +238,14 @@ Bracketed numbers in this section refer to the numbered source references used b
 | 2.7 | Site-specific | Aggregated consumption partitions and assimilation-flow consistency | Emergent | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus | animal_trophic_interactions.csv, output.zarr | Compare derived habitat- or guild-level consumption partitions, intake totals, and assimilation-flow consistency against energetics and intake-partitioning studies; use AnimalGroup_Habitat when matching Malhi food-group tables | Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables | TBD site dataset |
 | 2.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare habitat-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates | Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables | TBD site dataset |
 | 2.9 | Site-specific | Space-use and territory-use realism | Emergent | occupancy_proportion, territory_size, centroid_key, territory, location_status, individuals, functional_group, time_index | animal_cohort_data.csv | Compare occupancy and territory-use distributions, persistence, and movement signatures against home-range and telemetry evidence | Home-range studies, telemetry datasets, territory-use summaries, movement ecology datasets | TBD site dataset |
-| 3.1 | Global | Growth rate versus body mass | Emergent | cohort_id, time_index, age, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved | animal_cohort_data.csv | Compare emergent growth-rate scaling with vertebrate and fish growth datasets | Growth datasets for reptiles, mammals, birds, and fish; length-mass conversions where needed | Case (1978), Ricklefs (1968, 1973), Harfoot et al. (2014) |
-| 3.2 | Global | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, is_mature | animal_cohort_data.csv | Compare modelled age at maturity against compiled maturation datasets | Maturation and life-history datasets for invertebrates, reptiles, mammals, birds, and fish; length-mass conversions where needed | Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Morgan and Colbourne (1999), Policansky (1983), Stibor (1992), Blakley and Goodner (1978), Harfoot et al. (2014) |
-| 3.3 | Global | Mortality versus body mass | Emergent | cohort_id, time_index, is_alive, individuals | animal_cohort_data.csv | Compare mortality scaling with natural mortality datasets | Natural mortality datasets for invertebrates, mammals, birds, and fish | McCoy and Gillooly (2008), Harfoot et al. (2014) |
+| 3.1 | Global | Growth rate versus body mass | Emergent | cohort_id, time_index, age, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved | animal_cohort_data.csv | Compare emergent growth-rate scaling with terrestrial vertebrate and invertebrate growth datasets | Growth datasets for reptiles, mammals, birds, and terrestrial invertebrates; length-mass conversions where needed | Case (1978), Ricklefs (1968, 1973), Harfoot et al. (2014) |
+| 3.2 | Global | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, is_mature | animal_cohort_data.csv | Compare modelled age at maturity against compiled maturation datasets | Maturation and life-history datasets for invertebrates, reptiles, mammals, and birds; length-mass conversions where needed | Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Blakley and Goodner (1978), Harfoot et al. (2014) |
+| 3.3 | Global | Mortality versus body mass | Emergent | cohort_id, time_index, is_alive, individuals | animal_cohort_data.csv | Compare mortality scaling with natural mortality datasets | Natural mortality datasets for invertebrates, mammals, and birds | Harfoot et al. (2014) |
 | 3.4 | Global | Lifetime reproductive success versus body mass | Emergent | cohort_id, time_index, is_mature, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare reproductive success scaling with mammal, bird, and insect datasets | Mammal, bird, and insect reproductive success datasets | Jones et al. (2009), Clutton-Brock (1988), Fedigan et al. (1986), Holland and Yalden (1994), Krüger and Lindström (2001), Merila and Sheldon (2000), Newton (1989), Oring et al. (1991), Schubert et al. (2007), Harfoot et al. (2014) |
-| 3.5 | Global | Biomass density and abundance-density scaling | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare community biomass and density scaling with herbivore and fish assemblage datasets | Biomass and abundance estimates for large African herbivores in Uganda; global herbivore-to-producer biomass summaries; fish assemblage abundance-density datasets | Coe (1976), Jennings et al. (2007), Macpherson and Gordoa (1996), Harfoot et al. (2014) |
-| 3.6 | Global | Biomass pyramids and herbivore:producer ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus, individuals, functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare trophic pyramids and herbivore:producer ratios with cross-site ecosystem summaries | Global ecosystem structure dataset from Cebrian et al. plus terrestrial benchmark summaries | Cebrian et al. (2009), Begon et al. (2006), Harfoot et al. (2014) |
-| 3.7 | Global | Trophic structure along productivity gradients | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size, canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake | output.zarr, animal_cohort_data.csv | Compare gradient patterns with freshwater, intertidal, and reef fish community datasets | Productivity-gradient datasets from freshwater, intertidal, and reef fish communities; observed productivity proxies | Field (1998), Jeppesen et al. (2000), Chase (2003), Vander Zanden and Fetzer (2007), Bustamante et al. (1995), Ferreira et al. (2004), Harfoot et al. (2014) |
-| 3.8 | Global | Global biomass patterns and latitudinal structure | Emergent | x, y, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare global biomass and latitudinal structure with empirical and prior-model estimates | Global trophic-structure summaries, global productivity proxies, prior global biomass estimates, empirical mesopelagic fish biomass | Cebrian et al. (2009), Field (1998), Jennings et al. (2008), Wilson et al. (2009), Tremblay-Boyer et al. (2011), Irigoien et al. (2014), Harfoot et al. (2014) |
+| 3.5 | Global | Biomass density and abundance-density scaling | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare community biomass and density scaling with terrestrial herbivore assemblage datasets | Biomass and abundance estimates for large African herbivores in Uganda; terrestrial herbivore-to-producer biomass summaries; terrestrial assemblage abundance-density datasets | Coe (1976), Harfoot et al. (2014) |
+| 3.6 | Global | Biomass pyramids and herbivore:producer ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus, individuals, functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare terrestrial trophic pyramids and herbivore:producer ratios with cross-site terrestrial ecosystem summaries | Terrestrial subsets of the global ecosystem structure dataset from Cebrian et al. plus terrestrial benchmark summaries | Cebrian et al. (2009), Begon et al. (2006), Harfoot et al. (2014) |
+| 3.7 | Global | Trophic structure along productivity gradients | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size, canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake | output.zarr, animal_cohort_data.csv | Compare gradient patterns with terrestrial community datasets along terrestrial productivity gradients | Productivity-gradient datasets from terrestrial forest, woodland, and grassland communities; observed terrestrial productivity proxies | Field (1998), Chase (2003), Harfoot et al. (2014) |
+| 3.8 | Global | Global biomass patterns and latitudinal structure | Emergent | x, y, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare terrestrial biomass and latitudinal structure with empirical and prior-model estimates | Global terrestrial trophic-structure summaries, terrestrial productivity proxies, prior terrestrial biomass estimates | Cebrian et al. (2009), Field (1998), Harfoot et al. (2014) |
 
 ## 5. Data-source mapping deliverable
 
