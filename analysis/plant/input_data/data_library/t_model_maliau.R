@@ -60,280 +60,300 @@
 #|         units: dimensionless
 #|         description: |
 #|           Human-readable plant functional type name.
-#|         citation: ""
-#|         doi: ""
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: "2011-2020"
+#|         references:
+#|           - citation: ""
+#|             doi: ""
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2020"
 #|         assumptions: "PFT names are inherited from pfts_maliau and used to aggregate parameter estimates."
 #|       - name: h_max
 #|         type: numeric
 #|         units: m
 #|         description: |
 #|           Maximum canopy height parameter for the T model.
-#|         citation: ""
-#|         doi: "10.5281/zenodo.14882506"
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: "2011-2020"
+#|         references:
+#|           - citation: ""
+#|             doi: "10.5281/zenodo.14882506"
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2020"
 #|         assumptions: "Estimated by fitting the asymptotic height-diameter model to SAFE census trees within each PFT."
 #|       - name: a_hd
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Initial slope parameter of the height–diameter relationship.
-#|         citation: ""
-#|         doi: "10.5281/zenodo.14882506"
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: "2011-2020"
+#|         references:
+#|           - citation: ""
+#|             doi: "10.5281/zenodo.14882506"
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2020"
 #|         assumptions: "Estimated jointly with h_max from the fitted asymptotic height-diameter model for each PFT."
 #|       - name: ca_ratio
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Initial ratio of crown area to stem cross-sectional area.
-#|         citation: ""
-#|         doi: "10.5281/zenodo.14882506"
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: "2011-2020"
+#|         references:
+#|           - citation: ""
+#|             doi: "10.5281/zenodo.14882506"
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2020"
 #|         assumptions: "Derived by fitting crown projected area relationships using SAFE census crown and stem measurements within each PFT."
 #|       - name: rho_s
 #|         type: numeric
 #|         units: kg C m-3
 #|         description: |
 #|           Sapwood density expressed as carbon mass per unit volume.
-#|         citation: ""
-#|         doi: "10.5281/zenodo.3247631; 10.5281/zenodo.8158811"
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: "2011-2020"
+#|         references:
+#|           - citation: ""
+#|             doi: "10.5281/zenodo.3247631; 10.5281/zenodo.8158811"
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2020"
 #|         assumptions: "Derived from wood density values converted to carbon density using mean sapwood carbon content from the wood nutrient dataset."
 #|       - name: sla
 #|         type: numeric
 #|         units: m2 kg-1 C
 #|         description: |
 #|           Specific leaf area expressed per unit carbon mass.
-#|         citation: ""
-#|         doi: "10.5281/zenodo.3247631"
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: "2011-2020"
+#|         references:
+#|           - citation: ""
+#|             doi: "10.5281/zenodo.3247631"
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2020"
 #|         assumptions: "Calculated from leaf trait measurements and converted to a carbon-mass basis before averaging by PFT."
 #|       - name: lai
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Leaf area index.
-#|         citation: "Pfeifer et al. 2016"
-#|         doi: ""
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: ""
+#|         references:
+#|           - citation: "Pfeifer et al. 2016"
+#|             doi: ""
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: ""
 #|         assumptions: "Applied as a single constant across PFTs rather than estimated separately by PFT."
 #|       - name: par_ext
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Light extinction coefficient for photosynthetically active radiation.
-#|         citation: "White et al. 2000"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: ""
-#|         vegetation_type: "rain forest"
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "White et al. 2000"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: "rain forest"
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Used as a literature constant rather than derived from the workflow input data."
 #|       - name: tau_f
 #|         type: numeric
 #|         units: years
 #|         description: |
 #|           Leaf turnover time.
-#|         citation: "Anderson et al. 1983"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: "tropical"
-#|         vegetation_type: "dipterocarp forest"
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Anderson et al. 1983"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Derived as the inverse of reported annual leaf turnover and applied uniformly across PFTs."
 #|       - name: tau_rt
 #|         type: numeric
 #|         units: years
 #|         description: |
 #|           Reproductive tissue turnover time.
-#|         citation: "Anderson et al. 1983"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: "tropical"
-#|         vegetation_type: "dipterocarp forest"
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Anderson et al. 1983"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Derived as the inverse of reported annual reproductive-organ turnover and applied uniformly across PFTs."
 #|       - name: tau_r
 #|         type: numeric
 #|         units: years
 #|         description: |
 #|           Fine root turnover time.
-#|         citation: "Huaraca Huasco et al. 2021"
-#|         doi: ""
-#|         url: ""
-#|         origin: "Danum and Maliau, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Huaraca Huasco et al. 2021"
+#|             doi: ""
+#|             url: ""
+#|             origin: "Danum and Maliau, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Calculated as the mean root residence time across four plots and applied uniformly across PFTs."
 #|       - name: resp_r
 #|         type: numeric
 #|         units: year-1
 #|         description: |
 #|           Fine root maintenance respiration rate.
-#|         citation: "Yan and Zhao 2007"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: "tropical"
-#|         vegetation_type: "tropical rain forest tree"
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Yan and Zhao 2007"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: "tropical"
+#|             vegetation_type: "tropical rain forest tree"
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Converted from a daily literature respiration value to an annual rate and applied uniformly across PFTs."
 #|       - name: resp_f
 #|         type: numeric
 #|         units: year-1
 #|         description: |
 #|           Leaf maintenance respiration rate.
-#|         citation: "Yan and Zhao 2007"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: "tropical"
-#|         vegetation_type: "tropical rain forest tree"
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Yan and Zhao 2007"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: "tropical"
+#|             vegetation_type: "tropical rain forest tree"
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Converted from a daily literature respiration value to an annual rate and applied uniformly across PFTs."
 #|       - name: resp_s
 #|         type: numeric
 #|         units: year-1
 #|         description: |
 #|           Wood maintenance respiration rate.
-#|         citation: "Yan and Zhao 2007"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: "tropical"
-#|         vegetation_type: "tropical rain forest tree"
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Yan and Zhao 2007"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: "tropical"
+#|             vegetation_type: "tropical rain forest tree"
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Converted from a daily literature respiration value to an annual rate and applied uniformly across PFTs."
 #|       - name: resp_rt
 #|         type: numeric
 #|         units: year-1
 #|         description: |
 #|           Reproductive tissue respiration parameter.
-#|         citation: "Kinugasa et al. 2005"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: ""
-#|         vegetation_type: ""
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Kinugasa et al. 2005"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Set from the reported maintenance respiration share of reproductive tissue carbon allocation and treated as constant across PFTs."
 #|       - name: yld
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Yield factor used in the T model.
-#|         citation: "Yan and Zhao 2007"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: ""
-#|         vegetation_type: ""
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Yan and Zhao 2007"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Derived from the literature growth respiration coefficient using 1/(1+rg)."
 #|       - name: zeta
 #|         type: numeric
 #|         units: kg C m-2
 #|         description: |
 #|           Fine root carbon mass to foliage area ratio.
-#|         citation: "Niiyama et al. 2010; Imai et al. 2010"
-#|         doi: ""
-#|         url: ""
-#|         origin: "Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "dipterocarp forest"
-#|         site_condition: "old-growth and selectively logged"
-#|         date: ""
+#|         references:
+#|           - citation: "Niiyama et al. 2010; Imai et al. 2010"
+#|             doi: ""
+#|             url: ""
+#|             origin: "Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: ""
 #|         assumptions: "Derived using fine-root to foliage relationships from Niiyama combined with PFT-specific SLA and fine-root carbon content from Imai."
 #|       - name: root_exudates
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Root exudate carbon fraction parameter.
-#|         citation: "Aoki et al. 2013"
-#|         doi: "10.5281/zenodo.7307449"
-#|         url: ""
-#|         origin: "SAFE Project, Sabah, Malaysia"
-#|         biome: "tropical"
-#|         vegetation_type: "lowland tropical rain forest"
-#|         site_condition: "old-growth"
-#|         date: ""
+#|         references:
+#|           - citation: "Aoki et al. 2013"
+#|             doi: "10.5281/zenodo.7307449"
+#|             url: ""
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth"
+#|             date: ""
 #|         assumptions: "Estimated by converting a literature NPP fraction to a GPP fraction using old-growth SAFE carbon balance data."
 #|       - name: per_stem_annual_mortality_probability
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Annual probability of mortality per stem.
-#|         citation: "Newbery and Lingenfelder 2009"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: ""
-#|         vegetation_type: ""
-#|         site_condition: "non-drought year"
-#|         date: ""
+#|         references:
+#|           - citation: "Newbery and Lingenfelder 2009"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: "non-drought year"
+#|             date: ""
 #|         assumptions: "Applied uniformly across PFTs using a non-drought literature mortality estimate."
 #|       - name: per_propagule_annual_recruitment_probability
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
 #|           Annual probability of recruitment per propagule.
-#|         citation: "Howlett and Davidson 2003; Kennedy and Swaine 1992; Kuusipalo et al. 1996"
-#|         doi: ""
-#|         url: ""
-#|         origin: ""
-#|         biome: ""
-#|         vegetation_type: ""
-#|         site_condition: ""
-#|         date: ""
+#|         references:
+#|           - citation: "Howlett and Davidson 2003; Kennedy and Swaine 1992; Kuusipalo et al. 1996"
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Derived by combining a literature seed establishment probability with an annualised seedling survival correction."
 #|
 #| package_dependencies:
