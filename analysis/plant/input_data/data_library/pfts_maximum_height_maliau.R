@@ -2,12 +2,12 @@
 #| title: pfts_maximum_height_maliau
 #|
 #| description: |
-#|     This script assigns plant functional types (PFTs) to the remaining taxa
+#|     This script assigns plant functional types (pfts) to the remaining taxa
 #|     in the SAFE tree census dataset that were not assigned a PFT in
 #|     pfts_maliau. These remaining taxa are classified based on their maximum
-#|     height relative to the PFT maximum height values in the T model
-#|     parameters. The output of this script combines the base PFT
-#|     classification with the additional maximum-height-based assignments.
+#|     height relative to the pft maximum height.
+#|     The output of this script combines the base pft classification with the
+#|     additional maximum-height-based assignments.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants

@@ -2,12 +2,10 @@
 #| title: t_model_maliau
 #|
 #| description: |
-#|     This script updates the base values for the T model parameters to values
-#|     more closely aligned with the SAFE project and Maliau input-data workflow.
-#|     The script works with multiple datasets and calculates values for the
-#|     T model, ideally at PFT level. Taxa are linked to their PFT by using the
-#|     pfts_maliau output. Some additional traits that are part of the plant
-#|     constants are also included in the final output.
+#|     This script calculates values for the T model parameters for Maliau.
+#|     Taxa are linked to their PFT by using the pfts_maliau output.
+#|     Some additional traits that are part of the plant constants are also
+#|     included in the final output.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -52,39 +50,38 @@
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a summary of updated T model parameters for each
-#|       plant functional type used in the Maliau data library workflow.
+#|       A CSV file containing a summary of T model parameters for each pft.
 #|     variables:
-#|       - name: name
+#|       - name: pft_name
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Human-readable plant functional type name.
+#|           See "pfts_maliau".
 #|         references:
 #|           - citation: ""
 #|             doi: ""
 #|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
-#|             biome: "tropical"
-#|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
-#|         assumptions: "PFT names are inherited from pfts_maliau and used to aggregate parameter estimates."
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
+#|         assumptions: ""
 #|       - name: h_max
 #|         type: numeric
 #|         units: m
 #|         description: |
-#|           Maximum canopy height parameter for the T model.
+#|           Asymptotic maximum tree height.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.14882506"
-#|             url: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
-#|         assumptions: "Estimated by fitting the asymptotic height-diameter model to SAFE census trees within each PFT."
+#|             site_condition: "old-growth"
+#|             date: "2011"
+#|         assumptions: "Estimated by fitting the asymptotic height-diameter model to SAFE census trees within each PFT, using old-growth plots only."
 #|       - name: a_hd
 #|         type: numeric
 #|         units: dimensionless
@@ -385,12 +382,9 @@ tree_census_11_20 <- read_excel(
   col_names = FALSE
 )
 
-data <- tree_census_11_20
-
-max(nrow(data))
-colnames(data) <- data[10, ]
-data <- data[11:40511, ]
-names(data)
+colnames(tree_census_11_20) <- tree_census_11_20[10, ]
+tree_census_11_20 <- tree_census_11_20[11:max(nrow(tree_census_11_20)), ]
+names(tree_census_11_20)
 
 # Load PFT classification and clean up a bit
 
@@ -399,12 +393,15 @@ pfts_maliau <- read.csv(
   header = TRUE
 )
 
-pfts_maliau <- pfts_maliau[, c("PFT", "PFT_name", "TaxaName")]
-pfts_maliau <- unique(pfts_maliau)
+pfts_maliau <- pfts_maliau[, c("pft_name", "taxa_name")]
 
-# Add PFT and PFT_name to data based on TaxaName and call it data_taxa
+# Note that taxa_name in the original tree_census_11_20 is still called TaxaName
 
-data_taxa <- left_join(data, pfts_maliau, by = "TaxaName")
+names(tree_census_11_20)[names(tree_census_11_20) == "TaxaName"] <- "taxa_name"
+
+# Add pft_name to tree_census_11_20 based on taxa_name and call it data_taxa
+
+data_taxa <- left_join(tree_census_11_20, pfts_maliau, by = "taxa_name")
 
 # Give plots a logging indicator
 
@@ -464,7 +461,6 @@ data_taxa <- data_taxa[
     ),
 ]
 
-
 ##########
 
 # From here, we start gathering T model parameters to replace/update the ones
@@ -478,10 +474,10 @@ plot_data <- data_taxa[, c(
   "PlotID",
   "logging",
   "TagStem_latest",
-  "PFT",
+  "pft_name",
   "Genus",
   "Species",
-  "TaxaName",
+  "taxa_name",
   "HeightTotal_m_2011",
   "DBH2011_mm_clean",
   "CanopyRadiusNorth_cm_2011",
@@ -517,7 +513,7 @@ plot_data$logging <- as.factor(plot_data$logging)
 # need to be included for stem distribution later on.
 
 plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
+unique(plot_data$pft_name)
 
 plot_data$crown_radius <- rowMeans(cbind(
   plot_data$CanopyRadiusNorth_cm_2011,
@@ -547,7 +543,7 @@ ggplot(
   aes(
     x = DBH2011_m,
     y = crown_projected_area,
-    color = factor(PFT)
+    color = factor(pft_name)
   )
 ) +
   geom_point() +
@@ -561,13 +557,16 @@ ggplot(
 # Fitting the asymptotic height-diameter model
 # Nonlinear model: H = Hm * (1 - exp(-a * D / Hm))
 
-# PFT 1
+# pft = emergent
 
-plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "1", ])
+plot(
+  HeightTotal_m_2011 ~ DBH2011_m,
+  data = plot_data[plot_data$pft_name == "emergent", ]
+)
 
 nls_model_1 <- nls(
   HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
-  data = plot_data[plot_data$PFT == "1", ],
+  data = plot_data[plot_data$pft_name == "emergent", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
 ) # Increase iterations if needed
@@ -578,7 +577,7 @@ Hm_1 <- coef_1["Hm"]
 a_1 <- coef_1["a"]
 
 ggplot(
-  plot_data[plot_data$PFT == "1", ],
+  plot_data[plot_data$pft_name == "emergent", ],
   aes(
     x = DBH2011_m,
     y = HeightTotal_m_2011,
@@ -596,7 +595,7 @@ ggplot(
   labs(
     x = "Diameter (m)",
     y = "Height (m)",
-    title = "Height-Diameter Relationship PFT1"
+    title = "Height-Diameter Relationship emergent pft"
   )
 
 data_taxa$Hm <- NA
@@ -604,20 +603,23 @@ data_taxa$Hm_SE <- NA
 data_taxa$a <- NA
 data_taxa$a_SE <- NA
 
-data_taxa$Hm[data_taxa$PFT == "1"] <- Hm_1
-data_taxa$a[data_taxa$PFT == "1"] <- a_1
-data_taxa$Hm_SE[data_taxa$PFT == "1"] <-
+data_taxa$Hm[data_taxa$pft_name == "emergent"] <- Hm_1
+data_taxa$a[data_taxa$pft_name == "emergent"] <- a_1
+data_taxa$Hm_SE[data_taxa$pft_name == "emergent"] <-
   round(summary(nls_model_1)$coefficients["Hm", "Std. Error"], 2)
-data_taxa$a_SE[data_taxa$PFT == "1"] <-
+data_taxa$a_SE[data_taxa$pft_name == "emergent"] <-
   round(summary(nls_model_1)$coefficients["a", "Std. Error"], 2)
 
-# PFT 2
+# pft = overstory
 
-plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "2", ])
+plot(
+  HeightTotal_m_2011 ~ DBH2011_m,
+  data = plot_data[plot_data$pft_name == "overstory", ]
+)
 
 nls_model_2 <- nls(
   HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
-  data = plot_data[plot_data$PFT == "2", ],
+  data = plot_data[plot_data$pft_name == "overstory", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
 ) # Increase iterations if needed
@@ -628,7 +630,7 @@ Hm_2 <- coef_2["Hm"]
 a_2 <- coef_2["a"]
 
 ggplot(
-  plot_data[plot_data$PFT == "2", ],
+  plot_data[plot_data$pft_name == "overstory", ],
   aes(x = DBH2011_m, y = HeightTotal_m_2011, color = logging)
 ) +
   geom_point() +
@@ -642,23 +644,26 @@ ggplot(
   labs(
     x = "Diameter (m)",
     y = "Height (m)",
-    title = "Height-Diameter Relationship PFT2"
+    title = "Height-Diameter Relationship overstory pft"
   )
 
-data_taxa$Hm[data_taxa$PFT == "2"] <- Hm_2
-data_taxa$a[data_taxa$PFT == "2"] <- a_2
-data_taxa$Hm_SE[data_taxa$PFT == "2"] <-
+data_taxa$Hm[data_taxa$pft_name == "overstory"] <- Hm_2
+data_taxa$a[data_taxa$pft_name == "overstory"] <- a_2
+data_taxa$Hm_SE[data_taxa$pft_name == "overstory"] <-
   round(summary(nls_model_2)$coefficients["Hm", "Std. Error"], 2)
-data_taxa$a_SE[data_taxa$PFT == "2"] <-
+data_taxa$a_SE[data_taxa$pft_name == "overstory"] <-
   round(summary(nls_model_2)$coefficients["a", "Std. Error"], 2)
 
-# PFT 3
+# pft = pioneer
 
-plot(HeightTotal_m_2011 ~ DBH2011_m, data = plot_data[plot_data$PFT == "3", ])
+plot(
+  HeightTotal_m_2011 ~ DBH2011_m,
+  data = plot_data[plot_data$pft_name == "pioneer", ]
+)
 
 nls_model_3 <- nls(
   HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
-  data = plot_data[plot_data$PFT == "3", ],
+  data = plot_data[plot_data$pft_name == "pioneer", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
 ) # Increase iterations if needed
@@ -669,7 +674,7 @@ Hm_3 <- coef_3["Hm"]
 a_3 <- coef_3["a"]
 
 ggplot(
-  plot_data[plot_data$PFT == "3", ],
+  plot_data[plot_data$pft_name == "pioneer", ],
   aes(x = DBH2011_m, y = HeightTotal_m_2011, color = logging)
 ) +
   geom_point() +
@@ -683,28 +688,28 @@ ggplot(
   labs(
     x = "Diameter (m)",
     y = "Height (m)",
-    title = "Height-Diameter Relationship PFT3"
+    title = "Height-Diameter Relationship pioneer pft"
   )
 
-data_taxa$Hm[data_taxa$PFT == "3"] <- Hm_3
-data_taxa$a[data_taxa$PFT == "3"] <- a_3
-data_taxa$Hm_SE[data_taxa$PFT == "3"] <-
+data_taxa$Hm[data_taxa$pft_name == "pioneer"] <- Hm_3
+data_taxa$a[data_taxa$pft_name == "pioneer"] <- a_3
+data_taxa$Hm_SE[data_taxa$pft_name == "pioneer"] <-
   round(summary(nls_model_3)$coefficients["Hm", "Std. Error"], 2)
-data_taxa$a_SE[data_taxa$PFT == "3"] <-
+data_taxa$a_SE[data_taxa$pft_name == "pioneer"] <-
   round(summary(nls_model_3)$coefficients["a", "Std. Error"], 2)
 
-# PFT 4 (low data availability for height measurements)
+# pft = understory (low data availability for height measurements)
 
 plot(
   HeightTotal_m_2011 ~ DBH2011_m,
   data = plot_data[
-    plot_data$PFT == "4",
+    plot_data$pft_name == "understory",
   ]
 )
 
 nls_model_4 <- nls(
   HeightTotal_m_2011 ~ Hm * (1 - exp(-a * DBH2011_m / Hm)),
-  data = plot_data[plot_data$PFT == "4", ],
+  data = plot_data[plot_data$pft_name == "understory", ],
   start = list(Hm = 40, a = 116), # Starting guesses for Hm and a
   control = nls.control(maxiter = 100)
 ) # Increase iterations if needed
@@ -715,7 +720,7 @@ Hm_4 <- coef_4["Hm"]
 a_4 <- coef_4["a"]
 
 ggplot(
-  plot_data[plot_data$PFT == "4", ],
+  plot_data[plot_data$pft_name == "understory", ],
   aes(x = DBH2011_m, y = HeightTotal_m_2011, color = logging)
 ) +
   geom_point() +
@@ -729,24 +734,24 @@ ggplot(
   labs(
     x = "Diameter (m)",
     y = "Height (m)",
-    title = "Height-Diameter Relationship PFT 4"
+    title = "Height-Diameter Relationship understory pft"
   )
 
-data_taxa$Hm[data_taxa$PFT == "4"] <- Hm_4
-data_taxa$a[data_taxa$PFT == "4"] <- a_4
-data_taxa$Hm_SE[data_taxa$PFT == "4"] <-
+data_taxa$Hm[data_taxa$pft_name == "understory"] <- Hm_4
+data_taxa$a[data_taxa$pft_name == "understory"] <- a_4
+data_taxa$Hm_SE[data_taxa$pft_name == "understory"] <-
   round(summary(nls_model_4)$coefficients["Hm", "Std. Error"], 2)
-data_taxa$a_SE[data_taxa$PFT == "4"] <-
+data_taxa$a_SE[data_taxa$pft_name == "understory"] <-
   round(summary(nls_model_4)$coefficients["a", "Std. Error"], 2)
 
 ##########
 
 # Initial ratio of crown area to stem cross-sectional area
 
-# PFT 1
+# pft = emergent
 
 backup <- plot_data
-plot_data <- backup[backup$PFT == "1", ]
+plot_data <- backup[backup$pft_name == "emergent", ]
 
 plot_data$piDH4a <- pi *
   plot_data$DBH2011_m *
@@ -778,13 +783,13 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   labs(
     x = "piDH/4a (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown-Diameter Relationship PFT1"
+    title = "Crown-Diameter Relationship emergent pft"
   )
 
 data_taxa$c <- NA
 data_taxa$c_SE <- NA
-data_taxa$c[data_taxa$PFT == "1"] <- c_1
-data_taxa$c_SE[data_taxa$PFT == "1"] <-
+data_taxa$c[data_taxa$pft_name == "emergent"] <- c_1
+data_taxa$c_SE[data_taxa$pft_name == "emergent"] <-
   round(summary(nls_model_1)$coefficients["c", "Std. Error"], 2)
 
 ###
@@ -804,14 +809,14 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   labs(
     x = "Ac (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown area PFT1"
+    title = "Crown area emergent pft"
   )
 
 ##########
 
-# PFT 2
+# pft = overstory
 
-plot_data <- backup[backup$PFT == "2", ]
+plot_data <- backup[backup$pft_name == "overstory", ]
 
 # Removed outliers
 plot_data <- plot_data[plot_data$crown_projected_area < 90, ]
@@ -842,11 +847,11 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   labs(
     x = "piDH/4a (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown-Diameter Relationship PFT2"
+    title = "Crown-Diameter Relationship overstory pft"
   )
 
-data_taxa$c[data_taxa$PFT == "2"] <- c_2
-data_taxa$c_SE[data_taxa$PFT == "2"] <-
+data_taxa$c[data_taxa$pft_name == "overstory"] <- c_2
+data_taxa$c_SE[data_taxa$pft_name == "overstory"] <-
   round(summary(nls_model_2)$coefficients["c", "Std. Error"], 2)
 
 ###
@@ -866,14 +871,14 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   labs(
     x = "Ac (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown area PFT2"
+    title = "Crown area overstory pft"
   )
 
 ##########
 
-# PFT 3
+# pft = pioneer
 
-plot_data <- backup[backup$PFT == "3", ]
+plot_data <- backup[backup$pft_name == "pioneer", ]
 
 plot_data$piDH4a <- pi *
   plot_data$DBH2011_m *
@@ -905,11 +910,11 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   labs(
     x = "piDH/4a (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown-Diameter Relationship PFT3"
+    title = "Crown-Diameter Relationship pioneer pft"
   )
 
-data_taxa$c[data_taxa$PFT == "3"] <- c_3
-data_taxa$c_SE[data_taxa$PFT == "3"] <-
+data_taxa$c[data_taxa$pft_name == "pioneer"] <- c_3
+data_taxa$c_SE[data_taxa$pft_name == "pioneer"] <-
   round(summary(nls_model_3)$coefficients["c", "Std. Error"], 2)
 
 ###
@@ -929,14 +934,14 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   labs(
     x = "Ac (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown area PFT3"
+    title = "Crown area pioneer pft"
   )
 
 ##########
 
-# PFT 4
+# pft = understory
 
-plot_data <- backup[backup$PFT == "4", ]
+plot_data <- backup[backup$pft_name == "understory", ]
 
 plot_data$piDH4a <- pi *
   plot_data$DBH2011_m *
@@ -968,11 +973,11 @@ ggplot(plot_data, aes(x = piDH4a, y = crown_projected_area, color = logging)) +
   labs(
     x = "piDH/4a (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown-Diameter Relationship PFT4"
+    title = "Crown-Diameter Relationship understory pft"
   )
 
-data_taxa$c[data_taxa$PFT == "4"] <- c_4
-data_taxa$c_SE[data_taxa$PFT == "4"] <-
+data_taxa$c[data_taxa$pft_name == "understory"] <- c_4
+data_taxa$c_SE[data_taxa$pft_name == "understory"] <-
   round(summary(nls_model_4)$coefficients["c", "Std. Error"], 2)
 
 ###
@@ -992,7 +997,7 @@ ggplot(plot_data, aes(x = Ac, y = crown_projected_area, color = logging)) +
   labs(
     x = "Ac (m2)",
     y = "Crown projected area (m2)",
-    title = "Crown area PFT4"
+    title = "Crown area understory pft"
   )
 
 ##########
@@ -1019,12 +1024,12 @@ plot_data <- data[, c(
   "PlotID",
   "logging",
   "TagStem_latest",
-  "PFT",
-  "TaxaName",
+  "pft_name",
+  "taxa_name",
   "HeightTotal_m_2011"
 )]
 plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
+unique(plot_data$pft_name)
 
 plot_data$HeightTotal_m_2011 <- as.numeric(plot_data$HeightTotal_m_2011)
 
@@ -1033,7 +1038,7 @@ ggplot(
   aes(
     x = TagStem_latest,
     y = HeightTotal_m_2011,
-    color = as.factor(PFT)
+    color = as.factor(pft_name)
   )
 ) +
   geom_point() +
@@ -1043,7 +1048,7 @@ ggplot(
 ggplot(
   plot_data,
   aes(
-    x = as.factor(PFT),
+    x = as.factor(pft_name),
     y = HeightTotal_m_2011,
     color = as.factor(logging)
   )
@@ -1067,12 +1072,12 @@ plot_data <- data[, c(
   "PlotID",
   "logging",
   "TagStem_latest",
-  "PFT",
-  "TaxaName",
+  "pft_name",
+  "taxa_name",
   "DBH2011_mm_clean"
 )]
 plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
+unique(plot_data$pft_name)
 
 plot_data$DBH2011_mm_clean <- as.numeric(plot_data$DBH2011_mm_clean)
 
@@ -1081,7 +1086,7 @@ ggplot(
   aes(
     x = TagStem_latest,
     y = DBH2011_mm_clean,
-    color = as.factor(PFT)
+    color = as.factor(pft_name)
   )
 ) +
   geom_point() +
@@ -1091,7 +1096,7 @@ ggplot(
 ggplot(
   plot_data,
   aes(
-    x = as.factor(PFT),
+    x = as.factor(pft_name),
     y = DBH2011_mm_clean,
     color = as.factor(logging)
   )
@@ -1180,20 +1185,19 @@ data <- data[, c(1:9, 86, 10:85)]
 data1 <- left_join(
   data,
   pfts_maliau,
-  by = c("species" = "TaxaName")
+  by = c("species" = "taxa_name")
 )
 
 # Match by genus only for rows where PFT is still NA
 data2 <- left_join(
   data,
   pfts_maliau,
-  by = c("genus" = "TaxaName")
+  by = c("genus" = "taxa_name")
 )
 
 # Combine: take PFT and PFT_name from species match if available,
 # otherwise from genus match
-data$PFT <- ifelse(!is.na(data1$PFT), data1$PFT, data2$PFT)
-data$PFT_name <- ifelse(!is.na(data1$PFT_name), data1$PFT_name, data2$PFT_name)
+data$pft_name <- ifelse(!is.na(data1$pft_name), data1$pft_name, data2$pft_name)
 
 ##########
 
@@ -1203,13 +1207,12 @@ plot_data <- data[, c(
   "location",
   "forest_type",
   "sample_code",
-  "PFT",
-  "PFT_name",
+  "pft_name",
   "species",
   "WD_NB"
 )]
 plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
+unique(plot_data$pft_name)
 
 plot_data$WD_NB <- as.numeric(plot_data$WD_NB)
 plot_data$forest_type <- as.factor(plot_data$forest_type)
@@ -1221,7 +1224,10 @@ plot_data$WD_NB <- plot_data$WD_NB * 1000
 plot_data$WD_NB <- plot_data$WD_NB * 0.459
 # Account for 45.9% carbon content (see earlier calculation)
 
-ggplot(plot_data, aes(x = sample_code, y = WD_NB, color = as.factor(PFT))) +
+ggplot(
+  plot_data,
+  aes(x = sample_code, y = WD_NB, color = as.factor(pft_name))
+) +
   geom_point() +
   labs(x = "Individual", y = "Wood density (kg C m-3)") +
   theme_minimal()
@@ -1229,7 +1235,7 @@ ggplot(plot_data, aes(x = sample_code, y = WD_NB, color = as.factor(PFT))) +
 ggplot(
   plot_data,
   aes(
-    x = as.factor(PFT),
+    x = as.factor(pft_name),
     y = WD_NB,
     color = as.factor(forest_type)
   )
@@ -1240,7 +1246,7 @@ ggplot(
   theme_minimal()
 
 summary_stats <- plot_data %>%
-  group_by(PFT) %>%
+  group_by(pft_name) %>%
   summarise(
     Mean_WD_NB = mean(WD_NB, na.rm = TRUE),
     SD_WD_NB = sd(WD_NB, na.rm = TRUE)
@@ -1253,14 +1259,38 @@ print(summary_stats)
 summary$WD_NB <- NA
 summary$WD_NB_SD <- NA
 
-summary$WD_NB[summary$PFT == "1"] <- round(summary_stats[1, "Mean_WD_NB"], 2)
-summary$WD_NB_SD[summary$PFT == "1"] <- round(summary_stats[1, "SD_WD_NB"], 2)
-summary$WD_NB[summary$PFT == "2"] <- round(summary_stats[2, "Mean_WD_NB"], 2)
-summary$WD_NB_SD[summary$PFT == "2"] <- round(summary_stats[2, "SD_WD_NB"], 2)
-summary$WD_NB[summary$PFT == "3"] <- round(summary_stats[3, "Mean_WD_NB"], 2)
-summary$WD_NB_SD[summary$PFT == "3"] <- round(summary_stats[3, "SD_WD_NB"], 2)
-summary$WD_NB[summary$PFT == "4"] <- round(summary_stats[4, "Mean_WD_NB"], 2)
-summary$WD_NB_SD[summary$PFT == "4"] <- round(summary_stats[4, "SD_WD_NB"], 2)
+summary$WD_NB[summary$pft_name == "emergent"] <- round(
+  summary_stats[1, "Mean_WD_NB"],
+  2
+)
+summary$WD_NB_SD[summary$pft_name == "emergent"] <- round(
+  summary_stats[1, "SD_WD_NB"],
+  2
+)
+summary$WD_NB[summary$pft_name == "overstory"] <- round(
+  summary_stats[2, "Mean_WD_NB"],
+  2
+)
+summary$WD_NB_SD[summary$pft_name == "overstory"] <- round(
+  summary_stats[2, "SD_WD_NB"],
+  2
+)
+summary$WD_NB[summary$pft_name == "pioneer"] <- round(
+  summary_stats[3, "Mean_WD_NB"],
+  2
+)
+summary$WD_NB_SD[summary$pft_name == "pioneer"] <- round(
+  summary_stats[3, "SD_WD_NB"],
+  2
+)
+summary$WD_NB[summary$pft_name == "understory"] <- round(
+  summary_stats[4, "Mean_WD_NB"],
+  2
+)
+summary$WD_NB_SD[summary$pft_name == "understory"] <- round(
+  summary_stats[4, "SD_WD_NB"],
+  2
+)
 
 ##########
 
@@ -1270,13 +1300,13 @@ plot_data <- data[, c(
   "location",
   "forest_type",
   "sample_code",
-  "PFT",
+  "pft_name",
   "species",
   "SLA_mm2.mg_mean",
   "C_perc"
 )]
 plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
+unique(plot_data$pft_name)
 
 plot_data$forest_type <- as.factor(plot_data$forest_type)
 plot_data$SLA_mm2.mg_mean <- as.numeric(plot_data$SLA_mm2.mg_mean)
@@ -1291,7 +1321,7 @@ ggplot(
   aes(
     x = sample_code,
     y = SLA_mm2.mg_mean,
-    color = as.factor(PFT)
+    color = as.factor(pft_name)
   )
 ) +
   geom_point() +
@@ -1301,7 +1331,7 @@ ggplot(
 ggplot(
   plot_data,
   aes(
-    x = as.factor(PFT),
+    x = as.factor(pft_name),
     y = SLA_mm2.mg_mean,
     color = as.factor(forest_type)
   )
@@ -1312,7 +1342,7 @@ ggplot(
   theme_minimal()
 
 summary_stats <- plot_data %>%
-  group_by(PFT) %>%
+  group_by(pft_name) %>%
   summarise(
     Mean_SLA_mm2.mg_mean = mean(SLA_mm2.mg_mean, na.rm = TRUE),
     SD_SLA_mm2.mg_mean = sd(SLA_mm2.mg_mean, na.rm = TRUE)
@@ -1325,21 +1355,21 @@ print(summary_stats)
 summary$SLA <- NA
 summary$SLA_SD <- NA
 
-summary$SLA[summary$PFT == "1"] <-
+summary$SLA[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "Mean_SLA_mm2.mg_mean"], 2)
-summary$SLA_SD[summary$PFT == "1"] <-
+summary$SLA_SD[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "SD_SLA_mm2.mg_mean"], 2)
-summary$SLA[summary$PFT == "2"] <-
+summary$SLA[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "Mean_SLA_mm2.mg_mean"], 2)
-summary$SLA_SD[summary$PFT == "2"] <-
+summary$SLA_SD[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "SD_SLA_mm2.mg_mean"], 2)
-summary$SLA[summary$PFT == "3"] <-
+summary$SLA[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "Mean_SLA_mm2.mg_mean"], 2)
-summary$SLA_SD[summary$PFT == "3"] <-
+summary$SLA_SD[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "SD_SLA_mm2.mg_mean"], 2)
-summary$SLA[summary$PFT == "4"] <-
+summary$SLA[summary$pft_name == "understory"] <-
   round(summary_stats[4, "Mean_SLA_mm2.mg_mean"], 2)
-summary$SLA_SD[summary$PFT == "4"] <-
+summary$SLA_SD[summary$pft_name == "understory"] <-
   round(summary_stats[4, "SD_SLA_mm2.mg_mean"], 2)
 
 backup <- summary
@@ -1353,12 +1383,11 @@ summary <- backup
 
 names(summary)
 summary <- summary[, c(
-  "PFT",
-  "PFT_name",
+  "pft_name",
   "Family",
   "Genus",
   "Species",
-  "TaxaName",
+  "taxa_name",
   "HeightTotal_m_2011",
   "Hm",
   "Hm_SE",
@@ -1374,7 +1403,7 @@ summary <- summary[, c(
 )]
 summary <- summary[
   order(
-    summary$PFT,
+    summary$pft_name,
     summary$Family,
     summary$Genus,
     summary$Species,
@@ -1385,33 +1414,32 @@ summary <- summary[
 summary$TaxaNames <- NA
 summary$Trees <- NA
 
-summary$TaxaNames[summary$PFT == "1"] <-
-  length(unique(summary$TaxaName[summary$PFT == "1"]))
-summary$TaxaNames[summary$PFT == "2"] <-
-  length(unique(summary$TaxaName[summary$PFT == "2"]))
-summary$TaxaNames[summary$PFT == "3"] <-
-  length(unique(summary$TaxaName[summary$PFT == "3"]))
-summary$TaxaNames[summary$PFT == "4"] <-
-  length(unique(summary$TaxaName[summary$PFT == "4"]))
+summary$TaxaNames[summary$pft_name == "emergent"] <-
+  length(unique(summary$taxa_name[summary$pft_name == "emergent"]))
+summary$TaxaNames[summary$pft_name == "overstory"] <-
+  length(unique(summary$taxa_name[summary$pft_name == "overstory"]))
+summary$TaxaNames[summary$pft_name == "pioneer"] <-
+  length(unique(summary$taxa_name[summary$pft_name == "pioneer"]))
+summary$TaxaNames[summary$pft_name == "understory"] <-
+  length(unique(summary$taxa_name[summary$pft_name == "understory"]))
 
-summary$Trees[summary$PFT == "1"] <-
-  length(unique(summary$TagStem_latest[summary$PFT == "1"]))
-summary$Trees[summary$PFT == "2"] <-
-  length(unique(summary$TagStem_latest[summary$PFT == "2"]))
-summary$Trees[summary$PFT == "3"] <-
-  length(unique(summary$TagStem_latest[summary$PFT == "3"]))
-summary$Trees[summary$PFT == "4"] <-
-  length(unique(summary$TagStem_latest[summary$PFT == "4"]))
+summary$Trees[summary$pft_name == "emergent"] <-
+  length(unique(summary$TagStem_latest[summary$pft_name == "emergent"]))
+summary$Trees[summary$pft_name == "overstory"] <-
+  length(unique(summary$TagStem_latest[summary$pft_name == "overstory"]))
+summary$Trees[summary$pft_name == "pioneer"] <-
+  length(unique(summary$TagStem_latest[summary$pft_name == "pioneer"]))
+summary$Trees[summary$pft_name == "understory"] <-
+  length(unique(summary$TagStem_latest[summary$pft_name == "understory"]))
 
 # Clean up summary
 
 summary <- summary[, c(
-  "PFT",
-  "PFT_name",
+  "pft_name",
   "Family",
   "Genus",
   "Species",
-  "TaxaName",
+  "taxa_name",
   "TaxaNames",
   "Trees",
   "HeightTotal_m_2011",
@@ -1428,7 +1456,7 @@ summary <- summary[, c(
 )]
 summary <- summary[
   order(
-    summary$PFT,
+    summary$pft_name,
     summary$Family,
     summary$Genus,
     summary$Species,
@@ -1438,8 +1466,7 @@ summary <- summary[
 
 names(summary)
 summary <- summary[, c(
-  "PFT",
-  "PFT_name",
+  "pft_name",
   "Hm",
   "Hm_SE",
   "a",
@@ -1456,7 +1483,7 @@ summary <- summary[, c(
 
 summary <- unique(summary)
 summary <- na.omit(summary)
-summary <- summary[order(summary$PFT), ]
+summary <- summary[order(summary$pft_name), ]
 rownames(summary) <- 1:nrow(summary)
 
 summary$WD_NB <- as.numeric(summary$WD_NB)
@@ -1641,7 +1668,7 @@ print(kenzo_data$fine_root_carbon_foliage_area)
 # Add rows for each PFT in the model
 
 niiyama_data <- data.frame(
-  PFT_name = c("emergent", "overstory", "understory", "pioneer"),
+  pft_name = c("emergent", "overstory", "understory", "pioneer"),
   leaf_dry_mass = c(5.7, 5.7, 5.7, 5.7),
   fine_root_dry_mass = c(13.3, 13.3, 13.3, 13.3)
 )
@@ -1651,21 +1678,21 @@ niiyama_data <- data.frame(
 # The unit of SLA is mm2 mg-1
 
 names(data)
-pft_sla_data <- data[, c("PFT_name", "SLA_mm2.mg_mean")]
+pft_sla_data <- data[, c("pft_name", "SLA_mm2.mg_mean")]
 pft_sla_data <- na.omit(pft_sla_data)
 pft_sla_data$SLA_mm2.mg_mean <- as.numeric(pft_sla_data$SLA_mm2.mg_mean)
 pft_sla_data$specific_leaf_area_pft <- NA
 
-pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "emergent"] <-
-  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "emergent"])
-pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "overstory"] <-
-  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "overstory"])
-pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "understory"] <-
-  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "understory"])
-pft_sla_data$specific_leaf_area_pft[pft_sla_data$PFT_name == "pioneer"] <-
-  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$PFT_name == "pioneer"])
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$pft_name == "emergent"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$pft_name == "emergent"])
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$pft_name == "overstory"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$pft_name == "overstory"])
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$pft_name == "understory"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$pft_name == "understory"])
+pft_sla_data$specific_leaf_area_pft[pft_sla_data$pft_name == "pioneer"] <-
+  mean(pft_sla_data$SLA_mm2.mg_mean[pft_sla_data$pft_name == "pioneer"])
 
-pft_sla_data <- pft_sla_data[, c("PFT_name", "specific_leaf_area_pft")]
+pft_sla_data <- pft_sla_data[, c("pft_name", "specific_leaf_area_pft")]
 pft_sla_data <- unique(pft_sla_data)
 
 # Calculate the corresponding leaf area for the leaf dry mass in niiyama_data
@@ -1674,7 +1701,7 @@ pft_sla_data <- unique(pft_sla_data)
 # This is fine as we are only interested in the leaf area here.
 
 # Add PFT SLA values to niiyama data
-niiyama_data <- left_join(niiyama_data, pft_sla_data, by = "PFT_name")
+niiyama_data <- left_join(niiyama_data, pft_sla_data, by = "pft_name")
 
 # Convert foliage dry mass unit Mg/ha to mg/ha to match SLA weight units
 niiyama_data$leaf_dry_mass <- niiyama_data$leaf_dry_mass * 10^9
@@ -1709,9 +1736,9 @@ mean(niiyama_data$fine_root_carbon_foliage_area)
 
 # Subset niiyama_data with ratio and add to summary
 
-niiyama_data <- niiyama_data[, c("PFT_name", "fine_root_carbon_foliage_area")]
+niiyama_data <- niiyama_data[, c("pft_name", "fine_root_carbon_foliage_area")]
 
-summary <- left_join(summary, niiyama_data, by = "PFT_name")
+summary <- left_join(summary, niiyama_data, by = "pft_name")
 
 # Add root exudates
 # Root exudate carbon as a fraction (4.7%) of annual NPP reported for tropical
@@ -1789,7 +1816,7 @@ summary$per_propagule_annual_recruitment_probability <- 0.023 *
 names(summary)
 
 summary <- summary[, c(
-  "PFT_name",
+  "pft_name",
   "Hm",
   "a",
   "c",
@@ -1812,7 +1839,7 @@ summary <- summary[, c(
 )]
 
 colnames(summary) <- c(
-  "PFT_name",
+  "pft_name",
   "Hm",
   "a",
   "c",
@@ -1837,7 +1864,7 @@ colnames(summary) <- c(
 # Below I change the variable names to match those used by the model
 # and also provide an overview of the units between parentheses
 
-# PFT_name is name
+# pft_name is pft_name
 # Hm is h_max (m)
 # a is a_hd (-)
 # c is ca_ratio (-)
@@ -1858,7 +1885,7 @@ colnames(summary) <- c(
 # per_propagule_annual_recruitment_probability (-)
 
 colnames(summary) <- c(
-  "name",
+  "pft_name",
   "h_max",
   "a_hd",
   "ca_ratio",
