@@ -389,11 +389,11 @@ animal_cont |>
       variable                                       min         max
       <chr>                                        <dbl>       <dbl>
     1 animal_arbuscular_mycorrhiza_consumption -8.09e-22 0.000000784
-    2 animal_bacteria_consumption              -7.30e-18 0.00596    
-    3 animal_ectomycorrhiza_consumption        -1.05e-19 0.000398   
-    4 animal_pom_consumption_cnp               -1.17e-16 0.00881    
-    5 animal_saprotrophic_fungi_consumption    -2.92e-17 0.00119    
-    6 total_animal_respiration                  0        0          
+    2 animal_bacteria_consumption              -7.30e-18 0.00596
+    3 animal_ectomycorrhiza_consumption        -1.05e-19 0.000398
+    4 animal_pom_consumption_cnp               -1.17e-16 0.00881
+    5 animal_saprotrophic_fungi_consumption    -2.92e-17 0.00119
+    6 total_animal_respiration                  0        0
 
 Here’s how the variables looked over simulation time steps:
 
