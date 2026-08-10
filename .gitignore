@@ -20,6 +20,13 @@ data/primary
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/validation/database
 data/derived/soil/necromass/li_et_al_2023.csv
+data/derived/soil/llm/soil_constant_usage.toml
+data/derived/litter/stock/litter_stock.csv
+*.duckdb
+analysis/troubleshoot/cnp_ratios/*png
+
+# MkDocs build output
+site/
 
 # Scenario files, except the change_log.txt file
 # ignore the directory's contents (/*), not the directory itself — otherwise
@@ -27,6 +34,9 @@ data/derived/soil/necromass/li_et_al_2023.csv
 # ignored directory).
 data/scenarios/*/*/*
 !data/scenarios/maliau/*/change_log.txt
+
+# troubleshoot files
+analysis/troubleshoot/zarr_test/ve_example
 
 # Notebooks
 /.quarto/
@@ -573,3 +583,6 @@ rsconnect/
 **/*.quarto_ipynb
 **/*_files
 analysis/**/*.html
+
+# AI files
+.posit/assistant/

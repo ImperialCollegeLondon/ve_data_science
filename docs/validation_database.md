@@ -26,7 +26,8 @@ data/derived/soil
     └── database
         └── ...  # a master database in the .parquet format (.csv also possible)
 tools/R
-└── valdb.R
+└── R
+    └── valdb.R
     ├── add_schema()                 # function to add dataset metadata
     ├── build_validation_database()  # main function to build database
     └── log_dataset()                # function to screen datasets and autofill metadata
@@ -50,7 +51,7 @@ guides data entering later.
 3. Log the dataset. The following code will bring up an interactive session:
 
    ```r
-   box::use(tools/R/valdb)
+   box::use(tools/R/R/valdb)
    # box::help(valdb$log_dataset)
    valdb$log_dataset()
    ```
