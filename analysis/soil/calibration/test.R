@@ -1,9 +1,12 @@
 library(tidyverse)
 library(arrow)
 library(calibrar)
+library(parallel)
 box::use(tools/R/R/ve_run[ve_run])
 box::use(tools/R/R/valdb)
 
+ncores <- detectCores() - 2 # number of cores to be used
+cl <- makeCluster(ncores)
 
 # Model function ---------------------------------------------------------
 
@@ -99,9 +102,12 @@ start <- list(
 # optimisation
 opt <- calibrate(
   par = start,
-  fn = obj
+  fn = obj,
   # lower = lower,
-  # upper = upper
+  # upper = upper,
+  control = list(parallel = TRUE, ncores = ncores)
 )
+
+stopCluster(cl) # close the parallel connections
 
 coef(opt)
