@@ -42,23 +42,49 @@
 #|   - ragnar
 #|   - reticulate
 #|   - tibble
+#|   - toml
 #|
 #| usage_notes: |
 #|   Regenerate both outputs whenever the installed Virtual Ecosystem source
 #|   changes. Python dependencies are declared in the project pyproject.toml.
 #| ---
 
-# Pin the uv-managed project interpreter before loading packages that may
-# initialise Python through py_require(). Positron may pre-set
-# RETICULATE_PYTHON = "managed", which must be overridden here.
-project_python <- if (.Platform$OS.type == "windows") {
-  here::here(".venv/Scripts/python.exe")
-} else {
-  here::here(".venv/bin/python")
+# Declare Python requirements from pyproject.toml before ragnar loads so
+# reticulate's resolver includes them in the same ephemeral environment.
+pyproject <- toml::read_toml("pyproject.toml")
+project_deps <- pyproject$project$dependencies
+
+resolve_dependency <- function(package_name, dependencies) {
+  dependencies <- unlist(dependencies, use.names = FALSE)
+  dependencies <- as.character(dependencies)
+
+  matches <- dependencies[
+    startsWith(dependencies, package_name) &
+      (nchar(dependencies) == nchar(package_name) |
+        substr(
+          dependencies,
+          nchar(package_name) + 1L,
+          nchar(package_name) + 1L
+        ) %in%
+          c("<", ">", "=", "!", "~", "["))
+  ]
+
+  if (length(matches) == 0L) {
+    stop("Missing Python dependency in pyproject.toml: ", package_name)
+  }
+
+  if (length(matches) > 1L) {
+    stop("Multiple dependency entries found for: ", package_name)
+  }
+
+  matches[[1]]
 }
-stopifnot(file.exists(project_python))
-Sys.setenv(RETICULATE_PYTHON = project_python)
-reticulate::use_python(project_python, required = TRUE)
+
+reticulate::py_require(resolve_dependency("llama-index-core", project_deps))
+reticulate::py_require(resolve_dependency(
+  "tree-sitter-language-pack",
+  project_deps
+))
 
 library(ragnar)
 
