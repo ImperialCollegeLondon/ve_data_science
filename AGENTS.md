@@ -232,87 +232,57 @@ When adding new scripts without explicit location guidance, place them in the
 closest domain folder or in [tools/](tools/) if they are reusable across
 domains.
 
-## Repository scan scope and read limits
 
-### Local-first check before remote repository access
+## Local repository scan and context grounding
 
-Before querying or browsing any remote repository, check local repository roots
-first. At minimum, check:
+### Local-first source selection
 
-- the current workspace repository root for this project
-- a sibling `virtual_ecosystem` repository if it is available in the same
-  parent directory or current workspace
-- if no local source checkout is available, the installed
-  `virtual_ecosystem` package in the active uv environment (typically under
-  `.venv/lib/python*/site-packages/virtual_ecosystem/`)
+Before querying or browsing any remote repository, check local sources first.
 
-If a relevant local repository exists, use it as the primary source for code
-analysis and recommendations. Only query remote repositories when local content
-is unavailable in all local sources, outdated for the task, or when the task
-explicitly requires
-remote state (for example, open PR status or remote-only branches).
+Prioritise sources in this order:
+1. the current workspace repository root
+2. the installed `virtual_ecosystem` package in the active uv environment
+3. a cloned sibling `virtual_ecosystem` repository, if present
+
+Use the local workspace repository as the primary source for this project. Use `virtual_ecosystem` only when the task needs implementation context from that codebase, such as symbols, functions, variables, or types.
+
+Treat the installed uv package as the preferred `virtual_ecosystem` source when both the package and a cloned repository are available.
+
+Only use remote repository access when local sources are unavailable, clearly outdated for the task, or the task explicitly requires remote state.
+
+## Remote repository scan scope and read limits
 
 ### Scope
 
-Analyse the repository broadly before proposing final code changes that may
-affect shared logic, public interfaces, or cross-domain behaviour.
+For shared logic, public interfaces, or cross-domain behaviour, scan broadly before proposing changes.
 
-For localised single-file fixes, start with the target module and nearest
-tests, then widen scope only when evidence suggests related dependencies.
-
-Include:
-
-- [analysis/](analysis/)
-- [tools/](tools/)
-- [tests/testthat/](tests/testthat/) and module-local test directories
-- [docs/](docs/)
-- [.github/workflows/](.github/workflows/)
-- root configuration files (for example [pyproject.toml](pyproject.toml),
-  [mkdocs.yml](mkdocs.yml), [air.toml](air.toml),
-  [.pre-commit-config.yaml](.pre-commit-config.yaml), and
-  [r_requirements.R](r_requirements.R))
+For localised single-file fixes, start with the target module and nearest tests, then widen scope only when evidence indicates related dependencies.
 
 Exclude by default:
-
-- generated artefacts and build outputs
-- local virtual environments from broad scans, including
-  [.ve_data_science](.ve_data_science), [ve_data_science/](ve_data_science/),
-  [temp/](temp/), and [notebooks/ve_ds_venv/](notebooks/ve_ds_venv/)
-- exception: when a local `virtual_ecosystem` source repository is unavailable,
-  inspect only the installed `virtual_ecosystem` package path in the active uv
-  environment before using remote sources
 - vendor-style dependency directories and binary assets
-- large data directories under [data/](data/) unless directly required
+- large data directories under `data/` unless directly required
 
-### Read limits for remote repository work
+### Remote read limits
 
-When working with a remote repository, treat file reads as a constrained
-resource and budget them deliberately.
+Treat remote reads as a constrained resource.
 
-- Prioritise high-signal files first: root config, CI workflows, target module,
-  and closest tests.
-- Before any remote reads, verify the local source roots and active uv
-  environment package path checks above are exhausted.
-- Start with a capped initial pass (typically 5-10 files), then expand only
-  when findings indicate cross-file impact.
-- Batch directory-level discovery before deep file reads to reduce redundant
-  API or tool calls.
-- Defer large or low-signal files (for example lockfiles, notebooks, generated
-  outputs, and binary-adjacent metadata) unless they are directly relevant.
-- If read limits or rate limits prevent a full scan, stop and report the
-  constraint before proposing final fixes.
+- Prioritise high-signal files first: root config, CI workflows, target module, and closest tests.
+- Exhaust local source checks before any remote reads.
+- Start with a capped initial pass of 5–10 files.
+- Batch directory discovery before deep file reads.
+- Defer large or low-signal files unless directly relevant.
+- If read limits prevent a full scan, stop and report the constraint before proposing final fixes.
 
 ### Required output
 
 Before recommending final fixes, provide:
-
 - a Files reviewed summary with counts by directory
 - a list of unread or skipped files/directories and why they were skipped
 - an explicit constraint note when a full scan was not possible
 
 ### Quality gate
 
-Do not propose final fixes until the repository scan summary above is complete.
+Do not propose final fixes until the repository scan summary is complete.
 
 ## Script metadata header guidance
 
