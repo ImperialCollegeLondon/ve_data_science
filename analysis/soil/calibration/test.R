@@ -64,6 +64,9 @@ run_model <- function(par, ...) {
     "compiled_configuration.toml"
   )
   valdb$join_ve_outputs(validation_database, zarr_path, config_path)
+
+  # clean up memory
+  gc()
 }
 
 
