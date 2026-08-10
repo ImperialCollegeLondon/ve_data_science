@@ -1,5 +1,26 @@
 # Change log of maliau_1 scenario input data
 
+2026-08-07
+- Module: Animal
+- Author: Baizurah Malik
+- Files changed:
+  - Animal functional group input data for the `data/scenarios/maliau/maliau_1`
+    scenario.
+- Changes made:
+  - Revised the Maliau_1 animal functional group input data Level 2 and Level 3.
+  - Organised level 1-3 animal input data by increasing levels of ecological
+    complexity, from a minimum functional-group setup to progressively broader
+    trait and interaction coverage.
+  - Updated functional-group representatives using literature-supported adult
+    mass, birth mass, diet resources, species-specific data or
+    appropriate taxonomic proxies when identified.
+  - Standardised the input data format for compatibility with Virtual Ecosystem
+    version 0.2.1.
+- Notes:
+  - Where species-specific trait data are unavailable, appropriate taxonomic
+    proxies or published allometric relationships are used and documented in
+    the associated input-data records.
+
 2026-07-23
 - Module: All
 - Author: Baizurah Malik
