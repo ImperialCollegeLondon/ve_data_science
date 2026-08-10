@@ -232,7 +232,6 @@ When adding new scripts without explicit location guidance, place them in the
 closest domain folder or in [tools/](tools/) if they are reusable across
 domains.
 
-
 ## Local repository scan and context grounding
 
 ### Local-first source selection
@@ -240,6 +239,7 @@ domains.
 Before querying or browsing any remote repository, check local sources first.
 
 Prioritise sources in this order:
+
 1. the current workspace repository root
 2. the installed `virtual_ecosystem` package in the active uv environment
 3. a cloned sibling `virtual_ecosystem` repository, if present
@@ -259,6 +259,7 @@ For shared logic, public interfaces, or cross-domain behaviour, scan broadly bef
 For localised single-file fixes, start with the target module and nearest tests, then widen scope only when evidence indicates related dependencies.
 
 Exclude by default:
+
 - vendor-style dependency directories and binary assets
 - large data directories under `data/` unless directly required
 
@@ -276,6 +277,7 @@ Treat remote reads as a constrained resource.
 ### Required output
 
 Before recommending final fixes, provide:
+
 - a Files reviewed summary with counts by directory
 - a list of unread or skipped files/directories and why they were skipped
 - an explicit constraint note when a full scan was not possible
