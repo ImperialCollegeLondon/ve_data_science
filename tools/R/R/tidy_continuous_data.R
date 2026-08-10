@@ -39,8 +39,6 @@
 #|       - analysis/animal/continuous_states/small_temporal_variation.qmd
 #| ---
 
-box::use(tools/R/R/get_ve_variables[...])
-
 #' Extract continuous state variables into long-format dataframe
 #'
 #' Reads selected state variables from a Virtual Ecosystem Zarr output dataset
@@ -65,20 +63,20 @@ tidy_continuous_data <- function(path, variables, initial = FALSE) {
   xy <-
     get_data_variables(path, group = "outputs", variables = c("x", "y")) |>
     reshape2::melt() |>
-    pivot_wider(names_from = L1)
+    tidyr::pivot_wider(names_from = L1)
   # temporal coordinates to join by time_index
   timestamp <-
     get_data_variables(path, group = "outputs", variables = "timestamp") |>
     reshape2::melt() |>
-    pivot_wider(names_from = L1)
+    tidyr::pivot_wider(names_from = L1)
 
   # tidy, long-format version of the continuous data
   tidy_cont <-
     outputs |>
     reshape2::melt() |>
-    left_join(xy, by = join_by(cell_id)) |>
-    left_join(timestamp, by = join_by(time_index)) |>
-    mutate(time_index = as.numeric(time_index))
+    dplyr::left_join(xy, by = dplyr::join_by(cell_id)) |>
+    dplyr::left_join(timestamp, by = dplyr::join_by(time_index)) |>
+    dplyr::mutate(time_index = as.numeric(time_index))
 
   # if initial data is requested, ditto the tidying process above and then
   # merge it with the continuous data;
@@ -89,13 +87,13 @@ tidy_continuous_data <- function(path, variables, initial = FALSE) {
     tidy_init <-
       init |>
       reshape2::melt() |>
-      left_join(xy, by = join_by(cell_id)) |>
-      mutate(timestamp = -1, time_index = -1)
+      dplyr::left_join(xy, by = dplyr::join_by(cell_id)) |>
+      dplyr::mutate(timestamp = -1, time_index = -1)
 
     # merge initial and continuous data
-    tidy_cont <- bind_rows(tidy_init, tidy_cont)
+    tidy_cont <- dplyr::bind_rows(tidy_init, tidy_cont)
   }
 
   # finalise output
-  tidy_cont |> rename(variable = L1) |> as_tibble()
+  tidy_cont |> dplyr::rename(variable = L1) |> dplyr::as_tibble()
 }
