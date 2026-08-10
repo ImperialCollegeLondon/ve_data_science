@@ -79,17 +79,17 @@ These are mainly observed state variables, with no derivation or aggregation req
 
 *Datasets needed:* Home-range studies, telemetry datasets, territory-size summaries, and movement ecology datasets.
 
-### 2.6 Direct consumption partitions relevant to herbivory, detritivory, and microbivory
+### 2.6 Direct resource-specific consumption records
 
-*Definition:* Direct uptake rates by resource class.
+*Definition:* Direct trophic uptake records by resource class, as exported by the animal model at the interaction level.
 
-*State variables:* resource_kind, C, N, P in animal_trophic_interactions.csv, plus model outputs animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp.
+*State variables:* resource_kind, resource_id, resource_cell_id, consumer_cohort_id, time, time_index, C, N, P in animal_trophic_interactions.csv. Relevant resource classes include plant, litter, carcass, excrement, fungal fruit, soil fungi, bacteria, particulate organic matter, and animal prey cohorts.
 
-*Source:* animal_trophic_interactions.csv and data object outputs in output.zarr.
+*Source:* animal_trophic_interactions.csv.
 
-*Validation approach:* Use resource-specific consumption totals to compare the model's herbivory, detritivory, scavenging, and soil-microbe uptake against published intake partitioning studies and observed diet proportions.
+*Validation approach:* Check whether the model exports biologically plausible resource-specific uptake records and whether the observed resource classes used by each functional group are consistent with published diet and feeding-guild expectations. Treat this as a direct validation of realised feeding interactions rather than a habitat-level energy-budget comparison. Where functional-group attribution is needed, join trophic records to animal_cohort_data.csv using consumer_cohort_id.
 
-*Datasets needed:* Resource-specific intake studies, feeding guild comparisons, litter and detritus consumption datasets, and soil microbe consumption datasets.
+*Datasets needed:* Published diet composition datasets, feeding-guild summaries, trophic interaction datasets, and food-web observations for the same taxa or functional groups.
 
 ## 3. Secondary validation targets (emergent or derived from outputs)
 
@@ -165,25 +165,25 @@ Targets in this section are site specific.
 
 *Datasets needed:* Excretion datasets, carcass decomposition studies, nutrient-return studies, and herbivory waste measurements.
 
-### 3.7 Net animal consumption and assimilation flows
+### 3.7 Aggregated consumption partitions and assimilation-flow consistency
 
-*Derivation:* Consumption converted to assimilated fractions and routed to growth, maintenance, and waste terms.
+*Derivation:* Aggregate trophic interaction records and consumption outputs to habitat-, guild-, or functional-group-level rates and proportions, then compare those derived quantities with observed energetic partitions and assimilation behaviour.
 
-*Inputs:* C, N, P, mass_carbon, mass_nitrogen, mass_phosphorus, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp.
+*Inputs:* resource_kind, C, N, P from animal_trophic_interactions.csv; animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, and mass_phosphorus.
 
-*Validation approach:* Compare inferred assimilation and allocation of intake to growth, respiration, and waste against published animal energy-budget studies or nutrient-balance datasets.
+*Validation approach:* Compare derived habitat- or guild-level consumption partitions, total intake, and assimilation-flow consistency against published intake partitioning studies and animal energetics datasets. For the Malhi supplementary tables, use AnimalGroup_Habitat as the habitat key when matching food-group energetics, because the ForestType labels in MOESM7_ESM__Energetics_byFoodGroup.csv are internally inconsistent for logged versus old-growth forest rows. Treat this target as emergent because it depends on post-processing, aggregation, and comparison of derived rates rather than direct exported records.
 
-*Datasets needed:* Assimilation efficiency datasets, animal energy-budget studies, and stoichiometric balance datasets.
+*Datasets needed:* Resource-specific intake studies, assimilation efficiency datasets, animal energy-budget studies, stoichiometric balance datasets, and Malhi supplementary habitat-, guild-, and food-group energetics tables.
 
 ### 3.8 Coupled plant-animal productivity linkage
 
-*Derivation:* Animal intake and biomass response versus plant assimilation or productivity variables.
+*Derivation:* Animal intake and biomass response versus plant productivity, plant allocation, and plant-supported intake ratios.
 
 *Inputs:* canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size.
 
-*Validation approach:* Compare animal intake and biomass response to plant productivity and consumption datasets from forest plots or food-web studies that report coupled herbivory and productivity.
+*Validation approach:* Compare modelled habitat-level animal intake as a fraction of plant productivity against observed energetic intake as %NPP from the Malhi habitat tables, then test whether between-habitat shifts in intake composition follow observed habitat differences in plant allocation. Plant ammonium, nitrate, and phosphorus uptake are already exported as areal daily uptake rates, so no rooting-depth conversion is required.
 
-*Datasets needed:* Plant productivity datasets, herbivory impact datasets, and coupled plant-animal interaction studies.
+*Datasets needed:* Plant productivity datasets, herbivory impact datasets, coupled plant-animal interaction studies, and Malhi supplementary NPP and habitat energetics tables.
 
 ## 4 Global validation relationships (Madingley emergent pattern checks)
 
@@ -294,7 +294,7 @@ Bracketed numbers in this section refer to the numbered source references used b
 | 2.3 | Site-specific | Trophic interaction coverage | Direct | resource_kind, C, N, P, consumer_cohort_id, resource_id, resource_cell_id | animal_trophic_interactions.csv | Compare resource pathways and feeding guild structure against trophic studies | Food-web network datasets, diet composition studies | TBD site dataset |
 | 2.4 | Site-specific | Thermal opportunity proxy (abiotic context) | Direct | air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, net_radiation, wind_speed | output.zarr | Characterise abiotic thermal opportunity and stress exposure; treat this as potential opportunity only, with explicit modelled activity checks in 3.5b | Thermal ecology datasets, microclimate and activity-budget studies, thermal performance curves | TBD site dataset |
 | 2.5 | Site-specific | Space-use proxy | Direct | occupancy_proportion, territory_size, centroid_key, territory, location_status | animal_cohort_data.csv | Compare occupancy and territory use against movement and home-range datasets | Telemetry datasets, home-range studies, territory-use summaries | TBD site dataset |
-| 2.6 | Site-specific | Direct consumption partitions | Direct | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp | animal_trophic_interactions.csv, output.zarr | Compare resource-specific intake partitions against diet and feeding studies | Resource-specific intake studies, feeding guild comparisons, litter and soil consumption datasets | TBD site dataset |
+| 2.6 | Site-specific | Direct resource-specific consumption records | Direct | resource_kind, resource_id, resource_cell_id, consumer_cohort_id, time, time_index, C, N, P | animal_trophic_interactions.csv | Compare realised resource-use records and resource classes against diet, feeding-guild, and food-web evidence; join to cohorts when functional-group attribution is needed | Diet composition datasets, feeding-guild summaries, trophic interaction datasets | TBD site dataset |
 | 3.1a | Site-specific | Equilibrium density range | Direct | individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Derive post-spin-up density by functional group and compare against empirical density ranges | Site-level abundance or density datasets | TBD site dataset |
 | 3.1b | Site-specific | Body-mass density scaling | Emergent | individuals, functional_group, mass_carbon, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare density scaling with body mass against allometric benchmarks | Allometric trait compilations, biomass density datasets | TBD site dataset |
 | 3.1c | Site-specific | Trophic biomass pyramid | Emergent | individuals, mass_carbon, mass_nitrogen, mass_phosphorus, functional_group | animal_cohort_data.csv | Compare trophic biomass ordering against food-web biomass datasets | Trophic biomass datasets, food-web benchmarks | TBD site dataset |
@@ -307,8 +307,8 @@ Bracketed numbers in this section refer to the numbered source references used b
 | 3.5a | Site-specific | Respiration-intake consistency | Emergent | total_animal_respiration, C, N, P | output.zarr, animal_trophic_interactions.csv | Compare normalised respiration-intake coupling against metabolic scaling and field respiration data | Metabolic rate datasets, respiration-allometry datasets, energy-budget studies | TBD site dataset |
 | 3.5b | Site-specific | Modelled activity window and available foraging time | Emergent | air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, metabolic_type, t_opt, t_max_crit, t_min_crit, tau_f, diet_category_count, timestep duration | output.zarr, functional-group definitions, model constants | Reconstruct activity-window fraction and available foraging time, then compare predicted activity patterns against empirical activity budgets and thermal performance data | Diel activity datasets, thermal performance curves, time-budget studies | TBD site dataset |
 | 3.6 | Site-specific | Soil microbe consumption realism | Direct and emergent | animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, animal_pom_consumption_cnp | output.zarr | Compare soil-microbe consumption against microbial intake or soil-feeding studies | Soil microbe consumption datasets, soil-feeding comparisons | TBD site dataset |
-| 3.7 | Site-specific | Herbivory and detritus flow consistency | Direct and emergent | C, N, P, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp | animal_trophic_interactions.csv, output.zarr | Compare herbivory and detritus uptake against published intake partitioning studies | Resource-specific intake studies, detritus consumption datasets | TBD site dataset |
-| 3.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare animal response to plant productivity and herbivory datasets | Plant productivity datasets, herbivory impact datasets, coupled interaction studies | TBD site dataset |
+| 3.7 | Site-specific | Aggregated consumption partitions and assimilation-flow consistency | Emergent | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus | animal_trophic_interactions.csv, output.zarr | Compare derived habitat- or guild-level consumption partitions, intake totals, and assimilation-flow consistency against energetics and intake-partitioning studies; use AnimalGroup_Habitat when matching Malhi food-group tables | Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables | TBD site dataset |
+| 3.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare habitat-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates | Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables | TBD site dataset |
 | 4.1 | Global | Growth rate versus body mass | Emergent | cohort_id, time_index, age, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved | animal_cohort_data.csv | Compare emergent growth-rate scaling with vertebrate and fish growth datasets | Growth datasets for reptiles, mammals, birds, and fish; length-mass conversions where needed | Case (1978), Ricklefs (1968, 1973), Harfoot et al. (2014) |
 | 4.2 | Global | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved | animal_cohort_data.csv | Compare modelled age at maturity against compiled maturation datasets | Maturation and life-history datasets for invertebrates, reptiles, mammals, birds, and fish; length-mass conversions where needed | Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Morgan and Colbourne (1999), Policansky (1983), Stibor (1992), Blakley and Goodner (1978), Harfoot et al. (2014) |
 | 4.3 | Global | Mortality versus body mass | Emergent | cohort_id, time_index, is_alive, individuals, age | animal_cohort_data.csv | Compare mortality scaling with natural mortality datasets | Natural mortality datasets for invertebrates, mammals, birds, and fish | McCoy and Gillooly (2008), Harfoot et al. (2014) |
@@ -373,8 +373,8 @@ Units below are taken from model metadata in data_variables.toml and the cohort/
 | canopy_foliage_cnp, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed | output.zarr | kg | Use element-specific slices where required (for example carbon-only summaries) |
 | subcanopy_vegetation_biomass | output.zarr | kg C m^-2 | Use directly for areal producer-carbon metrics |
 | subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed | output.zarr | kg C m^-2 | Aggregate by cell and timestep; convert to period totals via integration over time |
-| plant_ammonium_uptake, plant_nitrate_uptake | output.zarr | kg N m^-3 | Convert to areal N uptake using rooting depth before productivity-gradient comparisons |
-| plant_phosphorus_uptake | output.zarr | kg P m^-3 | Convert to areal P uptake using rooting depth before productivity-gradient comparisons |
+| plant_ammonium_uptake, plant_nitrate_uptake | output.zarr | kg N m^-2 day^-1 | Already an areal daily uptake rate; aggregate directly by cell and timestep for productivity-gradient comparisons |
+| plant_phosphorus_uptake | output.zarr | kg P m^-2 day^-1 | Already an areal daily uptake rate; aggregate directly by cell and timestep for productivity-gradient comparisons |
 
 ### 6.4 Derivation formulas for emergent targets (fully generated by Copilot - but looks good at first sight)
 
@@ -438,7 +438,7 @@ $$
 
 where $r^e_{i,t}$ is reproductive_mass for element $e$.
 
-Trophic intake aggregation from interaction records (for 2.3, 2.6, 3.5a, 3.7, V4.1, V4.2, V5.1):
+Trophic intake aggregation from interaction records (for 2.3, 3.5a, 3.7, V4.1, V4.2, V5.1):
 
 $$
 I^e_{c,t} = \sum_{k \in (c,t)} e_k
@@ -457,6 +457,14 @@ F^{e,areal}_{c,t} = F^{e,vol}_{c,t} \cdot z_{soil}
 $$
 
 with $z_{soil}$ as the active soil depth in metres.
+
+Plant-supported intake ratio for plant-animal productivity linkage (for 3.8):
+
+$$
+Q_h = \frac{I^{plant}_h}{NPP_h}
+$$
+
+where $I^{plant}_h$ is habitat-level intake from plant-derived resources and $NPP_h$ is habitat-level net primary productivity. Plant ammonium, nitrate, and phosphorus uptake are already exported as areal daily rates, so no rooting-depth conversion is required for this comparison.
 
 Nutrient return flux to soil (for 3.6):
 
