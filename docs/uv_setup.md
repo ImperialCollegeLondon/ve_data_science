@@ -172,6 +172,16 @@ uv run --group dev ve_run ...
 uv run --group dev my_script.py
 ```
 
+The R helper `ve_run()` in [tools/R/R/ve_run.R](../tools/R/R/ve_run.R) now uses
+this same external workflow. By default it runs:
+
+```sh
+uv run --group dev-pinned ve_run ...
+```
+
+So calling `ve_run(args)` from R is equivalent to running that command in the
+repository root, and `ve_run(args, group = "dev")` switches to the `dev` group.
+
 If you are running many commands in one session, you can activate the virtual
 environment just like the conventional way:
 
