@@ -42,7 +42,7 @@ animal diet.
 
 ## Model and data summary
 
-I ran the full `maliau_2` scenario available from Globus:
+I ran the full `maliau_2` scenario available from Globus using `uv run`:
 
 ``` bash
 uv run --group dev-pinned \
@@ -57,11 +57,12 @@ uv run --group dev-pinned \
   --log data/scenarios/maliau/maliau_2/out/logfile.log
 ```
 
-- config in `data/scenarios/maliau/maliau_2/config`
-- data in `data/scenarios/maliau/maliau_2/data`
-- The animal functional group is from the file
-  `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv`,
-  which looks like:
+- Config in `data/scenarios/maliau/maliau_2/config`
+- Data in `data/scenarios/maliau/maliau_2/data`
+- The animal functional group was from the file
+  `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv`
+  as below. The FG of interest in `Detritivorous_soil_earthworms` that
+  consumes `detritus_fungi_pom_bacteria`.
 
 <table>
 <colgroup>
@@ -351,7 +352,7 @@ style="text-align: left;">invertebrates_fish_carcasses_vertebrates</td>
 
 ## Animal continuous state variables
 
-Currently, I’m examining:
+I examined:
 
 - `animal_arbuscular_mycorrhiza_consumption`
 - `animal_bacteria_consumption`
@@ -375,9 +376,19 @@ ve_output_path <- here("data/scenarios/maliau/maliau_2/out/model_data.zarr")
 animal_cont <- tidy_continuous_data(ve_output_path, variables = animal_vars)
 ```
 
-First I saw that the range of these state variables are very small. Are
-they truly very small, or are they numerical imprecisions that need to
-be clamped to zero?
+<div>
+
+> **Outdated**
+>
+> First I saw that the range of these state variables are very small.
+> Are they truly very small, or are they numerical imprecisions that
+> need to be clamped to zero?
+
+</div>
+
+The state variables are no longer always minute, they also showed peaks
+that correspond to the density of microbial consumers (see *Trophic
+interactions*). However, their lower bounds were not perfectly zero.
 
 ``` r
 animal_cont |>
@@ -395,8 +406,6 @@ animal_cont |>
     5 animal_saprotrophic_fungi_consumption    -2.92e-17 0.00119    
     6 total_animal_respiration                  0        0          
 
-Here’s how the variables looked over simulation time steps:
-
 ``` r
 animal_cont |>
   unite("variable2", variable, element, na.rm = TRUE) |>
@@ -408,47 +417,7 @@ animal_cont |>
 
 ![](fig-temporal-trend-1.png)
 
-``` r
-animal_cohort <- read_csv(
-  here("data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv")
-)
-# add one to the time index because python starts from zero
-max_cohort_time <- max(animal_cohort$time_index) + 1
-```
-
-Before proceeding, I checked the animal cohort data and saw that all
-cohorts persisted until the final time step 132.
-
-## Resource continuous state variables
-
-Following Nick’s suggestion, I also checked the temporal trends in
-resource availability:
-
-``` r
-resource_vars <- c(
-  "soil_c_pool_arbuscular_mycorrhiza",
-  "soil_c_pool_bacteria",
-  "soil_c_pool_ectomycorrhiza",
-  "soil_c_pool_saprotrophic_fungi",
-  "soil_cnp_pool_pom"
-)
-
-resource_cont <- tidy_continuous_data(ve_output_path, variables = resource_vars)
-
-resource_cont |>
-  unite("variable2", variable, element, na.rm = TRUE) |>
-  ggplot() +
-  facet_wrap(~variable2, ncol = 1, scales = "free_y") +
-  geom_line(aes(time_index, value, group = cell_id), alpha = 0.5) +
-  theme_bw()
-```
-
-![](fig-resource-trend-1.png)
-
 ## Trophic interactions
-
-In contrast, the resource consumption by all animals stay at zero
-without any numeric imprecision.
 
 ``` r
 # source function to post-process trophic interactions from #243
@@ -486,35 +455,90 @@ py_to_r(trophic_analysis$group_df) |>
 src="fig-resource-interactions-1.png"
 id="fig-resource-interactions" />
 
+``` r
+animal_cohort <- read_csv(
+  here("data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv")
+)
+# add one to the time index because python starts from zero
+max_cohort_time <- max(animal_cohort$time_index) + 1
+```
+
+Before proceeding, I checked the animal cohort data and saw that at
+least some cohorts persisted until the final time step 132.
+
+## Resource continuous state variables
+
+Following Nick’s suggestion, I also checked the temporal trends in
+resource availability:
+
+``` r
+resource_vars <- c(
+  "soil_c_pool_arbuscular_mycorrhiza",
+  "soil_c_pool_bacteria",
+  "soil_c_pool_ectomycorrhiza",
+  "soil_c_pool_saprotrophic_fungi",
+  "soil_cnp_pool_pom"
+)
+
+resource_cont <- tidy_continuous_data(ve_output_path, variables = resource_vars)
+
+resource_cont |>
+  unite("variable2", variable, element, na.rm = TRUE) |>
+  ggplot() +
+  facet_wrap(~variable2, ncol = 1, scales = "free_y") +
+  geom_line(aes(time_index, value, group = cell_id), alpha = 0.5) +
+  theme_bw()
+```
+
+![](fig-resource-trend-1.png)
+
 ## Questions
 
-A few follow-up questions upon seeing the temporal graphs:
+<div>
 
-- Why do we still see non-zero values in some variables long after all
-  animals have gone extinct since time step 132?
-- Presumably these variables are positive only; what do the negative
-  values mean? The way they fluctuate almost symmetrically around zero
-  makes me suspect that the non-zero values are not true non-zeros but
-  numerical imprecision.
-- There seems to be some relationship with resource availability. But
-  there is no animal to consume then at later time steps?
+> **Outdated**
+>
+> A few follow-up questions upon seeing the temporal graphs:
+>
+> - Why do we still see non-zero values in some variables long after all
+>   animals have gone extinct since time step 132?
+> - Presumably these variables are positive only; what do the negative
+>   values mean? The way they fluctuate almost symmetrically around zero
+>   makes me suspect that the non-zero values are not true non-zeros but
+>   numerical imprecision.
+> - There seems to be some relationship with resource availability. But
+>   there is no animal to consume then at later time steps?
+>
+> *If these trends are numerical artefacts rather than true consumption
+> and respiration rates, then there is not much point to read on.*
 
-*If these trends are numerical artefacts rather than true consumption
-and respiration rates, then there is not much point to read on.*
+</div>
+
+The only persisting question seems to be the non-zero lower bounds of
+some animal continuous variables.
 
 ## Why do we need persistent animal populations
 
-Mainly so that we can include animal-related state variables into the
-sensitivity analyses. More importantly, the animal variables feed back
-into the non-animal variables. Unless we are truly aiming for an
-empty-forest scenario, we will be left with a half-complete sensitivity
-analysis.
+<div>
 
-Should we consider an alternative set of animal FG definitions?
-Currently `maliau_2` uses the level 1 definition, which contain only a
-single herbivorous endotherm that always go extinct very early on. Has
-anyone run VE with the level 2 definitions? If the level 2 groups also
-go extinct, should we consider an alternative set (perhaps more basal in
-tropic levels) that can persist over time, and hence continue to keep
-the animal and non-animal components coupled until the end of
-simulation?
+> **Outdated**
+>
+> Mainly so that we can include animal-related state variables into the
+> sensitivity analyses. More importantly, the animal variables feed back
+> into the non-animal variables. Unless we are truly aiming for an
+> empty-forest scenario, we will be left with a half-complete
+> sensitivity analysis.
+>
+> Should we consider an alternative set of animal FG definitions?
+> Currently `maliau_2` uses the level 1 definition, which contain only a
+> single herbivorous endotherm that always go extinct very early on. Has
+> anyone run VE with the level 2 definitions? If the level 2 groups also
+> go extinct, should we consider an alternative set (perhaps more basal
+> in tropic levels) that can persist over time, and hence continue to
+> keep the animal and non-animal components coupled until the end of
+> simulation?
+
+</div>
+
+We do have persistent animal populations now until the end of the
+simulation, but note that we are using level 3 FG input data.
