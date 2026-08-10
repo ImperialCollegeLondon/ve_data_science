@@ -33,7 +33,7 @@
 
 library(tidyverse)
 library(tidync)
-source("tools/R/tidy_continuous_data.R")
+source("tools/R/R/tidy_continuous_data.R")
 
 # an example use of tidy_continuous_data() on state variables with the CNP
 # element dimension;
