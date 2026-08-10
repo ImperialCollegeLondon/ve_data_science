@@ -1,4 +1,4 @@
-# Empty forest? We need a scenario with persistent animal populations over the simulation period
+# Troubleshooting continuous outputs related to animals
 Lai, Hao Ran
 2026-08-10
 
@@ -17,17 +17,28 @@ source(here("tools/R/R/get_ve_variables.R"))
 
 ## Preamble
 
-I am conducting a sensitivity analysis for the soil and litter modules.
-A sensitivity analysis examines how much of the variation in an output
-is attributed to variation in an input. **However, if an output never
-varies, it is meaningless to conduct a sensitivity analysis.** This
-happens to a few animal-related outputs in the `all_continuous_data.nc`
-file. My gut feeling is that the lack of temporal variation is due to
-the animal FGs dying off, hence the exploration here.
+<div>
 
-At the end of this report, I explain why we might want to design a
-scenario where there is at least some persistent animal populations, at
-least for the purpose of sensitivity analyses.
+> **Outdated**
+>
+> I am conducting a sensitivity analysis for the soil and litter
+> modules. A sensitivity analysis examines how much of the variation in
+> an output is attributed to variation in an input. **However, if an
+> output never varies, it is meaningless to conduct a sensitivity
+> analysis.** This happens to a few animal-related outputs in the
+> `all_continuous_data.nc` file. My gut feeling is that the lack of
+> temporal variation is due to the animal FGs dying off, hence the
+> exploration here.
+>
+> At the end of this report, I explain why we might want to design a
+> scenario where there is at least some persistent animal populations,
+> at least for the purpose of sensitivity analyses.
+
+</div>
+
+Most if not all of the issues raised previously have been resolved. This
+report shows the some of the latest figures of VE outputs related to
+animal diet.
 
 ## Model and data summary
 
@@ -467,7 +478,7 @@ trophic_analysis$group_and_aggregate()
 py_to_r(trophic_analysis$group_df) |>
   ggplot() +
   geom_line(aes(time_index, C)) +
-  facet_wrap(~resource_kind, ncol = 1) +
+  facet_wrap(~resource_kind, scales = "free_y", ncol = 1) +
   theme_bw()
 ```
 
