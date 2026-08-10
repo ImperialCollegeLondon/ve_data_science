@@ -2458,6 +2458,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pyprojroot"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ec/7f/d04044efe4acc4185db1174209fadac33cc21c015ed0d6bef8884c9fa808/pyprojroot-0.3.0.tar.gz", hash = "sha256:109705bb790968704958efcfc5ccce85d8e3dafa054897cc81371fcbbf56cb10", size = 6287, upload-time = "2023-03-13T05:39:30.318Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/9b/eef01392be945c0fe86a8d084ba9188b1e2b22af037d7109b9f40a962cd0/pyprojroot-0.3.0-py3-none-any.whl", hash = "sha256:c426b51b17ab4f4d4f95b479cf5b6c22df59bb58fbd4f01b37a6977d29b99888", size = 7558, upload-time = "2023-03-13T05:39:28.707Z" },
+]
+
+[[package]]
 name = "pyrealm"
 version = "3.0.0rc2"
 source = { registry = "https://pypi.org/simple" }
@@ -3318,6 +3330,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pre-commit" },
     { name = "pyproj" },
+    { name = "pyprojroot" },
     { name = "pyyaml" },
     { name = "radian" },
     { name = "rasterio" },
@@ -3335,6 +3348,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pre-commit" },
     { name = "virtual-ecosystem", version = "0.2.1", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#014b221490177e3be8af9f347b674a41d60ead7b" } },
 ]
 dev-pinned = [
@@ -3352,12 +3366,13 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.1,<3" },
     { name = "pre-commit", specifier = ">=4.6.1,<5" },
     { name = "pyproj", specifier = ">=3.7.1,<4" },
+    { name = "pyprojroot", specifier = ">=0.3.0" },
     { name = "pyyaml", specifier = ">=6.0.2,<7" },
     { name = "radian", specifier = ">=0.6.13,<0.7" },
     { name = "rasterio", specifier = ">=1.4.3,<2" },
     { name = "rioxarray", specifier = ">=0.23.0,<0.24" },
     { name = "ruff", specifier = ">=0.16.1,<0.17" },
-    { name = "salib" },
+    { name = "salib", specifier = ">=1.5.1,<2" },
     { name = "shapely", specifier = ">=2.1.1,<3" },
     { name = "tomli-w", specifier = ">=1.2.0,<2" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20260724,<7" },
@@ -3366,7 +3381,10 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "virtual-ecosystem", git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git" }]
+dev = [
+    { name = "pre-commit", specifier = ">=4.6.1" },
+    { name = "virtual-ecosystem", git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git" },
+]
 dev-pinned = [{ name = "virtual-ecosystem", git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git?rev=0f67349" }]
 
 [[package]]

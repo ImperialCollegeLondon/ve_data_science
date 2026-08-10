@@ -6,17 +6,23 @@ description: |
   This script generates Morris samples for selected Virtual Ecosystem model
   parameters/constants and creates a `job_config_morris.toml` file for batch model runs.
 
-   It loads parameter and group definitions from
-   `sensitivity_parameters.toml`, builds the Morris problem specification, and
-   generates trajectories using the configured number of levels, trajectories,
-   and random seed options (if present). The resulting samples are translated
-   into `job_config_morris.toml` entries so each sampled parameter set is executed as a
-   separate simulation job.
+  It loads parameter and group definitions from
+  `sensitivity_parameters.toml`, builds the Morris problem specification, and
+  generates trajectories using the configured number of levels, trajectories,
+  and random seed options (if present). The resulting samples are translated
+  into `job_config_morris.toml` entries so each sampled parameter set is executed as a
+  separate simulation job.
 
-   The workflow is generic and can be used for constants from any Virtual
-   Ecosystem module, provided the relevant parameter/constant ranges are defined
-   in `sensitivity_parameters.toml`. In this script, the `hydrology` group is
-   used as an example setup.
+  The workflow is generic and can be used for constants from any Virtual
+  Ecosystem module, provided the relevant parameter/constant ranges are defined
+  in `sensitivity_parameters.toml`. In this script, the `hydrology` group is
+  used as an example setup.
+
+  This script performs the Morris sampling and job-configuration generation
+  stage of the sensitivity-analysis workflow. It does not run the Virtual
+  Ecosystem simulations or calculate the final Morris elementary-effect
+  statistics. After the simulations have completed, the model outputs can
+  be analysed to calculate and interpret Morris sensitivity measures.
 
 virtual_ecosystem_module: all
 
@@ -41,7 +47,6 @@ input_files:
       only the selected parameters replaced by the sampled values specified in
       the generated `job_config_sobol.toml`.
 
-
 output_files:
   - name: job_config_morris.toml
     path: data/sensitivity/hydrology/config/job_config_morris.toml
@@ -52,20 +57,68 @@ output_files:
       file is used as input to the HPC batch submission workflow to execute the
       complete sensitivity analysis experiment.
 
-package_dependencies:
-  - pathlib
-  - tools.python.abiotic.job_config_tools
-  - tools.python.abiotic.sensitivity_tools
+
+requirements:
+  python: ">=3.12"
+  package_manager: uv
+
+  installation: |
+    All external Python dependencies are defined in `pyproject.toml`.
+    From the repository root, synchronise the project environment using:
+
+      `uv sync`
+
+  external_packages:
+    - pyprojroot
+    - SALib
+
+  standard_library:
+    - sys
+    - pathlib
+
+  local_modules:
+    - tools.python.abiotic.job_config_tools
+    - tools.python.abiotic.sensitivity_tools
+
+  notes: |
+    `pyprojroot` is used to locate the repository root by searching for
+    `pyproject.toml`. The repository root is added to `sys.path` so that
+    the local `tools.python.abiotic` modules can be imported when the
+    script is executed directly.
+
+    `sys` and `pathlib` are part of the Python standard library and do not
+    require separate installation.
+
+    The `tools.python.abiotic.*` modules are part of the repository and do
+    not require separate installation.
 
 usage_notes: |
-  1. Edit `sensitivity_parameters.toml` to define the parameters and bounds.
+  1. Define the parameters, parameter groups and sampling bounds in
+     `sensitivity_parameters.toml`.
+
   2. Select one or more parameter groups using `groups`.
-  3. Adjust the number of Morris trajectories (`number_of_trajectories`).
-  4. Adjust the number of grid levels (`number_of_levels`) if required.
-  5. Optionally specify `optimal_trajectories` for trajectory optimisation.
-  6. Run as "python morris_sample.py"  to generate `job_config_morris.toml`.
-  7. Submit the generated job configuration using your preferred execution
-     workflow (e.g. HPC batch submission).
+
+  3. Set `number_of_trajectories` to control the number of Morris
+     trajectories generated for the sensitivity analysis.
+
+  4. Set `number_of_levels` to define the number of grid levels used for
+     parameter perturbations.
+
+  5. Optionally configure `optimal_trajectories` to select a subset of
+     trajectories using trajectory optimisation.
+
+  6. Set `random_seed` to a fixed integer to make the Sobol sampling design
+       reproducible. Using the same seed and sampling configuration will reproduce
+       the same sampling design.
+
+  7. Run the script from the repository root using the project's uv-managed
+     environment:
+
+       `uv run python analysis/abiotic/sensitivity/morris_sample.py`
+
+  8. The script generates `job_config_morris.toml`, containing one Virtual
+     Ecosystem job for each sampled parameter combination.
+
 
  references: |
      Morris, M. D. (1991). Factorial sampling plans for preliminary computational
@@ -82,9 +135,10 @@ in the SALib documentation: https://salib.readthedocs.io/en/latest/
 """  # noqa: D400, D205, D212, D415
 
 import sys
-from pathlib import Path
 
-project_root = Path(__file__).resolve().parents[3]
+from pyprojroot import here
+
+project_root = here("pyproject.toml").parent
 
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
@@ -112,7 +166,9 @@ groups = [
 ]
 
 # Morris sampling settings.
-#
+# NOTE:-
+# Modify the sampling settings  based on the requirement of the sensitivity analysis.
+
 # number_of_trajectories:
 #     Number of Morris trajectories (N) to generate. Increasing the number of
 #     trajectories improves the robustness of the estimated elementary effects
@@ -130,6 +186,11 @@ number_of_levels = 4
 #     trajectory optimisation.
 optimal_trajectories = None
 
+# Random seed used to make the Morris sampling design reproducible.
+random_seed = 2026
+# NOTE:-
+# Use the same seed and sampling settings to producethe same sample set.
+
 # =============================================================================
 # DIRECTORY SETTINGS
 # =============================================================================
@@ -137,7 +198,7 @@ optimal_trajectories = None
 # including parameter definitions, the base VE configuration, and the generated
 # HPC job configuration.
 
-config_directory = Path("data/sensitivity/hydrology/config")
+config_directory = project_root / "data/sensitivity/hydrology/config"
 
 parameter_file = config_directory / "sensitivity_parameters.toml"
 
@@ -148,13 +209,13 @@ output_file = config_directory / "job_config_morris.toml"
 # Scenario data directory containing the Virtual Ecosystem input datasets
 # (e.g. climate, soil, vegetation and other site-specific data) required to
 # execute each simulation. This directory is referenced by the generated
-# `job_config.toml` and is used by the HPC workflow when running VE.
-site_directory = Path("data/sensitivity/hydrology/data")
+# `job_config_morris.toml` and is used by the HPC workflow when running VE.
+site_directory = project_root / "data/sensitivity/hydrology/data"
 
 # =============================================================================
 # LOAD PARAMETER DEFINITIONS
 # =============================================================================
-# Read parameter definitions and build the Sobol problem structure.
+# Read parameter definitions and build the Morris problem structure.
 
 problem = load_problem(
     parameter_file=parameter_file,
@@ -164,19 +225,21 @@ problem = load_problem(
 # =============================================================================
 # GENERATE MORRIS SAMPLES
 # =============================================================================
-# Generate Morris samples using the configured sample size and order.
+# Generate Morris samples using the configured number of trajectories,
+# grid levels, trajectory optimisation, and random seed.r.
 
 samples = generate_morris_samples(
     problem=problem,
     n_trajectories=number_of_trajectories,
     num_levels=number_of_levels,
     optimal_trajectories=optimal_trajectories,
+    seed=random_seed,
 )
 
 # =============================================================================
 # GENERATE JOB CONFIGURATION
 # =============================================================================
-# Write sampled parameter sets into a VE job configuration TOML file.
+# Write sampled parameter sets into a job configuration TOML file.
 
 metadata = generate_job_config(
     samples=samples,
@@ -189,7 +252,7 @@ metadata = generate_job_config(
 # =============================================================================
 # SUMMARY
 # =============================================================================
-# Print a summary of the generated Sobol samples and job configuration details=
+# Print a summary of the generated Morris samples and job configuration details.
 
 print("=" * 60)
 print("Morris sampling completed successfully")
