@@ -26,7 +26,7 @@ execute:
 
 <!-- markdownlint-disable MD013 MD031 MD055-->
 
-```{r}
+```text {r}
 #| label: load-packages
 library(tidync)
 library(tidyverse)
@@ -73,7 +73,7 @@ uv run --group dev-pinned \
 - Data in `data/scenarios/maliau/maliau_2/data`
 - The animal functional group was from the file `data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv` as below. The FG of interest in `Detritivorous_soil_earthworms` that consumes `detritus_fungi_pom_bacteria`.
 
-```{r}
+```text {r}
 #| label: animal-fg-table
 #| echo: false
 #| results: asis
@@ -86,7 +86,7 @@ read_csv(
   knitr::kable(format = "pipe")
 ```
 
-```{r}
+```text {r}
 #| label: ve-version
 #| echo: false
 #| output: asis
@@ -157,7 +157,7 @@ I examined:
 - `animal_saprotrophic_fungi_consumption`
 - `total_animal_respiration`
 
-```{r}
+```text {r}
 #| label: get-data
 animal_vars <- c(
   "animal_arbuscular_mycorrhiza_consumption",
@@ -183,14 +183,14 @@ First I saw that the range of these state variables are very small. Are they tru
 
 The state variables are no longer always minute, they also showed peaks that correspond to the density of microbial consumers (see *Trophic interactions*). However, their lower bounds were not perfectly zero.
 
-```{r}
+```text {r}
 #| label: summary-table
 animal_cont |>
   group_by(variable) |>
   summarise(min = min(value), max = max(value))
 ```
 
-```{r}
+```text {r}
 #| label: fig-temporal-trend
 #| fig-cap: "Temporal trends in animal state variables. Each semi-transparent line is a grid cell."
 animal_cont |>
@@ -201,10 +201,9 @@ animal_cont |>
   theme_bw()
 ```
 
-
 ## Trophic interactions
 
-```{r}
+```text {r}
 #| label: fig-resource-interactions
 #| fig-width: 6
 #| fig-height: 4
@@ -230,7 +229,7 @@ py_to_r(trophic_analysis$group_df) |>
   theme_bw()
 ```
 
-```{r}
+```text {r}
 #| label: last-cohort
 animal_cohort <- read_csv(
   here("data/scenarios/maliau/maliau_2/out/animal_cohort_data.csv")
@@ -245,7 +244,7 @@ Before proceeding, I checked the animal cohort data and saw that at least some c
 
 Following Nick’s suggestion, I also checked the temporal trends in resource availability:
 
-```{r}
+```text {r}
 #| label: fig-resource-trend
 #| fig-cap: "Temporal trends in resource state variables. Each semi-transparent line is a grid cell."
 resource_vars <- c(
@@ -294,7 +293,7 @@ Mainly so that we can include animal-related state variables into the sensitivit
 
 Should we consider an alternative set of animal FG definitions? Currently `maliau_2` uses the level 1 definition, which contain only a single herbivorous endotherm that always go extinct very early on. Has anyone run VE with the level 2 definitions? If the level 2 groups also go extinct, should we consider an alternative set (perhaps more basal in tropic levels) that can persist over time, and hence continue to keep the animal and non-animal components coupled until the end of simulation?
 
-::: 
+:::
 
 We do have persistent animal populations now until the end of the simulation, but note that we are using level 3 FG input data.
 <!-- #endregion -->
