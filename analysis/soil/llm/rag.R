@@ -44,7 +44,13 @@ library(ragnar)
 store_location <- "data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb"
 store <- ragnar_store_create(
   store_location,
-  embed = embed_ollama(model = "embeddinggemma")
+  embed = \(x) {
+    embed_azure_openai(
+      x,
+      model = "embed-v-4-0",
+      endpoint = "https://ellmer.services.ai.azure.com"
+    )
+  }
 )
 
 # Files to be inserted into the store
@@ -55,10 +61,10 @@ files <- c(
   # "../virtual_ecosystem/docs/source/using_the_ve",
   # "../virtual_ecosystem/docs/source/virtual_ecosystem",
   # "../virtual_ecosystem/virtual_ecosystem",
-  "../virtual_ecosystem/virtual_ecosystem/models/soil"
+  ".venv/Lib/site-packages/virtual_ecosystem/models/soil"
 ) |>
   purrr::map(
-    \(path) list.files(path, recursive = TRUE, full.names = TRUE)
+    \(path) list.files(path, "\\.py$", recursive = TRUE, full.names = TRUE)
   ) |>
   purrr::list_c()
 
