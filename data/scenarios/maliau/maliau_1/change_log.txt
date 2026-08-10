@@ -1,5 +1,51 @@
 # Change log of maliau_1 scenario input data
 
+2026-08-07
+- Module: Animal
+- Author: Baizurah Malik
+- Files changed:
+  - Animal functional group input data for the `data/scenarios/maliau/maliau_1`
+    scenario.
+- Changes made:
+  - Revised the Maliau_1 animal functional group input data Level 2 and Level 3.
+  - Organised level 1-3 animal input data by increasing levels of ecological
+    complexity, from a minimum functional-group setup to progressively broader
+    trait and interaction coverage.
+  - Updated functional-group representatives using literature-supported adult
+    mass, birth mass, diet resources, species-specific data or
+    appropriate taxonomic proxies when identified.
+  - Standardised the input data format for compatibility with Virtual Ecosystem
+    version 0.2.1.
+- Notes:
+  - Where species-specific trait data are unavailable, appropriate taxonomic
+    proxies or published allometric relationships are used and documented in
+    the associated input-data records.
+
+2026-08-07
+- Module: Soil, Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+- Changes made:
+  - Fixed a missing conversion of [%] to [kg/kg], causing total soil carbon and
+    nitrogen to take on erroreously high values
+- References:
+  - PR #492 addressing Issue #471
+
+2026-07-31
+- Module: Soil, Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/litter_maliau.nc
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+- Changes made:
+  - Fixed a missing transpose in the converter function
+    tools/R/R/convert_df_to_nc.R; all soil and litter input variables should
+    now be in the right dimensions. Notably, stoichiometric ratios should be
+    much more sensible.
+- References:
+  - PR #464 addressing Issue #455
+
 2026-07-23
 - Module: All
 - Author: Baizurah Malik
