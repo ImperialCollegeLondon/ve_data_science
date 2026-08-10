@@ -1,59 +1,104 @@
+library(tidyverse)
+library(arrow)
 library(calibrar)
-box::use(tools/R/ve_run[ve_run])
+box::use(tools/R/R/ve_run[ve_run])
+box::use(tools/R/R/valdb)
 
 
 # Model function ---------------------------------------------------------
 
+# Function to run VE on selected parameters to be calibrated
 run_model <- function(par, ...) {
-  venv <- ".venv"
-  config_path <- "data/scenarios/maliau/maliau_2/config"
-  out_path <- "data/scenarios/maliau/maliau_2/out"
+  # define scenario config and out paths
+  scenario_path <- "data/scenarios/maliau/maliau_2"
+  config_path <- c(
+    file.path(scenario_path, "config/data_config.toml"),
+    file.path(scenario_path, "config/abiotic_simple_config.toml"),
+    file.path(scenario_path, "config/animal_config.toml"),
+    file.path(scenario_path, "config/hydrology_config.toml"),
+    file.path(scenario_path, "config/litter_config.toml"),
+    file.path(scenario_path, "config/plant_config.toml"),
+    file.path(scenario_path, "config/soil_config.toml")
+  )
+  out_folder <- "out_calibrate"
+  out_path <- file.path(scenario_path, out_folder)
+  if (!dir.exists(out_path)) {
+    dir.create(out_path, recursive = TRUE)
+  }
+  withr::defer(unlink(out_path, recursive = TRUE, force = TRUE))
+
+  # collect calibration parameters to be modified in the config
+  pars_calibrate <-
+    par |>
+    imap(\(group_vals, group_name) {
+      group_vals |>
+        imap(\(val, param_name) {
+          c("--config", paste0(group_name, ".constants.", param_name, "=", val))
+        }) |>
+        unlist(use.names = FALSE)
+    }) |>
+    unlist(use.names = FALSE)
+
+  # paste the VE args together
+  # debug.truncate_run_at_update is for testing purpose
   args <- c(
     config_path,
     "--out",
     out_path,
     "--logfile",
-    paste0(out_path, "/logfile.log"),
-    "--config",
-    "core.debug.truncate_run_at_update=4"
+    file.path(out_path, "logfile.log")
   )
-  ve_run(args, venv)
 
-  # read VE output
-  return(out)
+  # run VE
+  ve_run(args)
+
+  # Read the validation database
+  db_path <- "data/derived/soil/validation/database"
+  validation_database <- open_dataset(db_path) |> collect()
+
+  # Combine the validation database with VE outputs
+  zarr_path <- file.path(scenario_path, out_folder, "model_data.zarr")
+  config_path <- file.path(
+    scenario_path,
+    out_folder,
+    "compiled_configuration.toml"
+  )
+  valdb$join_ve_outputs(validation_database, zarr_path, config_path)
 }
 
 
 # Objective function -----------------------------------------------------
 
-obj <- function(par, x, y) {
-  y_sim <- apply(x, 1, linear, par = par)
-  out <- sum((y_sim - y)^2)
-  return(out)
+# obj() mustn't return NA
+
+obj <- function(par) {
+  sim <- run_model(par)
+  y <- sim$value_canonical
+  y_sim <- sim$value_VE_q50
+  loss <- sum((y_sim - y)^2)
+  return(loss)
 }
 
-
-# Validation data --------------------------------------------------------
-# This is the observed data / response variables
 
 # Calibration ------------------------------------------------------------
 
 # set.seed(880820)
 
 # initial values
-start <- list(intercept = 0, slope = rep(0, N))
+start <- list(
+  soil = list(litter_leaching_fraction_carbon = 0.0015)
+)
 
 # parameter bounds
-lower <- relist(rep(-10, N + 1), skeleton = start)
-upper <- relist(rep(+10, N + 1), skeleton = start)
+# lower <- list(litter_leaching_fraction_carbon = 0.0001)
+# upper <- list(litter_leaching_fraction_carbon = 0.0100)
 
 # optimisation
 opt <- calibrate(
   par = start,
-  fn = obj,
-  x = x,
-  y = y,
-  lower = lower,
-  upper = upper
+  fn = obj
+  # lower = lower,
+  # upper = upper
 )
+
 coef(opt)
