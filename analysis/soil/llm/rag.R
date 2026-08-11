@@ -59,7 +59,7 @@
 #|   Azure OpenAI endpoint credentials must be available for embedding.
 #| ---
 
-# ---- Setup: Load Python dependencies and RAG library ----
+# Load Python and R dependencies -------------------------------------------
 
 # Parse project dependencies from pyproject.toml so reticulate can set up
 # the correct Python environment before loading ragnar.
@@ -109,9 +109,11 @@ library(ragnar)
 # CodeSplitter.
 stopifnot(reticulate::py_module_available("llama_index.core"))
 
-# ---- Phase 1: Split source code into chunks ----
+
+# Split VE source code into chunks -------------------------------------------
 
 # Paths to the installed soil module and output locations.
+# NB: source_root can be a cloned repo instead of an installed module
 source_root <- ".venv/Lib/site-packages/virtual_ecosystem/models/soil"
 chunk_location <- "data/derived/soil/llm/soil_code_chunks.jsonl"
 store_location <- "data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb"
@@ -120,6 +122,8 @@ store_location <- "data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb"
 # module. CodeSplitter uses syntax trees to split code logically (e.g., at
 # function/class boundaries) and outputs a JSONL file with metadata about each
 # chunk (source file, line numbers, qualified symbols).
+# NB: the max_chars = 8000L is decided after some trial-and-error that resulted
+#     in the least amount of codes split across chunks
 code_splitter <- reticulate::import_from_path(
   "code_splitter",
   path = "tools/python/src/ve_data_tools"
@@ -136,7 +140,8 @@ chunk_connection <- file(chunk_location, open = "r", encoding = "UTF-8")
 chunk_records <- jsonlite::stream_in(chunk_connection, verbose = FALSE)
 close(chunk_connection)
 
-# ---- Phase 2: Initialize the RAG store ----
+
+# Initialize the RAG store --------------------------------------------------
 
 # Create a new DuckDB database and configure it with an embedding function.
 # Embeddings convert text into vectors; when searching, the RAG system will
@@ -152,8 +157,7 @@ store <- ragnar_store_create(
   }
 )
 
-# ---- Helper: Retry insertion with exponential backoff ----
-
+# Helper to retry insertion with exponential backoff
 # The embedding service has rate limits (HTTP 429 errors). This function
 # attempts insertion and retries with exponential backoff + jitter if rate
 # limited. Other errors stop immediately.
@@ -206,7 +210,8 @@ insert_with_backoff <- function(
   }
 }
 
-# ---- Phase 3: Ingest chunks into the RAG store ----
+
+# Ingest chunks into the RAG store -------------------------------------------
 
 # Iterate over each source file. For each file: (1) read the original source
 # to locate exact character positions of each chunk, (2) wrap chunks with
@@ -226,7 +231,7 @@ for (source_path in unique(chunk_records$source_path)) {
   document_text <- as.character(document)
 
   # For each chunk, find its exact character position in the source file by
-  # searching for the chunk text. This ensures Ragnar can link embeddings back
+  # searching for the chunk text. This ensures ragnar can link embeddings back
   # to the original source.
   starts <- integer(nrow(records))
   ends <- integer(nrow(records))
@@ -252,7 +257,7 @@ for (source_path in unique(chunk_records$source_path)) {
   }
 
   # Assemble the chunks with their positions and metadata into a structure
-  # that Ragnar expects. This includes the chunk text, source location,
+  # that ragnar expects. This includes the chunk text, source location,
   # and all symbol/module metadata for filtering and context.
   chunks <- MarkdownDocumentChunks(
     tibble::tibble(
@@ -283,7 +288,7 @@ for (source_path in unique(chunk_records$source_path)) {
   Sys.sleep(0.5)
 }
 
-# ---- Phase 4: Finalize the store ----
+# Finalize the store ------------------------------------------------------
 
 # Build the vector index in DuckDB so queries can efficiently search by
 # embedding similarity. Then close the connection.
