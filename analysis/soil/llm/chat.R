@@ -239,10 +239,10 @@ chat <- chat_openai_compatible(
 ragnar_register_tool_retrieve(chat, store, top_k = 3)
 
 # quick check about the knowledge store
-chat$chat(
-  "Tell me what you know about the constant parameter `maom_desorption_rate`.
-   Respond in GitHub flavoured Markdown format."
-)
+# chat$chat(
+#   "Tell me what you know about the constant parameter `maom_desorption_rate`.
+#    Respond in GitHub flavoured Markdown format."
+# )
 
 # Run a general chat first for tool calling (RAG)
 tictoc::tic()
@@ -253,3 +253,5 @@ tictoc::toc()
 tictoc::tic()
 constant_search_structured <- chat$chat_structured(type = type_output)
 tictoc::toc()
+
+token_usage()
