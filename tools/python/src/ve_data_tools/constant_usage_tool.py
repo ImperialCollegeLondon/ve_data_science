@@ -50,6 +50,24 @@ declare attributes with the same bare name (for example ``turnover_rate`` on
 both ``SoilEnzymeClass`` and ``SoilMicrobialGroup``), and ``jedi`` returns
 inconsistent or ``None`` full names. Constructing the key locally guarantees
 uniqueness and makes collisions detectable.
+
+Output structure
+----------------
+
+Function docstrings are stored once in a top-level ``functions`` table and
+referenced from each site by qualified name. A single function may consume
+dozens of constants, so inlining its docstring at every site inflates the
+output several-fold and wastes context when the database is passed to a
+language model.
+
+Test references
+---------------
+
+``include_tests`` controls whether reference sites inside a ``tests`` directory
+are retained. Note that ``jedi`` resolves references through the project's
+import graph and does not reliably report every textual usage in a test suite,
+so this filter should be treated as best effort rather than an exhaustive
+account of test usage.
 """
 
 from __future__ import annotations
@@ -58,6 +76,7 @@ import ast
 import importlib
 import subprocess
 import sys
+import textwrap
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -73,22 +92,24 @@ VALIDATOR_DECORATORS = frozenset(
 
 @dataclass
 class ConstantReference:
-    """One site where a configuration constant is referenced."""
+    """One site where a configuration constant is referenced.
+
+    ``caller`` and ``consumer`` are keys into the ``functions`` table of the
+    output rather than inlined docstrings.
+    """
 
     file: str
     line: int
     column: int
     caller: str
-    caller_docstring: str
     usage_kind: str
     consumer: str = ""
-    consumer_docstring: str = ""
     forwarded_as: str = ""
     expression: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         """Return a TOML-serialisable mapping with no ``None`` values."""
-        return {key: value for key, value in self.__dict__.items()}
+        return dict(self.__dict__)
 
 
 @dataclass
@@ -117,9 +138,18 @@ class ConstantRecord:
 
 def _git_commit(project_root: Path) -> str:
     """Return the current git commit of the analysed project, if available."""
+    return _git(project_root, "rev-parse", "HEAD")
+
+
+def _git(project_root: Path, *arguments: str) -> str:
+    """Run a git command in the analysed project and return its output.
+
+    Returns an empty string if git is unavailable or the command fails, so that
+    provenance capture never blocks analysis.
+    """
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
+            ["git", *arguments],
             cwd=project_root,
             capture_output=True,
             text=True,
@@ -129,6 +159,94 @@ def _git_commit(project_root: Path) -> str:
         return ""
 
     return result.stdout.strip()
+
+
+def _source_is_modified(project_root: Path, package_directory: str) -> bool:
+    """Return whether analysed Python sources have uncommitted changes.
+
+    Only Python files inside the analysed package are considered. Editor
+    settings, notebooks, and other incidental working-tree changes do not
+    affect the extracted constants, so treating them as provenance failures
+    would raise false alarms on every checkout.
+    """
+    status = _git(project_root, "status", "--porcelain", "--", package_directory)
+    if not status:
+        return False
+
+    for line in status.splitlines():
+        # Porcelain format is a two-character status followed by the path.
+        path = line[3:].strip().strip('"')
+        # Renames are reported as "old -> new"; the destination is what matters.
+        _, separator, destination = path.partition(" -> ")
+        if separator:
+            path = destination
+
+        if path.endswith(".py"):
+            return True
+
+    return False
+
+
+def _upstream_state(project_root: Path) -> dict[str, Any]:
+    """Compare the checked-out commit with its upstream tracking branch.
+
+    Records whether the analysed commit exists on the remote. A local-only
+    commit cannot be recovered by a collaborator from the hash alone.
+    """
+    upstream = _git(project_root, "rev-parse", "--abbrev-ref", "@{upstream}")
+    if not upstream:
+        return {"project_upstream": "", "project_upstream_synced": False}
+
+    counts = _git(
+        project_root, "rev-list", "--left-right", "--count", "HEAD...@{upstream}"
+    )
+    ahead, _, behind = counts.partition("\t")
+
+    return {
+        "project_upstream": upstream,
+        "project_upstream_synced": counts != "" and ahead.strip() == "0",
+        "project_commits_ahead_of_upstream": int(ahead) if ahead.strip() else 0,
+        "project_commits_behind_upstream": int(behind.strip()) if behind.strip() else 0,
+    }
+
+
+def _project_provenance(
+    project_root: Path, package_directory: str = "virtual_ecosystem"
+) -> dict[str, Any]:
+    """Describe the state of the analysed source tree.
+
+    A commit hash alone implies a clean checkout that exists on the remote.
+    Recording the version, branch, upstream state, and whether the analysed
+    Python sources carry uncommitted changes makes it explicit when the source
+    cannot be recovered from the hash, which matters when the resulting values
+    are used to parameterise a published model.
+
+    Args:
+        project_root: Root of the analysed repository.
+        package_directory: Directory holding the analysed Python package.
+            Working-tree changes outside it are ignored.
+
+    """
+    version = ""
+    pyproject = project_root / "pyproject.toml"
+    if pyproject.is_file():
+        for line in pyproject.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if stripped.startswith("version"):
+                _, _, raw = stripped.partition("=")
+                version = raw.strip().strip('"').strip("'")
+                break
+
+    provenance = {
+        "project_version": version,
+        "project_commit": _git_commit(project_root),
+        "project_branch": _git(project_root, "rev-parse", "--abbrev-ref", "HEAD"),
+        "project_describe": _git(project_root, "describe", "--tags", "--always"),
+        "project_source_modified": _source_is_modified(project_root, package_directory),
+    }
+    provenance.update(_upstream_state(project_root))
+
+    return provenance
 
 
 def _module_name_from_path(relative_path: Path) -> str:
@@ -224,7 +342,15 @@ def _attribute_docstring(class_node: ast.ClassDef, index: int) -> str:
     if not isinstance(following.value.value, str):
         return ""
 
-    return following.value.value.strip()
+    # Attribute docstrings are indented to the class body, but the first line
+    # carries no indentation because it follows the opening quotes. Dedent the
+    # remainder separately so the text renders cleanly in prompts and reports.
+    text = following.value.value
+    first, separator, rest = text.partition("\n")
+    if separator:
+        text = f"{first.strip()}\n{textwrap.dedent(rest)}"
+
+    return text.strip()
 
 
 def _enclosing_function(
@@ -333,6 +459,38 @@ def _resolve_callee(script: jedi.Script, call: ast.Call) -> tuple[str, str]:
     return definition.full_name or "", definition.docstring() or ""
 
 
+def _first_paragraph(docstring: str) -> str:
+    """Return the summary portion of a docstring.
+
+    Jedi prefixes docstrings with the full call signature and Virtual Ecosystem
+    documents arguments at length. The leading prose is what describes the
+    process a constant participates in, so signature and argument blocks are
+    dropped to keep the database compact.
+    """
+    if not docstring:
+        return ""
+
+    body = docstring
+    for section in ("\nArgs:", "\nReturns:", "\nRaises:", "\nTODO"):
+        index = body.find(section)
+        if index != -1:
+            body = body[:index]
+
+    paragraphs = [
+        paragraph.strip() for paragraph in body.split("\n\n") if paragraph.strip()
+    ]
+    if not paragraphs:
+        return ""
+
+    # The first paragraph is the signature when jedi has prepended one.
+    if len(paragraphs) > 1 and paragraphs[0].startswith(
+        (f"{docstring.split('(')[0]}(", "def ")
+    ):
+        return paragraphs[1]
+
+    return paragraphs[0]
+
+
 def _classify_reference(
     node: ast.AST,
     parents: dict[ast.AST, ast.AST],
@@ -368,7 +526,6 @@ def _classify_reference(
 
     current: ast.AST = node
     derived = False
-
     while True:
         parent = parents.get(current)
         if parent is None:
@@ -504,6 +661,7 @@ def get_constant_references(
         return script_cache[path]
 
     records: dict[str, ConstantRecord] = {}
+    functions: dict[str, str] = {}
 
     for relative_path in target_file_paths:
         full_path = (
@@ -583,10 +741,12 @@ def get_constant_references(
 
                     parent_scope = reference.parent()
                     caller = ""
-                    caller_docstring = ""
                     if parent_scope is not None:
                         caller = parent_scope.full_name or ""
-                        caller_docstring = parent_scope.docstring() or ""
+                        if caller and caller not in functions:
+                            functions[caller] = _first_paragraph(
+                                parent_scope.docstring() or ""
+                            )
 
                     if node is None:
                         classification = {"usage_kind": "unresolved"}
@@ -594,6 +754,12 @@ def get_constant_references(
                         classification = _classify_reference(
                             node, ref_parents, ref_script, ref_lines
                         )
+
+                    # Move the consumer docstring into the shared table.
+                    consumer_docstring = classification.pop("consumer_docstring", "")
+                    consumer = classification.get("consumer", "")
+                    if consumer and consumer not in functions:
+                        functions[consumer] = _first_paragraph(consumer_docstring)
 
                     try:
                         relative_reference = reference_path.relative_to(
@@ -608,7 +774,6 @@ def get_constant_references(
                             line=reference.line,
                             column=reference.column,
                             caller=caller,
-                            caller_docstring=caller_docstring,
                             expression=_expression_at(ref_lines, reference.line),
                             **classification,
                         )
@@ -620,17 +785,19 @@ def get_constant_references(
         "metadata": {
             "generated_at": datetime.now(UTC).isoformat(),
             "project_root": str(project_root),
-            "project_commit": _git_commit(project_root),
+            **_project_provenance(project_root),
             "jedi_version": jedi.__version__,
             "python_version": sys.version.split()[0],
             "include_tests": include_tests,
             "target_files": [str(Path(p).as_posix()) for p in target_file_paths],
             "constant_count": len(records),
+            "function_count": len(functions),
         },
+        "functions": functions,
         "constants": {key: record.to_dict() for key, record in records.items()},
     }
 
     with open(out_path, "wb") as stream:
         tomli_w.dump(output, stream)
 
-    return output["constants"]
+    return output
