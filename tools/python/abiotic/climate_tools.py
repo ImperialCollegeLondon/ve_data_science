@@ -6,44 +6,38 @@ title: Climate Input Data Processing Tools.
 description: |
   Provide reusable functions for preparing ERA5-Land climate input data for the
   abiotic and hydrology modules of Virtual Ecosystem (VE) model.
-  This scripts performs climate variable processing, spatial interpolation, and
+  This script performs climate variable processing, spatial interpolation, and
   climate forcing dataset generation but does not download climate data.
 
   Specifically, it:
-    1. Reads the site configuration TOML file.
-    2. Creates the target grid needed for spatial interpolation.
-    3. Calculates monthly mean diurnal temperature range (DTR) from
+    1. Calculates monthly mean diurnal temperature range (DTR) from
        ERA5-Land hourly 2 m air temperature.
-    4. Converts ERA5-Land variables to the units required by the
+    2. Converts ERA5-Land variables to the units required by the
        abiotic and hydrology modules.
-    5. Calculates relative humidity from air temperature and dewpoint
+    3. Calculates relative humidity from air temperature and dewpoint
        temperature.
-    6. Selects the climate variables required by the abiotic and hydrology modules.
-    7. Interpolates monthly climate variables and monthly DTR onto the
+    4. Selects the climate variables required by the abiotic and hydrology modules.
+    5. Interpolates monthly climate variables and monthly DTR onto the
        target grid using bilinear interpolation, with
        nearest-neighbour interpolation used to fill remaining missing
        values.
-    8. Creates the climate input dataset using  VE-standard
+    6. Creates the climate input dataset using VE-standard
        variable names.
-    9. Adds additional climate variables, including mean annual
+    7. Adds additional climate variables, including mean annual
        temperature and atmospheric CO₂ concentration.
-   10. Finalises the climate input dataset by creating the required
-       VE time structure, adding global metadata, and
-       saving a compressed NetCDF file.
+    8. Finalises the climate input dataset by creating the required
+       VE time structure and adding global metadata.
 
 virtual_ecosystem_module:
   - abiotic
   - hydrology
 
 author:
-  - Lelavathy Samikan
-  - David Orme
+  - Lelavathy
 
 status: final
 
 package_dependencies:
-  - pathlib
-  - tomllib
   - numpy
   - xarray
   - rioxarray
@@ -61,94 +55,10 @@ usage_notes: |
 ---
 """  # noqa: D212
 
-import tomllib
-from pathlib import Path
-
 import numpy as np
+import rioxarray  # noqa: F401
 import xarray as xr
-from rasterio.crs import CRS
 from rasterio.enums import Resampling
-from rasterio.transform import from_origin
-
-# ============================================================
-# SITE CONFIGURATION
-# ============================================================
-# Read the Virtual Ecosystem site configuration from a TOML file.
-
-
-def read_site_configuration(
-    toml_file: Path | str,
-    scenario_name: str,
-) -> dict:
-    """Read a site configuration TOML file.
-
-    Args:
-      toml_file: Path to the site configuration TOML file.
-      scenario_name: Name of the scenario to load.
-
-    Returns:
-      Dictionary containing the selected scenario configuration.
-
-    """
-
-    toml_file = Path(toml_file)
-
-    with open(
-        toml_file,
-        "rb",
-    ) as f:
-        config = tomllib.load(f)
-
-    return config["Scenario"][scenario_name]
-
-
-# ============================================================
-# TARGET GRID
-# ============================================================
-# Create the  target grid used for spatial interpolation.
-
-
-def get_target_grid(scenario: dict) -> dict:
-    """Create the target grid used for spatial interpolation.
-
-    Extract the grid geometry from the site configuration and generate the
-    coordinate reference system, affine transform, and output grid shape
-    required for spatial interpolation.
-
-    Args:
-      scenario: Site configuration dictionary containing the target grid
-        definition.
-
-    Returns:
-      Dictionary containing the coordinate reference system, affine
-      transform, grid shape, and x/y coordinates of the target grid.
-
-    """
-
-    x = np.asarray(scenario["cell_x_centres"], dtype=float)
-    y = np.asarray(scenario["cell_y_centres"], dtype=float)
-
-    resolution = float(scenario["res"])
-
-    transform = from_origin(
-        x.min() - resolution / 2,
-        y.max() + resolution / 2,
-        resolution,
-        resolution,
-    )
-
-    return {
-        "crs": CRS.from_epsg(scenario["epsg_code"]),
-        "transform": transform,
-        "shape": (
-            scenario["cell_ny"],
-            scenario["cell_nx"],
-        ),
-        # Preserve the coordinate ordering defined in the TOML file.
-        "x": x,
-        "y": y,
-    }
-
 
 # ============================================================
 # CLIMATE VARIABLES PROCESSING
@@ -769,62 +679,3 @@ def add_global_attributes(
     }
 
     return climate
-
-
-# ------------------------------------------------------------
-# Save climate dataset
-# ------------------------------------------------------------
-# Save the Virtual Ecosystem climate forcing dataset as a
-# compressed NetCDF file.
-
-
-def save_dataset(
-    dataset: xr.Dataset,
-    outfile: Path,
-) -> Path:
-    """Save the climate forcing dataset.
-
-    Save the Virtual Ecosystem climate forcing dataset as a
-    compressed NetCDF file.
-
-    Args:
-      dataset: Virtual Ecosystem climate forcing dataset.
-      outfile: Output NetCDF file.
-
-    Returns:
-      Path to the saved NetCDF file.
-
-    """
-
-    outfile = Path(outfile)
-
-    # Create the output directory if it does not already exist.
-
-    outfile.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    # Apply lossless compression to all climate variables.
-
-    encoding = {
-        variable: {
-            "zlib": True,
-            "complevel": 4,
-        }
-        for variable in dataset.data_vars
-    }
-
-    # --------------------------------------------------------
-    # SAVE DATASET
-    # --------------------------------------------------------
-    # Write the climate forcing dataset to a NetCDF file.
-
-    dataset.to_netcdf(
-        outfile,
-        encoding=encoding,
-    )
-
-    print(f"\nSaved:\n{outfile}")
-
-    return outfile
