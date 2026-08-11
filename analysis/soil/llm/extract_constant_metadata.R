@@ -1,12 +1,12 @@
 #| ---
-#| title: Extract soil constant metadata using the jedi constant usage tool
+#| title: Extract Virtual Ecosystem constant metadata using the jedi usage tool
 #|
 #| description: |
 #|   Uses `tools/python/src/ve_data_tools/constant_usage_tool.py` to statically
-#|   analyse Virtual Ecosystem model configuration files and build a parameter
-#|   database. Each configuration constant is recorded with its declaration,
-#|   docstring, default expression, and every site in the codebase that
-#|   references it, classified by how the constant is used.
+#|   analyse every Virtual Ecosystem model configuration file and build a
+#|   parameter database. Each configuration constant is recorded with its
+#|   declaration, docstring, default expression, and every site in the codebase
+#|   that references it, classified by how the constant is used.
 #|
 #|   Reference sites are classified as `computation` (used directly in an
 #|   expression), `kwarg_forward` or `positional_forward` (passed unmodified to
@@ -15,10 +15,14 @@
 #|   be resolved and the site needs manual review), `validator`, or
 #|   `instantiation`.
 #|
+#|   Function docstrings are stored once in a separate `functions` table and
+#|   referenced by qualified name, keeping the database compact enough to pass
+#|   to a language model.
+#|
 #|   The output is the grounding source for downstream LLM-assisted literature
 #|   mining, replacing code-level retrieval with a deterministic lookup.
 #|
-#| VE_module: Soil
+#| VE_module: All
 #|
 #| author: Hao Ran Lai
 #|
@@ -26,19 +30,19 @@
 #|
 #| input_files:
 #|   - name: model_config.py
-#|     path: virtual_ecosystem/models/soil/
+#|     path: virtual_ecosystem/**/
 #|     description: |
-#|       Virtual Ecosystem soil model configuration file, parsed to identify
+#|       All Virtual Ecosystem model configuration files, parsed to identify
 #|       configuration classes and their constants. Reference sites are then
 #|       resolved across the whole virtual_ecosystem project.
 #|
 #| output_files:
-#|   - name: soil_constant_usage.toml
-#|     path: data/derived/soil/llm/
+#|   - name: ve_constant_usage.toml
+#|     path: data/derived/llm/
 #|     description: |
-#|       Parameter database mapping each soil constant to its metadata and
-#|       classified reference sites, with a metadata table recording the
-#|       analysed commit for reproducibility.
+#|       Parameter database mapping each constant to its metadata and classified
+#|       reference sites, a shared function-docstring table, and a metadata
+#|       table recording the analysed commit for reproducibility.
 #|
 #| source_files:
 #|   - name: constant_usage_tool.py
@@ -53,6 +57,8 @@
 #|   - reticulate
 #|   - here
 #|   - withr
+#|   - fs
+#|   - cli
 #|
 #| usage_notes: |
 #|   Requires a Python virtual environment at the repository root (.venv) with
@@ -84,16 +90,21 @@ cu <- import_from_path(
 # Root of the virtual_ecosystem clone, assumed to be a sibling of this repo
 ve_project_root <- here("..", "virtual_ecosystem")
 
-# Configuration files to parse. Reference sites are searched project-wide, so
-# constants used outside the soil module are still captured.
-ve_config_files <- c(
-  "virtual_ecosystem/models/soil/model_config.py"
-)
+# Every model configuration file in the repository. Reference sites are
+# searched project-wide, so cross-module usage is captured.
+ve_config_files <-
+  list.files(
+    file.path(ve_project_root, "virtual_ecosystem"),
+    pattern = "^model_config\\.py$",
+    recursive = TRUE,
+    full.names = TRUE
+  ) |>
+  fs::path_rel(ve_project_root)
 
-soil_constant_usage <-
+ve_constants <-
   cu$get_constant_references(
-    target_file_path = ve_config_files,
-    out_path = here("data/derived/soil/llm/soil_constant_usage.toml"),
+    target_file_path = as.list(ve_config_files),
+    out_path = here("data/derived/llm/ve_constant_usage.toml"),
     project_root = ve_project_root,
     include_tests = FALSE
   )
@@ -101,13 +112,28 @@ soil_constant_usage <-
 
 # Inspect the results ----------------------------------------------------
 
+# Provenance of the analysed source. A commit hash only identifies the source
+# if the working tree was clean, so warn when it was not.
+ve_metadata <- ve_constants$metadata
+if (isTRUE(ve_metadata$project_dirty)) {
+  cli::cli_warn(c(
+    "The analysed {.pkg virtual_ecosystem} tree has uncommitted changes.",
+    i = "Recorded as {.val {ve_metadata$project_describe}}.",
+    i = "Results may not be reproducible from the commit hash alone."
+  ))
+}
+
+# Function docstrings live in a shared table, keyed by qualified name
+function_docs <- ve_constants$functions
+
 # Flatten reference sites to one row per constant-reference pair
 constant_references <-
-  soil_constant_usage |>
+  ve_constants$constants |>
   map(\(x) {
     tibble(
       qualified_name = x$qualified_name,
       name = x$name,
+      module = x$module,
       class_name = x$class_name,
       default_expression = x$default_expression,
       docstring = x$docstring,
