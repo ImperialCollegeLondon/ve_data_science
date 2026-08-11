@@ -24,7 +24,7 @@ are in [mkdocs.yml](mkdocs.yml).
 Primary tooling and conventions:
 
 - Python 3.12+
-- Poetry for Python environment/dependency management
+- uv for Python environment/dependency management
 - R 4.4+ expected for local workflows
 - pre-commit for QA checks
 - Ruff for Python linting/formatting (line length 88)
@@ -40,16 +40,16 @@ git clone https://github.com/ImperialCollegeLondon/ve_data_science.git
 cd ve_data_science
 ```
 
-Install Python tooling with Poetry:
+Install Python tooling with uv:
 
 ```bash
-poetry install
+uv sync
 ```
 
 Install pre-commit hooks:
 
 ```bash
-poetry run pre-commit install
+uv run pre-commit install
 ```
 
 Ensure R is installed and available on `PATH` as `Rscript`.
@@ -70,19 +70,19 @@ For routine development, run targeted checks before broad checks.
 Run pre-commit on all files:
 
 ```bash
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 Run only Python hooks when iterating on Python files:
 
 ```bash
-poetry run pre-commit run ruff-check ruff-format --all-files
+uv run pre-commit run ruff-check ruff-format --all-files
 ```
 
 Run only R-related hooks when iterating on R files (requires `Rscript`):
 
 ```bash
-poetry run pre-commit run parsable-R no-browser-statement no-debug-statement air-format --all-files
+uv run pre-commit run parsable-R no-browser-statement no-debug-statement air-format --all-files
 ```
 
 Known local issue: if pre-commit reports `Executable 'Rscript' not found`,
@@ -127,7 +127,7 @@ Python tests are present in module locations such as
 Run a specific Python test module:
 
 ```bash
-poetry run pytest tools/python/animal/test_trophic_mass_flow.py
+uv run pytest tools/python/animal/test_trophic_mass_flow.py
 ```
 
 If `pytest` is unavailable in the environment, install it in the active Python
@@ -136,6 +136,13 @@ environment before running module tests.
 ## Code style and file conventions
 
 Follow existing local style in the file you are editing.
+
+### Function interface design
+
+When proposing or adding functions, prefer simple, human-intuitive interfaces.
+Use clear function names and argument names that make the workflow easy to
+understand at a glance. Do not introduce extra abstraction layers or defensive
+engineering unless the script clearly needs them.
 
 ### R
 
@@ -162,14 +169,14 @@ Keep Markdown line length at 88 where possible (see
 Local docs preview:
 
 ```bash
-poetry run mkdocs serve
+uv run mkdocs serve
 ```
 
 Deploy docs (same command pattern as CI in
 [.github/workflows/gh_deploy.yml](.github/workflows/gh_deploy.yml)):
 
 ```bash
-poetry run mkdocs gh-deploy --force
+uv run mkdocs gh-deploy --force
 ```
 
 ## CI/CD notes
@@ -179,15 +186,14 @@ R test workflow: [.github/workflows/r-tests.yml](.github/workflows/r-tests.yml).
 Documentation deploy workflow:
 [.github/workflows/gh_deploy.yml](.github/workflows/gh_deploy.yml).
 
-The R test workflow currently detects `uv.lock` and uses `uv` when present,
-otherwise falls back to Poetry for Python dependency setup.
+The R test workflow uses `uv` for Python dependency setup.
 
 ## Pull request and change guidelines
 
 Before opening or updating a PR, run local QA and relevant tests:
 
 ```bash
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ```bash
@@ -225,6 +231,60 @@ Use these directories first when routing work:
 When adding new scripts without explicit location guidance, place them in the
 closest domain folder or in [tools/](tools/) if they are reusable across
 domains.
+
+## Local repository scan and context grounding
+
+### Local-first source selection
+
+Before querying or browsing any remote repository, check local sources first.
+
+Prioritise sources in this order:
+
+1. the current workspace repository root
+2. the installed `virtual_ecosystem` package in the active uv environment
+3. a cloned sibling `virtual_ecosystem` repository, if present
+
+Use the local workspace repository as the primary source for this project. Use `virtual_ecosystem` only when the task needs implementation context from that codebase, such as symbols, functions, variables, or types.
+
+Treat the installed uv package as the preferred `virtual_ecosystem` source when both the package and a cloned repository are available.
+
+Only use remote repository access when local sources are unavailable, clearly outdated for the task, or the task explicitly requires remote state.
+
+## Remote repository scan scope and read limits
+
+### Scope
+
+For shared logic, public interfaces, or cross-domain behaviour, scan broadly before proposing changes.
+
+For localised single-file fixes, start with the target module and nearest tests, then widen scope only when evidence indicates related dependencies.
+
+Exclude by default:
+
+- vendor-style dependency directories and binary assets
+- large data directories under `data/` unless directly required
+
+### Remote read limits
+
+Treat remote reads as a constrained resource.
+
+- Prioritise high-signal files first: root config, CI workflows, target module, and closest tests.
+- Exhaust local source checks before any remote reads.
+- Start with a capped initial pass of 5–10 files.
+- Batch directory discovery before deep file reads.
+- Defer large or low-signal files unless directly relevant.
+- If read limits prevent a full scan, stop and report the constraint before proposing final fixes.
+
+### Required output
+
+Before recommending final fixes, provide:
+
+- a Files reviewed summary with counts by directory
+- a list of unread or skipped files/directories and why they were skipped
+- an explicit constraint note when a full scan was not possible
+
+### Quality gate
+
+Do not propose final fixes until the repository scan summary is complete.
 
 ## Script metadata header guidance
 
