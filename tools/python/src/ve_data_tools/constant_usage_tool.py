@@ -1,78 +1,69 @@
-"""Find usages of configuration constants across Virtual Ecosystem model files.
+"""Find references to configuration constants in Virtual Ecosystem code.
 
-This module locates every place in the ``virtual_ecosystem`` codebase where a
-configuration constant is referenced, and classifies *how* each reference site
-uses the constant.
+This module locates where configuration constants are declared and where they
+are referenced, then classifies each reference site by usage context.
 
-Two complementary techniques are combined:
+Notes for R users:
+    A Python ``dict`` is similar to a named R list. A Python ``list`` is
+    similar to an unnamed R list. ``Path`` stores a file path and provides
+    methods such as ``is_file()`` and ``read_text()``.
 
-- **Import-based class detection.** Configuration classes are found by importing
-  each target module and testing ``issubclass(cls, Configuration)``. This
-  resolves the full method resolution order (MRO), so classes that inherit from
-  ``Configuration`` indirectly are detected.
-- **AST-based attribute enumeration and usage classification.** Attributes
-  *declared* in each class body are read from the syntax tree, giving exact
-  source positions and avoiding double-counting of inherited fields. The AST is
-  also used to classify each reference site syntactically.
-- **Jedi reference resolution.** ``jedi`` finds reference sites across the whole
-  project, including other modules.
+    The abstract syntax tree (AST) is similar to parsed expressions from
+    ``parse()`` in R. It describes code structure without executing code.
+    ``jedi`` then resolves names across Python files, similar to an IDE
+    "find references" workflow.
 
-Usage classification
---------------------
+Approach:
+    1. Import-based class detection: identify subclasses of
+       ``Configuration`` (including indirect inheritance via MRO).
+    2. AST-based attribute and usage analysis: enumerate declared attributes
+       and classify reference contexts from syntax.
+    3. Jedi reference resolution: find cross-file reference sites.
 
-Static analysis resolves symbols, not values, so a constant passed into another
-function as an argument is attributed to the *enclosing* scope rather than the
-function that consumes it. Rather than silently mis-attributing these sites,
-each reference is labelled with a ``usage_kind``:
+Usage classification:
+    ``computation``:
+        Constant is used directly in an expression in the caller.
+    ``kwarg_forward`` / ``positional_forward``:
+        Constant is forwarded unchanged into another call. The receiving
+        callable is stored in ``consumer``.
+    ``derived_forward``:
+        A derived value (for example ``1 / constants.x``) is forwarded. The
+        consumer cannot be resolved reliably, so the site is flagged.
+    ``validator``:
+        Reference occurs inside a pydantic validator on the owning class.
 
-``computation``
-    The constant is used directly in an expression within the caller.
-``kwarg_forward`` / ``positional_forward``
-    The constant is passed unmodified as an argument to another function. The
-    callee is resolved and recorded in ``consumer``, so the function that
-    actually uses the value is captured.
-``derived_forward``
-    A *derived* value (for example ``1 / constants.x``) is passed to another
-    function. The consumer cannot be resolved reliably and the site is flagged
-    for manual review.
-``validator``
-    The reference occurs inside a pydantic validator on the owning class.
+    Only ``derived_forward`` sites require manual review.
 
-Only ``derived_forward`` sites require human attention; the rest are resolved
-deterministically.
+Keying:
+    Records are keyed as ``module.Class.attribute`` rather than using
+    ``jedi`` ``full_name`` values, which can be inconsistent, duplicated or
+    missing.
 
-Keying
-------
+Output structure:
+    Function docstrings are stored once in a top-level ``functions`` table and
+    referenced by qualified name from each site.
 
-Entries are keyed by ``module.Class.attribute`` constructed by this module, not
-by ``jedi``'s ``full_name``. Several Virtual Ecosystem configuration classes
-declare attributes with the same bare name (for example ``turnover_rate`` on
-both ``SoilEnzymeClass`` and ``SoilMicrobialGroup``), and ``jedi`` returns
-inconsistent or ``None`` full names. Constructing the key locally guarantees
-uniqueness and makes collisions detectable.
+Test references:
+    ``include_tests`` controls whether sites inside ``tests`` directories are
+    retained. Because ``jedi`` follows the import graph, test coverage is
+    best-effort rather than a guaranteed full textual inventory.
 
-Output structure
-----------------
+How to run function examples:
+    This module includes doctest examples in many function docstrings. To run
+    examples for one function only (without running the full script), use:
 
-Function docstrings are stored once in a top-level ``functions`` table and
-referenced from each site by qualified name. A single function may consume
-dozens of constants, so inlining its docstring at every site inflates the
-output several-fold and wastes context when the database is passed to a
-language model.
+    ``uv run python tools/python/src/ve_data_tools/constant_usage_tool.py <function_name>``
 
-Test references
----------------
+Example:
+    ``uv run python tools/python/src/ve_data_tools/constant_usage_tool.py _first_paragraph``
 
-``include_tests`` controls whether reference sites inside a ``tests`` directory
-are retained. Note that ``jedi`` resolves references through the project's
-import graph and does not reliably report every textual usage in a test suite,
-so this filter should be treated as best effort rather than an exhaustive
-account of test usage.
 """
 
 from __future__ import annotations
 
+import argparse
 import ast
+import doctest
 import importlib
 import subprocess
 import sys
@@ -85,6 +76,8 @@ from typing import Any
 import jedi
 import tomli_w
 
+# A frozenset is an immutable set. Membership tests such as ``name in ...`` are
+# fast, and no later code can change this fixed group of decorator names.
 VALIDATOR_DECORATORS = frozenset(
     {"field_validator", "model_validator", "validator", "root_validator"}
 )
@@ -92,10 +85,18 @@ VALIDATOR_DECORATORS = frozenset(
 
 @dataclass
 class ConstantReference:
-    """One site where a configuration constant is referenced.
+    """Represent one reference site for a configuration constant.
 
-    ``caller`` and ``consumer`` are keys into the ``functions`` table of the
-    output rather than inlined docstrings.
+    Attributes:
+        file: Path to the file containing the reference.
+        line: One-based line number of the reference.
+        column: Zero-based column position of the reference token.
+        caller: Qualified name of the enclosing scope using the constant.
+        usage_kind: Classification label for how the constant is used.
+        consumer: Qualified name of the receiving callable when forwarded.
+        forwarded_as: Parameter name or positional index used for forwarding.
+        expression: Source line at the reference site for context.
+
     """
 
     file: str
@@ -108,13 +109,45 @@ class ConstantReference:
     expression: str = ""
 
     def to_dict(self) -> dict[str, Any]:
-        """Return a TOML-serialisable mapping with no ``None`` values."""
+        """Convert the reference record to a TOML-serializable mapping.
+
+        Returns:
+            Dictionary of dataclass fields and values.
+
+        Examples:
+            >>> reference = ConstantReference(
+            ...     file="model.py",
+            ...     line=8,
+            ...     column=4,
+            ...     caller="model.update",
+            ...     usage_kind="computation",
+            ... )
+            >>> reference.to_dict()["file"]
+            'model.py'
+
+        """
         return dict(self.__dict__)
 
 
 @dataclass
 class ConstantRecord:
-    """A configuration constant and every site that references it."""
+    """Store metadata and references for one configuration constant.
+
+    Attributes:
+        name: Unqualified constant attribute name.
+        qualified_name: Fully qualified key in ``module.Class.attribute`` form.
+        module: Dotted Python module path for the declaring class.
+        class_name: Name of the class that declares the constant.
+        base_classes: Immediate base class names for the declaring class.
+        declaration: Source declaration line for the constant.
+        docstring: Attribute-level documentation text.
+        default_expression: Source expression for the default value.
+        type_annotation: Source expression for the type annotation.
+        file: Project-relative file path where the constant is declared.
+        line: One-based declaration line number.
+        referenced_in: Collected reference sites for this constant.
+
+    """
 
     name: str
     qualified_name: str
@@ -130,22 +163,70 @@ class ConstantRecord:
     referenced_in: list[ConstantReference] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        """Return a TOML-serialisable mapping."""
+        """Convert the constant record to a TOML-serializable mapping.
+
+        Returns:
+            Dictionary representation with nested reference entries converted.
+
+        Examples:
+            >>> record = ConstantRecord(
+            ...     name="rate",
+            ...     qualified_name="model.Constants.rate",
+            ...     module="model",
+            ...     class_name="Constants",
+            ...     base_classes=["Configuration"],
+            ...     declaration="rate: float = 0.5",
+            ...     docstring="A rate.",
+            ...     default_expression="0.5",
+            ...     type_annotation="float",
+            ...     file="model.py",
+            ...     line=2,
+            ... )
+            >>> record.to_dict()["default_expression"]
+            '0.5'
+
+        """
         data = {k: v for k, v in self.__dict__.items() if k != "referenced_in"}
         data["referenced_in"] = [ref.to_dict() for ref in self.referenced_in]
         return data
 
 
 def _git_commit(project_root: Path) -> str:
-    """Return the current git commit of the analysed project, if available."""
+    """Return the current commit hash for the analyzed project.
+
+    Args:
+        project_root: Root path of the project repository.
+
+    Returns:
+        Commit hash string, or an empty string if unavailable.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> commit = _git_commit(Path.cwd())
+        >>> isinstance(commit, str)
+        True
+
+    """
     return _git(project_root, "rev-parse", "HEAD")
 
 
 def _git(project_root: Path, *arguments: str) -> str:
-    """Run a git command in the analysed project and return its output.
+    """Run a git command in the project and return trimmed stdout.
 
-    Returns an empty string if git is unavailable or the command fails, so that
-    provenance capture never blocks analysis.
+    Args:
+        project_root: Root path of the project repository.
+        *arguments: Positional arguments passed to ``git``.
+
+    Returns:
+        Command stdout with surrounding whitespace removed. Returns an empty
+        string if git is unavailable or the command fails.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> output = _git(Path.cwd(), "rev-parse", "--is-inside-work-tree")
+        >>> output in {"true", ""}
+        True
+
     """
     try:
         result = subprocess.run(
@@ -162,12 +243,22 @@ def _git(project_root: Path, *arguments: str) -> str:
 
 
 def _source_is_modified(project_root: Path, package_directory: str) -> bool:
-    """Return whether analysed Python sources have uncommitted changes.
+    """Report whether analyzed Python sources contain uncommitted changes.
 
-    Only Python files inside the analysed package are considered. Editor
-    settings, notebooks, and other incidental working-tree changes do not
-    affect the extracted constants, so treating them as provenance failures
-    would raise false alarms on every checkout.
+    Args:
+        project_root: Root path of the project repository.
+        package_directory: Relative package directory to inspect in git status.
+
+    Returns:
+        ``True`` if any ``.py`` file under ``package_directory`` is modified,
+        added, deleted, or renamed in the working tree; otherwise ``False``.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> modified = _source_is_modified(Path.cwd(), "tools/python")
+        >>> isinstance(modified, bool)
+        True
+
     """
     status = _git(project_root, "status", "--porcelain", "--", package_directory)
     if not status:
@@ -188,10 +279,21 @@ def _source_is_modified(project_root: Path, package_directory: str) -> bool:
 
 
 def _upstream_state(project_root: Path) -> dict[str, Any]:
-    """Compare the checked-out commit with its upstream tracking branch.
+    """Summarize divergence between ``HEAD`` and its upstream branch.
 
-    Records whether the analysed commit exists on the remote. A local-only
-    commit cannot be recovered by a collaborator from the hash alone.
+    Args:
+        project_root: Root path of the project repository.
+
+    Returns:
+        Dictionary containing upstream name, sync flag, and ahead/behind counts.
+        If no upstream is configured, returns empty upstream and ``False`` sync.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> state = _upstream_state(Path.cwd())
+        >>> "project_upstream" in state
+        True
+
     """
     upstream = _git(project_root, "rev-parse", "--abbrev-ref", "@{upstream}")
     if not upstream:
@@ -213,18 +315,23 @@ def _upstream_state(project_root: Path) -> dict[str, Any]:
 def _project_provenance(
     project_root: Path, package_directory: str = "virtual_ecosystem"
 ) -> dict[str, Any]:
-    """Describe the state of the analysed source tree.
-
-    A commit hash alone implies a clean checkout that exists on the remote.
-    Recording the version, branch, upstream state, and whether the analysed
-    Python sources carry uncommitted changes makes it explicit when the source
-    cannot be recovered from the hash, which matters when the resulting values
-    are used to parameterise a published model.
+    """Build provenance metadata for the analyzed source tree.
 
     Args:
-        project_root: Root of the analysed repository.
-        package_directory: Directory holding the analysed Python package.
-            Working-tree changes outside it are ignored.
+        project_root: Root path of the analyzed repository.
+        package_directory: Relative directory containing analyzed Python
+            package sources. Changes outside this directory are ignored for
+            source-modified checks.
+
+    Returns:
+        Dictionary with version, commit, branch, describe output, source
+        modification status, and upstream divergence fields.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> provenance = _project_provenance(Path.cwd(), "tools/python")
+        >>> "project_commit" in provenance
+        True
 
     """
     version = ""
@@ -250,24 +357,44 @@ def _project_provenance(
 
 
 def _module_name_from_path(relative_path: Path) -> str:
-    """Convert a project-relative file path to a dotted module name."""
+    """Convert a project-relative ``.py`` path to a dotted module name.
+
+    Args:
+        relative_path: Project-relative source file path.
+
+    Returns:
+        Dotted module path without file suffix.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> _module_name_from_path(Path("package/models/constants.py"))
+        'package.models.constants'
+
+    """
     parts = relative_path.with_suffix("").parts
     return ".".join(parts)
 
 
 def _configuration_classes(module_name: str) -> dict[str, list[str]]:
-    """Return classes in a module that subclass ``Configuration``.
-
-    Detection uses ``issubclass``, which resolves the full MRO and therefore
-    catches classes inheriting from ``Configuration`` indirectly. Only classes
-    genuinely defined in the module are returned, so imported classes are not
-    attributed to the importing module.
+    """Find configuration subclasses defined directly in a module.
 
     Args:
-        module_name: Dotted module name, importable on ``sys.path``.
+        module_name: Dotted module name importable from ``sys.path``.
 
     Returns:
-        Mapping of class name to the names of its immediate base classes.
+        Mapping from class name to a list of immediate base class names for
+        classes that subclass ``Configuration`` (including indirect inheritance)
+        and are defined in ``module_name``.
+
+    Examples:
+        Use an importable Virtual Ecosystem module:
+
+        The exact module depends on the Virtual Ecosystem checkout::
+
+            classes = _configuration_classes(
+                "virtual_ecosystem.core.constants"
+            )
+            list(classes)
 
     """
     from virtual_ecosystem.core.configuration import Configuration
@@ -290,7 +417,22 @@ def _configuration_classes(module_name: str) -> dict[str, list[str]]:
 
 
 def _build_parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
-    """Map each AST node to its parent, so reference sites can be walked up."""
+    """Create a reverse AST index from child nodes to parent nodes.
+
+    Args:
+        tree: Parsed AST for a source file.
+
+    Returns:
+        Dictionary mapping each child node to its immediate parent node.
+
+    Examples:
+        >>> tree = ast.parse("result = rate + 1")
+        >>> parents = _build_parent_map(tree)
+        >>> name = next(node for node in ast.walk(tree) if isinstance(node, ast.Name))
+        >>> type(parents[name]).__name__
+        'Assign'
+
+    """
     parents: dict[ast.AST, ast.AST] = {}
     for node in ast.walk(tree):
         for child in ast.iter_child_nodes(node):
@@ -302,12 +444,22 @@ def _build_parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
 def _declared_attributes(
     class_node: ast.ClassDef, source: str
 ) -> list[tuple[str, ast.AnnAssign]]:
-    """Return annotated attributes declared directly in a class body.
+    r"""Extract annotated attributes declared directly in a class body.
 
-    Only ``AnnAssign`` nodes are returned, which is how pydantic fields are
-    written throughout Virtual Ecosystem. Inherited fields are deliberately
-    excluded so that each constant is recorded once, against the class that
-    declares it.
+    Args:
+        class_node: AST class definition node to inspect.
+        source: Unused source string, retained for API compatibility.
+
+    Returns:
+        List of ``(attribute_name, ann_assign_node)`` tuples for non-dunder
+        class attributes declared with annotated assignments.
+
+    Examples:
+        >>> tree = ast.parse("class Constants:\n    rate: float = 0.5")
+        >>> class_node = tree.body[0]
+        >>> [name for name, _ in _declared_attributes(class_node, "")]
+        ['rate']
+
     """
     attributes = []
     for statement in class_node.body:
@@ -324,12 +476,20 @@ def _declared_attributes(
 
 
 def _attribute_docstring(class_node: ast.ClassDef, index: int) -> str:
-    """Return the string expression immediately following an attribute.
+    r"""Read an attribute docstring literal following a class assignment.
 
-    Virtual Ecosystem documents configuration constants with a bare string
-    literal placed after the assignment, which is the Sphinx convention for
-    attribute docstrings. These are not accessible at runtime, so they are read
-    from the syntax tree.
+    Args:
+        class_node: AST class definition containing the attribute.
+        index: Index of the attribute statement within ``class_node.body``.
+
+    Returns:
+        Trimmed attribute docstring text if present; otherwise an empty string.
+
+    Examples:
+        >>> tree = ast.parse('class C:\n    rate: float = 0.5\n    "A rate."')
+        >>> _attribute_docstring(tree.body[0], 0)
+        'A rate.'
+
     """
     if index + 1 >= len(class_node.body):
         return ""
@@ -356,7 +516,24 @@ def _attribute_docstring(class_node: ast.ClassDef, index: int) -> str:
 def _enclosing_function(
     node: ast.AST, parents: dict[ast.AST, ast.AST]
 ) -> ast.AST | None:
-    """Return the innermost function or class enclosing a node."""
+    r"""Find the nearest enclosing function, async function, or class node.
+
+    Args:
+        node: AST node from which to walk upward.
+        parents: Child-to-parent mapping for the same AST.
+
+    Returns:
+        Enclosing ``ast.FunctionDef``, ``ast.AsyncFunctionDef``, or
+        ``ast.ClassDef`` node if found; otherwise ``None``.
+
+    Examples:
+        >>> tree = ast.parse("def update():\n    return rate")
+        >>> parents = _build_parent_map(tree)
+        >>> name = next(node for node in ast.walk(tree) if isinstance(node, ast.Name))
+        >>> _enclosing_function(name, parents).name
+        'update'
+
+    """
     current = parents.get(node)
     while current is not None:
         if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
@@ -367,7 +544,26 @@ def _enclosing_function(
 
 
 def _is_validator(node: ast.AST) -> bool:
-    """Return whether a function node carries a pydantic validator decorator."""
+    r"""Check whether a function node is decorated as a pydantic validator.
+
+    Args:
+        node: AST node expected to represent a function or async function.
+
+    Returns:
+        ``True`` if any decorator name matches a known validator decorator;
+        otherwise ``False``.
+
+    Examples:
+        >>> source = (
+        ...     "@field_validator('rate')\n"
+        ...     "def check_rate(value):\n"
+        ...     "    return value"
+        ... )
+        >>> tree = ast.parse(source)
+        >>> _is_validator(tree.body[0])
+        True
+
+    """
     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
         return False
 
@@ -388,12 +584,24 @@ def _is_validator(node: ast.AST) -> bool:
 def _find_reference_node(
     tree: ast.AST, line: int, column: int, name: str
 ) -> ast.AST | None:
-    """Locate the AST node corresponding to a jedi reference position.
+    """Locate the AST node matching a Jedi-reported reference position.
 
-    Jedi reports the position of the *name token*. For ``constants.foo`` this is
-    the position of ``foo`` within an ``ast.Attribute`` node, whose own
-    ``col_offset`` points at ``constants``. The attribute token position is
-    therefore derived from the node's end position.
+    Args:
+        tree: Parsed AST for the referenced file.
+        line: One-based line number reported by Jedi.
+        column: Zero-based column offset reported by Jedi.
+        name: Referenced attribute or keyword name.
+
+    Returns:
+        Matching ``ast.Attribute``, ``ast.Name``, or ``ast.keyword`` node if
+        found; otherwise ``None``.
+
+    Examples:
+        >>> tree = ast.parse("result = constants.rate")
+        >>> node = _find_reference_node(tree, line=1, column=19, name="rate")
+        >>> type(node).__name__
+        'Attribute'
+
     """
     for node in ast.walk(tree):
         if isinstance(node, ast.Attribute) and node.attr == name:
@@ -417,7 +625,21 @@ def _find_reference_node(
 
 
 def _callee_name(call: ast.Call) -> str:
-    """Return the source-level name of a call's target."""
+    """Return the source-level callable name for a call node.
+
+    Args:
+        call: AST call node.
+
+    Returns:
+        Callable name for simple ``Name`` or ``Attribute`` targets, else empty
+        string.
+
+    Examples:
+        >>> call = ast.parse("model.update(rate)").body[0].value
+        >>> _callee_name(call)
+        'update'
+
+    """
     if isinstance(call.func, ast.Name):
         return call.func.id
     if isinstance(call.func, ast.Attribute):
@@ -427,15 +649,22 @@ def _callee_name(call: ast.Call) -> str:
 
 
 def _resolve_callee(script: jedi.Script, call: ast.Call) -> tuple[str, str]:
-    """Resolve a call target to a qualified name and docstring using jedi.
+    r"""Resolve a call target to qualified name and docstring via Jedi.
 
     Args:
-        script: Jedi script for the file containing the call.
-        call: The call node whose target should be resolved.
+        script: Jedi script for the file containing ``call``.
+        call: AST call node whose target should be resolved.
 
     Returns:
-        Tuple of qualified name and docstring. Empty strings if resolution
-        fails, which jedi may do for dynamically constructed callables.
+        ``(qualified_name, docstring)`` tuple. Returns ``("", "")`` when
+        resolution fails or no definition is found.
+
+    Examples:
+        >>> source = "def consume(value):\n    return value\nconsume(1)"
+        >>> script = jedi.Script(code=source)
+        >>> call = ast.parse(source).body[-1].value
+        >>> _resolve_callee(script, call)[0].endswith(".consume")
+        True
 
     """
     func = call.func
@@ -460,12 +689,19 @@ def _resolve_callee(script: jedi.Script, call: ast.Call) -> tuple[str, str]:
 
 
 def _first_paragraph(docstring: str) -> str:
-    """Return the summary portion of a docstring.
+    r"""Extract summary prose from a longer docstring.
 
-    Jedi prefixes docstrings with the full call signature and Virtual Ecosystem
-    documents arguments at length. The leading prose is what describes the
-    process a constant participates in, so signature and argument blocks are
-    dropped to keep the database compact.
+    Args:
+        docstring: Raw docstring text, possibly including signature and sections.
+
+    Returns:
+        First descriptive paragraph after removing common argument/return
+        sections. Returns an empty string if no prose is available.
+
+    Examples:
+        >>> _first_paragraph("Short summary.\n\nArgs:\n    value: Input value.")
+        'Short summary.'
+
     """
     if not docstring:
         return ""
@@ -497,12 +733,26 @@ def _classify_reference(
     script: jedi.Script,
     source_lines: list[str],
 ) -> dict[str, str]:
-    """Classify how a reference site uses the constant.
+    """Classify how a constant reference is used at a source location.
 
-    Walks up from the reference node towards the nearest enclosing call. If the
-    constant reaches that call unmodified, the callee is resolved and recorded
-    as the consumer. If an operator or nested call intervenes, the value is
-    derived and the site is flagged for review.
+    Args:
+        node: AST node corresponding to the reference token.
+        parents: Child-to-parent mapping for the file AST.
+        script: Jedi script for symbol resolution in the same file.
+        source_lines: Source file lines (unused in classification logic).
+
+    Returns:
+        Dictionary containing at least ``usage_kind`` and optionally
+        ``consumer``, ``consumer_docstring``, and ``forwarded_as``.
+
+    Examples:
+        >>> source = "result = constants.rate + 1"
+        >>> tree = ast.parse(source)
+        >>> parents = _build_parent_map(tree)
+        >>> node = _find_reference_node(tree, 1, 19, "rate")
+        >>> _classify_reference(node, parents, jedi.Script(code=source), [source])
+        {'usage_kind': 'computation'}
+
     """
     enclosing = _enclosing_function(node, parents)
     if _is_validator(enclosing):
@@ -585,7 +835,22 @@ def _classify_reference(
 
 
 def _expression_at(source_lines: list[str], line: int) -> str:
-    """Return the stripped source line at a reference site, for context."""
+    """Return stripped source text for a one-based line index.
+
+    Args:
+        source_lines: File content split by lines.
+        line: One-based target line number.
+
+    Returns:
+        Stripped line text when in range; otherwise an empty string.
+
+    Examples:
+        >>> _expression_at(["rate = 0.5", "result = rate * 2"], 2)
+        'result = rate * 2'
+        >>> _expression_at(["rate = 0.5"], 3)
+        ''
+
+    """
     if 1 <= line <= len(source_lines):
         return source_lines[line - 1].strip()
 
@@ -598,35 +863,42 @@ def get_constant_references(
     project_root: str | Path,
     include_tests: bool = False,
 ) -> dict[str, dict[str, Any]]:
-    """Find usages of configuration constants and write results to TOML.
+    """Find and classify configuration constant references, then write TOML.
 
     Args:
-        target_file_path: Path(s) to Python source file(s) to analyse, relative
-            to ``project_root``. Accepts a single path or a list of paths;
-            results are merged into one output.
-        out_path: Destination for the TOML output. Parent directories are
-            created if needed and the file is always overwritten.
-        project_root: Root directory of the ``virtual_ecosystem`` repository.
-            Passed to ``jedi.Project`` so cross-file references resolve, and
-            added to ``sys.path`` so target modules can be imported.
-        include_tests: Whether to retain reference sites located inside a
-            ``tests`` directory. Defaults to ``False``, since test usage does
-            not describe how a constant functions in the model.
+        target_file_path: Path or paths to Python source files to analyze,
+            relative to ``project_root`` unless absolute.
+        out_path: Output TOML file path. Parent directories are created and the
+            file is overwritten.
+        project_root: Root directory of the analyzed repository. Used for Jedi
+            project resolution and added to ``sys.path`` for imports.
+        include_tests: Whether to retain references from paths containing
+            ``test`` or ``tests``.
 
     Returns:
-        Mapping of ``module.Class.attribute`` to constant records. Each record
-        carries the declaration, docstring, default expression, and a list of
-        classified reference sites.
+        Output dictionary with ``metadata``, ``functions``, and ``constants``
+        sections. Constant keys use ``module.Class.attribute`` format.
 
     Raises:
-        KeyError: If two constants resolve to the same key, which would
-            otherwise silently discard one of them.
+        KeyError: If two constants resolve to the same output key.
+
+    Examples:
+        Run this from the root of a Virtual Ecosystem checkout::
+
+            result = get_constant_references(
+                "virtual_ecosystem/core/constants.py",
+                "constant_usage.toml",
+                ".",
+            )
+            result.keys()
 
     """
     project_root = Path(project_root).resolve()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Normalize one path and many paths to one Python list. This is like
+    # wrapping a length-one R value in ``list()`` before one shared loop.
     if isinstance(target_file_path, (str, Path)):
         target_file_paths = [Path(target_file_path)]
     else:
@@ -644,7 +916,19 @@ def get_constant_references(
     script_cache: dict[Path, jedi.Script] = {}
 
     def load(path: Path) -> tuple[ast.AST, dict[ast.AST, ast.AST], list[str]]:
-        """Parse and cache a source file."""
+        """Parse and cache AST-related structures for a source file.
+
+        Args:
+            path: Absolute file path to parse.
+
+        Returns:
+            Tuple of parsed AST, parent map, and source lines.
+
+        Notes:
+            This helper exists only while ``get_constant_references`` runs.
+            It is not available as a separate Python console function.
+
+        """
         if path not in tree_cache:
             source = path.read_text(encoding="utf-8")
             tree_cache[path] = ast.parse(source)
@@ -654,7 +938,19 @@ def get_constant_references(
         return tree_cache[path], parent_cache[path], lines_cache[path]
 
     def script_for(path: Path) -> jedi.Script:
-        """Build and cache a jedi script for a file."""
+        """Build or fetch a cached Jedi script for a source file.
+
+        Args:
+            path: Absolute file path used to initialize Jedi.
+
+        Returns:
+            Cached ``jedi.Script`` instance for ``path``.
+
+        Notes:
+            This helper exists only while ``get_constant_references`` runs.
+            It is not available as a separate Python console function.
+
+        """
         if path not in script_cache:
             script_cache[path] = jedi.Script(path=path, project=project)
 
@@ -801,3 +1097,58 @@ def get_constant_references(
         tomli_w.dump(output, stream)
 
     return output
+
+
+def _run_doctest_for(function_name: str) -> int:
+    """Run doctest examples for one function defined in this module.
+
+    Args:
+        function_name: Name of the function whose docstring examples to run.
+
+    Returns:
+        Process-style status code. ``0`` means pass, ``1`` means failure.
+
+    """
+    function = globals().get(function_name)
+    if function is None or not callable(function):
+        print(f"Unknown function: {function_name}")
+        return 1
+
+    finder = doctest.DocTestFinder()
+    runner = doctest.DocTestRunner(verbose=True)
+    tests = finder.find(function, name=function.__name__, globs=globals())
+
+    if not tests:
+        print(f"No docstring examples found for: {function_name}")
+        return 1
+
+    for test in tests:
+        runner.run(test)
+
+    failures, _ = runner.summarize()
+    return 0 if failures == 0 else 1
+
+
+def _cli() -> int:
+    """Run selected doctest examples from this module.
+
+    Returns:
+        Process-style status code.
+
+    """
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run docstring examples from constant_usage_tool.py for a single "
+            "function, without running the full script."
+        )
+    )
+    parser.add_argument(
+        "function",
+        help="Function name to run examples for (for example: _first_paragraph)",
+    )
+    arguments = parser.parse_args()
+    return _run_doctest_for(arguments.function)
+
+
+if __name__ == "__main__":
+    raise SystemExit(_cli())
