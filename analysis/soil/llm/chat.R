@@ -65,19 +65,17 @@ data_folder <- here("data/derived/llm")
 
 # Read the parameter database --------------------------------------------
 
+# `escape = FALSE` is required. RcppTOML's default re-escapes control
+# characters, so newlines inside the model docstrings arrive as a literal
+# backslash-n and render as one unreadable line in the prompt.
 constant_database <- RcppTOML::parseTOML(
-  file.path(data_folder, "ve_constant_usage.toml")
+  file.path(data_folder, "ve_constant_usage.toml"),
+  escape = FALSE
 )
 
 ve_commit <- constant_database$metadata$project_commit
 function_docs <- constant_database$functions
 constants <- constant_database$constants
-
-# RcppTOML returns multi-line strings with literal backslash-n rather than
-# real newlines, which renders badly in a prompt.
-unescape_newlines <- function(x) {
-  str_replace_all(x, fixed("\\n"), "\n")
-}
 
 
 # Select constants to assess ---------------------------------------------
@@ -138,7 +136,7 @@ format_constant <- function(qualified_name) {
     Type          : {record$type_annotation}
 
     Documentation (verbatim from the model source):
-    {unescape_newlines(record$docstring)}
+    {record$docstring}
 
     Where this constant is used:
     {format_usage(record)}
