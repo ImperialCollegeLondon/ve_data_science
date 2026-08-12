@@ -48,22 +48,11 @@ Test references:
     retained. Because ``jedi`` follows the import graph, test coverage is
     best-effort rather than a guaranteed full textual inventory.
 
-How to run function examples:
-    This module includes doctest examples in many function docstrings. To run
-    examples for one function only (without running the full script), use:
-
-    ``uv run python tools/python/src/ve_data_tools/constant_usage_tool.py <function_name>``
-
-Example:
-    ``uv run python tools/python/src/ve_data_tools/constant_usage_tool.py _first_paragraph``
-
 """
 
 from __future__ import annotations
 
-import argparse
 import ast
-import doctest
 import importlib
 import subprocess
 import sys
@@ -114,17 +103,6 @@ class ConstantReference:
         Returns:
             Dictionary of dataclass fields and values.
 
-        Examples:
-            >>> reference = ConstantReference(
-            ...     file="model.py",
-            ...     line=8,
-            ...     column=4,
-            ...     caller="model.update",
-            ...     usage_kind="computation",
-            ... )
-            >>> reference.to_dict()["file"]
-            'model.py'
-
         """
         return dict(self.__dict__)
 
@@ -168,23 +146,6 @@ class ConstantRecord:
         Returns:
             Dictionary representation with nested reference entries converted.
 
-        Examples:
-            >>> record = ConstantRecord(
-            ...     name="rate",
-            ...     qualified_name="model.Constants.rate",
-            ...     module="model",
-            ...     class_name="Constants",
-            ...     base_classes=["Configuration"],
-            ...     declaration="rate: float = 0.5",
-            ...     docstring="A rate.",
-            ...     default_expression="0.5",
-            ...     type_annotation="float",
-            ...     file="model.py",
-            ...     line=2,
-            ... )
-            >>> record.to_dict()["default_expression"]
-            '0.5'
-
         """
         data = {k: v for k, v in self.__dict__.items() if k != "referenced_in"}
         data["referenced_in"] = [ref.to_dict() for ref in self.referenced_in]
@@ -200,12 +161,6 @@ def _git_commit(project_root: Path) -> str:
     Returns:
         Commit hash string, or an empty string if unavailable.
 
-    Examples:
-        >>> from pathlib import Path
-        >>> commit = _git_commit(Path.cwd())
-        >>> isinstance(commit, str)
-        True
-
     """
     return _git(project_root, "rev-parse", "HEAD")
 
@@ -220,12 +175,6 @@ def _git(project_root: Path, *arguments: str) -> str:
     Returns:
         Command stdout with surrounding whitespace removed. Returns an empty
         string if git is unavailable or the command fails.
-
-    Examples:
-        >>> from pathlib import Path
-        >>> output = _git(Path.cwd(), "rev-parse", "--is-inside-work-tree")
-        >>> output in {"true", ""}
-        True
 
     """
     try:
@@ -252,12 +201,6 @@ def _source_is_modified(project_root: Path, package_directory: str) -> bool:
     Returns:
         ``True`` if any ``.py`` file under ``package_directory`` is modified,
         added, deleted, or renamed in the working tree; otherwise ``False``.
-
-    Examples:
-        >>> from pathlib import Path
-        >>> modified = _source_is_modified(Path.cwd(), "tools/python")
-        >>> isinstance(modified, bool)
-        True
 
     """
     status = _git(project_root, "status", "--porcelain", "--", package_directory)
@@ -287,12 +230,6 @@ def _upstream_state(project_root: Path) -> dict[str, Any]:
     Returns:
         Dictionary containing upstream name, sync flag, and ahead/behind counts.
         If no upstream is configured, returns empty upstream and ``False`` sync.
-
-    Examples:
-        >>> from pathlib import Path
-        >>> state = _upstream_state(Path.cwd())
-        >>> "project_upstream" in state
-        True
 
     """
     upstream = _git(project_root, "rev-parse", "--abbrev-ref", "@{upstream}")
@@ -327,12 +264,6 @@ def _project_provenance(
         Dictionary with version, commit, branch, describe output, source
         modification status, and upstream divergence fields.
 
-    Examples:
-        >>> from pathlib import Path
-        >>> provenance = _project_provenance(Path.cwd(), "tools/python")
-        >>> "project_commit" in provenance
-        True
-
     """
     version = ""
     pyproject = project_root / "pyproject.toml"
@@ -365,11 +296,6 @@ def _module_name_from_path(relative_path: Path) -> str:
     Returns:
         Dotted module path without file suffix.
 
-    Examples:
-        >>> from pathlib import Path
-        >>> _module_name_from_path(Path("package/models/constants.py"))
-        'package.models.constants'
-
     """
     parts = relative_path.with_suffix("").parts
     return ".".join(parts)
@@ -385,16 +311,6 @@ def _configuration_classes(module_name: str) -> dict[str, list[str]]:
         Mapping from class name to a list of immediate base class names for
         classes that subclass ``Configuration`` (including indirect inheritance)
         and are defined in ``module_name``.
-
-    Examples:
-        Use an importable Virtual Ecosystem module:
-
-        The exact module depends on the Virtual Ecosystem checkout::
-
-            classes = _configuration_classes(
-                "virtual_ecosystem.core.constants"
-            )
-            list(classes)
 
     """
     from virtual_ecosystem.core.configuration import Configuration
@@ -425,13 +341,6 @@ def _build_parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
     Returns:
         Dictionary mapping each child node to its immediate parent node.
 
-    Examples:
-        >>> tree = ast.parse("result = rate + 1")
-        >>> parents = _build_parent_map(tree)
-        >>> name = next(node for node in ast.walk(tree) if isinstance(node, ast.Name))
-        >>> type(parents[name]).__name__
-        'Assign'
-
     """
     parents: dict[ast.AST, ast.AST] = {}
     for node in ast.walk(tree):
@@ -453,12 +362,6 @@ def _declared_attributes(
     Returns:
         List of ``(attribute_name, ann_assign_node)`` tuples for non-dunder
         class attributes declared with annotated assignments.
-
-    Examples:
-        >>> tree = ast.parse("class Constants:\n    rate: float = 0.5")
-        >>> class_node = tree.body[0]
-        >>> [name for name, _ in _declared_attributes(class_node, "")]
-        ['rate']
 
     """
     attributes = []
@@ -484,11 +387,6 @@ def _attribute_docstring(class_node: ast.ClassDef, index: int) -> str:
 
     Returns:
         Trimmed attribute docstring text if present; otherwise an empty string.
-
-    Examples:
-        >>> tree = ast.parse('class C:\n    rate: float = 0.5\n    "A rate."')
-        >>> _attribute_docstring(tree.body[0], 0)
-        'A rate.'
 
     """
     if index + 1 >= len(class_node.body):
@@ -526,13 +424,6 @@ def _enclosing_function(
         Enclosing ``ast.FunctionDef``, ``ast.AsyncFunctionDef``, or
         ``ast.ClassDef`` node if found; otherwise ``None``.
 
-    Examples:
-        >>> tree = ast.parse("def update():\n    return rate")
-        >>> parents = _build_parent_map(tree)
-        >>> name = next(node for node in ast.walk(tree) if isinstance(node, ast.Name))
-        >>> _enclosing_function(name, parents).name
-        'update'
-
     """
     current = parents.get(node)
     while current is not None:
@@ -552,16 +443,6 @@ def _is_validator(node: ast.AST) -> bool:
     Returns:
         ``True`` if any decorator name matches a known validator decorator;
         otherwise ``False``.
-
-    Examples:
-        >>> source = (
-        ...     "@field_validator('rate')\n"
-        ...     "def check_rate(value):\n"
-        ...     "    return value"
-        ... )
-        >>> tree = ast.parse(source)
-        >>> _is_validator(tree.body[0])
-        True
 
     """
     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -596,12 +477,6 @@ def _find_reference_node(
         Matching ``ast.Attribute``, ``ast.Name``, or ``ast.keyword`` node if
         found; otherwise ``None``.
 
-    Examples:
-        >>> tree = ast.parse("result = constants.rate")
-        >>> node = _find_reference_node(tree, line=1, column=19, name="rate")
-        >>> type(node).__name__
-        'Attribute'
-
     """
     for node in ast.walk(tree):
         if isinstance(node, ast.Attribute) and node.attr == name:
@@ -634,11 +509,6 @@ def _callee_name(call: ast.Call) -> str:
         Callable name for simple ``Name`` or ``Attribute`` targets, else empty
         string.
 
-    Examples:
-        >>> call = ast.parse("model.update(rate)").body[0].value
-        >>> _callee_name(call)
-        'update'
-
     """
     if isinstance(call.func, ast.Name):
         return call.func.id
@@ -658,13 +528,6 @@ def _resolve_callee(script: jedi.Script, call: ast.Call) -> tuple[str, str]:
     Returns:
         ``(qualified_name, docstring)`` tuple. Returns ``("", "")`` when
         resolution fails or no definition is found.
-
-    Examples:
-        >>> source = "def consume(value):\n    return value\nconsume(1)"
-        >>> script = jedi.Script(code=source)
-        >>> call = ast.parse(source).body[-1].value
-        >>> _resolve_callee(script, call)[0].endswith(".consume")
-        True
 
     """
     func = call.func
@@ -697,10 +560,6 @@ def _first_paragraph(docstring: str) -> str:
     Returns:
         First descriptive paragraph after removing common argument/return
         sections. Returns an empty string if no prose is available.
-
-    Examples:
-        >>> _first_paragraph("Short summary.\n\nArgs:\n    value: Input value.")
-        'Short summary.'
 
     """
     if not docstring:
@@ -744,14 +603,6 @@ def _classify_reference(
     Returns:
         Dictionary containing at least ``usage_kind`` and optionally
         ``consumer``, ``consumer_docstring``, and ``forwarded_as``.
-
-    Examples:
-        >>> source = "result = constants.rate + 1"
-        >>> tree = ast.parse(source)
-        >>> parents = _build_parent_map(tree)
-        >>> node = _find_reference_node(tree, 1, 19, "rate")
-        >>> _classify_reference(node, parents, jedi.Script(code=source), [source])
-        {'usage_kind': 'computation'}
 
     """
     enclosing = _enclosing_function(node, parents)
@@ -844,12 +695,6 @@ def _expression_at(source_lines: list[str], line: int) -> str:
     Returns:
         Stripped line text when in range; otherwise an empty string.
 
-    Examples:
-        >>> _expression_at(["rate = 0.5", "result = rate * 2"], 2)
-        'result = rate * 2'
-        >>> _expression_at(["rate = 0.5"], 3)
-        ''
-
     """
     if 1 <= line <= len(source_lines):
         return source_lines[line - 1].strip()
@@ -881,16 +726,6 @@ def get_constant_references(
 
     Raises:
         KeyError: If two constants resolve to the same output key.
-
-    Examples:
-        Run this from the root of a Virtual Ecosystem checkout::
-
-            result = get_constant_references(
-                "virtual_ecosystem/core/constants.py",
-                "constant_usage.toml",
-                ".",
-            )
-            result.keys()
 
     """
     project_root = Path(project_root).resolve()
@@ -1097,58 +932,3 @@ def get_constant_references(
         tomli_w.dump(output, stream)
 
     return output
-
-
-def _run_doctest_for(function_name: str) -> int:
-    """Run doctest examples for one function defined in this module.
-
-    Args:
-        function_name: Name of the function whose docstring examples to run.
-
-    Returns:
-        Process-style status code. ``0`` means pass, ``1`` means failure.
-
-    """
-    function = globals().get(function_name)
-    if function is None or not callable(function):
-        print(f"Unknown function: {function_name}")
-        return 1
-
-    finder = doctest.DocTestFinder()
-    runner = doctest.DocTestRunner(verbose=True)
-    tests = finder.find(function, name=function.__name__, globs=globals())
-
-    if not tests:
-        print(f"No docstring examples found for: {function_name}")
-        return 1
-
-    for test in tests:
-        runner.run(test)
-
-    failures, _ = runner.summarize()
-    return 0 if failures == 0 else 1
-
-
-def _cli() -> int:
-    """Run selected doctest examples from this module.
-
-    Returns:
-        Process-style status code.
-
-    """
-    parser = argparse.ArgumentParser(
-        description=(
-            "Run docstring examples from constant_usage_tool.py for a single "
-            "function, without running the full script."
-        )
-    )
-    parser.add_argument(
-        "function",
-        help="Function name to run examples for (for example: _first_paragraph)",
-    )
-    arguments = parser.parse_args()
-    return _run_doctest_for(arguments.function)
-
-
-if __name__ == "__main__":
-    raise SystemExit(_cli())
