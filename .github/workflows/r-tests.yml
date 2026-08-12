@@ -37,21 +37,23 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
-
-      - name: Cache uv downloads
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.UV_CACHE_DIR }}
-          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
+          enable-cache: true
 
       - name: Install Python dependencies
-        run: uv sync
+        run: uv sync --frozen
 
       # --- System libraries required by R packages ---
       - name: Install system dependencies
-        run: sudo apt-get install -y libudunits2-dev libnetcdf-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            libclang-dev \
+            libicu-dev \
+            libnetcdf-dev \
+            libssl-dev \
+            libudunits2-dev \
+            make
 
       # --- R dependencies ---
       - name: Install R dependencies
@@ -74,6 +76,9 @@ jobs:
             any::stringr
             any::readr
             any::tibble
+            any::lubridate
+            any::tidyr
+            any::rlang
             any::jsonlite
             any::R6
             any::qs2
