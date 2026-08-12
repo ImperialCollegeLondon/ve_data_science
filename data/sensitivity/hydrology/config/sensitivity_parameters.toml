@@ -1,0 +1,33 @@
+###############################################################################
+# Parameter definitions for sensitivity analysis
+#
+# Author: Lelavathy Samikan
+#
+# Add parameters to any model section.
+# Supported sampling methods:
+# - Sobol
+# - Morris
+# - Latin Hypercube
+###############################################################################
+
+###############################################################################
+# Hydrology
+###############################################################################
+
+[hydrology]
+
+[[hydrology.parameters]]
+name = "hydrology.constants.saturated_hydraulic_conductivity"
+bounds = [1e-6, 1e-4]
+
+[[hydrology.parameters]]
+name = "hydrology.constants.soil_moisture_saturation"
+bounds = [0.40, 0.65]
+
+[[hydrology.parameters]]
+name = "hydrology.constants.groundwater_capacity"
+bounds = [200.0, 1500.0]
+
+[[hydrology.parameters]]
+name = "hydrology.constants.bypass_flow_coefficient"
+bounds = [0.2, 2.0]
