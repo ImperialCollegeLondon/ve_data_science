@@ -46,6 +46,8 @@ jobs:
         with:
           packages: any::sessioninfo
           extra-packages: |
+            any::box
+            any::cli
             any::here
             any::testthat
             any::withr
@@ -56,7 +58,6 @@ jobs:
             any::RNetCDF
             any::dplyr
             any::stringr
-            any::cli
 
       # --- Additional R dependencies that require different methods ---
       - name: Install pizzarr
