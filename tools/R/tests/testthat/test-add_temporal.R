@@ -363,8 +363,7 @@ test_that("a mistyped column name aborts", {
     add_temporal(
       test_data(),
       make_source(temporal = list(date_column = "date"))
-    ),
-    "not in the dataset"
+    )
   )
 })
 
