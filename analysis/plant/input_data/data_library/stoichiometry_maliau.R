@@ -51,7 +51,7 @@
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       This CSV file contains a summary of stoichiometric ratios and lignin
-#|       content for different biomass pools for each plant functional type.
+#|       content for different biomass pools for each pft.
 #|     variables:
 #|       - name: name
 #|         type: character
@@ -412,7 +412,7 @@ PFT_species_classification_base <- read.csv(
 )
 
 PFT_species_classification_base <- PFT_species_classification_base[,
-  c("PFT", "PFT_name", "TaxaName")
+  c("pft_name", "taxa_name")
 ]
 PFT_species_classification_base <- unique(PFT_species_classification_base)
 
@@ -565,6 +565,7 @@ data <- data[, c(1:9, 86, 10:85)]
 ##########
 
 names(data)
+
 temp <- data[,
   c(
     "species",
@@ -575,6 +576,7 @@ temp <- data[,
     "dry_weight_g_mean"
   )
 ]
+
 colnames(temp) <- c(
   "species",
   "C_total",
@@ -667,20 +669,19 @@ mean(temp$lignin_leaf_mean)
 data1 <- left_join(
   data,
   PFT_species_classification_base,
-  by = c("species" = "TaxaName")
+  by = c("species" = "taxa_name")
 )
 
 # Match by genus only for rows where PFT is still NA
 data2 <- left_join(
   data,
   PFT_species_classification_base,
-  by = c("genus" = "TaxaName")
+  by = c("genus" = "taxa_name")
 )
 
 # Combine: take PFT and PFT_name from species match if available,
 # otherwise from genus match
-data$PFT <- ifelse(!is.na(data1$PFT), data1$PFT, data2$PFT)
-data$PFT_name <- ifelse(!is.na(data1$PFT_name), data1$PFT_name, data2$PFT_name)
+data$pft_name <- ifelse(!is.na(data1$pft_name), data1$pft_name, data2$pft_name)
 
 ##########
 
@@ -692,15 +693,15 @@ plot_data <- data[, c(
   "location",
   "forest_type",
   "sample_code",
-  "PFT",
-  "PFT_name",
+  "pft_name",
   "species",
   "CN_leaf_mean",
   "CP_leaf_mean",
   "lignin_leaf_mean"
 )]
+
 plot_data <- na.omit(plot_data)
-unique(plot_data$PFT)
+unique(plot_data$pft_name)
 
 plot_data$forest_type <- as.factor(plot_data$forest_type)
 
@@ -711,7 +712,7 @@ ggplot(
   aes(
     x = sample_code,
     y = CN_leaf_mean,
-    color = as.factor(PFT)
+    color = as.factor(pft_name)
   )
 ) +
   geom_point() +
@@ -721,7 +722,7 @@ ggplot(
 ggplot(
   plot_data,
   aes(
-    x = as.factor(PFT),
+    x = as.factor(pft_name),
     y = CN_leaf_mean,
     color = as.factor(forest_type)
   )
@@ -732,7 +733,7 @@ ggplot(
   theme_minimal()
 
 summary_stats <- plot_data %>%
-  group_by(PFT) %>%
+  group_by(pft_name) %>%
   summarise(
     Mean_CN_leaf_mean = mean(CN_leaf_mean, na.rm = TRUE),
     SD_CN_leaf_mean = sd(CN_leaf_mean, na.rm = TRUE)
@@ -745,21 +746,21 @@ print(summary_stats) # Note: mean across all species was 26.06
 summary$CN_leaf_mean <- NA
 summary$CN_leaf_mean_SD <- NA
 
-summary$CN_leaf_mean[summary$PFT == "1"] <-
+summary$CN_leaf_mean[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "1"] <-
+summary$CN_leaf_mean_SD[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "SD_CN_leaf_mean"], 2)
-summary$CN_leaf_mean[summary$PFT == "2"] <-
+summary$CN_leaf_mean[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "2"] <-
+summary$CN_leaf_mean_SD[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "SD_CN_leaf_mean"], 2)
-summary$CN_leaf_mean[summary$PFT == "3"] <-
+summary$CN_leaf_mean[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "3"] <-
+summary$CN_leaf_mean_SD[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "SD_CN_leaf_mean"], 2)
-summary$CN_leaf_mean[summary$PFT == "4"] <-
+summary$CN_leaf_mean[summary$pft_name == "understory"] <-
   round(summary_stats[4, "Mean_CN_leaf_mean"], 2)
-summary$CN_leaf_mean_SD[summary$PFT == "4"] <-
+summary$CN_leaf_mean_SD[summary$pft_name == "understory"] <-
   round(summary_stats[4, "SD_CN_leaf_mean"], 2)
 
 # CP_leaf_mean
@@ -769,7 +770,7 @@ ggplot(
   aes(
     x = sample_code,
     y = CP_leaf_mean,
-    color = as.factor(PFT)
+    color = as.factor(pft_name)
   )
 ) +
   geom_point() +
@@ -779,7 +780,7 @@ ggplot(
 ggplot(
   plot_data,
   aes(
-    x = as.factor(PFT),
+    x = as.factor(pft_name),
     y = CP_leaf_mean,
     color = as.factor(forest_type)
   )
@@ -790,7 +791,7 @@ ggplot(
   theme_minimal()
 
 summary_stats <- plot_data %>%
-  group_by(PFT) %>%
+  group_by(pft_name) %>%
   summarise(
     Mean_CP_leaf_mean = mean(CP_leaf_mean, na.rm = TRUE),
     SD_CP_leaf_mean = sd(CP_leaf_mean, na.rm = TRUE)
@@ -803,21 +804,21 @@ print(summary_stats) # Note: mean across all species was 506.15
 summary$CP_leaf_mean <- NA
 summary$CP_leaf_mean_SD <- NA
 
-summary$CP_leaf_mean[summary$PFT == "1"] <-
+summary$CP_leaf_mean[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "1"] <-
+summary$CP_leaf_mean_SD[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "SD_CP_leaf_mean"], 2)
-summary$CP_leaf_mean[summary$PFT == "2"] <-
+summary$CP_leaf_mean[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "2"] <-
+summary$CP_leaf_mean_SD[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "SD_CP_leaf_mean"], 2)
-summary$CP_leaf_mean[summary$PFT == "3"] <-
+summary$CP_leaf_mean[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "3"] <-
+summary$CP_leaf_mean_SD[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "SD_CP_leaf_mean"], 2)
-summary$CP_leaf_mean[summary$PFT == "4"] <-
+summary$CP_leaf_mean[summary$pft_name == "understory"] <-
   round(summary_stats[4, "Mean_CP_leaf_mean"], 2)
-summary$CP_leaf_mean_SD[summary$PFT == "4"] <-
+summary$CP_leaf_mean_SD[summary$pft_name == "understory"] <-
   round(summary_stats[4, "SD_CP_leaf_mean"], 2)
 
 # lignin_leaf_mean
@@ -827,7 +828,7 @@ ggplot(
   aes(
     x = sample_code,
     y = lignin_leaf_mean,
-    color = as.factor(PFT)
+    color = as.factor(pft_name)
   )
 ) +
   geom_point() +
@@ -837,7 +838,7 @@ ggplot(
 ggplot(
   plot_data,
   aes(
-    x = as.factor(PFT),
+    x = as.factor(pft_name),
     y = lignin_leaf_mean,
     color = as.factor(forest_type)
   )
@@ -848,7 +849,7 @@ ggplot(
   theme_minimal()
 
 summary_stats <- plot_data %>%
-  group_by(PFT) %>%
+  group_by(pft_name) %>%
   summarise(
     Mean_lignin_leaf_mean = mean(lignin_leaf_mean, na.rm = TRUE),
     SD_lignin_leaf_mean = sd(lignin_leaf_mean, na.rm = TRUE)
@@ -861,21 +862,21 @@ print(summary_stats) # Mean across all species was 25.08
 summary$lignin_leaf_mean <- NA
 summary$lignin_leaf_mean_SD <- NA
 
-summary$lignin_leaf_mean[summary$PFT == "1"] <-
+summary$lignin_leaf_mean[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "Mean_lignin_leaf_mean"], 2)
-summary$lignin_leaf_mean_SD[summary$PFT == "1"] <-
+summary$lignin_leaf_mean_SD[summary$pft_name == "emergent"] <-
   round(summary_stats[1, "SD_lignin_leaf_mean"], 2)
-summary$lignin_leaf_mean[summary$PFT == "2"] <-
+summary$lignin_leaf_mean[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "Mean_lignin_leaf_mean"], 2)
-summary$lignin_leaf_mean_SD[summary$PFT == "2"] <-
+summary$lignin_leaf_mean_SD[summary$pft_name == "overstory"] <-
   round(summary_stats[2, "SD_lignin_leaf_mean"], 2)
-summary$lignin_leaf_mean[summary$PFT == "3"] <-
+summary$lignin_leaf_mean[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "Mean_lignin_leaf_mean"], 2)
-summary$lignin_leaf_mean_SD[summary$PFT == "3"] <-
+summary$lignin_leaf_mean_SD[summary$pft_name == "pioneer"] <-
   round(summary_stats[3, "SD_lignin_leaf_mean"], 2)
-summary$lignin_leaf_mean[summary$PFT == "4"] <-
+summary$lignin_leaf_mean[summary$pft_name == "understory"] <-
   round(summary_stats[4, "Mean_lignin_leaf_mean"], 2)
-summary$lignin_leaf_mean_SD[summary$PFT == "4"] <-
+summary$lignin_leaf_mean_SD[summary$pft_name == "understory"] <-
   round(summary_stats[4, "SD_lignin_leaf_mean"], 2)
 
 # Now calculate stoichiometry for senesced leaves, using the nutrient resorption
@@ -1188,8 +1189,9 @@ summary$lignin_senesced_leaf_mean <- as.numeric(
 )
 
 names(summary)
+
 summary <- summary[, c(
-  "PFT_name",
+  "pft_name",
   "CN_sapwood_mean",
   "CP_sapwood_mean",
   "stem_lignin",
@@ -1212,13 +1214,15 @@ summary <- summary[, c(
   "fine_root_CP",
   "fine_root_lignin"
 )]
+
 summary <- unique(summary)
 rownames(summary) <- 1:nrow(summary)
 
 # Change variable names to match those used in the VE
 names(summary)
+
 colnames(summary) <- c(
-  "name",
+  "pft_name",
   "deadwood_c_n_ratio",
   "deadwood_c_p_ratio",
   "stem_lignin",

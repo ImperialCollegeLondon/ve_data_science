@@ -2,9 +2,7 @@
 #| title: subcanopy_maliau
 #|
 #| description: |
-#|     This script collects the subcanopy parameters for the plant input data
-#|     library workflow. Maliau is the preferred target area, if and when
-#|     available.
+#|     This script collects the subcanopy parameters for Maliau.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -32,8 +30,8 @@
 #|   - name: stoichiometry_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains stoichiometric ratios and lignin content for
-#|       plant biomass pools used by the plant input data library workflow.
+#|       This CSV file contains a summary of stoichiometric ratios and lignin
+#|       content for different biomass pools for each pft.
 #|
 #| output_files:
 #|   - name: subcanopy_maliau.csv
@@ -48,13 +46,21 @@
 #|         description: |
 #|           Mean standing subcanopy vegetation carbon mass per unit ground area.
 #|         references:
-#|           - citation: "Dobert et al. 2017; Wu et al. 2022"
-#|             doi: "10.5061/dryad.f77p7"
-#|             url: ""
+#|           - citation: "Dobert et al. (2017)"
+#|             doi: "https://doi.org/10.5061/dryad.f77p7"
+#|             url: "https://datadryad.org/dataset/doi:10.5061/dryad.f77p7"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2014"
+#|           - citation: "Wu et al. (2022)"
+#|             doi: "https://doi.org/10.3390/su142416517"
+#|             url: "https://www.mdpi.com/2071-1050/14/24/16517"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
 #|             date: ""
 #|         assumptions: "Derived from old-growth SAFE subcanopy dry biomass and converted to carbon mass using a herb-layer carbon fraction from Wu et al."
 #|       - name: subcanopy_seedbank_biomass
@@ -63,9 +69,17 @@
 #|         description: |
 #|           Estimated seedbank carbon mass per unit ground area.
 #|         references:
-#|           - citation: "Dalling et al. 1998; Zhang et al. 2020"
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Dalling et al. 1998"
+#|             doi: "https://doi.org/10.2307/176953"
+#|             url: "https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
+#|           - citation: "Zhang et al. 2020"
+#|             doi: "https://doi.org/10.1007/s11629-020-6253-6"
+#|             url: "https://link.springer.com/article/10.1007/s11629-020-6253-6"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -78,13 +92,21 @@
 #|         description: |
 #|           Specific leaf area of subcanopy vegetation expressed per unit carbon mass.
 #|         references:
-#|           - citation: "Dobert et al. 2017; Wu et al. 2022"
-#|             doi: "10.5061/dryad.f77p7"
-#|             url: ""
+#|           - citation: "Dobert et al. (2017)"
+#|             doi: "https://doi.org/10.5061/dryad.f77p7"
+#|             url: "https://datadryad.org/dataset/doi:10.5061/dryad.f77p7"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2014"
+#|           - citation: "Wu et al. (2022)"
+#|             doi: "https://doi.org/10.3390/su142416517"
+#|             url: "https://www.mdpi.com/2071-1050/14/24/16517"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
 #|             date: ""
 #|         assumptions: "Calculated as the mean SLA across selected non-tree subcanopy growth forms and converted to a carbon-mass basis using the same carbon fraction as for biomass."
 #|       - name: subcanopy_reproductive_allocation
@@ -94,8 +116,8 @@
 #|           Fraction of aboveground subcanopy biomass allocated to reproductive tissue.
 #|         references:
 #|           - citation: "Zhang et al. 2020"
-#|             doi: ""
-#|             url: ""
+#|             doi: "https://doi.org/10.1007/s11629-020-6253-6"
+#|             url: "https://link.springer.com/article/10.1007/s11629-020-6253-6"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -109,8 +131,8 @@
 #|           Fraction of gross primary productivity lost to respiration in subcanopy vegetation.
 #|         references:
 #|           - citation: "Lötscher et al. 2004"
-#|             doi: ""
-#|             url: ""
+#|             doi: "https://doi.org/10.1111/j.1469-8137.2004.01170.x"
+#|             url: "https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -124,14 +146,14 @@
 #|           Light extinction coefficient used for subcanopy vegetation.
 #|         references:
 #|           - citation: "White et al. 2000"
-#|             doi: ""
-#|             url: ""
+#|             doi: "https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2"
+#|             url: "https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml"
 #|             origin: ""
 #|             biome: ""
-#|             vegetation_type: "rain forest"
+#|             vegetation_type: ""
 #|             site_condition: ""
 #|             date: ""
-#|         assumptions: "Used directly as a literature constant rather than estimated from the input datasets in this workflow."
+#|         assumptions: ""
 #|       - name: subcanopy_yield
 #|         type: numeric
 #|         units: dimensionless
@@ -139,8 +161,8 @@
 #|           Carbon yield of subcanopy vegetation after growth respiration losses.
 #|         references:
 #|           - citation: "Lötscher et al. 2004"
-#|             doi: ""
-#|             url: ""
+#|             doi: "https://doi.org/10.1111/j.1469-8137.2004.01170.x"
+#|             url: "https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -153,9 +175,17 @@
 #|         description: |
 #|           Annual turnover rate of subcanopy vegetation biomass.
 #|         references:
-#|           - citation: "Singh 1992; Singh and Singh 1991"
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Singh 1992"
+#|             doi: "https://doi.org/10.1007/BF00045551"
+#|             url: "https://link.springer.com/article/10.1007/BF00045551"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
+#|           - citation: "Singh and Singh 1991"
+#|             doi: "https://doi.org/10.1093/oxfordjournals.aob.a088252"
+#|             url: "https://academic.oup.com/aob/article-abstract/68/3/263/214008?redirectedFrom=fulltext"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -168,12 +198,12 @@
 #|         description: |
 #|           Carbon-to-nitrogen ratio of subcanopy vegetation biomass.
 #|         references:
-#|           - citation: "Wu et al. 2022"
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Wu et al. (2022)"
+#|             doi: "https://doi.org/10.3390/su142416517"
+#|             url: "https://www.mdpi.com/2071-1050/14/24/16517"
 #|             origin: ""
 #|             biome: ""
-#|             vegetation_type: "primary forest herb layer"
+#|             vegetation_type: ""
 #|             site_condition: ""
 #|             date: ""
 #|         assumptions: "Taken from herb-layer elemental composition in primary forest as a proxy for subcanopy vegetation."
@@ -183,12 +213,12 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio of subcanopy vegetation biomass.
 #|         references:
-#|           - citation: "Wu et al. 2022"
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Wu et al. (2022)"
+#|             doi: "https://doi.org/10.3390/su142416517"
+#|             url: "https://www.mdpi.com/2071-1050/14/24/16517"
 #|             origin: ""
 #|             biome: ""
-#|             vegetation_type: "primary forest herb layer"
+#|             vegetation_type: ""
 #|             site_condition: ""
 #|             date: ""
 #|         assumptions: "Taken from herb-layer elemental composition in primary forest as a proxy for subcanopy vegetation."
@@ -198,9 +228,25 @@
 #|         description: |
 #|           Fraction of subcanopy vegetation carbon mass present as lignin.
 #|         references:
-#|           - citation: "Amatangelo and Vitousek 2009; Muddasar et al. 2024; Wu et al. 2022"
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Amatangelo and Vitousek 2009"
+#|             doi: "https://doi.org/10.1111/j.1744-7429.2008.00470.x"
+#|             url: "https://onlinelibrary.wiley.com/doi/10.1111/j.1744-7429.2008.00470.x"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
+#|           - citation: "Muddasar et al. 2024"
+#|             doi: "https://doi.org/10.1016/j.mtsust.2024.100990"
+#|             url: "https://www.sciencedirect.com/science/article/pii/S2589234724003269?via%3Dihub"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
+#|           - citation: "Wu et al. (2022)"
+#|             doi: "https://doi.org/10.3390/su142416517"
+#|             url: "https://www.mdpi.com/2071-1050/14/24/16517"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -214,8 +260,8 @@
 #|           Annual turnover rate of the subcanopy seedbank.
 #|         references:
 #|           - citation: "Dalling et al. 1998"
-#|             doi: ""
-#|             url: ""
+#|             doi: "https://doi.org/10.2307/176953"
+#|             url: "https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -229,8 +275,8 @@
 #|           Annual sprouting rate from the viable subcanopy seedbank.
 #|         references:
 #|           - citation: "Dalling et al. 1998"
-#|             doi: ""
-#|             url: ""
+#|             doi: "https://doi.org/10.2307/176953"
+#|             url: "https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -244,8 +290,8 @@
 #|           Carbon yield associated with sprouting from the subcanopy seedbank.
 #|         references:
 #|           - citation: "Lötscher et al. 2004"
-#|             doi: ""
-#|             url: ""
+#|             doi: "https://doi.org/10.1111/j.1469-8137.2004.01170.x"
+#|             url: "https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x"
 #|             origin: ""
 #|             biome: ""
 #|             vegetation_type: ""
@@ -254,56 +300,55 @@
 #|         assumptions: "Set equal to the general subcanopy yield, assuming the same growth respiration correction applies to sprouting."
 #|       - name: subcanopy_seedbank_c_n_ratio
 #|         type: numeric
-#|         units: g C g^-1 N
+#|         units: dimensionless
 #|         description: |
 #|           Carbon-to-nitrogen ratio of seedbank material used for subcanopy inputs.
 #|         references:
 #|           - citation: ""
 #|             doi: ""
 #|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
-#|             biome: "tropical"
-#|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Imported directly from the derived stoichiometry_maliau reproductive tissue turnover field as a proxy because seedbank-specific data are lacking."
 #|       - name: subcanopy_seedbank_c_p_ratio
 #|         type: numeric
-#|         units: g C g^-1 P
+#|         units: dimensionless
 #|         description: |
 #|           Carbon-to-phosphorus ratio of seedbank material used for subcanopy inputs.
 #|         references:
 #|           - citation: ""
 #|             doi: ""
 #|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
-#|             biome: "tropical"
-#|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Imported directly from the derived stoichiometry_maliau reproductive tissue turnover field as a proxy because seedbank-specific data are lacking."
 #|       - name: subcanopy_seedbank_lignin
 #|         type: numeric
-#|         units: g lignin C g^-1 seedbank C
+#|         units: dimensionless
 #|         description: |
 #|           Fraction of seedbank carbon mass present as lignin.
 #|         references:
 #|           - citation: ""
 #|             doi: ""
 #|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
-#|             biome: "tropical"
-#|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
 #|         assumptions: "Imported directly from the derived stoichiometry_maliau reproductive tissue lignin field as a proxy because seedbank-specific lignin data are lacking."
 #|
 #| package_dependencies:
 #|   -
 #|
 #| usage_notes: |
-#|   This script currently retains the original exploratory structure and should
-#|   be cleaned further before inclusion in the full master workflow.
+#|   No notes.
 #| ---
 
 # Load packages
@@ -447,12 +492,10 @@ data <- data[, c("mean_total_subcanopy_carbon_mass", "sla")]
 data$sla <- mean(data$sla)
 data <- unique(data)
 
-# Correct SLA to account for carbon content (use 46.509% from Xie et al., 2019)
-# so that its unit is cm2 g-1 C
+# Correct SLA to account for carbon content (use 41.747% carbon content for herb
+# layer reported by Wu et al. (2022; https://doi.org/10.3390/su142416517)
+# Unit is m2 kg-1 C
 data$sla <- data$sla / 0.41747
-
-# Convert cm2 g-1 C to m2 kg-1 C
-data$sla <- data$sla * 0.1
 
 ##################################################
 
@@ -482,12 +525,14 @@ data$subcanopy_seedbank_carbon_mass <-
 ##################################################
 
 # Clean up parameter summary so far
+
 data <- data[, c(
   "mean_total_subcanopy_carbon_mass",
   "subcanopy_seedbank_carbon_mass",
   "sla",
   "subcanopy_reproductive_allocation"
 )]
+
 colnames(data) <- c(
   "subcanopy_vegetation_biomass",
   "subcanopy_seedbank_biomass",
