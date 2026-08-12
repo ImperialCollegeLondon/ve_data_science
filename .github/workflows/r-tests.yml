@@ -125,6 +125,18 @@ jobs:
           )
         shell: Rscript {0}
 
+      # --- Additional R dependencies that require different methods ---
+      - name: Install pizzarr
+        run: |
+          install.packages(
+            "pizzarr",
+            repos = c(
+              "https://zarr-developers.r-universe.dev",
+              "https://cloud.r-project.org"
+            )
+          )
+        shell: Rscript {0}
+
       # --- Tests ---
       - name: Run R tests
         env:
