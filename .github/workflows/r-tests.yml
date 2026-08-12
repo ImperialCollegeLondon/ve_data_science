@@ -31,6 +31,8 @@ jobs:
         with:
           r-version: "release"
           use-public-rspm: true # faster binary package installs
+          extra-repositories: |
+            https://zarr-developers.r-universe.dev
 
       # --- Python: uv ---
       - name: Set up uv
@@ -72,18 +74,7 @@ jobs:
             any::RNetCDF
             any::dplyr
             any::stringr
-
-      # --- Additional R dependencies that require different methods ---
-      - name: Install pizzarr
-        run: |
-          install.packages(
-            "pizzarr",
-            repos = c(
-              "https://zarr-developers.r-universe.dev",
-              "https://cloud.r-project.org"
-            )
-          )
-        shell: Rscript {0}
+            pizzarr
 
       # --- Tests ---
       - name: Run R tests
