@@ -36,6 +36,28 @@
 #|       configuration classes and their constants. Reference sites are then
 #|       resolved across the whole virtual_ecosystem project.
 #|
+#|       Only `model_config.py` files are parsed for declarations, but this is
+#|       exhaustive rather than a convenience subset. Virtual Ecosystem
+#|       requires each model to define its configuration in
+#|       `model_name.model_config`, and an abstract syntax tree sweep of the
+#|       package (following indirect inheritance) finds no `Configuration`
+#|       subclass outside `model_config.py` other than the abstract base
+#|       classes in `core/configuration.py`, which declare simulation controls
+#|       (`static`, `run_at`) rather than parameters.
+#|
+#|       Other `.py` files need not be listed as inputs because they are
+#|       already searched for reference sites: jedi resolves references
+#|       project-wide, so constants used in files such as `pools.py` or
+#|       `env_factors.py` are captured.
+#|
+#|       Two classes of parameter are outside the scope of this database. The
+#|       tool only enumerates attributes of configuration classes, so numeric
+#|       literals hardcoded in function signatures (for example
+#|       `cell_area: float = 10000` in `core/grid.py`) are not recorded.
+#|       Parameters held outside Python are also excluded, notably the trait
+#|       tables in `virtual_ecosystem/example_data/data/` such as
+#|       `animal_functional_groups.csv` and `plant_pfts.csv`.
+#|
 #| output_files:
 #|   - name: ve_constant_usage.toml
 #|     path: data/derived/llm/
