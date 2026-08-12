@@ -31,8 +31,6 @@ jobs:
         with:
           r-version: "release"
           use-public-rspm: true # faster binary package installs
-          extra-repositories: |
-            https://zarr-developers.r-universe.dev
 
       # --- Python: uv ---
       - name: Set up uv
@@ -76,6 +74,10 @@ jobs:
             any::stringr
             any::readr
             any::tibble
+            any::jsonlite
+            any::R6
+            any::qs2
+            any::memoise
 
       - name: Install pizzarr from r-universe
         run: |
