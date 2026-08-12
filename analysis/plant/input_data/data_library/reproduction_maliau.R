@@ -44,11 +44,26 @@
 #|       reproductive tissue allocation, and to separate propagules from
 #|       non-propagules.
 #|     variables:
+#|       - name: variable
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Description.
+#|         references:
+#|           - citation: ""
+#|             doi: ""
+#|             url: ""
+#|             origin: ""
+#|             biome: ""
+#|             vegetation_type: ""
+#|             site_condition: ""
+#|             date: ""
+#|         assumptions: ""
 #|       - name: approach
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Identifier for the approach used to derive the ratio or allocation.
+#|           Description.
 #|         references:
 #|           - citation: ""
 #|             doi: ""
@@ -58,12 +73,12 @@
 #|             vegetation_type: ""
 #|             site_condition: ""
 #|             date: ""
-#|         assumptions: "Approach labels distinguish mixed-source derivation methods rather than measured variables."
+#|         assumptions: ""
 #|       - name: source
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Literature source or dataset used for the estimate.
+#|           Description.
 #|         references:
 #|           - citation: ""
 #|             doi: ""
@@ -73,14 +88,12 @@
 #|             vegetation_type: ""
 #|             site_condition: ""
 #|             date: ""
-#|         assumptions: "Source values identify the primary dataset or paper used for each summary row, but some rows still depend on additional correction sources."
-#|       - name: reproductive_to_leaf_ratio_C
-#|         type: numeric
+#|         assumptions: ""
+#|       - name: value
+#|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Ratio used to derive reproductive tissue carbon mass from foliage
-#|           carbon mass, or carbon allocation fraction for propagule and
-#|           non-propagule components depending on the row.
+#|           Description.
 #|         references:
 #|           - citation: ""
 #|             doi: ""
@@ -90,13 +103,12 @@
 #|             vegetation_type: ""
 #|             site_condition: ""
 #|             date: ""
-#|         assumptions: "This field contains mixed derived quantities across rows, including reproductive-to-leaf ratios and propagule allocation fractions, so provenance varies by approach."
+#|         assumptions: ""
 #|       - name: notes
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Additional context describing forest type, assumptions, or tissue
-#|           class used for the estimate.
+#|           Description.
 #|         references:
 #|           - citation: ""
 #|             doi: ""
@@ -106,7 +118,7 @@
 #|             vegetation_type: ""
 #|             site_condition: ""
 #|             date: ""
-#|         assumptions: "Notes summarise row-level provenance and interpretation because the output table combines several incompatible source types."
+#|         assumptions: ""
 #|
 #| package_dependencies:
 #|   - readxl
@@ -307,9 +319,10 @@ mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Logged"])
 # Create summary and write ratio to summary
 
 summary <- data.frame(
+  variable = c("reproductive_to_leaf_ratio_C"),
   approach = c("1"),
   source = c("safe_carbon_balance_components"),
-  reproductive_to_leaf_ratio_C = mean(data$reproductive_to_leaf_ratio_C_kitayama[
+  value = mean(data$reproductive_to_leaf_ratio_C_kitayama[
     data$ForestType == "Old-growth"
   ]),
   notes = c(
@@ -319,6 +332,7 @@ summary <- data.frame(
 
 summary[2, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "1",
     "safe_carbon_balance_components",
     mean(data$reproductive_to_leaf_ratio_C_kitayama[
@@ -329,6 +343,7 @@ summary[2, ] <-
 
 summary[3, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "1",
     "safe_carbon_balance_components",
     mean(data$reproductive_to_leaf_ratio_C_aoyagi[
@@ -339,6 +354,7 @@ summary[3, ] <-
 
 summary[4, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "1",
     "safe_carbon_balance_components",
     mean(data$reproductive_to_leaf_ratio_C_aoyagi[data$ForestType == "Logged"]),
@@ -404,6 +420,7 @@ mean(kitayama_data$reproductive_to_leaf_ratio[
 
 summary[5, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "2",
     "kitayama",
     mean(kitayama_data$reproductive_to_leaf_ratio[
@@ -414,6 +431,7 @@ summary[5, ] <-
 
 summary[6, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "2",
     "kitayama",
     mean(kitayama_data$reproductive_to_leaf_ratio[
@@ -517,6 +535,7 @@ aoyagi_data$reproductive_to_leaf_ratio <-
 
 summary[7, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "3",
     "aoyagi",
     aoyagi_data[1, 10],
@@ -524,6 +543,7 @@ summary[7, ] <-
   )
 summary[8, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "3",
     "aoyagi",
     aoyagi_data[2, 10],
@@ -531,6 +551,7 @@ summary[8, ] <-
   )
 summary[9, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "3",
     "aoyagi",
     aoyagi_data[3, 10],
@@ -538,6 +559,7 @@ summary[9, ] <-
   )
 summary[10, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "3",
     "aoyagi",
     aoyagi_data[4, 10],
@@ -545,6 +567,7 @@ summary[10, ] <-
   )
 summary[11, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "3",
     "aoyagi",
     aoyagi_data[5, 10],
@@ -552,6 +575,7 @@ summary[11, ] <-
   )
 summary[12, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "3",
     "aoyagi",
     aoyagi_data[6, 10],
@@ -667,6 +691,7 @@ mean(anderson_data$reproductive_to_leaf_ratio[
 
 summary[13, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "4",
     "anderson",
     anderson_data[1, 9],
@@ -674,6 +699,7 @@ summary[13, ] <-
   )
 summary[14, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "4",
     "anderson",
     anderson_data[2, 9],
@@ -718,6 +744,7 @@ mean(proctor_data$reproductive_to_leaf_ratio)
 
 summary[15, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "5",
     "proctor",
     mean(proctor_data$reproductive_to_leaf_ratio),
@@ -765,6 +792,7 @@ mean(dent_data$reproductive_to_leaf_ratio) # seems rather low compared to rest
 
 summary[16, ] <-
   c(
+    "reproductive_to_leaf_ratio_C",
     "6",
     "dent",
     dent_data[1, 8],
@@ -775,8 +803,8 @@ summary[16, ] <-
 
 # Change to numeric
 
-summary$reproductive_to_leaf_ratio_C <-
-  as.numeric(summary$reproductive_to_leaf_ratio_C)
+summary$value <-
+  as.numeric(summary$value)
 
 ################################################################################
 ################################################################################
@@ -856,28 +884,32 @@ ichie_data$fruit_allocation_live_organ <-
 
 summary[17, ] <-
   c(
-    "propagule litter carbon percentage",
+    "propagule_litter_carbon_percentage",
+    "NA",
     "ichie",
     unique(ichie_data$fruit_allocation_litter),
     "dipterocarp forest"
   )
 summary[18, ] <-
   c(
-    "non-propagule litter carbon percentage",
+    "non_propagule_litter_carbon_percentage",
+    "NA",
     "ichie",
     unique(ichie_data$flower_allocation_litter),
     "dipterocarp forest"
   )
 summary[19, ] <-
   c(
-    "propagule live organ carbon percentage",
+    "propagule_live_organ_carbon_percentage",
+    "NA",
     "ichie",
     unique(ichie_data$fruit_allocation_live_organ),
     "dipterocarp forest"
   )
 summary[20, ] <-
   c(
-    "non-propagule live organ carbon percentage",
+    "non_propagule_live_organ_carbon_percentage",
+    "NA",
     "ichie",
     unique(ichie_data$flower_allocation_live_organ),
     "dipterocarp forest"
