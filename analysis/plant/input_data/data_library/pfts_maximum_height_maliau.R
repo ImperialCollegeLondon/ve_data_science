@@ -33,143 +33,138 @@
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a summary of updated T model parameters for each
-#|       plant functional type used in the Maliau data library workflow.
+#|       A CSV file listing T model parameters by pft.
 #|
 #| output_files:
 #|   - name: pfts_maximum_height_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains an updated list of taxa and their respective
-#|       PFT. It contains both the base PFT classification from pfts_maliau and
+#|       A CSV file containing an updated list of taxa and their respective
+#|       pft. It contains both the base pft classification from pfts_maliau and
 #|       additional assignments for previously unclassified taxa based on their
-#|       maximum height relative to PFT maximum height thresholds. Taxon maximum
+#|       maximum height relative to pft maximum height thresholds. Taxon maximum
 #|       height is also included in the output file.
 #|     variables:
-#|       - name: PFT_final
-#|         type: integer
-#|         units: dimensionless
-#|         description: |
-#|           Numeric plant functional type code after applying the
-#|           maximum-height-based classification.
-#|           1 = emergent, 2 = overstory, 3 = pioneer, 4 = understory.
-#|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
-#|             biome: "tropical"
-#|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
-#|         assumptions: "Unclassified taxa are assigned to PFTs using observed maximum height thresholds from the derived T model output."
-#|       - name: PFT_name
+#|       - name: pft_name_h_max_taxa
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Human-readable plant functional type label.
-#|           One of: emergent, overstory, pioneer, understory.
+#|           The name of the plant functional type (pft) a species is assigned to.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: "Labels are derived from the final numeric PFT assignments after height-based reassignment."
-#|       - name: TaxaName
+#|         assumptions: "Remaining taxa are assigned a pft based on pft maximum height, using 2011 data across all plots."
+#|       - name: pft_name
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Full taxon name as recorded in the SAFE tree census dataset.
+#|           See pfts_maliau.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.14882506"
-#|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
-#|             biome: "tropical"
-#|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
-#|         assumptions: "Taxon names are taken directly from the SAFE census input file."
-#|       - name: TaxaLevel
+#|           - citation: null
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: null
+#|       - name: taxa_name
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Taxonomic resolution of the identification (e.g. species, genus).
+#|           Taxonomic info to finest resolution available.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.14882506"
-#|             url: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: "Taxonomic resolution is inherited from the SAFE census input file."
-#|       - name: Species
+#|         assumptions: ""
+#|       - name: taxa_level
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Species epithet component of the taxon name, where available.
+#|           Taxonomic level identified to.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.14882506"
-#|             url: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: "Species epithets are taken directly from the SAFE census input file and may be blank for higher-level identifications."
-#|       - name: Genus
+#|         assumptions: ""
+#|       - name: species
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Genus component of the taxon name.
+#|           Species level ID.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.14882506"
-#|             url: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: "Genus names are taken directly from the SAFE census input file."
-#|       - name: Family
+#|         assumptions: ""
+#|       - name: genus
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Plant family as recorded in the SAFE tree census dataset.
+#|           Genus level ID.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.14882506"
-#|             url: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: "Family names are taken directly from the SAFE census input file."
-#|       - name: maximum_height
+#|         assumptions: ""
+#|       - name: family
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Family level ID.
+#|         references:
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2020"
+#|         assumptions: ""
+#|       - name: h_max_taxa
 #|         type: numeric
 #|         units: m
 #|         description: |
-#|           Estimated maximum height for each taxon, derived from the tallest
-#|           observed individual in the filtered SAFE tree census dataset.
+#|           Estimated maximum height for each taxa.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.14882506"
-#|             url: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: "Maximum height is taken as the tallest observed individual per taxon in the filtered SAFE census data."
+#|         assumptions: "Maximum height is taken as the tallest observed individual per taxa, using 2011 data across all plots."
 #|
 #| package_dependencies:
 #|   - readxl
@@ -179,10 +174,7 @@
 #|
 #| usage_notes: |
 #|   This script is intended to run after pfts_maliau and t_model_maliau have
-#|   generated the base PFT classification and T model parameters. If the base
-#|   PFT species classification is updated in the future, pfts_maliau as well as
-#|   t_model_maliau should be updated prior to running this script, because the
-#|   output of this script relies on the PFT maximum height values.
+#|   generated the base pft classification and T model parameters.
 #| ---
 
 # Load packages
@@ -200,12 +192,9 @@ tree_census_11_20 <- read_excel(
   col_names = FALSE
 )
 
-data <- tree_census_11_20
-
-max(nrow(data))
-colnames(data) <- data[10, ]
-data <- data[11:40511, ]
-names(data)
+colnames(tree_census_11_20) <- tree_census_11_20[10, ]
+tree_census_11_20 <- tree_census_11_20[11:max(nrow(tree_census_11_20)), ]
+names(tree_census_11_20)
 
 # Load base PFT classification and clean up
 
@@ -214,21 +203,28 @@ pfts_maliau <- read.csv(
   header = TRUE
 )
 
-pfts_maliau <- pfts_maliau[, c("PFT", "PFT_name", "TaxaName")]
+pfts_maliau <- pfts_maliau[, c("pft_name", "taxa_name")]
 pfts_maliau <- unique(pfts_maliau)
+
+# Note that taxa_name in the original tree_census_11_20 is still called TaxaName
+
+names(tree_census_11_20)[names(tree_census_11_20) == "TaxaName"] <- "taxa_name"
 
 # Add PFT and PFT_name to data based on TaxaName and call it data_taxa
 
-data_taxa <- left_join(data, pfts_maliau, by = "TaxaName")
+data_taxa <- left_join(tree_census_11_20, pfts_maliau, by = "taxa_name")
 
-# Give all other trees PFT = 0
+# Give all other trees pft_name = unknown
 
-data_taxa$PFT[!data_taxa$PFT %in% c(1, 2, 3, 4)] <- 0
-unique(data_taxa$PFT)
+data_taxa$pft_name[
+  !data_taxa$pft_name %in% c("emergent", "overstory", "pioneer", "understory")
+] <- "unknown"
+unique(data_taxa$pft_name)
 
 # Give plots a logging indicator
 
 data_taxa$logging <- NA
+
 data_taxa$logging[
   data_taxa$Block %in%
     c(
@@ -238,6 +234,7 @@ data_taxa$logging[
       "LF3"
     )
 ] <- "logged"
+
 data_taxa$logging[
   data_taxa$Block %in%
     c(
@@ -253,6 +250,7 @@ data_taxa$logging[
       "OG3"
     )
 ] <- "unlogged"
+
 data_taxa$logging[
   data_taxa$Block %in%
     c(
@@ -299,7 +297,7 @@ names(plot_data)
 
 ggplot(
   plot_data,
-  aes(x = DBH2011_m, y = HeightTotal_m_2011, color = as.factor(PFT))
+  aes(x = DBH2011_m, y = HeightTotal_m_2011, color = as.factor(pft_name))
 ) +
   geom_point() +
   labs(
@@ -310,7 +308,7 @@ ggplot(
 
 ##########
 
-# Calculate maximum height for each TaxaName
+# Calculate maximum height for each taxa_name
 
 plot_data$maximum_height <- NA
 plot_data$maximum_height_Mahayani <- NA
@@ -327,16 +325,16 @@ temp <- plot_data[, c(
   "Family",
   "Genus",
   "Species",
-  "TaxaName",
+  "taxa_name",
   "TaxaLevel",
-  "PFT",
+  "pft_name",
   "HeightTotal_m_2011",
   "maximum_height",
   "maximum_height_Mahayani",
   "DBH2011_m"
 )]
 temp <- temp[temp$TaxaLevel %in% c("species", "genus"), ]
-temp <- drop_na(temp, TaxaName)
+temp <- drop_na(temp, taxa_name)
 
 # Note that the step below removes many trees without height measurements.
 # Although this part of the script does not calculate stem density, it is good
@@ -345,7 +343,7 @@ temp <- drop_na(temp, HeightTotal_m_2011)
 
 temp <- temp[
   order(
-    temp$PFT,
+    temp$pft_name,
     temp$Family,
     temp$Genus,
     temp$Species,
@@ -353,16 +351,16 @@ temp <- temp[
   ),
 ]
 
-taxa_names_species <- unique(temp$TaxaName[temp$TaxaLevel == "species"])
-taxa_names_genus <- unique(temp$TaxaName[temp$TaxaLevel == "genus"])
+taxa_names_species <- unique(temp$taxa_name[temp$TaxaLevel == "species"])
+taxa_names_genus <- unique(temp$taxa_name[temp$TaxaLevel == "genus"])
 
 for (id in taxa_names_species) {
-  temp$maximum_height[temp$TaxaName == id] <-
-    max(temp$HeightTotal_m_2011[temp$TaxaName == id], na.rm = TRUE)
+  temp$maximum_height[temp$taxa_name == id] <-
+    max(temp$HeightTotal_m_2011[temp$taxa_name == id], na.rm = TRUE)
 }
 
 for (id in taxa_names_genus) {
-  temp$maximum_height[temp$TaxaName == id] <-
+  temp$maximum_height[temp$taxa_name == id] <-
     max(temp$HeightTotal_m_2011[temp$Genus == id], na.rm = TRUE)
 }
 
@@ -370,20 +368,20 @@ for (id in taxa_names_genus) {
 
 for (id in taxa_names_species) {
   height_threshold <- quantile(
-    temp$HeightTotal_m_2011[temp$TaxaName == id],
+    temp$HeightTotal_m_2011[temp$taxa_name == id],
     0.95,
     na.rm = TRUE
   )
-  temp$maximum_height_Mahayani[temp$TaxaName == id] <- mean(
+  temp$maximum_height_Mahayani[temp$taxa_name == id] <- mean(
     temp$HeightTotal_m_2011[
-      temp$TaxaName == id &
+      temp$taxa_name == id &
         temp$HeightTotal_m_2011 >= height_threshold
     ] /
       (1 -
         exp(
           -0.05 *
             temp$DBH2011_m[
-              temp$TaxaName == id &
+              temp$taxa_name == id &
                 temp$HeightTotal_m_2011 >= height_threshold
             ] *
             100
@@ -394,20 +392,20 @@ for (id in taxa_names_species) {
 
 for (id in taxa_names_genus) {
   height_threshold <- quantile(
-    temp$HeightTotal_m_2011[temp$TaxaName == id],
+    temp$HeightTotal_m_2011[temp$taxa_name == id],
     0.95,
     na.rm = TRUE
   )
-  temp$maximum_height_Mahayani[temp$TaxaName == id] <- mean(
+  temp$maximum_height_Mahayani[temp$taxa_name == id] <- mean(
     temp$HeightTotal_m_2011[
-      temp$TaxaName == id &
+      temp$taxa_name == id &
         temp$HeightTotal_m_2011 >= height_threshold
     ] /
       (1 -
         exp(
           -0.05 *
             temp$DBH2011_m[
-              temp$TaxaName == id &
+              temp$taxa_name == id &
                 temp$HeightTotal_m_2011 >= height_threshold
             ] *
             100
@@ -428,91 +426,91 @@ abline(a = 0, b = 1, col = "red", lty = 2)
 
 # For each PFT, plot trees with their height
 
-# PFT 1
+# PFT = emergent
 ggplot(
-  temp[temp$PFT == "1", ],
+  temp[temp$pft_name == "emergent", ],
   aes(x = Genus, y = HeightTotal_m_2011, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Height (m)", title = "PFT = 1")
+  labs(x = "Genus", y = "Height (m)", title = "PFT = emergent")
 
-# PFT 2
+# PFT = overstory
 ggplot(
-  temp[temp$PFT == "2", ],
+  temp[temp$pft_name == "overstory", ],
   aes(x = Genus, y = HeightTotal_m_2011, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Height (m)", title = "PFT = 2")
+  labs(x = "Genus", y = "Height (m)", title = "PFT = overstory")
 
-# PFT 3
+# PFT = pioneer
 ggplot(
-  temp[temp$PFT == "3", ],
+  temp[temp$pft_name == "pioneer", ],
   aes(x = Genus, y = HeightTotal_m_2011, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Height (m)", title = "PFT = 3")
+  labs(x = "Genus", y = "Height (m)", title = "PFT = pioneer")
 
-# PFT 4
+# PFT = understory
 ggplot(
-  temp[temp$PFT == "4", ],
+  temp[temp$pft_name == "understory", ],
   aes(x = Genus, y = HeightTotal_m_2011, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Height (m)", title = "PFT = 4")
+  labs(x = "Genus", y = "Height (m)", title = "PFT = understory")
 
-# PFT 0
+# PFT = unknown
 ggplot(
-  temp[temp$PFT == "0", ],
+  temp[temp$pft_name == "unknown", ],
   aes(x = Genus, y = HeightTotal_m_2011, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Height (m)", title = "PFT = 0")
+  labs(x = "Genus", y = "Height (m)", title = "PFT = unknown")
 
 # Now repeat but using maximum height
 
-# PFT 1
+# PFT = emergent
 ggplot(
-  temp[temp$PFT == "1", ],
+  temp[temp$pft_name == "emergent", ],
   aes(x = Genus, y = maximum_height, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = 1")
+  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = emergent")
 
-# PFT 2
+# PFT = overstory
 ggplot(
-  temp[temp$PFT == "2", ],
+  temp[temp$pft_name == "overstory", ],
   aes(x = Genus, y = maximum_height, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = 2")
+  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = overstory")
 
-# PFT 3
+# PFT = pioneer
 ggplot(
-  temp[temp$PFT == "3", ],
+  temp[temp$pft_name == "pioneer", ],
   aes(x = Genus, y = maximum_height, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = 3")
+  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = pioneer")
 
-# PFT 4
+# PFT = understory
 ggplot(
-  temp[temp$PFT == "4", ],
+  temp[temp$pft_name == "understory", ],
   aes(x = Genus, y = maximum_height, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = 4")
+  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = understory")
 
-# PFT 0
+# PFT = unknown
 ggplot(
-  temp[temp$PFT == "0", ],
+  temp[temp$pft_name == "unknown", ],
   aes(x = Genus, y = maximum_height, color = Genus)
 ) +
   geom_point() +
-  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = 0")
+  labs(x = "Genus", y = "Maximum height (m)", title = "PFT = unknown")
 
 ##########
 
-# Load t_model_maliau so that we can access the PFT maximum height values
+# Load t_model_maliau so that we can access the pft maximum height values
 
 t_model_maliau <- read.csv(
   "../../../../data/derived/plant/input_data/data_library/t_model_maliau.csv",
@@ -522,92 +520,88 @@ t_model_maliau <- read.csv(
 # Reassign taxa where PFT = 0 based on maximum height into PFT 1, 2, 3 or 4
 
 h_max_overstory <- t_model_maliau$h_max[
-  t_model_maliau$name == "overstory"
+  t_model_maliau$pft_name == "overstory"
 ]
+
 h_max_understory <- t_model_maliau$h_max[
-  t_model_maliau$name == "understory"
+  t_model_maliau$pft_name == "understory"
 ]
 
-temp$PFT[
-  temp$PFT == 0 &
+temp$pft_name[
+  temp$pft_name == "unknown" &
     temp$maximum_height > h_max_overstory
-] <- 1
+] <- "emergent"
 
-temp$PFT[
-  temp$PFT == 0 &
+temp$pft_name[
+  temp$pft_name == "unknown" &
     temp$maximum_height <= h_max_overstory &
     temp$maximum_height > h_max_understory
-] <- 2
+] <- "overstory"
 
-# Note that for pioneers, all Macaranga species already have PFT 3,
-# so no further adjustment is needed here
+# Note that for pioneers we only rely on the assigned species, and make no
+# further adjustments here
 
-temp$PFT[
-  temp$PFT == 0 &
+temp$pft_name[
+  temp$pft_name == "unknown" &
     temp$maximum_height <= h_max_understory
-] <- 4
+] <- "understory"
 
 # Inspect
 
-ggplot(temp, aes(x = PFT, y = HeightTotal_m_2011, color = as.factor(PFT))) +
+ggplot(
+  temp,
+  aes(x = pft_name, y = HeightTotal_m_2011, color = as.factor(pft_name))
+) +
   geom_point() +
   labs(x = "PFT", y = "Height (m)")
 
-# PFT 1
+# PFT = emergent
 ggplot(
-  temp[temp$PFT == "1", ],
-  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
+  temp[temp$pft_name == "emergent", ],
+  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(pft_name))
 ) +
   geom_hline(
-    yintercept = t_model_maliau$h_max[t_model_maliau$name == "overstory"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$pft_name == "overstory"],
     linetype = "dashed"
   ) +
   geom_hline(
-    yintercept = t_model_maliau$h_max[t_model_maliau$name == "emergent"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$pft_name == "emergent"],
     linetype = "dashed"
   ) +
   geom_point() +
   labs(x = "TreeID", y = "Height (m)")
 
-# PFT 2
+# PFT = overstory
 ggplot(
-  temp[temp$PFT == "2", ],
-  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
+  temp[temp$pft_name == "overstory", ],
+  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(pft_name))
 ) +
   geom_hline(
-    yintercept = t_model_maliau$h_max[t_model_maliau$name == "overstory"],
-    linetype = "dashed"
-  ) +
-  geom_hline(
-    yintercept = t_model_maliau$h_max[t_model_maliau$name == "pioneer"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$pft_name == "overstory"],
     linetype = "dashed"
   ) +
   geom_point() +
   labs(x = "TreeID", y = "Height (m)")
 
-# PFT 3
+# PFT = pioneer
 ggplot(
-  temp[temp$PFT == "3", ],
-  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
+  temp[temp$pft_name == "pioneer", ],
+  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(pft_name))
 ) +
   geom_hline(
-    yintercept = t_model_maliau$h_max[t_model_maliau$name == "pioneer"],
-    linetype = "dashed"
-  ) +
-  geom_hline(
-    yintercept = t_model_maliau$h_max[t_model_maliau$name == "understory"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$pft_name == "pioneer"],
     linetype = "dashed"
   ) +
   geom_point() +
   labs(x = "TreeID", y = "Height (m)")
 
-# PFT 4
+# PFT = understory
 ggplot(
-  temp[temp$PFT == "4", ],
-  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(PFT))
+  temp[temp$pft_name == "understory", ],
+  aes(x = TagStem_latest, y = HeightTotal_m_2011, color = as.factor(pft_name))
 ) +
   geom_hline(
-    yintercept = t_model_maliau$h_max[t_model_maliau$name == "understory"],
+    yintercept = t_model_maliau$h_max[t_model_maliau$pft_name == "understory"],
     linetype = "dashed"
   ) +
   geom_point() +
@@ -615,19 +609,21 @@ ggplot(
 
 ##########
 
-# Add PFT based on maximum height to original data_taxa
+# Add pft based on maximum height to original data_taxa
 
-temp <- temp[, c("TaxaName", "PFT", "maximum_height")]
+temp <- temp[, c("taxa_name", "pft_name", "maximum_height")]
 temp <- unique(temp)
 
-taxa_names_final <- unique(temp$TaxaName)
-data_taxa$PFT_final <- NA
-data_taxa$maximum_height <- NA
+taxa_names_final <- unique(temp$taxa_name)
+data_taxa$pft_name_h_max_taxa <- NA
+data_taxa$h_max_taxa <- NA
 
 for (id in taxa_names_final) {
-  data_taxa$PFT_final[data_taxa$TaxaName == id] <- temp$PFT[temp$TaxaName == id]
-  data_taxa$maximum_height[data_taxa$TaxaName == id] <-
-    temp$maximum_height[temp$TaxaName == id]
+  data_taxa$pft_name_h_max_taxa[data_taxa$taxa_name == id] <- temp$pft_name[
+    temp$taxa_name == id
+  ]
+  data_taxa$h_max_taxa[data_taxa$taxa_name == id] <-
+    temp$maximum_height[temp$taxa_name == id]
 }
 
 ####################
@@ -635,32 +631,58 @@ for (id in taxa_names_final) {
 # Prepare data_taxa for saving
 
 data_taxa <- data_taxa[, c(
-  "PFT_final",
-  "PFT_name",
-  "TaxaName",
+  "pft_name_h_max_taxa",
+  "pft_name",
+  "taxa_name",
   "TaxaLevel",
   "Species",
   "Genus",
   "Family",
-  "maximum_height"
+  "h_max_taxa"
 )]
 
-data_taxa$PFT_name[data_taxa$PFT_final == "1"] <- "emergent"
-data_taxa$PFT_name[data_taxa$PFT_final == "2"] <- "overstory"
-data_taxa$PFT_name[data_taxa$PFT_final == "3"] <- "pioneer"
-data_taxa$PFT_name[data_taxa$PFT_final == "4"] <- "understory"
+# Exclude rows where pft_name_h_max_taxa is NA and pft_name is unknown
 
-data_taxa <- na.omit(data_taxa)
+data_taxa <-
+  data_taxa[
+    !(is.na(data_taxa$pft_name_h_max_taxa) & data_taxa$pft_name == "unknown"),
+  ]
+
+# Where pft_name_h_max_taxa is NA replace it with known pft_name
+
+data_taxa$pft_name_h_max_taxa <- ifelse(
+  is.na(data_taxa$pft_name_h_max_taxa),
+  data_taxa$pft_name,
+  data_taxa$pft_name_h_max_taxa
+)
+
+# As safety check, remove rows where pft_name_h_max_taxa is now unknown
+
+data_taxa <- data_taxa[data_taxa$pft_name_h_max_taxa != "unknown", ]
+
 data_taxa <- unique(data_taxa)
 
 data_taxa <- data_taxa[
   order(
-    data_taxa$PFT_final,
+    data_taxa$pft_name_h_max_taxa,
     data_taxa$Family,
     data_taxa$Genus,
-    data_taxa$TaxaName
+    data_taxa$taxa_name
   ),
 ]
+
+# Rename columns
+
+colnames(data_taxa) <- c(
+  "pft_name_h_max_taxa",
+  "pft_name",
+  "taxa_name",
+  "taxe_level",
+  "species",
+  "genus",
+  "family",
+  "h_max_taxa"
+)
 
 # Write CSV file
 
