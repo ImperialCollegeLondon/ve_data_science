@@ -47,7 +47,7 @@
 #|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
 #| ---
 
-box::use(./get_ve_variables[...])
+source(here::here("tools/R/R/get_ve_variables.R"))
 
 #' Normalise DOI strings for consistent handling
 #'
