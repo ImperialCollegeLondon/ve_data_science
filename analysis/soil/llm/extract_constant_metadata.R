@@ -60,7 +60,7 @@
 #|
 #| output_files:
 #|   - name: ve_constant_usage.toml
-#|     path: data/derived/llm/
+#|     path: data/derived/soil/llm/
 #|     description: |
 #|       Parameter database mapping each constant to its metadata and classified
 #|       reference sites, a shared function-docstring table, and a metadata
@@ -78,7 +78,6 @@
 #|   - tidyverse
 #|   - reticulate
 #|   - here
-#|   - withr
 #|   - fs
 #|   - cli
 #|
@@ -94,12 +93,8 @@
 library(tidyverse)
 library(reticulate)
 library(here)
-library(withr)
 
 # set Python virtual environment and import functions
-# RETICULATE_PYTHON, if set (e.g. to "managed"), takes precedence over
-# use_virtualenv() and would select a different interpreter, so clear it first.
-withr::local_envvar(RETICULATE_PYTHON = NA, .local_envir = globalenv())
 use_virtualenv(here(".venv"), required = TRUE)
 cu <- import_from_path(
   "constant_usage_tool",
@@ -123,10 +118,12 @@ ve_config_files <-
   ) |>
   fs::path_rel(ve_project_root)
 
+# Build the constant database using the hybrid jedi approach
+# This will take a while
 ve_constants <-
   cu$get_constant_references(
     target_file_path = as.list(ve_config_files),
-    out_path = here("data/derived/llm/ve_constant_usage.toml"),
+    out_path = "data/derived/soil/llm/ve_constant_usage.toml",
     project_root = ve_project_root,
     include_tests = FALSE
   )
