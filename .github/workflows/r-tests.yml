@@ -74,7 +74,49 @@ jobs:
             any::RNetCDF
             any::dplyr
             any::stringr
-            standard::pizzarr
+            any::readr
+            any::tibble
+
+      - name: Install pizzarr from r-universe
+        run: |
+          repo <- "https://zarr-developers.r-universe.dev"
+          available_version <- available.packages(repos = repo)[
+            "pizzarr", "Version"
+          ]
+          installed <- requireNamespace("pizzarr", quietly = TRUE)
+          installed_repo <- if (installed) {
+            packageDescription("pizzarr")$Repository
+          } else {
+            NA_character_
+          }
+          installed_version <- if (installed) {
+            as.character(packageVersion("pizzarr"))
+          } else {
+            NA_character_
+          }
+
+          if (
+            !identical(installed_repo, repo) ||
+              !identical(installed_version, available_version)
+          ) {
+            install.packages(
+              "pizzarr",
+              repos = repo,
+              Ncpus = max(1, parallel::detectCores() - 1)
+            )
+          }
+        shell: Rscript {0}
+
+      - name: Verify pizzarr backend
+        run: |
+          stopifnot(
+            identical(
+              packageDescription("pizzarr")$Repository,
+              "https://zarr-developers.r-universe.dev"
+            ),
+            length(pizzarr::pizzarr_compiled_features()) > 0
+          )
+        shell: Rscript {0}
 
       # --- Tests ---
       - name: Run R tests
