@@ -74,7 +74,7 @@ jobs:
             any::RNetCDF
             any::dplyr
             any::stringr
-            pizzarr=standard::pizzarr
+            standard::pizzarr
 
       # --- Tests ---
       - name: Run R tests
