@@ -119,14 +119,38 @@ ve_config_files <-
   fs::path_rel(ve_project_root)
 
 # Build the constant database using the hybrid jedi approach
-# This will take a while
+# set up progress bar first, which is a bit complex due to the need to callback
+# from Python
+progress_id <- cli::cli_progress_bar(
+  "Scanning constant usage",
+  total = length(ve_config_files),
+  format = "{cli::pb_bar} {cli::pb_current}/{cli::pb_total} {cli::pb_status}"
+)
+progress_update <- function(completed, total, path) {
+  completed <- as.integer(completed)
+  status_width <- max(20L, min(60L, getOption("width") - 35L))
+  status <- ve_config_files[[completed]] |>
+    as.character() |>
+    stringr::str_trunc(width = status_width, side = "left")
+
+  cli::cli_progress_update(
+    id = progress_id,
+    set = completed,
+    status = status,
+    force = TRUE
+  )
+  invisible(NULL)
+}
+
 ve_constants <-
   cu$get_constant_references(
     target_file_path = as.list(ve_config_files),
     out_path = "data/derived/soil/llm/ve_constant_usage.toml",
     project_root = ve_project_root,
-    include_tests = FALSE
+    include_tests = FALSE,
+    progress_callback = progress_update
   )
+cli::cli_progress_done(id = progress_id)
 
 
 # Inspect the results ----------------------------------------------------

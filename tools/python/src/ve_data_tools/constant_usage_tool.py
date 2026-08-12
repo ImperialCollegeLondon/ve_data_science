@@ -57,6 +57,7 @@ import importlib
 import subprocess
 import sys
 import textwrap
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -707,6 +708,7 @@ def get_constant_references(
     out_path: str | Path,
     project_root: str | Path,
     include_tests: bool = False,
+    progress_callback: Callable[[int, int, str], None] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Find and classify configuration constant references, then write TOML.
 
@@ -719,6 +721,9 @@ def get_constant_references(
             project resolution and added to ``sys.path`` for imports.
         include_tests: Whether to retain references from paths containing
             ``test`` or ``tests``.
+        progress_callback: Optional function called after each target file with
+            the completed count, total count, and current file path. When not
+            provided, progress is written to standard output.
 
     Returns:
         Output dictionary with ``metadata``, ``functions``, and ``constants``
@@ -794,7 +799,36 @@ def get_constant_references(
     records: dict[str, ConstantRecord] = {}
     functions: dict[str, str] = {}
 
-    for relative_path in target_file_paths:
+    total_targets = len(target_file_paths)
+    show_progress = total_targets > 1
+    if show_progress and progress_callback is None:
+        sys.stdout.write(f"Scanning constant usage in {total_targets} files...\n")
+        sys.stdout.flush()
+
+    def _progress_update(index: int, path: Path) -> None:
+        """Send progress to a callback or write it to stdout.
+
+        Args:
+            index: One-based file index currently being processed.
+            path: Current file path being analyzed.
+
+        """
+        if not show_progress:
+            return
+
+        display_path = path.as_posix()
+        if progress_callback is not None:
+            progress_callback(index, total_targets, display_path)
+            return
+
+        max_path_length = 72
+        if len(display_path) > max_path_length:
+            display_path = f"...{display_path[-(max_path_length - 3) :]}"
+
+        sys.stdout.write(f"[{index}/{total_targets}] {display_path}\n")
+        sys.stdout.flush()
+
+    for index, relative_path in enumerate(target_file_paths, start=1):
         full_path = (
             relative_path
             if relative_path.is_absolute()
@@ -912,6 +946,8 @@ def get_constant_references(
 
                 records[key] = record
 
+        _progress_update(index, full_path)
+
     output: dict[str, Any] = {
         "metadata": {
             "generated_at": datetime.now(UTC).isoformat(),
@@ -928,6 +964,11 @@ def get_constant_references(
         "constants": {key: record.to_dict() for key, record in records.items()},
     }
 
+    if show_progress and progress_callback is None:
+        sys.stdout.write("Completed scanning constant usage.\n")
+        sys.stdout.flush()
+
+    # Avoid relying on mutable function attributes so reticulate reloads are safe.
     with open(out_path, "wb") as stream:
         tomli_w.dump(output, stream)
 
