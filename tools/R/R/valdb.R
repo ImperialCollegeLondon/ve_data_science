@@ -278,6 +278,9 @@ add_schema <- function(
     # the SAFE standard need none of them, because the defaults already point
     # at the `locations.csv` exported from the `Locations` sheet. Delete the
     # entries you do not need, or delete the whole `coordinates` block.
+    # In the SAFE Zenodo database, locations can only supply plot codes
+    # rather than lat lon, in which case we will need to join from
+    # `data/primary/site/gazetteer.geojson`
     coordinates = list(
       # Path where the coordinates live.
       # Default: "locations.csv" next to `data_file`.
