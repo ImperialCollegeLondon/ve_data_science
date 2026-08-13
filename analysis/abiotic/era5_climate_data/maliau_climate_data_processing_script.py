@@ -96,7 +96,7 @@ package_dependencies:
   - cdsapi
 
 usage_notes: |
-  Recommended workflow (from project root):
+    Recommended workflow (from project root):
 
     1. Sync the environment:
 
@@ -104,8 +104,8 @@ usage_notes: |
 
     2. Run the script:
 
-    uv run python \
-      analysis/abiotic/era5_climate_data/maliau_climate_data_processing_script.py
+uv run python analysis/abiotic/era5_climate_data/maliau_climate_data_processing_
+script.py
 
   Preconditions:
     - A valid CDS API configuration is available at ~/.cdsapirc.
@@ -154,17 +154,18 @@ import rioxarray  # noqa: F401
 # and add it to the Python search path.
 
 project_root = Path(__file__).resolve().parents[3]
+python_source = project_root / "tools" / "python" / "src"
 
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+if str(python_source) not in sys.path:
+    sys.path.insert(0, str(python_source))
 
-from tools.python.abiotic import (  # noqa: E402
+from ve_data_tools import (  # noqa: E402
     build_target_grid,
     read_site_config,
     write_dataset,
 )
-from tools.python.abiotic import cdsapi_downloader as cds  # noqa: E402
-from tools.python.abiotic import climate_tools as ct  # noqa: E402
+from ve_data_tools import cdsapi_downloader as cds  # noqa: E402
+from ve_data_tools import climate_tools as ct  # noqa: E402
 
 # ============================================================
 # USER SETTINGS

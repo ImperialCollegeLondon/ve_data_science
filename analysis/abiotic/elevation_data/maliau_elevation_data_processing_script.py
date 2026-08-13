@@ -78,16 +78,17 @@ from pathlib import Path
 # local project modules can be imported reliably.
 
 project_root = Path(__file__).resolve().parents[3]
+python_source = project_root / "tools" / "python" / "src"
 
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+if str(python_source) not in sys.path:
+    sys.path.insert(0, str(python_source))
 
-from tools.python.abiotic import (  # noqa: E402
+from ve_data_tools import (  # noqa: E402
     build_target_grid,
     read_site_config,
     write_dataset,
 )
-from tools.python.abiotic import elevation_tools as et  # noqa: E402
+from ve_data_tools import elevation_tools as et  # noqa: E402
 
 # ============================================================
 # USER SETTINGS
@@ -96,11 +97,15 @@ from tools.python.abiotic import elevation_tools as et  # noqa: E402
 # configuration TOML file (e.g.,"maliau_grid_definition.toml").
 
 scenario_name = "maliau_1"
-source = "SRTM"
 # NOTE:
 # Modify the scenario name defined in the site-specific
 # configuration TOML file to prepare climate data for a
 # different study site (e.g. SAFE or Danum).
+
+# Name of the elevation data source to use. The elevation data
+# must be provided as a raster dataset covering the study area.
+# For example: "SRTM", "ASTER", or another DEM raster.
+source = "SRTM"
 
 # ============================================================
 # PATHS

@@ -42,8 +42,7 @@ import rasterio
 import xarray as xr
 from rasterio.enums import Resampling
 from rasterio.warp import reproject
-
-from tools.python.abiotic import fill_missing_array
+from ve_data_tools import fill_missing_array
 
 # ============================================================
 # ELEVATION PROCESSING
@@ -167,9 +166,9 @@ def add_global_attributes(
     """Add global metadata to an elevation dataset.
 
     Args:
-      dataset: Elevation dataset.
-      scenario_name: Scenario name.
-      source: Source dataset name.
+      dataset: Elevation datasetet in VE x/y layout.
+      scenario_name: Scenario name defined on teh site configuration file.
+      source: Source of the elevation data (e.g., SRTM, ASTER, etc.).
 
     Returns:
       Elevation dataset with global metadata added.
