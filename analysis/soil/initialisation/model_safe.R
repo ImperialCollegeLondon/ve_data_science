@@ -185,13 +185,15 @@ soil_mat <- as.matrix(soil[, soil_vars])
 soil_mat[, -c(1, 2)] <- log(soil_mat[, -c(1, 2)])
 rownames(soil_mat) <- soil$plot_code
 
-# scale covariates
+# scale covariates after log-transforming them
+# the covariates were right-skewed so we log transform them
+# NB: since both responses and covariates are log-transformed, we are fitting
+#     a form of power-law relationship
 soil_scaled <-
   soil %>%
-  mutate_at(
-    vars(elev, topo, hydro, acd, evi),
-    ~ as.numeric(scale(.))
-  )
+  mutate(across(c(elev, topo, acd, evi), log)) |>
+  mutate(across(c(hydro), log1p)) |>
+  mutate(across(c(elev, topo, hydro, acd, evi), ~ as.numeric(scale(.))))
 
 
 # Model -------------------------------------------------------------------
