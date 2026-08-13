@@ -21,7 +21,8 @@ description: |
   Ecosystem module and may therefore be reused for hydrology, soil, abiotic,
   plant, litter and animal sensitivity analyses.
 
-virtual_ecosystem_module: all
+virtual_ecosystem_module:
+    -All
 
 author:
   - Lelavathy
