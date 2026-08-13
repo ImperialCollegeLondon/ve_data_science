@@ -1,5 +1,19 @@
 # Change log of maliau_2 scenario input data
 
+2026-08-13
+- Module: Soil
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/soil_maliau.nc
+- Changes made:
+  - Updated the SAFE soil campaign empirical dataset with the following change:
+    - The soil clay, silt and sand compositions previously did not sum to 100%,
+      these have been normalised so that this is now the case
+  - Predictors in the spatial soil model are now log- or log1p-transformed
+    because all of them were right-skewed
+- References:
+  - PR # addressing Issue #489
+
 2026-08-07
 - Module: Animal
 - Author: Baizurah Malik
