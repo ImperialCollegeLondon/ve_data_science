@@ -25,7 +25,7 @@ Targets in this section are site specific.
 
 *Inputs:* individuals, functional_group, occupancy_proportion, territory_size, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved.
 
-*Validation approach:* Compare equilibrium density ranges, biomass density, and density-body-mass scaling against published benchmarks for comparable tropical or temperate forest systems. Stratify by body-mass class and diet class where available.
+*Validation approach:* Compare equilibrium density ranges, and biomass density against published benchmarks for comparable tropical or temperate forest systems. Stratify by body-mass class and diet class where available.
 
 *Datasets needed:* Site-level abundance or density datasets, biomass density datasets, allometric benchmark compilations, PREDICTS-style summaries, and GBIF-linked occupancy studies.
 
