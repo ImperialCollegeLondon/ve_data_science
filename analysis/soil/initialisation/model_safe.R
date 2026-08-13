@@ -155,7 +155,7 @@ soil <-
   read_xlsx(
     "data/primary/soil/nutrient/SAFE_soil_nutrient_data.xlsx",
     sheet = 3,
-    skip = 4
+    skip = 5
   ) %>%
   left_join(location, by = join_by("plot_code" == "location")) %>%
   mutate(
