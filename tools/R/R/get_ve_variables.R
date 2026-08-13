@@ -141,7 +141,7 @@ get_data_variables <- function(
 #'
 #' @export
 
-get_derived_variables <- function(zarr_path, config_path, ...) {
+get_derived_variables <- function(zarr_path, config_path) {
   config <- toml::read_toml(config_path)
 
   # first collect the derived variables that are returned as a single array
