@@ -29,6 +29,7 @@
 #|     - readr
 #|     - rlang
 #|     - stats
+#|     - stringr
 #|     - tibble
 #|     - tidyr
 #|     - toml
@@ -39,6 +40,141 @@
 #| usage_notes: |
 #|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
 #| ---
+
+# Screening record contract -----------------------------------------------
+
+screening_decisions <- c("proceed", "exclude", "defer")
+
+screening_reasons <- list(
+  proceed = "relevant_validation_data",
+  exclude = c(
+    "no_raw_data",
+    "no_relevant_variables",
+    "duplicate_source",
+    "insufficient_metadata",
+    "other"
+  ),
+  defer = c(
+    "needs_second_opinion",
+    "access_pending",
+    "outside_module_scope",
+    "other"
+  )
+)
+
+
+#' Normalise a DOI to lower case
+#'
+#' @param doi A DOI, optionally prefixed by `doi:` or a DOI resolver URL.
+#'
+#' @returns A lower-case DOI without a prefix or resolver URL.
+#'
+#' @export
+
+normalise_doi <- function(doi) {
+  if (!is.character(doi) || length(doi) != 1L || is.na(doi)) {
+    cli::cli_abort("{.arg doi} must be one non-missing string.")
+  }
+
+  normalised <- doi |>
+    stringr::str_trim() |>
+    stringr::str_remove(stringr::regex("^doi\\s*:\\s*", ignore_case = TRUE)) |>
+    stringr::str_remove(
+      stringr::regex(
+        "^https?://(dx\\.)?doi\\.org/",
+        ignore_case = TRUE
+      )
+    ) |>
+    stringr::str_to_lower()
+
+  if (!stringr::str_detect(normalised, "^10\\.[0-9]{4,9}/\\S+$")) {
+    cli::cli_abort("{.arg doi} is not a valid DOI.")
+  }
+
+  normalised
+}
+
+
+#' Create a stable record identifier from a DOI
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#'
+#' @returns A file-safe record identifier.
+#'
+#' @export
+
+doi_to_record_id <- function(doi) {
+  doi |>
+    normalise_doi() |>
+    stringr::str_replace_all("[^a-z0-9]+", "-") |>
+    stringr::str_c("doi-", .)
+}
+
+
+#' Construct a dataset screening record
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param decision Screening decision. Use `proceed` when the dataset is
+#'   relevant for validation, `exclude` when it is not suitable, or `defer`
+#'   when the decision needs more information.
+#' @param reason Reason for the decision. For `proceed`, use
+#'   `relevant_validation_data`. For `exclude`, use `no_raw_data`,
+#'   `no_relevant_variables`, `duplicate_source`, `insufficient_metadata`, or
+#'   `other`. For `defer`, use `needs_second_opinion`, `access_pending`,
+#'   `outside_module_scope`, or `other`.
+#' @param notes Free-text screening notes. Notes are required for `defer` and
+#'   when the reason is `other`.
+#' @param metadata Normalised DOI metadata.
+#' @param screened_at Date and time of the decision. The current time is used
+#'   by default; this argument mainly supports reproducible tests and imports.
+#'
+#' @returns A screening record as a named list.
+#'
+#' @export
+
+new_screening_record <- function(
+  doi,
+  decision,
+  reason,
+  notes = "",
+  metadata,
+  screened_at = Sys.time()
+) {
+  decision <- match.arg(decision, screening_decisions)
+  reason <- match.arg(reason, screening_reasons[[decision]])
+
+  if (!is.character(notes) || length(notes) != 1L || is.na(notes)) {
+    cli::cli_abort("{.arg notes} must be one non-missing string.")
+  }
+  if (
+    (identical(decision, "defer") || identical(reason, "other")) &&
+      !stringr::str_detect(notes, "\\S")
+  ) {
+    cli::cli_abort("{.arg notes} is required for {.val {decision}} decisions.")
+  }
+  if (!is.list(metadata)) {
+    cli::cli_abort("{.arg metadata} must be a list.")
+  }
+  if (!inherits(screened_at, "POSIXt") || length(screened_at) != 1L) {
+    cli::cli_abort("{.arg screened_at} must be one date-time value.")
+  }
+
+  doi <- normalise_doi(doi)
+
+  list(
+    schema_version = 1L,
+    record_id = doi_to_record_id(doi),
+    doi = doi,
+    screening = list(
+      decision = decision,
+      reason = reason,
+      notes = notes,
+      screened_at = format(screened_at, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+    ),
+    metadata = metadata
+  )
+}
+
 
 #' Log decision on whether a dataset should be included for validation purposes
 #'
