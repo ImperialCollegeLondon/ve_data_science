@@ -23,7 +23,7 @@ Targets in this section are site specific.
 
 *Derivation:* Derive post-spin-up population density, biomass density, and density-mass scaling from cohort abundance, occupancy, territory, and elemental mass.
 
-*Inputs:* individuals, functional_group, occupancy_proportion, territory_size, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved.
+*Inputs:* individuals, functional_group, occupancy_proportion, territory_size, mass_carbon, mass_nitrogen, mass_phosphorus, is_mature.
 
 *Validation approach:* Compare equilibrium density ranges, and biomass density against published benchmarks for comparable tropical or temperate forest systems. Stratify by body-mass class and diet class where available.
 
