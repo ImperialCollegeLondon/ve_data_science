@@ -167,6 +167,7 @@ elevation_ds = et.create_elevation_dataset(
 elevation_ds = et.add_global_attributes(
     elevation_ds,
     scenario_name,
+    source,
 )
 
 # ============================================================
