@@ -223,9 +223,8 @@ Bracketed numbers in this section refer to the numbered source references used b
 
 | Target ID | Scope | Target | Category | Variables used | Output source | Validation approach | Datasets needed | Reference |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2.1a | Site-specific | Equilibrium density range | Emergent | individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Derive post-spin-up density by functional group and compare against empirical density ranges, stratified by body-mass and diet class where available | Site-level abundance or density datasets, PREDICTS-style benchmarks, GBIF-linked occupancy studies | Chapman et al. (2018), Wearn et al. (2016), Wearn et al. (2017) |
-| 2.1b | Site-specific | Body-mass density scaling | Emergent | individuals, functional_group, mass_carbon, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare density scaling with body mass against allometric benchmarks | Allometric trait compilations, biomass density datasets | TBD site dataset |
-| 2.1c | Site-specific | Trophic biomass pyramid | Emergent | individuals, mass_carbon, mass_nitrogen, mass_phosphorus, functional_group | animal_cohort_data.csv | Compare trophic biomass ordering against food-web biomass datasets | Trophic biomass datasets, food-web benchmarks | TBD site dataset |
+| 2.1a | Site-specific | Equilibrium density range | Emergent | individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Derive post-spin-up density by functional group and compare against empirical density ranges, stratified by body-mass and diet class where available | Site-level abundance or density datasets, GBIF-linked occupancy studies | Chapman et al. (2018), Wearn et al. (2016), Wearn et al. (2017) |
+| 2.1b | Site-specific | Trophic biomass pyramid | Emergent | individuals, mass_carbon, mass_nitrogen, mass_phosphorus, functional_group | animal_cohort_data.csv | Compare trophic biomass ordering against food-web biomass datasets | Trophic biomass datasets, food-web benchmarks | TBD site dataset |
 | 2.2a | Site-specific | Survival by life stage | Emergent | cohort_id, is_alive, is_mature, age, individuals, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare survival and reproduction trajectories against demographic datasets | Survival curves, life-table studies, fecundity datasets | Chapman et al. (2018) |
 | 2.2b | Site-specific | Reproduction intensity | Emergent | cohort_id, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus, age | animal_cohort_data.csv | Compare reproductive output and recruitment timing against breeding datasets | Breeding frequency datasets, recruitment or fecundity data | TBD site dataset |
 | 2.3a | Site-specific | Asymptotic adult mass | Direct and emergent | largest_mass_achieved, is_mature, functional_group | animal_cohort_data.csv | Compare cohort mass trajectories against adult-mass and maturity datasets | Growth-curve datasets, age-mass datasets | TBD site dataset |
@@ -332,7 +331,7 @@ $$
 N^{eff}_{i,t} = N_{i,t} \cdot w_{i,t}
 $$
 
-Functional-group density (for 2.1a, 2.1b, 3.5):
+Functional-group density (for 2.1a, 3.5):
 
 $$
 D_{g,c,t} = \frac{\sum_{i \in (g,c)} N^{eff}_{i,t}}{A_c}
@@ -452,7 +451,7 @@ $$
 R_{H:P,c,t} = \frac{B^{C}_{H,c,t}}{B^{C}_{P,c,t}}
 $$
 
-Allometric density scaling regression (for 2.1b, 3.5):
+Allometric density scaling regression (for 3.5):
 
 $$
 \log D_{g,c,t} = \alpha + \beta \log \bar{M}_{g,c,t} + \varepsilon
