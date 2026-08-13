@@ -162,7 +162,7 @@ def create_elevation_dataset(
 def add_global_attributes(
     dataset: xr.Dataset,
     scenario_name: str,
-    source: str = "SRTM",
+    source: str,
 ) -> xr.Dataset:
     """Add global metadata to an elevation dataset.
 
