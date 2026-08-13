@@ -96,6 +96,7 @@ from tools.python.abiotic import elevation_tools as et  # noqa: E402
 # configuration TOML file (e.g.,"maliau_grid_definition.toml").
 
 scenario_name = "maliau_1"
+source = "SRTM"
 # NOTE:
 # Modify the scenario name defined in the site-specific
 # configuration TOML file to prepare climate data for a
