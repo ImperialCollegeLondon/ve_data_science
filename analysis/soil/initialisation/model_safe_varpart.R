@@ -45,6 +45,13 @@ var_part_df <-
   mutate(predictor = factor(predictor, levels = predictor_order))
 
 # Visualise
+png(
+  "data/derived/soil/spatial_model/varpart.png",
+  res = 300,
+  width = 6,
+  height = 5,
+  units = "in"
+)
 ggplot(var_part_df, aes(y = response, x = p_variance, fill = predictor)) +
   geom_col(position = "stack") +
   scale_fill_grey() +
@@ -57,3 +64,4 @@ ggplot(var_part_df, aes(y = response, x = p_variance, fill = predictor)) +
     fill = "Predictor"
   ) +
   theme(legend.position = "bottom")
+dev.off()
