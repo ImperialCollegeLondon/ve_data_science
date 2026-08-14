@@ -362,3 +362,104 @@ test_that("list_screening_records reports malformed YAML", {
     "Could not read screening record"
   )
 })
+
+
+test_that("screen_dataset collects and saves a screening record", {
+  sources_dir <- withr::local_tempdir()
+  responses <- c("DOI: 10.5281/ZENODO.8158810", "Reviewed against soil scope.")
+  readline_index <- 0L
+  fake_readline <- function(prompt) {
+    readline_index <<- readline_index + 1L
+    responses[[readline_index]]
+  }
+  selections <- list()
+  fake_select <- function(choices, title, graphics) {
+    selections[[length(selections) + 1L]] <<- list(
+      choices = choices,
+      title = title,
+      graphics = graphics
+    )
+    if (length(selections) == 1L) "exclude" else "no_raw_data"
+  }
+  fake_metadata_fetcher <- function(doi) {
+    expect_identical(doi, "10.5281/zenodo.8158810")
+    new_test_metadata()
+  }
+
+  path <- suppressMessages(screen_dataset(
+    sources_dir = sources_dir,
+    .metadata_fetcher = fake_metadata_fetcher,
+    .readline = fake_readline,
+    .select = fake_select
+  ))
+  record <- yaml::read_yaml(path)
+
+  expect_identical(
+    path,
+    file.path(sources_dir, "doi-10-5281-zenodo-8158810.yaml")
+  )
+  expect_identical(selections[[1L]]$choices, screening_decisions)
+  expect_identical(selections[[2L]]$choices, screening_reasons$exclude)
+  expect_identical(record$screening$decision, "exclude")
+  expect_identical(record$screening$reason, "no_raw_data")
+  expect_identical(
+    record$screening$notes,
+    "Reviewed against soil scope."
+  )
+  expect_identical(record$metadata, new_test_metadata())
+})
+
+
+test_that("screen_dataset requires a decision and reason", {
+  sources_dir <- withr::local_tempdir()
+  fake_metadata_fetcher <- function(...) new_test_metadata()
+  fake_readline <- function(...) "10.5281/zenodo.8158810"
+  empty_select <- function(...) ""
+
+  expect_error(
+    suppressMessages(screen_dataset(
+      sources_dir = sources_dir,
+      .metadata_fetcher = fake_metadata_fetcher,
+      .readline = fake_readline,
+      .select = empty_select
+    )),
+    "screening decision is required"
+  )
+
+  select_index <- 0L
+  missing_reason <- function(...) {
+    select_index <<- select_index + 1L
+    if (select_index == 1L) "proceed" else ""
+  }
+  expect_error(
+    suppressMessages(screen_dataset(
+      sources_dir = sources_dir,
+      .metadata_fetcher = fake_metadata_fetcher,
+      .readline = fake_readline,
+      .select = missing_reason
+    )),
+    "reason.*required"
+  )
+})
+
+
+test_that("screen_dataset rejects duplicates before metadata retrieval", {
+  sources_dir <- withr::local_tempdir()
+  write_screening_record(new_test_record(), sources_dir)
+  metadata_requested <- FALSE
+  fake_metadata_fetcher <- function(...) {
+    metadata_requested <<- TRUE
+    new_test_metadata()
+  }
+
+  expect_error(
+    screen_dataset(
+      sources_dir = sources_dir,
+      .metadata_fetcher = fake_metadata_fetcher,
+      .readline = function(...) "https://doi.org/10.5281/ZENODO.8158810"
+    ),
+    "already been screened"
+  )
+  expect_identical(metadata_requested, FALSE)
+  expect_length(list.files(sources_dir, pattern = "\\.yaml$"), 1L)
+})

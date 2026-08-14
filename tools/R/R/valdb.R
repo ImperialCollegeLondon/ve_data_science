@@ -437,113 +437,102 @@ write_screening_record <- function(
 }
 
 
-#' Log decision on whether a dataset should be included for validation purposes
+#' Screen a dataset for validation use
 #'
-#' This function is intended to be used as \code{log_dataset()}, which will display
-#' a UI in the R console and prompt you to enter the DOI and notes on
-#' decisions. The log is then stored as a human-readable YAML file in the
-#' specified output path, which defaults to the soil module for now.
+#' This function provides an interactive R-console workflow for Step 1 of the
+#' validation database process. It retrieves DOI metadata, collects a screening
+#' decision and rationale, and writes one YAML record per dataset.
 #'
-#' @param filename Filename of the source metadata, which currently defaults
-#'   to the soil module
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#' @param .metadata_fetcher Function used to retrieve normalised DOI metadata.
+#'   This supports network-independent tests and normally should not be changed.
+#' @param .readline Function used to collect free-text console input. This
+#'   supports tests and normally should not be changed.
+#' @param .select Function used to collect choices from a console menu. This
+#'   supports tests and normally should not be changed.
 #'
-#' @details
-#' You will asked to enter:
-#' \describe{
-#'   \item{DOI}{DOI string of the dataset or publication}
-#'   \item{Decision}{A menu to select decision}
-#'   \item{Reason}{(Optional) A menu to select reason}
-#'   \item{Notes}{(Optional) A string of long-form rationale}
-#' }
-#'
-#' @returns A YAML file logging the decision and source metadata in
-#'   \code{filename}.
+#' @returns Invisibly, the path of the new YAML screening record.
 #'
 #' @export
 #'
 #' @examples
-#' box::use(tools/R/valdb)
-#' box::help(valdb$log_dataset)  # if you need a conventional R help page
-#' valdb$log_dataset()
+#' box::use(tools/R/R/valdb)
+#' box::help(valdb$screen_dataset)  # if you need a conventional R help page
+#' valdb$screen_dataset()
 
-log_dataset <- function(
-  filename = "data/derived/soil/validation/config/sources.yaml"
+screen_dataset <- function(
+  sources_dir = "data/derived/soil/validation/config/sources",
+  .metadata_fetcher = fetch_doi_metadata,
+  .readline = readline,
+  .select = utils::select.list
 ) {
-  # prompt to enter DOI
-  doi <- readline("Enter DOI: ")
+  doi <- normalise_doi(.readline("Enter DOI: "))
 
-  # read source yaml file if it already exists
-  if (file.exists(filename)) {
-    sources <- yaml::read_yaml(filename)
-    # exit early if a DOI has already been logged
-    doi_existing <- purrr::map_chr(sources, "doi")
-    if (tolower(doi) %in% tolower(doi_existing)) {
-      cli::cli_abort("{doi} has already been logged in {filename}.")
-    }
+  if (!is.null(find_screening_record(doi, sources_dir))) {
+    cli::cli_abort(c(
+      "DOI {.val {doi}} has already been screened.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
+    ))
   }
 
-  # download dataset metadata
-  meta <- rcrossref::cr_cn(doi, format = "bibentry")
+  metadata <- .metadata_fetcher(doi)
+  authors <- paste(metadata$authors, collapse = "; ")
+  metadata_summary <- c(
+    Title = metadata$title,
+    Authors = authors,
+    Year = as.character(metadata$year),
+    Publisher = metadata$publisher,
+    URL = metadata$url
+  )
+  metadata_summary <- metadata_summary[
+    !is.na(metadata_summary) & stringr::str_detect(metadata_summary, "\\S")
+  ]
+  cli::cli_inform(c(
+    "Metadata retrieved for DOI {.val {doi}}:",
+    "*" = "{.field {names(metadata_summary)}}: {metadata_summary}"
+  ))
 
-  # prompt for decision, decision, decision...
-  decision <- utils::select.list(
-    c("included", "excluded"),
-    title = "Decision (enter 0 to skip): ",
+  decision <- .select(
+    screening_decisions,
+    title = "Screening decision: ",
     graphics = FALSE
   )
-  if (decision == "") {
-    decision <- "skipped"
+  if (!stringr::str_detect(decision, "\\S")) {
+    cli::cli_abort("A screening decision is required.")
   }
 
-  # prompt for short-form reason
-  reason <- utils::select.list(
-    c("used_elsewhere", "no_raw_data", "no_soil_data"),
-    title = "Reason (enter 0 to skip): ",
+  reason <- .select(
+    screening_reasons[[decision]],
+    title = "Reason for decision: ",
     graphics = FALSE
   )
+  if (!stringr::str_detect(reason, "\\S")) {
+    cli::cli_abort("A reason for the screening decision is required.")
+  }
 
-  # prompt for long-form notes
-  notes <- readline("Notes (leave blank to skip): ")
-
-  # Build new record
-  new_record <- list(
-    doi = meta$doi,
+  notes <- .readline("Notes (leave blank if not required): ")
+  record <- new_screening_record(
+    doi = doi,
     decision = decision,
     reason = reason,
     notes = notes,
-    logged_at = format(Sys.time(), "%Y-%m-%d"),
-    metadata = list(
-      title = meta$title,
-      author = meta$author,
-      year = meta$year,
-      journal = as.character(meta$journal %||% NA),
-      publisher = meta$publisher,
-      url = meta$url,
-      keywords = meta$keywords
-    )
+    metadata = metadata
   )
+  path <- write_screening_record(record, sources_dir)
 
-  # append new record to existing source YAML if the latter already exists
-  if (file.exists(filename)) {
-    sources <- c(sources, list(new_record))
-  } else {
-    sources <- list(new_record)
-  }
+  cli::cli_alert_info("Dataset from {.val {doi}} will {.val {decision}}.")
+  cli::cli_alert_success("Screening record saved to {.path {path}}.")
 
-  # Write YAML
-  yaml::write_yaml(sources, filename)
-
-  # Completion message
-  cli::cli_alert_info("Dataset from {doi} is {decision}")
-  cli::cli_alert_success("Decision log saved to\n{filename}")
+  invisible(path)
 }
 
 
 #' Add a template schema of dataset metadata and config
 #'
 #' @param source_yaml Filename of the dataset log YAML file. We expect this to
-#'   have been generated by [log_dataset()].
-#' @param
+#'   have been generated by [screen_dataset()].
+#' @param doi DOI of the target dataset.
 #'
 #' @returns An edited YAML config file replacing the previous unedited version.
 #'
@@ -780,7 +769,7 @@ build_data_variables_table <- function(
 #' @param toml Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
 #'
-#' @returns
+#' @returns A list of data variables.
 
 import_variables_table <- function(toml) {
   toml::read_toml(toml) |>
