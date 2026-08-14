@@ -274,6 +274,169 @@ new_screening_record <- function(
 }
 
 
+#' Read all dataset screening records
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently hardcoded to the soil module; to relax this later.
+#'
+#' @returns A named list of screening records. Names are the source filenames
+#'   without their `.yaml` extension.
+#'
+#' @export
+
+list_screening_records <- function(
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  if (!dir.exists(sources_dir)) {
+    return(list())
+  }
+
+  paths <-
+    list.files(
+      sources_dir,
+      pattern = "\\.yaml$",
+      full.names = TRUE,
+      ignore.case = TRUE
+    ) |>
+    sort()
+
+  records <- purrr::map(paths, function(path) {
+    tryCatch(
+      yaml::read_yaml(path),
+      error = function(error) {
+        cli::cli_abort(
+          "Could not read screening record {.path {path}}.",
+          parent = error
+        )
+      }
+    )
+  })
+  names(records) <-
+    basename(paths) |>
+    stringr::str_remove(stringr::regex("\\.yaml$", ignore_case = TRUE))
+
+  records
+}
+
+
+#' Find a dataset screening record by DOI
+#'
+#' This function supports record lookup and checks that a DOI occurs at most
+#' once in `sources_dir`. Duplicate prevention cannot take place in
+#' [new_screening_record()], because that function constructs an in-memory
+#' record without reading the repository. [write_screening_record()] uses this
+#' function to reject a DOI that has already been saved.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'
+#' @returns The matching screening record, or `NULL` if the DOI has not been
+#'   screened.
+#'
+#' @export
+
+find_screening_record <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  doi <- normalise_doi(doi)
+  records <- list_screening_records(sources_dir)
+
+  matches <- purrr::keep(records, function(record) {
+    is.list(record) && identical(record$doi, doi)
+  })
+
+  if (length(matches) > 1L) {
+    cli::cli_abort(
+      "DOI {.val {doi}} occurs in multiple screening records: {names(matches)}."
+    )
+  }
+  if (length(matches) == 0L) {
+    return(NULL)
+  }
+
+  matches[[1L]]
+}
+
+
+#' Write a dataset screening record
+#'
+#' The record is written to a temporary file in `sources_dir`, read back to
+#' verify the YAML round trip, and then renamed to its final path. Existing
+#' records are never overwritten. To amend a saved decision, delete its YAML
+#' file and screen the dataset again.
+#'
+#' The DOI and record ID are checked again at this file-writing step. This
+#' protects against records that were loaded from YAML or modified after they
+#' were created.
+#'
+#' @param record A screening record created by [new_screening_record()].
+#' @param sources_dir Directory in which to create the YAML file.
+#'   Currently hardcoded to the soil module; to relax this later.
+#'
+#' @returns The path of the new YAML file.
+#'
+#' @export
+
+write_screening_record <- function(
+  record,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  if (!is.list(record) || is.null(record$doi) || is.null(record$record_id)) {
+    cli::cli_abort(
+      "{.arg record} should be a screening record created by {.fn new_screening_record}."
+    )
+  }
+
+  doi <- normalise_doi(record$doi)
+  expected_record_id <- doi_to_record_id(doi)
+  if (
+    !identical(record$doi, doi) ||
+      !identical(record$record_id, expected_record_id)
+  ) {
+    cli::cli_abort("The screening record DOI and record ID are inconsistent.")
+  }
+
+  existing <- find_screening_record(doi, sources_dir)
+  if (!is.null(existing)) {
+    cli::cli_abort(c(
+      "DOI {.val {doi}} has already been screened.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
+    ))
+  }
+
+  dir.create(sources_dir, recursive = TRUE, showWarnings = FALSE)
+  destination <- file.path(
+    sources_dir,
+    stringr::str_c(record$record_id, ".yaml")
+  )
+  if (file.exists(destination)) {
+    cli::cli_abort(c(
+      "Screening record {.path {destination}} already exists.",
+      "i" = "Delete the existing file before screening the dataset again."
+    ))
+  }
+
+  temporary <- tempfile(
+    pattern = stringr::str_c(".", record$record_id, "-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  on.exit(unlink(temporary), add = TRUE)
+
+  yaml::write_yaml(record, temporary)
+  round_trip <- yaml::read_yaml(temporary)
+  if (!identical(record, round_trip)) {
+    cli::cli_abort("The screening record changed during YAML serialisation.")
+  }
+  if (!file.rename(temporary, destination)) {
+    cli::cli_abort("Could not save screening record to {.path {destination}}.")
+  }
+
+  destination
+}
+
+
 #' Log decision on whether a dataset should be included for validation purposes
 #'
 #' This function is intended to be used as \code{log_dataset()}, which will display

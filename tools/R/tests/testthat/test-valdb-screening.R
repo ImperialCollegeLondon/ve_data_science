@@ -30,7 +30,7 @@ new_test_metadata <- function() {
     publisher = "Example repository",
     url = "https://doi.org/10.5281/zenodo.8158810",
     keywords = "soil",
-    provider = "doi_content_negotiation",
+    provider = "doi_content_search",
     retrieved_at = "2026-08-13T12:00:00Z"
   )
 }
@@ -150,7 +150,7 @@ test_that("fetch_doi_metadata normalises DOI and retrieved metadata", {
   )
 
   expect_identical(metadata$title, "Example dataset")
-  expect_identical(metadata$provider, "doi_content_negotiation")
+  expect_identical(metadata$provider, "doi_content_search")
 })
 
 
@@ -253,5 +253,112 @@ test_that("new_screening_record requires list metadata", {
       metadata = "Example metadata"
     ),
     "metadata.*list"
+  )
+})
+
+
+test_that("list_screening_records handles absent and populated directories", {
+  sources_dir <- withr::local_tempdir()
+
+  expect_identical(
+    list_screening_records(file.path(sources_dir, "absent")),
+    list()
+  )
+
+  record <- new_test_record()
+  yaml::write_yaml(record, file.path(sources_dir, "example.yaml"))
+  yaml::write_yaml(record, file.path(sources_dir, "ignored.yml"))
+  writeLines("not a source", file.path(sources_dir, "README.txt"))
+
+  records <- list_screening_records(sources_dir)
+
+  expect_named(records, "example")
+  expect_identical(records[[1L]], record)
+})
+
+
+test_that("find_screening_record matches normalised DOI forms", {
+  sources_dir <- withr::local_tempdir()
+  yaml::write_yaml(new_test_record(), file.path(sources_dir, "example.yaml"))
+
+  found <- find_screening_record(
+    "https://doi.org/10.5281/ZENODO.8158810",
+    sources_dir
+  )
+
+  expect_identical(found, new_test_record())
+  expect_null(find_screening_record("10.1000/not-screened", sources_dir))
+})
+
+
+test_that("find_screening_record rejects duplicate DOI records", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_test_record()
+  yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
+  yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
+
+  expect_error(
+    find_screening_record(record$doi, sources_dir),
+    "multiple\\s+screening records"
+  )
+})
+
+
+test_that("write_screening_record creates one round-trippable YAML file", {
+  sources_dir <- file.path(withr::local_tempdir(), "sources")
+  record <- new_test_record()
+
+  path <- write_screening_record(record, sources_dir)
+
+  expect_identical(
+    path,
+    file.path(sources_dir, "doi-10-5281-zenodo-8158810.yaml")
+  )
+  expect_true(file.exists(path))
+  expect_identical(yaml::read_yaml(path), record)
+  expect_identical(
+    list.files(sources_dir, all.files = TRUE),
+    c(
+      ".",
+      "..",
+      "doi-10-5281-zenodo-8158810.yaml"
+    )
+  )
+})
+
+
+test_that("write_screening_record rejects duplicate DOI records", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_test_record()
+  write_screening_record(record, sources_dir)
+
+  expect_error(
+    write_screening_record(record, sources_dir),
+    "delete the existing YAML file"
+  )
+  expect_length(list.files(sources_dir, pattern = "\\.yaml$"), 1L)
+})
+
+
+test_that("write_screening_record rejects inconsistent identities", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_test_record()
+  record$record_id <- "doi-wrong"
+
+  expect_error(
+    write_screening_record(record, sources_dir),
+    "DOI and record ID are inconsistent"
+  )
+  expect_length(list.files(sources_dir), 0L)
+})
+
+
+test_that("list_screening_records reports malformed YAML", {
+  sources_dir <- withr::local_tempdir()
+  writeLines("screening: [", file.path(sources_dir, "broken.yaml"))
+
+  expect_error(
+    list_screening_records(sources_dir),
+    "Could not read screening record"
   )
 })
