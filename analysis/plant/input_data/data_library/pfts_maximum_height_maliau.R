@@ -677,7 +677,7 @@ colnames(data_taxa) <- c(
   "pft_name_h_max_taxa",
   "pft_name",
   "taxa_name",
-  "taxe_level",
+  "taxa_level",
   "species",
   "genus",
   "family",
