@@ -104,10 +104,108 @@ normalise_doi <- function(doi) {
 #' @export
 
 doi_to_record_id <- function(doi) {
-  doi |>
+  record_id <- doi |>
     normalise_doi() |>
-    stringr::str_replace_all("[^a-z0-9]+", "-") |>
-    stringr::str_c("doi-", .)
+    stringr::str_replace_all("[^a-z0-9]+", "-")
+
+  stringr::str_c("doi-", record_id)
+}
+
+
+#' Normalise metadata returned by DOI content search
+#'
+#' The metadata should be a list rather than a `bibentry`, so that it can be
+#' normalised into a stable structure for YAML and use from R or Python. This is
+#' why DOI metadata are requested in the `citeproc-json-ish` format.
+#'
+#' @param metadata Metadata returned by `rcrossref::cr_cn()` using the
+#'   `citeproc-json-ish` format.
+#' @param retrieved_at Date and time when the metadata was retrieved. The
+#'   current time is used by default; this argument mainly supports
+#'   reproducible tests and imports.
+#'
+#' @returns A named list following the screening metadata contract.
+#'
+#' @export
+
+normalise_doi_metadata <- function(metadata, retrieved_at = Sys.time()) {
+  if (!is.list(metadata)) {
+    cli::cli_abort("{.arg metadata} must be a list.")
+  }
+  if (!inherits(retrieved_at, "POSIXt") || length(retrieved_at) != 1L) {
+    cli::cli_abort("{.arg retrieved_at} must be one date-time value.")
+  }
+
+  authors <- metadata$author
+  if (is.data.frame(authors) && nrow(authors) > 0L) {
+    authors <- authors |>
+      dplyr::transmute(
+        author = stringr::str_c(.data$family, .data$given, sep = ", ")
+      ) |>
+      dplyr::pull(.data$author)
+  } else {
+    authors <- NULL
+  }
+
+  date_parts <- metadata$issued[["date-parts"]]
+  year <- if (length(date_parts) > 0L) {
+    as.integer(unlist(date_parts)[[1L]])
+  } else {
+    NULL
+  }
+
+  list(
+    title = metadata$title,
+    authors = authors,
+    year = year,
+    journal = metadata[["container-title"]],
+    publisher = metadata$publisher,
+    url = metadata$URL,
+    keywords = metadata$categories,
+    provider = "doi_content_search",
+    retrieved_at = format(retrieved_at, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  )
+}
+
+
+#' Retrieve metadata for a DOI
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param retrieved_at Date and time when the metadata was retrieved. The
+#'   current time is used by default; this argument mainly supports
+#'   reproducible tests and imports.
+#' @param .fetcher Function used to retrieve DOI metadata. This supports
+#'   network-independent tests and normally should not be changed.
+#'
+#' @returns A named list following the screening metadata contract.
+#'
+#' @export
+
+fetch_doi_metadata <- function(
+  doi,
+  retrieved_at = Sys.time(),
+  .fetcher = rcrossref::cr_cn
+) {
+  doi <- normalise_doi(doi)
+
+  metadata <- tryCatch(
+    .fetcher(doi, format = "citeproc-json-ish"),
+    error = function(error) {
+      cli::cli_abort(
+        c(
+          "Could not retrieve metadata for DOI {.val {doi}}.",
+          "i" = "Check the DOI and the network connection, then try again."
+        ),
+        parent = error
+      )
+    }
+  )
+
+  if (!is.list(metadata) || length(metadata) == 0L) {
+    cli::cli_abort("No metadata were returned for DOI {.val {doi}}.")
+  }
+
+  normalise_doi_metadata(metadata, retrieved_at = retrieved_at)
 }
 
 

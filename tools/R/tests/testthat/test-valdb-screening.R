@@ -30,8 +30,24 @@ new_test_metadata <- function() {
     publisher = "Example repository",
     url = "https://doi.org/10.5281/zenodo.8158810",
     keywords = "soil",
-    provider = "crossref",
+    provider = "doi_content_negotiation",
     retrieved_at = "2026-08-13T12:00:00Z"
+  )
+}
+
+new_test_doi_response <- function() {
+  list(
+    type = "dataset",
+    categories = c("soil", "nutrients"),
+    author = data.frame(
+      family = c("Example", "Researcher"),
+      given = c("Alice", "Ben")
+    ),
+    issued = list("date-parts" = matrix(c(2023L, 7L, 18L), nrow = 1L)),
+    DOI = "10.5281/ZENODO.8158810",
+    publisher = "Example repository",
+    title = "Example dataset",
+    URL = "https://doi.org/10.5281/zenodo.8158810"
   )
 }
 
@@ -80,6 +96,79 @@ test_that("doi_to_record_id returns a stable file-safe identifier", {
   expect_identical(
     doi_to_record_id("https://doi.org/10.5281/ZENODO.8158810"),
     "doi-10-5281-zenodo-8158810"
+  )
+})
+
+
+test_that("normalise_doi_metadata returns the metadata contract", {
+  metadata <- normalise_doi_metadata(
+    new_test_doi_response(),
+    retrieved_at = as.POSIXct("2026-08-13 12:00:00", tz = "UTC")
+  )
+
+  expect_identical(
+    metadata,
+    new_test_metadata() |>
+      within({
+        authors <- c("Example, Alice", "Researcher, Ben")
+        keywords <- c("soil", "nutrients")
+      })
+  )
+})
+
+
+test_that("normalise_doi_metadata handles absent optional metadata", {
+  response <- new_test_doi_response()
+  response$author <- NULL
+  response$issued <- NULL
+  response[["container-title"]] <- NULL
+  response$categories <- NULL
+
+  metadata <- normalise_doi_metadata(
+    response,
+    retrieved_at = as.POSIXct("2026-08-13 12:00:00", tz = "UTC")
+  )
+
+  expect_null(metadata$authors)
+  expect_null(metadata$year)
+  expect_null(metadata$journal)
+  expect_null(metadata$keywords)
+})
+
+
+test_that("fetch_doi_metadata normalises DOI and retrieved metadata", {
+  fake_fetcher <- function(doi, format) {
+    expect_identical(doi, "10.5281/zenodo.8158810")
+    expect_identical(format, "citeproc-json-ish")
+    new_test_doi_response()
+  }
+
+  metadata <- fetch_doi_metadata(
+    "https://doi.org/10.5281/ZENODO.8158810",
+    retrieved_at = as.POSIXct("2026-08-13 12:00:00", tz = "UTC"),
+    .fetcher = fake_fetcher
+  )
+
+  expect_identical(metadata$title, "Example dataset")
+  expect_identical(metadata$provider, "doi_content_negotiation")
+})
+
+
+test_that("fetch_doi_metadata reports retrieval failures", {
+  failing_fetcher <- function(...) {
+    stop("Network unavailable")
+  }
+  empty_fetcher <- function(...) {
+    NULL
+  }
+
+  expect_error(
+    fetch_doi_metadata("10.5281/zenodo.8158810", .fetcher = failing_fetcher),
+    "Could not retrieve metadata"
+  )
+  expect_error(
+    fetch_doi_metadata("10.5281/zenodo.8158810", .fetcher = empty_fetcher),
+    "No metadata were returned"
   )
 })
 
@@ -135,7 +224,7 @@ test_that("new_screening_record rejects unsupported choices", {
   )
   expect_error(
     new_test_record("proceed", "no_raw_data"),
-    "should be one of"
+    "should be"
   )
 })
 
