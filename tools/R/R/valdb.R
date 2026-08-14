@@ -528,6 +528,40 @@ screen_dataset <- function(
 }
 
 
+# Schema template contract -----------------------------------------------
+
+#' Construct a validation dataset schema template
+#'
+#' The template contains the YAML fields currently consumed by
+#' [build_validation_database()]. The returned list is an editable scaffold,
+#' not a build-ready schema. Before running [build_validation_database()],
+#' replace every example value with the actual CSV path, source column names,
+#' canonical variable mappings, source units, and observation identifier for
+#' the dataset. Remove unused template entries and add one variables entry for
+#' each source column for [build_validation_database()] to use.
+#'
+#' @returns A named list containing placeholders for `source_id`, `data_file`,
+#'   `skip_rows`, `variables`, and `dedup_key`.
+#'
+#' @export
+
+new_schema_template <- function() {
+  list(
+    source_id = "author_year",
+    data_file = "data/primary/soil/author_year/*.csv",
+    skip_rows = 0L,
+    variables = list(
+      var_original_1 = list(
+        var_canonical = "var_ve_1",
+        unit = "unit",
+        description = NULL
+      )
+    ),
+    dedup_key = c("sample_id", "date", "site_id")
+  )
+}
+
+
 #' Add a template schema of dataset metadata and config
 #'
 #' @param source_yaml Filename of the dataset log YAML file. We expect this to
