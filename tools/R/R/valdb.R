@@ -540,6 +540,8 @@ screen_dataset <- function(
 #' the dataset. Remove unused template entries and add one variables entry for
 #' each source column for [build_validation_database()] to use.
 #'
+#' This helper function is intended to be used with [initialise_source_schema()].
+#'
 #' @returns A named list containing placeholders for `source_id`, `data_file`,
 #'   `skip_rows`, `variables`, and `dedup_key`.
 #'
@@ -559,6 +561,95 @@ new_schema_template <- function() {
     ),
     dedup_key = c("sample_id", "date", "site_id")
   )
+}
+
+
+#' Initialise a validation dataset schema
+#'
+#' Adds [new_schema_template()] to an existing screening record. The record must
+#' have a `proceed` decision and must not already contain a schema. Existing
+#' screening and DOI metadata fields are preserved.
+#'
+#' The updated record is written to a temporary file, read back to verify the
+#' YAML round trip, and then moved to the original record path. To amend an
+#' existing schema, delete its YAML file and screen the dataset again.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#'
+#' @returns The path of the updated YAML file.
+#'
+#' @export
+
+initialise_source_schema <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  doi <- normalise_doi(doi)
+  record <- find_screening_record(doi, sources_dir)
+
+  if (is.null(record)) {
+    cli::cli_abort("DOI {.val {doi}} has not been screened.")
+  }
+  if (!identical(record$screening$decision, "proceed")) {
+    cli::cli_abort(
+      "DOI {.val {doi}} must have a {.val proceed} screening decision before a schema can be added."
+    )
+  }
+  if (!is.null(record$source_id)) {
+    cli::cli_abort(c(
+      "DOI {.val {doi}} already has a schema.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
+    ))
+  }
+
+  destination <- file.path(
+    sources_dir,
+    stringr::str_c(doi_to_record_id(doi), ".yaml")
+  )
+  if (!file.exists(destination)) {
+    cli::cli_abort(
+      "The screening record for DOI {.val {doi}} is not at the expected path {.path {destination}}."
+    )
+  }
+
+  updated_record <- c(record, new_schema_template())
+  temporary <- tempfile(
+    pattern = stringr::str_c(".", doi_to_record_id(doi), "-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  backup <- tempfile(
+    pattern = stringr::str_c(".", doi_to_record_id(doi), "-backup-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  on.exit(unlink(c(temporary, backup)), add = TRUE)
+
+  yaml::write_yaml(updated_record, temporary)
+  round_trip <- yaml::read_yaml(temporary)
+  if (!identical(updated_record, round_trip)) {
+    cli::cli_abort("The schema record changed during YAML serialisation.")
+  }
+
+  if (!file.rename(destination, backup)) {
+    cli::cli_abort(
+      "Could not prepare screening record {.path {destination}} for update."
+    )
+  }
+  if (!file.rename(temporary, destination)) {
+    restored <- file.rename(backup, destination)
+    if (!restored) {
+      cli::cli_abort(
+        "Could not save or restore screening record {.path {destination}}."
+      )
+    }
+    cli::cli_abort("Could not save schema record to {.path {destination}}.")
+  }
+  unlink(backup)
+
+  destination
 }
 
 
