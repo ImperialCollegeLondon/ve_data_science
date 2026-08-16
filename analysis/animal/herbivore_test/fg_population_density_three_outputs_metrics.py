@@ -334,7 +334,6 @@ def calculate_fg_population_density(
     )
 
 
-
 def summarise_test_comparison(combined_df: pd.DataFrame) -> pd.DataFrame:
     """Summarise population-density metrics used to compare herbivore tests.
 
@@ -373,8 +372,7 @@ def summarise_test_comparison(combined_df: pd.DataFrame) -> pd.DataFrame:
 
     for functional_group, fg_data in combined_df.groupby("functional_group"):
         time_sets = [
-            set(test_data["time_index"])
-            for _, test_data in fg_data.groupby("test")
+            set(test_data["time_index"]) for _, test_data in fg_data.groupby("test")
         ]
         shared_times = set.intersection(*time_sets) if time_sets else set()
         last_shared_time = max(shared_times) if shared_times else None
@@ -398,9 +396,7 @@ def summarise_test_comparison(combined_df: pd.DataFrame) -> pd.DataFrame:
             shared_density = pd.NA
             shared_individuals = pd.NA
             if last_shared_time is not None:
-                shared_row = test_data.loc[
-                    test_data["time_index"] == last_shared_time
-                ]
+                shared_row = test_data.loc[test_data["time_index"] == last_shared_time]
                 if not shared_row.empty:
                     shared_density = shared_row.iloc[0]["population_density"]
                     shared_individuals = shared_row.iloc[0]["total_individuals"]
@@ -427,9 +423,12 @@ def summarise_test_comparison(combined_df: pd.DataFrame) -> pd.DataFrame:
                 }
             )
 
-    return pd.DataFrame(summary_rows).sort_values(
-        ["functional_group", "test"]
-    ).reset_index(drop=True)
+    return (
+        pd.DataFrame(summary_rows)
+        .sort_values(["functional_group", "test"])
+        .reset_index(drop=True)
+    )
+
 
 def plot_fg_population_density(
     density_df: pd.DataFrame,
