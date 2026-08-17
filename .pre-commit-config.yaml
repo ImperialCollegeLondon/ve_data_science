@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # This is python specific linting and formatting using ruff
-    rev: v0.15.22
+    rev: v0.16.3
     hooks:
     # Run the linter.
     - id: ruff-check
@@ -31,13 +31,13 @@ repos:
     # Note that this currently points to a specific GitHub commit to avoid an issue with
     # Rcpp: https://github.com/lorenzwalthert/precommit/issues/612 but should be updated
     # when that issue gets resolved in a published version.
-    rev: v0.4.3.9029
+    rev: v0.4.3.9030
     hooks:
       - id: parsable-R
       - id: no-browser-statement
       - id: no-debug-statement
   - repo: https://github.com/posit-dev/air-pre-commit
     # Air formatter for R codes
-    rev: 0.10.0
+    rev: 0.11.0
     hooks:
       - id: air-format
