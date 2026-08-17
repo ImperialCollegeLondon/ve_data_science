@@ -548,8 +548,8 @@ screen_dataset <- function(
 #'
 #' This helper function is intended to be used with [initialise_source_schema()].
 #'
-#' @returns A named list containing placeholders for `source_id`, `data_file`,
-#'   `skip_rows`, `variables`, and `dedup_key`.
+#' @returns A named list containing placeholders for the mandatory source fields
+#'   and optional `coordinates` and `temporal` blocks.
 #'
 #' @export
 
@@ -565,7 +565,32 @@ new_schema_template <- function() {
         description = NULL
       )
     ),
-    dedup_key = c("sample_id", "date", "site_id")
+    dedup_key = c("sample_id", "date", "site_id"),
+    coordinates = list(
+      from_file = NULL,
+      match_data_column = NULL,
+      match_location_column = NULL,
+      latitude_column = NULL,
+      longitude_column = NULL,
+      same_for_all_rows = list(
+        latitude = NULL,
+        longitude = NULL
+      )
+    ),
+    temporal = list(
+      date_column = NULL,
+      start_column = NULL,
+      end_column = NULL,
+      format = NULL,
+      timezone = NULL,
+      precision = NULL,
+      same_for_all_rows = list(
+        start = NULL,
+        end = NULL,
+        precision = NULL,
+        note = NULL
+      )
+    )
   )
 }
 

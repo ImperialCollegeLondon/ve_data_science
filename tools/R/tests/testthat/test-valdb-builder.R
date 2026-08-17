@@ -462,6 +462,86 @@ test_that("canonical conversion errors include source and variable context", {
 })
 
 
+test_that("configured spatial and temporal values survive a database build", {
+  directory <- withr::local_tempdir()
+  sources_dir <- file.path(directory, "sources")
+  db_path <- file.path(directory, "database")
+  dir.create(sources_dir)
+
+  data_path <- file.path(directory, "data.csv")
+  readr::write_csv(
+    tibble::tibble(sample_id = c("a", "b"), soil_carbon = c(2, 3)),
+    data_path
+  )
+  source <- new_builder_test_record("10.1000/spatiotemporal")
+  source$data_file <- data_path
+  source$variables$soil_carbon$var_canonical <- "known_variable"
+  source$variables$soil_carbon$unit <- "kg"
+  source$coordinates$same_for_all_rows <- list(
+    latitude = 4.74,
+    longitude = 116.97
+  )
+  source$temporal$same_for_all_rows <- list(
+    start = "2011-01-01",
+    end = "2011-12-31",
+    precision = "day",
+    note = "Sampling campaign"
+  )
+  write_builder_test_record(source, sources_dir)
+
+  original_builder <- build_canonical_units_table
+  withr::defer(
+    assign(
+      "build_canonical_units_table",
+      original_builder,
+      envir = globalenv()
+    )
+  )
+  assign(
+    "build_canonical_units_table",
+    function(...) {
+      tibble::tibble(
+        var_canonical = "known_variable",
+        unit_canonical = "kg"
+      )
+    },
+    envir = globalenv()
+  )
+
+  build_validation_database(
+    config_dir = directory,
+    sources_dir = sources_dir,
+    db_path = db_path
+  )
+  result <- arrow::open_dataset(db_path) |>
+    dplyr::collect()
+
+  expect_equal(result$latitude, c(4.74, 4.74))
+  expect_equal(result$longitude, c(116.97, 116.97))
+  expect_identical(
+    result$coordinate_source,
+    c("same_for_all_rows", "same_for_all_rows")
+  )
+  expect_equal(
+    format(result$time_start, "%Y-%m-%d", tz = "UTC"),
+    c("2011-01-01", "2011-01-01")
+  )
+  expect_equal(
+    format(result$time_end, "%Y-%m-%d", tz = "UTC"),
+    c("2012-01-01", "2012-01-01")
+  )
+  expect_identical(result$time_precision, c("day", "day"))
+  expect_identical(
+    result$time_source,
+    c("same_for_all_rows", "same_for_all_rows")
+  )
+  expect_identical(
+    result$time_note,
+    c("Sampling campaign", "Sampling campaign")
+  )
+})
+
+
 test_that("harmonisation retains unknown canonical mappings", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
@@ -478,6 +558,16 @@ test_that("harmonisation retains unknown canonical mappings", {
       description = NULL
     )
   )
+  source$coordinates$same_for_all_rows <- list(
+    latitude = 4.74,
+    longitude = 116.97
+  )
+  source$temporal$same_for_all_rows <- list(
+    start = "2011-01-01",
+    end = "2011-12-31",
+    precision = "day",
+    note = NULL
+  )
   canonical_units <- tibble::tibble(
     var_canonical = "known_variable",
     unit_canonical = "kg"
@@ -485,7 +575,7 @@ test_that("harmonisation retains unknown canonical mappings", {
 
   expect_warning(
     result <- harmonise_source_data(source, canonical_units),
-    "unknown -> not_in_metadata"
+    "Unknown canonical variable mapping"
   )
 
   expect_equal(nrow(result), 2L)
