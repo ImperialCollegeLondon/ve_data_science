@@ -1101,6 +1101,21 @@ build_validation_database <- function(
 }
 
 
+#' Harmonise one validation source dataset
+#'
+#' Internal helper for [build_validation_database()]. It reads and prepares one
+#' configured source, attaches spatial and temporal metadata, reshapes
+#' measurements, and converts known variables to canonical units. Unknown
+#' canonical mappings retain their original values and units and receive
+#' missing canonical values and units.
+#'
+#' @param src A validated source schema returned by [list_build_sources()].
+#' @param canonical_units A data frame with `var_canonical` and
+#'   `unit_canonical` columns.
+#'
+#' @returns A long-format data frame of harmonised observations, or `NULL` when
+#'   the source has no available configured measurement columns.
+
 harmonise_source_data <- function(src, canonical_units) {
   data <- readr::read_csv(
     src$data_file,
@@ -1178,6 +1193,25 @@ harmonise_source_data <- function(src, canonical_units) {
     dplyr::rename(value = value_original)
 }
 
+
+#' Convert one observation to its canonical unit
+#'
+#' Internal helper for [harmonise_source_data()]. Unit parsing and conversion
+#' errors include source and variable context. An unknown canonical mapping,
+#' represented by a missing canonical unit, returns a typed missing value
+#' without parsing the original unit.
+#'
+#' @param value A numeric observation value.
+#' @param unit_original The unit declared for the source variable.
+#' @param unit_canonical The target canonical unit, or `NA_character_` for an
+#'   unknown canonical mapping.
+#' @param source_id The source dataset identifier used in error messages.
+#' @param var_original The source variable name used in error messages.
+#' @param var_canonical The configured canonical variable name used in error
+#'   messages.
+#'
+#' @returns A numeric scalar in the canonical unit, or `NA_real_` for an unknown
+#'   canonical mapping.
 
 convert_canonical_value <- function(
   value,
@@ -1847,9 +1881,12 @@ drop_blanks <- function(x) {
 #' @param variables_ve Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
 #' @param variables_derived Path to the custom derived variable TOML table.
-#'   Currently it defaults to the soil module.
+#'   Currently it defaults to the soil module. Use `NULL` to omit derived
+#'   variables.
+#' @param downloader A function compatible with [utils::download.file()]. It is
+#'   injectable so tests can supply canonical metadata without network access.
 #'
-#' @returns A list of metadata of canonical VE and/or derived data variables.
+#' @returns A named list of metadata for canonical VE and derived variables.
 
 build_data_variables_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
@@ -1865,6 +1902,17 @@ build_data_variables_table <- function(
 }
 
 
+#' Retrieve a canonical-variable TOML table
+#'
+#' Internal helper for [build_data_variables_table()]. Remote HTTP or HTTPS
+#' sources are downloaded to a temporary file so the exact retrieved payload is
+#' parsed. Local paths are returned unchanged.
+#'
+#' @param source A local path or HTTP or HTTPS URL to a TOML table.
+#' @param downloader A function compatible with [utils::download.file()].
+#'
+#' @returns A local path to the source TOML table.
+
 retrieve_variables_table <- function(
   source,
   downloader = utils::download.file
@@ -1878,6 +1926,20 @@ retrieve_variables_table <- function(
   destination
 }
 
+
+#' Build the canonical unit lookup table
+#'
+#' Internal helper for [build_validation_database()]. It combines VE and local
+#' derived-variable metadata and removes element annotations such as `{C}` from
+#' unit strings before conversion with the `units` package.
+#'
+#' @param variables_ve Path or URL to the virtual_ecosystem data-variable TOML
+#'   table.
+#' @param variables_derived Path to a local derived-variable TOML table, or
+#'   `NULL` to omit derived variables.
+#' @param downloader A function compatible with [utils::download.file()].
+#'
+#' @returns A data frame with `var_canonical` and `unit_canonical` columns.
 
 build_canonical_units_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
