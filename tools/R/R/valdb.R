@@ -691,6 +691,88 @@ add_schema <- function(
 }
 
 
+#' Launch the schema dashboard app
+#'
+#' Builds the optional Shiny dashboard used to initialise and edit per-DOI
+#' schema YAML records. By default this launches the app immediately.
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#' @param launch Whether to launch the app with [shiny::runApp()].
+#' @param .source Function used to source the dashboard script. This supports
+#'   tests and normally should not be changed.
+#' @param .run_app Function used to launch the app. This supports tests and
+#'   normally should not be changed.
+#'
+#' @returns If `launch = TRUE`, invisibly returns the app object after launch.
+#'   Otherwise returns the app object.
+#'
+#' @export
+#' @examples
+#' box::use(tools/R/R/valdb)
+#' \dontrun{valdb$add_schema_dashboard()}
+
+add_schema_dashboard <- function(
+  sources_dir = "data/derived/soil/validation/config/sources",
+  launch = TRUE,
+  .source = base::source,
+  .run_app = NULL
+) {
+  # dependency guards
+  required_packages <- c("here", "shiny", "bslib")
+  missing_packages <- required_packages[
+    !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
+  ]
+
+  if (length(missing_packages) > 0) {
+    cli::cli_abort(c(
+      "Schema dashboard dependencies are missing.",
+      "i" = "Install: {.pkg {missing_packages}}"
+    ))
+  }
+
+  dashboard_path <- here::here(
+    "analysis/soil/validation/schema_dashboard/dashboard.R"
+  )
+  if (!file.exists(dashboard_path)) {
+    cli::cli_abort(
+      "Could not find dashboard script at {.path {dashboard_path}}."
+    )
+  }
+
+  dashboard_env <- new.env(parent = parent.frame())
+  .source(dashboard_path, local = dashboard_env)
+
+  if (
+    !exists("schema_dashboard_ui", envir = dashboard_env, mode = "function") ||
+      !exists(
+        "schema_dashboard_server",
+        envir = dashboard_env,
+        mode = "function"
+      )
+  ) {
+    cli::cli_abort(
+      "Dashboard script did not define {.fn schema_dashboard_ui} and {.fn schema_dashboard_server}."
+    )
+  }
+
+  app <- shiny::shinyApp(
+    ui = dashboard_env$schema_dashboard_ui(),
+    server = dashboard_env$schema_dashboard_server(sources_dir)
+  )
+
+  if (isTRUE(launch)) {
+    if (is.null(.run_app)) {
+      .run_app <- shiny::runApp
+    }
+    .run_app(app)
+    return(invisible(app))
+  }
+
+  app
+}
+
+
 #' (Re)Build the validation database
 #'
 #' Build or rebuild the validation database based on the YAML configs of source
