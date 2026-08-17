@@ -1,6 +1,6 @@
 schema_version: 1
-record_id: doi-10-5281-zenodo-3929632
-doi: 10.5281/zenodo.3929632
+record_id: doi-10-5281-zenodo-3929631
+doi: 10.5281/zenodo.3929631
 screening:
   decision: proceed
   reason: relevant_validation_data
@@ -23,7 +23,7 @@ metadata:
   year: 2020
   journal: ~
   publisher: Zenodo
-  url: https://zenodo.org/record/3929632
+  url: https://zenodo.org/record/3929631
   keywords:
     - soil
     - soil microbial communities
