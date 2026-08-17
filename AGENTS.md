@@ -232,6 +232,60 @@ When adding new scripts without explicit location guidance, place them in the
 closest domain folder or in [tools/](tools/) if they are reusable across
 domains.
 
+## Local repository scan and context grounding
+
+### Local-first source selection
+
+Before querying or browsing any remote repository, check local sources first.
+
+Prioritise sources in this order:
+
+1. the current workspace repository root
+2. the installed `virtual_ecosystem` package in the active uv environment
+3. a cloned sibling `virtual_ecosystem` repository, if present
+
+Use the local workspace repository as the primary source for this project. Use `virtual_ecosystem` only when the task needs implementation context from that codebase, such as symbols, functions, variables, or types.
+
+Treat the installed uv package as the preferred `virtual_ecosystem` source when both the package and a cloned repository are available.
+
+Only use remote repository access when local sources are unavailable, clearly outdated for the task, or the task explicitly requires remote state.
+
+## Remote repository scan scope and read limits
+
+### Scope
+
+For shared logic, public interfaces, or cross-domain behaviour, scan broadly before proposing changes.
+
+For localised single-file fixes, start with the target module and nearest tests, then widen scope only when evidence indicates related dependencies.
+
+Exclude by default:
+
+- vendor-style dependency directories and binary assets
+- large data directories under `data/` unless directly required
+
+### Remote read limits
+
+Treat remote reads as a constrained resource.
+
+- Prioritise high-signal files first: root config, CI workflows, target module, and closest tests.
+- Exhaust local source checks before any remote reads.
+- Start with a capped initial pass of 5–10 files.
+- Batch directory discovery before deep file reads.
+- Defer large or low-signal files unless directly relevant.
+- If read limits prevent a full scan, stop and report the constraint before proposing final fixes.
+
+### Required output
+
+Before recommending final fixes, provide:
+
+- a Files reviewed summary with counts by directory
+- a list of unread or skipped files/directories and why they were skipped
+- an explicit constraint note when a full scan was not possible
+
+### Quality gate
+
+Do not propose final fixes until the repository scan summary is complete.
+
 ## Script metadata header guidance
 
 When asked to document a script with a metadata header, start from the
