@@ -7,6 +7,15 @@ multiple source datasets into one validation database (Parquet).
 
 Run commands from the repository root.
 
+## Building a validation database for soil and litter
+
+This workflow uses YAML metadata to read, harmonise, unit-convert, and combine
+multiple source datasets into one validation database (Parquet).
+
+## Repository paths used by default
+
+Run commands from the repository root.
+
 ```text
 data/primary/soil/<author>_<year>/
 └── <data sheet>.csv            # source data, converted manually
