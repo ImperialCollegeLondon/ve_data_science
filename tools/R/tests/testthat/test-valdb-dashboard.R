@@ -117,14 +117,27 @@ test_that("pending_records_table adds one action for each source", {
 })
 
 
-test_that("dashboard UI includes refresh and optional dark mode controls", {
-  html <- as.character(schema_dashboard_ui())
+test_that("dashboard UI includes refresh, dark mode, and table styling", {
+  rendered <- htmltools::renderTags(schema_dashboard_ui())
 
-  expect_match(html, 'id="refresh"', fixed = TRUE)
-  expect_match(html, 'id="dark_mode"', fixed = TRUE)
-  expect_match(html, "font-size: 0.875rem", fixed = TRUE)
-  expect_false(grepl('id="doi"', html, fixed = TRUE))
-  expect_false(grepl('id="initialise"', html, fixed = TRUE))
+  expect_match(rendered$html, 'id="refresh"', fixed = TRUE)
+  expect_match(rendered$html, 'id="dark_mode"', fixed = TRUE)
+  expect_match(rendered$head, ".pending-records-table th", fixed = TRUE)
+  expect_match(rendered$head, ".pending-records-table td", fixed = TRUE)
+  expect_match(rendered$head, ".pending-records-table .btn", fixed = TRUE)
+  expect_match(rendered$head, "font-size: 12px !important", fixed = TRUE)
+  expect_match(rendered$head, "#yaml_editor .pce-textarea", fixed = TRUE)
+  expect_match(rendered$head, "#yaml_editor .pce-line *", fixed = TRUE)
+  expect_match(
+    rendered$head,
+    "font-family: Consolas, 'Courier New', monospace !important",
+    fixed = TRUE
+  )
+  expect_match(rendered$head, "font-variant-ligatures: none", fixed = TRUE)
+  expect_match(rendered$head, "font-kerning: none", fixed = TRUE)
+  expect_false(grepl(" header=", rendered$html, fixed = TRUE))
+  expect_false(grepl('id="doi"', rendered$html, fixed = TRUE))
+  expect_false(grepl('id="initialise"', rendered$html, fixed = TRUE))
 })
 
 
