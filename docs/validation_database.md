@@ -106,6 +106,21 @@ it is normalised before lookup. The record must already exist, have
 the template is written safely and only the target per-DOI YAML file is opened
 for manual editing. Existing schemas are not overwritten.
 
+A minimal local dashboard provides the same workflow for all pending `proceed`
+records. Launch it from the repository root:
+
+```r
+shiny::runApp("analysis/soil/validation/schema_dashboard")
+```
+
+The dashboard reads the YAML records directly, shows screening notes, and loads
+the selected record into a browser YAML editor. It calls
+`initialise_source_schema()` only when a schema does not exist. Untouched or
+partially completed template schemas remain in the to-do list as drafts. Saving
+validates the YAML and record identity before replacing the filesystem record.
+The record can also be opened in the desktop editor. The dashboard does not
+maintain a separate database.
+
 ## 3) Download the dataset and convert it to CSV
 
 Download the dataset to `data/primary/<module>/<author>_<year>`. Note that the
