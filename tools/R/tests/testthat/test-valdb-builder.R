@@ -212,3 +212,147 @@ test_that("list_build_sources rejects schemas without a proceed decision", {
     fixed = TRUE
   )
 })
+
+
+test_that("validate_source_schema checks required fields and source files", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
+  source <- new_builder_test_record("10.1000/valid")
+  source$data_file <- data_path
+  schema_path <- file.path(directory, "source.yaml")
+
+  expect_no_error(validate_source_schema(source, schema_path))
+
+  missing_field <- source
+  missing_field$variables <- NULL
+  expect_error(
+    validate_source_schema(missing_field, schema_path),
+    "missing required field"
+  )
+
+  missing_file <- source
+  missing_file$data_file <- file.path(directory, "missing.csv")
+  expect_error(
+    validate_source_schema(missing_file, schema_path),
+    "does not exist"
+  )
+})
+
+
+test_that("validate_source_schema checks scalar fields and collections", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
+  source <- new_builder_test_record("10.1000/valid")
+  source$data_file <- data_path
+  schema_path <- file.path(directory, "source.yaml")
+
+  invalid_id <- source
+  invalid_id$source_id <- ""
+  expect_error(validate_source_schema(invalid_id, schema_path), "source_id")
+
+  invalid_skip <- source
+  invalid_skip$skip_rows <- 1.5
+  expect_error(validate_source_schema(invalid_skip, schema_path), "skip_rows")
+
+  invalid_variables <- source
+  invalid_variables$variables <- list(list(unit = "kg"))
+  expect_error(
+    validate_source_schema(invalid_variables, schema_path),
+    "variables"
+  )
+
+  invalid_mapping <- source
+  invalid_mapping$variables$soil_carbon$unit <- NULL
+  expect_error(
+    validate_source_schema(invalid_mapping, schema_path),
+    "soil_carbon"
+  )
+
+  invalid_key <- source
+  invalid_key$dedup_key <- c("sample_id", "sample_id")
+  expect_error(validate_source_schema(invalid_key, schema_path), "dedup_key")
+})
+
+
+test_that("validate_build_sources rejects duplicate source IDs", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
+  first <- new_builder_test_record("10.1000/first")
+  second <- new_builder_test_record("10.1000/second")
+  first$data_file <- data_path
+  second$data_file <- data_path
+  second$source_id <- first$source_id
+
+  expect_error(
+    validate_build_sources(list(first = first, second = second), directory),
+    "Duplicate source ID"
+  )
+})
+
+
+test_that("prepare_source_data rejects missing deduplication columns", {
+  source <- new_builder_test_record("10.1000/missing-key")
+  data <- tibble::tibble(soil_carbon = 2)
+
+  expect_error(prepare_source_data(data, source), "sample_id")
+})
+
+
+test_that("prepare_source_data warns and skips missing measurements", {
+  source <- new_builder_test_record("10.1000/missing-measurement")
+  source$variables$soil_nitrogen <- source$variables$soil_carbon
+  data <- tibble::tibble(sample_id = 1:2, soil_carbon = c(2, 3))
+
+  expect_warning(
+    result <- prepare_source_data(data, source),
+    "soil_nitrogen"
+  )
+  expect_named(result, c("sample_id", "soil_carbon"))
+  expect_identical(attr(result, "measurement_columns"), "soil_carbon")
+})
+
+
+test_that("prepare_source_data skips sources without measurements", {
+  source <- new_builder_test_record("10.1000/no-measurements")
+  data <- tibble::tibble(sample_id = 1:2)
+
+  expect_warning(
+    result <- prepare_source_data(data, source),
+    "Skipping source"
+  )
+  expect_null(result)
+})
+
+
+test_that("prepare_source_data rejects missing and duplicate keys", {
+  source <- new_builder_test_record("10.1000/invalid-keys")
+
+  missing <- tibble::tibble(
+    sample_id = c("a", NA_character_),
+    soil_carbon = c(2, 3)
+  )
+  expect_error(prepare_source_data(missing, source), "missing values")
+
+  duplicated <- tibble::tibble(
+    sample_id = c("a", "a"),
+    soil_carbon = c(2, 3)
+  )
+  expect_error(prepare_source_data(duplicated, source), "duplicate observation")
+})
+
+
+test_that("add_observation_id rejects concatenation collisions", {
+  source <- new_builder_test_record("10.1000/collision")
+  source$dedup_key <- c("plot", "sample")
+  data <- tibble::tibble(
+    plot = c("a_b", "a"),
+    sample = c("c", "b_c"),
+    soil_carbon = c(2, 3)
+  )
+  data <- prepare_source_data(data, source)
+
+  expect_error(add_observation_id(data, source), "collide")
+})
