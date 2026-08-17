@@ -356,3 +356,141 @@ test_that("add_observation_id rejects concatenation collisions", {
 
   expect_error(add_observation_id(data, source), "collide")
 })
+
+
+test_that("canonical metadata retrieval supports an injected downloader", {
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "variables.toml")
+  writeLines(
+    c(
+      "[[variable]]",
+      'name = "known_variable"',
+      'unit = "kg{C} m^-3"'
+    ),
+    fixture
+  )
+  requested <- NULL
+  downloader <- function(url, destination, ...) {
+    requested <<- url
+    file.copy(fixture, destination)
+  }
+
+  result <- build_canonical_units_table(
+    variables_ve = "https://example.test/variables.toml",
+    variables_derived = NULL,
+    downloader = downloader
+  )
+
+  expect_identical(requested, "https://example.test/variables.toml")
+  expect_identical(result$var_canonical, "known_variable")
+  expect_identical(result$unit_canonical, "kg m^-3")
+})
+
+
+test_that("canonical metadata includes local derived variables", {
+  directory <- withr::local_tempdir()
+  ve <- file.path(directory, "ve.toml")
+  derived <- file.path(directory, "derived.toml")
+  writeLines(
+    c("[[variable]]", 'name = "ve_variable"', 'unit = "kg"'),
+    ve
+  )
+  writeLines(
+    c("[[variable]]", 'name = "derived_variable"', 'unit = "g"'),
+    derived
+  )
+
+  result <- build_canonical_units_table(ve, derived)
+
+  expect_identical(
+    result$var_canonical,
+    c("ve_variable", "derived_variable")
+  )
+  expect_identical(result$unit_canonical, c("kg", "g"))
+})
+
+
+test_that("canonical conversion handles known and unknown mappings", {
+  expect_equal(
+    convert_canonical_value(
+      1000,
+      "g",
+      "kg",
+      "source_a",
+      "mass",
+      "mass_canonical"
+    ),
+    1
+  )
+  expect_identical(
+    convert_canonical_value(
+      1000,
+      "not parsed",
+      NA_character_,
+      "source_a",
+      "unknown",
+      "not_in_metadata"
+    ),
+    NA_real_
+  )
+})
+
+
+test_that("canonical conversion errors include source and variable context", {
+  expect_error(
+    convert_canonical_value(
+      1,
+      "not a unit",
+      "kg",
+      "source_a",
+      "raw_mass",
+      "canonical_mass"
+    ),
+    "source_a"
+  )
+  expect_error(
+    convert_canonical_value(
+      1,
+      "m",
+      "kg",
+      "source_b",
+      "raw_length",
+      "canonical_mass"
+    ),
+    "raw_length"
+  )
+})
+
+
+test_that("harmonisation retains unknown canonical mappings", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  readr::write_csv(
+    tibble::tibble(sample_id = c("a", "b"), unknown = c(2, 3)),
+    data_path
+  )
+  source <- new_builder_test_record("10.1000/unknown")
+  source$data_file <- data_path
+  source$variables <- list(
+    unknown = list(
+      var_canonical = "not_in_metadata",
+      unit = "m",
+      description = NULL
+    )
+  )
+  canonical_units <- tibble::tibble(
+    var_canonical = "known_variable",
+    unit_canonical = "kg"
+  )
+
+  expect_warning(
+    result <- harmonise_source_data(source, canonical_units),
+    "unknown -> not_in_metadata"
+  )
+
+  expect_equal(nrow(result), 2L)
+  expect_identical(result$value, c(2, 3))
+  expect_identical(result$unit_original, c("m", "m"))
+  expect_identical(result$unit_canonical, c(NA_character_, NA_character_))
+  expect_identical(result$value_canonical, c(NA_real_, NA_real_))
+})

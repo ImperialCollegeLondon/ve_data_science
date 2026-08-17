@@ -1051,59 +1051,12 @@ build_validation_database <- function(
   # Configs ----------------------------------------------------------------
 
   # Load canonical units only after local source preflight succeeds.
-  canonical_units <-
-    build_data_variables_table() |>
-    tibble::enframe(name = "var_canonical") |>
-    tidyr::unnest_wider(value) |>
-    dplyr::select(var_canonical, unit_canonical = unit) |>
-    dplyr::mutate(
-      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
-    )
+  canonical_units <- build_canonical_units_table()
 
   # Harmonise each dataset ------------------------------------------------
   data_harmonised <-
     sources |>
-    purrr::map(\(src) {
-      data <- readr::read_csv(
-        src$data_file,
-        show_col_types = FALSE,
-        skip = src$skip_rows
-      ) |>
-        prepare_source_data(src)
-      if (is.null(data)) {
-        return(NULL)
-      }
-      measurement_columns <- attr(data, "measurement_columns")
-
-      data |>
-        # Attach metadata before `unite()` consumes the deduplication columns.
-        add_coordinates(src) |>
-        add_temporal(src) |>
-        add_observation_id(src) |>
-        # Pivot long for unit conversion and missing-value removal.
-        tidyr::pivot_longer(
-          cols = tidyr::all_of(measurement_columns),
-          names_to = "var_original"
-        ) |>
-        dplyr::filter(!is.na(value)) |>
-        dplyr::left_join(
-          src$variables[measurement_columns] |>
-            tibble::enframe(name = "var_original") |>
-            tidyr::unnest_wider(value) |>
-            dplyr::rename(unit_original = unit),
-          by = dplyr::join_by(var_original)
-        ) |>
-        dplyr::left_join(canonical_units, by = dplyr::join_by(var_canonical)) |>
-        dplyr::mutate(
-          unit_canonical = purrr::map(unit_canonical, units::as_units),
-          unit_original = purrr::map(unit_original, units::as_units),
-          value = purrr::map2(value, unit_original, \(x, y) x * y),
-          value_canonical = purrr::map2(value, unit_canonical, \(x, y) {
-            units::set_units(x, y, mode = "standard")
-          }),
-          dataset = src$source_id
-        )
-    }) |>
+    purrr::map(\(src) harmonise_source_data(src, canonical_units)) |>
     purrr::compact()
 
   if (length(data_harmonised) == 0L) {
@@ -1116,14 +1069,6 @@ build_validation_database <- function(
   database <-
     data_harmonised |>
     purrr::list_rbind() |>
-    # deparse values and units to base vector classes to be compatible
-    # with parquet or csv
-    dplyr::mutate(
-      value = purrr::map_dbl(value, as.numeric),
-      value_canonical = purrr::map_dbl(value_canonical, as.numeric),
-      unit_original = purrr::map_chr(unit_original, units::deparse_unit),
-      unit_canonical = purrr::map_chr(unit_canonical, units::deparse_unit)
-    ) |>
     # cleanup
     dplyr::select(
       dataset,
@@ -1153,6 +1098,130 @@ build_validation_database <- function(
 
   # print message on write
   cli::cli_alert_success("Database saved to {db_path}.")
+}
+
+
+harmonise_source_data <- function(src, canonical_units) {
+  data <- readr::read_csv(
+    src$data_file,
+    show_col_types = FALSE,
+    skip = src$skip_rows
+  ) |>
+    prepare_source_data(src)
+  if (is.null(data)) {
+    return(NULL)
+  }
+  measurement_columns <- attr(data, "measurement_columns")
+
+  data <-
+    data |>
+    # Attach metadata before `unite()` consumes the deduplication columns.
+    add_coordinates(src) |>
+    add_temporal(src) |>
+    add_observation_id(src) |>
+    # Pivot long for unit conversion and missing-value removal.
+    tidyr::pivot_longer(
+      cols = tidyr::all_of(measurement_columns),
+      names_to = "var_original"
+    ) |>
+    dplyr::filter(!is.na(value)) |>
+    dplyr::left_join(
+      src$variables[measurement_columns] |>
+        tibble::enframe(name = "var_original") |>
+        tidyr::unnest_wider(value) |>
+        dplyr::rename(unit_original = unit),
+      by = dplyr::join_by(var_original)
+    ) |>
+    dplyr::left_join(canonical_units, by = dplyr::join_by(var_canonical))
+
+  unknown <-
+    data |>
+    dplyr::filter(is.na(unit_canonical)) |>
+    dplyr::distinct(var_original, var_canonical)
+  if (nrow(unknown) > 0L) {
+    mappings <- paste0(
+      unknown$var_original,
+      " -> ",
+      unknown$var_canonical,
+      collapse = ", "
+    )
+    cli::cli_warn(c(
+      "Unknown canonical variable mapping{?s} in source {.val {src$source_id}}.",
+      "i" = "Retaining original values and units for: {mappings}."
+    ))
+  }
+
+  data |>
+    dplyr::mutate(
+      value_original = as.numeric(value),
+      value_canonical = purrr::pmap_dbl(
+        list(value, unit_original, unit_canonical, var_original, var_canonical),
+        \(value, unit_original, unit_canonical, var_original, var_canonical) {
+          convert_canonical_value(
+            value,
+            unit_original,
+            unit_canonical,
+            src$source_id,
+            var_original,
+            var_canonical
+          )
+        }
+      ),
+      unit_canonical = dplyr::if_else(
+        is.na(unit_canonical),
+        NA_character_,
+        unit_canonical
+      ),
+      dataset = src$source_id
+    ) |>
+    dplyr::select(-value) |>
+    dplyr::rename(value = value_original)
+}
+
+
+convert_canonical_value <- function(
+  value,
+  unit_original,
+  unit_canonical,
+  source_id,
+  var_original,
+  var_canonical
+) {
+  if (is.na(unit_canonical)) {
+    return(NA_real_)
+  }
+
+  tryCatch(
+    {
+      original <- value * units::as_units(unit_original)
+      converted <- units::set_units(
+        original,
+        units::as_units(unit_canonical),
+        mode = "standard"
+      )
+      as.numeric(converted)
+    },
+    error = function(error) {
+      cli::cli_abort(
+        c(
+          "Cannot convert units for source {.val {source_id}}.",
+          "x" = paste0(
+            "Variable ",
+            var_original,
+            " mapped to ",
+            var_canonical,
+            " cannot be converted from ",
+            unit_original,
+            " to ",
+            unit_canonical,
+            "."
+          ),
+          "i" = conditionMessage(error)
+        ),
+        parent = error
+      )
+    }
+  )
 }
 
 
@@ -1784,13 +1853,48 @@ drop_blanks <- function(x) {
 
 build_data_variables_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = "data/derived/soil/validation/config/derived_variables.toml"
+  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  downloader = utils::download.file
 ) {
-  var_list <- import_variables_table(variables_ve)
+  ve_path <- retrieve_variables_table(variables_ve, downloader)
+  var_list <- import_variables_table(ve_path)
   if (!is.null(variables_derived)) {
     var_list <- c(var_list, import_variables_table(variables_derived))
   }
   return(var_list)
+}
+
+
+retrieve_variables_table <- function(
+  source,
+  downloader = utils::download.file
+) {
+  if (!grepl("^https?://", source)) {
+    return(source)
+  }
+
+  destination <- tempfile(fileext = ".toml")
+  downloader(source, destination, mode = "wb", quiet = TRUE)
+  destination
+}
+
+
+build_canonical_units_table <- function(
+  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
+  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  downloader = utils::download.file
+) {
+  build_data_variables_table(
+    variables_ve = variables_ve,
+    variables_derived = variables_derived,
+    downloader = downloader
+  ) |>
+    tibble::enframe(name = "var_canonical") |>
+    tidyr::unnest_wider(value) |>
+    dplyr::select(var_canonical, unit_canonical = unit) |>
+    dplyr::mutate(
+      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
+    )
 }
 
 
