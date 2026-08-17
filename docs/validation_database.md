@@ -217,14 +217,17 @@ Default behavior:
 - Reads conversion rules from
   `data/derived/soil/validation/config/unit_conversions.csv`
 - Builds canonical variable metadata from VE + local derived variables
-- Reads per-DOI records from
+- Reads per-DOI records in filename order from
   `data/derived/soil/validation/config/sources/*.yaml`
-- Keeps records that contain a top-level `source_id`
+- Ignores screening-only records
+- Warns about initialised schemas that still contain mandatory placeholders and
+  skips them
+- Requires every schema record to retain a `proceed` screening decision
 - Writes Parquet output to `data/derived/soil/validation/database`
 
-Screening-only records do not contain `source_id`, so the build ignores them.
-A `proceed` decision alone does not make a record build-ready; its schema
-placeholders must first be completed.
+A `proceed` decision alone does not make a record build-ready. The builder only
+uses records with a completed top-level schema. It stops if no completed schemas
+remain after screening-only and draft records are excluded.
 
 ## 6) Combine the validation database with VE outputs
 
