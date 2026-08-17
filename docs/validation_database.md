@@ -13,8 +13,7 @@ data/primary/soil/<author>_<year>/
 data/derived/soil/validation/
 ├── config/
 │   ├── sources/                # one screening/schema YAML file per DOI
-│   ├── derived_variables.toml  # non-VE canonical variables (optional)
-│   └── unit_conversions.csv    # unit_from/unit_to conversion rules
+│   └── derived_variables.toml  # non-VE canonical variables (optional)
 └── database/                   # output Parquet dataset
 tools/R/R/valdb.R               # workflow functions
 ```
@@ -190,10 +189,13 @@ dedup_key:
 Assumptions and expectations:
 
 - Input files are CSV (`readr::read_csv()` is used internally).
-- `var_canonical` must exist in either VE `data_variables.toml` or
+- Known `var_canonical` names are resolved against the latest VE
+  `data_variables.toml` from the `develop` branch and
   `config/derived_variables.toml`.
-- Any required `unit_from -> unit_to` pair must exist in
-  `config/unit_conversions.csv`.
+- Source and canonical units are interpreted and converted directly with the
+  `units` package. Malformed or dimensionally incompatible units are errors.
+- Unknown canonical names produce a warning. Their observations and original
+  units are retained, while canonical values and units are recorded as missing.
 
 ### Spatial coordinates
 
@@ -214,9 +216,9 @@ valdb$build_validation_database()
 
 Default behavior:
 
-- Reads conversion rules from
-  `data/derived/soil/validation/config/unit_conversions.csv`
-- Builds canonical variable metadata from VE + local derived variables
+- Downloads current canonical variable metadata from the VE `develop` branch
+  and combines it with local derived-variable metadata
+- Converts known variables directly between compatible units with `units`
 - Reads per-DOI records in filename order from
   `data/derived/soil/validation/config/sources/*.yaml`
 - Ignores screening-only records
@@ -286,11 +288,9 @@ output.
 
 ## Ongoing metadata curation
 
-When new unit conversions are needed, edit:
-`data/derived/soil/validation/config/unit_conversions.csv`
-
-When new derived variables are needed, edit:
-`data/derived/soil/validation/config/derived_variables.toml`
+When new derived variables are needed, edit
+`data/derived/soil/validation/config/derived_variables.toml`. Source schemas
+should use unit strings understood by the `units` package.
 
 ## Notes for contributors
 
