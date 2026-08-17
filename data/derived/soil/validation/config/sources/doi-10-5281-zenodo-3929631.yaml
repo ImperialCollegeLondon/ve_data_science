@@ -5,8 +5,9 @@ screening:
   decision: proceed
   reason: relevant_validation_data
   notes:
-    Used in various microbial and litter input data analyses, but there
-    are     leftover soil variables such as soil_N, _C and _P worth validating.
+    Used in various microbial and litter input data analyses, but there are
+    leftover soil variables such as soil_N, _C and _P worth validating. Also
+    contains leaf nutrients.
   screened_at: "2026-08-17T03:01:58Z"
 metadata:
   title:
