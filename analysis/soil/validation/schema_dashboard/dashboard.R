@@ -180,6 +180,10 @@ pending_records_table <- function(records) {
               type = "button",
               class = "btn btn-primary btn-sm open-schema",
               `data-doi` = record$doi,
+              onclick = paste(
+                "Shiny.setInputValue(",
+                "'open_schema', this.dataset.doi, {priority: 'event'});"
+              ),
               "Open schema"
             )
           )
@@ -198,22 +202,9 @@ schema_dashboard_ui <- function() {
   bslib::page_sidebar(
     title = "Validation schema dashboard",
     theme = bslib::bs_theme(version = 5),
-    header = shiny::tagList(
-      shiny::tags$style(shiny::HTML(
-        ".pending-records-table { font-size: 0.875rem; }"
-      )),
-      shiny::tags$script(shiny::HTML(
-        paste(
-          "document.addEventListener('click', function(event) {",
-          "  const button = event.target.closest('.open-schema');",
-          "  if (!button) return;",
-          "  Shiny.setInputValue('open_schema', button.dataset.doi,",
-          "    {priority: 'event'});",
-          "});",
-          sep = "\n"
-        )
-      ))
-    ),
+    header = shiny::tags$style(shiny::HTML(
+      ".pending-records-table { font-size: 0.875rem; }"
+    )),
     sidebar = bslib::sidebar(
       shiny::actionButton("refresh", "Refresh records"),
       bslib::input_dark_mode(id = "dark_mode"),

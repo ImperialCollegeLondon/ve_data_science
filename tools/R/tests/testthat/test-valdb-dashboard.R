@@ -112,6 +112,8 @@ test_that("pending_records_table adds one action for each source", {
   expect_length(stringr::str_extract_all(html, "open-schema")[[1]], 2L)
   expect_match(html, 'data-doi="10.1000/first"', fixed = TRUE)
   expect_match(html, 'data-doi="10.1000/second"', fixed = TRUE)
+  expect_length(stringr::str_extract_all(html, "Shiny.setInputValue")[[1]], 2L)
+  expect_match(html, "{priority: &#39;event&#39;}", fixed = TRUE)
 })
 
 
