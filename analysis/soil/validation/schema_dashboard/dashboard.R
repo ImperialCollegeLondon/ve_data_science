@@ -202,9 +202,19 @@ schema_dashboard_ui <- function() {
   bslib::page_sidebar(
     title = "Validation schema dashboard",
     theme = bslib::bs_theme(version = 5),
-    header = shiny::tags$style(shiny::HTML(
-      ".pending-records-table { font-size: 0.875rem; }"
-    )),
+    # tags$head() registers this stylesheet in the document head. Passing a
+    # `header` argument would not work because page_sidebar() has no such
+    # argument and would treat it as an HTML attribute on the page body.
+    shiny::tags$head(
+      shiny::tags$style(shiny::HTML(paste(
+        ".pending-records-table th,",
+        ".pending-records-table td,",
+        ".pending-records-table .btn {",
+        "  font-size: 12px !important;",
+        "}",
+        sep = "\n"
+      )))
+    ),
     sidebar = bslib::sidebar(
       shiny::actionButton("refresh", "Refresh records"),
       bslib::input_dark_mode(id = "dark_mode"),
