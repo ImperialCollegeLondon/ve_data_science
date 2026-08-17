@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-5562259
+doi: 10.5281/zenodo.5562259
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Mostly invertebrate samples. Contains soil temperature and texture, but the     latter
+    is categorical.
+  screened_at: '2026-08-17T03:05:51Z'
+metadata:
+  title: The Maliau Quantitative Inventory
+  authors:
+  - Carpenter, Daniel
+  - Calloway, Kerry
+  - Brown, Keiron
+  - Rahman, Homathevi
+  - Effendi, Bahktiar
+  - Eggleton, Paul
+  year: 2021
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/5562259
+  keywords:
+  - invertebrates
+  - deadwood
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:05:27Z'
