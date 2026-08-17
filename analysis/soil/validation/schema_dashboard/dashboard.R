@@ -6,20 +6,6 @@
 # The remaining functions are ordinary R helpers. Keeping file and data logic
 # outside the server makes that logic easier to understand and test.
 
-# Decide whether a record should remain in the dashboard's to-do list. A schema
-# is incomplete if it has not been created or still contains any value copied
-# from the starter template.
-schema_needs_completion <- function(record) {
-  template <- new_schema_template()
-
-  is.null(record$source_id) ||
-    identical(record$source_id, template$source_id) ||
-    identical(record$data_file, template$data_file) ||
-    identical(record$variables, template$variables) ||
-    identical(record$dedup_key, template$dedup_key)
-}
-
-
 # Convert the nested YAML records into a rectangular data frame suitable for a
 # Shiny table. Only datasets approved with a `proceed` decision and requiring
 # further schema work are shown.
