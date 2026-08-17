@@ -101,6 +101,31 @@ test_that("pending_schema_records keeps initialised templates as drafts", {
 })
 
 
+test_that("pending_records_table adds one action for each source", {
+  records <- pending_schema_records(list(
+    new_dashboard_test_record("10.1000/first", title = "First"),
+    new_dashboard_test_record("10.1000/second", title = "Second")
+  ))
+
+  html <- as.character(pending_records_table(records))
+
+  expect_length(stringr::str_extract_all(html, "open-schema")[[1]], 2L)
+  expect_match(html, 'data-doi="10.1000/first"', fixed = TRUE)
+  expect_match(html, 'data-doi="10.1000/second"', fixed = TRUE)
+})
+
+
+test_that("dashboard UI includes refresh and optional dark mode controls", {
+  html <- as.character(schema_dashboard_ui())
+
+  expect_match(html, 'id="refresh"', fixed = TRUE)
+  expect_match(html, 'id="dark_mode"', fixed = TRUE)
+  expect_match(html, "font-size: 0.875rem", fixed = TRUE)
+  expect_false(grepl('id="doi"', html, fixed = TRUE))
+  expect_false(grepl('id="initialise"', html, fixed = TRUE))
+})
+
+
 test_that("save_yaml_record saves valid edits", {
   sources_dir <- withr::local_tempdir()
   record <- new_dashboard_test_record("10.1000/pending")
@@ -154,7 +179,7 @@ test_that("dashboard initialises and loads the selected record", {
     {
       expect_identical(pending()$doi, record$doi)
 
-      session$setInputs(doi = record$doi, initialise = 1L)
+      session$setInputs(open_schema = record$doi)
 
       expect_identical(editor_path(), path)
       expect_identical(pending()$doi, record$doi)
@@ -178,7 +203,7 @@ test_that("dashboard reopens an initialised draft without changing it", {
   shiny::testServer(
     schema_dashboard_server(sources_dir),
     {
-      session$setInputs(doi = record$doi, initialise = 1L)
+      session$setInputs(open_schema = record$doi)
 
       expect_identical(editor_path(), path)
       expect_identical(yaml::read_yaml(path), before)
@@ -201,7 +226,7 @@ test_that("dashboard opens the loaded record in the desktop editor", {
   shiny::testServer(
     schema_dashboard_server(sources_dir, editor),
     {
-      session$setInputs(doi = record$doi, initialise = 1L)
+      session$setInputs(open_schema = record$doi)
       session$setInputs(open_editor = 1L)
 
       expect_identical(editor_calls$paths, path)

@@ -19,6 +19,7 @@ sources_dir <- here::here(
 
 # shinyApp() pairs the browser interface with its server logic. The configured
 # server receives sources_dir through schema_dashboard_server().
+# Launch it with `runApp("analysis/soil/validation/schema_dashboard/app.R")`
 shinyApp(
   ui = schema_dashboard_ui(),
   server = schema_dashboard_server(sources_dir)

@@ -33,8 +33,8 @@ pending_schema_records <- function(records) {
     records
   )
 
-  # Return an empty data frame with the normal columns. This allows
-  # renderTable() to keep working when there are no outstanding records.
+  # Return an empty data frame with the normal columns. This allows the table
+  # renderer to keep working when there are no outstanding records.
   if (length(pending) == 0L) {
     return(data.frame(
       doi = character(),
@@ -144,28 +144,79 @@ save_yaml_record <- function(yaml_text, path) {
 }
 
 
-# Build the static browser interface. Input and output IDs such as `doi` and
-# `pending_records` connect these controls to objects of the same name in the
-# server function below.
+# Render pending records as a Bootstrap table with an action beside each source.
+# The data DOI identifies the record without exposing a filesystem path.
+pending_records_table <- function(records) {
+  headings <- c(
+    "DOI",
+    "Title",
+    "Year",
+    "Notes",
+    "Schema status",
+    "Screened at",
+    ""
+  )
+
+  shiny::tags$table(
+    class = paste(
+      "table table-striped table-hover align-middle",
+      "pending-records-table"
+    ),
+    shiny::tags$thead(
+      shiny::tags$tr(lapply(headings, shiny::tags$th, scope = "col"))
+    ),
+    shiny::tags$tbody(
+      lapply(seq_len(nrow(records)), function(index) {
+        record <- records[index, , drop = FALSE]
+        shiny::tags$tr(
+          shiny::tags$td(record$doi),
+          shiny::tags$td(record$title),
+          shiny::tags$td(record$year),
+          shiny::tags$td(record$notes),
+          shiny::tags$td(record$schema_status),
+          shiny::tags$td(record$screened_at),
+          shiny::tags$td(
+            shiny::tags$button(
+              type = "button",
+              class = "btn btn-primary btn-sm open-schema",
+              `data-doi` = record$doi,
+              "Open schema"
+            )
+          )
+        )
+      })
+    )
+  )
+}
+
+
+# Build the static browser interface. Input and output IDs connect controls to
+# objects of the same name in the server function below.
 schema_dashboard_ui <- function() {
   # page_sidebar() provides a Bootstrap 5 page with controls on the left and
   # the main dashboard content on the right.
   bslib::page_sidebar(
     title = "Validation schema dashboard",
     theme = bslib::bs_theme(version = 5),
+    header = shiny::tagList(
+      shiny::tags$style(shiny::HTML(
+        ".pending-records-table { font-size: 0.875rem; }"
+      )),
+      shiny::tags$script(shiny::HTML(
+        paste(
+          "document.addEventListener('click', function(event) {",
+          "  const button = event.target.closest('.open-schema');",
+          "  if (!button) return;",
+          "  Shiny.setInputValue('open_schema', button.dataset.doi,",
+          "    {priority: 'event'});",
+          "});",
+          sep = "\n"
+        )
+      ))
+    ),
     sidebar = bslib::sidebar(
-      shiny::selectInput(
-        "doi",
-        "Dataset",
-        choices = character(),
-        width = "100%"
-      ),
-      shiny::actionButton(
-        "initialise",
-        "Open schema",
-        class = "btn-primary"
-      ),
       shiny::actionButton("refresh", "Refresh records"),
+      bslib::input_dark_mode(id = "dark_mode"),
       shiny::helpText(
         "Opening adds a schema template when needed, then loads the YAML ",
         "record into the browser editor. Drafts remain in the to-do list."
@@ -178,7 +229,7 @@ schema_dashboard_ui <- function() {
       bslib::card(
         full_screen = TRUE,
         bslib::card_header("Proceed records awaiting schemas"),
-        shiny::tableOutput("pending_records")
+        shiny::uiOutput("pending_records")
       ),
       bslib::card(
         full_screen = TRUE,
@@ -239,38 +290,11 @@ schema_dashboard_server <- function(
         pending_schema_records()
     })
 
-    # Whenever the pending table changes, update the dataset choices. The DOI
-    # is the submitted value, while the more readable title is shown as its label.
-    shiny::observeEvent(
-      pending(),
-      {
-        records <- pending()
-        choices <- stats::setNames(records$doi, records$title)
-        selected <- if (length(input$doi) == 1L && input$doi %in% records$doi) {
-          input$doi
-        } else {
-          character()
-        }
-
-        shiny::updateSelectInput(
-          session,
-          "doi",
-          choices = choices,
-          selected = selected
-        )
-      },
-      ignoreInit = FALSE
-    )
-
-    # renderTable() turns the reactive data frame into HTML for the matching
-    # tableOutput("pending_records") defined in the UI.
-    output$pending_records <- shiny::renderTable(
-      pending(),
-      striped = TRUE,
-      hover = TRUE,
-      bordered = FALSE,
-      na = ""
-    )
+    # renderUI() rebuilds the table when pending records change. Each row has
+    # its own Open schema button carrying that record's DOI.
+    output$pending_records <- shiny::renderUI({
+      pending_records_table(pending())
+    })
 
     # Display only the filename to avoid exposing a long machine-specific path.
     output$editor_path <- shiny::renderText({
@@ -284,19 +308,20 @@ schema_dashboard_server <- function(
       refresh_token(refresh_token() + 1L)
     })
 
-    # Open the selected schema. req() stops this observer quietly if no dataset
-    # is selected, which avoids running file operations with an empty DOI.
-    shiny::observeEvent(input$initialise, {
-      shiny::req(input$doi)
+    # Open the schema requested by a row button. req() stops this observer
+    # quietly if no DOI was supplied, avoiding operations with an empty value.
+    shiny::observeEvent(input$open_schema, {
+      shiny::req(input$open_schema)
 
       tryCatch(
         {
-          record <- find_screening_record(input$doi, sources_dir)
+          doi <- input$open_schema
+          record <- find_screening_record(doi, sources_dir)
 
           # Initialise only a new schema. Existing drafts must be reopened
           # without overwriting work already saved in their YAML records.
           path <- if (is.null(record$source_id)) {
-            initialise_source_schema(input$doi, sources_dir)
+            initialise_source_schema(doi, sources_dir)
           } else {
             file.path(sources_dir, paste0(record$record_id, ".yaml"))
           }
