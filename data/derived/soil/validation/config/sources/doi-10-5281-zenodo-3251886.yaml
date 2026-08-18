@@ -1,0 +1,33 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3251886
+doi: 10.5281/zenodo.3251886
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Contains soil and litter C and N.
+  screened_at: '2026-08-18T07:12:35Z'
+metadata:
+  title: Soil greenhouse gas fluxes along transects from oil palm to riparian forests
+    in the SAFE landscape
+  authors:
+  - Drewer, Julia
+  - Kuling, Harry John
+  - Sentian, Justin
+  - Skiba, Ute
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3251886
+  keywords:
+  - HTMF
+  - river
+  - methane
+  - gas exchange
+  - SAFE project
+  - biogeochemistry
+  - greenhouse gases
+  - GHG
+  - nitrous oxide
+  - riparian
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:11:40Z'
