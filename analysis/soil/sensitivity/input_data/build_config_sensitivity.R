@@ -6,12 +6,10 @@ source("tools/R/collect_data_paths.R")
 grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
 plant_constants_path <- "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
 config_dir <- "data/scenarios/sensitivity_soil_litter/config"
-soil_microbial_config_path <- "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml"
 
 required_inputs <- c(
   grid_definition_path,
-  plant_constants_path,
-  soil_microbial_config_path
+  plant_constants_path
 )
 purrr::walk(required_inputs, \(path) {
   if (!file.exists(path)) {
@@ -101,24 +99,12 @@ build_config(
   animal = animal_config,
   path = config_dir
 )
-# Copy over soil microbial config that does not change across scenarios
-copy_ok <- file.copy(
-  soil_microbial_config_path,
-  config_dir,
-  overwrite = TRUE
-)
-if (!copy_ok) {
-  stop(
-    "soil_microbial_groups.toml failed to copy to sensitivity config directory."
-  )
-}
 
 expected_config_files <- c(
   "ve_run.toml",
   "core_config.toml",
   "plants_config.toml",
-  "animal_config.toml",
-  "soil_microbial_groups.toml"
+  "animal_config.toml"
 )
 missing_config_files <- setdiff(expected_config_files, list.files(config_dir))
 if (length(missing_config_files) > 0) {
