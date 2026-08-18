@@ -28,11 +28,10 @@ it out, load the functions:
 
 ```r
 # load dependencies
-box::use(tools/R/convert_array_to_nc[...])
-box::use(tools/R/get_data_variables[...])
+box::use(tools/R/R/get_data_variables[...])
 
 # load the actual function to derive variables
-box::use(tools/R/get_derived_variables[...])
+box::use(tools/R/R/get_derived_variables[...])
 ```
 
 We are using `box::use()` in place of `source()` to load a function, because
@@ -40,7 +39,7 @@ the functions have been documented in Roxygen2 formats that can be viewed
 using `box::help(get_derived_variables)`.
 
 We expect you to usually do
-`get_derived_variables(<loaded netCDF arrays>, <loaded full model configuration TOML>)`
-, which returns a list of derived-variable arrays.
-See `box::help(get_derived_variables)` for a specific example using the
-`maliau_2` scenario.
+`get_derived_variables(<path to model_data.zarr>, <path to compiled configuration TOML>)`,
+which returns a list of derived-variable arrays. See
+`box::help(get_derived_variables)` for a specific example using the `maliau_2`
+scenario.

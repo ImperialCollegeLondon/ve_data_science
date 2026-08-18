@@ -5,23 +5,26 @@ on:
   push:
     branches: [main]
     paths:
-      - "tools/R/**"
-      - "tools/python/**"
-      - "tests/testthat/**"
+      - "tools/R/R/**"
+      - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
   pull_request:
     paths:
-      - "tools/R/**"
-      - "tools/python/**"
-      - "tests/testthat/**"
+      - "tools/R/R/**"
+      - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
+
+concurrency:
+  group:
+    ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
@@ -29,66 +32,38 @@ jobs:
           r-version: "release"
           use-public-rspm: true # faster binary package installs
 
-      # --- Python: uv (preferred, used when uv.lock is present) ---
-      - name: Detect Python package manager
-        id: pkg-manager
-        run:
-          echo "use_uv=$(test -f uv.lock && echo true || echo false)" >>
-          "$GITHUB_OUTPUT"
-
+      # --- Python: uv ---
       - name: Set up uv
-        if: steps.pkg-manager.outputs.use_uv == 'true'
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
+          enable-cache: true
 
-      - name: Install Python dependencies (uv)
-        if: steps.pkg-manager.outputs.use_uv == 'true'
-        run: uv sync
-
-      # --- Python: Poetry (fallback while PR #384 is not yet merged) ---
-      - name: Set up Python
-        if: steps.pkg-manager.outputs.use_uv == 'false'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install Python dependencies (Poetry)
-        if: steps.pkg-manager.outputs.use_uv == 'false'
-        run: |
-          pipx install poetry
-          poetry install --no-interaction
-
-      # virtual_ecosystem cannot be added to pyproject.toml under Poetry because
-      # rasterio's cligj dependency requires click <8 while virtual_ecosystem
-      # requires click >=8 (via dask). Once the uv migration (PR #384) is merged,
-      # remove these two steps and instead run:
-      #   uv add virtual-ecosystem
-      # uv's resolver handles the conflict via its more permissive dependency model.
-      - name: Install virtual_ecosystem (uv)
-        if: steps.pkg-manager.outputs.use_uv == 'true'
-        run: |
-          if grep -q "virtual.ecosystem" pyproject.toml; then
-            echo "virtual-ecosystem found in pyproject.toml — installed via uv sync, nothing to do."
-          else
-            echo "::warning::virtual-ecosystem is not in pyproject.toml. After the uv migration, run 'uv add virtual-ecosystem' and remove this step."
-            uv pip install virtual-ecosystem
-          fi
-
-      - name: Install virtual_ecosystem (Poetry)
-        if: steps.pkg-manager.outputs.use_uv == 'false'
-        run: poetry run pip install virtual-ecosystem
+      - name: Install Python dependencies
+        run: uv sync --frozen
 
       # --- System libraries required by R packages ---
       - name: Install system dependencies
-        run: sudo apt-get install -y libudunits2-dev libnetcdf-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            libclang-dev \
+            libicu-dev \
+            libnetcdf-dev \
+            libssl-dev \
+            libudunits2-dev \
+            make
 
       # --- R dependencies ---
       - name: Install R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          cache: true
           packages: any::sessioninfo
           extra-packages: |
+            any::box
+            any::cli
             any::here
             any::testthat
             any::withr
@@ -99,24 +74,64 @@ jobs:
             any::RNetCDF
             any::dplyr
             any::stringr
-            any::cli
+            any::readr
+            any::tibble
+            any::lubridate
+            any::tidyr
+            any::rlang
+            any::jsonlite
+            any::R6
+            any::qs2
+            any::memoise
+
+      - name: Install pizzarr from r-universe
+        run: |
+          repo <- "https://zarr-developers.r-universe.dev"
+          available_version <- available.packages(repos = repo)[
+            "pizzarr", "Version"
+          ]
+          installed <- requireNamespace("pizzarr", quietly = TRUE)
+          installed_repo <- if (installed) {
+            packageDescription("pizzarr")$Repository
+          } else {
+            NA_character_
+          }
+          installed_version <- if (installed) {
+            as.character(packageVersion("pizzarr"))
+          } else {
+            NA_character_
+          }
+
+          if (
+            !identical(installed_repo, repo) ||
+              !identical(installed_version, available_version)
+          ) {
+            install.packages(
+              "pizzarr",
+              repos = repo,
+              Ncpus = max(1, parallel::detectCores() - 1)
+            )
+          }
+        shell: Rscript {0}
+
+      - name: Verify pizzarr backend
+        run: |
+          stopifnot(
+            identical(
+              packageDescription("pizzarr")$Repository,
+              "https://zarr-developers.r-universe.dev"
+            ),
+            length(pizzarr::pizzarr_compiled_features()) > 0
+          )
+        shell: Rscript {0}
 
       # --- Tests ---
       - name: Run R tests
         env:
-          # uv creates .venv in the repo root; Poetry path resolved at runtime below
-          RETICULATE_PYTHON:
-            ${{ steps.pkg-manager.outputs.use_uv == 'true' && '.venv/bin/python'
-            || '' }}
+          RETICULATE_PYTHON: ${{ github.workspace }}/.venv/bin/python
         run: |
-          if (Sys.getenv("RETICULATE_PYTHON") == "") {
-            # Poetry: resolve venv path at runtime
-            venv <- trimws(system("poetry env info --path", intern = TRUE))
-            Sys.setenv(RETICULATE_PYTHON = file.path(venv, "bin", "python"))
-          }
           testthat::test_dir(
-            here::here("tests/testthat"),
-            reporter = "progress",
+            here::here("tools/R/tests/testthat"),
             stop_on_failure = TRUE
           )
         shell: Rscript {0}

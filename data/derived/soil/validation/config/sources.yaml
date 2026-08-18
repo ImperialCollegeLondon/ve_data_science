@@ -230,6 +230,15 @@
       unit: ug cm^-3
       description: Plant available soil phosphorus content
   dedup_key: plot.code
+  temporal:
+    format: "%d/%m/%Y"
+    timezone: "Asia/Kuching"
+    same_for_all_rows:
+      start: 01/12/2011
+      end: 31/03/2014
+      precision: day
+      note:
+        Start and end dates specified in the Summary sheet of the original file.
 - doi: 10.5281/ZENODO.3247592
   decision: excluded
   reason: no_soil_data
@@ -311,6 +320,15 @@
         Percentage of soil C. Calculated in the CSV sheet as 'soil_C% *
         bulk_density'.
   dedup_key: Location
+  temporal:
+    format: "%d/%m/%Y"
+    timezone: "Asia/Kuching"
+    same_for_all_rows:
+      start: 01/01/2015
+      end: 31/12/2016
+      precision: day
+      note:
+        Start and end dates specified in the Summary sheet of the original file.
 - doi: 10.5281/ZENODO.3265745
   decision: included
   reason: ""
@@ -476,6 +494,15 @@
       unit: ug g^-1
       description: Total soil phosphorous concentration
   dedup_key: location_name
+  temporal:
+    format: "%d/%m/%Y"
+    timezone: "Asia/Kuching"
+    same_for_all_rows:
+      start: 01/10/2014
+      end: 01/09/2018
+      precision: day
+      note:
+        Start and end dates specified in the Summary sheet of the original file.
 - doi: 10.5281/ZENODO.3979295
   decision: excluded
   reason: no_soil_data

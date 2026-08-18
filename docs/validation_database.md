@@ -1,171 +1,297 @@
-# Building a database for (soil and litter) validation
+# Building a validation database for soil and litter
 
-<!-- markdownlint-disable MD046 MD031 -->
+This workflow uses YAML metadata to read, harmonise, unit-convert, and combine
+multiple source datasets into one validation database (Parquet).
 
-!!! IMPORTANT
+## Repository paths used by default
 
-    This is a draft document. Most of the workflow below is intended for the
-    soil and litter modules.
-
-Here we use a config-driven pipeline to read, wrangle, unit-convert, and
-combine multiple datasets into a single master file, hereafter referred to as
-the "validation database". We are not aiming for a full database backend, instead
-the main goal is to avoid having to write many custom codes that each only work
-for one dataset. The idea to run a single script to build the database, while YAML
-config metadata handles all dataset-specific idiosyncracies.
-
-The folder structure looks like this:
+Run commands from the repository root.
 
 ```text
-data/derived/soil
-└── validation
-    ├── config
-    │   ├── sources.yaml  # metadata about each dataset
-    │   ├── derived_variables.yaml   # derived variables and units
-    │   └── unit_conversions.csv   # unit conversion table
-    └── database
-        └── ...  # a master database in the .parquet format (.csv also possible)
-tools/R
-└── valdb.R
-    ├── add_schema()                 # function to add dataset metadata
-    ├── build_validation_database()  # main function to build database
-    └── log_dataset()                # function to screen datasets and autofill metadata
+data/primary/soil/<author>_<year>/
+├── <data sheet>.csv            # source data, converted manually
+└── locations.csv               # SAFE Locations sheet, converted manually
+data/derived/soil/validation/
+├── config/
+│   ├── sources.yaml            # screening log and dataset schema entries
+│   ├── derived_variables.toml  # non-VE canonical variables (optional)
+│   └── unit_conversions.csv    # unit_from/unit_to conversion rules
+└── database/                   # output Parquet dataset
+tools/R/R/valdb.R               # workflow functions
 ```
 
-I have built the pipeline in two parts:
+## How to load the functions
 
-1. data screening
-2. data entering
+These functions are written to work with both `box::use()` and `source()`.
 
-Everything happens in `R` for now.
+With `box::use()`:
 
-## Data screening workflow
+```r
+box::use(tools/R/R/valdb)
+```
 
-The goal of this step is to log your decision whether to include or exclude a
-dataset that you have come across (plus notes) into a interactive table that
-guides data entering later.
+With `source()`:
 
-1. Search for a dataset as per your routine (e.g., Google)
-2. Obtain the DOI to the dataset
-3. Log the dataset. The following code will bring up an interactive session:
+```r
+source("tools/R/R/valdb.R")
+```
 
-   ```r
-   box::use(tools/R/valdb)
-   # box::help(valdb$log_dataset)
-   valdb$log_dataset()
-   ```
+After `box::use()`, call exported functions as `valdb$function_name()`.
+After `source()`, call them as `function_name()`.
 
-4. After filling up the questions, a YAML config or metadata file will be saved
-   to `data/derived/soil/validation/config/sources.yaml` (currently this is
-   hard-coded to the soil folder because I do not know if anyone would use it
-   outside of soil). An example YAML config or metadata looks like this:
-   ```yaml
-   doi: 10.5281/ZENODO.2024580
-   decision: included
-   reason: ""
-   notes: Contains soil nutrients, moisture, pH, bulk density etc.
-   logged_at: "2026-05-21"
-   metadata:
-     title: Landuse change and species invasion
-     author:
-       Döbert, Timm and Webber, Bruce L. and Sugau, John B. and Dickinson,
-       Katherine J. M. and Didham, Raphael K.
-     year: "2019"
-     journal: .na.character
-     publisher: Zenodo
-     url: https://zenodo.org/record/2024580
-     keywords:
-       plant diversity, above-ground biomass, plant functional traits, biological
-       invasions, exotic plants, phylogenetic diversity, soil nutrients
-   ```
-5. Repeat the steps above until you've finished searching and screening for
-   datasets.
-6. Build a table from these YAML metadata to view the screened datasets and your
-   decisions about them.
-   I opted to write a Quarto report with additional notes, and then include an
-   interactive table at the end of the html report. My report is saved in
-   `analysis/soil/validation/safe_database_screen/dataset_screening.qmd`.
+## Workflow overview
 
-You have now completed the data screening phase and can proceed to entering data
-that you've decided to include for validation.
+1. Download the source dataset and convert it to CSV.
+2. Screen candidate datasets and record inclusion decisions.
+3. Add schema fields to included datasets in `sources.yaml`.
+4. Fill schema manually (file path, variable mapping, units, keys).
+5. Build the harmonised validation database.
+6. Combine the validation database with VE outputs.
 
-## Data entering workflow
+## 1) Download the dataset and convert it to CSV
 
-This stage begins by adding more information to the **included** dataset's YAML
-config, and ends with building a single database for validation. The editing of
-YAML configs is to tell the single R script how to harmonise each dataset. (As
-these YAML configs act a bit like code instructions, I recommend to treat
-them like codes and commit to GitHub, although they are stored under the
-`data/derived` directory.)
+Download the dataset to `data/primary/<module>/<author>_<year>`. Note that the
+soil folder is used as an example throughout this page, and that
+`author_year` is a folder naming convention. If there are conflicts, then the
+next folder should be named `author_year_2`, and so on.
 
-1. Using the report's table as a tool, revisit the screened datasets to be
-   included (e.g., by visiting its DOI link).
-2. Download the dataset to `data/primary/soil/<author>_<year>`. Note that I am
-   again using the soil folder as an example, and I have opted a `author_year`
-   folder naming convention. If there are conflicts, then the next folder should
-   be named `author_year_2` etc. We will work with CSV files. If the published
-   dataset is in other formats (e.g., Excel or zip), then manually convert the
-   desired data sheet into a CSV file. I opted not to accommodate for multiple
-   data formats because the cost of manual conversion is relatively minor even
-   in the long run.
-3. Add the dataset's schema, which tells the build script how to harmonise this
-   dataset. For example:
-   ```r
-   valdb$add_schema(
-     "10-5281-ZENODO-2024580.yaml",
-     config_dir = "data/derived/soil/validation/config/sources"
-   )
-   ```
-   This will append some template YAML sections to the dataset's config file,
-   which you have created during the data screening stage.
-4. Manually add and edit the schema. An example schema looks like this:
-   ```yaml
-   source_id: dobert_2019
-   data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
-   skip_rows: 9
-   variables:
-      soilN:
-         var_canonical: total_soil_n_per_volume
-         unit: mg cm^-3
-         description: Total soil nitrogen content
-      soilP:
-         var_canonical: dissolved_phosphorus
-         unit: ug cm^-3
-         description: Plant available soil phosphorus content
-   dedup_key:
-      - plot.code
-   ```
-   In this example, I assigned the dataset a `source_id` of `dobert_2019`
-   following the author-year convention. The `data_file` entry specifies where
-   the csv primary data have been stored. It informs the R script to skip 9 rows
-   in the original csv, and then read data from the variable columns named
-   `soilN` and `soilP`, as well as the unique sample ID from `plot.code`.
-5. The next important step is to set up the unit conversion. For each variable,
-   the metadata `var_canonical` tells the R script which VE data variable that
-   it should be mapped to; this also tells it about the target unit under the
-   hood, which is stored in an imported
-   [TOML config from VE](https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml).
-   When we key in the unit of measurement of the original variable in `unit`,
-   the R script will compare `unit` to the canonical target unit and do the
-   conversion based on a curated table in
-   `data/derived/soil/validation/config/unit_conversions.csv`. Sometimes the
-   original variable do not map 1:1 to any VE data variables (e.g., **total**
-   soil nitrogen). This requires another curated list of so-called derived
-   variables (a.k.a. emergent variables) in a similar TOML file to that of VE's
-   in `data/derived/soil/validation/config/derived_variables.toml`.
-6. Once you have added the schema for all datasets to be included, simply run
-   ```r
-   valdb$build_data_variables_table()
-   ```
-   once in R to (re)build the validation database.
+We work with CSV files. If the published dataset is in another format (for
+example Excel or zip), then manually convert the desired data sheet into a CSV
+file. We opted not to accommodate multiple data formats because the cost of
+manual conversion is relatively minor even in the long run.
 
-## Regular metadata curation
+### Also export the `Locations` sheet
 
-- Update VE data variables table when there is a change upstream
-  ```r
-  valdb$build_data_variables_table()
-  ```
-- Add new unit conversion when there is a new pair of units, by editing
+Datasets curated to the SAFE standard carry a second sheet named `Locations`,
+holding the spatial coordinates of each sampling location. Export that sheet
+too, as `locations.csv`, into the same folder as the data CSV.
+
+A folder therefore usually ends up looking like this:
+
+```text
+data/primary/soil/dobert_2019/
+├── template_Doebert.xlsx           # the file as downloaded
+├── DoebertTF_SAFE_PlotData.csv     # the data sheet, converted manually
+└── locations.csv                   # the Locations sheet, converted manually
+```
+
+`build_validation_database()` picks up `locations.csv` automatically, so no
+configuration is needed for datasets that follow this convention. See
+[Spatial coordinates](#spatial-coordinates) for datasets that do not.
+
+## 2) Data screening
+
+Use this stage to log whether a dataset is included or excluded.
+
+```r
+box::use(tools/R/R/valdb)
+valdb$log_dataset()
+```
+
+By default, `log_dataset()` appends one record to
+`data/derived/soil/validation/config/sources.yaml`.
+Each record includes DOI metadata plus fields such as `decision`, `reason`, and
+`notes`.
+
+Assumption: DOI metadata can be resolved via Crossref (`rcrossref::cr_cn()`).
+
+## 3) Add schema template for one included dataset
+
+`add_schema()` modifies a record inside `sources.yaml` by DOI and appends schema
+fields required by the build step.
+
+```r
+valdb$add_schema(
+  source_yaml = "data/derived/soil/validation/config/sources.yaml",
+  doi = "10.5281/ZENODO.2024580"
+)
+```
+
+This opens the YAML file for manual editing.
+
+## 4) Complete schema fields manually
+
+For each included dataset, fill at least:
+
+- `source_id` (e.g. `dobert_2019`)
+- `data_file` (path to the CSV file)
+- `skip_rows`
+- `variables` (original name, canonical name, original unit)
+- `dedup_key`
+
+Example:
+
+```yaml
+source_id: dobert_2019
+data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
+skip_rows: 9
+variables:
+  soilN:
+    var_canonical: total_soil_n_per_volume
+    unit: mg cm^-3
+    description: Total soil nitrogen content
+  soilP:
+    var_canonical: dissolved_phosphorus
+    unit: ug cm^-3
+    description: Plant available soil phosphorus content
+dedup_key:
+  - plot.code
+```
+
+Assumptions and expectations:
+
+- Input files are CSV (`readr::read_csv()` is used internally).
+- `var_canonical` must exist in either VE `data_variables.toml` or
+  `config/derived_variables.toml`.
+- Any required `unit_from -> unit_to` pair must exist in
+  `config/unit_conversions.csv`.
+
+### Spatial coordinates
+
+The build adds four columns to every observation: `latitude`, `longitude`,
+`location_type` and `coordinate_source`. Coordinates are always decimal
+degrees (WGS84).
+
+Datasets that follow the SAFE convention above need **no configuration at
+all**: the build reads `locations.csv` from the same folder as `data_file`,
+and matches its `Location name` column against the dataset's `dedup_key`.
+
+`add_schema()` writes an optional `coordinates` block for the datasets that
+differ. Every entry is optional, and entries left as `.na` are ignored, so
+delete the ones you do not need, or delete the whole block:
+
+```yaml
+coordinates:
+  # where the coordinates live
+  # default: locations.csv next to data_file
+  from_file: data/primary/soil/smith_2022/plots.csv
+  # column in data_file holding the location name
+  # default: the dedup_key, which must then be a single column
+  match_data_column: site
+  # column in the locations file holding the location name
+  # default: Location name
+  match_location_column: plot_code
+  # coordinate columns in the locations file
+  # defaults: Latitude and Longitude
+  latitude_column: lat_dd
+  longitude_column: lon_dd
+```
+
+When a source gives only one blanket location for every row, for example a
+study site named in the paper but never pinned down per sample, use
+`same_for_all_rows` **instead of** the entries above:
+
+```yaml
+coordinates:
+  same_for_all_rows:
+    latitude: 4.7422
+    longitude: 116.9678
+    note: "Paper states 'Maliau Basin Conservation Area' only"
+```
+
+`coordinate_source` records which of these routes supplied each row, and takes
+one of three values:
+
+| Value | Meaning |
+| --- | --- |
+| `locations_file` | Looked up from a locations file |
+| `same_for_all_rows` | One blanket coordinate for the whole dataset |
+| `missing` | No coordinates available; latitude and longitude are `NA` |
+
+`location_type` carries the SAFE `Type` column verbatim, for example `POINT`
+or `Carbon Plot`. It is useful for telling a precise GPS fix apart from a
+plot-level location. It is `NA` when the locations file has no `Type` column,
+and `"whole dataset"` under `same_for_all_rows`.
+
+The build stops with an error if:
+
+- a locations file has duplicated location names, because that would silently
+  multiply the number of observations;
+- any coordinate falls outside the valid range, which usually means the
+  latitude and longitude columns are swapped or are in a projected coordinate
+  system;
+- `dedup_key` has more than one column and `match_data_column` was not given,
+  because the location column is then ambiguous;
+- `same_for_all_rows` is used without both `latitude` and `longitude`.
+
+It warns, but continues, when the locations file is absent altogether, or when
+some rows match no coordinates. Those rows get `NA` coordinates and a
+`coordinate_source` of `missing`.
+
+Sources giving northing/easting rather than decimal degrees are not yet
+supported; they would need an EPSG code in the schema and a reprojection step.
+
+## 5) Build the validation database
+
+Run:
+
+```r
+valdb$build_validation_database()
+```
+
+Default behavior:
+
+- Reads conversion rules from
   `data/derived/soil/validation/config/unit_conversions.csv`
-- Add new derived or emergent variables not defined in VE, by editing
-  `data/derived/soil/validation/config/derived_variables.toml`
+- Builds canonical variable metadata from VE + local derived variables
+- Reads dataset schemas from `data/derived/soil/validation/config/sources.yaml`
+- Attaches spatial coordinates, by default from the `locations.csv` sitting
+  next to each `data_file`
+- Writes Parquet output to `data/derived/soil/validation/database`
+
+Only sources that have a `source_id` are built, so screening records that were
+never given a schema are ignored.
+
+## 6) Combine the validation database with VE outputs
+
+Use
+[analysis/soil/validation/combine_validation_database.R](analysis/soil/validation/combine_validation_database.R)
+as a reference workflow.
+
+```r
+library(arrow)
+box::use(tools/R/R/valdb)
+
+validation_database <-
+  open_dataset("data/derived/soil/validation/database") |>
+  dplyr::collect()
+
+combined_database <-
+  valdb$join_ve_outputs(
+    validation_database,
+    zarr_path = "data/scenarios/maliau/maliau_2/out/model_data.zarr",
+    config_path = "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
+  )
+
+combined_database |>
+  dplyr::group_by(dataset) |>
+  write_dataset("data/derived/soil/validation/database_combined", format = "parquet")
+```
+
+`join_ve_outputs()` takes the validation database and VE scenario outputs (from
+a Zarr store), then join the spatiotemporally aggregated VE outputs for each
+row. It reads direct and derived VE variables, classifies each observation by
+spatial/temporal overlap with the scenario bounds, and then returns three added
+columns: the lower quantile `value_VE_q05`, median `value_VE_q50`, and the upper
+quantile `value_VE_q95`.
+
+Current implementation supports:
+
+- full spatial and temporal matching (`spatial_within_temporal_within`)
+- temporal-only matching for observations outside VE spatial bounds
+  (`spatial_outside_temporal_within`)
+
+Other spatiotemporal classes currently return `NA` quantiles with a warning.
+
+## Ongoing metadata curation
+
+When new unit conversions are needed, edit:
+`data/derived/soil/validation/config/unit_conversions.csv`
+
+When new derived variables are needed, edit:
+`data/derived/soil/validation/config/derived_variables.toml`
+
+## Notes for contributors
+
+- Keep schema edits small and commit frequently.
+- Prefer explicit relative paths from repo root.
