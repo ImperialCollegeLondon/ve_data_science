@@ -74,7 +74,7 @@ plants_config <- list(
 
 # animal config
 animal_config <- list(
-  functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level1.csv",
+  functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv",
   cohort_data_export = list(enabled = FALSE)
 )
 
