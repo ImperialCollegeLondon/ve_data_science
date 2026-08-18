@@ -1,27 +1,44 @@
-common_config_paths = ["path1", "path2"]
-site_directory = "/rds/projects/blah/dir"
+common_config_paths = [
+    "config/data_config.toml",
+    'config/abiotic_simple_config.toml',
+    'config/animal_config.toml',
+    'config/hydrology_config.toml',
+    'config/litter_config.toml',
+    'config/plant_config.toml',
+    'config/soil_config.toml',
+]
+site_directory = "/rds/general/user/mtnichol/home/ve_data_science/ve_example"
 
 [[jobs]]
-config_paths = ["path3"]
-name = "scenario_one"
+config_paths = []
+name = "run_0001" 
 repeats = 1
 
-[jobs.config]
-"soil.constants.groundwater_storage" = 0.2
+[jobs.config.hydrology.constants]
+saturated_hydraulic_conductivity = 1e-06
+soil_moisture_saturation = 0.65
+groundwater_capacity = 1066.0
+bypass_flow_coefficient = 2.0
 
 [[jobs]]
-config_paths = ["path4"]
-name = "scenario_two"
+config_paths = []
+name = "run_0002"
+repeats = 1
+
+[jobs.config.hydrology.constants]
+saturated_hydraulic_conductivity = 1e-06
+soil_moisture_saturation = 0.65
+groundwater_capacity = 200.0
+bypass_flow_coefficient = 2.0
+
+[[jobs]]
+config_paths = []
+name = "run_0003"
 repeats = 2
 
-[jobs.config]
-"soil.constants.groundwater_storage" = 0.2
+[jobs.config.hydrology.constants]
+saturated_hydraulic_conductivity = 3.4e-5
+soil_moisture_saturation = 0.65
+groundwater_capacity = 200.0
+bypass_flow_coefficient = 2.0
 
-[[jobs]]
-config_paths = ["path3"]
-name = "scenario_three"
-repeats = 3
-
-[jobs.config]
-"soil.constants.groundwater_storage" = 0.5
-"soil.constants.soil_porosity" = 0.5

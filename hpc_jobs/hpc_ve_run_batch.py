@@ -1,26 +1,30 @@
 """Python script to run one array job from a batch job array specification."""
 
 import os
-import shutil
 import sys
 from pathlib import Path
 
-from hpc_ve_run_job_spec import load_job_spec
+from hpc_jobs.hpc_ve_job_spec import load_job_spec
 from virtual_ecosystem.main import ve_run
 
 # Get the command line arguments
 batch_file = Path(sys.argv[1])
-job_array_index = int(sys.argv[1])
+job_array_index = int(sys.argv[2])
+output_dir = Path(sys.argv[3])
 
 # Load batch job specification
 batch_job_spec = load_job_spec(batch_file)
 
 # 1. Stage the site directory to the runner location to avoid multiple reading problem
-#    This could also be done from the shell script but the TOML is easier to parse in
-#    here
-local_dir = os.getcwd()
-site_dir = shutil.copytree(batch_job_spec.site_directory, local_dir)
-os.chdir(site_dir)
+#    This could also be done from the shell script but the TOML is easier to parse 
+# local_dir = os.getcwd() 
+# site_dir = shutil.copytree(batch_job_spec.site_directory, local_dir)
+
+# Skip staging during local debug:
+# input files are only read not modified so should be safe to read from the original location.
+# copying could induce filesystem pressure and slow down the job. (review when running with larger datasets)
+os.chdir(batch_job_spec.site_directory)
+print(f"[DEBUG] cwd after chdir: {os.getcwd()}", flush=True)
 
 # 2. Extract the job from the jobs spec by index
 job = batch_job_spec.get_job(job_array_index)
@@ -29,21 +33,29 @@ job = batch_job_spec.get_job(job_array_index)
 config_paths = [*batch_job_spec.common_config_paths, *job.config_paths]
 cli_config = job.config
 
-# 4. Setup output directory alongside batch file using the specified job name. Repeat
-#    runs of the same job are nested as run_1, etc within the job name
-if job.this_repeat is None:
-    out_dir = batch_file.parent / job.name
-else:
-    out_dir = batch_file.parent / job.name / f"run_{job.this_repeat}"
+print("[DEBUG] config_paths:", flush=True)
+for p in config_paths:
+    resolved = Path(p).resolve()
+    print(f"  {p}  ->  {resolved}  exists={resolved.exists()}", flush=True)
 
-os.makedirs(out_dir)
+# The PBS wrapper creates one output directory for each array sub-job.
+# This tidy approach will scale up to the 5k+ jobs expected.
+if not output_dir.is_dir():
+    raise NotADirectoryError(f"Sub-job output directory not found: {output_dir}")
+print(
+    f"[DEBUG] output_dir: {output_dir.resolve()}  exists={output_dir.exists()}",
+    flush=True,
+)
 
 # Update the config to use that as the output directory.
-cli_config["core.data_output_options.out_path"] = out_dir
+cli_config.setdefault("core", {})
+cli_config["core"].setdefault("data_output_options", {})
+cli_config["core"]["data_output_options"]["out_path"] = str(output_dir)
+print(f"[DEBUG] cli_config: {cli_config}", flush=True)
 
 # 5. Start the run
 ve_run(
-    config_paths=config_paths,
+    cfg_paths=config_paths,
     cli_config=cli_config,
-    log_file=out_dir / f"{job.name}.log",
+    logfile=output_dir / "ve.log",
 )

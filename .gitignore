@@ -591,3 +591,6 @@ analysis/**/*.html
 
 # AI files
 .posit/assistant/
+
+# Example directory
+ve_example/
