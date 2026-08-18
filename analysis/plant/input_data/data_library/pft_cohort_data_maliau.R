@@ -2,7 +2,15 @@
 #| title: pft_cohort_data_maliau
 #|
 #| description: |
-#|     This script x.
+#|   Creates plot-level and regional mean plant functional type (PFT) cohort
+#|   distributions from the 2011 SAFE Project Old Growth (OG1, OG2, and OG3)
+#|   tree census plots at Maliau. Tree stems are assigned to PFTs, grouped into
+#|   100 mm DBH classes, and converted to cohort densities for use as source
+#|   data in Virtual Ecosystem plant initialisation workflows.
+#|
+#|   The plot-level output retains census-plot coordinates for downstream
+#|   spatial prediction scripts. The regional output is the mean density across
+#|   the sampled OG plots and is expressed in stems per hectare.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -34,37 +42,131 @@
 #|     description: |
 #|       A CSV file listing T model parameters by pft.
 #|   - name: safe_plot_coordinates.geojson
-#|     path: data/primary
+#|     path: data/primary/plant/safe_plot_coordinates
 #|     description: |
-#|       A geojson file.
+#|       SAFE Project sampling-plot coordinates.
 #|
 #| output_files:
-#|   - name: output.csv
-#|     path: data/path
+#|   - name: pft_cohort_data_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       Example.
+#|       Plot-level PFT cohort counts and densities for the 27 sampled Maliau
+#|       OG census plots.
 #|     variables:
-#|       - name: example
+#|       - name: plot_id
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Example.
+#|           SAFE Project census plot identifier.
+#|       - name: block
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Old Growth census block identifier.
+#|       - name: plot
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Plot identifier within the census block.
+#|       - name: lon_wgs84
+#|         type: numeric
+#|         units: degrees_east
+#|         description: |
+#|           Census plot longitude in WGS84.
+#|       - name: lat_wgs84
+#|         type: numeric
+#|         units: degrees_north
+#|         description: |
+#|           Census plot latitude in WGS84.
+#|       - name: x_utm32650
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Census plot easting in UTM zone 50N (EPSG:32650).
+#|       - name: y_utm32650
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Census plot northing in UTM zone 50N (EPSG:32650).
+#|       - name: plant_cohorts_pft
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Plant functional type assigned to the cohort.
+#|       - name: plant_cohorts_dbh
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Midpoint diameter at breast height of the 100 mm cohort class.
+#|       - name: plant_cohorts_n
+#|         type: integer
+#|         units: stems
+#|         description: |
+#|           Number of recorded stems in the 25 by 25 m census plot.
+#|       - name: plant_cohorts_n_per_ha
+#|         type: numeric
+#|         units: stems ha-1
+#|         description: |
+#|           Cohort stem density, scaled from the census plot to one hectare.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
-#|         assumptions: ""
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: |
+#|           Each retained census record represents one living tree stem. Trees
+#|           with missing DBH are excluded, and PFTs missing from the lookup are
+#|           assigned from the measured height and PFT maximum-height thresholds.
+#|   - name: pft_cohort_data_maliau_mean_per_ha.csv
+#|     path: data/derived/plant/input_data/data_library
+#|     description: |
+#|       Mean PFT cohort stem density across all sampled Maliau OG census plots.
+#|     variables:
+#|       - name: plant_cohorts_n_per_ha
+#|         type: numeric
+#|         units: stems ha-1
+#|         description: |
+#|           Mean stem density for each PFT and DBH cohort across the sampled
+#|           OG plots.
+#|       - name: plant_cohorts_pft
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Plant functional type assigned to the cohort.
+#|       - name: plant_cohorts_dbh
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Midpoint diameter at breast height of the 100 mm cohort class.
+#|         references:
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: |
+#|           The 27 sampled 25 by 25 m plots represent the Maliau old-growth
+#|           forest community. Cohort densities are calculated from individual
+#|           stems and do not include trees below the census DBH threshold.
 #|
 #| package_dependencies:
-#|   -
+#|   - readxl
+#|   - dplyr
+#|   - sf
 #|
 #| usage_notes: |
-#|   Notes.
+#|   Run from this script's directory because input and output paths are
+#|   relative. The script currently uses 2011, the earliest census year, and
+#|   includes only tree records in the OG1, OG2, and OG3 blocks. It writes
+#|   library inputs only; scenario-specific spatial prediction should be
+#|   performed by a separate script.
 #| ---
 
 # Notes
