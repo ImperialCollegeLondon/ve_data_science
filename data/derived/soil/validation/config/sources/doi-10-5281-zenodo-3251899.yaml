@@ -1,6 +1,6 @@
 schema_version: 1
-record_id: doi-10-5281-zenodo-3258117
-doi: 10.5281/zenodo.3258117
+record_id: doi-10-5281-zenodo-3251899
+doi: 10.5281/zenodo.3251899
 screening:
   decision: proceed
   reason: relevant_validation_data
@@ -23,7 +23,7 @@ metadata:
   year: 2019
   journal: ~
   publisher: Zenodo
-  url: https://zenodo.org/record/3258117
+  url: https://zenodo.org/record/3251899
   keywords:
     - HTMF
     - soil
