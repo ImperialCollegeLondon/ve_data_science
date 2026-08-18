@@ -1,7 +1,7 @@
 library(tidyverse)
 library(toml)
-source("tools/R/build_config.R")
-source("tools/R/collect_data_paths.R")
+source("tools/R/R/build_config.R")
+source("tools/R/R/collect_data_paths.R")
 
 grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
 plant_constants_path <- "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
@@ -11,7 +11,7 @@ required_inputs <- c(
   grid_definition_path,
   plant_constants_path
 )
-purrr::walk(required_inputs, \(path) {
+walk(required_inputs, \(path) {
   if (!file.exists(path)) {
     stop(sprintf("Required file does not exist: %s", path))
   }
