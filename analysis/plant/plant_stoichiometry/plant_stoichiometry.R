@@ -753,11 +753,19 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # seed dry weight of Dipterocarpus tempehes from Nakagawa and Nakashizuka (2004)
 # (DOI https://doi.org/10.1079/SSR2004181)
 
+seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
+seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100
+
 mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98 (see Ichie)
 mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100
 
-seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
-seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100
+# Now deduct the seed C mass from mature fruit C mass (assuming 1 seed per fruit)
+# Also note that the C% by Ichie et al. 2005 for mature fruit is assumed to be
+# an average for the entire fruit (including seeds)
+mature_fruit_C_mass <- mature_fruit_C_mass - seed_C_mass
+
+# Add seeds_per_fruit (assuming 1 seed per fruit for dipterocarps)
+seeds_per_fruit <- 1
 
 # Add seed lignin content (the fraction of reproductive tissue carbon that is
 # captured in lignin)
@@ -779,6 +787,7 @@ lignin_C_of_seed_C <- seed_lignin_C_g / seed_C_g
 
 summary$mature_fruit_C_mass <- mature_fruit_C_mass
 summary$seed_C_mass <- seed_C_mass
+summary$seeds_per_fruit <- seeds_per_fruit
 summary$seed_lignin <- lignin_C_of_seed_C
 
 ################################################################################
@@ -875,6 +884,7 @@ summary <- summary[, c(
   "mature_fruit_CP",
   "mature_fruit_C_mass",
   "seed_C_mass",
+  "seeds_per_fruit",
   "seed_lignin",
   "flower_CN",
   "flower_CP",
@@ -898,12 +908,13 @@ colnames(summary) <- c(
   "leaf_turnover_c_n_ratio",
   "leaf_turnover_c_p_ratio",
   "senesced_leaf_lignin",
-  "plant_reproductive_tissue_turnover_c_n_ratio",
-  "plant_reproductive_tissue_turnover_c_p_ratio",
-  "mature_fruit_c_n_ratio",
-  "mature_fruit_c_p_ratio",
-  "mature_fruit_c_mass",
-  "carbon_mass_per_propagule",
+  "reproductive_organ_CN", # not used anymore but kept for now
+  "reproductive_organ_CP", # not used anymore but kept for now
+  "plant_reproductive_tissue_turnover_c_n_ratio", # old "mature_fruit_c_n_ratio"
+  "plant_reproductive_tissue_turnover_c_p_ratio", # old "mature_fruit_c_p_ratio"
+  "c_mass_fruit_flesh", # old "mature_fruit_c_mass"
+  "c_mass_per_fruit_seed", # old "carbon_mass_per_propagule"
+  "seeds_per_fruit",
   "plant_reproductive_tissue_lignin",
   "flower_c_n_ratio",
   "flower_c_p_ratio",

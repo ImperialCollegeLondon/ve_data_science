@@ -151,6 +151,10 @@ plant_pft_definitions_Maliau_10x10 <- subset(
 # foliage_c_n_ratio ADD from stoichiometry
 # foliage_c_p_ratio ADD from stoichiometry
 
+# c_mass_fruit_flesh ADD from stoichiometry
+# c_mass_per_fruit_seed ADD from stoichiometry
+# seeds_per_fruit ADD from stoichiometry
+
 # Add missing ones
 
 # m
@@ -177,6 +181,9 @@ plant_pft_definitions_Maliau_10x10$p_foliage_for_reproductive_tissue <- 0.073545
 # root_turnover_c_p_ratio
 # foliage_c_n_ratio
 # foliage_c_p_ratio
+# c_mass_fruit_flesh
+# c_mass_per_fruit_seed
+# seeds_per_fruit
 temp <- plant_stoichiometry[, c(
   "name",
   "deadwood_c_n_ratio",
@@ -188,7 +195,10 @@ temp <- plant_stoichiometry[, c(
   "root_turnover_c_n_ratio",
   "root_turnover_c_p_ratio",
   "foliage_c_n_ratio",
-  "foliage_c_p_ratio"
+  "foliage_c_p_ratio",
+  "c_mass_fruit_flesh",
+  "c_mass_per_fruit_seed",
+  "seeds_per_fruit"
 )]
 
 plant_pft_definitions_Maliau_10x10 <-
@@ -242,8 +252,6 @@ plant_constants_Maliau_10x10 <- subset(
 # plant_reproductive_tissue_lignin ADD from plant_stoichiometry
 # root_lignin ADD from plant_stoichiometry
 # root_exudates ADD from t_model_parameters
-# propagule_mass_portion ADD from reproductive_tissue_allocation
-# carbon_mass_per_propagule ADD from plant_stoichiometry
 
 # Add missing ones
 
@@ -274,15 +282,6 @@ plant_constants_Maliau_10x10$plant_reproductive_tissue_lignin <-
 # root_lignin
 plant_constants_Maliau_10x10$root_lignin <-
   unique(plant_stoichiometry$root_lignin)
-
-# propagule_mass_portion
-# Use propagule live organ carbon percentage (row 19; based on live organ estimates
-# in dipterocarp forest) from reproductive_tissue_allocation
-plant_constants_Maliau_10x10$propagule_mass_portion <- 0.773915715
-
-# carbon_mass_per_propagule
-plant_constants_Maliau_10x10$carbon_mass_per_propagule <-
-  unique(plant_stoichiometry$carbon_mass_per_propagule)
 
 # Write out summary of variable data types and units
 
