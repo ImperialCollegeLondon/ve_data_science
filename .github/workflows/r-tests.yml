@@ -84,6 +84,7 @@ jobs:
             any::qs2
             any::memoise
             any::shiny
+            any::yaml
 
       - name: Install pizzarr from r-universe
         run: |
