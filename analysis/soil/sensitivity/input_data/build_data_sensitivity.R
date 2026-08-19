@@ -56,9 +56,9 @@ source("tools/R/R/summarise_spatial.R")
 
 
 # constants and paths
-in_dir <- "data/scenarios/maliau/maliau_1/data/"
-out_dir <- "data/scenarios/sensitivity_soil_litter/data/"
-out_config_dir <- "data/scenarios/sensitivity_soil_litter/config"
+in_dir <- "data/scenarios/maliau/maliau_1/data"
+out_dir <- "data/sensitivity/soil_litter_inputs/data"
+out_config_dir <- "data/sensitivity/soil_litter_inputs/config"
 grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
 soil_input_path <- file.path(in_dir, "soil_maliau.nc")
 litter_input_path <- file.path(in_dir, "litter_maliau.nc")
@@ -69,7 +69,6 @@ plant_cohort_input_path <- file.path(
   in_dir,
   "plant_cohort_data_Maliau_50x50.csv"
 )
-soil_microbial_config_path <- "data/scenarios/maliau/maliau_1/config/soil_microbial_groups.toml"
 
 require_path <- function(path) {
   if (!file.exists(path)) {
@@ -84,8 +83,7 @@ required_inputs <- c(
   elevation_input_path,
   climate_input_path,
   plant_input_path,
-  plant_cohort_input_path,
-  soil_microbial_config_path
+  plant_cohort_input_path
 )
 purrr::walk(required_inputs, require_path)
 
