@@ -116,7 +116,7 @@ dat_maliau <- list(
 # get the names of soil and litter input variables
 vars_maliau <-
   dat_maliau |>
-  map(get_data_variables) |>
+  map(get_data_variables_nc) |>
   list_c()
 
 # get the range of soil and litter input variables
