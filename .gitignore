@@ -25,6 +25,7 @@ data/derived/litter/stock/litter_stock.csv
 analysis/troubleshoot/cnp_ratios/*png
 *.parquet
 data/derived/plant/csv_plant_input_data
+data/sensitivity/soil_litter_inputs
 
 # MkDocs build output
 site/
