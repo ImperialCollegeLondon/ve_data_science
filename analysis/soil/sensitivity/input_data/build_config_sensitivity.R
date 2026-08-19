@@ -5,7 +5,7 @@ source("tools/R/R/collect_data_paths.R")
 
 grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
 plant_constants_path <- "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
-config_dir <- "data/scenarios/sensitivity_soil_litter/config"
+config_dir <- "data/sensitivity/soil_litter_inputs/config"
 
 required_inputs <- c(
   grid_definition_path,
