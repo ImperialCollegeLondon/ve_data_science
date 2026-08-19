@@ -50,9 +50,9 @@ library(tidync)
 library(RNetCDF)
 library(toml)
 library(mirai)
-source("tools/R/convert_array_to_nc.R")
-source("tools/R/get_data_variables.R")
-source("tools/R/summarise_spatial.R")
+source("tools/R/R/convert_array.R")
+source("tools/R/R/get_ve_variables.R")
+source("tools/R/R/summarise_spatial.R")
 
 
 # constants and paths
