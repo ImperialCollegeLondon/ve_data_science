@@ -1,9 +1,10 @@
 #| ---
-#| title: Convert a list of input arrays to netCDF used by the Virtual Ecosystem
+#| title: Convert a list of input arrays to netCDF or Zarr for the Virtual Ecosystem
 #|
 #| description: |
-#|     Generate input data in netCDF format for the Virtual Ecosystem from a list
-#|     of arrays. In principle this function should work across modules.
+#|     Generate input data in netCDF or Zarr format for the Virtual Ecosystem
+#|     from a list of arrays. In principle these functions should work across
+#|     modules.
 #|
 #| virtual_ecosystem_module: All
 #|
@@ -17,6 +18,7 @@
 #|
 #| package_dependencies:
 #|     - RNetCDF
+#|     - pizzarr
 #|     - purrr
 #|
 #| usage_notes: See function documentation below.
@@ -97,4 +99,64 @@ convert_array_to_nc <- function(
   } else {
     ncout
   }
+}
+
+#' Convert a list of input arrays to Zarr used by the Virtual Ecosystem
+#'
+#' Generate input data in Zarr format for the Virtual Ecosystem from a list
+#' of arrays.
+#'
+#' @param array A *list* of arrays containing the input variables.
+#' @param filename Path to the Zarr output store.
+#' @param description Optional. A character string describing the data. If
+#'   supplied, it will be stored as a global attribute named `description`.
+#'
+#' @returns A Zarr store written to disk as per `filename`.
+#'
+#' @export
+#'
+convert_array_to_zarr <- function(
+  array,
+  filename,
+  description = NULL
+) {
+  # create a Zarr store
+  zarr_store <- pizzarr::zarr_create_group(filename, zarr_format = 2L)
+  # Note: currently this function stores the variables as outputs only
+  #       because it is intended for mock unit tests only;
+  #       in the future we will include options for inputs and init
+  output_store <- zarr_store$create_group("outputs")
+
+  # some dimension attributes
+  dims <-
+    lapply(array, dimnames) |>
+    purrr::flatten() |>
+    (\(x) split(x, names(x)))() |>
+    purrr::map(~ unique(unlist(.x)))
+
+  # fill the Zarr store with data variables
+  for (var in names(array)) {
+    var_store <- output_store$create_dataset(
+      var,
+      array[[var]],
+      shape = dim(array[[var]])
+    )
+    # store dimension names as attributes
+    # for Zarr V2 this is the only option
+    dimension_names <- names(dimnames(array[[var]]))
+    var_store$get_attrs()$set_item("_ARRAY_DIMENSIONS", dimension_names)
+  }
+
+  # fill the Zarr store with dimension variables
+  for (i in seq_along(dims)) {
+    output_store$create_dataset(
+      names(dims)[i],
+      dims[[i]],
+      shape = length(dims[[i]]),
+      dtype = "<U10"
+    )
+  }
+
+  # add global attributes
+  output_store$get_attrs()$set_item("description", description)
 }

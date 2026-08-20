@@ -29,6 +29,12 @@ output_files:
       What the output file contains and its significance, are they used in any other
       scripts?
 
+imported_files:
+  - name: Imported script title
+     path: Relative repository path to the imported file
+     description: |
+     Why the script is sourced or imported.
+
 package_dependencies:
   - math
 

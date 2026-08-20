@@ -24,7 +24,8 @@ description: |
       `[jobs.config]` section with parameter overrides corresponding to the
       sampled values.
 
-virtual_ecosystem_module: all
+virtual_ecosystem_module:
+    -All
 
 author:
   - Lelavathy

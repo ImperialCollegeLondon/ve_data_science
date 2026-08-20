@@ -77,20 +77,20 @@ requirements:
     - pathlib
 
   local_modules:
-    - tools.python.abiotic.job_config_tools
-    - tools.python.abiotic.sensitivity_tools
+    - ve_data_tools.job_config_tools
+    - ve_data_tools.sensitivity_tools
 
   notes: |
     `pyprojroot` is used to locate the repository root by searching for
-    `pyproject.toml`. The repository root is added to `sys.path` so that
-    the local `tools.python.abiotic` modules can be imported when the
-    script is executed directly.
+    `pyproject.toml`. The local Python source directory is added to
+    `sys.path` so that the `ve_data_tools` modules can be imported when
+    the script is executed directly.
 
     `sys` and `pathlib` are part of the Python standard library and do not
     require separate installation.
 
-    The `tools.python.abiotic.*` modules are part of the repository and do
-    not require separate installation.
+    The `ve_data_tools.*` modules are part of the repository and do not
+    require separate installation.
 
 usage_notes: |
   1. Define the parameters, parameter groups and sampling bounds in
@@ -139,14 +139,15 @@ import sys
 from pyprojroot import here
 
 project_root = here("pyproject.toml").parent
+python_source = project_root / "tools" / "python" / "src"
 
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+if str(python_source) not in sys.path:
+    sys.path.insert(0, str(python_source))
 
-from tools.python.abiotic.job_config_tools import (  # noqa: E402
+from ve_data_tools.job_config_tools import (  # noqa: E402
     generate_job_config,
 )
-from tools.python.abiotic.sensitivity_tools import (  # noqa: E402
+from ve_data_tools.sensitivity_tools import (  # noqa: E402
     generate_morris_samples,
     load_problem,
 )
