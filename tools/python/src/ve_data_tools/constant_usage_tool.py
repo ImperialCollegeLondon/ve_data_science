@@ -559,39 +559,74 @@ def _resolve_callee(script: jedi.Script, call: ast.Call) -> tuple[str, str]:
     return definition.full_name or "", definition.docstring() or ""
 
 
-def _first_paragraph(docstring: str) -> str:
-    r"""Extract summary prose from a longer docstring.
+def _extract_relevant_docstring_sections(docstring: str) -> str:
+    r"""Extract descriptive docstring content, including ``Args`` when present.
+
+    Jedi can prepend a signature line and return long docstrings with multiple
+    sections. For usage summaries, this helper keeps the descriptive prose and
+    the ``Args`` section because both provide useful call-site context, while
+    omitting sections such as ``Returns`` and ``Raises`` that are less relevant
+    to the constant-consumer inventory.
 
     Args:
-        docstring: Raw docstring text, possibly including signature and sections.
+        docstring: Raw docstring text returned by Jedi.
 
     Returns:
-        First descriptive paragraph after removing common argument/return
-        sections. Returns an empty string if no prose is available.
+        Cleaned text containing descriptive paragraphs and, when available, the
+        ``Args`` section. Returns an empty string when no relevant prose exists.
 
     """
     if not docstring:
         return ""
 
-    body = docstring
-    for section in ("\nArgs:", "\nReturns:", "\nRaises:", "\nTODO"):
-        index = body.find(section)
-        if index != -1:
-            body = body[:index]
-
-    paragraphs = [
-        paragraph.strip() for paragraph in body.split("\n\n") if paragraph.strip()
-    ]
-    if not paragraphs:
+    lines = docstring.strip().splitlines()
+    if not lines:
         return ""
 
-    # The first paragraph is the signature when jedi has prepended one.
-    if len(paragraphs) > 1 and paragraphs[0].startswith(
-        (f"{docstring.split('(')[0]}(", "def ")
+    first_line = lines[0].strip()
+    if first_line.startswith("def ") or (
+        "(" in first_line and ")" in first_line and not first_line.endswith(":")
     ):
-        return paragraphs[1]
+        lines = lines[1:]
+        while lines and not lines[0].strip():
+            lines = lines[1:]
 
-    return paragraphs[0]
+    description_lines: list[str] = []
+    args_lines: list[str] = []
+    in_args = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        if stripped in {"Args:", "Arguments:"}:
+            in_args = True
+            args_lines.append("Args:")
+            continue
+
+        if stripped in {
+            "Returns:",
+            "Yields:",
+            "Raises:",
+            "Examples:",
+            "Example:",
+            "Notes:",
+            "Todo:",
+            "TODO:",
+        }:
+            break
+
+        if in_args:
+            args_lines.append(line.rstrip())
+        else:
+            description_lines.append(line.rstrip())
+
+    description = "\n".join(description_lines).strip()
+    args_text = "\n".join(args_lines).strip()
+
+    if description and args_text:
+        return f"{description}\n\n{args_text}".strip()
+
+    return description or args_text
 
 
 def _classify_reference(
@@ -915,7 +950,7 @@ def get_constant_references(
                     if parent_scope is not None:
                         caller = parent_scope.full_name or ""
                         if caller and caller not in functions:
-                            functions[caller] = _first_paragraph(
+                            functions[caller] = _extract_relevant_docstring_sections(
                                 parent_scope.docstring() or ""
                             )
 
@@ -930,7 +965,9 @@ def get_constant_references(
                     consumer_docstring = classification.pop("consumer_docstring", "")
                     consumer = classification.get("consumer", "")
                     if consumer and consumer not in functions:
-                        functions[consumer] = _first_paragraph(consumer_docstring)
+                        functions[consumer] = _extract_relevant_docstring_sections(
+                            consumer_docstring
+                        )
 
                     try:
                         relative_reference = reference_path.relative_to(
