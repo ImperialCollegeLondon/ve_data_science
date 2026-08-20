@@ -816,6 +816,16 @@ def get_constant_references(
 ) -> dict[str, dict[str, Any]]:
     """Find and classify configuration constant references, then write TOML.
 
+    Flow:
+        1. Normalize input paths and initialize output and analysis context.
+        2. Build one Jedi project and shared AST/Jedi caches for reuse.
+        3. For each target module, discover ``Configuration`` subclasses and
+           collect annotated class attributes as candidate constants.
+        4. Resolve references for each constant, classify usage at each site,
+           and record caller/consumer docstring context in shared tables.
+        5. Assemble metadata, functions, and constants into the output
+           dictionary and write it to TOML.
+
     Args:
         target_paths: Path or paths to Python source files to analyze,
             relative to ``project_root`` unless absolute.
