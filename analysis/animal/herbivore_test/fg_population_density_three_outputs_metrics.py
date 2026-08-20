@@ -508,7 +508,7 @@ def main() -> None:
     cohort_files = {
         "elephant": data_dir / "animal_cohort_data_elephant.csv",
         "kancil": data_dir / "animal_cohort_data_kancil.csv",
-        "kancil_density": data_dir / "animal_cohort_data_kancil_density.csv",
+        "kancil_density": data_dir / "animal_cohort_data_kancildensity.csv",
     }
 
     # Grid settings shared by the three simulations.
