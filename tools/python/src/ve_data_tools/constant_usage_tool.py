@@ -65,7 +65,7 @@ import subprocess
 import sys
 import textwrap
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -105,15 +105,6 @@ class ConstantReference:
     forwarded_as: str = ""
     expression: str = ""
 
-    def to_dict(self) -> dict[str, Any]:
-        """Convert the reference record to a TOML-serializable mapping.
-
-        Returns:
-            Dictionary of dataclass fields and values.
-
-        """
-        return dict(self.__dict__)
-
 
 @dataclass
 class ConstantRecord:
@@ -147,17 +138,6 @@ class ConstantRecord:
     file: str
     line: int
     referenced_in: list[ConstantReference] = field(default_factory=list)
-
-    def to_dict(self) -> dict[str, Any]:
-        """Convert the constant record to a TOML-serializable mapping.
-
-        Returns:
-            Dictionary representation with nested reference entries converted.
-
-        """
-        data = {k: v for k, v in self.__dict__.items() if k != "referenced_in"}
-        data["referenced_in"] = [ref.to_dict() for ref in self.referenced_in]
-        return data
 
 
 def _git_commit(project_root: Path) -> str:
@@ -1004,7 +984,7 @@ def get_constant_references(
             "function_count": len(functions),
         },
         "functions": functions,
-        "constants": {key: record.to_dict() for key, record in records.items()},
+        "constants": {key: asdict(record) for key, record in records.items()},
     }
 
     if show_progress and progress_callback is None:
