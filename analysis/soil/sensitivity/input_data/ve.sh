@@ -10,9 +10,9 @@ set -euo pipefail
 # run from the submission directory (typically path/to/ve_data_science)
 cd "${PBS_O_WORKDIR}" || exit
 
-CONFIG_DIR="data/scenarios/sensitivity_soil_litter/config"
-DATA_DIR="data/scenarios/sensitivity_soil_litter/data"
-OUT_ROOT="data/scenarios/sensitivity_soil_litter/out"
+CONFIG_DIR="data/sensitivity/soil_litter_inputs/config"
+DATA_DIR="data/sensitivity/soil_litter_inputs/data"
+OUT_ROOT="data/sensitivity/soil_litter_inputs/out"
 
 if [ -z "${PBS_ARRAY_INDEX:-}" ]; then
   echo "PBS_ARRAY_INDEX is not set."
