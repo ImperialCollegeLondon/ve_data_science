@@ -1,43 +1,31 @@
 """Find references to configuration constants in Virtual Ecosystem code.
 
-This module locates where configuration constants are declared and where they
-are referenced, then classifies each reference site by usage context.
+This module builds a structured inventory of where configuration constants are
+*declared* and how they are *used* across the codebase so downstream review can
+focus on behavior rather than raw grep output. The implementation combines
+runtime class discovery with static syntax analysis because neither source alone
+is sufficient: import-time introspection reliably identifies real
+``Configuration`` subclasses, while AST traversal preserves local usage context
+without executing reference sites.
 
-Approach:
-    1. Import-based class detection: identify subclasses of
-       ``Configuration`` (including indirect inheritance via MRO).
-    2. AST-based attribute and usage analysis: enumerate declared attributes
-       and classify reference contexts from syntax.
-    3. Jedi reference resolution: find cross-file reference sites.
+Jedi reference resolution is used to connect each declared constant to cross-file
+usage locations through the import graph. This captures practical call paths
+better than purely textual search, while still allowing syntax-based
+classification at each site (for example, local computation versus forwarding
+into another callable). Sites flagged as ``derived_forward`` are intentionally
+highlighted because value transformation can make destination semantics ambiguous
+and therefore may require manual review.
 
-Usage classification:
-    ``computation``:
-        Constant is used directly in an expression in the caller.
-    ``kwarg_forward`` / ``positional_forward``:
-        Constant is forwarded unchanged into another call. The receiving
-        callable is stored in ``consumer``.
-    ``derived_forward``:
-        A derived value (for example ``1 / constants.x``) is forwarded. The
-        consumer cannot be resolved reliably, so the site is flagged.
-    ``validator``:
-        Reference occurs inside a pydantic validator on the owning class.
+Records are keyed as ``module.Class.attribute`` to provide stable, deterministic
+identifiers even when ``jedi`` symbol names are missing, duplicated, or
+inconsistent across contexts. Function docstrings are de-duplicated into a
+shared top-level ``functions`` table so call-site records stay compact while
+retaining explanatory context.
 
-    Only ``derived_forward`` sites require manual review.
-
-Keying:
-    Records are keyed as ``module.Class.attribute`` rather than using
-    ``jedi`` ``full_name`` values, which can be inconsistent, duplicated or
-    missing.
-
-Output structure:
-    Function docstrings are stored once in a top-level ``functions`` table and
-    referenced by qualified name from each site.
-
-Test references:
-    ``include_tests`` controls whether sites inside ``tests`` directories are
-    retained. Because ``jedi`` follows the import graph, test coverage is
-    best-effort rather than a guaranteed full textual inventory.
-
+When ``include_tests`` is ``False``, references in test paths are excluded.
+Because Jedi follows import relationships rather than performing a full textual
+scan, reference discovery is best-effort and should be interpreted as a
+high-signal inventory, not a formal proof of complete coverage.
 """
 
 from __future__ import annotations
