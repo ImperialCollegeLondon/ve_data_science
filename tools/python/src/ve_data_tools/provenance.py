@@ -10,10 +10,9 @@ description: |
   divergence. It is intended for workflows that need lightweight, reproducible
   source provenance without importing the analyzed project.
 
-virtual_ecosystem_module: None
+virtual_ecosystem_module: All
 
-author:
-  - Unknown
+author: Hao Ran Lai
 
 status: final
 
@@ -29,12 +28,6 @@ output_files:
     description: |
       Dictionary containing project version, Git identity, source modification
       status, and upstream divergence fields for downstream analysis outputs.
-
-imported_files:
-  - name: None
-    path: None
-    description: |
-      This module does not import local repository helper modules.
 
 package_dependencies:
   - subprocess
