@@ -389,7 +389,7 @@ write_csv(
 
 # Copy over other data that do not need to be modified
 files_to_copy <- c(
-  "animal_functional_groups_Maliau_level1.csv",
+  "animal_functional_groups_Maliau_level3.csv",
   "plant_pft_definitions_Maliau_50x50.csv"
 )
 copy_ok <- file.copy(
