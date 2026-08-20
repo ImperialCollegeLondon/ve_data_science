@@ -3,16 +3,6 @@
 This module locates where configuration constants are declared and where they
 are referenced, then classifies each reference site by usage context.
 
-Notes for R users:
-    A Python ``dict`` is similar to a named R list. A Python ``list`` is
-    similar to an unnamed R list. ``Path`` stores a file path and provides
-    methods such as ``is_file()`` and ``read_text()``.
-
-    The abstract syntax tree (AST) is similar to parsed expressions from
-    ``parse()`` in R. It describes code structure without executing code.
-    ``jedi`` then resolves names across Python files, similar to an IDE
-    "find references" workflow.
-
 Approach:
     1. Import-based class detection: identify subclasses of
        ``Configuration`` (including indirect inheritance via MRO).
@@ -737,8 +727,7 @@ def get_constant_references(
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Normalize one path and many paths to one Python list. This is like
-    # wrapping a length-one R value in ``list()`` before one shared loop.
+    # Normalize one path and many paths to one Python list for shared iteration.
     if isinstance(target_file_path, (str, Path)):
         target_file_paths = [Path(target_file_path)]
     else:
