@@ -33,7 +33,9 @@ def test_project_provenance_field_names_and_types(monkeypatch, tmp_path: Path):
     monkeypatch.setattr(provenance, "_git", fake_git)
     monkeypatch.setattr(provenance, "_source_is_modified", lambda *_: True)
 
-    result = provenance.project_provenance(tmp_path, package_directory="virtual_ecosystem")
+    result = provenance.project_provenance(
+        tmp_path, package_directory="virtual_ecosystem"
+    )
 
     expected_keys = {
         "project_version",
