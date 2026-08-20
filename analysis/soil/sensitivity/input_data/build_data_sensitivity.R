@@ -400,14 +400,3 @@ copy_ok <- file.copy(
 if (!all(copy_ok)) {
   stop("One or more static files failed to copy to output directory.")
 }
-
-microbial_copy_ok <- file.copy(
-  soil_microbial_config_path,
-  out_config_dir,
-  overwrite = TRUE
-)
-if (!microbial_copy_ok) {
-  stop(
-    "soil_microbial_groups.toml failed to copy to sensitivity config directory."
-  )
-}
