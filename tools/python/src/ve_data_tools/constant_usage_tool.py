@@ -71,7 +71,7 @@ from typing import Any
 
 import jedi
 import tomli_w
-from ve_data_tools.provenance import project_provenance
+from provenance import project_provenance
 
 # A frozenset is an immutable set. Membership tests such as ``name in ...`` are
 # fast, and no later code can change this fixed group of decorator names.
