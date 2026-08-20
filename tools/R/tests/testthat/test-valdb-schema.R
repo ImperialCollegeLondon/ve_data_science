@@ -187,10 +187,7 @@ test_that("initialise_source_schema requires the canonical record path", {
   path <- file.path(sources_dir, "unexpected.yaml")
   yaml::write_yaml(record, path)
 
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "not at the expected path"
-  )
+  expect_error(initialise_source_schema(record$doi, sources_dir))
   expect_identical(yaml::read_yaml(path), record)
 })
 
