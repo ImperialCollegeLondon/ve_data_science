@@ -97,7 +97,7 @@ if (!dir.exists(out_config_dir)) {
 # sensitivity analysis settings
 n_sample <- 100
 sobol_seed <- 777
-parallel_daemons <- 128
+parallel_daemons <- 64
 
 
 # Maliau input data -------------------------------------------------------
