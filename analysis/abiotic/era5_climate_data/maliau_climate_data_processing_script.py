@@ -40,7 +40,7 @@ description: |
        metadata, and saving a compressed NetCDF climate forcing dataset for use
        by the VE.
 
-    Notes:-
+Notes:
     - Monthly climate variables and hourly air temperature are downloaded
       separately because monthly diurnal temperature range is derived from the
       hourly dataset.
@@ -96,22 +96,37 @@ package_dependencies:
   - cdsapi
 
 usage_notes: |
-  Run as:
+    Recommended workflow (from project root):
 
-      python maliau_climate_data_processing_script.py
+    1. Sync the environment:
 
-  Before running this script:
-    - Ensure a valid CDS API configuration (~/.cdsapirc) is available.
-    - Ensure the required helper modules
-      `cdsapi_downloader.py` and `climate_tools.py` are available in
-      the `tools/python` directory, as they provide the ERA5-Land
-      download and climate processing functions used by this workflow.
+        uv sync
 
-  Although configured for the Maliau Basin by default, the workflow is
-  transferable to other study sites (e.g. SAFE and Danum Valley) by
-  updating the site-specific configuration TOML file, selecting the
-  appropriate scenario defined in the TOML file, and specifying the
-  corresponding geographic bounding box for ERA5-Land data download.
+    2. Run the script:
+
+uv run python analysis/abiotic/era5_climate_data/maliau_climate_data_processing_
+script.py
+
+  Preconditions:
+    - A valid CDS API configuration is available at ~/.cdsapirc.
+    - The helper modules `cdsapi_downloader.py`, `climate_tools.py`,
+      `read_site_config.py`, `build_target_grid.py`, and `write_dataset.py`
+      are available in tools/python/abiotic.
+    - `rioxarray` is installed and imported before interpolation calls,
+      because it registers the xarray `.rio` accessor.
+
+  Runtime behaviour:
+    - If downloaded ERA5 files already exist, they are reused.
+    - If files do not exist, they are downloaded from CDS.
+    - The final forcing dataset is written to:
+      data/derived/abiotic/era5_land/era5_<scenario>_<start_year>_<end_year>.nc
+
+  Site adaptation:
+    - To run for a different site or scenario, update:
+      - `scenario_name`
+      - `bbox`
+      - `grid_file` path (site configuration TOML)
+
 
 references: |
     Muñoz-Sabater, J., et al. (2021). ERA5-Land: A state-of-the-art global
@@ -124,28 +139,33 @@ references: |
     https://doi.org/10.24381/cds.68d2bb30
 
 ---
+
 """  # noqa: D212, D205
 
 import sys
 from pathlib import Path
 
-from tools.python.abiotic import cdsapi_downloader as cds
-from tools.python.abiotic import climate_tools as ct
+import rioxarray  # noqa: F401
 
 # ============================================================
 # PROJECT ROOT
 # ============================================================
 # Determine the root directory of the VE project
-# and add it to the Python search path. This enables project
-# modules to be imported regardless of the directory from which
-# this script is executed.
+# and add it to the Python search path.
 
 project_root = Path(__file__).resolve().parents[3]
+python_source = project_root / "tools" / "python" / "src"
 
-sys.path.insert(
-    0,
-    str(project_root),
+if str(python_source) not in sys.path:
+    sys.path.insert(0, str(python_source))
+
+from ve_data_tools import (  # noqa: E402
+    build_target_grid,
+    read_site_config,
+    write_dataset,
 )
+from ve_data_tools import cdsapi_downloader as cds  # noqa: E402
+from ve_data_tools import climate_tools as ct  # noqa: E402
 
 # ============================================================
 # USER SETTINGS
@@ -155,7 +175,7 @@ sys.path.insert(
 
 # Select  scenario (e.g., " maliau_1", "maliau_2") defined in the site
 # configuration TOML file (e.g.,"maliau_grid_definition.toml").
-scenario_name = "maliau_2"
+scenario_name = "maliau_1"
 # NOTE:
 # Modify the scenario name defined in the site-specific
 # configuration TOML file to prepare climate data for a
@@ -204,7 +224,7 @@ grid_file = (
 # target grid and simulation period required for climate
 # data preparation for the selected scenario.
 
-scenario = ct.read_site_configuration(
+scenario = read_site_config.read_site_configuration(
     grid_file,
     scenario_name,
 )
@@ -219,7 +239,7 @@ run_length = int(timing["run_length"].split()[0])
 end_year = start_year + run_length - 1
 end_date = f"{end_year}-12-31"
 
-target_grid = ct.get_target_grid(scenario)
+target_grid = build_target_grid.get_target_grid(scenario)
 
 years = list(range(start_year, end_year + 1))
 
@@ -465,7 +485,7 @@ else:
 
 print("\nSaving climate forcing dataset...")
 
-ct.save_dataset(
+write_dataset.save_dataset(
     dataset=climate_ds,
     outfile=output_file,
 )

@@ -19,8 +19,8 @@ virtual_ecosystem_module:
   - hydrology
 
 author:
-  - Lelavathy
-  - David
+    - Lelavathy
+    - David Orme
 
 status: final
 
