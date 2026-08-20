@@ -3,15 +3,9 @@
 #PBS -lselect=1:ncpus=1:mem=4gb
 #PBS -J 1-4800%100
 #PBS -j oe
-#PBS -o /rds/general/user/hlai1/home/logs/sensitivity/job_^array_index^.out
+#PBS -o /rds/general/user/${USER}/home/logs/sensitivity/job_^array_index^.out
 
 set -euo pipefail
-
-# Initialise conda environment
-module purge
-eval "$(~/miniforge3/bin/conda shell.bash hook)"
-# conda activate r452
-conda activate /rds/general/project/virtual_rainforest/live/ve_data_science/hpc_jobs/virtual_ecosystem_py314
 
 # run from the submission directory (typically path/to/ve_data_science)
 cd "${PBS_O_WORKDIR}" || exit
@@ -40,8 +34,8 @@ fi
 OUTDIR="${OUT_ROOT}/${PBS_ARRAY_INDEX}"
 mkdir -p "${OUTDIR}"
 
-# Run VE
-ve_run \
+# Run VE via uv
+uv run --group dev-pinned ve_run \
   "${CONFIG_DIR}" \
   -p SOIL_LITTER_DATA="${SOIL_LITTER_FILE}" \
   --out "${OUTDIR}" \
