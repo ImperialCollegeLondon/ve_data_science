@@ -45,5 +45,5 @@ uv run --group dev-pinned ve_run \
 
 # submit this from the ve_data_science root directory with:
 # cd ../projects/virtual_rainforest/live/ve_data_science
-# rm -rf data/sensitivity/soil_litter_inputs/data/*
+# rm -rf data/sensitivity/soil_litter_inputs/out/*
 # qsub analysis/soil/sensitivity/input_data/ve.sh
