@@ -25,7 +25,7 @@ status: final
 
 input_files:
   - name: Target Python source files in the VE modules
-    path: Provided via ``target_file_path`` relative to ``project_root``
+    path: Provided via ``target_paths`` relative to ``project_root``
     description: |
       Python modules containing ``Configuration`` subclasses and declared
       constants to analyze.
@@ -726,7 +726,7 @@ def _expression_at(source_lines: list[str], line: int) -> str:
 
 
 def get_constant_references(
-    target_file_path: str | Path | list[str | Path],
+    target_paths: str | Path | list[str | Path],
     out_path: str | Path,
     project_root: str | Path,
     include_tests: bool = False,
@@ -735,7 +735,7 @@ def get_constant_references(
     """Find and classify configuration constant references, then write TOML.
 
     Args:
-        target_file_path: Path or paths to Python source files to analyze,
+        target_paths: Path or paths to Python source files to analyze,
             relative to ``project_root`` unless absolute.
         out_path: Output TOML file path. Parent directories are created and the
             file is overwritten.
@@ -760,10 +760,10 @@ def get_constant_references(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Normalize one path and many paths to one Python list for shared iteration.
-    if isinstance(target_file_path, (str, Path)):
-        target_file_paths = [Path(target_file_path)]
+    if isinstance(target_paths, (str, Path)):
+        normalized_target_paths = [Path(target_paths)]
     else:
-        target_file_paths = [Path(path) for path in target_file_path]
+        normalized_target_paths = [Path(path) for path in target_paths]
 
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
@@ -820,7 +820,7 @@ def get_constant_references(
     records: dict[str, ConstantRecord] = {}
     functions: dict[str, str] = {}
 
-    total_targets = len(target_file_paths)
+    total_targets = len(normalized_target_paths)
     show_progress = total_targets > 1
     if show_progress and progress_callback is None:
         sys.stdout.write(f"Scanning constant usage in {total_targets} files...\n")
@@ -849,7 +849,7 @@ def get_constant_references(
         sys.stdout.write(f"[{index}/{total_targets}] {display_path}\n")
         sys.stdout.flush()
 
-    for index, relative_path in enumerate(target_file_paths, start=1):
+    for index, relative_path in enumerate(normalized_target_paths, start=1):
         full_path = (
             relative_path
             if relative_path.is_absolute()
@@ -979,7 +979,9 @@ def get_constant_references(
             "jedi_version": jedi.__version__,
             "python_version": sys.version.split()[0],
             "include_tests": include_tests,
-            "target_files": [str(Path(p).as_posix()) for p in target_file_paths],
+            "target_files": [
+                str(Path(path).as_posix()) for path in normalized_target_paths
+            ],
             "constant_count": len(records),
             "function_count": len(functions),
         },

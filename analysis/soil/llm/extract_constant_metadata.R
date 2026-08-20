@@ -144,7 +144,7 @@ progress_update <- function(completed, total, path) {
 
 ve_constants <-
   cu$get_constant_references(
-    target_file_path = as.list(ve_config_files),
+    target_paths = as.list(ve_config_files),
     out_path = "data/derived/soil/llm/ve_constant_usage.toml",
     project_root = ve_project_root,
     include_tests = FALSE,
