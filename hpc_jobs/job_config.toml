@@ -11,7 +11,7 @@ site_directory = "/rds/general/user/mtnichol/home/ve_data_science/ve_example"
 
 [[jobs]]
 config_paths = []
-name = "run_0001" 
+name = "run_0001"
 repeats = 1
 
 [jobs.config.hydrology.constants]
@@ -41,4 +41,3 @@ saturated_hydraulic_conductivity = 3.4e-5
 soil_moisture_saturation = 0.65
 groundwater_capacity = 200.0
 bypass_flow_coefficient = 2.0
-

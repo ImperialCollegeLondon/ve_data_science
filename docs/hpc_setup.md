@@ -23,7 +23,7 @@ ssh userid@login.cx3.hpc.imperial.ac.uk
 ```
 
 See the [Imperial RCS documentation](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/getting-started/) for further information about connecting to the cluster.
-If you are new to HPC environments, do make sure that you familiarise yourself with the documentation. 
+If you are new to HPC environments, do make sure that you familiarise yourself with the documentation.
 
 importantly: Login nodes are intended for tasks such as editing files, preparing jobs, and
 submitting jobs. Computationally intensive work should be submitted to compute
@@ -51,7 +51,7 @@ See .\docs\uv_setup.md for instructions about using uv.
 uv venv
 uv pip install virtual-ecosystem`
 ```
-as it installs a version of Veco which is compatable with the example. 
+as it installs a version of Veco which is compatable with the example.
 
 ## Install the example data/configs
 

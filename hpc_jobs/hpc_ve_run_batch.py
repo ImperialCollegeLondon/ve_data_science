@@ -4,8 +4,9 @@ import os
 import sys
 from pathlib import Path
 
-from hpc_jobs.hpc_ve_job_spec import load_job_spec
 from virtual_ecosystem.main import ve_run
+
+from hpc_jobs.hpc_ve_job_spec import load_job_spec
 
 # Get the command line arguments
 batch_file = Path(sys.argv[1])
@@ -16,8 +17,8 @@ output_dir = Path(sys.argv[3])
 batch_job_spec = load_job_spec(batch_file)
 
 # 1. Stage the site directory to the runner location to avoid multiple reading problem
-#    This could also be done from the shell script but the TOML is easier to parse 
-# local_dir = os.getcwd() 
+#    This could also be done from the shell script but the TOML is easier to parse
+# local_dir = os.getcwd()
 # site_dir = shutil.copytree(batch_job_spec.site_directory, local_dir)
 
 # Skip staging during local debug:
