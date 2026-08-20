@@ -725,6 +725,88 @@ def _expression_at(source_lines: list[str], line: int) -> str:
     return ""
 
 
+def _load_ast_context(
+    path: Path,
+    tree_cache: dict[Path, ast.AST],
+    parent_cache: dict[Path, dict[ast.AST, ast.AST]],
+    lines_cache: dict[Path, list[str]],
+) -> tuple[ast.AST, dict[ast.AST, ast.AST], list[str]]:
+    """Parse and cache AST-related structures for a source file.
+
+    Args:
+        path: Absolute file path to parse.
+        tree_cache: Cache of parsed ASTs keyed by file path.
+        parent_cache: Cache of child-to-parent AST mappings keyed by file path.
+        lines_cache: Cache of source lines keyed by file path.
+
+    Returns:
+        Tuple of parsed AST, parent map, and source lines.
+
+    """
+    if path not in tree_cache:
+        source = path.read_text(encoding="utf-8")
+        tree_cache[path] = ast.parse(source)
+        parent_cache[path] = _build_parent_map(tree_cache[path])
+        lines_cache[path] = source.splitlines()
+
+    return tree_cache[path], parent_cache[path], lines_cache[path]
+
+
+def _get_script(
+    path: Path,
+    project: jedi.Project,
+    script_cache: dict[Path, jedi.Script],
+) -> jedi.Script:
+    """Build or fetch a cached Jedi script for a source file.
+
+    Args:
+        path: Absolute file path used to initialize Jedi.
+        project: Jedi project for the analysis run.
+        script_cache: Cache of ``jedi.Script`` objects keyed by file path.
+
+    Returns:
+        Cached ``jedi.Script`` instance for ``path``.
+
+    """
+    if path not in script_cache:
+        script_cache[path] = jedi.Script(path=path, project=project)
+
+    return script_cache[path]
+
+
+def _emit_progress(
+    index: int,
+    path: Path,
+    total_targets: int,
+    show_progress: bool,
+    progress_callback: Callable[[int, int, str], None] | None,
+) -> None:
+    """Send progress to callback or stdout for one processed target file.
+
+    Args:
+        index: One-based file index currently being processed.
+        path: Current file path being analyzed.
+        total_targets: Total number of target files.
+        show_progress: Whether progress output should be emitted.
+        progress_callback: Optional callback receiving ``(index, total, path)``.
+
+    """
+    if not show_progress:
+        return
+
+    display_path = path.as_posix()
+    if progress_callback is not None:
+        progress_callback(index, total_targets, display_path)
+        return
+
+    max_path_length = 72
+    if len(display_path) > max_path_length:
+        display_path = f"...{display_path[-(max_path_length - 3) :]}"
+
+    sys.stdout.write(f"[{index}/{total_targets}] {display_path}\n")
+    sys.stdout.flush()
+
+
 def get_constant_references(
     target_paths: str | Path | list[str | Path],
     out_path: str | Path,
@@ -776,47 +858,6 @@ def get_constant_references(
     lines_cache: dict[Path, list[str]] = {}
     script_cache: dict[Path, jedi.Script] = {}
 
-    def load(path: Path) -> tuple[ast.AST, dict[ast.AST, ast.AST], list[str]]:
-        """Parse and cache AST-related structures for a source file.
-
-        Args:
-            path: Absolute file path to parse.
-
-        Returns:
-            Tuple of parsed AST, parent map, and source lines.
-
-        Notes:
-            This helper exists only while ``get_constant_references`` runs.
-            It is not available as a separate Python console function.
-
-        """
-        if path not in tree_cache:
-            source = path.read_text(encoding="utf-8")
-            tree_cache[path] = ast.parse(source)
-            parent_cache[path] = _build_parent_map(tree_cache[path])
-            lines_cache[path] = source.splitlines()
-
-        return tree_cache[path], parent_cache[path], lines_cache[path]
-
-    def script_for(path: Path) -> jedi.Script:
-        """Build or fetch a cached Jedi script for a source file.
-
-        Args:
-            path: Absolute file path used to initialize Jedi.
-
-        Returns:
-            Cached ``jedi.Script`` instance for ``path``.
-
-        Notes:
-            This helper exists only while ``get_constant_references`` runs.
-            It is not available as a separate Python console function.
-
-        """
-        if path not in script_cache:
-            script_cache[path] = jedi.Script(path=path, project=project)
-
-        return script_cache[path]
-
     records: dict[str, ConstantRecord] = {}
     functions: dict[str, str] = {}
 
@@ -824,29 +865,6 @@ def get_constant_references(
     show_progress = total_targets > 1
     if show_progress and progress_callback is None:
         sys.stdout.write(f"Scanning constant usage in {total_targets} files...\n")
-        sys.stdout.flush()
-
-    def _progress_update(index: int, path: Path) -> None:
-        """Send progress to a callback or write it to stdout.
-
-        Args:
-            index: One-based file index currently being processed.
-            path: Current file path being analyzed.
-
-        """
-        if not show_progress:
-            return
-
-        display_path = path.as_posix()
-        if progress_callback is not None:
-            progress_callback(index, total_targets, display_path)
-            return
-
-        max_path_length = 72
-        if len(display_path) > max_path_length:
-            display_path = f"...{display_path[-(max_path_length - 3) :]}"
-
-        sys.stdout.write(f"[{index}/{total_targets}] {display_path}\n")
         sys.stdout.flush()
 
     for index, relative_path in enumerate(normalized_target_paths, start=1):
@@ -857,8 +875,10 @@ def get_constant_references(
         )
         module_name = _module_name_from_path(full_path.relative_to(project_root))
 
-        tree, _, source_lines = load(full_path)
-        script = script_for(full_path)
+        tree, _, source_lines = _load_ast_context(
+            full_path, tree_cache, parent_cache, lines_cache
+        )
+        script = _get_script(full_path, project, script_cache)
         configuration_classes = _configuration_classes(module_name)
 
         class_nodes = {
@@ -915,8 +935,10 @@ def get_constant_references(
                         if "tests" in parts or "test" in parts:
                             continue
 
-                    ref_tree, ref_parents, ref_lines = load(reference_path)
-                    ref_script = script_for(reference_path)
+                    ref_tree, ref_parents, ref_lines = _load_ast_context(
+                        reference_path, tree_cache, parent_cache, lines_cache
+                    )
+                    ref_script = _get_script(reference_path, project, script_cache)
 
                     node = _find_reference_node(
                         ref_tree,
@@ -969,7 +991,13 @@ def get_constant_references(
 
                 records[key] = record
 
-        _progress_update(index, full_path)
+        _emit_progress(
+            index,
+            full_path,
+            total_targets,
+            show_progress,
+            progress_callback,
+        )
 
     output: dict[str, Any] = {
         "metadata": {
