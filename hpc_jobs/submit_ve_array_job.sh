@@ -9,7 +9,7 @@ set -euo pipefail # ensure script exits on error, unset variable, or failed pipe
 # 2) a new output directory for the array run
 #
 # Process:
-# 1) hpc_ve_job_spec.py identifies the number of jobs to be submitted 
+# 1) hpc_ve_job_spec.py identifies the number of jobs to be submitted
 # 2) qsub submits the array, with one PBS-ID output sub-directory per sub-job.
 #
 
@@ -25,7 +25,7 @@ if [[ ! -f "$1" ]]; then
     exit 1
 fi
 
-# define the root of the repository, which is the parent directory of this script 
+# define the root of the repository, which is the parent directory of this script
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # activate virtual environment to access python, virtual ecosystem package, and dependencies.
