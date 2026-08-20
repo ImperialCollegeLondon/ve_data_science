@@ -341,7 +341,7 @@ if (actual_soil_litter_files != expected_soil_litter_files) {
 
 # Elevation data
 tidync(elevation_input_path) |>
-  get_data_variables() |>
+  get_data_variables_nc() |>
   summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
     filename = file.path(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
@@ -352,7 +352,7 @@ tidync(elevation_input_path) |>
 # variable that do not need to go through summarise_spatial() below
 clim_dat <-
   tidync(climate_input_path) |>
-  get_data_variables()
+  get_data_variables_nc()
 clim_dat |>
   # summarise spatial mean of climate data, bypassing valid_time
   discard_at("valid_time") |>
@@ -365,7 +365,7 @@ clim_dat |>
 
 # Plant data
 tidync(plant_input_path) |>
-  get_data_variables() |>
+  get_data_variables_nc() |>
   summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
     filename = file.path(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
