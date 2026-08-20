@@ -45,8 +45,6 @@ imported_files:
       classes.
 
 package_dependencies:
-  - ast
-  - importlib
   - jedi
   - tomli_w
 
@@ -59,8 +57,6 @@ usage_notes: |
 
 from __future__ import annotations
 
-import ast
-import importlib
 import sys
 import textwrap
 from collections.abc import Callable
