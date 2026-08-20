@@ -42,22 +42,16 @@ cd ve_data_science
 
 ## Install `uv` and create a virtual environment
 
-**Note:** If you are using R, conda may be better suited than uv.
+See .\docs\uv_setup.md for instructions about using uv.
 
-Install `uv`:
+**note:** If you are using R, conda may be better suited than uv.
 
+**note:** for test runs with the example data I use:
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+uv venv
+uv pip install virtual-ecosystem`
 ```
-
-Create the project venv and install the repository dependencies:
-
-```bash
-uv sync
-```
-
-(TODO check that uv sync is giving the correct versions)
-alternative: uv pip install virtual-ecosystem
+as it installs a version of Veco which is compatable with the example. 
 
 ## Install the example data/configs
 
