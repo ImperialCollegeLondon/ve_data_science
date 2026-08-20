@@ -1,184 +1,899 @@
-"""Find usages of configuration constants across model files.
+"""---
+title: Constant usage inventory tool.
 
-This module uses `jedi` to statically analyse Python source files from the
-`virtual_ecosystem` project. It identifies every place in the codebase where a
-configuration constant (an attribute of a class that inherits from
-`Configuration`) is referenced.
+description: |
+  Builds a structured inventory of configuration constant declarations and
+  reference sites across Virtual Ecosystem Python sources.
 
-Results are written to a TOML file keyed by fully qualified constant name. Each
-entry includes reference-site metadata such as the caller's fully qualified
-name and docstring.
+  The design combines runtime discovery of ``Configuration`` subclasses with AST
+  context analysis and Jedi reference resolution. This combination is used
+  because introspection identifies true declaring classes, AST preserves local
+  usage semantics without execution, and Jedi links cross-file references
+  through imports.
 
-Key assumptions:
-    - Configuration classes are detected by finding `"(Configuration)"` in the
-      class definition line. Classes that inherit from `Configuration`
-      indirectly (through an intermediate base class) are not detected.
-    - Each class attribute is expected to have exactly one definition. The
-      first `jedi.Script.get_references()` result with `is_definition() == True`
-      is treated as canonical, and remaining results are treated as usage sites.
-    - `project_root` must point to a directory that `jedi` can use as project
-      root so cross-file references resolve correctly. The default assumes the
-      `virtual_ecosystem` repository is a sibling of `ve_data_science`.
-"""
+  Output records are keyed as ``module.Class.attribute`` for deterministic
+  identifiers, and function docstrings are de-duplicated in a shared
+  ``functions`` table. ``derived_forward`` classifications are intentionally
+  highlighted for manual review because transformed values can obscure consumer
+  semantics.
 
+virtual_ecosystem_module: All
+
+author: Hao Ran Lai
+
+status: final
+
+input_files:
+  - name: Target Python source files in the VE modules
+    path: Provided via ``target_paths`` relative to ``project_root``
+    description: |
+      Python modules containing ``Configuration`` subclasses and declared
+      constants to analyze.
+
+output_files:
+  - name: Constant usage inventory
+    path: Provided via ``out_path``
+    description: |
+      TOML file containing metadata, function summaries, constants, and
+      classified reference sites.
+
+imported_files:
+  - name: Configuration base class
+    path: virtual_ecosystem/core/configuration.py
+    description: |
+      Provides the ``Configuration`` superclass used to identify declaring
+      classes.
+
+package_dependencies:
+  - jedi
+  - tomli_w
+
+usage_notes: |
+  Reference discovery is best-effort because Jedi follows import relationships
+  rather than exhaustive text scanning. When ``include_tests`` is ``False``,
+  references under test paths are excluded.
+---
+"""  # noqa: D205
+
+from __future__ import annotations
+
+import sys
+import textwrap
+from collections.abc import Callable
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import jedi
 import tomli_w
+from provenance import project_provenance
+
+# A frozenset is an immutable set. Membership tests such as ``name in ...`` are
+# fast, and no later code can change this fixed group of decorator names.
+VALIDATOR_DECORATORS = frozenset(
+    {"field_validator", "model_validator", "validator", "root_validator"}
+)
+
+
+@dataclass
+class ConstantReference:
+    """Represent one reference site for a configuration constant.
+
+    Attributes:
+        file: Path to the file containing the reference.
+        line: One-based line number of the reference.
+        column: Zero-based column position of the reference token.
+        caller: Qualified name of the enclosing scope using the constant.
+        usage_kind: Classification label for how the constant is used.
+        consumer: Qualified name of the receiving callable when forwarded.
+        forwarded_as: Parameter name or positional index used for forwarding.
+        expression: Source line at the reference site for context.
+
+    """
+
+    file: str
+    line: int
+    column: int
+    caller: str
+    usage_kind: str
+    consumer: str = ""
+    forwarded_as: str = ""
+    expression: str = ""
+
+
+@dataclass
+class ConstantRecord:
+    """Store metadata and references for one configuration constant.
+
+    Attributes:
+        name: Unqualified constant attribute name.
+        qualified_name: Fully qualified key in ``module.Class.attribute`` form.
+        module: Dotted Python module path for the declaring class.
+        class_name: Name of the class that declares the constant.
+        base_classes: Immediate base class names for the declaring class.
+        declaration: Source declaration line for the constant.
+        docstring: Attribute-level documentation text.
+        default_expression: Source expression for the default value.
+        type_annotation: Source expression for the type annotation.
+        file: Project-relative file path where the constant is declared.
+        line: One-based declaration line number.
+        referenced_in: Collected reference sites for this constant.
+
+    """
+
+    name: str
+    qualified_name: str
+    module: str
+    class_name: str
+    base_classes: list[str]
+    declaration: str
+    docstring: str
+    default_expression: str
+    type_annotation: str
+    file: str
+    line: int
+    referenced_in: list[ConstantReference] = field(default_factory=list)
+
+
+def _module_name_from_path(relative_path: Path) -> str:
+    """Convert a project-relative ``.py`` path to a dotted module name.
+
+    Args:
+        relative_path: Project-relative source file path.
+
+    Returns:
+        Dotted module path without file suffix.
+
+    """
+    parts = relative_path.with_suffix("").parts
+    return ".".join(parts)
+
+
+def _configuration_classes(module_name: str) -> dict[str, list[str]]:
+    """Find configuration subclasses defined directly in a module.
+
+    Args:
+        module_name: Dotted module name importable from ``sys.path``.
+
+    Returns:
+        Mapping from class name to a list of immediate base class names for
+        classes that subclass ``Configuration`` (including indirect inheritance)
+        and are defined in ``module_name``.
+
+    """
+    from virtual_ecosystem.core.configuration import Configuration
+
+    module = importlib.import_module(module_name)
+
+    classes: dict[str, list[str]] = {}
+    for attribute_name in dir(module):
+        candidate = getattr(module, attribute_name)
+        if not isinstance(candidate, type):
+            continue
+        if not issubclass(candidate, Configuration) or candidate is Configuration:
+            continue
+        if candidate.__module__ != module_name:
+            continue
+
+        classes[attribute_name] = [base.__name__ for base in candidate.__bases__]
+
+    return classes
+
+
+def _build_parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
+    """Create a reverse AST index from child nodes to parent nodes.
+
+    Args:
+        tree: Parsed AST for a source file.
+
+    Returns:
+        Dictionary mapping each child node to its immediate parent node.
+
+    """
+    parents: dict[ast.AST, ast.AST] = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parents[child] = node
+
+    return parents
+
+
+def _declared_attributes(
+    class_node: ast.ClassDef, source: str
+) -> list[tuple[str, ast.AnnAssign]]:
+    r"""Extract annotated attributes declared directly in a class body.
+
+    Args:
+        class_node: AST class definition node to inspect.
+        source: Unused source string, retained for API compatibility.
+
+    Returns:
+        List of ``(attribute_name, ann_assign_node)`` tuples for non-dunder
+        class attributes declared with annotated assignments.
+
+    """
+    attributes = []
+    for statement in class_node.body:
+        if not isinstance(statement, ast.AnnAssign):
+            continue
+        if not isinstance(statement.target, ast.Name):
+            continue
+        if statement.target.id.startswith("__"):
+            continue
+
+        attributes.append((statement.target.id, statement))
+
+    return attributes
+
+
+def _attribute_docstring(class_node: ast.ClassDef, index: int) -> str:
+    r"""Read an attribute docstring literal following a class assignment.
+
+    Args:
+        class_node: AST class definition containing the attribute.
+        index: Index of the attribute statement within ``class_node.body``.
+
+    Returns:
+        Trimmed attribute docstring text if present; otherwise an empty string.
+
+    """
+    if index + 1 >= len(class_node.body):
+        return ""
+
+    following = class_node.body[index + 1]
+    if not isinstance(following, ast.Expr):
+        return ""
+    if not isinstance(following.value, ast.Constant):
+        return ""
+    if not isinstance(following.value.value, str):
+        return ""
+
+    # Attribute docstrings are indented to the class body, but the first line
+    # carries no indentation because it follows the opening quotes. Dedent the
+    # remainder separately so the text renders cleanly in prompts and reports.
+    text = following.value.value
+    first, separator, rest = text.partition("\n")
+    if separator:
+        text = f"{first.strip()}\n{textwrap.dedent(rest)}"
+
+    return text.strip()
+
+
+def _enclosing_function(
+    node: ast.AST, parents: dict[ast.AST, ast.AST]
+) -> ast.AST | None:
+    r"""Find the nearest enclosing function, async function, or class node.
+
+    Args:
+        node: AST node from which to walk upward.
+        parents: Child-to-parent mapping for the same AST.
+
+    Returns:
+        Enclosing ``ast.FunctionDef``, ``ast.AsyncFunctionDef``, or
+        ``ast.ClassDef`` node if found; otherwise ``None``.
+
+    """
+    current = parents.get(node)
+    while current is not None:
+        if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            return current
+        current = parents.get(current)
+
+    return None
+
+
+def _is_validator(node: ast.AST) -> bool:
+    r"""Check whether a function node is decorated as a pydantic validator.
+
+    Args:
+        node: AST node expected to represent a function or async function.
+
+    Returns:
+        ``True`` if any decorator name matches a known validator decorator;
+        otherwise ``False``.
+
+    """
+    if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        return False
+
+    for decorator in node.decorator_list:
+        target = decorator.func if isinstance(decorator, ast.Call) else decorator
+        name = ""
+        if isinstance(target, ast.Name):
+            name = target.id
+        elif isinstance(target, ast.Attribute):
+            name = target.attr
+
+        if name in VALIDATOR_DECORATORS:
+            return True
+
+    return False
+
+
+def _find_reference_node(
+    tree: ast.AST, line: int, column: int, name: str
+) -> ast.AST | None:
+    """Locate the AST node matching a Jedi-reported reference position.
+
+    Args:
+        tree: Parsed AST for the referenced file.
+        line: One-based line number reported by Jedi.
+        column: Zero-based column offset reported by Jedi.
+        name: Referenced attribute or keyword name.
+
+    Returns:
+        Matching ``ast.Attribute``, ``ast.Name``, or ``ast.keyword`` node if
+        found; otherwise ``None``.
+
+    """
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and node.attr == name:
+            if node.end_lineno != line:
+                continue
+            if node.end_col_offset - len(name) == column:
+                return node
+
+        if isinstance(node, ast.Name) and node.id == name:
+            if node.lineno == line and node.col_offset == column:
+                return node
+
+        # A keyword argument name in a call, such as the ``source`` in
+        # ``SoilEnzymeClass(source="fungi")``. Jedi reports the position of the
+        # parameter name, which is not itself a Name or Attribute node.
+        if isinstance(node, ast.keyword) and node.arg == name:
+            if node.lineno == line and node.col_offset == column:
+                return node
+
+    return None
+
+
+def _callee_name(call: ast.Call) -> str:
+    """Return the source-level callable name for a call node.
+
+    Args:
+        call: AST call node.
+
+    Returns:
+        Callable name for simple ``Name`` or ``Attribute`` targets, else empty
+        string.
+
+    """
+    if isinstance(call.func, ast.Name):
+        return call.func.id
+    if isinstance(call.func, ast.Attribute):
+        return call.func.attr
+
+    return ""
+
+
+def _resolve_callee(script: jedi.Script, call: ast.Call) -> tuple[str, str]:
+    r"""Resolve a call target to qualified name and docstring via Jedi.
+
+    Args:
+        script: Jedi script for the file containing ``call``.
+        call: AST call node whose target should be resolved.
+
+    Returns:
+        ``(qualified_name, docstring)`` tuple. Returns ``("", "")`` when
+        resolution fails or no definition is found.
+
+    """
+    func = call.func
+    if isinstance(func, ast.Name):
+        line, column = func.lineno, func.col_offset
+    elif isinstance(func, ast.Attribute):
+        line = func.end_lineno
+        column = func.end_col_offset - len(func.attr)
+    else:
+        return "", ""
+
+    try:
+        definitions = script.goto(line=line, column=column, follow_imports=True)
+    except Exception:
+        return "", ""
+
+    if not definitions:
+        return "", ""
+
+    definition = definitions[0]
+    return definition.full_name or "", definition.docstring() or ""
+
+
+def _extract_relevant_docstring_sections(docstring: str) -> str:
+    r"""Extract descriptive docstring content, including ``Args`` when present.
+
+    Jedi can prepend a signature line and return long docstrings with multiple
+    sections. For usage summaries, this helper keeps the descriptive prose and
+    the ``Args`` section because both provide useful call-site context, while
+    omitting sections such as ``Returns`` and ``Raises`` that are less relevant
+    to the constant-consumer inventory.
+
+    Args:
+        docstring: Raw docstring text returned by Jedi.
+
+    Returns:
+        Cleaned text containing descriptive paragraphs and, when available, the
+        ``Args`` section. Returns an empty string when no relevant prose exists.
+
+    """
+    if not docstring:
+        return ""
+
+    lines = docstring.strip().splitlines()
+    if not lines:
+        return ""
+
+    first_line = lines[0].strip()
+    if first_line.startswith("def ") or (
+        "(" in first_line and ")" in first_line and not first_line.endswith(":")
+    ):
+        lines = lines[1:]
+        while lines and not lines[0].strip():
+            lines = lines[1:]
+
+    description_lines: list[str] = []
+    args_lines: list[str] = []
+    in_args = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        if stripped in {"Args:", "Arguments:"}:
+            in_args = True
+            args_lines.append("Args:")
+            continue
+
+        if stripped in {
+            "Returns:",
+            "Yields:",
+            "Raises:",
+            "Examples:",
+            "Example:",
+            "Notes:",
+            "Todo:",
+            "TODO:",
+        }:
+            break
+
+        if in_args:
+            args_lines.append(line.rstrip())
+        else:
+            description_lines.append(line.rstrip())
+
+    description = "\n".join(description_lines).strip()
+    args_text = "\n".join(args_lines).strip()
+
+    if description and args_text:
+        return f"{description}\n\n{args_text}".strip()
+
+    return description or args_text
+
+
+def _classify_reference(
+    node: ast.AST,
+    parents: dict[ast.AST, ast.AST],
+    script: jedi.Script,
+    source_lines: list[str],
+) -> dict[str, str]:
+    """Classify how a constant reference is used at a source location.
+
+    Args:
+        node: AST node corresponding to the reference token.
+        parents: Child-to-parent mapping for the file AST.
+        script: Jedi script for symbol resolution in the same file.
+        source_lines: Source file lines (unused in classification logic).
+
+    Returns:
+        Dictionary containing at least ``usage_kind`` and optionally
+        ``consumer``, ``consumer_docstring``, and ``forwarded_as``.
+
+    """
+    enclosing = _enclosing_function(node, parents)
+    if _is_validator(enclosing):
+        return {"usage_kind": "validator"}
+
+    # The reference is the parameter name in a call that sets the constant, as
+    # in ``SoilEnzymeClass(source="fungi")``. This binds a value rather than
+    # consuming one, so the owning class is recorded as the consumer.
+    if isinstance(node, ast.keyword):
+        call = parents.get(node)
+        consumer, docstring = ("", "")
+        if isinstance(call, ast.Call):
+            consumer, docstring = _resolve_callee(script, call)
+
+        return {
+            "usage_kind": "instantiation",
+            "consumer": consumer,
+            "consumer_docstring": docstring,
+            "forwarded_as": node.arg or "",
+        }
+
+    current: ast.AST = node
+    derived = False
+    while True:
+        parent = parents.get(current)
+        if parent is None:
+            return {"usage_kind": "computation"}
+
+        # A keyword argument: constants.x passed as f(param=constants.x).
+        if isinstance(parent, ast.keyword):
+            call = parents.get(parent)
+            if not isinstance(call, ast.Call):
+                return {"usage_kind": "computation"}
+
+            consumer, docstring = _resolve_callee(script, call)
+            kind = "derived_forward" if derived else "kwarg_forward"
+            return {
+                "usage_kind": kind,
+                "consumer": consumer,
+                "consumer_docstring": docstring,
+                "forwarded_as": parent.arg or "",
+            }
+
+        # A positional argument: constants.x passed as f(constants.x).
+        if isinstance(parent, ast.Call):
+            if current in parent.args:
+                consumer, docstring = _resolve_callee(script, parent)
+                kind = "derived_forward" if derived else "positional_forward"
+                index = parent.args.index(current)
+                return {
+                    "usage_kind": kind,
+                    "consumer": consumer,
+                    "consumer_docstring": docstring,
+                    "forwarded_as": f"positional_{index}",
+                }
+
+            # The constant is part of the callee expression itself.
+            return {"usage_kind": "computation"}
+
+        # Any operator or comprehension means the forwarded value is derived.
+        if isinstance(
+            parent,
+            (
+                ast.BinOp,
+                ast.UnaryOp,
+                ast.BoolOp,
+                ast.Compare,
+                ast.IfExp,
+                ast.Subscript,
+                ast.comprehension,
+            ),
+        ):
+            derived = True
+
+        # Assignment or return means the value is consumed locally.
+        if isinstance(parent, (ast.Assign, ast.AnnAssign, ast.Return)):
+            return {"usage_kind": "computation"}
+
+        current = parent
+
+
+def _expression_at(source_lines: list[str], line: int) -> str:
+    """Return stripped source text for a one-based line index.
+
+    Args:
+        source_lines: File content split by lines.
+        line: One-based target line number.
+
+    Returns:
+        Stripped line text when in range; otherwise an empty string.
+
+    """
+    if 1 <= line <= len(source_lines):
+        return source_lines[line - 1].strip()
+
+    return ""
+
+
+def _load_ast_context(
+    path: Path,
+    tree_cache: dict[Path, ast.AST],
+    parent_cache: dict[Path, dict[ast.AST, ast.AST]],
+    lines_cache: dict[Path, list[str]],
+) -> tuple[ast.AST, dict[ast.AST, ast.AST], list[str]]:
+    """Parse and cache AST-related structures for a source file.
+
+    Args:
+        path: Absolute file path to parse.
+        tree_cache: Cache of parsed ASTs keyed by file path.
+        parent_cache: Cache of child-to-parent AST mappings keyed by file path.
+        lines_cache: Cache of source lines keyed by file path.
+
+    Returns:
+        Tuple of parsed AST, parent map, and source lines.
+
+    """
+    if path not in tree_cache:
+        source = path.read_text(encoding="utf-8")
+        tree_cache[path] = ast.parse(source)
+        parent_cache[path] = _build_parent_map(tree_cache[path])
+        lines_cache[path] = source.splitlines()
+
+    return tree_cache[path], parent_cache[path], lines_cache[path]
+
+
+def _get_script(
+    path: Path,
+    project: jedi.Project,
+    script_cache: dict[Path, jedi.Script],
+) -> jedi.Script:
+    """Build or fetch a cached Jedi script for a source file.
+
+    Args:
+        path: Absolute file path used to initialize Jedi.
+        project: Jedi project for the analysis run.
+        script_cache: Cache of ``jedi.Script`` objects keyed by file path.
+
+    Returns:
+        Cached ``jedi.Script`` instance for ``path``.
+
+    """
+    if path not in script_cache:
+        script_cache[path] = jedi.Script(path=path, project=project)
+
+    return script_cache[path]
+
+
+def _emit_progress(
+    index: int,
+    path: Path,
+    total_targets: int,
+    show_progress: bool,
+    progress_callback: Callable[[int, int, str], None] | None,
+) -> None:
+    """Send progress to callback or stdout for one processed target file.
+
+    Args:
+        index: One-based file index currently being processed.
+        path: Current file path being analyzed.
+        total_targets: Total number of target files.
+        show_progress: Whether progress output should be emitted.
+        progress_callback: Optional callback receiving ``(index, total, path)``.
+
+    """
+    if not show_progress:
+        return
+
+    display_path = path.as_posix()
+    if progress_callback is not None:
+        progress_callback(index, total_targets, display_path)
+        return
+
+    max_path_length = 72
+    if len(display_path) > max_path_length:
+        display_path = f"...{display_path[-(max_path_length - 3) :]}"
+
+    sys.stdout.write(f"[{index}/{total_targets}] {display_path}\n")
+    sys.stdout.flush()
 
 
 def get_constant_references(
-    target_file_path,
-    out_path,
-    project_root=None,
-):
-    """Find usages of configuration constants and write results to TOML.
+    target_paths: str | Path | list[str | Path],
+    out_path: str | Path,
+    project_root: str | Path,
+    include_tests: bool = False,
+    progress_callback: Callable[[int, int, str], None] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Find and classify configuration constant references, then write TOML.
 
-    Scans each target file for classes that inherit from `Configuration`,
-    collects every attribute defined on those classes, and uses `jedi` to find
-    all reference sites across the project. All results are merged into a single
-    TOML file at `out_path`.
+    Flow:
+        1. Normalize input paths and initialize output and analysis context.
+        2. Build one Jedi project and shared AST/Jedi caches for reuse.
+        3. For each target module, discover ``Configuration`` subclasses and
+           collect annotated class attributes as candidate constants.
+        4. Resolve references for each constant, classify usage at each site,
+           and record caller/consumer docstring context in shared tables.
+        5. Assemble metadata, functions, and constants into the output
+           dictionary and write it to TOML.
 
     Args:
-        target_file_path: Path(s) to the Python source file(s) to analyse,
-            given relative to `project_root`. For example, if `project_root` is
-            ``/path/to/virtual_ecosystem``, then pass
-            ``virtual_ecosystem/models/soil/model_config.py``. Accepts a single
-            path (``str`` or ``Path``) or a list of paths; results are merged
-            into one output.
-        out_path: Destination path for the TOML output file. The file is always
-            overwritten.
-        project_root: Root directory of the `virtual_ecosystem` repository,
-            passed to `jedi.Project` so that cross-file name resolution works
-            correctly. Defaults to ``Path("../virtual_ecosystem").resolve()``,
-            which resolves relative to the current working directory and assumes
-            the `virtual_ecosystem` repo is a sibling of `ve_data_science`.
+        target_paths: Path or paths to Python source files to analyze,
+            relative to ``project_root`` unless absolute.
+        out_path: Output TOML file path. Parent directories are created and the
+            file is overwritten.
+        project_root: Root directory of the analyzed repository. Used for Jedi
+            project resolution and added to ``sys.path`` for imports.
+        include_tests: Whether to retain references from paths containing
+            ``test`` or ``tests``.
+        progress_callback: Optional function called after each target file with
+            the completed count, total count, and current file path. When not
+            provided, progress is written to standard output.
 
     Returns:
-        Mapping of fully qualified constant names (e.g.
-        ``"virtual_ecosystem.models.soil.soil_model.SoilConsts.Dzs"``) to
-        dicts with the following keys:
+        Output dictionary with ``metadata``, ``functions``, and ``constants``
+        sections. Constant keys use ``module.Class.attribute`` format.
 
-        - ``name``: The bare attribute name.
-        - ``description``: The jedi description string for the definition site.
-        - ``docstring``: The docstring attached to the definition, if any.
-        - ``referenced_in``: List of dicts, each with ``caller`` (fully
-          qualified name of the enclosing scope) and ``docstring`` (docstring
-          of that scope).
-
-    Examples:
-        Analyse a single file and write results to ``output.toml``:
-
-        >>> refs = get_constant_references(
-        ...     target_file_path="virtual_ecosystem/models/soil/model_config.py",
-        ...     out_path="output.toml",
-        ... )
-
-        Analyse several model configuration files in one pass:
-
-        >>> config_files = [
-        ...     "virtual_ecosystem/models/soil/model_config.py",
-        ...     "virtual_ecosystem/models/plants/model_config.py",
-        ...     "virtual_ecosystem/models/animals/model_config.py",
-        ... ]
-        >>> refs = get_constant_references(
-        ...     target_file_path=config_files,
-        ...     out_path="all_constants.toml",
-        ...     project_root="../virtual_ecosystem",
-        ... )
-
-        From R via reticulate, pass a character vector for multiple files:
-
-        .. code-block:: r
-
-            library(reticulate)
-            tool <- import_from_path("constant_usage_tool", path = "analysis/soil/llm")
-            config_files <- c(
-                "virtual_ecosystem/models/soil/model_config.py",
-                "virtual_ecosystem/models/plants/model_config.py"
-            )
-            refs <- tool$get_constant_references(
-                target_file_path = config_files,
-                out_path = "all_constants.toml"
-            )
+    Raises:
+        KeyError: If two constants resolve to the same output key.
 
     """
-    if project_root is None:
-        project_root = Path("../virtual_ecosystem").resolve()
-
-    project_root = Path(project_root)
+    project_root = Path(project_root).resolve()
     out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Normalise to a list so the loop below works for both single and multiple paths
-    if isinstance(target_file_path, (str, Path)):
-        target_file_paths = [Path(target_file_path)]
+    # Normalize one path and many paths to one Python list for shared iteration.
+    if isinstance(target_paths, (str, Path)):
+        normalized_target_paths = [Path(target_paths)]
     else:
-        target_file_paths = [Path(p) for p in target_file_path]
+        normalized_target_paths = [Path(path) for path in target_paths]
+
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
     project = jedi.Project(project_root)
 
-    # Collect references across all target files into a single dictionary
-    script_references = {}
+    # AST caches keyed by absolute path, so each referencing file is parsed once.
+    tree_cache: dict[Path, ast.AST] = {}
+    parent_cache: dict[Path, dict[ast.AST, ast.AST]] = {}
+    lines_cache: dict[Path, list[str]] = {}
+    script_cache: dict[Path, jedi.Script] = {}
 
-    for file_path in target_file_paths:
-        # Resolve file path relative to project_root if it's relative
-        if not file_path.is_absolute():
-            full_file_path = project_root / file_path
-        else:
-            full_file_path = file_path
+    records: dict[str, ConstantRecord] = {}
+    functions: dict[str, str] = {}
 
-        # Initialize a jedi Script with the source, path, and project scope
-        with open(full_file_path) as f:
-            source_code = f.read()
+    total_targets = len(normalized_target_paths)
+    show_progress = total_targets > 1
+    if show_progress and progress_callback is None:
+        sys.stdout.write(f"Scanning constant usage in {total_targets} files...\n")
+        sys.stdout.flush()
 
-        script = jedi.Script(code=source_code, path=full_file_path, project=project)
+    for index, relative_path in enumerate(normalized_target_paths, start=1):
+        full_path = (
+            relative_path
+            if relative_path.is_absolute()
+            else project_root / relative_path
+        )
+        module_name = _module_name_from_path(full_path.relative_to(project_root))
 
-        # Get the top level names in the config - only some of these are config objects
-        script_names = script.get_names()
+        tree, _, source_lines = _load_ast_context(
+            full_path, tree_cache, parent_cache, lines_cache
+        )
+        script = _get_script(full_path, project, script_cache)
+        configuration_classes = _configuration_classes(module_name)
 
-        for name in script_names:
-            # Detect Configuration classes
-            # there must be a way to do this from the name object
-            if (name.type != "class") or (
-                "(Configuration)" not in name.get_line_code()
-            ):
+        class_nodes = {
+            node.name: node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
+        }
+
+        for class_name, base_classes in configuration_classes.items():
+            class_node = class_nodes.get(class_name)
+            if class_node is None:
                 continue
 
-            # Get the config class attributes
-            attributes = name.defined_names()
+            attributes = _declared_attributes(class_node, "")
+            body_index = {
+                id(statement): index for index, statement in enumerate(class_node.body)
+            }
 
-            # Loop over attributes
-            for attr in attributes:
-                # Look for references to the attribute given the location in the file
-                references = script.get_references(line=attr.line, column=attr.column)
+            for attribute_name, statement in attributes:
+                key = f"{module_name}.{class_name}.{attribute_name}"
+                if key in records:
+                    raise KeyError(f"Duplicate constant key: {key}")
 
-                # Split into definition and reference and get reference details.
-                references.sort(key=lambda x: not x.is_definition())
-                definition = references.pop(0)
-                reference_list = []
-                for ref in references:
-                    parent = ref.parent()
-                    # jedi may return None for full_name or docstring; convert to empty
-                    # string to ensure TOML serialization doesn't fail with NoneType
-                    reference_list.append(
-                        dict(
-                            caller=parent.full_name or "",
-                            docstring=parent.docstring() or "",
+                target = statement.target
+                docstring = _attribute_docstring(class_node, body_index[id(statement)])
+                default = ast.unparse(statement.value) if statement.value else ""
+
+                record = ConstantRecord(
+                    name=attribute_name,
+                    qualified_name=key,
+                    module=module_name,
+                    class_name=class_name,
+                    base_classes=base_classes,
+                    declaration=_expression_at(source_lines, target.lineno),
+                    docstring=docstring,
+                    default_expression=default,
+                    type_annotation=ast.unparse(statement.annotation),
+                    file=str(full_path.relative_to(project_root).as_posix()),
+                    line=target.lineno,
+                )
+
+                references = script.get_references(
+                    line=target.lineno, column=target.col_offset
+                )
+
+                for reference in references:
+                    if reference.is_definition():
+                        continue
+
+                    reference_path = Path(reference.module_path or "")
+                    if not reference_path.is_file():
+                        continue
+
+                    if not include_tests:
+                        parts = reference_path.parts
+                        if "tests" in parts or "test" in parts:
+                            continue
+
+                    ref_tree, ref_parents, ref_lines = _load_ast_context(
+                        reference_path, tree_cache, parent_cache, lines_cache
+                    )
+                    ref_script = _get_script(reference_path, project, script_cache)
+
+                    node = _find_reference_node(
+                        ref_tree,
+                        reference.line,
+                        reference.column,
+                        attribute_name,
+                    )
+
+                    parent_scope = reference.parent()
+                    caller = ""
+                    if parent_scope is not None:
+                        caller = parent_scope.full_name or ""
+                        if caller and caller not in functions:
+                            functions[caller] = _extract_relevant_docstring_sections(
+                                parent_scope.docstring() or ""
+                            )
+
+                    if node is None:
+                        classification = {"usage_kind": "unresolved"}
+                    else:
+                        classification = _classify_reference(
+                            node, ref_parents, ref_script, ref_lines
+                        )
+
+                    # Move the consumer docstring into the shared table.
+                    consumer_docstring = classification.pop("consumer_docstring", "")
+                    consumer = classification.get("consumer", "")
+                    if consumer and consumer not in functions:
+                        functions[consumer] = _extract_relevant_docstring_sections(
+                            consumer_docstring
+                        )
+
+                    try:
+                        relative_reference = reference_path.relative_to(
+                            project_root
+                        ).as_posix()
+                    except ValueError:
+                        relative_reference = str(reference_path)
+
+                    record.referenced_in.append(
+                        ConstantReference(
+                            file=relative_reference,
+                            line=reference.line,
+                            column=reference.column,
+                            caller=caller,
+                            expression=_expression_at(ref_lines, reference.line),
+                            **classification,
                         )
                     )
 
-                # Save the references and attribute details.
-                # Use 'or ""' for all jedi-returned fields to handle None values,
-                # which tomli_w cannot serialize to TOML format.
-                script_references[definition.full_name] = dict(
-                    name=definition.name or "",
-                    description=definition.description or "",
-                    docstring=definition.docstring() or "",
-                    referenced_in=reference_list,
-                )
+                records[key] = record
 
-    # Save output as TOML
-    with open(out_path, "wb") as f:
-        tomli_w.dump(script_references, f)
+        _emit_progress(
+            index,
+            full_path,
+            total_targets,
+            show_progress,
+            progress_callback,
+        )
 
-    return script_references
+    output: dict[str, Any] = {
+        "metadata": {
+            "generated_at": datetime.now(UTC).isoformat(),
+            "project_root": str(project_root),
+            **project_provenance(project_root),
+            "jedi_version": jedi.__version__,
+            "python_version": sys.version.split()[0],
+            "include_tests": include_tests,
+            "target_files": [
+                str(Path(path).as_posix()) for path in normalized_target_paths
+            ],
+            "constant_count": len(records),
+            "function_count": len(functions),
+        },
+        "functions": functions,
+        "constants": {key: asdict(record) for key, record in records.items()},
+    }
+
+    if show_progress and progress_callback is None:
+        sys.stdout.write("Completed scanning constant usage.\n")
+        sys.stdout.flush()
+
+    # Avoid relying on mutable function attributes so reticulate reloads are safe.
+    with open(out_path, "wb") as stream:
+        tomli_w.dump(output, stream)
+
+    return output
