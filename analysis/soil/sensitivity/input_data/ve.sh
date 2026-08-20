@@ -13,7 +13,6 @@ cd "${PBS_O_WORKDIR}" || exit
 CONFIG_DIR="data/scenarios/sensitivity_soil_litter/config"
 DATA_DIR="data/scenarios/sensitivity_soil_litter/data"
 OUT_ROOT="data/scenarios/sensitivity_soil_litter/out"
-truncate_update=24
 
 if [ -z "${PBS_ARRAY_INDEX:-}" ]; then
   echo "PBS_ARRAY_INDEX is not set."
@@ -39,8 +38,7 @@ uv run --group dev-pinned ve_run \
   "${CONFIG_DIR}" \
   -p SOIL_LITTER_DATA="${SOIL_LITTER_FILE}" \
   --out "${OUTDIR}" \
-  --logfile "${OUTDIR}/logfile.log" \
-  --config core.debug.truncate_run_at_update=${truncate_update}
+  --logfile "${OUTDIR}/logfile.log"
 
 # run R script
 # Rscript analysis/soil/sensitivity/input_data/ve.R
