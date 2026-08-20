@@ -1,32 +1,61 @@
-"""Find references to configuration constants in Virtual Ecosystem code.
+"""---
+title: Constant usage inventory tool.
 
-This module builds a structured inventory of where configuration constants are
-*declared* and how they are *used* across the codebase so downstream review can
-focus on behavior rather than raw grep output. The implementation combines
-runtime class discovery with static syntax analysis because neither source alone
-is sufficient: import-time introspection reliably identifies real
-``Configuration`` subclasses, while AST traversal preserves local usage context
-without executing reference sites.
+description: |
+  Builds a structured inventory of configuration constant declarations and
+  reference sites across Virtual Ecosystem Python sources.
 
-Jedi reference resolution is used to connect each declared constant to cross-file
-usage locations through the import graph. This captures practical call paths
-better than purely textual search, while still allowing syntax-based
-classification at each site (for example, local computation versus forwarding
-into another callable). Sites flagged as ``derived_forward`` are intentionally
-highlighted because value transformation can make destination semantics ambiguous
-and therefore may require manual review.
+  The design combines runtime discovery of ``Configuration`` subclasses with AST
+  context analysis and Jedi reference resolution. This combination is used
+  because introspection identifies true declaring classes, AST preserves local
+  usage semantics without execution, and Jedi links cross-file references
+  through imports.
 
-Records are keyed as ``module.Class.attribute`` to provide stable, deterministic
-identifiers even when ``jedi`` symbol names are missing, duplicated, or
-inconsistent across contexts. Function docstrings are de-duplicated into a
-shared top-level ``functions`` table so call-site records stay compact while
-retaining explanatory context.
+  Output records are keyed as ``module.Class.attribute`` for deterministic
+  identifiers, and function docstrings are de-duplicated in a shared
+  ``functions`` table. ``derived_forward`` classifications are intentionally
+  highlighted for manual review because transformed values can obscure consumer
+  semantics.
 
-When ``include_tests`` is ``False``, references in test paths are excluded.
-Because Jedi follows import relationships rather than performing a full textual
-scan, reference discovery is best-effort and should be interpreted as a
-high-signal inventory, not a formal proof of complete coverage.
-"""
+virtual_ecosystem_module: All
+
+author: Hao Ran Lai
+
+status: final
+
+input_files:
+  - name: Target Python source files in the VE modules
+    path: Provided via ``target_file_path`` relative to ``project_root``
+    description: |
+      Python modules containing ``Configuration`` subclasses and declared
+      constants to analyze.
+
+output_files:
+  - name: Constant usage inventory
+    path: Provided via ``out_path``
+    description: |
+      TOML file containing metadata, function summaries, constants, and
+      classified reference sites.
+
+imported_files:
+  - name: Configuration base class
+    path: virtual_ecosystem/core/configuration.py
+    description: |
+      Provides the ``Configuration`` superclass used to identify declaring
+      classes.
+
+package_dependencies:
+  - ast
+  - importlib
+  - jedi
+  - tomli_w
+
+usage_notes: |
+  Reference discovery is best-effort because Jedi follows import relationships
+  rather than exhaustive text scanning. When ``include_tests`` is ``False``,
+  references under test paths are excluded.
+---
+"""  # noqa: D205
 
 from __future__ import annotations
 
