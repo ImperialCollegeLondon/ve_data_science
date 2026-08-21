@@ -2,8 +2,8 @@ library(tidyverse)
 library(arrow)
 library(calibrar)
 library(parallel)
-box::use(tools/R/R/ve_run[ve_run])
-box::use(tools/R/R/valdb)
+source("tools/R/R/ve_run.R")
+source("tools/R/R/valdb.R")
 
 ncores <- detectCores() - 2 # number of cores to be used
 cl <- makeCluster(ncores)
