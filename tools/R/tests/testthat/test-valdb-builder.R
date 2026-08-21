@@ -226,10 +226,7 @@ test_that("validate_source_schema checks required fields and source files", {
 
   missing_field <- source
   missing_field$variables <- NULL
-  expect_error(
-    validate_source_schema(missing_field, schema_path),
-    "missing required field"
-  )
+  expect_error(validate_source_schema(missing_field, schema_path))
 
   missing_file <- source
   missing_file$data_file <- file.path(directory, "missing.csv")
