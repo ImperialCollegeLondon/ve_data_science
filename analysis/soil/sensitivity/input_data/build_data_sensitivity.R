@@ -56,10 +56,20 @@ source("tools/R/R/summarise_spatial.R")
 
 
 # constants and paths
-in_dir <- "data/scenarios/maliau/maliau_1/data"
+shared_repo_dir <- file.path(
+  "..",
+  "projects",
+  "virtual_rainforest",
+  "live",
+  "ve_data_science"
+)
+in_dir <- file.path(shared_repo_dir, "data/scenarios/maliau/maliau_1/data")
 out_dir <- "data/sensitivity/soil_litter_inputs/data"
 out_config_dir <- "data/sensitivity/soil_litter_inputs/config"
-grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
+grid_definition_path <- file.path(
+  shared_repo_dir,
+  "data/derived/site/maliau/maliau_grid_definition.toml"
+)
 soil_input_path <- file.path(in_dir, "soil_maliau.nc")
 litter_input_path <- file.path(in_dir, "litter_maliau.nc")
 elevation_input_path <- file.path(in_dir, "elevation_maliau_2010_2020_100m.nc")

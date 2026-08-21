@@ -3,8 +3,21 @@ library(toml)
 source("tools/R/R/build_config.R")
 source("tools/R/R/collect_data_paths.R")
 
-grid_definition_path <- "data/derived/site/maliau/maliau_grid_definition.toml"
-plant_constants_path <- "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
+shared_repo_dir <- file.path(
+  "..",
+  "projects",
+  "virtual_rainforest",
+  "live",
+  "ve_data_science"
+)
+grid_definition_path <- file.path(
+  shared_repo_dir,
+  "data/derived/site/maliau/maliau_grid_definition.toml"
+)
+plant_constants_path <- file.path(
+  shared_repo_dir,
+  "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
+)
 config_dir <- "data/sensitivity/soil_litter_inputs/config"
 
 required_inputs <- c(

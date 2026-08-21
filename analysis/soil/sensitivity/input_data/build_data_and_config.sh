@@ -17,5 +17,5 @@ Rscript analysis/soil/sensitivity/input_data/build_data_sensitivity.R
 Rscript analysis/soil/sensitivity/input_data/build_config_sensitivity.R
 
 # submit this from the ve_data_science root directory with:
-# cd ../projects/virtual_rainforest/live/ve_data_science
+# cd ve_data_science
 # qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
