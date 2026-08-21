@@ -33,7 +33,8 @@ summarise_spatial <- function(arrays, FUN) {
         dimnames_new <- mapply(
           function(x, y) x[y],
           x = dimnames(var),
-          y = lapply(dim_new, seq_len)
+          y = lapply(dim_new, seq_len),
+          SIMPLIFY = FALSE
         )
 
         # calculate mean and assign the mean array the same dimension as the original
