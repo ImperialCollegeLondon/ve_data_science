@@ -9,13 +9,11 @@ Run commands from the repository root.
 
 ```text
 data/primary/soil/<author>_<year>/
-├── <data sheet>.csv            # source data, converted manually
-└── locations.csv               # SAFE Locations sheet, converted manually
+└── <data sheet>.csv            # source data, converted manually
 data/derived/soil/validation/
 ├── config/
-│   ├── sources.yaml            # screening log and dataset schema entries
-│   ├── derived_variables.toml  # non-VE canonical variables (optional)
-│   └── unit_conversions.csv    # unit_from/unit_to conversion rules
+│   ├── sources/                # one screening/schema YAML file per DOI
+│   └── derived_variables.toml  # non-VE canonical variables (optional)
 └── database/                   # output Parquet dataset
 tools/R/R/valdb.R               # workflow functions
 ```
@@ -41,14 +39,88 @@ After `source()`, call them as `function_name()`.
 
 ## Workflow overview
 
-1. Download the source dataset and convert it to CSV.
-2. Screen candidate datasets and record inclusion decisions.
-3. Add schema fields to included datasets in `sources.yaml`.
-4. Fill schema manually (file path, variable mapping, units, keys).
+1. Screen each candidate dataset and save one per-DOI YAML record.
+2. Initialise schema fields for a dataset with a `proceed` decision.
+3. Download the source dataset and convert it to CSV.
+4. Complete the schema manually (file path, variable mapping, units, keys).
 5. Build the harmonised validation database.
 6. Combine the validation database with VE outputs.
 
-## 1) Download the dataset and convert it to CSV
+## 1) Data screening
+
+Use `screen_dataset()` to retrieve DOI metadata and record whether a dataset
+should proceed, be excluded, or be deferred.
+
+```r
+box::use(tools/R/R/valdb)
+valdb$screen_dataset()
+```
+
+The function prompts for a DOI, a decision, a decision-specific reason, and
+notes. The available decisions are:
+
+| Decision | Meaning |
+| --- | --- |
+| `proceed` | The source contains relevant validation data. |
+| `exclude` | The source is unsuitable for the validation database. |
+| `defer` | A decision requires more information or another opinion. |
+
+Notes are required for `defer` decisions and when the selected reason is
+`other`. DOI metadata must be resolvable through DOI content negotiation
+(`rcrossref::cr_cn()`).
+
+Each successful screening creates one file under
+`data/derived/soil/validation/config/sources/`. The filename is a stable ID
+derived from the normalised DOI, for example:
+
+```text
+doi-10-5281-zenodo-2024580.yaml
+```
+
+Existing DOI records are not overwritten. To amend a screening decision,
+delete its per-DOI YAML file and screen the dataset again.
+
+## 2) Add a schema template for one `proceed` dataset
+
+`add_schema()` locates a screening record by DOI and adds the fields required by
+the current build step.
+
+```r
+valdb$add_schema(doi = "10.5281/zenodo.2024580")
+```
+
+Set `sources_dir` only when the records are stored outside the default
+directory:
+
+```r
+valdb$add_schema(
+  doi = "10.5281/zenodo.2024580",
+  sources_dir = "data/derived/soil/validation/config/sources"
+)
+```
+
+The DOI may use upper-case characters, a `doi:` prefix, or a DOI resolver URL;
+it is normalised before lookup. The record must already exist, have
+`screening.decision: proceed`, and not contain a schema. If these checks pass,
+the template is written safely and only the target per-DOI YAML file is opened
+for manual editing. Existing schemas are not overwritten.
+
+A minimal local dashboard provides the same workflow for all pending `proceed`
+records. Launch it from the repository root:
+
+```r
+shiny::runApp("analysis/soil/validation/schema_dashboard")
+```
+
+The dashboard reads the YAML records directly, shows screening notes, and loads
+the selected record into a browser YAML editor. It calls
+`initialise_source_schema()` only when a schema does not exist. Untouched or
+partially completed template schemas remain in the to-do list as drafts. Saving
+validates the YAML and record identity before replacing the filesystem record.
+The record can also be opened in the desktop editor. The dashboard does not
+maintain a separate database.
+
+## 3) Download the dataset and convert it to CSV
 
 Download the dataset to `data/primary/<module>/<author>_<year>`. Note that the
 soil folder is used as an example throughout this page, and that
@@ -60,58 +132,17 @@ example Excel or zip), then manually convert the desired data sheet into a CSV
 file. We opted not to accommodate multiple data formats because the cost of
 manual conversion is relatively minor even in the long run.
 
-### Also export the `Locations` sheet
-
-Datasets curated to the SAFE standard carry a second sheet named `Locations`,
-holding the spatial coordinates of each sampling location. Export that sheet
-too, as `locations.csv`, into the same folder as the data CSV.
-
-A folder therefore usually ends up looking like this:
-
-```text
-data/primary/soil/dobert_2019/
-├── template_Doebert.xlsx           # the file as downloaded
-├── DoebertTF_SAFE_PlotData.csv     # the data sheet, converted manually
-└── locations.csv                   # the Locations sheet, converted manually
-```
-
-`build_validation_database()` picks up `locations.csv` automatically, so no
-configuration is needed for datasets that follow this convention. See
-[Spatial coordinates](#spatial-coordinates) for datasets that do not.
-
-## 2) Data screening
-
-Use this stage to log whether a dataset is included or excluded.
-
-```r
-box::use(tools/R/R/valdb)
-valdb$log_dataset()
-```
-
-By default, `log_dataset()` appends one record to
-`data/derived/soil/validation/config/sources.yaml`.
-Each record includes DOI metadata plus fields such as `decision`, `reason`, and
-`notes`.
-
-Assumption: DOI metadata can be resolved via Crossref (`rcrossref::cr_cn()`).
-
-## 3) Add schema template for one included dataset
-
-`add_schema()` modifies a record inside `sources.yaml` by DOI and appends schema
-fields required by the build step.
-
-```r
-valdb$add_schema(
-  source_yaml = "data/derived/soil/validation/config/sources.yaml",
-  doi = "10.5281/ZENODO.2024580"
-)
-```
-
-This opens the YAML file for manual editing.
+Keep any location or coordinate files supplied with the source dataset. For the
+default spatial workflow, export the source location table as `locations.csv`
+beside the measurement CSV.
 
 ## 4) Complete schema fields manually
 
-For each included dataset, fill at least:
+The template is an editable scaffold, not a build-ready configuration. Replace
+every placeholder with values from the source dataset, remove unused example
+entries, and add one `variables` entry for each source column to include.
+
+For each dataset with a `proceed` decision, complete:
 
 - `source_id` (e.g. `dobert_2019`)
 - `data_file` (path to the CSV file)
@@ -119,9 +150,26 @@ For each included dataset, fill at least:
 - `variables` (original name, canonical name, original unit)
 - `dedup_key`
 
+These fields are added at the top level of the existing per-DOI record. They
+sit alongside `schema_version`, `record_id`, `doi`, `screening`, and `metadata`;
+they are not nested under a separate `schema` key.
+
 Example:
 
 ```yaml
+schema_version: 1
+record_id: doi-10-5281-zenodo-2024580
+doi: 10.5281/zenodo.2024580
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: ""
+  screened_at: "2026-08-13T12:05:00Z"
+metadata:
+  title: Example dataset
+  authors:
+    - Doe, Jane
+  year: 2019
 source_id: dobert_2019
 data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
 skip_rows: 9
@@ -141,85 +189,68 @@ dedup_key:
 Assumptions and expectations:
 
 - Input files are CSV (`readr::read_csv()` is used internally).
-- `var_canonical` must exist in either VE `data_variables.toml` or
+- Known `var_canonical` names are resolved against the latest VE
+  `data_variables.toml` from the `develop` branch and
   `config/derived_variables.toml`.
-- Any required `unit_from -> unit_to` pair must exist in
-  `config/unit_conversions.csv`.
+- Source and canonical units are interpreted and converted directly with the
+  `units` package. Malformed or dimensionally incompatible units are errors.
+- Unknown canonical names produce a warning. Their observations and original
+  units are retained, while canonical values and units are recorded as missing.
 
-### Spatial coordinates
+### Spatial and temporal metadata
 
-The build adds four columns to every observation: `latitude`, `longitude`,
-`location_type` and `coordinate_source`. Coordinates are always decimal
-degrees (WGS84).
+The `coordinates` and `temporal` blocks are optional. Leave their template
+values blank when the source does not provide the corresponding metadata.
+Missing spatial or temporal metadata produces a warning and typed missing
+values in the database; it does not make an otherwise complete schema a draft.
 
-Datasets that follow the SAFE convention above need **no configuration at
-all**: the build reads `locations.csv` from the same folder as `data_file`,
-and matches its `Location name` column against the dataset's `dedup_key`.
+By default, the builder looks for `locations.csv` beside `data_file`. It matches
+the single `dedup_key` column against `Location name` and reads `Latitude` and
+`Longitude`. Use `match_data_column`, `match_location_column`,
+`latitude_column`, and `longitude_column` to override those names, or
+`from_file` to use another location file. A multi-column `dedup_key` requires an
+explicit `match_data_column`. Coordinates must be WGS84 decimal degrees. Use
+`same_for_all_rows.latitude` and `same_for_all_rows.longitude` when one location
+applies to the complete dataset.
 
-`add_schema()` writes an optional `coordinates` block for the datasets that
-differ. Every entry is optional, and entries left as `.na` are ignored, so
-delete the ones you do not need, or delete the whole block:
+Temporal metadata can come from one `date_column`, from paired `start_column`
+and `end_column` values, or from `same_for_all_rows.start` and
+`same_for_all_rows.end`. Columns used for time metadata must also be retained by
+`dedup_key` or `variables`. Optional `format`, `timezone`, and `precision`
+settings control parsing; supported precision values are `second`, `day`,
+`month`, and `year`. Times are stored in UTC as half-open intervals
+`[time_start, time_end)`. Source end values are interpreted as the last
+inclusive precision unit, and `same_for_all_rows.end: open` represents an
+unbounded end. The optional blanket `note` is stored in `time_note`.
 
-```yaml
-coordinates:
-  # where the coordinates live
-  # default: locations.csv next to data_file
-  from_file: data/primary/soil/smith_2022/plots.csv
-  # column in data_file holding the location name
-  # default: the dedup_key, which must then be a single column
-  match_data_column: site
-  # column in the locations file holding the location name
-  # default: Location name
-  match_location_column: plot_code
-  # coordinate columns in the locations file
-  # defaults: Latitude and Longitude
-  latitude_column: lat_dd
-  longitude_column: lon_dd
-```
-
-When a source gives only one blanket location for every row, for example a
-study site named in the paper but never pinned down per sample, use
-`same_for_all_rows` **instead of** the entries above:
+For example:
 
 ```yaml
 coordinates:
+  from_file:
+  match_data_column: plot.code
+  match_location_column: Location name
+  latitude_column: Latitude
+  longitude_column: Longitude
   same_for_all_rows:
-    latitude: 4.7422
-    longitude: 116.9678
-    note: "Paper states 'Maliau Basin Conservation Area' only"
+    latitude:
+    longitude:
+temporal:
+  date_column:
+  start_column:
+  end_column:
+  format:
+  timezone: UTC
+  precision: day
+  same_for_all_rows:
+    start: 2011-01-01
+    end: 2014-12-31
+    precision: day
+    note: Sampling period reported by the source
 ```
 
-`coordinate_source` records which of these routes supplied each row, and takes
-one of three values:
-
-| Value | Meaning |
-| --- | --- |
-| `locations_file` | Looked up from a locations file |
-| `same_for_all_rows` | One blanket coordinate for the whole dataset |
-| `missing` | No coordinates available; latitude and longitude are `NA` |
-
-`location_type` carries the SAFE `Type` column verbatim, for example `POINT`
-or `Carbon Plot`. It is useful for telling a precise GPS fix apart from a
-plot-level location. It is `NA` when the locations file has no `Type` column,
-and `"whole dataset"` under `same_for_all_rows`.
-
-The build stops with an error if:
-
-- a locations file has duplicated location names, because that would silently
-  multiply the number of observations;
-- any coordinate falls outside the valid range, which usually means the
-  latitude and longitude columns are swapped or are in a projected coordinate
-  system;
-- `dedup_key` has more than one column and `match_data_column` was not given,
-  because the location column is then ambiguous;
-- `same_for_all_rows` is used without both `latitude` and `longitude`.
-
-It warns, but continues, when the locations file is absent altogether, or when
-some rows match no coordinates. Those rows get `NA` coordinates and a
-`coordinate_source` of `missing`.
-
-Sources giving northing/easting rather than decimal degrees are not yet
-supported; they would need an EPSG code in the schema and a reprojection step.
+Use either per-row settings or `same_for_all_rows` within each block, and remove
+unused entries when the schema is complete.
 
 ## 5) Build the validation database
 
@@ -231,16 +262,20 @@ valdb$build_validation_database()
 
 Default behavior:
 
-- Reads conversion rules from
-  `data/derived/soil/validation/config/unit_conversions.csv`
-- Builds canonical variable metadata from VE + local derived variables
-- Reads dataset schemas from `data/derived/soil/validation/config/sources.yaml`
-- Attaches spatial coordinates, by default from the `locations.csv` sitting
-  next to each `data_file`
+- Downloads current canonical variable metadata from the VE `develop` branch
+  and combines it with local derived-variable metadata
+- Converts known variables directly between compatible units with `units`
+- Reads per-DOI records in filename order from
+  `data/derived/soil/validation/config/sources/*.yaml`
+- Ignores screening-only records
+- Warns about initialised schemas that still contain mandatory placeholders and
+  skips them
+- Requires every schema record to retain a `proceed` screening decision
 - Writes Parquet output to `data/derived/soil/validation/database`
 
-Only sources that have a `source_id` are built, so screening records that were
-never given a schema are ignored.
+A `proceed` decision alone does not make a record build-ready. The builder only
+uses records with a completed top-level schema. It stops if no completed schemas
+remain after screening-only and draft records are excluded.
 
 ## 6) Combine the validation database with VE outputs
 
@@ -283,13 +318,25 @@ Current implementation supports:
 
 Other spatiotemporal classes currently return `NA` quantiles with a warning.
 
+## Legacy screening records
+
+`data/derived/soil/validation/config/sources.yaml` is retained temporarily as
+migration input. It is not read by the current screening, schema, or build
+workflow. Some historical screening records and completed schemas in that file
+have not yet been reconciled with `config/sources/`; do not delete it until the
+migration has been checked DOI by DOI.
+
+The report source at
+`analysis/soil/validation/safe_database_screen/dataset_screening.qmd` has been
+retired because it reads the legacy aggregate format. Its existing generated
+HTML is a historical snapshot and must not be treated as current workflow
+output.
+
 ## Ongoing metadata curation
 
-When new unit conversions are needed, edit:
-`data/derived/soil/validation/config/unit_conversions.csv`
-
-When new derived variables are needed, edit:
-`data/derived/soil/validation/config/derived_variables.toml`
+When new derived variables are needed, edit
+`data/derived/soil/validation/config/derived_variables.toml`. Source schemas
+should use unit strings understood by the `units` package.
 
 ## Notes for contributors
 

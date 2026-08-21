@@ -36,322 +36,1012 @@
 #|     - rlang
 #|     - sf
 #|     - stats
+#|     - stringr
 #|     - tibble
 #|     - tidyr
 #|     - toml
 #|     - utils
 #|     - yaml
-#|     - yesno
 #|
 #| usage_notes: |
 #|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
 #| ---
 
-box::use(./get_ve_variables[...])
+# Screening record contract -----------------------------------------------
 
-#' Normalise DOI strings for consistent handling
+screening_decisions <- c("proceed", "exclude", "defer")
+
+screening_reasons <- list(
+  proceed = "relevant_validation_data",
+  exclude = c(
+    "no_raw_data",
+    "no_relevant_variables",
+    "duplicate_source",
+    "insufficient_metadata",
+    "other"
+  ),
+  defer = c(
+    "needs_second_opinion",
+    "access_pending",
+    "outside_module_scope",
+    "other"
+  )
+)
+
+
+#' Normalise a DOI to lower case
 #'
-#' Normalises DOI strings by removing common URL prefixes, trimming whitespace,
-#' and converting to uppercase. This ensures consistent DOI representation
-#' across the database and supports downstream processing.
+#' @param doi A DOI, optionally prefixed by `doi:` or a DOI resolver URL.
 #'
-#' @param doi A character vector of DOI strings to normalise.
-#'
-#' @returns A character vector of normalised DOI strings in the format `10.XXXX/XXXXX`
-#'   (uppercase, whitespace trimmed, URL prefixes removed).
+#' @returns A lower-case DOI without a prefix or resolver URL.
 #'
 #' @export
-#'
-#' @examples
-#' # Clean DOI suffix
-#' normalise_doi("10.1038/nphys1170")
-#'
-#' # Uppercase DOI
-#' normalise_doi("10.1038/NPHYS1170")
-#'
-#' # Full HTTPS URL
-#' normalise_doi("https://doi.org/10.1038/nphys1170")
-#'
-#' # Legacy HTTP DX URL
-#' normalise_doi("http://dx.doi.org/10.1038/nphys1170")
-#'
-#' # DOI prefix format
-#' normalise_doi("doi:10.1038/nphys1170")
-#'
-#' # With surrounding whitespace
-#' normalise_doi(" 10.1038/nphys1170 ")
-#'
-#' # Vector of mixed formats
-#' normalise_doi(c(
-#'   "10.1038/nphys1170",
-#'   "https://doi.org/10.1038/nphys1170",
-#'   "DOI:10.1038/NPHYS1170"
-#' ))
 
 normalise_doi <- function(doi) {
-  if (!is.character(doi)) {
-    rlang::abort(
-      c(
-        "Argument {.arg doi} must be a character vector.",
-        "Got {.cls {class(doi)}}."
+  if (!is.character(doi) || length(doi) != 1L || is.na(doi)) {
+    cli::cli_abort("{.arg doi} must be one non-missing string.")
+  }
+
+  normalised <- doi |>
+    stringr::str_trim() |>
+    stringr::str_remove(stringr::regex("^doi\\s*:\\s*", ignore_case = TRUE)) |>
+    stringr::str_remove(
+      stringr::regex(
+        "^https?://(dx\\.)?doi\\.org/",
+        ignore_case = TRUE
       )
-    )
+    ) |>
+    stringr::str_to_lower()
+
+  if (!stringr::str_detect(normalised, "^10\\.[0-9]{4,9}/\\S+$")) {
+    cli::cli_abort("{.arg doi} is not a valid DOI.")
   }
 
-  # Trim whitespace
-  doi <- stringr::str_trim(doi)
-
-  # Remove common URL prefixes (case-insensitive)
-  doi <- stringr::str_remove(doi, "^(?i)https?://(?:dx\\.)?doi\\.org/")
-  doi <- stringr::str_remove(doi, "^(?i)doi:")
-
-  # Convert to uppercase
-  doi <- stringr::str_to_upper(doi)
-
-  return(doi)
+  normalised
 }
 
 
-#' Log decision on whether a dataset should be included for validation purposes
+#' Create a stable record identifier from a DOI
 #'
-#' This function is intended to be used as \code{log_dataset()}, which will display
-#' a UI in the R console and prompt you to enter the DOI and notes on
-#' decisions. The log is then stored as a human-readable YAML file in the
-#' specified output path, which defaults to the soil module for now.
+#' @param doi A DOI accepted by [normalise_doi()].
 #'
-#' @param filename Filename of the source metadata, which currently defaults
-#'   to the soil module
-#'
-#' @details
-#' You will asked to enter:
-#' \describe{
-#'   \item{DOI}{DOI string of the dataset or publication}
-#'   \item{Decision}{A menu to select decision}
-#'   \item{Reason}{(Optional) A menu to select reason}
-#'   \item{Notes}{(Optional) A string of long-form rationale}
-#' }
-#'
-#' @returns A YAML file logging the decision and source metadata in
-#'   \code{filename}.
+#' @returns A file-safe record identifier.
 #'
 #' @export
+
+doi_to_record_id <- function(doi) {
+  record_id <- doi |>
+    normalise_doi() |>
+    stringr::str_replace_all("[^a-z0-9]+", "-")
+
+  stringr::str_c("doi-", record_id)
+}
+
+
+#' Normalise metadata returned by DOI content search
 #'
-#' @examples
-#' box::use(tools/R/R/valdb)
-#' box::help(valdb$log_dataset)  # if you need a conventional R help page
-#' valdb$log_dataset()
+#' The metadata should be a list rather than a `bibentry`, so that it can be
+#' normalised into a stable structure for YAML and use from R or Python. This is
+#' why DOI metadata are requested in the `citeproc-json-ish` format.
+#'
+#' @param metadata Metadata returned by `rcrossref::cr_cn()` using the
+#'   `citeproc-json-ish` format.
+#' @param retrieved_at Date and time when the metadata was retrieved. The
+#'   current time is used by default; this argument mainly supports
+#'   reproducible tests and imports.
+#'
+#' @returns A named list following the screening metadata contract.
+#'
+#' @export
 
-log_dataset <- function(
-  filename = "data/derived/soil/validation/config/sources.yaml"
-) {
-  # prompt to enter DOI
-  doi_input <- readline("Enter DOI: ")
-
-  # normalise DOI to ensure consistency
-  doi <- normalise_doi(doi_input)
-
-  # read source yaml file if it already exists
-  if (file.exists(filename)) {
-    sources <- yaml::read_yaml(filename)
-    # exit early if a DOI has already been logged
-    doi_existing <- purrr::map_chr(sources, "doi")
-    if (doi %in% normalise_doi(doi_existing)) {
-      cli::cli_abort("{.val {doi}} has already been logged in {filename}.")
-    }
+normalise_doi_metadata <- function(metadata, retrieved_at = Sys.time()) {
+  if (!is.list(metadata)) {
+    cli::cli_abort("{.arg metadata} must be a list.")
+  }
+  if (!inherits(retrieved_at, "POSIXt") || length(retrieved_at) != 1L) {
+    cli::cli_abort("{.arg retrieved_at} must be one date-time value.")
   }
 
-  # download dataset metadata
-  meta <- rcrossref::cr_cn(doi, format = "bibentry")
-
-  # prompt for decision, decision, decision...
-  decision <- utils::select.list(
-    c("included", "excluded"),
-    title = "Decision (enter 0 to skip): ",
-    graphics = FALSE
-  )
-  if (decision == "") {
-    decision <- "skipped"
-  }
-
-  # prompt for short-form reason
-  reason <- utils::select.list(
-    c("used_elsewhere", "no_raw_data", "no_soil_data"),
-    title = "Reason (enter 0 to skip): ",
-    graphics = FALSE
-  )
-
-  # prompt for long-form notes
-  notes <- readline("Notes (leave blank to skip): ")
-
-  # Build new record
-  new_record <- list(
-    doi = meta$doi,
-    decision = decision,
-    reason = reason,
-    notes = notes,
-    logged_at = format(Sys.time(), "%Y-%m-%d"),
-    metadata = list(
-      title = meta$title,
-      author = meta$author,
-      year = meta$year,
-      journal = as.character(meta$journal %||% NA),
-      publisher = meta$publisher,
-      url = meta$url,
-      keywords = meta$keywords
-    )
-  )
-
-  # append new record to existing source YAML if the latter already exists
-  if (file.exists(filename)) {
-    sources <- c(sources, list(new_record))
+  authors <- metadata$author
+  if (is.data.frame(authors) && nrow(authors) > 0L) {
+    authors <- authors |>
+      dplyr::transmute(
+        author = stringr::str_c(.data$family, .data$given, sep = ", ")
+      ) |>
+      dplyr::pull(.data$author)
   } else {
-    sources <- list(new_record)
+    authors <- NULL
   }
 
-  # Write YAML
-  yaml::write_yaml(sources, filename)
+  date_parts <- metadata$issued[["date-parts"]]
+  year <- if (length(date_parts) > 0L) {
+    as.integer(unlist(date_parts)[[1L]])
+  } else {
+    NULL
+  }
 
-  # Completion message
-  cli::cli_alert_info("Dataset from {.val {doi}} is {decision}")
-  cli::cli_alert_success("Decision log saved to\n{filename}")
+  list(
+    title = metadata$title,
+    authors = authors,
+    year = year,
+    journal = metadata[["container-title"]],
+    publisher = metadata$publisher,
+    url = metadata$URL,
+    keywords = metadata$categories,
+    provider = "doi_content_search",
+    retrieved_at = format(retrieved_at, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  )
 }
 
 
-#' Add a template schema of dataset metadata and config
+#' Retrieve metadata for a DOI
 #'
-#' @param source_yaml Filename of the dataset log YAML file. We expect this to
-#'   have been generated by [log_dataset()].
-#' @param doi DOI of the dataset to update in the source YAML.
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param retrieved_at Date and time when the metadata was retrieved. The
+#'   current time is used by default; this argument mainly supports
+#'   reproducible tests and imports.
+#' @param .fetcher Function used to retrieve DOI metadata. This supports
+#'   network-independent tests and normally should not be changed.
 #'
-#' @returns An edited YAML config file replacing the previous unedited version.
+#' @returns A named list following the screening metadata contract.
 #'
 #' @export
-#' @examples
-#' box::use(tools/R/R/valdb)
-#' valdb$add_schema(
-#'   source_yaml = "data/derived/soil/validation/config/sources.yaml",
-#'   doi = "10.5281/ZENODO.8158810"
-#' )
 
-add_schema <- function(
-  source_yaml = "data/derived/soil/validation/config/sources.yaml",
-  doi
+fetch_doi_metadata <- function(
+  doi,
+  retrieved_at = Sys.time(),
+  .fetcher = rcrossref::cr_cn
 ) {
-  # Validate input YAML exists before reading
-  if (!file.exists(source_yaml)) {
+  doi <- normalise_doi(doi)
+
+  metadata <- tryCatch(
+    .fetcher(doi, format = "citeproc-json-ish"),
+    error = function(error) {
+      cli::cli_abort(
+        c(
+          "Could not retrieve metadata for DOI {.val {doi}}.",
+          "i" = "Check the DOI and the network connection, then try again."
+        ),
+        parent = error
+      )
+    }
+  )
+
+  if (!is.list(metadata) || length(metadata) == 0L) {
+    cli::cli_abort("No metadata were returned for DOI {.val {doi}}.")
+  }
+
+  normalise_doi_metadata(metadata, retrieved_at = retrieved_at)
+}
+
+
+#' Construct a dataset screening record
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param decision Screening decision. Use `proceed` when the dataset is
+#'   relevant for validation, `exclude` when it is not suitable, or `defer`
+#'   when the decision needs more information.
+#' @param reason Reason for the decision. For `proceed`, use
+#'   `relevant_validation_data`. For `exclude`, use `no_raw_data`,
+#'   `no_relevant_variables`, `duplicate_source`, `insufficient_metadata`, or
+#'   `other`. For `defer`, use `needs_second_opinion`, `access_pending`,
+#'   `outside_module_scope`, or `other`.
+#' @param notes Free-text screening notes. Notes are required for `defer` and
+#'   when the reason is `other`.
+#' @param metadata Normalised DOI metadata.
+#' @param screened_at Date and time of the decision. The current time is used
+#'   by default; this argument mainly supports reproducible tests and imports.
+#'
+#' @returns A screening record as a named list.
+#'
+#' @export
+
+new_screening_record <- function(
+  doi,
+  decision,
+  reason,
+  notes = "",
+  metadata,
+  screened_at = Sys.time()
+) {
+  decision <- match.arg(decision, screening_decisions)
+  reason <- match.arg(reason, screening_reasons[[decision]])
+
+  if (!is.character(notes) || length(notes) != 1L || is.na(notes)) {
+    cli::cli_abort("{.arg notes} must be one non-missing string.")
+  }
+  if (
+    (identical(decision, "defer") || identical(reason, "other")) &&
+      !stringr::str_detect(notes, "\\S")
+  ) {
+    cli::cli_abort("{.arg notes} is required for {.val {decision}} decisions.")
+  }
+  if (!is.list(metadata)) {
+    cli::cli_abort("{.arg metadata} must be a list.")
+  }
+  if (!inherits(screened_at, "POSIXt") || length(screened_at) != 1L) {
+    cli::cli_abort("{.arg screened_at} must be one date-time value.")
+  }
+
+  doi <- normalise_doi(doi)
+
+  list(
+    schema_version = 1L,
+    record_id = doi_to_record_id(doi),
+    doi = doi,
+    screening = list(
+      decision = decision,
+      reason = reason,
+      notes = notes,
+      screened_at = format(screened_at, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+    ),
+    metadata = metadata
+  )
+}
+
+
+#' Read all dataset screening records
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently hardcoded to the soil module; to relax this later.
+#'
+#' @returns A named list of screening records. Names are the source filenames
+#'   without their `.yaml` extension.
+#'
+#' @export
+
+list_screening_records <- function(
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  if (!dir.exists(sources_dir)) {
+    return(list())
+  }
+
+  paths <-
+    list.files(
+      sources_dir,
+      pattern = "\\.yaml$",
+      full.names = TRUE,
+      ignore.case = TRUE
+    ) |>
+    sort()
+
+  records <- purrr::map(paths, function(path) {
+    tryCatch(
+      yaml::read_yaml(path),
+      error = function(error) {
+        cli::cli_abort(
+          "Could not read screening record {.path {path}}.",
+          parent = error
+        )
+      }
+    )
+  })
+  names(records) <-
+    basename(paths) |>
+    stringr::str_remove(stringr::regex("\\.yaml$", ignore_case = TRUE))
+
+  records
+}
+
+
+#' Find a dataset screening record by DOI
+#'
+#' This function supports record lookup and checks that a DOI occurs at most
+#' once in `sources_dir`. Duplicate prevention cannot take place in
+#' [new_screening_record()], because that function constructs an in-memory
+#' record without reading the repository. [write_screening_record()] uses this
+#' function to reject a DOI that has already been saved.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'
+#' @returns The matching screening record, or `NULL` if the DOI has not been
+#'   screened.
+#'
+#' @export
+
+find_screening_record <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  doi <- normalise_doi(doi)
+  records <- list_screening_records(sources_dir)
+
+  matches <- purrr::keep(records, function(record) {
+    is.list(record) && identical(record$doi, doi)
+  })
+
+  if (length(matches) > 1L) {
+    cli::cli_abort(
+      "DOI {.val {doi}} occurs in multiple screening records: {names(matches)}."
+    )
+  }
+  if (length(matches) == 0L) {
+    return(NULL)
+  }
+
+  matches[[1L]]
+}
+
+
+#' Write a dataset screening record
+#'
+#' The record is written to a temporary file in `sources_dir`, read back to
+#' verify the YAML round trip, and then renamed to its final path. Existing
+#' records are never overwritten. To amend a saved decision, delete its YAML
+#' file and screen the dataset again.
+#'
+#' The DOI and record ID are checked again at this file-writing step. This
+#' protects against records that were loaded from YAML or modified after they
+#' were created.
+#'
+#' @param record A screening record created by [new_screening_record()].
+#' @param sources_dir Directory in which to create the YAML file.
+#'   Currently hardcoded to the soil module; to relax this later.
+#'
+#' @returns The path of the new YAML file.
+#'
+#' @export
+
+write_screening_record <- function(
+  record,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  if (!is.list(record) || is.null(record$doi) || is.null(record$record_id)) {
+    cli::cli_abort(
+      "{.arg record} should be a screening record created by {.fn new_screening_record}."
+    )
+  }
+
+  doi <- normalise_doi(record$doi)
+  expected_record_id <- doi_to_record_id(doi)
+  if (
+    !identical(record$doi, doi) ||
+      !identical(record$record_id, expected_record_id)
+  ) {
+    cli::cli_abort("The screening record DOI and record ID are inconsistent.")
+  }
+
+  existing <- find_screening_record(doi, sources_dir)
+  if (!is.null(existing)) {
     cli::cli_abort(c(
-      "Source YAML not found: {.file {source_yaml}}",
-      "Create it first with {.fn log_dataset}."
+      "DOI {.val {doi}} has already been screened.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
     ))
   }
 
-  # Read existing YAML
-  sources <- yaml::read_yaml(source_yaml)
-
-  # Find target data source by DOI
-  doi <- normalise_doi(doi)
-  doi_list <- purrr::map_chr(sources, "doi")
-  target_id <- which(normalise_doi(doi_list) == doi)
-
-  # Abort unless DOI resolves to exactly one record
-  if (length(target_id) != 1) {
-    cli::cli_abort(
-      "DOI {.val {doi}} appears {length(target_id)} times in {.file {source_yaml}}",
-      "Expected exactly one match."
-    )
+  dir.create(sources_dir, recursive = TRUE, showWarnings = FALSE)
+  destination <- file.path(
+    sources_dir,
+    stringr::str_c(record$record_id, ".yaml")
+  )
+  if (file.exists(destination)) {
+    cli::cli_abort(c(
+      "Screening record {.path {destination}} already exists.",
+      "i" = "Delete the existing file before screening the dataset again."
+    ))
   }
 
-  # Default template schema
-  template <- list(
+  temporary <- tempfile(
+    pattern = stringr::str_c(".", record$record_id, "-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  on.exit(unlink(temporary), add = TRUE)
+
+  yaml::write_yaml(record, temporary)
+  round_trip <- yaml::read_yaml(temporary)
+  if (!identical(record, round_trip)) {
+    cli::cli_abort("The screening record changed during YAML serialisation.")
+  }
+  if (!file.rename(temporary, destination)) {
+    cli::cli_abort("Could not save screening record to {.path {destination}}.")
+  }
+
+  destination
+}
+
+
+#' Screen a dataset for validation use
+#'
+#' This function provides an interactive R-console workflow for Step 1 of the
+#' validation database process. It retrieves DOI metadata, collects a screening
+#' decision and rationale, and writes one YAML record per dataset.
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#' @param .metadata_fetcher Function used to retrieve normalised DOI metadata.
+#'   This supports network-independent tests and normally should not be changed.
+#' @param .readline Function used to collect free-text console input. This
+#'   supports tests and normally should not be changed.
+#' @param .select Function used to collect choices from a console menu. This
+#'   supports tests and normally should not be changed.
+#'
+#' @returns Invisibly, the path of the new YAML screening record.
+#'
+#' @export
+#'
+#' @examples
+#' box::use(tools/R/R/valdb)
+#' box::help(valdb$screen_dataset)  # if you need a conventional R help page
+#' valdb$screen_dataset()
+
+screen_dataset <- function(
+  sources_dir = "data/derived/soil/validation/config/sources",
+  .metadata_fetcher = fetch_doi_metadata,
+  .readline = readline,
+  .select = utils::select.list
+) {
+  doi <- normalise_doi(.readline("Enter DOI: "))
+
+  if (!is.null(find_screening_record(doi, sources_dir))) {
+    cli::cli_abort(c(
+      "DOI {.val {doi}} has already been screened.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
+    ))
+  }
+
+  metadata <- .metadata_fetcher(doi)
+  authors <- paste(metadata$authors, collapse = "; ")
+  metadata_summary <- c(
+    Title = metadata$title,
+    Authors = authors,
+    Year = as.character(metadata$year),
+    Publisher = metadata$publisher,
+    URL = metadata$url
+  )
+  metadata_summary <- metadata_summary[
+    !is.na(metadata_summary) & stringr::str_detect(metadata_summary, "\\S")
+  ]
+  cli::cli_inform(c(
+    "Metadata retrieved for DOI {.val {doi}}:",
+    "*" = "{.field {names(metadata_summary)}}: {metadata_summary}"
+  ))
+
+  decision <- .select(
+    screening_decisions,
+    title = "Screening decision: ",
+    graphics = FALSE
+  )
+  if (!stringr::str_detect(decision, "\\S")) {
+    cli::cli_abort("A screening decision is required.")
+  }
+
+  reason <- .select(
+    screening_reasons[[decision]],
+    title = "Reason for decision: ",
+    graphics = FALSE
+  )
+  if (!stringr::str_detect(reason, "\\S")) {
+    cli::cli_abort("A reason for the screening decision is required.")
+  }
+
+  notes <- .readline("Notes (leave blank if not required): ")
+  record <- new_screening_record(
+    doi = doi,
+    decision = decision,
+    reason = reason,
+    notes = notes,
+    metadata = metadata
+  )
+  path <- write_screening_record(record, sources_dir)
+
+  cli::cli_alert_info("Dataset from {.val {doi}} will {.val {decision}}.")
+  cli::cli_alert_success("Screening record saved to {.path {path}}.")
+
+  invisible(path)
+}
+
+
+# Schema template contract -----------------------------------------------
+
+#' Construct a validation dataset schema template
+#'
+#' The template contains the YAML fields currently consumed by
+#' [build_validation_database()]. The returned list is an editable scaffold,
+#' not a build-ready schema. Before running [build_validation_database()],
+#' replace every example value with the actual CSV path, source column names,
+#' canonical variable mappings, source units, and observation identifier for
+#' the dataset. Remove unused template entries and add one variables entry for
+#' each source column for [build_validation_database()] to use.
+#'
+#' This helper function is intended to be used with [initialise_source_schema()].
+#'
+#' @returns A named list containing placeholders for the mandatory source fields
+#'   and optional `coordinates` and `temporal` blocks.
+#'
+#' @export
+
+new_schema_template <- function() {
+  list(
     source_id = "author_year",
-    data_file = "data/primary/soil/source_id/*.csv",
+    data_file = "data/primary/soil/author_year/*.csv",
     skip_rows = 0L,
     variables = list(
       var_original_1 = list(
         var_canonical = "var_ve_1",
         unit = "unit",
-        description = NA
+        description = NULL
       )
     ),
     dedup_key = c("sample_id", "date", "site_id"),
-    # Spatial coordinates. Every entry below is OPTIONAL: datasets curated to
-    # the SAFE standard need none of them, because the defaults already point
-    # at the `locations.csv` exported from the `Locations` sheet. Delete the
-    # entries you do not need, or delete the whole `coordinates` block.
     coordinates = list(
-      # Path where the coordinates live.
-      # Default: "locations.csv" next to `data_file`.
-      from_file = NA,
-      # Column name in `data_file` holding the location name.
-      # Default: the first `dedup_key` entry.
-      match_data_column = NA,
-      # Column name in the locations file holding the location name.
-      # Default: "Location name".
-      match_location_column = NA,
-      # Coordinate columns in the locations file.
-      # Defaults: "Latitude" and "Longitude", in decimal degrees (WGS84).
-      # NB: sources giving northing/easting instead will need
-      # `coordinate_system` (an EPSG code) here, and a reprojection to
-      # WGS84 in `add_coordinates()` via `sf::sf_project()`.
-      latitude_column = NA,
-      longitude_column = NA,
-      # Use this INSTEAD of the entries above when the source gives only one
-      # blanket location for every row, e.g. a study site named in the paper
-      # but never pinned down per sample.
+      from_file = NULL,
+      match_data_column = NULL,
+      match_location_column = NULL,
+      latitude_column = NULL,
+      longitude_column = NULL,
       same_for_all_rows = list(
-        latitude = NA,
-        longitude = NA,
-        note = NA
+        latitude = NULL,
+        longitude = NULL
       )
     ),
-    # Temporal coordinates. Every entry below is OPTIONAL, exactly like the
-    # `coordinates` block above. Most SAFE datasets are plot-level summaries
-    # with no per-row date, so `same_for_all_rows` is usually the default (and
-    # only) entry to fill. Delete what you do not need, or delete the whole
-    # `temporal` block.
-    #
-    # Times are stored as a HALF-OPEN interval [time_start, time_end) in UTC.
-    # A point-in-time observation is widened to its `precision` granule, so a
-    # date-only sample spans one whole day.
     temporal = list(
-      # Column in `data_file` holding a single date/time per row. Use this for
-      # point-in-time observations.
-      date_column = NA,
-      # Use these two INSTEAD of `date_column` when each row carries its own
-      # start and end, e.g. a deployment or incubation window.
-      start_column = NA,
-      end_column = NA,
-      # strptime-style format, e.g. "%d/%m/%Y". Leave blank to let the parser
-      # guess, which only works for unambiguous ISO-like strings.
-      format = NA,
-      # IANA time zone the source dates are expressed in.
-      # Default: "UTC". SAFE field data is usually "Asia/Kuching".
-      # TODO: possible to validate this against spatial coordinates?
-      timezone = NA,
-      # Granularity actually known: "second", "day", "month" or "year".
-      # Default: "day".
-      precision = NA,
-      # Use this INSTEAD of the entries above when the source gives only one
-      # sampling window for every row, e.g. a campaign period named in the
-      # paper but never recorded per sample. Set `end` to the string "open"
-      # for an ongoing or unbounded campaign.
+      date_column = NULL,
+      start_column = NULL,
+      end_column = NULL,
+      format = NULL,
+      timezone = NULL,
+      precision = NULL,
       same_for_all_rows = list(
-        start = NA,
-        end = NA,
-        precision = NA,
-        note = NA
+        start = NULL,
+        end = NULL,
+        precision = NULL,
+        note = NULL
       )
     )
   )
+}
 
-  # add the template entries to the target source YAML section
-  sources[[target_id]] <- purrr::list_modify(sources[[target_id]], !!!template)
 
-  # Write back
-  yaml::write_yaml(sources, source_yaml)
+#' Check whether a validation dataset schema needs completion
+#'
+#' A schema needs completion when it has not been initialised or still contains
+#' a mandatory value copied from [new_schema_template()]. Optional spatial and
+#' temporal fields do not affect completion status.
+#'
+#' @param record A screening record, optionally with schema fields.
+#'
+#' @returns `TRUE` when the mandatory schema is absent or still a draft.
 
-  # Open the YAML file in the editor for editing
-  utils::file.edit(source_yaml)
+schema_needs_completion <- function(record) {
+  template <- new_schema_template()
+
+  is.null(record$source_id) ||
+    identical(record$source_id, template$source_id) ||
+    identical(record$data_file, template$data_file) ||
+    identical(record$variables, template$variables) ||
+    identical(record$dedup_key, template$dedup_key)
+}
+
+
+#' List source records ready for the validation database build
+#'
+#' Screening-only records are ignored. Draft schemas are reported and skipped.
+#' A record containing schema fields must retain a `proceed` screening decision.
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'
+#' @returns A named list of build-ready source records.
+
+list_build_sources <- function(sources_dir) {
+  records <- list_screening_records(sources_dir)
+
+  dois <- purrr::map_chr(records, function(record) {
+    if (
+      is.list(record) && is.character(record$doi) && length(record$doi) == 1L
+    ) {
+      record$doi
+    } else {
+      NA_character_
+    }
+  })
+
+  # check for duplicated DOIs
+  duplicated_dois <- unique(dois[!is.na(dois) & duplicated(dois)])
+  if (length(duplicated_dois) > 0L) {
+    cli::cli_abort(
+      "DOI{?s} {duplicated_dois} occur{?s} in multiple source records."
+    )
+  }
+
+  # check for draft (incomplete) schema
+  schema_fields <- names(new_schema_template())
+  with_schema <- purrr::keep(records, function(record) {
+    is.list(record) && any(schema_fields %in% names(record))
+  })
+  invalid_decisions <- purrr::keep(with_schema, function(record) {
+    !identical(record$screening$decision, "proceed")
+  })
+  if (length(invalid_decisions) > 0L) {
+    paths <- file.path(sources_dir, paste0(names(invalid_decisions), ".yaml"))
+    cli::cli_abort(
+      "Source record{?s} {.path {paths}} contain{?s} a schema without a
+       {.val proceed} screening decision."
+    )
+  }
+
+  drafts <- purrr::keep(with_schema, schema_needs_completion)
+  if (length(drafts) > 0L) {
+    paths <- file.path(sources_dir, paste0(names(drafts), ".yaml"))
+    cli::cli_warn(
+      "Skipping draft source schema{?s} {.path {paths}}. Complete the
+       placeholder values before building the database."
+    )
+  }
+
+  build_sources <- purrr::discard(with_schema, schema_needs_completion)
+  if (length(build_sources) == 0L) {
+    cli::cli_abort(
+      "No completed source schemas were found in {.path {sources_dir}}."
+    )
+  }
+
+  build_sources
+}
+
+
+#' Validate one source schema
+#'
+#' Checks that a source schema contains the required fields and that their
+#' values can be used by [build_validation_database()]. This includes validating
+#' source identifiers, input paths, skipped rows, variable mappings, and
+#' deduplication keys. The configured data file must already exist.
+#'
+#' @param source A source record containing the fields from
+#'   [new_schema_template()].
+#' @param path Path to the source YAML file, used in validation messages.
+#'
+#' @returns `source`, invisibly. Aborts when the schema is invalid.
+#'
+#' @keywords internal
+
+validate_source_schema <- function(source, path) {
+  required_fields <- names(new_schema_template())
+  missing_fields <- setdiff(required_fields, names(source))
+  if (length(missing_fields) > 0L) {
+    cli::cli_abort(
+      "Source schema {.path {path}} is missing required field{?s} \
+       {.field {missing_fields}}."
+    )
+  }
+
+  scalar_string <- function(value) {
+    is.character(value) &&
+      length(value) == 1L &&
+      !is.na(value) &&
+      stringr::str_length(stringr::str_trim(value)) > 0L
+  }
+
+  if (!scalar_string(source$source_id)) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have one non-empty {.field source_id}."
+    )
+  }
+  if (!scalar_string(source$data_file)) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have one non-empty {.field data_file}."
+    )
+  }
+  if (
+    !is.numeric(source$skip_rows) ||
+      length(source$skip_rows) != 1L ||
+      is.na(source$skip_rows) ||
+      !is.finite(source$skip_rows) ||
+      source$skip_rows < 0 ||
+      source$skip_rows != floor(source$skip_rows)
+  ) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have a non-negative integer \
+       {.field skip_rows}."
+    )
+  }
+  if (
+    !is.list(source$variables) ||
+      length(source$variables) == 0L ||
+      is.null(names(source$variables)) ||
+      any(names(source$variables) == "") ||
+      anyDuplicated(names(source$variables))
+  ) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have a non-empty, uniquely named \
+       {.field variables} list."
+    )
+  }
+  invalid_variables <- names(source$variables)[purrr::map_lgl(
+    source$variables,
+    function(variable) {
+      !is.list(variable) ||
+        !all(c("var_canonical", "unit") %in% names(variable)) ||
+        !scalar_string(variable$var_canonical) ||
+        !scalar_string(variable$unit)
+    }
+  )]
+  if (length(invalid_variables) > 0L) {
+    cli::cli_abort(
+      "Invalid entries in {.field variables}: {.field {invalid_variables}} in \
+       source schema {.path {path}}. Each mapping must have one non-empty \
+       {.field var_canonical} and {.field unit}."
+    )
+  }
+  if (
+    !is.character(source$dedup_key) ||
+      length(source$dedup_key) == 0L ||
+      any(is.na(source$dedup_key)) ||
+      any(stringr::str_length(stringr::str_trim(source$dedup_key)) == 0L) ||
+      anyDuplicated(source$dedup_key)
+  ) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have one or more unique, non-empty \
+       {.field dedup_key} values."
+    )
+  }
+  if (!file.exists(source$data_file)) {
+    cli::cli_abort(
+      "Data file {.path {source$data_file}} configured by source schema \
+       {.path {path}} does not exist."
+    )
+  }
+
+  invisible(source)
+}
+
+
+#' Validate all sources selected for a database build
+#'
+#' Applies [validate_source_schema()] to every build source and verifies that
+#' `source_id` values are unique across source schemas.
+#'
+#' @param sources A named list of source records returned by
+#'   [list_build_sources()].
+#' @param sources_dir Directory containing the corresponding source YAML files.
+#'
+#' @returns `sources`, invisibly. Aborts when any source is invalid or source
+#'   identifiers are duplicated.
+#'
+#' @keywords internal
+
+validate_build_sources <- function(sources, sources_dir) {
+  purrr::iwalk(sources, function(source, record_id) {
+    validate_source_schema(
+      source,
+      file.path(sources_dir, paste0(record_id, ".yaml"))
+    )
+  })
+
+  source_ids <- purrr::map_chr(sources, "source_id")
+  duplicated_ids <- unique(source_ids[duplicated(source_ids)])
+  if (length(duplicated_ids) > 0L) {
+    cli::cli_abort(
+      "Duplicate source ID{?s} {.val {duplicated_ids}} occur{?s} across schemas."
+    )
+  }
+
+  invisible(sources)
+}
+
+
+#' Validate and select columns from one source dataset
+#'
+#' Requires all configured deduplication columns. Missing measurement columns
+#' are reported and omitted. The remaining observation keys must be complete
+#' and unique before spatial and temporal metadata are added.
+#'
+#' @param data A data frame read from the source CSV file.
+#' @param source The source schema associated with `data`.
+#'
+#' @returns A data frame containing the deduplication columns and available
+#'   measurement columns. The selected measurement names are stored in the
+#'   `measurement_columns` attribute. Returns `NULL` with a warning when no
+#'   configured measurement columns are available.
+#'
+#' @keywords internal
+
+prepare_source_data <- function(data, source) {
+  missing_keys <- setdiff(source$dedup_key, names(data))
+  if (length(missing_keys) > 0L) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} is missing deduplication column{?s} \
+       {.field {missing_keys}}."
+    )
+  }
+
+  measurement_columns <- names(source$variables)
+  missing_measurements <- setdiff(measurement_columns, names(data))
+  available_measurements <- setdiff(measurement_columns, missing_measurements)
+  if (length(available_measurements) == 0L) {
+    cli::cli_warn(
+      "Skipping source {.val {source$source_id}} because none of its \
+       configured measurement columns are present."
+    )
+    return(NULL)
+  }
+  if (length(missing_measurements) > 0L) {
+    cli::cli_warn(
+      "Source {.val {source$source_id}} is missing measurement column{?s} \
+       {.field {missing_measurements}}; skipping {?this measurement/these \
+       measurements}."
+    )
+  }
+
+  data <- dplyr::select(
+    data,
+    tidyr::all_of(c(source$dedup_key, available_measurements))
+  )
+  key_data <- dplyr::select(data, tidyr::all_of(source$dedup_key))
+  missing_values <- key_data |>
+    purrr::map(function(column) {
+      is.na(column) |
+        (is.character(column) & stringr::str_trim(column) == "")
+    }) |>
+    purrr::reduce(`|`)
+  if (any(missing_values)) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} has missing values in its \
+       deduplication key at row{?s} {which(missing_values)}."
+    )
+  }
+
+  duplicate_keys <- duplicated(key_data) | duplicated(key_data, fromLast = TRUE)
+  if (any(duplicate_keys)) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} has duplicate observation key{?s} at \
+       row{?s} {which(duplicate_keys)}."
+    )
+  }
+
+  attr(data, "measurement_columns") <- available_measurements
+  data
+}
+
+
+#' Create and validate observation identifiers
+#'
+#' Combines the configured deduplication columns into `ID` after spatial and
+#' temporal metadata have been attached. Aborts if distinct key combinations
+#' collapse to the same identifier under [tidyr::unite()].
+#'
+#' @param data A source data frame containing the configured deduplication
+#'   columns.
+#' @param source The source schema associated with `data`.
+#'
+#' @returns `data` with the deduplication columns replaced by `ID`.
+#'
+#' @keywords internal
+
+add_observation_id <- function(data, source) {
+  data <- tidyr::unite(data, "ID", tidyr::all_of(source$dedup_key))
+  duplicate_ids <- duplicated(data$ID) | duplicated(data$ID, fromLast = TRUE)
+  if (any(duplicate_ids)) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} has observation keys that collide \
+       when combined into {.field ID}: {.val {unique(data$ID[duplicate_ids])}}."
+    )
+  }
+
+  data
+}
+
+
+#' Initialise a validation dataset schema
+#'
+#' Adds [new_schema_template()] to an existing screening record. The record must
+#' have a `proceed` decision and must not already contain a schema. Existing
+#' screening and DOI metadata fields are preserved.
+#'
+#' The updated record is written to a temporary file, read back to verify the
+#' YAML round trip, and then moved to the original record path. To amend an
+#' existing schema, delete its YAML file and screen the dataset again.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#'
+#' @returns The path of the updated YAML file.
+#'
+#' @export
+
+initialise_source_schema <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  doi <- normalise_doi(doi)
+  record <- find_screening_record(doi, sources_dir)
+
+  if (is.null(record)) {
+    cli::cli_abort("DOI {.val {doi}} has not been screened.")
+  }
+  if (!identical(record$screening$decision, "proceed")) {
+    cli::cli_abort(
+      "DOI {.val {doi}} must have a {.val proceed} screening decision before a schema can be added."
+    )
+  }
+  if (!is.null(record$source_id)) {
+    cli::cli_abort(c(
+      "DOI {.val {doi}} already has a schema.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
+    ))
+  }
+
+  destination <- file.path(
+    sources_dir,
+    stringr::str_c(doi_to_record_id(doi), ".yaml")
+  )
+  if (!file.exists(destination)) {
+    cli::cli_abort(
+      "The screening record for DOI {.val {doi}} is not at the expected path {.path {destination}}."
+    )
+  }
+
+  updated_record <- c(record, new_schema_template())
+  temporary <- tempfile(
+    pattern = stringr::str_c(".", doi_to_record_id(doi), "-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  backup <- tempfile(
+    pattern = stringr::str_c(".", doi_to_record_id(doi), "-backup-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  on.exit(unlink(c(temporary, backup)), add = TRUE)
+
+  yaml::write_yaml(updated_record, temporary)
+  round_trip <- yaml::read_yaml(temporary)
+  if (!identical(updated_record, round_trip)) {
+    cli::cli_abort("The schema record changed during YAML serialisation.")
+  }
+
+  if (!file.rename(destination, backup)) {
+    cli::cli_abort(
+      "Could not prepare screening record {.path {destination}} for update."
+    )
+  }
+  if (!file.rename(temporary, destination)) {
+    restored <- file.rename(backup, destination)
+    if (!restored) {
+      cli::cli_abort(
+        "Could not save or restore screening record {.path {destination}}."
+      )
+    }
+    cli::cli_abort("Could not save schema record to {.path {destination}}.")
+  }
+  unlink(backup)
+
+  destination
+}
+
+
+#' Add a validation dataset schema for editing
+#'
+#' Initialises a schema for a screened dataset and opens its per-DOI YAML file
+#' in an editor. The screening decision must be `proceed`, and the record must
+#' not already contain a schema.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#' @param .editor Function used to open the YAML file. This supports tests and
+#'   normally should not be changed.
+#'
+#' @returns Invisibly, the path of the updated YAML file.
+#'
+#' @export
+#' @examples
+#' box::use(tools/R/R/valdb)
+#' valdb$add_schema("10.5281/zenodo.8158810")
+
+add_schema <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources",
+  .editor = utils::file.edit
+) {
+  doi <- normalise_doi(doi)
+  path <- initialise_source_schema(doi, sources_dir)
+  .editor(path)
+
+  invisible(path)
 }
 
 
@@ -360,10 +1050,8 @@ add_schema <- function(
 #' Build or rebuild the validation database based on the YAML configs of source
 #' datasets.
 #'
-#' @param config_dir Path to where the dataset YAML config files are stored.
-#' @param sources_file Filename of the source YAML metadata within
-#'   \code{config_dir}, as generated by [log_dataset()] and later edited by
-#'   [add_schema()].
+#' @param config_dir Path containing validation database configuration.
+#' @param sources_dir Directory containing one YAML record per screened dataset.
 #' @param db_path Output path for the harmonised database.
 #'
 #' @returns A harmonised database stored in db_path. Currently it is written out
@@ -377,117 +1065,35 @@ add_schema <- function(
 
 build_validation_database <- function(
   config_dir = "data/derived/soil/validation/config",
-  sources_file = "sources.yaml",
+  sources_dir = file.path(config_dir, "sources"),
   db_path = "data/derived/soil/validation/database"
 ) {
-  # Configs ----------------------------------------------------------------
-
-  # load canonical unit of VE data variables
-  # this YAML file is generated by tools/R/build_data_variables_table.R, which
-  # should be re-run once when there is any update to VE's data variable TOML
-  units <-
-    build_data_variables_table() |>
-    tibble::enframe(name = "var_canonical") |>
-    tidyr::unnest_wider(value) |>
-    dplyr::select(var_canonical, unit_canonical = unit) |>
-    # remove elements denoted in the curly brackets
-    # because we do not need them for the subsequent unit conversion
-    dplyr::mutate(
-      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
-    )
-
   # Ingest datasets --------------------------------------------------------
 
-  # read the metadata of data sources from a single YAML file, and then
-  # filter to keep only sources that have the source_id entry
-  sources <-
-    file.path(config_dir, sources_file) |>
-    yaml::read_yaml() |>
-    purrr::keep(~ purrr::pluck_exists(.x, "source_id"))
+  sources <- list_build_sources(sources_dir)
+  validate_build_sources(sources, sources_dir)
 
-  if (length(sources) == 0) {
-    cli::cli_abort(
-      "No source in {.file {file.path(config_dir, sources_file)}} has a
-       {.field source_id}. Run {.fn add_schema} on a source first."
-    )
-  }
+  # Configs ----------------------------------------------------------------
+
+  # Load canonical units only after local source preflight succeeds.
+  canonical_units <- build_canonical_units_table()
 
   # Harmonise each dataset ------------------------------------------------
   data_harmonised <-
     sources |>
-    purrr::map(\(src) {
-      # read dataset csv file
-      readr::read_csv(
-        src$data_file,
-        show_col_types = FALSE,
-        skip = src$skip_rows
-      ) |>
-        # select the relevant columns: unique IDs and validation variables
-        dplyr::select(tidyr::all_of(c(
-          src$dedup_key,
-          names(src$variables)
-        ))) |>
-        # attach spatial coordinates while the data is still one row per
-        # observation, and before `unite()` consumes the dedup key columns
-        add_coordinates(src) |>
-        # likewise for temporal coordinates: the date column is often itself a
-        # dedup key, so this must run before `unite()`
-        add_temporal(src) |>
-        # combine dedup keys into a single ID column
-        tidyr::unite("ID", tidyr::all_of(src$dedup_key)) |>
-        # pivot to long format because this is the easiest way to convert units
-        # and remove NAs
-        tidyr::pivot_longer(
-          cols = names(src$variables),
-          names_to = "var_original"
-        ) |>
-        dplyr::filter(!is.na(value)) |>
-        # join variable information,
-        # including unit and target validation variable
-        dplyr::left_join(
-          src$variables |>
-            tibble::enframe(name = "var_original") |>
-            tidyr::unnest_wider(value) |>
-            dplyr::rename(unit_original = unit),
-          by = dplyr::join_by(var_original)
-        ) |>
-        # Unit conversion
-        # join canonical or target units
-        dplyr::left_join(units, by = dplyr::join_by(var_canonical)) |>
-        # convert unit character string to units class
-        dplyr::mutate(
-          unit_canonical = purrr::map(unit_canonical, units::as_units),
-          unit_original = purrr::map(unit_original, units::as_units)
-        ) |>
-        # assign units to data values
-        # we need to use map2 because units does not accept mixed unit columns
-        dplyr::mutate(
-          value = purrr::map2(value, unit_original, \(x, y) {
-            x * y
-          })
-        ) |>
-        # convert the unit finally
-        dplyr::mutate(
-          value_canonical = purrr::map2(value, unit_canonical, \(x, y) {
-            units::set_units(x, y, mode = "standard")
-          })
-        ) |>
-        # add the source ID
-        dplyr::mutate(dataset = src$source_id)
-    })
+    purrr::map(\(src) harmonise_source_data(src, canonical_units)) |>
+    purrr::compact()
+
+  if (length(data_harmonised) == 0L) {
+    cli::cli_abort(
+      "No source datasets contain configured measurement columns."
+    )
+  }
 
   # combine datasets into a database
   database <-
     data_harmonised |>
     purrr::list_rbind() |>
-    # deparse values and units to base vector classes to be compatible
-    # with parquet or csv
-    dplyr::mutate(
-      value = purrr::map_dbl(value, as.numeric),
-      value_canonical = purrr::map_dbl(value_canonical, as.numeric),
-      unit_original = purrr::map_chr(unit_original, units::deparse_unit),
-      unit_canonical = purrr::map_chr(unit_canonical, units::deparse_unit)
-    ) |>
     # cleanup
     dplyr::select(
       dataset,
@@ -517,6 +1123,164 @@ build_validation_database <- function(
 
   # print message on write
   cli::cli_alert_success("Database saved to {db_path}.")
+}
+
+
+#' Harmonise one validation source dataset
+#'
+#' Internal helper for [build_validation_database()]. It reads and prepares one
+#' configured source, attaches spatial and temporal metadata, reshapes
+#' measurements, and converts known variables to canonical units. Unknown
+#' canonical mappings retain their original values and units and receive
+#' missing canonical values and units.
+#'
+#' @param src A validated source schema returned by [list_build_sources()].
+#' @param canonical_units A data frame with `var_canonical` and
+#'   `unit_canonical` columns.
+#'
+#' @returns A long-format data frame of harmonised observations, or `NULL` when
+#'   the source has no available configured measurement columns.
+
+harmonise_source_data <- function(src, canonical_units) {
+  data <- readr::read_csv(
+    src$data_file,
+    show_col_types = FALSE,
+    skip = src$skip_rows
+  ) |>
+    prepare_source_data(src)
+  if (is.null(data)) {
+    return(NULL)
+  }
+  measurement_columns <- attr(data, "measurement_columns")
+
+  data <-
+    data |>
+    # Attach metadata before `unite()` consumes the deduplication columns.
+    add_coordinates(src) |>
+    add_temporal(src) |>
+    add_observation_id(src) |>
+    # Pivot long for unit conversion and missing-value removal.
+    tidyr::pivot_longer(
+      cols = tidyr::all_of(measurement_columns),
+      names_to = "var_original"
+    ) |>
+    dplyr::filter(!is.na(value)) |>
+    dplyr::left_join(
+      src$variables[measurement_columns] |>
+        tibble::enframe(name = "var_original") |>
+        tidyr::unnest_wider(value) |>
+        dplyr::rename(unit_original = unit),
+      by = dplyr::join_by(var_original)
+    ) |>
+    dplyr::left_join(canonical_units, by = dplyr::join_by(var_canonical))
+
+  unknown <-
+    data |>
+    dplyr::filter(is.na(unit_canonical)) |>
+    dplyr::distinct(var_original, var_canonical)
+  if (nrow(unknown) > 0L) {
+    mappings <- paste0(
+      unknown$var_original,
+      " -> ",
+      unknown$var_canonical,
+      collapse = ", "
+    )
+    cli::cli_warn(c(
+      "Unknown canonical variable mapping{?s} in source {.val {src$source_id}}.",
+      "i" = "Retaining original values and units for: {mappings}."
+    ))
+  }
+
+  data |>
+    dplyr::mutate(
+      value_original = as.numeric(value),
+      value_canonical = purrr::pmap_dbl(
+        list(value, unit_original, unit_canonical, var_original, var_canonical),
+        \(value, unit_original, unit_canonical, var_original, var_canonical) {
+          convert_canonical_value(
+            value,
+            unit_original,
+            unit_canonical,
+            src$source_id,
+            var_original,
+            var_canonical
+          )
+        }
+      ),
+      unit_canonical = dplyr::if_else(
+        is.na(unit_canonical),
+        NA_character_,
+        unit_canonical
+      ),
+      dataset = src$source_id
+    ) |>
+    dplyr::select(-value) |>
+    dplyr::rename(value = value_original)
+}
+
+
+#' Convert one observation to its canonical unit
+#'
+#' Internal helper for [harmonise_source_data()]. Unit parsing and conversion
+#' errors include source and variable context. An unknown canonical mapping,
+#' represented by a missing canonical unit, returns a typed missing value
+#' without parsing the original unit.
+#'
+#' @param value A numeric observation value.
+#' @param unit_original The unit declared for the source variable.
+#' @param unit_canonical The target canonical unit, or `NA_character_` for an
+#'   unknown canonical mapping.
+#' @param source_id The source dataset identifier used in error messages.
+#' @param var_original The source variable name used in error messages.
+#' @param var_canonical The configured canonical variable name used in error
+#'   messages.
+#'
+#' @returns A numeric scalar in the canonical unit, or `NA_real_` for an unknown
+#'   canonical mapping.
+
+convert_canonical_value <- function(
+  value,
+  unit_original,
+  unit_canonical,
+  source_id,
+  var_original,
+  var_canonical
+) {
+  if (is.na(unit_canonical)) {
+    return(NA_real_)
+  }
+
+  tryCatch(
+    {
+      original <- value * units::as_units(unit_original)
+      converted <- units::set_units(
+        original,
+        units::as_units(unit_canonical),
+        mode = "standard"
+      )
+      as.numeric(converted)
+    },
+    error = function(error) {
+      cli::cli_abort(
+        c(
+          "Cannot convert units for source {.val {source_id}}.",
+          "x" = paste0(
+            "Variable ",
+            var_original,
+            " mapped to ",
+            var_canonical,
+            " cannot be converted from ",
+            unit_original,
+            " to ",
+            unit_canonical,
+            "."
+          ),
+          "i" = conditionMessage(error)
+        ),
+        parent = error
+      )
+    }
+  )
 }
 
 
@@ -1142,19 +1906,82 @@ drop_blanks <- function(x) {
 #' @param variables_ve Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
 #' @param variables_derived Path to the custom derived variable TOML table.
-#'   Currently it defaults to the soil module.
+#'   Currently it defaults to the soil module. Use `NULL` to omit derived
+#'   variables.
+#' @param downloader A function compatible with [utils::download.file()]. It is
+#'   injectable so tests can supply canonical metadata without network access.
 #'
-#' @returns A list of metadata of canonical VE and/or derived data variables.
+#' @returns A named list of metadata for canonical VE and derived variables.
 
 build_data_variables_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = "data/derived/soil/validation/config/derived_variables.toml"
+  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  downloader = utils::download.file
 ) {
-  var_list <- import_variables_table(variables_ve)
+  ve_path <- retrieve_variables_table(variables_ve, downloader)
+  var_list <- import_variables_table(ve_path)
   if (!is.null(variables_derived)) {
     var_list <- c(var_list, import_variables_table(variables_derived))
   }
   return(var_list)
+}
+
+
+#' Retrieve a canonical-variable TOML table
+#'
+#' Internal helper for [build_data_variables_table()]. Remote HTTP or HTTPS
+#' sources are downloaded to a temporary file so the exact retrieved payload is
+#' parsed. Local paths are returned unchanged.
+#'
+#' @param source A local path or HTTP or HTTPS URL to a TOML table.
+#' @param downloader A function compatible with [utils::download.file()].
+#'
+#' @returns A local path to the source TOML table.
+
+retrieve_variables_table <- function(
+  source,
+  downloader = utils::download.file
+) {
+  if (!grepl("^https?://", source)) {
+    return(source)
+  }
+
+  destination <- tempfile(fileext = ".toml")
+  downloader(source, destination, mode = "wb", quiet = TRUE)
+  destination
+}
+
+
+#' Build the canonical unit lookup table
+#'
+#' Internal helper for [build_validation_database()]. It combines VE and local
+#' derived-variable metadata and removes element annotations such as `{C}` from
+#' unit strings before conversion with the `units` package.
+#'
+#' @param variables_ve Path or URL to the virtual_ecosystem data-variable TOML
+#'   table.
+#' @param variables_derived Path to a local derived-variable TOML table, or
+#'   `NULL` to omit derived variables.
+#' @param downloader A function compatible with [utils::download.file()].
+#'
+#' @returns A data frame with `var_canonical` and `unit_canonical` columns.
+
+build_canonical_units_table <- function(
+  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
+  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  downloader = utils::download.file
+) {
+  build_data_variables_table(
+    variables_ve = variables_ve,
+    variables_derived = variables_derived,
+    downloader = downloader
+  ) |>
+    tibble::enframe(name = "var_canonical") |>
+    tidyr::unnest_wider(value) |>
+    dplyr::select(var_canonical, unit_canonical = unit) |>
+    dplyr::mutate(
+      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
+    )
 }
 
 
@@ -1165,7 +1992,7 @@ build_data_variables_table <- function(
 #' @param toml Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
 #'
-#' @returns
+#' @returns A list of data variables.
 
 import_variables_table <- function(toml) {
   toml::read_toml(toml) |>

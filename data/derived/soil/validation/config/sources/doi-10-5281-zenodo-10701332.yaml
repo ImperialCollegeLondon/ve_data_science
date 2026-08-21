@@ -1,0 +1,21 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-10701332
+doi: 10.5281/zenodo.10701332
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Soil keyword describe sampling method.
+  screened_at: '2026-08-18T08:07:57Z'
+metadata:
+  title: Growth and Survival of gap and understorey plots across Danum Valley 2004
+    - 2017
+  authors:
+  - O'Brien, Michael
+  - Philipson, Christopher
+  year: 2024
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.10701332
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T08:07:38Z'

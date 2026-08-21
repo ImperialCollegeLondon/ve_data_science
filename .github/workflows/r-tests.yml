@@ -14,6 +14,11 @@ on:
       - "tools/R/tests/testthat/**"
       - ".github/workflows/r-tests.yml"
 
+concurrency:
+  group:
+    ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -32,20 +37,33 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
+          enable-cache: true
 
       - name: Install Python dependencies
-        run: uv sync
+        run: uv sync --frozen
 
       # --- System libraries required by R packages ---
       - name: Install system dependencies
-        run: sudo apt-get install -y libudunits2-dev libnetcdf-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            libclang-dev \
+            libicu-dev \
+            libnetcdf-dev \
+            libssl-dev \
+            libudunits2-dev \
+            make
 
       # --- R dependencies ---
       - name: Install R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          cache: true
           packages: any::sessioninfo
           extra-packages: |
+            any::box
+            any::cli
             any::here
             any::testthat
             any::withr
@@ -56,17 +74,60 @@ jobs:
             any::RNetCDF
             any::dplyr
             any::stringr
-            any::cli
+            any::readr
+            any::tibble
+            any::lubridate
+            any::tidyr
+            any::rlang
+            any::jsonlite
+            any::R6
+            any::qs2
+            any::memoise
+            any::shiny
+            any::yaml
+            any::units
+            any::arrow
+            any::bslib
+            any::htmltools
 
-      # --- Additional R dependencies that require different methods ---
-      - name: Install pizzarr
+      - name: Install pizzarr from r-universe
         run: |
-          install.packages(
-            "pizzarr",
-            repos = c(
-              "https://zarr-developers.r-universe.dev",
-              "https://cloud.r-project.org"
+          repo <- "https://zarr-developers.r-universe.dev"
+          available_version <- available.packages(repos = repo)[
+            "pizzarr", "Version"
+          ]
+          installed <- requireNamespace("pizzarr", quietly = TRUE)
+          installed_repo <- if (installed) {
+            packageDescription("pizzarr")$Repository
+          } else {
+            NA_character_
+          }
+          installed_version <- if (installed) {
+            as.character(packageVersion("pizzarr"))
+          } else {
+            NA_character_
+          }
+
+          if (
+            !identical(installed_repo, repo) ||
+              !identical(installed_version, available_version)
+          ) {
+            install.packages(
+              "pizzarr",
+              repos = repo,
+              Ncpus = max(1, parallel::detectCores() - 1)
             )
+          }
+        shell: Rscript {0}
+
+      - name: Verify pizzarr backend
+        run: |
+          stopifnot(
+            identical(
+              packageDescription("pizzarr")$Repository,
+              "https://zarr-developers.r-universe.dev"
+            ),
+            length(pizzarr::pizzarr_compiled_features()) > 0
           )
         shell: Rscript {0}
 
@@ -77,7 +138,6 @@ jobs:
         run: |
           testthat::test_dir(
             here::here("tools/R/tests/testthat"),
-            reporter = "progress",
             stop_on_failure = TRUE
           )
         shell: Rscript {0}
