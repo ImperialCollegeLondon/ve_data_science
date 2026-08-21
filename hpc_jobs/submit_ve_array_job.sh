@@ -6,7 +6,8 @@ set -euo pipefail # ensure script exits on error, unset variable, or failed pipe
 #
 # Inputs:
 # 1) the path to the batch submission TOML file
-# 2) a new output directory for the array run
+# 2) the path to the resources configuration TOML file
+# 3) a new output directory for the array run
 #
 # Process:
 # 1) hpc_ve_job_spec.py identifies the number of jobs to be submitted
@@ -14,14 +15,20 @@ set -euo pipefail # ensure script exits on error, unset variable, or failed pipe
 #
 
 # ensure that the correct number of arguments are provided
-if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 JOB_CONFIG.toml OUTPUT_DIRECTORY" >&2
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 JOB_CONFIG.toml RESOURCES_CONFIG.toml OUTPUT_DIRECTORY" >&2
     exit 1
 fi
 
 # check that the job_config.toml file exists
 if [[ ! -f "$1" ]]; then
     printf "Array job config file not found: %s\nPlease provide a valid path to the batch.\n" "$1" >&2
+    exit 1
+fi
+
+# check that the resources_config.toml file exists
+if [[ ! -f "$2" ]]; then
+    printf "Resources config file not found: %s\nPlease provide a valid path to the resources configuration.\n" "$2" >&2
     exit 1
 fi
 
@@ -37,14 +44,23 @@ echo "Activating virtual environment: $VIRTUAL_ENV"
 VE_BATCH="$(realpath "$1")"
 # print the job_config.toml file to the console for logging / debugging purposes
 echo "Reading JOB-CONFIG.toml file: $VE_BATCH"
+RESOURCES_CONFIG="$(realpath "$2")"
+echo "Reading RESOURCES_CONFIG.toml file: $RESOURCES_CONFIG"
 
-# Use hpc_jobs/hpc_ve_job_spec.py to get the number of jobs
+# Use hpc_jobs/hpc_ve_job_spec.py to validate the job_config.toml file 
+# and get the number of jobs
 NJOBS=$(cd "$REPO_ROOT" && python -m hpc_jobs.hpc_ve_job_spec "$VE_BATCH")
 echo "Calculating number of jobs to submit... $NJOBS!"
 
+# use hpc_jobs/resources.py to validate the resources_config.toml file
+RESOURCES=$(cd "$REPO_ROOT" && python -m hpc_jobs.resources "$RESOURCES_CONFIG")
+# resources.py emits shell assignments: PBS_SELECT, PBS_WALLTIME and MAX_CONCURRENT
+eval "$RESOURCES"
+echo "Resources configuration loaded."
+
 
 # Use the user-provided path as the output directory for the complete array run.
-RUN_OUTPUT_DIR="$(realpath -m "$2")"
+RUN_OUTPUT_DIR="$(realpath -m "$3")"
 echo "Run output directory selected: $RUN_OUTPUT_DIR"
 
 # Do not overwrite an existing directory
@@ -60,20 +76,25 @@ echo "Run output directory created: $RUN_OUTPUT_DIR"
 # Inform on what is about to happen
 printf '%s\n' \
     "Submitting PBS array job" \
-    "  Configuration File: $VE_BATCH" \
+    "  Jobs Config: $VE_BATCH" \
+    "  Resources Config: $RESOURCES_CONFIG" \
     "  Number of sub-jobs: $NJOBS" \
     "  Output directory: $RUN_OUTPUT_DIR" \
-    "  Resources HARD-CODED: 1 CPU, 1 GB memory, 10 minutes walltime"
+    "  Resources: $PBS_SELECT" \
+    "  Walltime: $PBS_WALLTIME" \
+    "  Max concurrent jobs: $MAX_CONCURRENT"
 
- # %20 limits the number of concurrently running array sub-jobs.
+# outputs are files are initially redirected to dev/null, (delted)
+# but the contents are redirected to a pbs.log file in the output directory for each sub-job.
+# (These could be set somewhere else for debugging)
 PBS_ARRAY_ID=$(qsub \
-    -J "1-$NJOBS%20" \
-    -o /dev/null \
+    -J "1-$NJOBS%$MAX_CONCURRENT" \
+    -lselect="$PBS_SELECT" \
+    -lwalltime="$PBS_WALLTIME" \
     -e /dev/null \
+    -o /dev/null \
     -v "VE_BATCH=$VE_BATCH,RUN_OUTPUT_DIR=$RUN_OUTPUT_DIR,REPO_ROOT=$REPO_ROOT" <<'PBS_SCRIPT'
 #!/bin/bash
-#PBS -lselect=1:ncpus=1:mem=1gb
-#PBS -lwalltime=00:10:00
 
 set -euo pipefail
 
