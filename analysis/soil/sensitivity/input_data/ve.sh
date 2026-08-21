@@ -40,7 +40,7 @@ uv run --group dev-pinned ve_run \
   --out "${OUTDIR}" \
   --logfile "${OUTDIR}/logfile.log"
 
-# run R script
+# run R script (stale)
 # Rscript analysis/soil/sensitivity/input_data/ve.R
 
 # submit this from the ve_data_science root directory with:
