@@ -1,0 +1,55 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-2024580
+doi: 10.5281/zenodo.2024580
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Contains soil nutrients, moisture, pH, bulk density etc.
+  screened_at: "2026-08-14T02:33:27Z"
+metadata:
+  title: Landuse change and species invasion
+  authors:
+    - Döbert, Timm
+    - Webber, Bruce L.
+    - Sugau, John B.
+    - Dickinson, Katherine J. M.
+    - Didham, Raphael K.
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/2024580
+  keywords:
+    - plant diversity
+    - above-ground biomass
+    - plant functional traits
+    - biological invasions
+    - exotic plants
+    - phylogenetic diversity
+    - soil nutrients
+  provider: doi_content_search
+  retrieved_at: "2026-08-14T02:33:16Z"
+source_id: dobert_2019
+data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
+skip_rows: 9
+variables:
+  soilN:
+    var_canonical: total_soil_n_per_volume
+    unit: mg cm^-3
+    description: Total soil nitrogen content
+  soilP:
+    var_canonical: dissolved_phosphorus
+    unit: ug cm^-3
+    description: Plant available soil phosphorus content
+dedup_key:
+  - plot.code
+coordinates:
+  from_file: data/primary/soil/dobert_2019/locations.csv
+temporal:
+  format: "%d/%m/%Y"
+  timezone: "Asia/Kuching"
+  same_for_all_rows:
+    start: 01/12/2011
+    end: 31/03/2014
+    precision: day
+    note:
+      Start and end dates specified in the Summary sheet of the original file.
