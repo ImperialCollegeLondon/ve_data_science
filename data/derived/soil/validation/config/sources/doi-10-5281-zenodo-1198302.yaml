@@ -1,0 +1,26 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1198302
+doi: 10.5281/zenodo.1198302
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Litter keyword describe 'leaf litter ants'.
+  screened_at: '2026-08-18T07:20:53Z'
+metadata:
+  title: The Role Of Competition In Structuring Ant Community Composition Across A
+    Tropical Forest Disturbance Gradient
+  authors:
+  - Gray, Ross
+  - Gill, Richard
+  - Ewers, Robert
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198302
+  keywords:
+  - ant
+  - community composition
+  - competition
+  - body size
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:20:31Z'
