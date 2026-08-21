@@ -36,325 +36,658 @@
 #|     - rlang
 #|     - sf
 #|     - stats
+#|     - stringr
 #|     - tibble
 #|     - tidyr
 #|     - toml
 #|     - utils
 #|     - yaml
-#|     - yesno
 #|
 #| usage_notes: |
 #|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
 #| ---
 
-source(here::here("tools/R/R/get_ve_variables.R"))
+# Screening record contract -----------------------------------------------
 
-#' Normalise DOI strings for consistent handling
+screening_decisions <- c("proceed", "exclude", "defer")
+
+screening_reasons <- list(
+  proceed = "relevant_validation_data",
+  exclude = c(
+    "no_raw_data",
+    "no_relevant_variables",
+    "duplicate_source",
+    "insufficient_metadata",
+    "other"
+  ),
+  defer = c(
+    "needs_second_opinion",
+    "access_pending",
+    "outside_module_scope",
+    "other"
+  )
+)
+
+
+#' Normalise a DOI to lower case
 #'
-#' Normalises DOI strings by removing common URL prefixes, trimming whitespace,
-#' and converting to uppercase. This ensures consistent DOI representation
-#' across the database and supports downstream processing.
+#' @param doi A DOI, optionally prefixed by `doi:` or a DOI resolver URL.
 #'
-#' @param doi A character vector of DOI strings to normalise.
-#'
-#' @returns A character vector of normalised DOI strings in the format `10.XXXX/XXXXX`
-#'   (uppercase, whitespace trimmed, URL prefixes removed).
+#' @returns A lower-case DOI without a prefix or resolver URL.
 #'
 #' @export
-#'
-#' @examples
-#' # Clean DOI suffix
-#' normalise_doi("10.1038/nphys1170")
-#'
-#' # Uppercase DOI
-#' normalise_doi("10.1038/NPHYS1170")
-#'
-#' # Full HTTPS URL
-#' normalise_doi("https://doi.org/10.1038/nphys1170")
-#'
-#' # Legacy HTTP DX URL
-#' normalise_doi("http://dx.doi.org/10.1038/nphys1170")
-#'
-#' # DOI prefix format
-#' normalise_doi("doi:10.1038/nphys1170")
-#'
-#' # With surrounding whitespace
-#' normalise_doi(" 10.1038/nphys1170 ")
-#'
-#' # Vector of mixed formats
-#' normalise_doi(c(
-#'   "10.1038/nphys1170",
-#'   "https://doi.org/10.1038/nphys1170",
-#'   "DOI:10.1038/NPHYS1170"
-#' ))
 
 normalise_doi <- function(doi) {
-  if (!is.character(doi)) {
-    rlang::abort(
-      c(
-        "Argument {.arg doi} must be a character vector.",
-        "Got {.cls {class(doi)}}."
+  if (!is.character(doi) || length(doi) != 1L || is.na(doi)) {
+    cli::cli_abort("{.arg doi} must be one non-missing string.")
+  }
+
+  normalised <- doi |>
+    stringr::str_trim() |>
+    stringr::str_remove(stringr::regex("^doi\\s*:\\s*", ignore_case = TRUE)) |>
+    stringr::str_remove(
+      stringr::regex(
+        "^https?://(dx\\.)?doi\\.org/",
+        ignore_case = TRUE
       )
-    )
+    ) |>
+    stringr::str_to_lower()
+
+  if (!stringr::str_detect(normalised, "^10\\.[0-9]{4,9}/\\S+$")) {
+    cli::cli_abort("{.arg doi} is not a valid DOI.")
   }
 
-  # Trim whitespace
-  doi <- stringr::str_trim(doi)
-
-  # Remove common URL prefixes (case-insensitive)
-  doi <- stringr::str_remove(doi, "^(?i)https?://(?:dx\\.)?doi\\.org/")
-  doi <- stringr::str_remove(doi, "^(?i)doi:")
-
-  # Convert to uppercase
-  doi <- stringr::str_to_upper(doi)
-
-  return(doi)
+  normalised
 }
 
 
-#' Log decision on whether a dataset should be included for validation purposes
+#' Create a stable record identifier from a DOI
 #'
-#' This function is intended to be used as \code{log_dataset()}, which will display
-#' a UI in the R console and prompt you to enter the DOI and notes on
-#' decisions. The log is then stored as a human-readable YAML file in the
-#' specified output path, which defaults to the soil module for now.
+#' @param doi A DOI accepted by [normalise_doi()].
 #'
-#' @param filename Filename of the source metadata, which currently defaults
-#'   to the soil module
-#'
-#' @details
-#' You will asked to enter:
-#' \describe{
-#'   \item{DOI}{DOI string of the dataset or publication}
-#'   \item{Decision}{A menu to select decision}
-#'   \item{Reason}{(Optional) A menu to select reason}
-#'   \item{Notes}{(Optional) A string of long-form rationale}
-#' }
-#'
-#' @returns A YAML file logging the decision and source metadata in
-#'   \code{filename}.
+#' @returns A file-safe record identifier.
 #'
 #' @export
+
+doi_to_record_id <- function(doi) {
+  record_id <- doi |>
+    normalise_doi() |>
+    stringr::str_replace_all("[^a-z0-9]+", "-")
+
+  stringr::str_c("doi-", record_id)
+}
+
+
+#' Normalise metadata returned by DOI content search
 #'
-#' @examples
-#' box::use(tools/R/R/valdb)
-#' box::help(valdb$log_dataset)  # if you need a conventional R help page
-#' valdb$log_dataset()
+#' The metadata should be a list rather than a `bibentry`, so that it can be
+#' normalised into a stable structure for YAML and use from R or Python. This is
+#' why DOI metadata are requested in the `citeproc-json-ish` format.
+#'
+#' @param metadata Metadata returned by `rcrossref::cr_cn()` using the
+#'   `citeproc-json-ish` format.
+#' @param retrieved_at Date and time when the metadata was retrieved. The
+#'   current time is used by default; this argument mainly supports
+#'   reproducible tests and imports.
+#'
+#' @returns A named list following the screening metadata contract.
+#'
+#' @export
 
-log_dataset <- function(
-  filename = "data/derived/soil/validation/config/sources.yaml"
-) {
-  # prompt to enter DOI
-  doi_input <- readline("Enter DOI: ")
-
-  # normalise DOI to ensure consistency
-  doi <- normalise_doi(doi_input)
-
-  # read source yaml file if it already exists
-  if (file.exists(filename)) {
-    sources <- yaml::read_yaml(filename)
-    # exit early if a DOI has already been logged
-    doi_existing <- purrr::map_chr(sources, "doi")
-    if (doi %in% normalise_doi(doi_existing)) {
-      cli::cli_abort("{.val {doi}} has already been logged in {filename}.")
-    }
+normalise_doi_metadata <- function(metadata, retrieved_at = Sys.time()) {
+  if (!is.list(metadata)) {
+    cli::cli_abort("{.arg metadata} must be a list.")
+  }
+  if (!inherits(retrieved_at, "POSIXt") || length(retrieved_at) != 1L) {
+    cli::cli_abort("{.arg retrieved_at} must be one date-time value.")
   }
 
-  # download dataset metadata
-  meta <- rcrossref::cr_cn(doi, format = "bibentry")
-
-  # prompt for decision, decision, decision...
-  decision <- utils::select.list(
-    c("included", "excluded"),
-    title = "Decision (enter 0 to skip): ",
-    graphics = FALSE
-  )
-  if (decision == "") {
-    decision <- "skipped"
-  }
-
-  # prompt for short-form reason
-  reason <- utils::select.list(
-    c("used_elsewhere", "no_raw_data", "no_soil_data"),
-    title = "Reason (enter 0 to skip): ",
-    graphics = FALSE
-  )
-
-  # prompt for long-form notes
-  notes <- readline("Notes (leave blank to skip): ")
-
-  # Build new record
-  new_record <- list(
-    doi = meta$doi,
-    decision = decision,
-    reason = reason,
-    notes = notes,
-    logged_at = format(Sys.time(), "%Y-%m-%d"),
-    metadata = list(
-      title = meta$title,
-      author = meta$author,
-      year = meta$year,
-      journal = as.character(meta$journal %||% NA),
-      publisher = meta$publisher,
-      url = meta$url,
-      keywords = meta$keywords
-    )
-  )
-
-  # append new record to existing source YAML if the latter already exists
-  if (file.exists(filename)) {
-    sources <- c(sources, list(new_record))
+  authors <- metadata$author
+  if (is.data.frame(authors) && nrow(authors) > 0L) {
+    authors <- authors |>
+      dplyr::transmute(
+        author = stringr::str_c(.data$family, .data$given, sep = ", ")
+      ) |>
+      dplyr::pull(.data$author)
   } else {
-    sources <- list(new_record)
+    authors <- NULL
   }
 
-  # Write YAML
-  yaml::write_yaml(sources, filename)
+  date_parts <- metadata$issued[["date-parts"]]
+  year <- if (length(date_parts) > 0L) {
+    as.integer(unlist(date_parts)[[1L]])
+  } else {
+    NULL
+  }
 
-  # Completion message
-  cli::cli_alert_info("Dataset from {.val {doi}} is {decision}")
-  cli::cli_alert_success("Decision log saved to\n{filename}")
+  list(
+    title = metadata$title,
+    authors = authors,
+    year = year,
+    journal = metadata[["container-title"]],
+    publisher = metadata$publisher,
+    url = metadata$URL,
+    keywords = metadata$categories,
+    provider = "doi_content_search",
+    retrieved_at = format(retrieved_at, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  )
 }
 
 
-#' Add a template schema of dataset metadata and config
+#' Retrieve metadata for a DOI
 #'
-#' @param source_yaml Filename of the dataset log YAML file. We expect this to
-#'   have been generated by [log_dataset()].
-#' @param doi DOI of the dataset to update in the source YAML.
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param retrieved_at Date and time when the metadata was retrieved. The
+#'   current time is used by default; this argument mainly supports
+#'   reproducible tests and imports.
+#' @param .fetcher Function used to retrieve DOI metadata. This supports
+#'   network-independent tests and normally should not be changed.
 #'
-#' @returns An edited YAML config file replacing the previous unedited version.
+#' @returns A named list following the screening metadata contract.
 #'
 #' @export
-#' @examples
-#' box::use(tools/R/R/valdb)
-#' valdb$add_schema(
-#'   source_yaml = "data/derived/soil/validation/config/sources.yaml",
-#'   doi = "10.5281/ZENODO.8158810"
-#' )
 
-add_schema <- function(
-  source_yaml = "data/derived/soil/validation/config/sources.yaml",
-  doi
+fetch_doi_metadata <- function(
+  doi,
+  retrieved_at = Sys.time(),
+  .fetcher = rcrossref::cr_cn
 ) {
-  # Validate input YAML exists before reading
-  if (!file.exists(source_yaml)) {
+  doi <- normalise_doi(doi)
+
+  metadata <- tryCatch(
+    .fetcher(doi, format = "citeproc-json-ish"),
+    error = function(error) {
+      cli::cli_abort(
+        c(
+          "Could not retrieve metadata for DOI {.val {doi}}.",
+          "i" = "Check the DOI and the network connection, then try again."
+        ),
+        parent = error
+      )
+    }
+  )
+
+  if (!is.list(metadata) || length(metadata) == 0L) {
+    cli::cli_abort("No metadata were returned for DOI {.val {doi}}.")
+  }
+
+  normalise_doi_metadata(metadata, retrieved_at = retrieved_at)
+}
+
+
+#' Construct a dataset screening record
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param decision Screening decision. Use `proceed` when the dataset is
+#'   relevant for validation, `exclude` when it is not suitable, or `defer`
+#'   when the decision needs more information.
+#' @param reason Reason for the decision. For `proceed`, use
+#'   `relevant_validation_data`. For `exclude`, use `no_raw_data`,
+#'   `no_relevant_variables`, `duplicate_source`, `insufficient_metadata`, or
+#'   `other`. For `defer`, use `needs_second_opinion`, `access_pending`,
+#'   `outside_module_scope`, or `other`.
+#' @param notes Free-text screening notes. Notes are required for `defer` and
+#'   when the reason is `other`.
+#' @param metadata Normalised DOI metadata.
+#' @param screened_at Date and time of the decision. The current time is used
+#'   by default; this argument mainly supports reproducible tests and imports.
+#'
+#' @returns A screening record as a named list.
+#'
+#' @export
+
+new_screening_record <- function(
+  doi,
+  decision,
+  reason,
+  notes = "",
+  metadata,
+  screened_at = Sys.time()
+) {
+  decision <- match.arg(decision, screening_decisions)
+  reason <- match.arg(reason, screening_reasons[[decision]])
+
+  if (!is.character(notes) || length(notes) != 1L || is.na(notes)) {
+    cli::cli_abort("{.arg notes} must be one non-missing string.")
+  }
+  if (
+    (identical(decision, "defer") || identical(reason, "other")) &&
+      !stringr::str_detect(notes, "\\S")
+  ) {
+    cli::cli_abort("{.arg notes} is required for {.val {decision}} decisions.")
+  }
+  if (!is.list(metadata)) {
+    cli::cli_abort("{.arg metadata} must be a list.")
+  }
+  if (!inherits(screened_at, "POSIXt") || length(screened_at) != 1L) {
+    cli::cli_abort("{.arg screened_at} must be one date-time value.")
+  }
+
+  doi <- normalise_doi(doi)
+
+  list(
+    schema_version = 1L,
+    record_id = doi_to_record_id(doi),
+    doi = doi,
+    screening = list(
+      decision = decision,
+      reason = reason,
+      notes = notes,
+      screened_at = format(screened_at, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+    ),
+    metadata = metadata
+  )
+}
+
+
+#' Read all dataset screening records
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently hardcoded to the soil module; to relax this later.
+#'
+#' @returns A named list of screening records. Names are the source filenames
+#'   without their `.yaml` extension.
+#'
+#' @export
+
+list_screening_records <- function(
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  if (!dir.exists(sources_dir)) {
+    return(list())
+  }
+
+  paths <-
+    list.files(
+      sources_dir,
+      pattern = "\\.yaml$",
+      full.names = TRUE,
+      ignore.case = TRUE
+    ) |>
+    sort()
+
+  records <- purrr::map(paths, function(path) {
+    tryCatch(
+      yaml::read_yaml(path),
+      error = function(error) {
+        cli::cli_abort(
+          "Could not read screening record {.path {path}}.",
+          parent = error
+        )
+      }
+    )
+  })
+  names(records) <-
+    basename(paths) |>
+    stringr::str_remove(stringr::regex("\\.yaml$", ignore_case = TRUE))
+
+  records
+}
+
+
+#' Find a dataset screening record by DOI
+#'
+#' This function supports record lookup and checks that a DOI occurs at most
+#' once in `sources_dir`. Duplicate prevention cannot take place in
+#' [new_screening_record()], because that function constructs an in-memory
+#' record without reading the repository. [write_screening_record()] uses this
+#' function to reject a DOI that has already been saved.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'
+#' @returns The matching screening record, or `NULL` if the DOI has not been
+#'   screened.
+#'
+#' @export
+
+find_screening_record <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  doi <- normalise_doi(doi)
+  records <- list_screening_records(sources_dir)
+
+  matches <- purrr::keep(records, function(record) {
+    is.list(record) && identical(record$doi, doi)
+  })
+
+  if (length(matches) > 1L) {
+    cli::cli_abort(
+      "DOI {.val {doi}} occurs in multiple screening records: {names(matches)}."
+    )
+  }
+  if (length(matches) == 0L) {
+    return(NULL)
+  }
+
+  matches[[1L]]
+}
+
+
+#' Write a dataset screening record
+#'
+#' The record is written to a temporary file in `sources_dir`, read back to
+#' verify the YAML round trip, and then renamed to its final path. Existing
+#' records are never overwritten. To amend a saved decision, delete its YAML
+#' file and screen the dataset again.
+#'
+#' The DOI and record ID are checked again at this file-writing step. This
+#' protects against records that were loaded from YAML or modified after they
+#' were created.
+#'
+#' @param record A screening record created by [new_screening_record()].
+#' @param sources_dir Directory in which to create the YAML file.
+#'   Currently hardcoded to the soil module; to relax this later.
+#'
+#' @returns The path of the new YAML file.
+#'
+#' @export
+
+write_screening_record <- function(
+  record,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  if (!is.list(record) || is.null(record$doi) || is.null(record$record_id)) {
+    cli::cli_abort(
+      "{.arg record} should be a screening record created by {.fn new_screening_record}."
+    )
+  }
+
+  doi <- normalise_doi(record$doi)
+  expected_record_id <- doi_to_record_id(doi)
+  if (
+    !identical(record$doi, doi) ||
+      !identical(record$record_id, expected_record_id)
+  ) {
+    cli::cli_abort("The screening record DOI and record ID are inconsistent.")
+  }
+
+  existing <- find_screening_record(doi, sources_dir)
+  if (!is.null(existing)) {
     cli::cli_abort(c(
-      "Source YAML not found: {.file {source_yaml}}",
-      "Create it first with {.fn log_dataset}."
+      "DOI {.val {doi}} has already been screened.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
     ))
   }
 
-  # Read existing YAML
-  sources <- yaml::read_yaml(source_yaml)
-
-  # Find target data source by DOI
-  doi <- normalise_doi(doi)
-  doi_list <- purrr::map_chr(sources, "doi")
-  target_id <- which(normalise_doi(doi_list) == doi)
-
-  # Abort unless DOI resolves to exactly one record
-  if (length(target_id) != 1) {
-    cli::cli_abort(
-      "DOI {.val {doi}} appears {length(target_id)} times in {.file {source_yaml}}",
-      "Expected exactly one match."
-    )
+  dir.create(sources_dir, recursive = TRUE, showWarnings = FALSE)
+  destination <- file.path(
+    sources_dir,
+    stringr::str_c(record$record_id, ".yaml")
+  )
+  if (file.exists(destination)) {
+    cli::cli_abort(c(
+      "Screening record {.path {destination}} already exists.",
+      "i" = "Delete the existing file before screening the dataset again."
+    ))
   }
 
-  # Default template schema
-  template <- list(
+  temporary <- tempfile(
+    pattern = stringr::str_c(".", record$record_id, "-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  on.exit(unlink(temporary), add = TRUE)
+
+  yaml::write_yaml(record, temporary)
+  round_trip <- yaml::read_yaml(temporary)
+  if (!identical(record, round_trip)) {
+    cli::cli_abort("The screening record changed during YAML serialisation.")
+  }
+  if (!file.rename(temporary, destination)) {
+    cli::cli_abort("Could not save screening record to {.path {destination}}.")
+  }
+
+  destination
+}
+
+
+#' Screen a dataset for validation use
+#'
+#' This function provides an interactive R-console workflow for Step 1 of the
+#' validation database process. It retrieves DOI metadata, collects a screening
+#' decision and rationale, and writes one YAML record per dataset.
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#' @param .metadata_fetcher Function used to retrieve normalised DOI metadata.
+#'   This supports network-independent tests and normally should not be changed.
+#' @param .readline Function used to collect free-text console input. This
+#'   supports tests and normally should not be changed.
+#' @param .select Function used to collect choices from a console menu. This
+#'   supports tests and normally should not be changed.
+#'
+#' @returns Invisibly, the path of the new YAML screening record.
+#'
+#' @export
+#'
+#' @examples
+#' box::use(tools/R/R/valdb)
+#' box::help(valdb$screen_dataset)  # if you need a conventional R help page
+#' valdb$screen_dataset()
+
+screen_dataset <- function(
+  sources_dir = "data/derived/soil/validation/config/sources",
+  .metadata_fetcher = fetch_doi_metadata,
+  .readline = readline,
+  .select = utils::select.list
+) {
+  doi <- normalise_doi(.readline("Enter DOI: "))
+
+  if (!is.null(find_screening_record(doi, sources_dir))) {
+    cli::cli_abort(c(
+      "DOI {.val {doi}} has already been screened.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
+    ))
+  }
+
+  metadata <- .metadata_fetcher(doi)
+  authors <- paste(metadata$authors, collapse = "; ")
+  metadata_summary <- c(
+    Title = metadata$title,
+    Authors = authors,
+    Year = as.character(metadata$year),
+    Publisher = metadata$publisher,
+    URL = metadata$url
+  )
+  metadata_summary <- metadata_summary[
+    !is.na(metadata_summary) & stringr::str_detect(metadata_summary, "\\S")
+  ]
+  cli::cli_inform(c(
+    "Metadata retrieved for DOI {.val {doi}}:",
+    "*" = "{.field {names(metadata_summary)}}: {metadata_summary}"
+  ))
+
+  decision <- .select(
+    screening_decisions,
+    title = "Screening decision: ",
+    graphics = FALSE
+  )
+  if (!stringr::str_detect(decision, "\\S")) {
+    cli::cli_abort("A screening decision is required.")
+  }
+
+  reason <- .select(
+    screening_reasons[[decision]],
+    title = "Reason for decision: ",
+    graphics = FALSE
+  )
+  if (!stringr::str_detect(reason, "\\S")) {
+    cli::cli_abort("A reason for the screening decision is required.")
+  }
+
+  notes <- .readline("Notes (leave blank if not required): ")
+  record <- new_screening_record(
+    doi = doi,
+    decision = decision,
+    reason = reason,
+    notes = notes,
+    metadata = metadata
+  )
+  path <- write_screening_record(record, sources_dir)
+
+  cli::cli_alert_info("Dataset from {.val {doi}} will {.val {decision}}.")
+  cli::cli_alert_success("Screening record saved to {.path {path}}.")
+
+  invisible(path)
+}
+
+
+# Schema template contract -----------------------------------------------
+
+#' Construct a validation dataset schema template
+#'
+#' The template contains the YAML fields currently consumed by
+#' [build_validation_database()]. The returned list is an editable scaffold,
+#' not a build-ready schema. Before running [build_validation_database()],
+#' replace every example value with the actual CSV path, source column names,
+#' canonical variable mappings, source units, and observation identifier for
+#' the dataset. Remove unused template entries and add one variables entry for
+#' each source column for [build_validation_database()] to use.
+#'
+#' This helper function is intended to be used with [initialise_source_schema()].
+#'
+#' @returns A named list containing placeholders for `source_id`, `data_file`,
+#'   `skip_rows`, `variables`, and `dedup_key`.
+#'
+#' @export
+
+new_schema_template <- function() {
+  list(
     source_id = "author_year",
-    data_file = "data/primary/soil/source_id/*.csv",
+    data_file = "data/primary/soil/author_year/*.csv",
     skip_rows = 0L,
     variables = list(
       var_original_1 = list(
         var_canonical = "var_ve_1",
         unit = "unit",
-        description = NA
+        description = NULL
       )
     ),
-    dedup_key = c("sample_id", "date", "site_id"),
-    # Spatial coordinates. Every entry below is OPTIONAL: datasets curated to
-    # the SAFE standard need none of them, because the defaults already point
-    # at the `locations.csv` exported from the `Locations` sheet. Delete the
-    # entries you do not need, or delete the whole `coordinates` block.
-    # In the SAFE Zenodo database, locations can only supply plot codes
-    # rather than lat lon, in which case we will need to join from
-    # `data/primary/site/gazetteer.geojson`
-    coordinates = list(
-      # Path where the coordinates live.
-      # Default: "locations.csv" next to `data_file`.
-      from_file = NA,
-      # Column name in `data_file` holding the location name.
-      # Default: the first `dedup_key` entry.
-      match_data_column = NA,
-      # Column name in the locations file holding the location name.
-      # Default: "Location name".
-      match_location_column = NA,
-      # Coordinate columns in the locations file.
-      # Defaults: "Latitude" and "Longitude", in decimal degrees (WGS84).
-      # NB: sources giving northing/easting instead will need
-      # `coordinate_system` (an EPSG code) here, and a reprojection to
-      # WGS84 in `add_coordinates()` via `sf::sf_project()`.
-      latitude_column = NA,
-      longitude_column = NA,
-      # Use this INSTEAD of the entries above when the source gives only one
-      # blanket location for every row, e.g. a study site named in the paper
-      # but never pinned down per sample.
-      same_for_all_rows = list(
-        latitude = NA,
-        longitude = NA,
-        note = NA
-      )
-    ),
-    # Temporal coordinates. Every entry below is OPTIONAL, exactly like the
-    # `coordinates` block above. Most SAFE datasets are plot-level summaries
-    # with no per-row date, so `same_for_all_rows` is usually the default (and
-    # only) entry to fill. Delete what you do not need, or delete the whole
-    # `temporal` block.
-    #
-    # Times are stored as a HALF-OPEN interval [time_start, time_end) in UTC.
-    # A point-in-time observation is widened to its `precision` granule, so a
-    # date-only sample spans one whole day.
-    temporal = list(
-      # Column in `data_file` holding a single date/time per row. Use this for
-      # point-in-time observations.
-      date_column = NA,
-      # Use these two INSTEAD of `date_column` when each row carries its own
-      # start and end, e.g. a deployment or incubation window.
-      start_column = NA,
-      end_column = NA,
-      # strptime-style format, e.g. "%d/%m/%Y". Leave blank to let the parser
-      # guess, which only works for unambiguous ISO-like strings.
-      format = NA,
-      # IANA time zone the source dates are expressed in.
-      # Default: "UTC". SAFE field data is usually "Asia/Kuching".
-      # TODO: possible to validate this against spatial coordinates?
-      timezone = NA,
-      # Granularity actually known: "second", "day", "month" or "year".
-      # Default: "day".
-      precision = NA,
-      # Use this INSTEAD of the entries above when the source gives only one
-      # sampling window for every row, e.g. a campaign period named in the
-      # paper but never recorded per sample. Set `end` to the string "open"
-      # for an ongoing or unbounded campaign.
-      same_for_all_rows = list(
-        start = NA,
-        end = NA,
-        precision = NA,
-        note = NA
-      )
-    )
+    dedup_key = c("sample_id", "date", "site_id")
   )
+}
 
-  # add the template entries to the target source YAML section
-  sources[[target_id]] <- purrr::list_modify(sources[[target_id]], !!!template)
 
-  # Write back
-  yaml::write_yaml(sources, source_yaml)
+#' Initialise a validation dataset schema
+#'
+#' Adds [new_schema_template()] to an existing screening record. The record must
+#' have a `proceed` decision and must not already contain a schema. Existing
+#' screening and DOI metadata fields are preserved.
+#'
+#' The updated record is written to a temporary file, read back to verify the
+#' YAML round trip, and then moved to the original record path. To amend an
+#' existing schema, delete its YAML file and screen the dataset again.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#'
+#' @returns The path of the updated YAML file.
+#'
+#' @export
 
-  # Open the YAML file in the editor for editing
-  utils::file.edit(source_yaml)
+initialise_source_schema <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources"
+) {
+  doi <- normalise_doi(doi)
+  record <- find_screening_record(doi, sources_dir)
+
+  if (is.null(record)) {
+    cli::cli_abort("DOI {.val {doi}} has not been screened.")
+  }
+  if (!identical(record$screening$decision, "proceed")) {
+    cli::cli_abort(
+      "DOI {.val {doi}} must have a {.val proceed} screening decision before a schema can be added."
+    )
+  }
+  if (!is.null(record$source_id)) {
+    cli::cli_abort(c(
+      "DOI {.val {doi}} already has a schema.",
+      "i" = "To amend it, delete the existing YAML file and screen it again."
+    ))
+  }
+
+  destination <- file.path(
+    sources_dir,
+    stringr::str_c(doi_to_record_id(doi), ".yaml")
+  )
+  if (!file.exists(destination)) {
+    cli::cli_abort(
+      "The screening record for DOI {.val {doi}} is not at the expected path {.path {destination}}."
+    )
+  }
+
+  updated_record <- c(record, new_schema_template())
+  temporary <- tempfile(
+    pattern = stringr::str_c(".", doi_to_record_id(doi), "-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  backup <- tempfile(
+    pattern = stringr::str_c(".", doi_to_record_id(doi), "-backup-"),
+    tmpdir = sources_dir,
+    fileext = ".yaml"
+  )
+  on.exit(unlink(c(temporary, backup)), add = TRUE)
+
+  yaml::write_yaml(updated_record, temporary)
+  round_trip <- yaml::read_yaml(temporary)
+  if (!identical(updated_record, round_trip)) {
+    cli::cli_abort("The schema record changed during YAML serialisation.")
+  }
+
+  if (!file.rename(destination, backup)) {
+    cli::cli_abort(
+      "Could not prepare screening record {.path {destination}} for update."
+    )
+  }
+  if (!file.rename(temporary, destination)) {
+    restored <- file.rename(backup, destination)
+    if (!restored) {
+      cli::cli_abort(
+        "Could not save or restore screening record {.path {destination}}."
+      )
+    }
+    cli::cli_abort("Could not save schema record to {.path {destination}}.")
+  }
+  unlink(backup)
+
+  destination
+}
+
+
+#' Add a validation dataset schema for editing
+#'
+#' Initialises a schema for a screened dataset and opens its per-DOI YAML file
+#' in an editor. The screening decision must be `proceed`, and the record must
+#' not already contain a schema.
+#'
+#' @param doi A DOI accepted by [normalise_doi()].
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'   Currently defaults to the soil module; to be relaxed later.
+#' @param .editor Function used to open the YAML file. This supports tests and
+#'   normally should not be changed.
+#'
+#' @returns Invisibly, the path of the updated YAML file.
+#'
+#' @export
+#' @examples
+#' box::use(tools/R/R/valdb)
+#' valdb$add_schema("10.5281/zenodo.8158810")
+
+add_schema <- function(
+  doi,
+  sources_dir = "data/derived/soil/validation/config/sources",
+  .editor = utils::file.edit
+) {
+  doi <- normalise_doi(doi)
+  path <- initialise_source_schema(doi, sources_dir)
+  .editor(path)
+
+  invisible(path)
 }
 
 
@@ -1168,7 +1501,7 @@ build_data_variables_table <- function(
 #' @param toml Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
 #'
-#' @returns
+#' @returns A list of data variables.
 
 import_variables_table <- function(toml) {
   toml::read_toml(toml) |>
