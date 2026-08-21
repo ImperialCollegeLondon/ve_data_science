@@ -42,16 +42,21 @@ cd ve_data_science
 
 ## Install `uv` and create a virtual environment
 
-See .\docs\uv_setup.md for instructions about using uv.
+See [uv setup](.\docs\uv_setup.md) for instructions about using uv.
 
 **note:** If you are using R, conda may be better suited than uv.
-
 **note:** for test runs with the example data I use:
+
 ```bash
 uv venv
 uv pip install virtual-ecosystem`
 ```
+<<<<<<< HEAD
 as it installs a version of Veco which is compatable with the example.
+=======
+
+as it installs a version of Veco which is compatable with the example. 
+>>>>>>> 156ff1c (feat: add resourse requesting via config. closes #539)
 
 ## Install the example data/configs
 
@@ -69,10 +74,11 @@ Morris, Sobol, or Latin hypercube sampling. A small example is available in
 
 ## Submit the PBS array job
 
-The submission script takes two arguments:
+The submission script takes three arguments:
 
 1. the batch TOML file;
-2. a new output directory for the complete array run.
+2. the resources TOML file (see [Choose job resources](#choose-job-resources));
+3. a new output directory for the completed array run.
 
 The output directory must not already exist. The script creates it and then creates
 one child directory per PBS array sub-job. You can submit from any working directory:
@@ -80,12 +86,13 @@ one child directory per PBS array sub-job. You can submit from any working direc
 ```bash
 bash hpc_jobs/submit_ve_array_job.sh \
     hpc_jobs/job_config.toml \
+    hpc_jobs/resources_config.toml \
     ve_example/<My-Experiement-OUTPUT>
 ```
 
-The submission script validates the batch specification, calculates the PBS array size,
-creates the requested output directory, and submits the array using `qsub`. The current
-script limits the array to 20 concurrently running sub-jobs with `-J "1-N%20"`.
+The submission script validates both TOML files, calculates the PBS array size, creates
+the requested output directory, and submits the array using `qsub`. Validation happens
+before any jobs are created or submitted, so an invalid resource request fails fast.
 
 ## Monitor jobs
 
@@ -123,16 +130,28 @@ ve_example/<My-Experiement-OUTPUT>/3818703[1].pbs-7/
 
 ## Choose job resources
 
-The PBS resource request is currently embedded in
-`hpc_jobs/submit_ve_array_job.sh`. It uses a small allocation suitable for the
-example data. Larger simulations may require more memory, CPUs, or wall time.
+The PBS resource request is defined in a resourse config TOML file.
+ `hpc_jobs/resources_config.toml` has a small allocation suitable for the example data
 
-Update the PBS resource directives before submitting a larger job:
+Every value applies to each individual array sub-job,
+apart from `max_concurrent_jobs`, which caps how many sub-jobs the scheduler runs at once
 
-```bash
-#PBS -lselect=1:ncpus=1:mem=1gb
-#PBS -lwalltime=00:10:00
-```
+Larger datasets may require more memory, CPUs, or wall time. C
+More jobs don't need more resources as resources are set per job.
 
-Resource requirements should eventually be made configurable per array job,
-maybe in the config.toml?
+`hpc_jobs/resources.py` loads and validates the file before submission. Each field is
+bounds checked, and an out-of-range or missing value aborts the submission with an
+error rather than sending a bad request to `qsub`:
+
+| Field | Allowed range |
+| --- | --- |
+| `ncpus` | 1–128 |
+| `mem_gb` | 1–4000 |
+| `walltime_hours` | 0–59 |
+| `walltime_minutes` | 0–59 |
+| `max_concurrent_jobs` | 1–100 |
+
+The upper bounds match the largest CX3 nodes rather than realistic per-job requests, so
+staying inside them does not guarantee that a job will be scheduled promptly. Check the
+[Imperial RCS documentation](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/queues/)
+for more detail.
