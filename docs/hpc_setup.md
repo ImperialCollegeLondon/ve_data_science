@@ -49,7 +49,7 @@ See [uv setup](.\docs\uv_setup.md) for instructions about using uv.
 
 ```bash
 uv venv
-uv pip install virtual-ecosystem`
+uv pip install virtual-ecosystem
 ```
 <<<<<<< HEAD
 as it installs a version of Veco which is compatable with the example.
