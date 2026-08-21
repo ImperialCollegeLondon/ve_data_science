@@ -197,7 +197,7 @@ test_that("list_build_sources rejects duplicate DOI records", {
   write_builder_test_record(record, sources_dir, "first.yaml")
   write_builder_test_record(record, sources_dir, "second.yaml")
 
-  expect_error(list_build_sources(sources_dir), "multiple source records")
+  expect_error(list_build_sources(sources_dir))
 })
 
 

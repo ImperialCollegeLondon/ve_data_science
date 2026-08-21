@@ -47,8 +47,6 @@
 #|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
 #| ---
 
-box::use(./get_ve_variables[...])
-
 # Screening record contract -----------------------------------------------
 
 screening_decisions <- c("proceed", "exclude", "defer")

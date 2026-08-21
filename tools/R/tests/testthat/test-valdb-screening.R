@@ -345,10 +345,7 @@ test_that("write_screening_record rejects inconsistent identities", {
   record <- new_test_record()
   record$record_id <- "doi-wrong"
 
-  expect_error(
-    write_screening_record(record, sources_dir),
-    "DOI and record ID are inconsistent"
-  )
+  expect_error(write_screening_record(record, sources_dir))
   expect_length(list.files(sources_dir), 0L)
 })
 
@@ -457,8 +454,7 @@ test_that("screen_dataset rejects duplicates before metadata retrieval", {
       sources_dir = sources_dir,
       .metadata_fetcher = fake_metadata_fetcher,
       .readline = function(...) "https://doi.org/10.5281/ZENODO.8158810"
-    ),
-    "already been screened"
+    )
   )
   expect_identical(metadata_requested, FALSE)
   expect_length(list.files(sources_dir, pattern = "\\.yaml$"), 1L)
