@@ -65,10 +65,6 @@ plants_contants <- read.csv(plant_constants_path)
 core_config <- list(
   grid = core_grid,
   timing = core_timing,
-  data_output_options = list(
-    save_initial_state = TRUE,
-    save_continuous_data = TRUE
-  ),
   data = list(variable = data_paths)
 )
 
