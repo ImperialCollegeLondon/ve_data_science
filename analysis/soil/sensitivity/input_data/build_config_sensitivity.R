@@ -4,11 +4,7 @@ source("tools/R/R/build_config.R")
 source("tools/R/R/collect_data_paths.R")
 
 shared_repo_dir <- file.path(
-  "..",
-  "projects",
-  "virtual_rainforest",
-  "live",
-  "ve_data_science"
+  "../../projects/virtual_rainforest/live/ve_data_science"
 )
 grid_definition_path <- file.path(
   shared_repo_dir,

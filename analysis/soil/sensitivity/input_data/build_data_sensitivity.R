@@ -57,11 +57,7 @@ source("tools/R/R/summarise_spatial.R")
 
 # constants and paths
 shared_repo_dir <- file.path(
-  "..",
-  "projects",
-  "virtual_rainforest",
-  "live",
-  "ve_data_science"
+  "../../projects/virtual_rainforest/live/ve_data_science"
 )
 in_dir <- file.path(shared_repo_dir, "data/scenarios/maliau/maliau_1/data")
 out_dir <- "data/sensitivity/soil_litter_inputs/data"
