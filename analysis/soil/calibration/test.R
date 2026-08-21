@@ -96,18 +96,22 @@ start <- list(
 )
 
 # parameter bounds
-# lower <- list(litter_leaching_fraction_carbon = 0.0001)
-# upper <- list(litter_leaching_fraction_carbon = 0.0100)
+lower <- list(litter_leaching_fraction_carbon = 0.0001)
+upper <- list(litter_leaching_fraction_carbon = 0.0100)
 
 # optimisation
 opt <- calibrate(
   par = start,
   fn = obj,
-  # lower = lower,
-  # upper = upper,
+  lower = lower,
+  upper = upper,
   control = list(parallel = TRUE, ncores = ncores)
 )
 
 stopCluster(cl) # close the parallel connections
 
-coef(opt)
+out_dir <- "data/derived/soil/calibration"
+if (!dir.exists(out_dir)) {
+  dir.create(out_dir)
+}
+write_rds(opt, file.path(out_dir, "opt_test.rds"))
