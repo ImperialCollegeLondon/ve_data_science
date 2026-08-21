@@ -36,6 +36,7 @@ def load_resources(resources_config_file: Path) -> Resources:
 
     Args:
         resources_config_file: A path to a TOML resources configuration.
+
     """
 
     with open(resources_config_file, "rb") as handle:
@@ -45,8 +46,7 @@ def load_resources(resources_config_file: Path) -> Resources:
 
 
 if __name__ == "__main__":
-
-    # this should not really be invoked because the script will be run in submit_ve_array_job.sh 
+    # this should not really be invoked because the script will be run in submit_ve_array_job.sh
     # (with its own checks)
     if len(sys.argv) != 2:
         sys.stderr.write("Usage: python resources.py <resources_config.toml>\n")
@@ -57,7 +57,9 @@ if __name__ == "__main__":
     try:
         resources = load_resources(resources_config_path)
     except Exception as excep:
-        sys.stderr.write(f"config cannot be loaded from: {resources_config_path}:\n{excep}\n")
+        sys.stderr.write(
+            f"config cannot be loaded from: {resources_config_path}:\n{excep}\n"
+        )
         sys.exit(1)
 
     # Emitted as shell assignments for eval by submit_ve_array_job.sh.
@@ -66,5 +68,3 @@ if __name__ == "__main__":
     print(f"MAX_CONCURRENT='{resources.max_concurrent_jobs}'")
 
     sys.exit(0)
-
-

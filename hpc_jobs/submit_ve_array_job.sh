@@ -47,7 +47,7 @@ echo "Reading JOB-CONFIG.toml file: $VE_BATCH"
 RESOURCES_CONFIG="$(realpath "$2")"
 echo "Reading RESOURCES_CONFIG.toml file: $RESOURCES_CONFIG"
 
-# Use hpc_jobs/hpc_ve_job_spec.py to validate the job_config.toml file 
+# Use hpc_jobs/hpc_ve_job_spec.py to validate the job_config.toml file
 # and get the number of jobs
 NJOBS=$(cd "$REPO_ROOT" && python -m hpc_jobs.hpc_ve_job_spec "$VE_BATCH")
 echo "Calculating number of jobs to submit... $NJOBS!"
