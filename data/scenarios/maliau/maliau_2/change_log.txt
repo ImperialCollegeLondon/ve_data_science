@@ -12,7 +12,7 @@
   - Predictors in the spatial soil model are now log- or log1p-transformed
     because all of them were right-skewed
 - References:
-  - PR # addressing Issue #489
+  - PR #538 addressing Issue #489
 
 2026-08-07
 - Module: Animal
