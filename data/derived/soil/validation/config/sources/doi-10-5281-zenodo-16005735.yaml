@@ -1,0 +1,26 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-16005735
+doi: 10.5281/zenodo.16005735
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes:
+    Contains ammonium, nitrate and phosphorus concentrations. Data embargoed but
+    Hao Ran has obtained permission.
+  screened_at: "2026-08-18T07:57:56Z"
+metadata:
+  title: Danum Valley 50-Ha Plot Soil Nutrient Data
+  authors: Burslem, David F.R.P.
+  year: 2025
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.16005735
+  keywords:
+    - soil pH
+    - soil nutrient
+    - 50-Ha plot
+    - Danum Valley
+    - Sabah
+    - Malaysia
+  provider: doi_content_search
+  retrieved_at: "2026-08-18T07:56:44Z"

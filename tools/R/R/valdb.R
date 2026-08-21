@@ -548,8 +548,8 @@ screen_dataset <- function(
 #'
 #' This helper function is intended to be used with [initialise_source_schema()].
 #'
-#' @returns A named list containing placeholders for `source_id`, `data_file`,
-#'   `skip_rows`, `variables`, and `dedup_key`.
+#' @returns A named list containing placeholders for the mandatory source fields
+#'   and optional `coordinates` and `temporal` blocks.
 #'
 #' @export
 
@@ -565,8 +565,362 @@ new_schema_template <- function() {
         description = NULL
       )
     ),
-    dedup_key = c("sample_id", "date", "site_id")
+    dedup_key = c("sample_id", "date", "site_id"),
+    coordinates = list(
+      from_file = NULL,
+      match_data_column = NULL,
+      match_location_column = NULL,
+      latitude_column = NULL,
+      longitude_column = NULL,
+      same_for_all_rows = list(
+        latitude = NULL,
+        longitude = NULL
+      )
+    ),
+    temporal = list(
+      date_column = NULL,
+      start_column = NULL,
+      end_column = NULL,
+      format = NULL,
+      timezone = NULL,
+      precision = NULL,
+      same_for_all_rows = list(
+        start = NULL,
+        end = NULL,
+        precision = NULL,
+        note = NULL
+      )
+    )
   )
+}
+
+
+#' Check whether a validation dataset schema needs completion
+#'
+#' A schema needs completion when it has not been initialised or still contains
+#' a mandatory value copied from [new_schema_template()]. Optional spatial and
+#' temporal fields do not affect completion status.
+#'
+#' @param record A screening record, optionally with schema fields.
+#'
+#' @returns `TRUE` when the mandatory schema is absent or still a draft.
+
+schema_needs_completion <- function(record) {
+  template <- new_schema_template()
+
+  is.null(record$source_id) ||
+    identical(record$source_id, template$source_id) ||
+    identical(record$data_file, template$data_file) ||
+    identical(record$variables, template$variables) ||
+    identical(record$dedup_key, template$dedup_key)
+}
+
+
+#' List source records ready for the validation database build
+#'
+#' Screening-only records are ignored. Draft schemas are reported and skipped.
+#' A record containing schema fields must retain a `proceed` screening decision.
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'
+#' @returns A named list of build-ready source records.
+
+list_build_sources <- function(sources_dir) {
+  records <- list_screening_records(sources_dir)
+
+  dois <- purrr::map_chr(records, function(record) {
+    if (
+      is.list(record) && is.character(record$doi) && length(record$doi) == 1L
+    ) {
+      record$doi
+    } else {
+      NA_character_
+    }
+  })
+
+  # check for duplicated DOIs
+  duplicated_dois <- unique(dois[!is.na(dois) & duplicated(dois)])
+  if (length(duplicated_dois) > 0L) {
+    cli::cli_abort(
+      "DOI{?s} {duplicated_dois} occur{?s} in multiple source records."
+    )
+  }
+
+  # check for draft (incomplete) schema
+  schema_fields <- names(new_schema_template())
+  with_schema <- purrr::keep(records, function(record) {
+    is.list(record) && any(schema_fields %in% names(record))
+  })
+  invalid_decisions <- purrr::keep(with_schema, function(record) {
+    !identical(record$screening$decision, "proceed")
+  })
+  if (length(invalid_decisions) > 0L) {
+    paths <- file.path(sources_dir, paste0(names(invalid_decisions), ".yaml"))
+    cli::cli_abort(
+      "Source record{?s} {.path {paths}} contain{?s} a schema without a
+       {.val proceed} screening decision."
+    )
+  }
+
+  drafts <- purrr::keep(with_schema, schema_needs_completion)
+  if (length(drafts) > 0L) {
+    paths <- file.path(sources_dir, paste0(names(drafts), ".yaml"))
+    cli::cli_warn(
+      "Skipping draft source schema{?s} {.path {paths}}. Complete the
+       placeholder values before building the database."
+    )
+  }
+
+  build_sources <- purrr::discard(with_schema, schema_needs_completion)
+  if (length(build_sources) == 0L) {
+    cli::cli_abort(
+      "No completed source schemas were found in {.path {sources_dir}}."
+    )
+  }
+
+  build_sources
+}
+
+
+#' Validate one source schema
+#'
+#' Checks that a source schema contains the required fields and that their
+#' values can be used by [build_validation_database()]. This includes validating
+#' source identifiers, input paths, skipped rows, variable mappings, and
+#' deduplication keys. The configured data file must already exist.
+#'
+#' @param source A source record containing the fields from
+#'   [new_schema_template()].
+#' @param path Path to the source YAML file, used in validation messages.
+#'
+#' @returns `source`, invisibly. Aborts when the schema is invalid.
+#'
+#' @keywords internal
+
+validate_source_schema <- function(source, path) {
+  required_fields <- names(new_schema_template())
+  missing_fields <- setdiff(required_fields, names(source))
+  if (length(missing_fields) > 0L) {
+    cli::cli_abort(
+      "Source schema {.path {path}} is missing required field{?s} \
+       {.field {missing_fields}}."
+    )
+  }
+
+  scalar_string <- function(value) {
+    is.character(value) &&
+      length(value) == 1L &&
+      !is.na(value) &&
+      stringr::str_length(stringr::str_trim(value)) > 0L
+  }
+
+  if (!scalar_string(source$source_id)) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have one non-empty {.field source_id}."
+    )
+  }
+  if (!scalar_string(source$data_file)) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have one non-empty {.field data_file}."
+    )
+  }
+  if (
+    !is.numeric(source$skip_rows) ||
+      length(source$skip_rows) != 1L ||
+      is.na(source$skip_rows) ||
+      !is.finite(source$skip_rows) ||
+      source$skip_rows < 0 ||
+      source$skip_rows != floor(source$skip_rows)
+  ) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have a non-negative integer \
+       {.field skip_rows}."
+    )
+  }
+  if (
+    !is.list(source$variables) ||
+      length(source$variables) == 0L ||
+      is.null(names(source$variables)) ||
+      any(names(source$variables) == "") ||
+      anyDuplicated(names(source$variables))
+  ) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have a non-empty, uniquely named \
+       {.field variables} list."
+    )
+  }
+  invalid_variables <- names(source$variables)[purrr::map_lgl(
+    source$variables,
+    function(variable) {
+      !is.list(variable) ||
+        !all(c("var_canonical", "unit") %in% names(variable)) ||
+        !scalar_string(variable$var_canonical) ||
+        !scalar_string(variable$unit)
+    }
+  )]
+  if (length(invalid_variables) > 0L) {
+    cli::cli_abort(
+      "Invalid entries in {.field variables}: {.field {invalid_variables}} in \
+       source schema {.path {path}}. Each mapping must have one non-empty \
+       {.field var_canonical} and {.field unit}."
+    )
+  }
+  if (
+    !is.character(source$dedup_key) ||
+      length(source$dedup_key) == 0L ||
+      any(is.na(source$dedup_key)) ||
+      any(stringr::str_length(stringr::str_trim(source$dedup_key)) == 0L) ||
+      anyDuplicated(source$dedup_key)
+  ) {
+    cli::cli_abort(
+      "Source schema {.path {path}} must have one or more unique, non-empty \
+       {.field dedup_key} values."
+    )
+  }
+  if (!file.exists(source$data_file)) {
+    cli::cli_abort(
+      "Data file {.path {source$data_file}} configured by source schema \
+       {.path {path}} does not exist."
+    )
+  }
+
+  invisible(source)
+}
+
+
+#' Validate all sources selected for a database build
+#'
+#' Applies [validate_source_schema()] to every build source and verifies that
+#' `source_id` values are unique across source schemas.
+#'
+#' @param sources A named list of source records returned by
+#'   [list_build_sources()].
+#' @param sources_dir Directory containing the corresponding source YAML files.
+#'
+#' @returns `sources`, invisibly. Aborts when any source is invalid or source
+#'   identifiers are duplicated.
+#'
+#' @keywords internal
+
+validate_build_sources <- function(sources, sources_dir) {
+  purrr::iwalk(sources, function(source, record_id) {
+    validate_source_schema(
+      source,
+      file.path(sources_dir, paste0(record_id, ".yaml"))
+    )
+  })
+
+  source_ids <- purrr::map_chr(sources, "source_id")
+  duplicated_ids <- unique(source_ids[duplicated(source_ids)])
+  if (length(duplicated_ids) > 0L) {
+    cli::cli_abort(
+      "Duplicate source ID{?s} {.val {duplicated_ids}} occur{?s} across schemas."
+    )
+  }
+
+  invisible(sources)
+}
+
+
+#' Validate and select columns from one source dataset
+#'
+#' Requires all configured deduplication columns. Missing measurement columns
+#' are reported and omitted. The remaining observation keys must be complete
+#' and unique before spatial and temporal metadata are added.
+#'
+#' @param data A data frame read from the source CSV file.
+#' @param source The source schema associated with `data`.
+#'
+#' @returns A data frame containing the deduplication columns and available
+#'   measurement columns. The selected measurement names are stored in the
+#'   `measurement_columns` attribute. Returns `NULL` with a warning when no
+#'   configured measurement columns are available.
+#'
+#' @keywords internal
+
+prepare_source_data <- function(data, source) {
+  missing_keys <- setdiff(source$dedup_key, names(data))
+  if (length(missing_keys) > 0L) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} is missing deduplication column{?s} \
+       {.field {missing_keys}}."
+    )
+  }
+
+  measurement_columns <- names(source$variables)
+  missing_measurements <- setdiff(measurement_columns, names(data))
+  available_measurements <- setdiff(measurement_columns, missing_measurements)
+  if (length(available_measurements) == 0L) {
+    cli::cli_warn(
+      "Skipping source {.val {source$source_id}} because none of its \
+       configured measurement columns are present."
+    )
+    return(NULL)
+  }
+  if (length(missing_measurements) > 0L) {
+    cli::cli_warn(
+      "Source {.val {source$source_id}} is missing measurement column{?s} \
+       {.field {missing_measurements}}; skipping {?this measurement/these \
+       measurements}."
+    )
+  }
+
+  data <- dplyr::select(
+    data,
+    tidyr::all_of(c(source$dedup_key, available_measurements))
+  )
+  key_data <- dplyr::select(data, tidyr::all_of(source$dedup_key))
+  missing_values <- key_data |>
+    purrr::map(function(column) {
+      is.na(column) |
+        (is.character(column) & stringr::str_trim(column) == "")
+    }) |>
+    purrr::reduce(`|`)
+  if (any(missing_values)) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} has missing values in its \
+       deduplication key at row{?s} {which(missing_values)}."
+    )
+  }
+
+  duplicate_keys <- duplicated(key_data) | duplicated(key_data, fromLast = TRUE)
+  if (any(duplicate_keys)) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} has duplicate observation key{?s} at \
+       row{?s} {which(duplicate_keys)}."
+    )
+  }
+
+  attr(data, "measurement_columns") <- available_measurements
+  data
+}
+
+
+#' Create and validate observation identifiers
+#'
+#' Combines the configured deduplication columns into `ID` after spatial and
+#' temporal metadata have been attached. Aborts if distinct key combinations
+#' collapse to the same identifier under [tidyr::unite()].
+#'
+#' @param data A source data frame containing the configured deduplication
+#'   columns.
+#' @param source The source schema associated with `data`.
+#'
+#' @returns `data` with the deduplication columns replaced by `ID`.
+#'
+#' @keywords internal
+
+add_observation_id <- function(data, source) {
+  data <- tidyr::unite(data, "ID", tidyr::all_of(source$dedup_key))
+  duplicate_ids <- duplicated(data$ID) | duplicated(data$ID, fromLast = TRUE)
+  if (any(duplicate_ids)) {
+    cli::cli_abort(
+      "Source {.val {source$source_id}} has observation keys that collide \
+       when combined into {.field ID}: {.val {unique(data$ID[duplicate_ids])}}."
+    )
+  }
+
+  data
 }
 
 
@@ -696,10 +1050,8 @@ add_schema <- function(
 #' Build or rebuild the validation database based on the YAML configs of source
 #' datasets.
 #'
-#' @param config_dir Path to where the dataset YAML config files are stored.
-#' @param sources_file Filename of the source YAML metadata within
-#'   \code{config_dir}, as generated by [log_dataset()] and later edited by
-#'   [add_schema()].
+#' @param config_dir Path containing validation database configuration.
+#' @param sources_dir Directory containing one YAML record per screened dataset.
 #' @param db_path Output path for the harmonised database.
 #'
 #' @returns A harmonised database stored in db_path. Currently it is written out
@@ -713,117 +1065,35 @@ add_schema <- function(
 
 build_validation_database <- function(
   config_dir = "data/derived/soil/validation/config",
-  sources_file = "sources.yaml",
+  sources_dir = file.path(config_dir, "sources"),
   db_path = "data/derived/soil/validation/database"
 ) {
-  # Configs ----------------------------------------------------------------
-
-  # load canonical unit of VE data variables
-  # this YAML file is generated by tools/R/build_data_variables_table.R, which
-  # should be re-run once when there is any update to VE's data variable TOML
-  units <-
-    build_data_variables_table() |>
-    tibble::enframe(name = "var_canonical") |>
-    tidyr::unnest_wider(value) |>
-    dplyr::select(var_canonical, unit_canonical = unit) |>
-    # remove elements denoted in the curly brackets
-    # because we do not need them for the subsequent unit conversion
-    dplyr::mutate(
-      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
-    )
-
   # Ingest datasets --------------------------------------------------------
 
-  # read the metadata of data sources from a single YAML file, and then
-  # filter to keep only sources that have the source_id entry
-  sources <-
-    file.path(config_dir, sources_file) |>
-    yaml::read_yaml() |>
-    purrr::keep(~ purrr::pluck_exists(.x, "source_id"))
+  sources <- list_build_sources(sources_dir)
+  validate_build_sources(sources, sources_dir)
 
-  if (length(sources) == 0) {
-    cli::cli_abort(
-      "No source in {.file {file.path(config_dir, sources_file)}} has a
-       {.field source_id}. Run {.fn add_schema} on a source first."
-    )
-  }
+  # Configs ----------------------------------------------------------------
+
+  # Load canonical units only after local source preflight succeeds.
+  canonical_units <- build_canonical_units_table()
 
   # Harmonise each dataset ------------------------------------------------
   data_harmonised <-
     sources |>
-    purrr::map(\(src) {
-      # read dataset csv file
-      readr::read_csv(
-        src$data_file,
-        show_col_types = FALSE,
-        skip = src$skip_rows
-      ) |>
-        # select the relevant columns: unique IDs and validation variables
-        dplyr::select(tidyr::all_of(c(
-          src$dedup_key,
-          names(src$variables)
-        ))) |>
-        # attach spatial coordinates while the data is still one row per
-        # observation, and before `unite()` consumes the dedup key columns
-        add_coordinates(src) |>
-        # likewise for temporal coordinates: the date column is often itself a
-        # dedup key, so this must run before `unite()`
-        add_temporal(src) |>
-        # combine dedup keys into a single ID column
-        tidyr::unite("ID", tidyr::all_of(src$dedup_key)) |>
-        # pivot to long format because this is the easiest way to convert units
-        # and remove NAs
-        tidyr::pivot_longer(
-          cols = names(src$variables),
-          names_to = "var_original"
-        ) |>
-        dplyr::filter(!is.na(value)) |>
-        # join variable information,
-        # including unit and target validation variable
-        dplyr::left_join(
-          src$variables |>
-            tibble::enframe(name = "var_original") |>
-            tidyr::unnest_wider(value) |>
-            dplyr::rename(unit_original = unit),
-          by = dplyr::join_by(var_original)
-        ) |>
-        # Unit conversion
-        # join canonical or target units
-        dplyr::left_join(units, by = dplyr::join_by(var_canonical)) |>
-        # convert unit character string to units class
-        dplyr::mutate(
-          unit_canonical = purrr::map(unit_canonical, units::as_units),
-          unit_original = purrr::map(unit_original, units::as_units)
-        ) |>
-        # assign units to data values
-        # we need to use map2 because units does not accept mixed unit columns
-        dplyr::mutate(
-          value = purrr::map2(value, unit_original, \(x, y) {
-            x * y
-          })
-        ) |>
-        # convert the unit finally
-        dplyr::mutate(
-          value_canonical = purrr::map2(value, unit_canonical, \(x, y) {
-            units::set_units(x, y, mode = "standard")
-          })
-        ) |>
-        # add the source ID
-        dplyr::mutate(dataset = src$source_id)
-    })
+    purrr::map(\(src) harmonise_source_data(src, canonical_units)) |>
+    purrr::compact()
+
+  if (length(data_harmonised) == 0L) {
+    cli::cli_abort(
+      "No source datasets contain configured measurement columns."
+    )
+  }
 
   # combine datasets into a database
   database <-
     data_harmonised |>
     purrr::list_rbind() |>
-    # deparse values and units to base vector classes to be compatible
-    # with parquet or csv
-    dplyr::mutate(
-      value = purrr::map_dbl(value, as.numeric),
-      value_canonical = purrr::map_dbl(value_canonical, as.numeric),
-      unit_original = purrr::map_chr(unit_original, units::deparse_unit),
-      unit_canonical = purrr::map_chr(unit_canonical, units::deparse_unit)
-    ) |>
     # cleanup
     dplyr::select(
       dataset,
@@ -853,6 +1123,164 @@ build_validation_database <- function(
 
   # print message on write
   cli::cli_alert_success("Database saved to {db_path}.")
+}
+
+
+#' Harmonise one validation source dataset
+#'
+#' Internal helper for [build_validation_database()]. It reads and prepares one
+#' configured source, attaches spatial and temporal metadata, reshapes
+#' measurements, and converts known variables to canonical units. Unknown
+#' canonical mappings retain their original values and units and receive
+#' missing canonical values and units.
+#'
+#' @param src A validated source schema returned by [list_build_sources()].
+#' @param canonical_units A data frame with `var_canonical` and
+#'   `unit_canonical` columns.
+#'
+#' @returns A long-format data frame of harmonised observations, or `NULL` when
+#'   the source has no available configured measurement columns.
+
+harmonise_source_data <- function(src, canonical_units) {
+  data <- readr::read_csv(
+    src$data_file,
+    show_col_types = FALSE,
+    skip = src$skip_rows
+  ) |>
+    prepare_source_data(src)
+  if (is.null(data)) {
+    return(NULL)
+  }
+  measurement_columns <- attr(data, "measurement_columns")
+
+  data <-
+    data |>
+    # Attach metadata before `unite()` consumes the deduplication columns.
+    add_coordinates(src) |>
+    add_temporal(src) |>
+    add_observation_id(src) |>
+    # Pivot long for unit conversion and missing-value removal.
+    tidyr::pivot_longer(
+      cols = tidyr::all_of(measurement_columns),
+      names_to = "var_original"
+    ) |>
+    dplyr::filter(!is.na(value)) |>
+    dplyr::left_join(
+      src$variables[measurement_columns] |>
+        tibble::enframe(name = "var_original") |>
+        tidyr::unnest_wider(value) |>
+        dplyr::rename(unit_original = unit),
+      by = dplyr::join_by(var_original)
+    ) |>
+    dplyr::left_join(canonical_units, by = dplyr::join_by(var_canonical))
+
+  unknown <-
+    data |>
+    dplyr::filter(is.na(unit_canonical)) |>
+    dplyr::distinct(var_original, var_canonical)
+  if (nrow(unknown) > 0L) {
+    mappings <- paste0(
+      unknown$var_original,
+      " -> ",
+      unknown$var_canonical,
+      collapse = ", "
+    )
+    cli::cli_warn(c(
+      "Unknown canonical variable mapping{?s} in source {.val {src$source_id}}.",
+      "i" = "Retaining original values and units for: {mappings}."
+    ))
+  }
+
+  data |>
+    dplyr::mutate(
+      value_original = as.numeric(value),
+      value_canonical = purrr::pmap_dbl(
+        list(value, unit_original, unit_canonical, var_original, var_canonical),
+        \(value, unit_original, unit_canonical, var_original, var_canonical) {
+          convert_canonical_value(
+            value,
+            unit_original,
+            unit_canonical,
+            src$source_id,
+            var_original,
+            var_canonical
+          )
+        }
+      ),
+      unit_canonical = dplyr::if_else(
+        is.na(unit_canonical),
+        NA_character_,
+        unit_canonical
+      ),
+      dataset = src$source_id
+    ) |>
+    dplyr::select(-value) |>
+    dplyr::rename(value = value_original)
+}
+
+
+#' Convert one observation to its canonical unit
+#'
+#' Internal helper for [harmonise_source_data()]. Unit parsing and conversion
+#' errors include source and variable context. An unknown canonical mapping,
+#' represented by a missing canonical unit, returns a typed missing value
+#' without parsing the original unit.
+#'
+#' @param value A numeric observation value.
+#' @param unit_original The unit declared for the source variable.
+#' @param unit_canonical The target canonical unit, or `NA_character_` for an
+#'   unknown canonical mapping.
+#' @param source_id The source dataset identifier used in error messages.
+#' @param var_original The source variable name used in error messages.
+#' @param var_canonical The configured canonical variable name used in error
+#'   messages.
+#'
+#' @returns A numeric scalar in the canonical unit, or `NA_real_` for an unknown
+#'   canonical mapping.
+
+convert_canonical_value <- function(
+  value,
+  unit_original,
+  unit_canonical,
+  source_id,
+  var_original,
+  var_canonical
+) {
+  if (is.na(unit_canonical)) {
+    return(NA_real_)
+  }
+
+  tryCatch(
+    {
+      original <- value * units::as_units(unit_original)
+      converted <- units::set_units(
+        original,
+        units::as_units(unit_canonical),
+        mode = "standard"
+      )
+      as.numeric(converted)
+    },
+    error = function(error) {
+      cli::cli_abort(
+        c(
+          "Cannot convert units for source {.val {source_id}}.",
+          "x" = paste0(
+            "Variable ",
+            var_original,
+            " mapped to ",
+            var_canonical,
+            " cannot be converted from ",
+            unit_original,
+            " to ",
+            unit_canonical,
+            "."
+          ),
+          "i" = conditionMessage(error)
+        ),
+        parent = error
+      )
+    }
+  )
 }
 
 
@@ -1478,19 +1906,82 @@ drop_blanks <- function(x) {
 #' @param variables_ve Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
 #' @param variables_derived Path to the custom derived variable TOML table.
-#'   Currently it defaults to the soil module.
+#'   Currently it defaults to the soil module. Use `NULL` to omit derived
+#'   variables.
+#' @param downloader A function compatible with [utils::download.file()]. It is
+#'   injectable so tests can supply canonical metadata without network access.
 #'
-#' @returns A list of metadata of canonical VE and/or derived data variables.
+#' @returns A named list of metadata for canonical VE and derived variables.
 
 build_data_variables_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = "data/derived/soil/validation/config/derived_variables.toml"
+  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  downloader = utils::download.file
 ) {
-  var_list <- import_variables_table(variables_ve)
+  ve_path <- retrieve_variables_table(variables_ve, downloader)
+  var_list <- import_variables_table(ve_path)
   if (!is.null(variables_derived)) {
     var_list <- c(var_list, import_variables_table(variables_derived))
   }
   return(var_list)
+}
+
+
+#' Retrieve a canonical-variable TOML table
+#'
+#' Internal helper for [build_data_variables_table()]. Remote HTTP or HTTPS
+#' sources are downloaded to a temporary file so the exact retrieved payload is
+#' parsed. Local paths are returned unchanged.
+#'
+#' @param source A local path or HTTP or HTTPS URL to a TOML table.
+#' @param downloader A function compatible with [utils::download.file()].
+#'
+#' @returns A local path to the source TOML table.
+
+retrieve_variables_table <- function(
+  source,
+  downloader = utils::download.file
+) {
+  if (!grepl("^https?://", source)) {
+    return(source)
+  }
+
+  destination <- tempfile(fileext = ".toml")
+  downloader(source, destination, mode = "wb", quiet = TRUE)
+  destination
+}
+
+
+#' Build the canonical unit lookup table
+#'
+#' Internal helper for [build_validation_database()]. It combines VE and local
+#' derived-variable metadata and removes element annotations such as `{C}` from
+#' unit strings before conversion with the `units` package.
+#'
+#' @param variables_ve Path or URL to the virtual_ecosystem data-variable TOML
+#'   table.
+#' @param variables_derived Path to a local derived-variable TOML table, or
+#'   `NULL` to omit derived variables.
+#' @param downloader A function compatible with [utils::download.file()].
+#'
+#' @returns A data frame with `var_canonical` and `unit_canonical` columns.
+
+build_canonical_units_table <- function(
+  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
+  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  downloader = utils::download.file
+) {
+  build_data_variables_table(
+    variables_ve = variables_ve,
+    variables_derived = variables_derived,
+    downloader = downloader
+  ) |>
+    tibble::enframe(name = "var_canonical") |>
+    tidyr::unnest_wider(value) |>
+    dplyr::select(var_canonical, unit_canonical = unit) |>
+    dplyr::mutate(
+      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
+    )
 }
 
 

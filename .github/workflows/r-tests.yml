@@ -85,6 +85,10 @@ jobs:
             any::memoise
             any::shiny
             any::yaml
+            any::units
+            any::arrow
+            any::bslib
+            any::htmltools
 
       - name: Install pizzarr from r-universe
         run: |

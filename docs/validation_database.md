@@ -13,8 +13,7 @@ data/primary/soil/<author>_<year>/
 data/derived/soil/validation/
 ├── config/
 │   ├── sources/                # one screening/schema YAML file per DOI
-│   ├── derived_variables.toml  # non-VE canonical variables (optional)
-│   └── unit_conversions.csv    # unit_from/unit_to conversion rules
+│   └── derived_variables.toml  # non-VE canonical variables (optional)
 └── database/                   # output Parquet dataset
 tools/R/R/valdb.R               # workflow functions
 ```
@@ -133,9 +132,9 @@ example Excel or zip), then manually convert the desired data sheet into a CSV
 file. We opted not to accommodate multiple data formats because the cost of
 manual conversion is relatively minor even in the long run.
 
-Keep any location or coordinate files supplied with the source dataset. The
-current builder does not ingest them, but retaining the original files supports
-a later coordinate-integration step.
+Keep any location or coordinate files supplied with the source dataset. For the
+default spatial workflow, export the source location table as `locations.csv`
+beside the measurement CSV.
 
 ## 4) Complete schema fields manually
 
@@ -190,19 +189,68 @@ dedup_key:
 Assumptions and expectations:
 
 - Input files are CSV (`readr::read_csv()` is used internally).
-- `var_canonical` must exist in either VE `data_variables.toml` or
+- Known `var_canonical` names are resolved against the latest VE
+  `data_variables.toml` from the `develop` branch and
   `config/derived_variables.toml`.
-- Any required `unit_from -> unit_to` pair must exist in
-  `config/unit_conversions.csv`.
+- Source and canonical units are interpreted and converted directly with the
+  `units` package. Malformed or dimensionally incompatible units are errors.
+- Unknown canonical names produce a warning. Their observations and original
+  units are retained, while canonical values and units are recorded as missing.
 
-### Spatial coordinates
+### Spatial and temporal metadata
 
-Spatial-coordinate configuration is not part of the current schema contract.
-`add_schema()` does not add coordinate fields, and
-`build_validation_database()` does not discover `locations.csv`, match
-locations, validate coordinates, or add coordinate columns. Keep source
-coordinate files unchanged for future integration rather than adding
-unsupported configuration to a schema.
+The `coordinates` and `temporal` blocks are optional. Leave their template
+values blank when the source does not provide the corresponding metadata.
+Missing spatial or temporal metadata produces a warning and typed missing
+values in the database; it does not make an otherwise complete schema a draft.
+
+By default, the builder looks for `locations.csv` beside `data_file`. It matches
+the single `dedup_key` column against `Location name` and reads `Latitude` and
+`Longitude`. Use `match_data_column`, `match_location_column`,
+`latitude_column`, and `longitude_column` to override those names, or
+`from_file` to use another location file. A multi-column `dedup_key` requires an
+explicit `match_data_column`. Coordinates must be WGS84 decimal degrees. Use
+`same_for_all_rows.latitude` and `same_for_all_rows.longitude` when one location
+applies to the complete dataset.
+
+Temporal metadata can come from one `date_column`, from paired `start_column`
+and `end_column` values, or from `same_for_all_rows.start` and
+`same_for_all_rows.end`. Columns used for time metadata must also be retained by
+`dedup_key` or `variables`. Optional `format`, `timezone`, and `precision`
+settings control parsing; supported precision values are `second`, `day`,
+`month`, and `year`. Times are stored in UTC as half-open intervals
+`[time_start, time_end)`. Source end values are interpreted as the last
+inclusive precision unit, and `same_for_all_rows.end: open` represents an
+unbounded end. The optional blanket `note` is stored in `time_note`.
+
+For example:
+
+```yaml
+coordinates:
+  from_file:
+  match_data_column: plot.code
+  match_location_column: Location name
+  latitude_column: Latitude
+  longitude_column: Longitude
+  same_for_all_rows:
+    latitude:
+    longitude:
+temporal:
+  date_column:
+  start_column:
+  end_column:
+  format:
+  timezone: UTC
+  precision: day
+  same_for_all_rows:
+    start: 2011-01-01
+    end: 2014-12-31
+    precision: day
+    note: Sampling period reported by the source
+```
+
+Use either per-row settings or `same_for_all_rows` within each block, and remove
+unused entries when the schema is complete.
 
 ## 5) Build the validation database
 
@@ -214,17 +262,20 @@ valdb$build_validation_database()
 
 Default behavior:
 
-- Reads conversion rules from
-  `data/derived/soil/validation/config/unit_conversions.csv`
-- Builds canonical variable metadata from VE + local derived variables
-- Reads per-DOI records from
+- Downloads current canonical variable metadata from the VE `develop` branch
+  and combines it with local derived-variable metadata
+- Converts known variables directly between compatible units with `units`
+- Reads per-DOI records in filename order from
   `data/derived/soil/validation/config/sources/*.yaml`
-- Keeps records that contain a top-level `source_id`
+- Ignores screening-only records
+- Warns about initialised schemas that still contain mandatory placeholders and
+  skips them
+- Requires every schema record to retain a `proceed` screening decision
 - Writes Parquet output to `data/derived/soil/validation/database`
 
-Screening-only records do not contain `source_id`, so the build ignores them.
-A `proceed` decision alone does not make a record build-ready; its schema
-placeholders must first be completed.
+A `proceed` decision alone does not make a record build-ready. The builder only
+uses records with a completed top-level schema. It stops if no completed schemas
+remain after screening-only and draft records are excluded.
 
 ## 6) Combine the validation database with VE outputs
 
@@ -283,11 +334,9 @@ output.
 
 ## Ongoing metadata curation
 
-When new unit conversions are needed, edit:
-`data/derived/soil/validation/config/unit_conversions.csv`
-
-When new derived variables are needed, edit:
-`data/derived/soil/validation/config/derived_variables.toml`
+When new derived variables are needed, edit
+`data/derived/soil/validation/config/derived_variables.toml`. Source schemas
+should use unit strings understood by the `units` package.
 
 ## Notes for contributors
 
