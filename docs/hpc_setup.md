@@ -55,7 +55,7 @@ uv pip install virtual-ecosystem
 as it installs a version of Veco which is compatable with the example.
 =======
 
-as it installs a version of Veco which is compatable with the example. 
+as it installs a version of Veco which is compatable with the example.
 >>>>>>> 156ff1c (feat: add resourse requesting via config. closes #539)
 
 ## Install the example data/configs
