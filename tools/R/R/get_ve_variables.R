@@ -3,7 +3,8 @@
 #|
 #| description: |
 #|     Functions for retrieving and computing derived Virtual Ecosystem
-#|     variables from Zarr output datasets.
+#|     variables from Zarr output datasets, plus a legacy netCDF reader for
+#|     backward compatibility.
 #|
 #| virtual_ecosystem_module: All
 #|
@@ -13,12 +14,14 @@
 #|
 #| input_files:
 #|     - Virtual Ecosystem Zarr output dataset (.zarr)
+#|     - Virtual Ecosystem netCDF dataset (.nc)
 #|     - Virtual Ecosystem configuration TOML file (.toml)
 #|
 #| output_files: None (returns R objects)
 #|
 #| package_dependencies:
 #|     - pizzarr
+#|     - tidync
 #|     - purrr
 #|     - dplyr
 #|     - stringr
@@ -117,6 +120,67 @@ get_data_variables <- function(
     .progress = TRUE
   )
 
+  names(out) <- variables
+  return(out)
+}
+
+
+#' Retrieve (non-dimension) state variables from a netCDF file
+#'
+#' @param tidync A tidync object from tidync(), which reads in data from
+#'   a netCDF file.
+#' @param variables Optional character vector of variable names to retrieve.
+#'   If `NULL` (default), all non-dimension state variables are retrieved.
+#'
+#' @returns A list of arrays for all non-dimension state variables, including
+#'   each of their dimension names. Names correspond to variable names.
+#'
+#' @examples
+#' \dontrun{
+#'   # Retrieve all variables
+#'   nc <- tidync::tidync("data.nc")
+#'   all_vars <- get_data_variables_nc(nc)
+#'
+#'   # Retrieve specific variables
+#'   subset_vars <- get_data_variables_nc(
+#'     nc,
+#'     variables = c("temp", "precip")
+#'   )
+#' }
+#'
+#' @export
+
+get_data_variables_nc <- function(tidync, variables = NULL) {
+  # retrieve all non-dimension state variables
+  vars <-
+    tidync$variable |>
+    dplyr::filter(dim_coord == FALSE) |>
+    dplyr::pull(name)
+
+  # use all variables if none specified,
+  # otherwise validate requested variables exist
+  if (!is.null(variables)) {
+    # check that all requested variables are present in the data
+    missing_vars <- setdiff(variables, vars)
+    if (length(missing_vars) > 0) {
+      cli::cli_abort(
+        "The following variables are not found: {.val {missing_vars}}"
+      )
+    }
+  } else {
+    # default to all available variables
+    variables <- vars
+  }
+
+  # activate each variable and extract its array iteratively
+  out <-
+    variables |>
+    purrr::map(\(var) {
+      tidync |>
+        tidync::activate(var) |>
+        tidync::hyper_array(drop = FALSE) |>
+        purrr::pluck(var)
+    })
   names(out) <- variables
   return(out)
 }

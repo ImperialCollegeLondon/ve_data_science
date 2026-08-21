@@ -1,0 +1,36 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-5113430
+doi: 10.5281/zenodo.5113430
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Contains delta-15 N and delta-13 C of soil and leaf, need to ask Jacob if     they
+    can be validated against variables such as     litter_mineralisation_rate_cnp.
+  screened_at: '2026-08-17T03:04:31Z'
+metadata:
+  title: Delta-15N values for leaf and soil samples from a mesocosm experiment looking
+    at dung beetle presence and the movement of dung-derived nitrogen (DDN)
+  authors:
+  - Kemp, Victoria
+  - Bernard, Henry
+  - Kratina, Pavel
+  - Grey, Jonathan
+  - Slade, Eleanor
+  year: 2021
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/5113430
+  keywords:
+  - dung beetles
+  - nitrogen
+  - forest
+  - function
+  - mineralisation
+  - oil palm
+  - agriculture
+  - 15N
+  - stable isotope
+  - SAFE project
+  - HTMF
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:04:19Z'
