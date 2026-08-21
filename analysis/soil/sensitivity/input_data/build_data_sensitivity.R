@@ -361,7 +361,7 @@ clim_dat <-
   get_data_variables_nc()
 clim_dat |>
   # summarise spatial mean of climate data, bypassing valid_time
-  discard_at("valid_time") |>
+  discard_at(c("expver", "number", "spatial_ref", "valid_time")) |>
   summarise_spatial(FUN = mean) |>
   # put valid_time back before converting back to netCDF
   list_assign(valid_time = clim_dat$valid_time) |>
