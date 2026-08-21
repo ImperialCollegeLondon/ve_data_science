@@ -15,8 +15,8 @@ class Job:
 
     config_paths: list[str]
     name: str
-    repeats: int = 1
     config: dict[str, Any]
+    repeats: int = 1
     this_repeat: None | int = field(init=False, default=None)
 
 
@@ -31,7 +31,9 @@ class JobSpec:
     n_jobs: int = field(init=False)
     job_map: list[tuple[int, int]] = field(init=False)
 
-    def __post_init_post_parse__(self) -> None:
+    def __post_init__(
+        self,
+    ) -> None:  # rename to __post_init__ to avoid conflict due to pydantic versions (again this is a quick fix, will fix when changing from conda to uv)
         """Populate the total number of jobs and map of jobs to repeats."""
         self.n_jobs = sum([j.repeats for j in self.jobs])
         self.job_map = [
@@ -52,6 +54,8 @@ class JobSpec:
         return job
 
 
+# TODO: This could do with producing a more informative error messages
+# TODO: The **data was added to avoid a pydantic error, update depending on which version of pydantic is used.
 def load_job_spec(job_file: Path) -> JobSpec:
     """Load and validate a job specification file.
 
@@ -67,7 +71,8 @@ def load_job_spec(job_file: Path) -> JobSpec:
         raise
 
     try:
-        job_spec = JobSpec.model_validate(data)
+        # job_spec = JobSpec.model_validate(data)
+        job_spec = JobSpec(**data)
     except Exception:
         print("TOML job specification contains errors.")
         raise
