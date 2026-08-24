@@ -1801,6 +1801,54 @@ seedling_survival_rate <- 0.84^(12 / 20) # converted to per year
 summary$per_propagule_annual_recruitment_probability <- 0.023 *
   seedling_survival_rate
 
+# Below we add the base calculation for plant_pft_propagules, which originally
+# was included in the scenario preparation script.
+# Here we calculate the expected propagules in the seedbank per hectare, which
+# can then be scaled for a particular scenario later on dependong on the grid
+
+# First estimate the germinated seedlings prior to seedling mortality, derived
+# as recruits per hectare per year
+# (from Kuusipalo et al., 1996; DOI: https://doi.org/10.1016/0378-1127(95)03654-7)
+# divided by seedling survival 0.9007 (0.84^(12/20) from Kuusipalo et al., 1996;
+# DOI: https://doi.org/10.1016/0378-1127(95)03654-7).
+
+# Next, divide this number by the germination rate 0.0115
+# (0.023 / 2) to get yearly rate (from Kennedy, D. N., & Swaine, M. D., 1992;
+# DOI: https://doi.org/10.1098/rstb.1992.0027).
+
+# The result represents the minimum number of propagules across PFTs required in
+# the seedbank to be able to generate the observed seedlings. This means that the
+# actual seedbank may be larger.
+
+# Note: for pioneers in logged forest, we can use fill value = 1000 m-2 using
+# value from Metcalfe and Turner (1998; https://www.jstor.org/stable/2559870)
+# Then scale this according to the cell area used (here 10000 m2)
+
+# Note that we could have used the study by Pillay et al. (2018) which focuses
+# on Maliau and SAFE (https://doi.org/10.1002/ece3.4352).
+# However, this study measured during a masting event, and only focuses on 1
+# species, so this is not ideal for the current state of the model.
+
+# Calculate recruits per hectare, using "Recruitment of new seedlings" for
+# Plot 3, which is the unlogged forest
+# Note that we need to standardize the values to per year (instead of per
+# 20 months; July 1990 - February 1992)
+# Also note that the values are reported per 100 m2, so convert this to hectare
+# by multiplying by 100
+
+recruits_per_hectare <- (121 * 100) / 20 * 12 # converted to per hectare per year
+
+seedling_survival_rate <- 0.84^(12 / 20) # converted to per year
+
+recruits_per_hectare_without_mortality <-
+  recruits_per_hectare / seedling_survival_rate # these represent germinated seeds
+
+germination_rate <- 0.023 / 2 # converted to per year
+
+# Save the total propagules per hectare in summary
+summary$propagules <-
+  recruits_per_hectare_without_mortality / germination_rate # all seeds across PFTs
+
 ################################################################################
 
 # Prep summary output again, check variable names, etc.
@@ -1827,7 +1875,8 @@ summary <- summary[, c(
   "fine_root_carbon_foliage_area",
   "root_exudates",
   "per_stem_annual_mortality_probability",
-  "per_propagule_annual_recruitment_probability"
+  "per_propagule_annual_recruitment_probability",
+  "propagules"
 )]
 
 colnames(summary) <- c(
@@ -1850,7 +1899,8 @@ colnames(summary) <- c(
   "zeta",
   "root_exudates",
   "per_stem_annual_mortality_probability",
-  "per_propagule_annual_recruitment_probability"
+  "per_propagule_annual_recruitment_probability",
+  "propagules_per_ha"
 )
 
 # Below I change the variable names to match those used by the model
@@ -1896,7 +1946,8 @@ colnames(summary) <- c(
   "zeta",
   "root_exudates",
   "per_stem_annual_mortality_probability",
-  "per_propagule_annual_recruitment_probability"
+  "per_propagule_annual_recruitment_probability",
+  "propagules_per_ha"
 )
 
 ################################################################################
