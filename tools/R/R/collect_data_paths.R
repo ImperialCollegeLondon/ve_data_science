@@ -50,13 +50,14 @@ collect_data_paths <- function(plants, climate, elevation, soil, litter) {
         var_name = c(
           "air_temperature_ref",
           "relative_humidity_ref",
-          "atmospheric_pressure_ref",
-          "precipitation",
-          "atmospheric_co2_ref",
-          "mean_annual_temperature",
           "wind_speed_ref",
+          "precipitation",
+          "atmospheric_pressure_ref",
+          "downward_shortwave_radiation",
           "downward_longwave_radiation",
-          "downward_shortwave_radiation"
+          "diurnal_temperature_range_ref",
+          "mean_annual_temperature",
+          "atmospheric_co2_ref"
         ),
         file_path = climate
       )
