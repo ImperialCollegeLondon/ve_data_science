@@ -2,10 +2,10 @@
 
 import sys
 import tomllib
-from dataclasses import field
 from pathlib import Path
 from typing import Any
 
+from pydantic import Field, ValidationError
 from pydantic.dataclasses import dataclass
 
 
@@ -16,8 +16,8 @@ class Job:
     config_paths: list[str]
     name: str
     config: dict[str, Any]
-    repeats: int = 1
-    this_repeat: None | int = field(init=False, default=None)
+    repeats: int = Field(default=1, ge=1)
+    this_repeat: None | int = Field(init=False, default=None)
 
 
 @dataclass
@@ -28,12 +28,12 @@ class JobSpec:
     site_directory: str
     jobs: list[Job]
 
-    n_jobs: int = field(init=False)
-    job_map: list[tuple[int, int]] = field(init=False)
+    n_jobs: int = Field(init=False)
+    job_map: list[tuple[int, int]] = Field(init=False)
 
     def __post_init__(
         self,
-    ) -> None:  # rename to __post_init__ to avoid conflict due to pydantic versions (again this is a quick fix, will fix when changing from conda to uv)
+    ) -> None:  
         """Populate the total number of jobs and map of jobs to repeats."""
         self.n_jobs = sum([j.repeats for j in self.jobs])
         self.job_map = [
@@ -42,6 +42,12 @@ class JobSpec:
 
     def get_job(self, array_index: int) -> Job:
         """Get the correct job for a job array index and make the name unique."""
+
+        # I cant see how this would happen but just incase avoid a silent failure.
+        if not 1 <= array_index <= self.n_jobs:
+            raise ValueError(
+                f"Job array index must be between 1 and {self.n_jobs}: {array_index}"
+            )
 
         # The array index job numbers are 1-N
         job_idx, rep = self.job_map[array_index - 1]
@@ -54,8 +60,6 @@ class JobSpec:
         return job
 
 
-# TODO: This could do with producing a more informative error messages
-# TODO: The **data was added to avoid a pydantic error, update depending on which version of pydantic is used.
 def load_job_spec(job_file: Path) -> JobSpec:
     """Load and validate a job specification file.
 
@@ -63,28 +67,53 @@ def load_job_spec(job_file: Path) -> JobSpec:
         job_file: A path to a TOML job specification.
 
     """
-    try:
-        with open(job_file, "rb") as jobs:
-            data = tomllib.load(jobs)
-    except Exception:
-        print("Error parsing TOML in job file.")
-        raise
+    with open(job_file, "rb") as jobs:
+        data = tomllib.load(jobs)
 
-    try:
-        # job_spec = JobSpec.model_validate(data)
-        job_spec = JobSpec(**data)
-    except Exception:
-        print("TOML job specification contains errors.")
-        raise
+    if not data.get("jobs"):
+        raise ValueError(
+            "No jobs defined. Add at least one [[jobs]] section to the job configuration."
+        )
 
+    job_spec = JobSpec(**data)
+
+    site_directory = Path(job_spec.site_directory)
+    if not site_directory.is_dir():
+        raise ValueError(
+            f"Site directory does not exist or is not a directory: {site_directory}"
+        )
+
+    config_paths = {
+        *job_spec.common_config_paths,
+        *(path for job in job_spec.jobs for path in job.config_paths),
+    }
+
+    missing_paths = [
+        str(site_directory / path)
+        for path in config_paths
+        if not (site_directory / path).is_file()
+    ]
+
+    if missing_paths:
+        formatted_paths = "\n".join(f"  - {path}" for path in missing_paths)
+        raise ValueError(f"Config files do not exist:\n{formatted_paths}")
     return job_spec
 
 
 if __name__ == "__main__":
     try:
         spec = load_job_spec(Path(sys.argv[1]))
-    except Exception:
-        sys.stderr.write("Cannot load job specification\n")
+    except ValidationError as error:
+        sys.stderr.write(f"Invalid job specification:\n{error}\n")
+        sys.exit(1)
+    except OSError as error:
+        sys.stderr.write(f"Cannot open JOB_CONFIG.toml: {error}\n")
+        sys.exit(1)
+    except tomllib.TOMLDecodeError as error:
+        sys.stderr.write(f"Invalid TOML syntax: {error}\n")
+        sys.exit(1)
+    except ValueError as error:
+        sys.stderr.write(f"Invalid job specification:\n{error}\n")
         sys.exit(1)
 
     print(spec.n_jobs)

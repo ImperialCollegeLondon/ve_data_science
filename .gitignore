@@ -594,3 +594,6 @@ analysis/**/*.html
 
 # Example directory
 ve_example/
+
+# temporary directory
+tmp/

@@ -16,16 +16,13 @@ output_dir = Path(sys.argv[3])
 # Load batch job specification
 batch_job_spec = load_job_spec(batch_file)
 
-# 1. Stage the site directory to the runner location to avoid multiple reading problem
-#    This could also be done from the shell script but the TOML is easier to parse
-# local_dir = os.getcwd()
-# site_dir = shutil.copytree(batch_job_spec.site_directory, local_dir)
+# the output however contains MANY files
+# so we will likley need to stage the output directory (set to $TMPDIR)
+# then compress into tarball and copy back to the final output location 
 
-# Skip staging during local debug:
-# input files are only read not modified so should be safe to read from the original location.
-# copying could induce filesystem pressure and slow down the job. (review when running with larger datasets)
+# in the meantime... for small jobs, work from site dir.
 os.chdir(batch_job_spec.site_directory)
-print(f"[DEBUG] cwd after chdir: {os.getcwd()}", flush=True)
+print(f"[DEBUG] cd site dir: {os.getcwd()}", flush=True)
 
 # 2. Extract the job from the jobs spec by index
 job = batch_job_spec.get_job(job_array_index)

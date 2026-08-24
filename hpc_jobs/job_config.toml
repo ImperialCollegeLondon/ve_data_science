@@ -9,8 +9,9 @@ common_config_paths = [
 ]
 site_directory = "/rds/general/user/mtnichol/home/ve_data_science/ve_example"
 
+
 [[jobs]]
-config_paths = []
+config_paths = ["config/litter_config.toml"]
 name = "run_0001"
 repeats = 1
 
