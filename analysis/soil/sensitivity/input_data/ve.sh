@@ -3,12 +3,15 @@
 #PBS -lselect=1:ncpus=1:mem=4gb
 #PBS -J 1-4800%100
 #PBS -j oe
-#PBS -o /rds/general/user/${USER}/home/logs/sensitivity/job_^array_index^.out
+#PBS -o /rds/general/user/hlai1/home/logs/sensitivity/
 
 set -euo pipefail
 
 # run from the submission directory (typically path/to/ve_data_science)
 cd "${PBS_O_WORKDIR}" || exit
+LOG_DIR="/rds/general/user/hlai1/home/logs/sensitivity"
+mkdir -p "${LOG_DIR}"
+exec > "${LOG_DIR}/job_${PBS_ARRAY_INDEX}.out" 2>&1
 
 CONFIG_DIR="data/sensitivity/soil_litter_inputs/config"
 DATA_DIR="data/sensitivity/soil_litter_inputs/data"
@@ -46,4 +49,5 @@ uv run --group dev-pinned ve_run \
 # submit this from the ve_data_science root directory with:
 # cd ve_data_science
 # rm -rf data/sensitivity/soil_litter_inputs/out/*
+# rm -rf /rds/general/user/hlai1/home/logs/sensitivity/*
 # qsub analysis/soil/sensitivity/input_data/ve.sh
