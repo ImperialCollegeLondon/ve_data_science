@@ -37,7 +37,7 @@ OUTDIR="${OUT_ROOT}/${PBS_ARRAY_INDEX}"
 mkdir -p "${OUTDIR}"
 
 # Run VE via uv
-uv run --group dev-pinned ve_run \
+uv run --group dev ve_run \
   "${CONFIG_DIR}" \
   -p SOIL_LITTER_DATA="${SOIL_LITTER_FILE}" \
   --out "${OUTDIR}" \
