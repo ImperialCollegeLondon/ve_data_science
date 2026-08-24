@@ -61,7 +61,6 @@ echo "Resources configuration loaded."
 
 # Use the user-provided path as the output directory for the complete array run.
 RUN_OUTPUT_DIR="$(realpath -m "$3")"
-echo "Run output directory selected: $RUN_OUTPUT_DIR"
 
 # Do not overwrite an existing directory
 if [[ -e "$RUN_OUTPUT_DIR" ]]; then
@@ -113,5 +112,4 @@ PBS_SCRIPT
 printf '%s\n' \
     "Submitted." \
     "  PBS array ID: $PBS_ARRAY_ID" \
-    "  Monitor with: qstat $PBS_ARRAY_ID" \
-    "  Outputs will appear under: $RUN_OUTPUT_DIR"
+    "  Monitor with: qstat $PBS_ARRAY_ID"
