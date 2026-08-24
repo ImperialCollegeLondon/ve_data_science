@@ -18,7 +18,7 @@ batch_job_spec = load_job_spec(batch_file)
 
 # the output however contains MANY files
 # so we will likley need to stage the output directory (set to $TMPDIR)
-# then compress into tarball and copy back to the final output location 
+# then compress into tarball and copy back to the final output location
 
 # in the meantime... for small jobs, work from site dir.
 os.chdir(batch_job_spec.site_directory)

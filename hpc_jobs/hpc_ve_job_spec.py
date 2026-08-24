@@ -33,7 +33,7 @@ class JobSpec:
 
     def __post_init__(
         self,
-    ) -> None:  
+    ) -> None:
         """Populate the total number of jobs and map of jobs to repeats."""
         self.n_jobs = sum([j.repeats for j in self.jobs])
         self.job_map = [
