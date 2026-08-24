@@ -1,12 +1,12 @@
 library(tidyverse)
 library(arrow)
 library(calibrar)
-library(parallel)
+# library(parallel)
 source("tools/R/R/ve_run.R")
 source("tools/R/R/valdb.R")
 
-ncores <- detectCores() - 2 # number of cores to be used
-cl <- makeCluster(ncores)
+# ncores <- detectCores() - 2 # number of cores to be used
+# cl <- makeCluster(ncores)
 
 # Model function ---------------------------------------------------------
 
@@ -66,7 +66,7 @@ run_model <- function(par, ...) {
     out_folder,
     "compiled_configuration.toml"
   )
-  valdb$join_ve_outputs(validation_database, zarr_path, config_path)
+  join_ve_outputs(validation_database, zarr_path, config_path)
 
   # clean up memory
   gc()
@@ -104,11 +104,11 @@ opt <- calibrate(
   par = start,
   fn = obj,
   lower = lower,
-  upper = upper,
-  control = list(parallel = TRUE, ncores = ncores)
+  upper = upper
+  # control = list(parallel = TRUE, ncores = ncores)
 )
 
-stopCluster(cl) # close the parallel connections
+# stopCluster(cl) # close the parallel connections
 
 out_dir <- "data/derived/soil/calibration"
 if (!dir.exists(out_dir)) {
