@@ -32,8 +32,8 @@ class JobSpec:
     def __post_init__(
         self,
     ) -> None:
-        """Populate the total number of jobs and map of jobs to respective array indices."""
-        # Create a job map that maps each job array index to the corresponding job index.
+        """Populate the total num of jobs and map jobs to respective array indices."""
+        # Map each job array index to the corresponding job index.
         self.job_map = [
             job_index
             for job_index, job in enumerate(self.jobs)
@@ -43,7 +43,7 @@ class JobSpec:
         self.n_jobs = len(self.job_map)
 
     def get_job(self, array_index: int) -> Job:
-        """Get the correct job for a job array index"""
+        """Get the correct job for a job array index."""
 
         # I cant see how this would happen but just incase avoid a silent failure.
         # ensure that the array index is within the valid range of jobs.
@@ -72,10 +72,11 @@ def load_job_spec(job_file: Path) -> JobSpec:
     # Ensure there is at least one job specified.
     if not data.get("jobs"):
         raise ValueError(
-            "No jobs defined. Add at least one [[jobs]] section to the job configuration."
+            "No jobs defined. Add at least one [[jobs]] section to the JOB_CONFIG.toml."
         )
 
-    # Validate the job specification using Pydantic (calls the __post_init__ method to populate n_jobs and job_map)
+    # Validate the job specification using Pydantic
+    # (calls the __post_init__ method to populate n_jobs and job_map)
     job_spec = JobSpec(**data)
 
     # Validate that the site directory exists and is a directory
@@ -100,10 +101,11 @@ def load_job_spec(job_file: Path) -> JobSpec:
     if missing_paths:
         formatted_paths = "\n".join(f"  - {path}" for path in missing_paths)
         raise ValueError(f"Config files do not exist:\n{formatted_paths}")
+
     return job_spec
 
 
-# This script should also contain validation for the Virtual Ecosystem job specification.
+# This script should also contain validation for the VEco job specification.
 # perhaps it could use VEco's internal config validation?
 # Would we want to kill all jobs if one is invalid?
 # What if half are invalid?

@@ -1,13 +1,13 @@
 # Running Virtual Ecosystem on the HPC
 
-*Author: moi-taiga*
-#### Note: this is an early draft, do suggest edits!
+Author: moi-taiga
+Note: this is an early draft, do suggest edits!
 
-Tntroduction to submitting Virtual Ecosystem runs as a PBS array job on
+Introduction to submitting Virtual Ecosystem runs as a PBS array job on
 the HPC cluster. The workflow was developed for the CX3 cluster, which uses the
 PBS job scheduler. CX3 is scheduled to be shut down in May 2027.
 
-### Before you start
+## Before you start
 
 You need:
 
@@ -22,12 +22,14 @@ Use SSH to access the cx3 cluster; you will be required to use your password for
 ssh userid@login.cx3.hpc.imperial.ac.uk
 ```
 
-See the [Imperial RCS documentation](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/getting-started/) for further information about connecting to the cluster.
-If you are new to HPC environments, do make sure that you familiarise yourself with the documentation.
+See the [Imperial RCS documentation](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/getting-started/)
+for further information about connecting to the cluster.
+If you are new to HPC environments, do make sure that you familiarise yourself with the
+documentation.
 
-importantly: Login nodes are intended for tasks such as editing files, preparing jobs, and
-submitting jobs. Computationally intensive work should be submitted to compute
-nodes through PBS.
+*Importantly: Login nodes are intended for tasks such as editing files, preparing jobs,
+and submitting jobs. Computationally intensive work should be submitted to compute
+nodes through PBS.*
 
 ## Clone the repository
 
@@ -42,7 +44,7 @@ cd ve_data_science
 
 ## Install `uv` and create a virtual environment
 
-See [uv setup](.\docs\uv_setup.md) for instructions about using uv.
+See [uv setup](uv_setup.md) for instructions about using uv.
 
 **note:** If you are using R, conda may be better suited than uv.
 **note:** for test runs with the example data I use:
@@ -51,12 +53,8 @@ See [uv setup](.\docs\uv_setup.md) for instructions about using uv.
 uv venv
 uv pip install virtual-ecosystem
 ```
-<<<<<<< HEAD
-as it installs a version of Veco which is compatable with the example.
-=======
 
 as it installs a version of Veco which is compatable with the example.
->>>>>>> 156ff1c (feat: add resourse requesting via config. closes #539)
 
 ## Install the example data/configs
 
@@ -68,9 +66,23 @@ ve_run --install-example .
 
 ## Create a batch job configuration
 
-Create a TOML batch configuration using your prefered sampling method, e.g.
-Morris, Sobol, or Latin hypercube sampling. A small example is available in
+Create a TOML job specification that describes the Virtual Ecosystem runs in
+the array. You can produce the job entries with a sampling method such as Morris,
+Sobol, or Latin hypercube sampling. A small example is available in
 `hpc_jobs/job_config.toml`.
+
+The specification has four parts:
+
+- `site_directory`: the absolute path to the directory containing the shared
+    configuration files and input data. Replace the path in the example
+    with the path to your checkout's `ve_example` directory.
+- `common_config_paths`: paths to configuration files, relative to
+    `site_directory`, that every array sub-job uses.
+- `[[jobs]]`: one or more job entries. Each can provide additional
+    `config_paths` and a `config` table of values that override the loaded
+    configuration.
+- `repeats`: a positive integer on each job entry. The total number
+    of PBS array sub-jobs is the sum of all `repeats` values.
 
 ## Submit the PBS array job
 
@@ -87,12 +99,14 @@ one child directory per PBS array sub-job. You can submit from any working direc
 bash hpc_jobs/submit_ve_array_job.sh \
     hpc_jobs/job_config.toml \
     hpc_jobs/resources_config.toml \
-    ve_example/<My-Experiement-OUTPUT>
+    ve_example/<experiment-output>
 ```
 
-The submission script validates both TOML files, calculates the PBS array size, creates
-the requested output directory, and submits the array using `qsub`. Validation happens
-before any jobs are created or submitted, so an invalid resource request fails fast.
+The submission script validates the job specification and resources configuration,
+calculates the PBS array size, creates the requested output directory, and submits the
+array using `qsub`. It creates `arraySubJob_<index>` directories before submitting the
+array. Validation happens before the output directory is created or any jobs are
+submitted, so invalid configurations fail fast.
 
 ## Monitor jobs
 
@@ -116,32 +130,34 @@ Cancel a job:
 qdel <job_id>
 ```
 
-Each array sub-job receives its own directory named with its PBS job ID. The combined
-PBS stdout and stderr are written to `pbs.log`; the Virtual Ecosystem log is written to
-`ve.log` and model outputs are written in the same directory:
+Each array sub-job receives an `arraySubJob_<index>` directory. The combined PBS stdout
+and stderr are written to `pbs.log`; the Virtual Ecosystem log is written to `ve.log` and
+model outputs are written in the same directory:
 
 ```text
-ve_example/<My-Experiement-OUTPUT>/3818703[1].pbs-7/
-    pbs.log
-    ve.log
-    compiled_configuration.toml
-    model_data.zarr/
+ve_example/<experiment-output>/
+    arraySubJob_1/
+        pbs.log
+        ve.log
+        compiled_configuration.toml
+        model_data.zarr/
 ```
 
 ## Choose job resources
 
 The PBS resource request is defined in a resourse config TOML file.
- `hpc_jobs/resources_config.toml` has a small allocation suitable for the example data
+`hpc_jobs/resources_config.toml` has a small allocation suitable for the example data
 
 Every value applies to each individual array sub-job,
-apart from `max_concurrent_jobs`, which caps how many sub-jobs the scheduler runs at once
+apart from `max_concurrent_jobs`, which caps how many sub-jobs the scheduler runs at once.
 
-Larger datasets may require more memory, CPUs, or wall time. C
+Larger datasets may require more memory, CPUs, or wall time.
 More jobs don't need more resources as resources are set per job.
 
-`hpc_jobs/resources.py` loads and validates the file before submission. Each field is
-bounds checked, and an out-of-range or missing value aborts the submission with an
-error rather than sending a bad request to `qsub`:
+`hpc_jobs/resources.py` loads and validates the resource configuration, while
+`hpc_jobs/hpc_ve_job_spec.py` validates the job specification. Each resource field is
+bounds checked, and an out-of-range or missing value aborts the submission with an error
+rather than sending a bad request to `qsub`:
 
 | Field | Allowed range |
 | --- | --- |
