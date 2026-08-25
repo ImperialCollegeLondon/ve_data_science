@@ -46,6 +46,7 @@ class JobSpec:
         """Get the correct job for a job array index"""
 
         # I cant see how this would happen but just incase avoid a silent failure.
+        # ensure that the array index is within the valid range of jobs.
         if not 1 <= array_index <= self.n_jobs:
             raise ValueError(
                 f"Job array index must be between 1 and {self.n_jobs}: {array_index}"
@@ -68,19 +69,23 @@ def load_job_spec(job_file: Path) -> JobSpec:
     with open(job_file, "rb") as jobs:
         data = tomllib.load(jobs)
 
+    # Ensure there is at least one job specified. 
     if not data.get("jobs"):
         raise ValueError(
             "No jobs defined. Add at least one [[jobs]] section to the job configuration."
         )
 
+    # Validate the job specification using Pydantic (calls the __post_init__ method to populate n_jobs and job_map)
     job_spec = JobSpec(**data)
 
+    # Validate that the site directory exists and is a directory
     site_directory = Path(job_spec.site_directory)
     if not site_directory.is_dir():
         raise ValueError(
             f"Site directory does not exist or is not a directory: {site_directory}"
         )
 
+    # Validate that all config paths exist relative to the site directory
     config_paths = {
         *job_spec.common_config_paths,
         *(path for job in job_spec.jobs for path in job.config_paths),
@@ -96,6 +101,12 @@ def load_job_spec(job_file: Path) -> JobSpec:
         formatted_paths = "\n".join(f"  - {path}" for path in missing_paths)
         raise ValueError(f"Config files do not exist:\n{formatted_paths}")
     return job_spec
+
+# This script should also contain validation for the Virtual Ecosystem job specification. 
+# perhaps it could use VEco's internal config validation? 
+# Would we want to kill all jobs if one is invalid?
+# What if half are invalid?
+# (Need to check with the team)
 
 
 if __name__ == "__main__":
