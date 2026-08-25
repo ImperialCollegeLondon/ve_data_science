@@ -2,6 +2,6 @@
 [resources]
 ncpus = 1
 mem_gb = 1
-walltime_minutes = 10
+walltime_minutes = 5
 walltime_hours = 0
 max_concurrent_jobs = 20

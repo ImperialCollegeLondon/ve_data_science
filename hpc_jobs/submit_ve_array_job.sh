@@ -97,7 +97,7 @@ PBS_ARRAY_ID=$(qsub \
 
 set -euo pipefail
 
-JOB_OUTPUT_DIR="$RUN_OUTPUT_DIR/$PBS_ARRAY_INDEX"
+JOB_OUTPUT_DIR="$RUN_OUTPUT_DIR/arraySubJob_$PBS_ARRAY_INDEX"
 
 cd "$REPO_ROOT"
 source "$REPO_ROOT/.venv/bin/activate"
