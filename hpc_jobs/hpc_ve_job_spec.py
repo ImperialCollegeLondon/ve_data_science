@@ -69,7 +69,7 @@ def load_job_spec(job_file: Path) -> JobSpec:
     with open(job_file, "rb") as jobs:
         data = tomllib.load(jobs)
 
-    # Ensure there is at least one job specified. 
+    # Ensure there is at least one job specified.
     if not data.get("jobs"):
         raise ValueError(
             "No jobs defined. Add at least one [[jobs]] section to the job configuration."
@@ -102,8 +102,9 @@ def load_job_spec(job_file: Path) -> JobSpec:
         raise ValueError(f"Config files do not exist:\n{formatted_paths}")
     return job_spec
 
-# This script should also contain validation for the Virtual Ecosystem job specification. 
-# perhaps it could use VEco's internal config validation? 
+
+# This script should also contain validation for the Virtual Ecosystem job specification.
+# perhaps it could use VEco's internal config validation?
 # Would we want to kill all jobs if one is invalid?
 # What if half are invalid?
 # (Need to check with the team)
