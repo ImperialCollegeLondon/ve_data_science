@@ -13,20 +13,12 @@
 #| status: in progress
 #|
 #| input_files:
-#|   - name: dobert_2017_species_trait_data.csv
+#|   - name: dobert_2019_plot_species_trait_data.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |
-#|       https://doi.org/10.5061/dryad.f77p7
-#|       This CSV file contains a set of traits (e.g. maximum height, fruit,
-#|       dispersal, pollination type, etc.) for each species, measured across the
-#|       SAFE project and Maliau.
-#|   - name: dobert_2017_plot_species_data.csv
-#|     path: data/primary/plant/subcanopy
-#|     description: |
-#|       https://doi.org/10.5061/dryad.f77p7
-#|       This CSV file contains a matrix of biomass values for 691 plant taxa
-#|       sampled across 180 vegetation plots (2 x 2 m) located at the Stability
-#|       of Altered Forest Ecosystems (SAFE) project in Sabah, Malaysia.
+#|       https://doi.org/10.5281/zenodo.2536270
+#|       Plot, species and trait data for subcanopy vegetation measured across
+#|       Maliau and the SAFE project.
 #|   - name: stoichiometry_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
@@ -46,9 +38,9 @@
 #|         description: |
 #|           Mean standing subcanopy vegetation carbon mass per unit ground area.
 #|         references:
-#|           - citation: "Dobert et al. (2017)"
-#|             doi: "https://doi.org/10.5061/dryad.f77p7"
-#|             url: "https://datadryad.org/dataset/doi:10.5061/dryad.f77p7"
+#|           - citation: "Dobert et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.2536270"
+#|             url: "https://zenodo.org/records/2536270"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
@@ -92,9 +84,9 @@
 #|         description: |
 #|           Specific leaf area of subcanopy vegetation expressed per unit carbon mass.
 #|         references:
-#|           - citation: "Dobert et al. (2017)"
-#|             doi: "https://doi.org/10.5061/dryad.f77p7"
-#|             url: "https://datadryad.org/dataset/doi:10.5061/dryad.f77p7"
+#|           - citation: "Dobert et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.2536270"
+#|             url: "https://zenodo.org/records/2536270"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
@@ -343,6 +335,91 @@
 #|             site_condition: ""
 #|             date: ""
 #|         assumptions: "Imported directly from the derived stoichiometry_maliau reproductive tissue lignin field as a proxy because seedbank-specific lignin data are lacking."
+
+#|   - name: dobert_subcanopy_maliau.csv
+#|     path: data/derived/plant/input_data/data_library
+#|     description: |
+#|       This CSV file contains the subcanopy vegetation and seedbank carbon mass
+#|       at plot level. The file is used for spatial predictions in the scenario
+#|       scripts.
+#|     variables:
+#|       - name: plot_code
+#|         type:
+#|         units:
+#|         description: |
+#|           Description.
+#|         references:
+#|           - citation: "Dobert et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.2536270"
+#|             url: "https://zenodo.org/records/2536270"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2014"
+#|         assumptions: ""
+#|       - name: subcanopy_vegetation_carbon_mass_mean
+#|         type: numeric
+#|         units: kg C m^-2
+#|         description: |
+#|           Standing subcanopy vegetation carbon mass per unit ground area.
+#|         references:
+#|           - citation: "Dobert et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.2536270"
+#|             url: "https://zenodo.org/records/2536270"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2014"
+#|         assumptions: ""
+#|       - name: subcanopy_seedbank_carbon_mass_mean
+#|         type: numeric
+#|         units: kg C m^-2
+#|         description: |
+#|           Standing subcanopy seedbank carbon mass per unit ground area.
+#|         references:
+#|           - citation: "Dobert et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.2536270"
+#|             url: "https://zenodo.org/records/2536270"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2014"
+#|         assumptions: ""
+#|       - name: subcanopy_vegetation_carbon_mass_plot
+#|         type: numeric
+#|         units: kg C m^-2
+#|         description: |
+#|           Standing subcanopy vegetation carbon mass per unit ground area at
+#|           plot level.
+#|         references:
+#|           - citation: "Dobert et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.2536270"
+#|             url: "https://zenodo.org/records/2536270"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2014"
+#|         assumptions: ""
+#|       - name: subcanopy_seedbank_carbon_mass_plot
+#|         type: numeric
+#|         units: kg C m^-2
+#|         description: |
+#|           Standing subcanopy seedbank carbon mass per unit ground area at
+#|           plot level.
+#|         references:
+#|           - citation: "Dobert et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.2536270"
+#|             url: "https://zenodo.org/records/2536270"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth and selectively logged"
+#|             date: "2011-2014"
+#|         assumptions: ""
 #|
 #| package_dependencies:
 #|   -
@@ -353,60 +430,38 @@
 
 # Load packages
 
+library(readxl)
+
 ##################################################
 
 # Subcanopy vegetation carbon mass
-# We'll use Dobert et al., 2017 data to obtain subcanopy vegetation carbon mass,
+# We'll use Dobert et al., 2019 data to obtain subcanopy vegetation carbon mass,
 # measured in the OG plots at Maliau. We'll focus on "leafy" plant growth forms,
 # and will obtain an average carbon mass in kg C m-2
 
-# Load Dobert et al. (2017) dataset on species trait data and clean up a bit
+# Load Dobert et al. (2019) dataset on species trait data and clean up a bit
 
-dobert_2017_species_trait_data <- read.csv(
-  "../../../../data/primary/plant/traits_data/dobert_2017_species_trait_data.csv",
-  header = TRUE
-)
+dobert_2019_species_trait_data <-
+  read_excel(
+    "../../../../data/primary/plant/traits_data/dobert_2019_plot_species_trait_data.xlsx",
+    sheet = "SpeciesTraitDataEcol",
+    col_names = FALSE
+  )
 
-# Abbreviations used in Dobert et al., 2017 Supplementary Information
-
-# Column headings:
-# species.code: Unique code for each plant taxa
-# family: Plant family name
-# genus: Plant genus name
-# species: Plant species name or unique identifier where species indeterminate
-# species.name: The genus and species name
-# tree: Distinction between tree (yes), no tree (no) or indeterminate (na)
-# woody: Distinction between woody (yes), non-woody (no) or indeterminate (na)
-# origin: Distinction between native (n) and exotic (e) plant species
-# pgf: Plant growth form: A = fern, B = graminoid, C = forb, D = herbaceous
-# climber, E = herbaceous shrub, F = tree sapling, G = woody climber, H = woody
-# shrub, na = indeterminate
-# height: Maximum plant height (m)
-# sla: Specific leaf area (m2.kg-1)
-# wood.dens: Wood density (g.cm-3)
-# dispersal: Predominant dispersal mode: J = animal, K = ant, L = ballistic,
-# M = bat, N = bird, O = primate, P = water, Q = wind, na = indeterminate
-# fruit: The type of fruit: R = achene, S = berry, T = berry-like, U = capsule,
-# V = caryopsis, W = drupe, X = follicle, Y = legume, Z = nut, a = samara,
-# b = schizocarp, na = indeterminate
-# seed: The number of seeds per fruit: 1 = 1, 2 = <4, 3 = <10, 4 = >10
-# reproduction: The reproduction strategy: s = seed, v = vegetative, sv = seed or
-# vegetative, na = indeterminate
-# lifehistory: The lifehistory strategy: a = annual, abp = annual or biennial or
-# perennial, ap = annual or perennial, p = perennial, na = indeterminate
-# pollination: The pollination syndrome: c = bat, d = bee, e = beetle, f = bird,
-# g = butterfly, h = entomophilous.broad, i = entomophilous.narrow, j = fly,
-# k = moth, l = passive, m = self, n = thrip, o = wasp, p = wind, na = indeterminate
+# Clean dataset and create subset based on species classification
+colnames(dobert_2019_species_trait_data) <- dobert_2019_species_trait_data[10, ]
+dobert_2019_species_trait_data <- dobert_2019_species_trait_data[
+  11:max(nrow(dobert_2019_species_trait_data)),
+]
+names(dobert_2019_species_trait_data)
 
 # For the subcanopy vegetation biomass we will use Dobert's dataset for SAFE to
 # get an idea of how much carbon is there.
-# For now, all plant growth forms are included except tree sapling,
-# woody climber (liana) and woody shrub
+# For now, all plant growth forms are included except tree sapling, woody climber
+# (liana) and woody shrub
 
-data <- dobert_2017_species_trait_data
-
+data <- dobert_2019_species_trait_data
 data <- data[data$pgf %in% c("A", "B", "C", "D", "E"), ]
-
 taxa <- unique(data$species.code)
 
 # Taxa with na are excluded when not part of the PGF above, or when not occurring
@@ -415,33 +470,46 @@ taxa <- unique(data$species.code)
 
 # Load Dobert plot species data
 
-dobert_2017_plot_species_data <- read.csv(
-  "../../../../data/primary/plant/subcanopy/dobert_2017_plot_species_data.csv",
-  header = TRUE
-)
+dobert_2019_plot_species_data <-
+  read_excel(
+    "../../../../data/primary/plant/traits_data/dobert_2019_plot_species_trait_data.xlsx",
+    sheet = "DoebertTF_SAFE_PlotSpeciesMeasu",
+    col_names = FALSE
+  )
 
-# columns: The unique identifiers of 691 plant taxa
-# rows: The 180 vegetation plots across 3 fragments nested within 8 blocks
-# Matrix values: The dry weight biomass (g.m-2) of each species in each plot
+# Clean dataset and create subset based on species classification
+colnames(dobert_2019_plot_species_data) <- dobert_2019_plot_species_data[10, ]
+dobert_2019_plot_species_data <- dobert_2019_plot_species_data[
+  11:max(nrow(dobert_2019_plot_species_data)),
+]
+names(dobert_2019_plot_species_data)
+
+# The dry weight biomass (g.m-2) of each species in each plot
 
 # Subset to OG plots
-
-dobert_2017_plot_species_data <- dobert_2017_plot_species_data[160:180, ]
+dobert_2019_plot_species_data <-
+  dobert_2019_plot_species_data[
+    dobert_2019_plot_species_data$fragment %in% c("og1", "og10", "og100"),
+  ]
 
 # Subset to taxa of interest
-
-dobert_2017_plot_species_data <-
-  dobert_2017_plot_species_data[,
-    c("X", taxa[taxa %in% colnames(dobert_2017_plot_species_data)])
+dobert_2019_plot_species_data <-
+  dobert_2019_plot_species_data[
+    dobert_2019_plot_species_data$species.code %in% taxa,
   ]
 
 # Keep columns only when sum across plots is more than 0
+dobert_2019_plot_species_data$drywgt <-
+  as.numeric(dobert_2019_plot_species_data$drywgt)
 
-dobert_2017_plot_species_data <- dobert_2017_plot_species_data[,
-  c(TRUE, colSums(dobert_2017_plot_species_data[, 2:150]) > 0)
-]
+dobert_2019_plot_species_data <-
+  dobert_2019_plot_species_data[!is.na(dobert_2019_plot_species_data$drywgt), ]
 
-taxa_present <- colnames(dobert_2017_plot_species_data[2:15])
+taxa_present <- unique(dobert_2019_plot_species_data$species.code)
+taxa_present_info <-
+  dobert_2019_species_trait_data[
+    dobert_2019_species_trait_data$species.code %in% taxa_present,
+  ]
 
 # Evaluate species
 # alowon1 = alocasia wongii = forb
@@ -450,7 +518,7 @@ taxa_present <- colnames(dobert_2017_plot_species_data[2:15])
 # cosglo = costus globosus = forb
 # cosspe = costus speciosus = forb
 # cyr075 = cyrtandra sp. = forb
-# din141 = dinochloa sp. = herbaceous climber (bamboo)
+# din141 = dinochloa sp. = herbaceous climber (bamboo) # not present in 2019
 # hetste1 = heterogonium stenosemioides = fern
 # pip139 = piper sp. = herbaceous climber
 # potbor1 = pothos borneensis = herbaceous climber
@@ -459,28 +527,48 @@ taxa_present <- colnames(dobert_2017_plot_species_data[2:15])
 # stasum = stachyphrynium sumatranum = forb
 # zinunk = zingiberaceae = forb (ginger)
 
-# Calculate total subcanopy dry mass per plot (g m-2)
+# species below are new in 2019 dataset compared to 2017, check
+# rha254
+# proasp
+# cyrped1
+# acaunk
+# orcunk
 
-dobert_2017_plot_species_data$total_dry_mass <-
-  rowSums(dobert_2017_plot_species_data[, 2:15], na.rm = TRUE)
+# Calculate total subcanopy dry mass across all plots
+dobert_2019_plot_species_data$drywgt_total <-
+  sum(dobert_2019_plot_species_data$drywgt)
 
-mean(dobert_2017_plot_species_data$total_dry_mass)
+# Calculate total plot area (2x2 = 4 m2)
+dobert_2019_plot_species_data$total_plot_area <-
+  length(unique(dobert_2019_plot_species_data$plot.code)) * 2 * 2
 
-# Correct this mean value for carbon content
+# Calculate total subcanopy dry mass per area (g m-2)
+dobert_2019_plot_species_data$drywgt_total_m2 <-
+  dobert_2019_plot_species_data$drywgt_total /
+  dobert_2019_plot_species_data$total_plot_area
+
+# For comparison also calculate at plot level
+dobert_2019_plot_species_data$drywgt_total_m2_plot <- ave(
+  dobert_2019_plot_species_data$drywgt,
+  dobert_2019_plot_species_data$plot.code,
+  FUN = sum
+) /
+  4
+
+# Correct these values for carbon content
 # 41.747% carbon content for herb layer reported by
 # Wu et al. (2022; https://doi.org/10.3390/su142416517)
-dobert_2017_plot_species_data$total_dry_mass <-
-  0.41747 * dobert_2017_plot_species_data$total_dry_mass
+# Note that these values are in g C m-2, so multiply by 0.001 to convert units
+# to kg C m-2
+dobert_2019_plot_species_data$drywgt_total_m2_carbon <-
+  0.41747 * dobert_2019_plot_species_data$drywgt_total_m2 * 0.001
 
-# Add it to data
+dobert_2019_plot_species_data$drywgt_total_m2_plot_carbon <-
+  0.41747 * dobert_2019_plot_species_data$drywgt_total_m2_plot * 0.001
+
+# Add the mean value to data
 data$mean_total_subcanopy_carbon_mass <-
-  mean(dobert_2017_plot_species_data$total_dry_mass)
-
-# Note that this is now in g C m-2, so convert to kg C m-2
-data$mean_total_subcanopy_carbon_mass <-
-  data$mean_total_subcanopy_carbon_mass * 0.001
-
-# Note that we'll still need to scale this to the grid cell size later
+  unique(dobert_2019_plot_species_data$drywgt_total_m2_carbon)
 
 # Subset data to only include species in taxa_present
 data <- data[data$species.code %in% taxa_present, ]
@@ -489,6 +577,7 @@ data <- data[data$species.code %in% taxa_present, ]
 data <- data[, c("mean_total_subcanopy_carbon_mass", "sla")]
 
 # Calculate mean SLA and set to unique values only
+data$sla <- as.numeric(data$sla)
 data$sla <- mean(data$sla)
 data <- unique(data)
 
@@ -521,6 +610,58 @@ data$subcanopy_reproductive_carbon_mass <- # unit = kg C m-2
 # Then, 23% of this carbon mass ends up in the seed bank
 data$subcanopy_seedbank_carbon_mass <-
   data$subcanopy_reproductive_carbon_mass * 0.23
+
+# Add the mean value across plots to dobert_2019_plot_species_data and
+# apply the same reasoning to plot level reproductive carbon mass in
+# dobert_2019_plot_species_data so that it can be exported for the scenario
+# script. The resulting unit is kg C m-2.
+
+dobert_2019_plot_species_data$seedbank_mass_total_m2_carbon <-
+  unique(data$subcanopy_seedbank_carbon_mass)
+
+dobert_2019_plot_species_data$seedbank_mass_total_m2_plot_carbon <-
+  dobert_2019_plot_species_data$drywgt_total_m2_plot_carbon *
+  unique(data$subcanopy_reproductive_allocation) *
+  0.23
+
+# Now save this version of dobert_2019_plot_species_data for use in the
+# scenario script
+
+names(dobert_2019_plot_species_data)
+
+dobert_2019_plot_species_data <-
+  dobert_2019_plot_species_data[, c(
+    "plot.code",
+    "drywgt_total_m2_carbon",
+    "seedbank_mass_total_m2_carbon",
+    "drywgt_total_m2_plot_carbon",
+    "seedbank_mass_total_m2_plot_carbon"
+  )]
+
+dobert_2019_plot_species_data <- unique(dobert_2019_plot_species_data)
+
+colnames(dobert_2019_plot_species_data) <-
+  c(
+    "plot_code",
+    "subcanopy_vegetation_carbon_mass_mean",
+    "subcanopy_seedbank_carbon_mass_mean",
+    "subcanopy_vegetation_carbon_mass_plot",
+    "subcanopy_seedbank_carbon_mass_plot"
+  )
+
+# Write csv file
+
+dir.create(
+  "../../../../data/derived/plant/input_data/data_library",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
+write.csv(
+  dobert_2019_plot_species_data,
+  "../../../../data/derived/plant/input_data/data_library/dobert_subcanopy_maliau.csv",
+  row.names = FALSE
+)
 
 ##################################################
 
