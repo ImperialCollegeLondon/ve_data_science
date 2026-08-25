@@ -14,10 +14,8 @@ class Job:
     """Defines an HPC VE_run job."""
 
     config_paths: list[str]
-    name: str
     config: dict[str, Any]
     repeats: int = Field(default=1, ge=1)
-    this_repeat: None | int = Field(init=False, default=None)
 
 
 @dataclass
@@ -29,19 +27,23 @@ class JobSpec:
     jobs: list[Job]
 
     n_jobs: int = Field(init=False)
-    job_map: list[tuple[int, int]] = Field(init=False)
+    job_map: list[int] = Field(init=False)
 
     def __post_init__(
         self,
     ) -> None:
-        """Populate the total number of jobs and map of jobs to repeats."""
-        self.n_jobs = sum([j.repeats for j in self.jobs])
+        """Populate the total number of jobs and map of jobs to respective array indices."""
+        # Create a job map that maps each job array index to the corresponding job index.
         self.job_map = [
-            (n, i) for n, j in enumerate(self.jobs) for i in range(j.repeats)
+            job_index
+            for job_index, job in enumerate(self.jobs)
+            for _ in range(job.repeats)
         ]
+        # calculate the total number of jobs based on the job map.
+        self.n_jobs = len(self.job_map)
 
     def get_job(self, array_index: int) -> Job:
-        """Get the correct job for a job array index and make the name unique."""
+        """Get the correct job for a job array index"""
 
         # I cant see how this would happen but just incase avoid a silent failure.
         if not 1 <= array_index <= self.n_jobs:
@@ -49,15 +51,11 @@ class JobSpec:
                 f"Job array index must be between 1 and {self.n_jobs}: {array_index}"
             )
 
-        # The array index job numbers are 1-N
-        job_idx, rep = self.job_map[array_index - 1]
+        # Get the job index from the job map and return the corresponding job.
+        job_index = self.job_map[array_index - 1]
 
-        job = self.jobs[job_idx]
-
-        if job.repeats > 1:
-            job.this_repeat = rep
-
-        return job
+        # Return the corresponding job.
+        return self.jobs[job_index]
 
 
 def load_job_spec(job_file: Path) -> JobSpec:

@@ -11,8 +11,7 @@ site_directory = "/rds/general/user/mtnichol/home/ve_data_science/ve_example"
 
 
 [[jobs]]
-config_paths = ["config/litter_config.toml"]
-name = "run_0001"
+config_paths = []
 repeats = 1
 
 [jobs.config.hydrology.constants]
@@ -23,7 +22,6 @@ bypass_flow_coefficient = 2.0
 
 [[jobs]]
 config_paths = []
-name = "run_0002"
 repeats = 1
 
 [jobs.config.hydrology.constants]
@@ -34,7 +32,6 @@ bypass_flow_coefficient = 2.0
 
 [[jobs]]
 config_paths = []
-name = "run_0003"
 repeats = 2
 
 [jobs.config.hydrology.constants]
