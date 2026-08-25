@@ -58,7 +58,6 @@ RESOURCES=$(cd "$REPO_ROOT" && python -m hpc_jobs.resources "$RESOURCES_CONFIG")
 eval "$RESOURCES"
 echo "Resources configuration loaded."
 
-
 # Use the user-provided path as the output directory for the complete array run.
 RUN_OUTPUT_DIR="$(realpath -m "$3")"
 
@@ -71,6 +70,10 @@ fi
 mkdir -p "$RUN_OUTPUT_DIR"
 echo "Run output directory created: $RUN_OUTPUT_DIR"
 
+# Create the required sub-directory structure for the array job output.
+for ((index = 1; index <= NJOBS; index++)); do
+    mkdir "$RUN_OUTPUT_DIR/arraySubJob_$index"
+done
 
 # Inform on what is about to happen
 printf '%s\n' \
@@ -83,23 +86,18 @@ printf '%s\n' \
     "  Walltime: $PBS_WALLTIME" \
     "  Max concurrent jobs: $MAX_CONCURRENT"
 
-# outputs are files are initially redirected to dev/null, (delted)
-# but the contents are redirected to a pbs.log file in the output directory for each sub-job.
-# (These could be set somewhere else for debugging)
 PBS_ARRAY_ID=$(qsub \
     -J "1-$NJOBS%$MAX_CONCURRENT" \
     -lselect="$PBS_SELECT" \
     -lwalltime="$PBS_WALLTIME" \
-    -e /dev/null \
-    -o /dev/null \
+    -j oe \
+    -o "$RUN_OUTPUT_DIR/arraySubJob_^array_index^/pbs.log" \
     -v "VE_BATCH=$VE_BATCH,RUN_OUTPUT_DIR=$RUN_OUTPUT_DIR,REPO_ROOT=$REPO_ROOT" <<'PBS_SCRIPT'
 #!/bin/bash
 
 set -euo pipefail
 
-JOB_OUTPUT_DIR="$RUN_OUTPUT_DIR/$PBS_JOBID"
-mkdir "$JOB_OUTPUT_DIR"
-exec >"$JOB_OUTPUT_DIR/pbs.log" 2>&1
+JOB_OUTPUT_DIR="$RUN_OUTPUT_DIR/$PBS_ARRAY_INDEX"
 
 cd "$REPO_ROOT"
 source "$REPO_ROOT/.venv/bin/activate"
@@ -111,5 +109,4 @@ PBS_SCRIPT
 
 printf '%s\n' \
     "Submitted." \
-    "  PBS array ID: $PBS_ARRAY_ID" \
     "  Monitor with: qstat $PBS_ARRAY_ID"
