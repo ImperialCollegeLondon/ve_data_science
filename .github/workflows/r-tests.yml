@@ -65,6 +65,7 @@ jobs:
             libpng-dev \
             libproj-dev \
             libssl-dev \
+            libtbb-dev \
             libudunits2-dev \
             libx11-dev \
             libzmq3-dev \
