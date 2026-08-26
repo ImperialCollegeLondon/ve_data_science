@@ -93,7 +93,7 @@ jobs:
           if (!requireNamespace("renv", quietly = TRUE)) {
             install.packages("renv")
           }
-          renv::restore(prompt = FALSE, rebuild = c("RcppParallel", "Rfast"))
+          renv::restore(prompt = FALSE)
         shell: Rscript {0}
 
       # --- Tests ---
