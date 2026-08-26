@@ -15,7 +15,7 @@ automatically initialising `renv` on your local project.
 
 ## If you do not need `renv`
 
-Simple do nothing.
+Simply do nothing.
 
 ## If you need `renv`
 
