@@ -1,0 +1,28 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3247638
+doi: 10.5281/zenodo.3247638
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Used intensively in litter mass and nutrient analyses.
+  screened_at: '2026-08-17T23:54:51Z'
+metadata:
+  title: Leaf litter decomposition in old-growth and selectively logged forest
+  authors:
+  - Both, Sabine
+  - Johnson, David
+  - Elias, Dafydd
+  - Ostle, Nick
+  - Majalap, Noreen
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3247638
+  keywords:
+  - decomposition
+  - leaf litter experiment
+  - leaf litter chemical composition
+  - old-growth forest
+  - selectively logged forest
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T23:53:34Z'

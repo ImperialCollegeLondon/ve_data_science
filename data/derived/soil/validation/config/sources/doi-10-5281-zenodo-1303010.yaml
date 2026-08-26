@@ -1,0 +1,23 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1303010
+doi: 10.5281/zenodo.1303010
+screening:
+  decision: exclude
+  reason: insufficient_metadata
+  notes: Contains leaf litter mass only, insufficient to derive to aboveground litter
+    pools.
+  screened_at: '2026-08-17T23:53:25Z'
+metadata:
+  title: Leaf Litter Amphibian Communities
+  authors: Faruk, Aisyah
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1303010
+  keywords:
+  - frog
+  - amphibian
+  - community composition
+  - tadpole
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T23:52:55Z'
