@@ -87,6 +87,8 @@ jobs:
             ${{ runner.os }}-${{ runner.arch }}-renv-
 
       - name: Restore R dependencies with renv
+        env:
+          RENV_INSTALL_TEST_LOAD: "FALSE"
         run: |
           if (!requireNamespace("renv", quietly = TRUE)) {
             install.packages("renv")
