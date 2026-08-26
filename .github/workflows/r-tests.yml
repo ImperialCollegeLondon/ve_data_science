@@ -50,12 +50,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             cmake \
+            gdal-bin \
+            libabsl-dev \
             libclang-dev \
+            libcurl4-openssl-dev \
+            libfftw3-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libgdal-dev \
+            libgeos-dev \
             libicu-dev \
             libnetcdf-dev \
+            libnode-dev \
+            libpng-dev \
+            libproj-dev \
             libssl-dev \
             libudunits2-dev \
-            make
+            libx11-dev \
+            libzmq3-dev \
+            make \
+            pandoc
 
       # --- R dependencies (renv lockfile + GitHub Actions cache) ---
       - name: Cache R packages
