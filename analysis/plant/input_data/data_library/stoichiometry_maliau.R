@@ -18,20 +18,19 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: in progress
+#| status: final
 #|
 #| input_files:
 #|   - name: pfts_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains the plant functional type classification used to
-#|       link species records to plant functional types in the stoichiometry
-#|       workflow.
+#|       A CSV file containing the plant functional type classification for taxa
+#|       in the tree census. The file includes taxa_name and pft_name columns
+#|       linking each taxon to its assigned plant functional type (PFT).
 #|   - name: inagawa_nutrients_wood_density.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |
 #|       https://doi.org/10.5281/zenodo.8158811
-#|       Tree census data from the SAFE Project 2011–2020.
 #|       Nutrients and wood density in coarse root, trunk and branches in
 #|       Bornean tree species.
 #|   - name: both_tree_functional_traits.xlsx
@@ -50,33 +49,38 @@
 #|   - name: stoichiometry_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a summary of stoichiometric ratios and lignin
-#|       content for different biomass pools for each pft.
+#|       This CSV file contains PFT-level stoichiometric ratios and lignin
+#|       fractions for plant biomass pools, including sapwood, foliage,
+#|       senesced leaves, reproductive tissue, fruits, flowers, and fine roots.
+#|       Where PFT-specific measurements are unavailable, literature-derived
+#|       proxy values are used.
 #|     variables:
-#|       - name: name
+#|       - name: pft_name
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Plant functional type name.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
-#|             biome: "tropical"
-#|             vegetation_type: "lowland tropical rain forest"
-#|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
-#|         assumptions: "PFT names are inherited from the pfts_maliau classification used to aggregate trait data."
+#|           - citation: "pfts_maliau.csv"
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: |
+#|           PFT names are inherited from pfts_maliau.csv and identify the plant
+#|           functional type associated with each output record.
 #|       - name: deadwood_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for sapwood / deadwood tissue.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.8158811"
-#|             url: ""
+#|           - citation: "Inagawa et al. (2023)"
+#|             doi: "https://doi.org/10.5281/zenodo.8158811"
+#|             url: "https://zenodo.org/records/8158811"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
@@ -89,9 +93,9 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio for sapwood / deadwood tissue.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.8158811"
-#|             url: ""
+#|           - citation: "Inagawa et al. (2023)"
+#|             doi: "https://doi.org/10.5281/zenodo.8158811"
+#|             url: "https://zenodo.org/records/8158811"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
@@ -104,14 +108,22 @@
 #|         description: |
 #|           Fraction of stem carbon mass present as lignin.
 #|         references:
-#|           - citation: "White et al. 2000; Muddasar et al. 2024"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
+#|           - citation: "White et al. (2000)"
+#|             doi: "https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2"
+#|             url: "https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml"
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: "deciduous broadleaf forest"
+#|             site_condition: null
+#|             date: null
+#|           - citation: "Muddasar et al. (2024)"
+#|             doi: "https://doi.org/10.1016/j.mtsust.2024.100990"
+#|             url: "https://www.sciencedirect.com/science/article/pii/S2589234724003269"
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Derived by combining literature lignin fraction with mean sapwood carbon content from the SAFE wood nutrient dataset."
 #|       - name: foliage_c_n_ratio
 #|         type: numeric
@@ -119,9 +131,9 @@
 #|         description: |
 #|           Carbon-to-nitrogen ratio for foliage.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.3247631"
-#|             url: ""
+#|           - citation: "Both et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.3247631"
+#|             url: "https://zenodo.org/records/3247631"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
@@ -134,9 +146,9 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio for foliage.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.3247631"
-#|             url: ""
+#|           - citation: "Both et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.3247631"
+#|             url: "https://zenodo.org/records/3247631"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
@@ -149,29 +161,41 @@
 #|         description: |
 #|           Fraction of leaf carbon mass present as lignin.
 #|         references:
-#|           - citation: "Muddasar et al. 2024"
-#|             doi: "10.5281/zenodo.3247631"
-#|             url: ""
-#|             origin: "SAFE Project, Sabah, Malaysia"
+#|           - citation: "Muddasar et al. (2024)"
+#|             doi: "https://doi.org/10.1016/j.mtsust.2024.100990"
+#|             url: "https://www.sciencedirect.com/science/article/pii/S2589234724003269"
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|           - citation: "Both et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.3247631"
+#|             url: "https://zenodo.org/records/3247631"
+#|             origin: "SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
-#|             date: "2011-2020"
-#|         assumptions: "Derived by converting dry-mass lignin measurements in the leaf trait dataset to a carbon-mass basis."
+#|             date: "2014-2018"
+#|         assumptions: |
+#|           Leaf lignin measurements are taken from the functional-traits
+#|           dataset and converted from a dry-mass basis to a carbon-mass basis
+#|           using the lignin carbon-content value reported by Muddasar et al.
+#|           (2024).
 #|       - name: leaf_turnover_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for senesced leaf turnover material.
 #|         references:
-#|           - citation: "Han et al. 2013"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
+#|           - citation: "Han et al. (2013)"
+#|             doi: "https://doi.org/10.1371/journal.pone.0083366"
+#|             url: null
+#|             origin: null
+#|             biome: null
 #|             vegetation_type: "evergreen broadleaf forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Derived from foliage C:N using a fixed nitrogen resorption efficiency rather than direct senesced leaf measurements."
 #|       - name: leaf_turnover_c_p_ratio
 #|         type: numeric
@@ -179,14 +203,14 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio for senesced leaf turnover material.
 #|         references:
-#|           - citation: "Han et al. 2013"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
+#|           - citation: "Han et al. (2013)"
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
 #|             vegetation_type: "evergreen broadleaf forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Derived from foliage C:P using a fixed phosphorus resorption efficiency rather than direct senesced leaf measurements."
 #|       - name: senesced_leaf_lignin
 #|         type: numeric
@@ -194,9 +218,9 @@
 #|         description: |
 #|           Fraction of senesced leaf carbon mass present as lignin.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.5281/zenodo.3247631"
-#|             url: ""
+#|           - citation: "Both et al. (2019)"
+#|             doi: "https://doi.org/10.5281/zenodo.3247631"
+#|             url: "https://zenodo.org/records/3247631"
 #|             origin: "SAFE Project, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland tropical rain forest"
@@ -209,14 +233,14 @@
 #|         description: |
 #|           Carbon-to-nitrogen ratio for reproductive tissue turnover.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.1111/1365-2745.12379"
-#|             url: ""
+#|           - citation: "Kitayama et al. (2015)"
+#|             doi: "https://doi.org/10.1111/1365-2745.12379"
+#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
 #|             origin: "Mount Kinabalu, Borneo"
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
 #|       - name: plant_reproductive_tissue_turnover_c_p_ratio
 #|         type: numeric
@@ -224,14 +248,14 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio for reproductive tissue turnover.
 #|         references:
-#|           - citation: ""
-#|             doi: "10.1111/1365-2745.12379"
-#|             url: ""
+#|           - citation: "Kitayama et al. (2015)"
+#|             doi: "https://doi.org/10.1111/1365-2745.12379"
+#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
 #|             origin: "Mount Kinabalu, Borneo"
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
 #|       - name: mature_fruit_c_n_ratio
 #|         type: numeric
@@ -239,14 +263,14 @@
 #|         description: |
 #|           Carbon-to-nitrogen ratio for mature fruit tissue.
 #|         references:
-#|           - citation: "Ichie et al. 2005"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
 #|       - name: mature_fruit_c_p_ratio
 #|         type: numeric
@@ -254,14 +278,14 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio for mature fruit tissue.
 #|         references:
-#|           - citation: "Ichie et al. 2005"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
 #|       - name: mature_fruit_c_mass
 #|         type: numeric
@@ -269,14 +293,14 @@
 #|         description: |
 #|           Carbon mass per mature fruit.
 #|         references:
-#|           - citation: "Ichie et al. 2005"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Calculated from mature fruit dry mass and carbon percentage for Dipterocarpus tempehes."
 #|       - name: carbon_mass_per_propagule
 #|         type: numeric
@@ -284,14 +308,22 @@
 #|         description: |
 #|           Carbon mass per propagule, represented here by seed carbon mass.
 #|         references:
-#|           - citation: "Ichie et al. 2005; Nakagawa and Nakashizuka 2004"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
+#|           - citation: "Nakagawa and Nakashizuka (2004)"
+#|             doi: "https://doi.org/10.1079/SSR2004181"
+#|             url: null
+#|             origin: null
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration."
 #|       - name: plant_reproductive_tissue_lignin
 #|         type: numeric
@@ -299,14 +331,22 @@
 #|         description: |
 #|           Fraction of reproductive tissue carbon mass present as lignin.
 #|         references:
-#|           - citation: "Nakagawa and Nakashizuka 2004; Muddasar et al. 2024"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
+#|           - citation: "Nakagawa and Nakashizuka (2004)"
+#|             doi: "https://doi.org/10.1079/SSR2004181"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
+#|           - citation: "Muddasar et al. (2024)"
+#|             doi: "https://doi.org/10.1016/j.mtsust.2024.100990"
+#|             url: "https://www.sciencedirect.com/science/article/pii/S2589234724003269"
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Estimated from seed lignin and carbon content, so it serves as a propagule-based proxy for broader reproductive tissue lignin."
 #|       - name: flower_c_n_ratio
 #|         type: numeric
@@ -314,14 +354,14 @@
 #|         description: |
 #|           Carbon-to-nitrogen ratio for flower tissue.
 #|         references:
-#|           - citation: "Ichie et al. 2005"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Calculated as the mean across several flower developmental stages for Dipterocarpus tempehes."
 #|       - name: flower_c_p_ratio
 #|         type: numeric
@@ -329,14 +369,14 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio for flower tissue.
 #|         references:
-#|           - citation: "Ichie et al. 2005"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Calculated as the mean across several flower developmental stages for Dipterocarpus tempehes."
 #|       - name: root_turnover_c_n_ratio
 #|         type: numeric
@@ -344,14 +384,14 @@
 #|         description: |
 #|           Carbon-to-nitrogen ratio for fine root turnover material.
 #|         references:
-#|           - citation: "Imai et al. 2010"
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Imai et al. (2010)"
+#|             doi: "https://doi.org/10.1017/S0266467410000350"
+#|             url: null
 #|             origin: "Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "mixed dipterocarp lowland tropical rain forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Used directly from fine-root stoichiometry values rather than derived separately for turnover material."
 #|       - name: root_turnover_c_p_ratio
 #|         type: numeric
@@ -359,14 +399,14 @@
 #|         description: |
 #|           Carbon-to-phosphorus ratio for fine root turnover material.
 #|         references:
-#|           - citation: "Imai et al. 2010"
-#|             doi: ""
-#|             url: ""
+#|           - citation: "Imai et al. (2010)"
+#|             doi: "https://doi.org/10.1017/S0266467410000350"
+#|             url: null
 #|             origin: "Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "mixed dipterocarp lowland tropical rain forest"
-#|             site_condition: ""
-#|             date: ""
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Used directly from fine-root stoichiometry values rather than derived separately for turnover material."
 #|       - name: root_lignin
 #|         type: numeric
@@ -374,14 +414,22 @@
 #|         description: |
 #|           Fraction of fine root carbon mass present as lignin.
 #|         references:
-#|           - citation: "White et al. 2000; Muddasar et al. 2024"
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
+#|           - citation: "White et al. (2000)"
+#|             doi: "https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2"
+#|             url: "https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml"
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|           - citation: "Muddasar et al. (2024)"
+#|             doi: "https://doi.org/10.1016/j.mtsust.2024.100990"
+#|             url: "https://www.sciencedirect.com/science/article/pii/S2589234724003269"
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
 #|         assumptions: "Derived from a global mean fine-root lignin fraction combined with fine-root carbon content from Imai et al. rather than from site-specific lignin measurements."
 #|
 #| package_dependencies:
@@ -391,10 +439,10 @@
 #|   - stringr
 #|
 #| usage_notes: |
-#|   This script can be expanded when additional biomass pools are added to the
-#|   model.
-#|   Before running via master_data_library.R, remaining console output and
-#|   plotting code should be cleaned up or made optional.
+#|   Run from this script's directory because input and output paths are
+#|   relative. The output contains PFT-level stoichiometric ratios and lignin
+#|   parameters derived from multiple datasets. Where PFT-specific observations
+#|   are unavailable, literature values or proxy relationships are used.
 #| ---
 
 # Load packages

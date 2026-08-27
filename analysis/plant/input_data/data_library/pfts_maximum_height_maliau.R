@@ -29,7 +29,9 @@
 #|   - name: pfts_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing species by PFT.
+#|       A CSV file containing the plant functional type classification for taxa
+#|       in the tree census. The file includes taxa_name and pft_name columns
+#|       linking each taxon to its assigned plant functional type (PFT).
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
@@ -64,9 +66,9 @@
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           See pfts_maliau.
+#|           Plant functional type name.
 #|         references:
-#|           - citation: null
+#|           - citation: "pfts_maliau.csv"
 #|             doi: null
 #|             url: null
 #|             origin: null
@@ -74,7 +76,9 @@
 #|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: null
+#|         assumptions: |
+#|           PFT names are inherited from pfts_maliau.csv and identify the plant
+#|           functional type associated with each output record.
 #|       - name: taxa_name
 #|         type: character
 #|         units: dimensionless
@@ -89,7 +93,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: taxa_level
 #|         type: character
 #|         units: dimensionless
@@ -104,7 +108,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: species
 #|         type: character
 #|         units: dimensionless
@@ -119,7 +123,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: genus
 #|         type: character
 #|         units: dimensionless
@@ -134,7 +138,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: family
 #|         type: character
 #|         units: dimensionless
@@ -149,7 +153,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: h_max_taxa
 #|         type: numeric
 #|         units: m

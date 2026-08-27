@@ -13,7 +13,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: in progress
+#| status: final
 #|
 #| input_files:
 #|   - name: SAFE_CarbonBalanceComponents.xlsx
@@ -48,77 +48,80 @@
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Description.
+#|           Name of the reproductive allocation or propagule-related variable
+#|           summarised in the row.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
-#|         assumptions: ""
+#|           - citation: null
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "The variable name identifies the quantity represented by the value column; the applicable source is recorded in the source column."
 #|       - name: approach
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Description.
+#|           Identifier for the calculation approach used to derive the value.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
-#|         assumptions: ""
+#|           - citation: null
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Approach identifiers are retained so alternative calculation methods can be distinguished in downstream selection."
 #|       - name: source
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Description.
+#|           Short identifier for the primary data source used for the row.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
-#|         assumptions: ""
+#|           - citation: null
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Source identifiers refer to the input datasets or literature sources used by the corresponding approach."
 #|       - name: value
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Description.
+#|           Calculated ratio, fraction, or carbon-mass value for the variable
+#|           and approach identified in the row.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
-#|         assumptions: ""
+#|           - citation: null
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Values are stored as character data in the summary table because the output combines numeric results with source-specific records and missing values."
 #|       - name: notes
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Description.
+#|           Contextual notes describing the dataset, site condition, tissue
+#|           type, or calculation associated with the row.
 #|         references:
-#|           - citation: ""
-#|             doi: ""
-#|             url: ""
-#|             origin: ""
-#|             biome: ""
-#|             vegetation_type: ""
-#|             site_condition: ""
-#|             date: ""
-#|         assumptions: ""
+#|           - citation: null
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Notes provide row-level context and are not intended to be interpreted as a single common assumption for the complete output."
 #|
 #| package_dependencies:
 #|   - readxl
@@ -126,16 +129,11 @@
 #|   - ggplot2
 #|
 #| usage_notes: |
-#|   The summary output file provides the ratio of reproductive tissue carbon
-#|   mass to leaf carbon mass for a range of studies.
-#|   At the moment, no decision has been made yet on which ratio to use, or
-#|   whether to use an average across studies.
-#|   The summary also provides the ratio between non-propagule and propagule
-#|   carbon mass, using one approach based on litter fall and one approach
-#|   based on estimated live organs.
-#|   If a single option had to be selected, the SAFE carbon balance components
-#|   dataset focusing on old-growth plots with the Aoyagi reproductive tissue
-#|   carbon content correction would currently be a reasonable candidate.
+#|   Run from this script's directory because input and output paths are
+#|   relative. The output deliberately retains multiple approaches and sources
+#|   for reproductive allocation and propagule separation; downstream workflows
+#|   should select the appropriate row using the variable, approach, and source
+#|   columns.
 #| ---
 
 # Load packages

@@ -2,10 +2,16 @@
 #| title: t_model_maliau
 #|
 #| description: |
-#|     This script calculates values for the T model parameters for Maliau.
-#|     Taxa are linked to their PFT by using the pfts_maliau output.
-#|     Some additional traits that are part of the plant constants are also
-#|     included in the final output.
+#|     This script calculates PFT-level values for the Virtual Ecosystem plant
+#|     T model using tree census and functional-trait data from Maliau and the
+#|     SAFE Project. Taxa are linked to their PFT using the pfts_maliau output,
+#|     and PFT-specific height-diameter and crown-area relationships are fitted
+#|     from the 2011 census data.
+#|
+#|     The output combines fitted parameters with trait-derived and literature-
+#|     based plant parameters, including wood density, specific leaf area,
+#|     turnover, respiration, root allocation, mortality, recruitment, and
+#|     propagule supply values.
 #|
 #| virtual_ecosystem_module:
 #|   - Plants
@@ -27,7 +33,9 @@
 #|   - name: pfts_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing species by PFT.
+#|       A CSV file containing the plant functional type classification for taxa
+#|       in the tree census. The file includes taxa_name and pft_name columns
+#|       linking each taxon to its assigned plant functional type (PFT).
 #|   - name: inagawa_nutrients_wood_density.xlsx
 #|     path: data/primary/plant/traits_data
 #|     description: |
@@ -51,9 +59,9 @@
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           See pfts_maliau.
+#|           Plant functional type name.
 #|         references:
-#|           - citation: null
+#|           - citation: "pfts_maliau.csv"
 #|             doi: null
 #|             url: null
 #|             origin: null
@@ -61,7 +69,9 @@
 #|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: null
+#|         assumptions: |
+#|           PFT names are inherited from pfts_maliau.csv and identify the plant
+#|           functional type associated with each output record.
 #|       - name: h_max
 #|         type: numeric
 #|         units: m
@@ -144,7 +154,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2014-2018"
-#|         assumptions: "Species specific leaf area per carbon mass, averaged by PFT."
+#|         assumptions: "Specific leaf area is averaged by PFT from the functional-traits data and expressed per unit carbon mass."
 #|       - name: lai
 #|         type: numeric
 #|         units: dimensionless
@@ -159,29 +169,30 @@
 #|             vegetation_type: "lowland dipterocarp forest"
 #|             site_condition: "primary and secondary"
 #|             date: "2012-2013"
-#|         assumptions: "Applied as a single constant across pfts, using the value from primary forest only."
+#|         assumptions: "A single primary-forest value is applied uniformly across PFTs."
 #|       - name: par_ext
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
-#|           Light extinction coefficient for photosynthetically active radiation.
+#|           Light extinction coefficient describing the attenuation of
+#|           photosynthetically active radiation through the canopy.
 #|         references:
-#|           - citation: "White et al. 2000"
+#|           - citation: "White et al. (2000)"
 #|             doi: "https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2"
 #|             url: "https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml"
 #|             origin: null
 #|             biome: null
 #|             vegetation_type: "rain forest"
 #|             site_condition: null
-#|             date: ""
-#|         assumptions: "Value used is the one reported for rain forest by Waring and Schlesinger (1985)."
+#|             date: null
+#|         assumptions: "The value reported for rain forest is applied uniformly across PFTs."
 #|       - name: tau_f
 #|         type: numeric
 #|         units: years
 #|         description: |
 #|           Leaf turnover time.
 #|         references:
-#|           - citation: "Anderson et al. 1983"
+#|           - citation: "Anderson et al. (1983)"
 #|             doi: "https://doi.org/10.2307/2259731"
 #|             url: "https://www.jstor.org/stable/2259731?origin=crossref"
 #|             origin: "Gunung Mulu National Park, Sarawak, Malaysia"
@@ -194,9 +205,9 @@
 #|         type: numeric
 #|         units: years
 #|         description: |
-#|           Reproductive tissue turnover time.
+#|           Turnover time of reproductive tissue.
 #|         references:
-#|           - citation: "Anderson et al. 1983"
+#|           - citation: "Anderson et al. (1983)"
 #|             doi: "https://doi.org/10.2307/2259731"
 #|             url: "https://www.jstor.org/stable/2259731?origin=crossref"
 #|             origin: "Gunung Mulu National Park, Sarawak, Malaysia"
@@ -204,7 +215,10 @@
 #|             vegetation_type: "dipterocarp forest"
 #|             site_condition: "primary"
 #|             date: "1978"
-#|         assumptions: "Derived as the inverse of reported annual reproductive-organ turnover and applied uniformly across pfts."
+#|         assumptions: |
+#|           Derived as the inverse of the reported annual reproductive-organ
+#|           turnover and applied uniformly across PFTs using the same source
+#|           and approach as leaf turnover.
 #|       - name: tau_r
 #|         type: numeric
 #|         units: years
@@ -234,7 +248,7 @@
 #|             vegetation_type: "rain forest tree"
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Converted from a daily literature respiration value to an annual rate and applied uniformly across pfts."
+#|         assumptions: "A daily literature respiration value is multiplied by 365 to obtain an annual rate, which is applied uniformly across PFTs."
 #|       - name: resp_f
 #|         type: numeric
 #|         units: year-1
@@ -249,7 +263,7 @@
 #|             vegetation_type: "rain forest tree"
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Converted from a daily literature respiration value to an annual rate and applied uniformly across pfts."
+#|         assumptions: "A daily literature respiration value is multiplied by 365 to obtain an annual rate, which is applied uniformly across PFTs."
 #|       - name: resp_s
 #|         type: numeric
 #|         units: year-1
@@ -264,12 +278,12 @@
 #|             vegetation_type: "rain forest tree"
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Converted from a daily literature respiration value to an annual rate and applied uniformly across pfts."
+#|         assumptions: "A daily literature respiration value is multiplied by 365 to obtain an annual rate, which is applied uniformly across PFTs."
 #|       - name: resp_rt
 #|         type: numeric
 #|         units: year-1
 #|         description: |
-#|           Reproductive tissue respiration parameter.
+#|           Maintenance respiration rate for reproductive tissue.
 #|         references:
 #|           - citation: "Kinugasa et al. (2005)"
 #|             doi: "https://doi.org/10.1093/aob/mci152"
@@ -279,7 +293,7 @@
 #|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Production of reproductive organs is assumed to be consistent throughout the year. Value is treated as constant across pfts."
+#|         assumptions: "Production of reproductive organs is assumed to be consistent throughout the year, and the maintenance respiration value is applied uniformly across PFTs."
 #|       - name: yld
 #|         type: numeric
 #|         units: dimensionless
@@ -294,7 +308,7 @@
 #|             vegetation_type: "rain forest tree"
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Derived from growth respiration coefficient."
+#|         assumptions: "Calculated as 1 / (1 + r_g), using a growth respiration coefficient."
 #|       - name: zeta
 #|         type: numeric
 #|         units: kg C m-2
@@ -325,7 +339,7 @@
 #|             vegetation_type: "rain forest"
 #|             site_condition: "pristine"
 #|             date: "2010"
-#|         assumptions: "Derived using plot level fine-root to foliage mass relationships combined with PFT-specific SLA and mean fine-root carbon content."
+#|         assumptions: "Derived from Niiyama et al. (2010) fine-root and foliage masses, PFT-specific SLA from the functional-traits data, and a mean fine-root carbon content of 45.2% from Imai et al. (2010)."
 #|       - name: root_exudates
 #|         type: numeric
 #|         units: dimensionless
@@ -340,7 +354,7 @@
 #|             vegetation_type: "lowland rainforest"
 #|             site_condition: "primary"
 #|             date: "2012"
-#|         assumptions: "Allocation assumed to be constant across pfts."
+#|         assumptions: "A fixed value is applied uniformly across PFTs."
 #|       - name: per_stem_annual_mortality_probability
 #|         type: numeric
 #|         units: dimensionless
@@ -355,7 +369,7 @@
 #|             vegetation_type: "lowland dipterocarp rain forest"
 #|             site_condition: "primary and secondary"
 #|             date: "1995-2001"
-#|         assumptions: "Applied uniformly across PFTs."
+#|         assumptions: "A fixed value is applied uniformly across PFTs."
 #|       - name: per_propagule_annual_recruitment_probability
 #|         type: numeric
 #|         units: dimensionless
@@ -373,7 +387,7 @@
 #|           - citation: "Kennedy and Swaine (1992)"
 #|             doi: "https://doi.org/10.1098/rstb.1992.0027"
 #|             url: "https://royalsocietypublishing.org/rstb/article-abstract/335/1275/357/18258/Germination-and-growth-of-colonizing-species-in?redirectedFrom=fulltext"
-#|             origin: "Danum Valley COnservation Area, Sabah, Malaysia"
+#|             origin: "Danum Valley Conservation Area, Sabah, Malaysia"
 #|             biome: "tropical"
 #|             vegetation_type: "lowland rain forest"
 #|             site_condition: "primary"
@@ -386,7 +400,34 @@
 #|             vegetation_type: "mixed dipterocarp rainforest"
 #|             site_condition: "unlogged and logged"
 #|             date: "1996"
-#|         assumptions: "Derived by combining a literature seed establishment probability with an annualised seedling survival correction."
+#|         assumptions: "The value combines the literature seed establishment probability with an annualised seedling survival correction based on Kuusipalo et al. (1996)."
+#|       - name: propagules_per_ha
+#|         type: numeric
+#|         units: propagules ha-1
+#|         description: |
+#|           Minimum estimated propagule abundance in the seedbank per hectare.
+#|         references:
+#|           - citation: "Kuusipalo et al. (1996)"
+#|             doi: "https://doi.org/10.1016/0378-1127(95)03654-7"
+#|             url: "https://www.sciencedirect.com/science/article/pii/0378112795036547?via%3Dihub"
+#|             origin: "Kintap, South Kalimantan, Indonesia"
+#|             biome: "tropical"
+#|             vegetation_type: "mixed dipterocarp rainforest"
+#|             site_condition: "unlogged and logged"
+#|             date: "1996"
+#|           - citation: "Kennedy and Swaine (1992)"
+#|             doi: "https://doi.org/10.1098/rstb.1992.0027"
+#|             url: "https://royalsocietypublishing.org/rstb/article-abstract/335/1275/357/18258/Germination-and-growth-of-colonizing-species-in?redirectedFrom=fulltext"
+#|             origin: "Danum Valley Conservation Area, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland rain forest"
+#|             site_condition: "primary"
+#|             date: "1989"
+#|         assumptions: |
+#|           This is a minimum estimate calculated from observed recruitment,
+#|           annualised seedling survival, and germination probability. It is
+#|           applied as a total propagule supply across PFTs and scaled per
+#|           hectare.
 #|
 #| package_dependencies:
 #|   - readxl
@@ -395,7 +436,12 @@
 #|   - stringr
 #|
 #| usage_notes: |
-#|   No notes.
+#|   Run from this script's directory because input and output paths are
+#|   relative. The script uses the 2011 census measurements available in the
+#|   SAFE Project tree census and combines them with trait and literature data.
+#|   Several parameters are applied uniformly across PFTs where the available
+#|   data do not support PFT-specific estimates. The output is a data-library
+#|   input for downstream plant model configuration.
 #| ---
 
 # Load packages
@@ -1548,7 +1594,7 @@ summary$leaf_area_index <- 4.43
 # Light extinction coefficient
 # Value is taken from White et al. (2000)
 # (DOI https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2),
-# The value used is the one reported for rain forest by Waring and Schlesinger (1985)
+# The value used is the one reported for rain forest.
 
 summary$light_extinction_coefficient <- 0.6
 

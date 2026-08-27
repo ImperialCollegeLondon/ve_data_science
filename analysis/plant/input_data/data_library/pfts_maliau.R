@@ -100,7 +100,7 @@
 #|             vegetation_type: "lowland dipterocarp forest"
 #|             site_condition: "primary and selectively logged"
 #|             date: null
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: taxa_name
 #|         type: character
 #|         units: dimensionless
@@ -115,7 +115,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: taxa_level
 #|         type: character
 #|         units: dimensionless
@@ -130,7 +130,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: species
 #|         type: character
 #|         units: dimensionless
@@ -145,7 +145,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: genus
 #|         type: character
 #|         units: dimensionless
@@ -160,7 +160,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|       - name: family
 #|         type: character
 #|         units: dimensionless
@@ -175,7 +175,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
-#|         assumptions: ""
+#|         assumptions: null
 #|
 #| package_dependencies:
 #|     - readxl
