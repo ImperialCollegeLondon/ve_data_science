@@ -88,8 +88,8 @@ The specification has four parts:
 
 The submission script takes three arguments:
 
-1. the batch TOML file;
-2. the resources TOML file (see [Choose job resources](#choose-job-resources));
+1. the job configuration TOML file;
+2. the resources configuration TOML file (see [Choose job resources](#choose-job-resources));
 3. a new output directory for the completed array run.
 
 The output directory must not already exist. The script creates it and then creates
@@ -102,7 +102,7 @@ bash hpc_jobs/submit_ve_array_job.sh \
     ve_example/<experiment-output>
 ```
 
-The submission script validates the job specification and resources configuration,
+The submission script validates the job configuration and resources configuration,
 calculates the PBS array size, creates the requested output directory, and submits the
 array using `qsub`. It creates `arraySubJob_<index>` directories before submitting the
 array. Validation happens before the output directory is created or any jobs are
@@ -155,7 +155,7 @@ Larger datasets may require more memory, CPUs, or wall time.
 More jobs don't need more resources as resources are set per job.
 
 `hpc_jobs/resources.py` loads and validates the resource configuration, while
-`hpc_jobs/hpc_ve_job_spec.py` validates the job specification. Each resource field is
+`hpc_jobs/hpc_ve_job_spec.py` validates the job configuration. Each resource field is
 bounds checked, and an out-of-range or missing value aborts the submission with an error
 rather than sending a bad request to `qsub`:
 

@@ -13,7 +13,7 @@ from pydantic.dataclasses import dataclass
 class Job:
     """Defines an HPC VE_run job."""
 
-    config_paths: list[str]
+    config_paths: list[Path]
     config: dict[str, Any]
     repeats: int = Field(default=1, ge=1)
 
@@ -22,8 +22,8 @@ class Job:
 class JobSpec:
     """Defines a job specification."""
 
-    common_config_paths: list[str]
-    site_directory: str
+    common_config_paths: list[Path]
+    site_directory: Path
     jobs: list[Job]
 
     n_jobs: int = Field(init=False)
@@ -45,8 +45,8 @@ class JobSpec:
     def get_job(self, array_index: int) -> Job:
         """Get the correct job for a job array index."""
 
-        # I cant see how this would happen but just incase avoid a silent failure.
-        # ensure that the array index is within the valid range of jobs.
+        # I can't see how this would happen but just incase, avoid a silent failure.
+        # Ensure that the array index is within the valid range of jobs.
         if not 1 <= array_index <= self.n_jobs:
             raise ValueError(
                 f"Job array index must be between 1 and {self.n_jobs}: {array_index}"
