@@ -25,7 +25,7 @@ ssh userid@login.cx3.hpc.imperial.ac.uk
 See the [Imperial RCS documentation](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/getting-started/)
 for further information about connecting to the cluster.
 If you are new to HPC environments, do make sure that you familiarise yourself with the
-documentation.
+documentation. It is highly recommended to attend the [Introduction to HPC at Imperial course](https://www.imperial.ac.uk/early-career-researcher-institute/learning-and-development/courses-by-programme/research-computing-and-data-science/introduction-to-hpc/), but if you cannot make it, the materials for the course are freely available and give a good overview of how to work with the system.
 
 *Importantly: Login nodes are intended for tasks such as editing files, preparing jobs,
 and submitting jobs. Computationally intensive work should be submitted to compute
