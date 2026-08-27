@@ -18,7 +18,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: in progress
+#| status: final
 #|
 #| input_files:
 #|   - name: tree_census_11_20.xlsx
@@ -33,18 +33,21 @@
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       A CSV file containing an updated list of taxa and their respective
-#|       pft. It contains both the base pft classification from pfts_maliau and
+#|       PFT. It contains the base PFT classification from pfts_maliau and
 #|       additional assignments for previously unclassified taxa based on their
-#|       maximum height relative to pft maximum height thresholds. Taxon maximum
-#|       height is also included in the output file.
+#|       maximum height relative to PFT maximum-height thresholds. Taxon maximum
+#|       height is also included and is used to assign PFTs to census records.
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing T model parameters by pft.
+#|       A CSV file listing T model parameters by PFT. The PFT-specific maximum
+#|       heights are used to classify census records that lack a PFT assignment.
 #|   - name: safe_plot_coordinates.geojson
 #|     path: data/primary/plant/safe_plot_coordinates
 #|     description: |
-#|       SAFE Project sampling-plot coordinates.
+#|       SAFE Project sampling-plot coordinates. The script uses the point
+#|       records matching the census plot IDs to add WGS84 and UTM zone 50N
+#|       coordinates to the plot-level output.
 #|
 #| output_files:
 #|   - name: pft_cohort_data_maliau.csv
@@ -58,51 +61,166 @@
 #|         units: dimensionless
 #|         description: |
 #|           SAFE Project census plot identifier.
+#|         references:
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: |
+#|           The plot identifier is retained from the source census data and is
+#|           used to join each census plot to its SAFE coordinate record.
 #|       - name: block
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Old Growth census block identifier.
+#|         references:
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: null
 #|       - name: plot
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Plot identifier within the census block.
+#|         references:
+#|           - citation: "Svátek et al. (2025)"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: null
 #|       - name: lon_wgs84
 #|         type: numeric
 #|         units: degrees_east
 #|         description: |
 #|           Census plot longitude in WGS84.
+#|         references:
+#|           - citation: "safe_plot_coordinates.geojson"
+#|             doi: null
+#|             url: null
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: null
+#|         assumptions: |
+#|           Coordinates are extracted from the GeoJSON point geometry and are
+#|           interpreted as longitude in EPSG:4326.
 #|       - name: lat_wgs84
 #|         type: numeric
 #|         units: degrees_north
 #|         description: |
 #|           Census plot latitude in WGS84.
+#|         references:
+#|           - citation: "safe_plot_coordinates.geojson"
+#|             doi: null
+#|             url: null
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: null
+#|         assumptions: |
+#|           Coordinates are extracted from the GeoJSON point geometry and are
+#|           interpreted as latitude in EPSG:4326.
 #|       - name: x_utm32650
 #|         type: numeric
 #|         units: m
 #|         description: |
 #|           Census plot easting in UTM zone 50N (EPSG:32650).
+#|         references:
+#|           - citation: "safe_plot_coordinates.geojson"
+#|             doi: null
+#|             url: null
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: null
+#|         assumptions: |
+#|           WGS84 coordinates are transformed to UTM zone 50N using EPSG:32650.
 #|       - name: y_utm32650
 #|         type: numeric
 #|         units: m
 #|         description: |
 #|           Census plot northing in UTM zone 50N (EPSG:32650).
+#|         references:
+#|           - citation: "safe_plot_coordinates.geojson"
+#|             doi: null
+#|             url: null
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: null
+#|         assumptions: |
+#|           WGS84 coordinates are transformed to UTM zone 50N using EPSG:32650.
 #|       - name: plant_cohorts_pft
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Plant functional type assigned to the cohort.
+#|         references:
+#|           - citation: "pfts_maximum_height_maliau.csv"
+#|             doi: null
+#|             url: null
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: null
+#|         assumptions: |
+#|           PFTs are taken from the taxonomic lookup where available; remaining
+#|           records are assigned from measured height and PFT height thresholds.
 #|       - name: plant_cohorts_dbh
 #|         type: numeric
 #|         units: m
 #|         description: |
 #|           Midpoint diameter at breast height of the 100 mm cohort class.
+#|         references:
+#|           - citation: "SAFE Project, Sabah, Malaysia"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: |
+#|           DBH values are grouped into 100 mm classes and represented by the
+#|           midpoint of each class; trees without DBH or with DBH at or below
+#|           10 cm are excluded.
 #|       - name: plant_cohorts_n
 #|         type: integer
 #|         units: stems
 #|         description: |
-#|           Number of recorded stems in the 25 by 25 m census plot.
+#|           Number of recorded cohort stems in the 25 by 25 m census plot.
+#|         references:
+#|           - citation: "SAFE Project, Sabah, Malaysia"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: |
+#|           Counts represent retained living cohort tree stems after filtering to
+#|           the 2011 OG1, OG2, and OG3 census records.
 #|       - name: plant_cohorts_n_per_ha
 #|         type: numeric
 #|         units: stems ha-1
@@ -118,25 +236,50 @@
 #|             site_condition: "old-growth forest"
 #|             date: "2011"
 #|         assumptions: |
-#|           Each retained census record represents one living tree stem. Trees
-#|           with missing DBH are excluded, and PFTs missing from the lookup are
-#|           assigned from the measured height and PFT maximum-height thresholds.
+#|           Counts represent retained living cohort tree stems after filtering to
+#|           the 2011 OG1, OG2, and OG3 census records, scaled to one hectare.
 #|   - name: pft_cohort_data_maliau_mean_per_ha.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       Mean PFT cohort stem density across all sampled Maliau OG census plots.
 #|     variables:
-#|       - name: plant_cohorts_n_per_ha
+#|       - name: plant_cohorts_n
 #|         type: numeric
 #|         units: stems ha-1
 #|         description: |
 #|           Mean stem density for each PFT and DBH cohort across the sampled
 #|           OG plots.
+#|         references:
+#|           - citation: "SAFE Project, Sabah, Malaysia"
+#|             doi: "https://doi.org/10.5281/zenodo.14882506"
+#|             url: "https://zenodo.org/records/14882506"
+#|             origin: "SAFE Project, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: "2011"
+#|         assumptions: |
+#|           The sampled 25 by 25 m plots represent the Maliau old-growth forest
+#|           community. Mean cohort densities are calculated from retained living
+#|           cohort tree stems after filtering to the 2011 OG1, OG2, and OG3
+#|           census records and are scaled using the total sampled area.
 #|       - name: plant_cohorts_pft
 #|         type: character
 #|         units: dimensionless
 #|         description: |
 #|           Plant functional type assigned to the cohort.
+#|         references:
+#|           - citation: "pfts_maximum_height_maliau.csv"
+#|             doi: null
+#|             url: null
+#|             origin: "Virtual Ecosystem plant input data library"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland tropical rain forest"
+#|             site_condition: "old-growth forest"
+#|             date: null
+#|         assumptions: |
+#|           PFT assignments follow the taxonomic lookup and height-based
+#|           fallback classification used for the plot-level output.
 #|       - name: plant_cohorts_dbh
 #|         type: numeric
 #|         units: m
@@ -152,14 +295,17 @@
 #|             site_condition: "old-growth forest"
 #|             date: "2011"
 #|         assumptions: |
-#|           The 27 sampled 25 by 25 m plots represent the Maliau old-growth
-#|           forest community. Cohort densities are calculated from individual
-#|           stems and do not include trees below the census DBH threshold.
+#|           DBH cohort values are represented by class midpoints, and the
+#|           27 sampled 25 by 25 m plots represent the Maliau old-growth forest
+#|           community. Cohort densities are calculated from individual stems,
+#|           and trees without DBH or with DBH at or below 10 cm are excluded.
 #|
 #| package_dependencies:
 #|   - readxl
 #|   - dplyr
 #|   - sf
+#|   - ggplot2
+#|   - gstat
 #|
 #| usage_notes: |
 #|   Run from this script's directory because input and output paths are
@@ -545,8 +691,10 @@ max_dbh_mm <- 2000
 dbh_breaks <- c(0, seq(100, max_dbh_mm + 100, 100))
 dbh_midpoints_m <- c(100, seq(150, max_dbh_mm + 50, 100)) / 1000
 
-# 1. Filter incomplete records
+# 1. Filter incomplete records and retain trees above the census minimum DBH.
+# The census minimum is 10 cm, so this workflow focuses on trees with DBH > 10 cm.
 keep <- !is.na(census_data_2011$DBH2011_mm_clean) &
+  census_data_2011$DBH2011_mm_clean > 100 &
   !is.na(census_data_2011$pft_name_h_max_taxa) &
   !is.na(census_data_2011$x_utm32650) &
   !is.na(census_data_2011$y_utm32650) &
@@ -633,7 +781,7 @@ og_mean_distribution <- og_mean_distribution[, c(
 )]
 
 colnames(og_mean_distribution) <- c(
-  "plant_cohorts_n_per_ha",
+  "plant_cohorts_n",
   "plant_cohorts_pft",
   "plant_cohorts_dbh"
 )
