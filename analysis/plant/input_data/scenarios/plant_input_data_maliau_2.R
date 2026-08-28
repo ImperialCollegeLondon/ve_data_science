@@ -18,10 +18,12 @@
 #|   - name: maliau_2_cohort_data_1_cm.csv
 #|     path: data/derived/plant/input_data/scenarios/maliau_2
 #|     description: |
-#|       Spatially predicted PFT cohort distribution for individuals with DBH
-#|       greater than or equal to 1 cm. Cohorts below the 10 cm census
-#|       threshold are estimated from modelled basal-area residuals and the
-#|       assumed small-tree cohort distribution.
+#|       Cohorts below the 10 cm census threshold are estimated from the
+#|       difference between modelled total basal area for stems at or above 1 cm
+#|       DBH and modelled basal area for stems above 10 cm DBH. The missing basal
+#|       area is converted to stem numbers using assumed 1–2 cm, 2–5 cm and
+#|       5–10 cm size-class fractions, then allocated across PFTs using cell-level
+#|       PFT abundance.
 #|   - name: maliau_grid_definition.toml
 #|     path: data/derived/site/maliau
 #|     description: |
@@ -30,7 +32,7 @@
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing T model parameters by pft.
+#|       A CSV file listing T-model parameters by pft.
 #|   - name: subcanopy_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |

@@ -26,7 +26,7 @@
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing T model parameters by pft.
+#|       A CSV file listing T-model parameters by pft.
 #|   - name: reproduction_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |

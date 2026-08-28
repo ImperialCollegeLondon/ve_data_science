@@ -24,8 +24,11 @@
 #|   - name: stoichiometry_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       This CSV file contains a summary of stoichiometric ratios and lignin
-#|       content for different biomass pools for each pft.
+#|       This CSV file contains PFT-level stoichiometric ratios and lignin
+#|       fractions for plant biomass pools, including sapwood, foliage,
+#|       senesced leaves, reproductive tissue, fruits, flowers, and fine roots.
+#|       Where PFT-specific measurements are unavailable, literature-derived
+#|       proxy values are used.
 #|
 #| output_files:
 #|   - name: subcanopy_maliau.csv

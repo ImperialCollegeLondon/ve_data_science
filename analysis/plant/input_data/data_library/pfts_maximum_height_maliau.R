@@ -30,12 +30,13 @@
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       A CSV file containing the plant functional type classification for taxa
-#|       in the tree census. The file includes taxa_name and pft_name columns
-#|       linking each taxon to its assigned plant functional type (PFT).
+#|       in the tree census. The file contains pft_name, taxa_name, taxa_level,
+#|       species, genus and family columns linking each taxon to its assigned
+#|       plant functional type (PFT).
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing T model parameters by pft.
+#|       A CSV file listing T-model parameters by pft.
 #|
 #| output_files:
 #|   - name: pfts_maximum_height_maliau.csv

@@ -33,15 +33,14 @@
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       A CSV file containing an updated list of taxa and their respective
-#|       PFT. It contains the base PFT classification from pfts_maliau and
+#|       pft. It contains both the base pft classification from pfts_maliau and
 #|       additional assignments for previously unclassified taxa based on their
-#|       maximum height relative to PFT maximum-height thresholds. Taxon maximum
-#|       height is also included and is used to assign PFTs to census records.
+#|       maximum height relative to pft maximum height thresholds. Taxon maximum
+#|       height is also included in the output file.
 #|   - name: t_model_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing T model parameters by PFT. The PFT-specific maximum
-#|       heights are used to classify census records that lack a PFT assignment.
+#|       A CSV file listing T-model parameters by pft.
 #|   - name: safe_plot_coordinates.geojson
 #|     path: data/primary/plant/safe_plot_coordinates
 #|     description: |

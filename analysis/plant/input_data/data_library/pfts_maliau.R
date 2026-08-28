@@ -36,7 +36,10 @@
 #|   - name: pfts_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
-#|       A CSV file listing species by PFT.
+#|       A CSV file containing the plant functional type classification for taxa
+#|       in the tree census. The file contains pft_name, taxa_name, taxa_level,
+#|       species, genus and family columns linking each taxon to its assigned
+#|       plant functional type (PFT).
 #|     variables:
 #|       - name: pft_name
 #|         type: character
