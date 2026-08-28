@@ -1062,9 +1062,9 @@ add_schema <- function(
 #' valdb$build_validation_database()
 
 build_validation_database <- function(
-  config_dir = "data/derived/soil/validation/config",
+  config_dir,
   sources_dir = file.path(config_dir, "sources"),
-  db_path = "data/derived/soil/validation/database"
+  db_path
 ) {
   # Ingest datasets --------------------------------------------------------
 
@@ -1905,9 +1905,8 @@ drop_blanks <- function(x) {
 #'
 #' @param variables_ve Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
-#' @param variables_derived Path to the custom derived variable TOML table.
-#'   Currently it defaults to the soil module. Use `NULL` to omit derived
-#'   variables.
+#' @param variables_derived Path to the custom derived variable TOML table, or
+#'   `NULL` to omit derived variables.
 #' @param downloader A function compatible with [utils::download.file()]. It is
 #'   injectable so tests can supply canonical metadata without network access.
 #'
@@ -1915,7 +1914,7 @@ drop_blanks <- function(x) {
 
 build_data_variables_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  variables_derived,
   downloader = utils::download.file
 ) {
   ve_path <- retrieve_variables_table(variables_ve, downloader)
@@ -1968,7 +1967,7 @@ retrieve_variables_table <- function(
 
 build_canonical_units_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  variables_derived,
   downloader = utils::download.file
 ) {
   build_data_variables_table(
