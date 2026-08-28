@@ -476,11 +476,11 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Loaded from reproduction_maliau.csv using the Ichie dipterocarp forest propagule_live_organ_carbon_percentage value."
-#|       - name: carbon_mass_per_propagule
+#|       - name: c_mass_per_fruit_seed
 #|         type: numeric
 #|         units: g C
 #|         description: |
-#|           Carbon mass per propagule, represented here by seed carbon mass.
+#|           Carbon mass per seed within a mature fruit.
 #|         references:
 #|           - citation: "Ichie et al. (2005)"
 #|             doi: "https://doi.org/10.1016/S0378-1127(03)00161-0"
@@ -498,7 +498,7 @@
 #|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Loaded from stoichiometry_maliau.csv. Original assumption: Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration."
+#|         assumptions: "Loaded from stoichiometry_maliau.csv. Original assumption: Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration, assuming one seed per fruit."
 #|
 #| package_dependencies:
 #|   - tidyverse
@@ -570,7 +570,7 @@ plant_constants_maliau_2 <- subset(
 # root_lignin ADD from stoichiometry_maliau
 # root_exudates ADD from t_model_maliau
 # propagule_mass_portion ADD from reproduction_maliau
-# carbon_mass_per_propagule ADD from stoichiometry_maliau
+# c_mass_per_fruit_seed ADD from stoichiometry_maliau
 
 # Add missing ones
 
@@ -612,9 +612,9 @@ plant_constants_maliau_2$propagule_mass_portion <- as.numeric(
   ][1]
 )
 
-# carbon_mass_per_propagule
-plant_constants_maliau_2$carbon_mass_per_propagule <-
-  unique(stoichiometry_maliau$carbon_mass_per_propagule)
+# c_mass_per_fruit_seed
+plant_constants_maliau_2$c_mass_per_fruit_seed <-
+  unique(stoichiometry_maliau$c_mass_per_fruit_seed)
 
 # Write out summary of variable data types and units
 

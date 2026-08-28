@@ -228,42 +228,57 @@
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
 #|         assumptions: "Assumed equal to live foliage lignin because senesced leaf-specific lignin data were not separately derived."
+#|       - name: reproductive_organ_CN
+#|         type: numeric
+#|         units: g C g^-1 N
+#|         description: |
+#|           Carbon-to-nitrogen ratio for reproductive organs.
+#|         references:
+#|           - citation: "Kitayama et al. (2015)"
+#|             doi: "https://doi.org/10.1111/1365-2745.12379"
+#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
+#|             origin: "Mount Kinabalu, Borneo"
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
+#|       - name: reproductive_organ_CP
+#|         type: numeric
+#|         units: g C g^-1 P
+#|         description: |
+#|           Carbon-to-phosphorus ratio for reproductive organs.
+#|         references:
+#|           - citation: "Kitayama et al. (2015)"
+#|             doi: "https://doi.org/10.1111/1365-2745.12379"
+#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
+#|             origin: "Mount Kinabalu, Borneo"
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
 #|       - name: plant_reproductive_tissue_turnover_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
 #|           Carbon-to-nitrogen ratio for reproductive tissue turnover.
 #|         references:
-#|           - citation: "Kitayama et al. (2015)"
-#|             doi: "https://doi.org/10.1111/1365-2745.12379"
-#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
-#|             origin: "Mount Kinabalu, Borneo"
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
 #|             biome: "tropical"
 #|             vegetation_type: "dipterocarp forest"
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
+#|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
 #|       - name: plant_reproductive_tissue_turnover_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
 #|           Carbon-to-phosphorus ratio for reproductive tissue turnover.
 #|         references:
-#|           - citation: "Kitayama et al. (2015)"
-#|             doi: "https://doi.org/10.1111/1365-2745.12379"
-#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
-#|             origin: "Mount Kinabalu, Borneo"
-#|             biome: "tropical"
-#|             vegetation_type: "dipterocarp forest"
-#|             site_condition: null
-#|             date: null
-#|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
-#|       - name: mature_fruit_c_n_ratio
-#|         type: numeric
-#|         units: g C g^-1 N
-#|         description: |
-#|           Carbon-to-nitrogen ratio for mature fruit tissue.
-#|         references:
 #|           - citation: "Ichie et al. (2005)"
 #|             doi: "https://doi.org/10.1017/S0266467404002214"
 #|             url: null
@@ -273,11 +288,11 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
-#|       - name: mature_fruit_c_p_ratio
+#|       - name: c_mass_fruit_flesh
 #|         type: numeric
-#|         units: g C g^-1 P
+#|         units: g C
 #|         description: |
-#|           Carbon-to-phosphorus ratio for mature fruit tissue.
+#|           Carbon mass per mature fruit flesh after subtracting seed carbon mass.
 #|         references:
 #|           - citation: "Ichie et al. (2005)"
 #|             doi: "https://doi.org/10.1017/S0266467404002214"
@@ -287,27 +302,12 @@
 #|             vegetation_type: "dipterocarp forest"
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
-#|       - name: mature_fruit_c_mass
+#|         assumptions: "Calculated from mature fruit dry mass and carbon percentage for Dipterocarpus tempehes, after subtracting the estimated carbon mass of one seed."
+#|       - name: c_mass_per_fruit_seed
 #|         type: numeric
 #|         units: g C
 #|         description: |
-#|           Carbon mass per mature fruit.
-#|         references:
-#|           - citation: "Ichie et al. (2005)"
-#|             doi: "https://doi.org/10.1017/S0266467404002214"
-#|             url: null
-#|             origin: null
-#|             biome: "tropical"
-#|             vegetation_type: "dipterocarp forest"
-#|             site_condition: null
-#|             date: null
-#|         assumptions: "Calculated from mature fruit dry mass and carbon percentage for Dipterocarpus tempehes."
-#|       - name: carbon_mass_per_propagule
-#|         type: numeric
-#|         units: g C
-#|         description: |
-#|           Carbon mass per propagule, represented here by seed carbon mass.
+#|           Carbon mass per seed within a mature fruit.
 #|         references:
 #|           - citation: "Ichie et al. (2005)"
 #|             doi: "https://doi.org/10.1017/S0266467404002214"
@@ -325,7 +325,22 @@
 #|             vegetation_type: "dipterocarp forest"
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration."
+#|         assumptions: "Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration, assuming one seed per fruit."
+#|       - name: seeds_per_fruit
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Number of seeds per mature fruit.
+#|         references:
+#|           - citation: "Nakagawa and Nakashizuka (2004)"
+#|             doi: "https://doi.org/10.1079/SSR2004181"
+#|             url: null
+#|             origin: null
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Assumed to be one seed per fruit for dipterocarps."
 #|       - name: plant_reproductive_tissue_lignin
 #|         type: numeric
 #|         units: g lignin C g^-1 reproductive tissue C
@@ -1133,11 +1148,19 @@ summary$mature_fruit_CP <- mature_fruit_CP
 # seed dry weight of Dipterocarpus tempehes from Nakagawa and Nakashizuka (2004)
 # (DOI https://doi.org/10.1079/SSR2004181)
 
+seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
+seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100
+
 mature_fruit_dry_mass <- 8.04 # in grams, with SD of 0.98 (see Ichie)
 mature_fruit_C_mass <- mature_fruit_dry_mass * mature_fruit_C_percentage / 100
 
-seed_dry_mass <- 2.33 # in grams, with SD of 0.88 (see Nakagawa and Nakashizuka)
-seed_C_mass <- seed_dry_mass * mature_fruit_C_percentage / 100
+# Now deduct the seed C mass from mature fruit C mass (assuming 1 seed per fruit)
+# Also note that the C% by Ichie et al. 2005 for mature fruit is assumed to be
+# an average for the entire fruit (including seeds)
+mature_fruit_C_mass <- mature_fruit_C_mass - seed_C_mass
+
+# Add seeds_per_fruit (assuming 1 seed per fruit for dipterocarps)
+seeds_per_fruit <- 1
 
 # Add seed lignin content (the fraction of reproductive tissue carbon that is
 # captured in lignin)
@@ -1159,6 +1182,7 @@ lignin_C_of_seed_C <- seed_lignin_C_g / seed_C_g
 
 summary$mature_fruit_C_mass <- mature_fruit_C_mass
 summary$seed_C_mass <- seed_C_mass
+summary$seeds_per_fruit <- seeds_per_fruit
 summary$seed_lignin <- lignin_C_of_seed_C
 
 ################################################################################
@@ -1256,6 +1280,7 @@ summary <- summary[, c(
   "mature_fruit_CP",
   "mature_fruit_C_mass",
   "seed_C_mass",
+  "seeds_per_fruit",
   "seed_lignin",
   "flower_CN",
   "flower_CP",
@@ -1281,12 +1306,13 @@ colnames(summary) <- c(
   "leaf_turnover_c_n_ratio",
   "leaf_turnover_c_p_ratio",
   "senesced_leaf_lignin",
-  "plant_reproductive_tissue_turnover_c_n_ratio",
-  "plant_reproductive_tissue_turnover_c_p_ratio",
-  "mature_fruit_c_n_ratio",
-  "mature_fruit_c_p_ratio",
-  "mature_fruit_c_mass",
-  "carbon_mass_per_propagule",
+  "reproductive_organ_CN", # not used anymore but kept for now
+  "reproductive_organ_CP", # not used anymore but kept for now
+  "plant_reproductive_tissue_turnover_c_n_ratio", # old "mature_fruit_c_n_ratio"
+  "plant_reproductive_tissue_turnover_c_p_ratio", # old "mature_fruit_c_p_ratio"
+  "c_mass_fruit_flesh", # old "mature_fruit_c_mass"
+  "c_mass_per_fruit_seed", # old "carbon_mass_per_propagule"
+  "seeds_per_fruit",
   "plant_reproductive_tissue_lignin",
   "flower_c_n_ratio",
   "flower_c_p_ratio",
