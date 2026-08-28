@@ -24,7 +24,7 @@ class JobSpec:
 
     common_config_paths: list[Path]
     site_directory: Path
-    jobs: list[Job]
+    jobs: list[Job] = Field(min_length=1)
 
     n_jobs: int = Field(init=False)
     job_map: list[int] = Field(init=False)
@@ -69,11 +69,7 @@ def load_job_spec(job_file: Path) -> JobSpec:
     with open(job_file, "rb") as jobs:
         data = tomllib.load(jobs)
 
-    # Ensure there is at least one job specified.
-    if not data.get("jobs"):
-        raise ValueError(
-            "No jobs defined. Add at least one [[jobs]] section to the JOB_CONFIG.toml."
-        )
+
 
     # Validate the job specification using Pydantic
     # (calls the __post_init__ method to populate n_jobs and job_map)
