@@ -27,33 +27,28 @@ class JobSpec:
     jobs: list[Job] = Field(min_length=1)
 
     n_jobs: int = Field(init=False)
-    job_map: list[int] = Field(init=False)
+    subjob_repeats_map: list[int] = Field(init=False)
 
     def __post_init__(
         self,
     ) -> None:
         """Populate the total num of jobs and map jobs to respective array indices."""
-        # Map each job array index to the corresponding job index from the config.
-        self.job_map = [
+        # Map each subJob index to the corresponding job index from the config.
+        # e.g. where the first job has 3 repeats, and the second job has 1 repeat then: 
+        # subjob_repeats_map = [0, 0, 0, 1] 
+        self.subjob_repeats_map = [
             job_index
             for job_index, job in enumerate(self.jobs)
             for _ in range(job.repeats)
         ]
         # calculate the total number of jobs based on the job map.
-        self.n_jobs = len(self.job_map)
+        self.n_jobs = len(self.subjob_repeats_map)
 
     def get_job(self, array_index: int) -> Job:
         """Get the correct job for a job array index."""
 
-        # I can't see how this would happen but just incase, avoid a silent failure.
-        # Ensure that the array index is within the valid range of jobs.
-        if not 1 <= array_index <= self.n_jobs:
-            raise ValueError(
-                f"Job array index must be between 1 and {self.n_jobs}: {array_index}"
-            )
-
         # Get the job index from the job map and return the corresponding job.
-        job_index = self.job_map[array_index - 1]
+        job_index = self.subjob_repeats_map[array_index - 1]
 
         # Return the corresponding job.
         return self.jobs[job_index]
@@ -72,7 +67,7 @@ def load_job_spec(job_file: Path) -> JobSpec:
 
 
     # Validate the job specification using Pydantic
-    # (calls the __post_init__ method to populate n_jobs and job_map)
+    # (calls the __post_init__ method to populate n_jobs and subjob_repeats_map)
     job_spec = JobSpec(**data)
 
     # Validate that the site directory exists and is a directory
