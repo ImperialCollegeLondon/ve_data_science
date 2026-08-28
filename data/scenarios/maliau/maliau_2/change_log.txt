@@ -108,3 +108,14 @@
 - Reference:
   - PR #379 to close Issues #372, #374 and #375
   - PR #382 to close Issue #378
+
+2026-08-21
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_10x10_dev
+- Changes made:
+  - Added new file named plant_pft_definitions_Maliau_10x10_dev that has the
+    newly required pft_name instead of name (VE dev only version)
+- References:
+  - Issue #460
