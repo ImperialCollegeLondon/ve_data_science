@@ -33,7 +33,7 @@ class JobSpec:
         self,
     ) -> None:
         """Populate the total num of jobs and map jobs to respective array indices."""
-        # Map each job array index to the corresponding job index.
+        # Map each job array index to the corresponding job index from the config.
         self.job_map = [
             job_index
             for job_index, job in enumerate(self.jobs)
@@ -60,10 +60,10 @@ class JobSpec:
 
 
 def load_job_spec(job_file: Path) -> JobSpec:
-    """Load and validate a job specification file.
+    """Load and validate an array job config file.
 
     Args:
-        job_file: A path to a TOML job specification.
+        job_file: A path to a TOML array job configuration.
 
     """
     with open(job_file, "rb") as jobs:
