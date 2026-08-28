@@ -46,8 +46,6 @@ def load_resources(resources_config_file: Path) -> Resources:
 
 
 if __name__ == "__main__":
-    # this should not really be invoked because the script will be run in
-    # submit_ve_array_job.sh (with its own checks)
     if len(sys.argv) != 2:
         sys.stderr.write("Usage: python resources.py <resources_config.toml>\n")
         sys.exit(1)
