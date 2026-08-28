@@ -343,7 +343,7 @@ list_screening_records <- function(
 
 find_screening_record <- function(
   doi,
-  sources_dir = "data/derived/soil/validation/config/sources"
+  sources_dir
 ) {
   doi <- normalise_doi(doi)
   records <- list_screening_records(sources_dir)
@@ -378,7 +378,6 @@ find_screening_record <- function(
 #'
 #' @param record A screening record created by [new_screening_record()].
 #' @param sources_dir Directory in which to create the YAML file.
-#'   Currently hardcoded to the soil module; to relax this later.
 #'
 #' @returns The path of the new YAML file.
 #'
@@ -386,7 +385,7 @@ find_screening_record <- function(
 
 write_screening_record <- function(
   record,
-  sources_dir = "data/derived/soil/validation/config/sources"
+  sources_dir
 ) {
   if (!is.list(record) || is.null(record$doi) || is.null(record$record_id)) {
     cli::cli_abort(
@@ -450,7 +449,6 @@ write_screening_record <- function(
 #' decision and rationale, and writes one YAML record per dataset.
 #'
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently defaults to the soil module; to be relaxed later.
 #' @param .metadata_fetcher Function used to retrieve normalised DOI metadata.
 #'   This supports network-independent tests and normally should not be changed.
 #' @param .readline Function used to collect free-text console input. This
@@ -465,10 +463,11 @@ write_screening_record <- function(
 #' @examples
 #' box::use(tools/R/R/valdb)
 #' box::help(valdb$screen_dataset)  # if you need a conventional R help page
-#' valdb$screen_dataset()
+#' sources_dir <- "data/derived/soil/validation/config/sources"
+#' valdb$screen_dataset(sources_dir = sources_dir)
 
 screen_dataset <- function(
-  sources_dir = "data/derived/soil/validation/config/sources",
+  sources_dir,
   .metadata_fetcher = fetch_doi_metadata,
   .readline = readline,
   .select = utils::select.list
@@ -936,7 +935,6 @@ add_observation_id <- function(data, source) {
 #'
 #' @param doi A DOI accepted by [normalise_doi()].
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently defaults to the soil module; to be relaxed later.
 #'
 #' @returns The path of the updated YAML file.
 #'
@@ -944,7 +942,7 @@ add_observation_id <- function(data, source) {
 
 initialise_source_schema <- function(
   doi,
-  sources_dir = "data/derived/soil/validation/config/sources"
+  sources_dir
 ) {
   doi <- normalise_doi(doi)
   record <- find_screening_record(doi, sources_dir)
@@ -1021,7 +1019,6 @@ initialise_source_schema <- function(
 #'
 #' @param doi A DOI accepted by [normalise_doi()].
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently defaults to the soil module; to be relaxed later.
 #' @param .editor Function used to open the YAML file. This supports tests and
 #'   normally should not be changed.
 #'
@@ -1030,11 +1027,12 @@ initialise_source_schema <- function(
 #' @export
 #' @examples
 #' box::use(tools/R/R/valdb)
-#' valdb$add_schema("10.5281/zenodo.8158810")
+#' sources_dir <- "data/derived/soil/validation/config/sources"
+#' valdb$add_schema("10.5281/zenodo.8158810", sources_dir = sources_dir)
 
 add_schema <- function(
   doi,
-  sources_dir = "data/derived/soil/validation/config/sources",
+  sources_dir,
   .editor = utils::file.edit
 ) {
   doi <- normalise_doi(doi)

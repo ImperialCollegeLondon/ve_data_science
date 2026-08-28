@@ -200,6 +200,19 @@ test_that("initialise_source_schema normalises common DOI forms", {
 })
 
 
+test_that("schema helpers require explicit sources_dir", {
+  expect_error(
+    initialise_source_schema("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
+    add_schema("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+})
+
+
 test_that("initialise_source_schema rejects an unscreened DOI", {
   sources_dir <- withr::local_tempdir()
 

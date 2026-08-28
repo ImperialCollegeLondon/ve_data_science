@@ -291,6 +291,24 @@ test_that("find_screening_record matches normalised DOI forms", {
 })
 
 
+test_that("screening helpers require explicit sources_dir", {
+  expect_error(
+    find_screening_record("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
+    write_screening_record(new_test_record()),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
+    screen_dataset(.readline = function(...) "10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+})
+
+
 test_that("find_screening_record rejects duplicate DOI records", {
   sources_dir <- withr::local_tempdir()
   record <- new_test_record()
