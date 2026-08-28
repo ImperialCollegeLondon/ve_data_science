@@ -22,11 +22,14 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      RENV_PATHS_ROOT: ~/.cache/R/renv
 
     steps:
       - uses: actions/checkout@v7
 
       - name: Set up R
+        id: setup-r
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: "release"
@@ -48,87 +51,49 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             cmake \
+            gdal-bin \
+            libabsl-dev \
             libclang-dev \
+            libcurl4-openssl-dev \
+            libfftw3-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libgdal-dev \
+            libgeos-dev \
             libicu-dev \
             libnetcdf-dev \
+            libnode-dev \
+            libpng-dev \
+            libproj-dev \
             libssl-dev \
+            libtbb-dev \
             libudunits2-dev \
-            make
+            libx11-dev \
+            libzmq3-dev \
+            make \
+            pandoc
 
-      # --- R dependencies ---
-      - name: Install R dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
+      # --- R dependencies (renv lockfile + GitHub Actions cache) ---
+      - name: Cache R packages
+        uses: actions/cache@v4
         with:
-          cache: true
-          packages: any::sessioninfo
-          extra-packages: |
-            any::box
-            any::cli
-            any::here
-            any::testthat
-            any::withr
-            any::reticulate
-            any::toml
-            any::tidync
-            any::purrr
-            any::RNetCDF
-            any::dplyr
-            any::stringr
-            any::readr
-            any::tibble
-            any::lubridate
-            any::tidyr
-            any::rlang
-            any::jsonlite
-            any::R6
-            any::qs2
-            any::memoise
-            any::shiny
-            any::yaml
-            any::units
-            any::arrow
-            any::bslib
-            any::htmltools
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key:
+            ${{ runner.os }}-${{ runner.arch }}-r-${{
+            steps.setup-r.outputs.installed-r-version }}-renv-${{
+            hashFiles('renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-r-${{ steps.setup-r.outputs.installed-r-version }}-renv-
+            ${{ runner.os }}-${{ runner.arch }}-renv-
 
-      - name: Install pizzarr from r-universe
+      - name: Restore R dependencies with renv
+        env:
+          RENV_INSTALL_TEST_LOAD: "FALSE"
         run: |
-          repo <- "https://zarr-developers.r-universe.dev"
-          available_version <- available.packages(repos = repo)[
-            "pizzarr", "Version"
-          ]
-          installed <- requireNamespace("pizzarr", quietly = TRUE)
-          installed_repo <- if (installed) {
-            packageDescription("pizzarr")$Repository
-          } else {
-            NA_character_
+          if (!requireNamespace("renv", quietly = TRUE)) {
+            install.packages("renv")
           }
-          installed_version <- if (installed) {
-            as.character(packageVersion("pizzarr"))
-          } else {
-            NA_character_
-          }
-
-          if (
-            !identical(installed_repo, repo) ||
-              !identical(installed_version, available_version)
-          ) {
-            install.packages(
-              "pizzarr",
-              repos = repo,
-              Ncpus = max(1, parallel::detectCores() - 1)
-            )
-          }
-        shell: Rscript {0}
-
-      - name: Verify pizzarr backend
-        run: |
-          stopifnot(
-            identical(
-              packageDescription("pizzarr")$Repository,
-              "https://zarr-developers.r-universe.dev"
-            ),
-            length(pizzarr::pizzarr_compiled_features()) > 0
-          )
+          renv::restore(prompt = FALSE)
         shell: Rscript {0}
 
       # --- Tests ---
