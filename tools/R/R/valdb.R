@@ -1076,7 +1076,9 @@ build_validation_database <- function(
   # Configs ----------------------------------------------------------------
 
   # Load canonical units only after local source preflight succeeds.
-  canonical_units <- build_canonical_units_table()
+  canonical_units <- build_canonical_units_table(
+    variables_derived = file.path(config_dir, "derived_variables.toml")
+  )
 
   # Harmonise each dataset ------------------------------------------------
   data_harmonised <-
