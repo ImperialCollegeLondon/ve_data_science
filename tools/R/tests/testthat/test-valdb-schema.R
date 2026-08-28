@@ -60,7 +60,7 @@ test_that("new_schema_template returns the builder contract", {
   expect_identical(template$source_id, "author_year")
   expect_identical(
     template$data_file,
-    "data/primary/soil/author_year/*.csv"
+    "data/primary/<module>/author_year/*.csv"
   )
   expect_identical(template$skip_rows, 0L)
   expect_named(template$variables, "var_original_1")

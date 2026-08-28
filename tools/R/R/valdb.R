@@ -556,7 +556,7 @@ screen_dataset <- function(
 new_schema_template <- function() {
   list(
     source_id = "author_year",
-    data_file = "data/primary/soil/author_year/*.csv",
+    data_file = "data/primary/<module>/author_year/*.csv",
     skip_rows = 0L,
     variables = list(
       var_original_1 = list(
