@@ -15,7 +15,7 @@
 #| status: final
 #|
 #| input_files:
-#|   - name: maliau_2_cohort_data_1_cm.csv
+#|   - name: cohort_data_1_cm_maliau_2.csv
 #|     path: data/derived/plant/input_data/scenarios/maliau_2
 #|     description: |
 #|       Cohorts below the 10 cm census threshold are estimated from the
@@ -96,7 +96,7 @@
 #|         description: |
 #|           Plant functional type name.
 #|         references:
-#|           - citation: "maliau_2_cohort_data_1_cm.csv"
+#|           - citation: "cohort_data_1_cm_maliau_2.csv"
 #|             doi: null
 #|             url: null
 #|             origin: null
@@ -121,7 +121,7 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: null
 #|             date: null
-#|           - citation: "maliau_2_cohort_data_1_cm.csv"
+#|           - citation: "cohort_data_1_cm_maliau_2.csv"
 #|             doi: null
 #|             url: null
 #|             origin: null
@@ -133,7 +133,7 @@
 #|           Total propagules per hectare from t_model_maliau.csv are scaled to
 #|           the scenario cell area. The resulting total is distributed among
 #|           PFTs according to each cell's relative cohort abundance from
-#|           maliau_2_cohort_data_1_cm.csv, and values are rounded to whole
+#|           cohort_data_1_cm_maliau_2.csv, and values are rounded to whole
 #|           propagules.
 #|       - name: subcanopy_vegetation_biomass
 #|         type: numeric
@@ -398,7 +398,7 @@ library(terra)
 
 # Load the Maliau cohort distribution
 cohort_distribution <- read.csv(
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2/maliau_2_cohort_data_1_cm.csv",
+  "../../../../data/derived/plant/input_data/scenarios/maliau_2/cohort_data_1_cm_maliau_2.csv",
   header = TRUE
 )
 

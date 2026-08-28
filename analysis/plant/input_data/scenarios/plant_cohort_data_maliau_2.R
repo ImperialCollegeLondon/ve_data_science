@@ -97,7 +97,7 @@
 #|     description: LiDAR-derived point-density raster used as an environmental predictor.
 #|
 #| output_files:
-#|   - name: maliau_2_cohort_data_10_cm.csv
+#|   - name: cohort_data_10_cm_maliau_2.csv
 #|     path: data/derived/plant/input_data/scenarios/maliau_2
 #|     description: |
 #|       Spatially predicted PFT cohort distribution for individuals with DBH
@@ -187,7 +187,7 @@
 #|           the TCH-only basal-area model. In the current
 #|           implementation, this model uses canopy height model-derived total
 #|           canopy height, and predicted abundances are rounded to whole stems.
-#|   - name: maliau_2_cohort_data_1_cm.csv
+#|   - name: cohort_data_1_cm_maliau_2.csv
 #|     path: data/derived/plant/input_data/scenarios/maliau_2
 #|     description: |
 #|       Cohorts below the 10 cm census threshold are estimated from the
@@ -944,25 +944,25 @@ model_output_df <- model_output_df[
 
 # Clean and save pft cohort distribution (individuals >10cm dbh)
 
-maliau_2_cohort_data_10_cm <- model_output_df[, c(
+cohort_data_10_cm_maliau_2 <- model_output_df[, c(
   "cell_id",
   "plant_cohorts_pft",
   "plant_cohorts_dbh",
   "plant_cohorts_n"
 )]
 
-if (any(is.na(maliau_2_cohort_data_10_cm$plant_cohorts_n))) {
+if (any(is.na(cohort_data_10_cm_maliau_2$plant_cohorts_n))) {
   message(
     "Some plant_cohorts_n values are NA or NaN in the >10 cm output; replacing with 0."
   )
-  maliau_2_cohort_data_10_cm$plant_cohorts_n[
-    is.na(maliau_2_cohort_data_10_cm$plant_cohorts_n)
+  cohort_data_10_cm_maliau_2$plant_cohorts_n[
+    is.na(cohort_data_10_cm_maliau_2$plant_cohorts_n)
   ] <- 0
 }
 
 # Round down plant_cohorts_n to the nearest integer (cannot have decimal trees)
-maliau_2_cohort_data_10_cm$plant_cohorts_n <- round(
-  maliau_2_cohort_data_10_cm$plant_cohorts_n
+cohort_data_10_cm_maliau_2$plant_cohorts_n <- round(
+  cohort_data_10_cm_maliau_2$plant_cohorts_n
 )
 
 dir.create(
@@ -972,8 +972,8 @@ dir.create(
 )
 
 write.csv(
-  maliau_2_cohort_data_10_cm,
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2/maliau_2_cohort_data_10_cm.csv",
+  cohort_data_10_cm_maliau_2,
+  "../../../../data/derived/plant/input_data/scenarios/maliau_2/cohort_data_10_cm_maliau_2.csv",
   row.names = FALSE
 )
 
@@ -1115,25 +1115,25 @@ model_output_df <- model_output_df[
 
 # Clean and save pft cohort distribution (individuals <10cm dbh)
 
-maliau_2_cohort_data_1_cm <- model_output_df[, c(
+cohort_data_1_cm_maliau_2 <- model_output_df[, c(
   "cell_id",
   "plant_cohorts_pft",
   "plant_cohorts_dbh",
   "plant_cohorts_n"
 )]
 
-if (any(is.na(maliau_2_cohort_data_1_cm$plant_cohorts_n))) {
+if (any(is.na(cohort_data_1_cm_maliau_2$plant_cohorts_n))) {
   message(
     "Some plant_cohorts_n values are NA or NaN in the <10 cm output; replacing with 0."
   )
-  maliau_2_cohort_data_1_cm$plant_cohorts_n[
-    is.na(maliau_2_cohort_data_1_cm$plant_cohorts_n)
+  cohort_data_1_cm_maliau_2$plant_cohorts_n[
+    is.na(cohort_data_1_cm_maliau_2$plant_cohorts_n)
   ] <- 0
 }
 
 # Round down plant_cohorts_n to the nearest integer (cannot have decimal trees)
-maliau_2_cohort_data_1_cm$plant_cohorts_n <- round(
-  maliau_2_cohort_data_1_cm$plant_cohorts_n
+cohort_data_1_cm_maliau_2$plant_cohorts_n <- round(
+  cohort_data_1_cm_maliau_2$plant_cohorts_n
 )
 
 dir.create(
@@ -1143,8 +1143,8 @@ dir.create(
 )
 
 write.csv(
-  maliau_2_cohort_data_1_cm,
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2/maliau_2_cohort_data_1_cm.csv",
+  cohort_data_1_cm_maliau_2,
+  "../../../../data/derived/plant/input_data/scenarios/maliau_2/cohort_data_1_cm_maliau_2.csv",
   row.names = FALSE
 )
 
