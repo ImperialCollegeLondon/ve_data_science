@@ -5,9 +5,11 @@ screening:
   decision: proceed
   reason: relevant_validation_data
   notes:
-    Used in various soil and litter input data analysis, but contains
-    some     unused variables that can be validated, e.g., Soil carbon
-    stock     SOC_0to100cm.
+    Used in various soil and litter input data analysis, but contains some
+    unused variables that can be validated, e.g., Soil carbon stock
+    SOC_0to100cm. This worksheet include two addititional carbon plots from
+    Lambir Hills National Park (see Kho et al. 2013 JGR), which are not part of
+    the SAFE Project.
   screened_at: "2026-08-17T03:02:49Z"
 metadata:
   title:
@@ -44,3 +46,28 @@ metadata:
     - Flux
   provider: doi_content_search
   retrieved_at: "2026-08-17T03:02:38Z"
+source_id: riutta_2021
+data_file: data/primary/soil/riutta_2021/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.csv
+skip_rows: 5
+variables:
+  SOC_0to100cm:
+    var_canonical: total_soil_c_per_area
+    unit: Mg ha-1
+    description:
+      Soil carbon stock, 0-100 cm layer; Soil pits and cores, n=3 per plot.
+dedup_key:
+  - ForestPlotsCode
+coordinates:
+  from_file: ~
+  match_data_column: ~
+  match_location_column: ~
+  latitude_column: ~
+  longitude_column: ~
+temporal:
+  format: "%d/%m/%Y"
+  timezone: "Asia/Kuching"
+  same_for_all_rows:
+    start: 25/8/2011
+    end: 17/7/2018
+    note:
+      Start and end dates specified in the Summary sheet of the original file.
