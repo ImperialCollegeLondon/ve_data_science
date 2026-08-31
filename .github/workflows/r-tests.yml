@@ -75,7 +75,7 @@ jobs:
 
       # --- R dependencies (renv lockfile + GitHub Actions cache) ---
       - name: Cache R packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.RENV_PATHS_ROOT }}
           key:
