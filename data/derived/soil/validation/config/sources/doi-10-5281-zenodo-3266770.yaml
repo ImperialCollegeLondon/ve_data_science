@@ -56,13 +56,10 @@ variables:
     description:
       Soil carbon stock, 0-100 cm layer; Soil pits and cores, n=3 per plot.
 dedup_key:
-  - ForestPlotsCode
+  - SAFEPlotName
 coordinates:
-  from_file: ~
-  match_data_column: ~
-  match_location_column: ~
-  latitude_column: ~
-  longitude_column: ~
+  from_file: data/primary/soil/riutta_2021/locations.csv
+  match_location_column: Location name
 temporal:
   format: "%d/%m/%Y"
   timezone: "Asia/Kuching"
