@@ -1,3 +1,5 @@
+"""Load and validate Virtual Ecosystem array job configurations."""
+
 import tomllib
 from pathlib import Path
 from typing import Any, BinaryIO

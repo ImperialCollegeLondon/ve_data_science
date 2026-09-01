@@ -100,7 +100,8 @@ def main() -> None:
                 )
             except ConfigurationError as error:
                 raise ValueError(
-                    f"Invalid Virtual Ecosystem configuration for job {job_index}: {error}"
+                    f"Invalid Virtual Ecosystem configuration for job: {job_index} \n"
+                    f"{error}"
                 ) from error
             finally:
                 LOGGER.disabled = False
