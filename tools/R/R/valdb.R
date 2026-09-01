@@ -1335,6 +1335,24 @@ add_coordinates <- function(dat, src) {
   locations_file <- spec$from_file %||%
     file.path(dirname(src$data_file), "locations.csv")
 
+  # the column in `dat` naming the location: default to the dedup key, but
+  # only when that key is unambiguous
+  key_data <- spec$match_data_column
+  if (is.null(key_data)) {
+    if (length(src$dedup_key) > 1) {
+      if (file.exists(locations_file)) {
+        cli::cli_abort(
+          "{.val {src$source_id}} has a multi-column {.field dedup_key},
+           so the location column is ambiguous. Name it explicitly with
+           {.field coordinates: match_data_column} in the source YAML."
+        )
+      }
+      key_data <- NULL
+    } else {
+      key_data <- src$dedup_key
+    }
+  }
+
   if (!file.exists(locations_file)) {
     cli::cli_warn(
       "No coordinates for {.val {src$source_id}}: cannot find
@@ -1343,68 +1361,87 @@ add_coordinates <- function(dat, src) {
        source YAML. Currently NA coordinates are assigned for
        {.val {src$source_id}}"
     )
-    return(dplyr::mutate(
+    dat <- dplyr::mutate(
       dat,
       latitude = NA_real_,
       longitude = NA_real_,
       location_type = NA_character_,
       coordinate_source = "missing"
-    ))
-  }
-
-  # the column in `dat` naming the location: default to the dedup key, but
-  # only when that key is unambiguous
-  key_data <- spec$match_data_column
-  if (is.null(key_data)) {
-    if (length(src$dedup_key) > 1) {
-      cli::cli_abort(
-        "{.val {src$source_id}} has a multi-column {.field dedup_key},
-         so the location column is ambiguous. Name it explicitly with
-         {.field coordinates: match_data_column} in the source YAML."
-      )
-    }
-    key_data <- src$dedup_key
-  }
-
-  # gather the location coordinates
-  locations <-
-    readr::read_csv(locations_file, show_col_types = FALSE) |>
-    dplyr::select(
-      location_key = tidyr::all_of(
-        spec$match_location_column %||% "Location name"
-      ),
-      latitude = tidyr::all_of(spec$latitude_column %||% "Latitude"),
-      longitude = tidyr::all_of(spec$longitude_column %||% "Longitude"),
-      # `Type` records how the location was defined, e.g. "POINT" or
-      # "Carbon Plot". It is absent in non-SAFE locations files.
-      location_type = tidyr::any_of("Type")
-    ) |>
-    dplyr::mutate(dplyr::across(c(latitude, longitude), as.numeric))
-
-  if (!"location_type" %in% names(locations)) {
-    locations$location_type <- NA_character_
-  }
-
-  # join locations to the data
-  dat <-
-    dat |>
-    dplyr::left_join(
-      locations,
-      # setNames() because the column name comes from a variable
-      by = stats::setNames("location_key", key_data),
-      # errors if the locations file has duplicated keys, which would
-      # silently inflate the number of observations
-      # NB: many-to-one should also cover one-to-one
-      relationship = "many-to-one"
-    ) |>
-    # cover the case of partial missingness in a location file
-    dplyr::mutate(
-      coordinate_source = dplyr::if_else(
-        is.na(latitude) | is.na(longitude),
-        "missing",
-        "locations_file"
-      )
     )
+  } else {
+    # gather the location coordinates
+    locations <-
+      readr::read_csv(locations_file, show_col_types = FALSE) |>
+      dplyr::select(
+        location_key = tidyr::all_of(
+          spec$match_location_column %||% "Location name"
+        ),
+        latitude = tidyr::all_of(spec$latitude_column %||% "Latitude"),
+        longitude = tidyr::all_of(spec$longitude_column %||% "Longitude"),
+        # `Type` records how the location was defined, e.g. "POINT" or
+        # "Carbon Plot". It is absent in non-SAFE locations files.
+        location_type = tidyr::any_of("Type")
+      ) |>
+      dplyr::mutate(dplyr::across(c(latitude, longitude), as.numeric))
+
+    if (!"location_type" %in% names(locations)) {
+      locations$location_type <- NA_character_
+    }
+
+    # join locations to the data
+    dat <-
+      dat |>
+      dplyr::left_join(
+        locations,
+        # setNames() because the column name comes from a variable
+        by = stats::setNames("location_key", key_data),
+        # errors if the locations file has duplicated keys, which would
+        # silently inflate the number of observations
+        # NB: many-to-one should also cover one-to-one
+        relationship = "many-to-one"
+      ) |>
+      # cover the case of partial missingness in a location file
+      dplyr::mutate(
+        coordinate_source = dplyr::if_else(
+          is.na(latitude) | is.na(longitude),
+          "missing",
+          "locations_file"
+        )
+      )
+  }
+
+  # Second pass: fill remaining missing coordinates from gazetteer centroids.
+  if (!is.null(key_data)) {
+    dat <-
+      dat |>
+      dplyr::left_join(
+        sf::st_read("data/primary/site/gazetteer.geojson", quiet = TRUE) |>
+          sf::st_drop_geometry() |>
+          dplyr::select(location, centroid_x, centroid_y),
+        by = stats::setNames("location", key_data),
+        relationship = "many-to-one"
+      ) |>
+      dplyr::mutate(
+        longitude_missing_before = is.na(longitude),
+        latitude_missing_before = is.na(latitude),
+        longitude = dplyr::if_else(is.na(longitude), centroid_x, longitude),
+        latitude = dplyr::if_else(is.na(latitude), centroid_y, latitude),
+        gazetteer_filled = (longitude_missing_before & !is.na(centroid_x)) |
+          (latitude_missing_before & !is.na(centroid_y)),
+        coordinate_source = dplyr::if_else(
+          gazetteer_filled,
+          "gazetteer_second_pass",
+          coordinate_source
+        )
+      ) |>
+      dplyr::select(
+        -centroid_x,
+        -centroid_y,
+        -longitude_missing_before,
+        -latitude_missing_before,
+        -gazetteer_filled
+      )
+  }
 
   # check the join in case the dplyr::left_join `relationship` argument is
   # ever relaxed
@@ -1449,6 +1486,16 @@ validate_coordinates <- function(dat, source_id) {
         "i" = "Coordinates must be decimal degrees (WGS84). Are the latitude
                and longitude columns swapped, or projected?"
       )
+    )
+  }
+
+  n_gazetteer_second_pass <- sum(
+    dat$coordinate_source == "gazetteer_second_pass"
+  )
+  if (n_gazetteer_second_pass > 0) {
+    cli::cli_inform(
+      "{n_gazetteer_second_pass} coordinate row{?s} were filled by gazetteer
+       second pass for {.val {source_id}}."
     )
   }
 
