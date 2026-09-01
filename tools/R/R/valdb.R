@@ -16,35 +16,51 @@
 #|
 #| virtual_ecosystem_module: [Soil, Litter]
 #|
-#| author: Hao Ran Lai
+#| author:
+#|   - Hao Ran Lai
 #|
 #| status: final
 #|
 #| input_files:
+#|   - name: gazetteer.geojson
+#|     path: data/primary/site/
+#|     description: |
+#|       SAFE gazetteer
 #|
 #| output_files:
 #|
+#| source_files:
+#|   - name: get_ve_variables.R
+#|     path: tools/R/R/get_ve_variables.R
+#|     description: |
+#|       Provides `get_data_variables()` and `get_derived_variables()` used by
+#|       `join_ve_outputs()`.
+#|
 #| package_dependencies:
-#|     - arrow
-#|     - cli
-#|     - dplyr
-#|     - lubridate
-#|     - purrr
-#|     - rcrossref
-#|     - readr
-#|     - reshape2
-#|     - rlang
-#|     - sf
-#|     - stats
-#|     - stringr
-#|     - tibble
-#|     - tidyr
-#|     - toml
-#|     - utils
-#|     - yaml
+#|   - arrow
+#|   - cli
+#|   - dplyr
+#|   - lubridate
+#|   - pizzarr
+#|   - purrr
+#|   - rcrossref
+#|   - readr
+#|   - reshape2
+#|   - rlang
+#|   - sf
+#|   - stats
+#|   - stringr
+#|   - tibble
+#|   - tidyr
+#|   - toml
+#|   - units
+#|   - utils
+#|   - yaml
 #|
 #| usage_notes: |
-#|   Please refer to `docs/validation_database.md` for a step-by-step tutorial.
+#|   `build_validation_database()` reads completed per-DOI schemas and writes
+#|   grouped Parquet output. `join_ve_outputs()` requires VE output files and
+#|   functions from `tools/R/R/get_ve_variables.R`.
 #| ---
 
 # Screening record contract -----------------------------------------------
