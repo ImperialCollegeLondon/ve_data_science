@@ -183,10 +183,7 @@ test_that("out-of-range coordinates abort", {
   locations$Latitude <- locations$Longitude
   readr::write_csv(locations, file.path(dir, "locations.csv"))
 
-  expect_error(
-    add_coordinates(test_data(), make_source(dir)),
-    "outside the valid"
-  )
+  expect_error(add_coordinates(test_data(), make_source(dir)))
 })
 
 

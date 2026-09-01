@@ -1,5 +1,19 @@
 # Change log of maliau_2 scenario input data
 
+2026-08-13
+- Module: Soil
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/soil_maliau.nc
+- Changes made:
+  - Updated the SAFE soil campaign empirical dataset with the following change:
+    - The soil clay, silt and sand compositions previously did not sum to 100%,
+      these have been normalised so that this is now the case
+  - Predictors in the spatial soil model are now log- or log1p-transformed
+    because all of them were right-skewed
+- References:
+  - PR #538 addressing Issue #489
+
 2026-08-07
 - Module: Animal
 - Author: Baizurah Malik
@@ -108,3 +122,14 @@
 - Reference:
   - PR #379 to close Issues #372, #374 and #375
   - PR #382 to close Issue #378
+
+2026-08-21
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_10x10_dev
+- Changes made:
+  - Added new file named plant_pft_definitions_Maliau_10x10_dev that has the
+    newly required pft_name instead of name (VE dev only version)
+- References:
+  - Issue #460

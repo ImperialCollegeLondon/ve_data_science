@@ -1,0 +1,29 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-15368703
+doi: 10.5281/zenodo.15368703
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Decomposition keyword describes Scavenger Observations on Small Mammal Carrion.
+    Might be useful for population density.
+  screened_at: '2026-08-18T08:11:34Z'
+metadata:
+  title: Scavenger Observations on Small Mammal Carrion in Tropical Landscapes of
+    Borneo (2023–2024)
+  authors:
+  - Heon, Sui Peng
+  - Bernard, Henry
+  - Ewers, Robert M.
+  year: 2025
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.15368703
+  keywords:
+  - Scavengers
+  - Land-use change
+  - Decomposition
+  - Carrion
+  - Tropical forests
+  - Small mammals
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T08:10:57Z'

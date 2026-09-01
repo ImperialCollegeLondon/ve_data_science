@@ -1,0 +1,26 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3975972
+doi: 10.5281/zenodo.3975972
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Fungi keyword is about Cordyceps fungus.
+  screened_at: '2026-08-18T07:54:33Z'
+metadata:
+  title: The importance of vertebrates in regulating insect herbivory pressure along
+    a gradient of logging intensity in Sabah, Borneo
+  authors:
+  - Ewers, Robert M
+  - Gray, Ryan
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3975972
+  keywords:
+  - Fungus
+  - Ordinal composition
+  - Understory vegetation
+  - Trophic interactions
+  - Herbivory
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:54:02Z'

@@ -1,0 +1,37 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-14213661
+doi: 10.5281/zenodo.14213661
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Soil keyword describes sampling method.
+  screened_at: '2026-08-18T08:07:29Z'
+metadata:
+  title: SBE Seedling Matrix Plot Dataset
+  authors:
+  - O'Brien, Michael
+  - Burslem, David
+  - Jackson, Eleanor
+  - Jackson, Toby
+  - Jucker, Tommaso
+  - Reynolds, Glen
+  - Robert, Rolando
+  - Hector, Andy
+  year: 2024
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.14213661
+  keywords:
+  - demography
+  - dipterocarp
+  - forest regeneration
+  - tropical
+  - rainforest
+  - Sabah
+  - Malaysia
+  - Southeast Asia
+  - tree census
+  - biodiversity
+  - Sabah Biodiversity Experiment
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T08:06:19Z'
