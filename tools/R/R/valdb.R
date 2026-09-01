@@ -460,7 +460,10 @@ write_screening_record <- function(
 #' @examples
 #' box::use(tools/R/R/valdb)
 #' box::help(valdb$screen_dataset)  # if you need a conventional R help page
-#' sources_dir <- "data/derived/soil/validation/config/sources"
+#' module_name <- "soil"
+#' sources_dir <- here::here(
+#'   "data", "derived", module_name, "validation", "config", "sources"
+#' )
 #' valdb$screen_dataset(sources_dir = sources_dir)
 
 screen_dataset <- function(
@@ -1024,7 +1027,10 @@ initialise_source_schema <- function(
 #' @export
 #' @examples
 #' box::use(tools/R/R/valdb)
-#' sources_dir <- "data/derived/soil/validation/config/sources"
+#' module_name <- "soil"
+#' sources_dir <- here::here(
+#'   "data", "derived", module_name, "validation", "config", "sources"
+#' )
 #' valdb$add_schema("10.5281/zenodo.8158810", sources_dir = sources_dir)
 
 add_schema <- function(
@@ -1056,7 +1062,16 @@ add_schema <- function(
 #' @export
 #' @examples
 #' box::use(tools/R/R/valdb)
-#' valdb$build_validation_database()
+#' module_name <- "soil"
+#' validation_root <- here::here(
+#'   "data", "derived", module_name, "validation"
+#' )
+#' config_dir <- file.path(validation_root, "config")
+#' valdb$build_validation_database(
+#'   config_dir = config_dir,
+#'   sources_dir = file.path(config_dir, "sources"),
+#'   db_path = file.path(validation_root, "database")
+#' )
 
 build_validation_database <- function(
   config_dir,
@@ -2209,12 +2224,21 @@ join_ve_outputs_per_row <- function(
 #'
 #' @examples
 #' \dontrun{
-#' db <- arrow::open_dataset("data/derived/soil/validation/database") |>
+#' module_name <- "soil"
+#' scenario_group <- "maliau"
+#' scenario_name <- "maliau_2"
+#' validation_root <- here::here(
+#'   "data", "derived", module_name, "validation"
+#' )
+#' scenario_root <- here::here(
+#'   "data", "scenarios", scenario_group, scenario_name, "out"
+#' )
+#' db <- arrow::open_dataset(file.path(validation_root, "database")) |>
 #'   dplyr::collect()
 #' join_ve_outputs(
 #'   validation_database = db,
-#'   zarr_path = "data/scenarios/maliau/maliau_2/out/model_data.zarr",
-#'   config_path = "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
+#'   zarr_path = file.path(scenario_root, "model_data.zarr"),
+#'   config_path = file.path(scenario_root, "compiled_configuration.toml")
 #' )
 #' }
 
