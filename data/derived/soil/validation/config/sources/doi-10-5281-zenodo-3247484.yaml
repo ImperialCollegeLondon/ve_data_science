@@ -1,0 +1,28 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3247484
+doi: 10.5281/zenodo.3247484
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Litter recorded as depth only.
+  screened_at: '2026-08-18T07:22:03Z'
+metadata:
+  title: How does forest conversion and fragmentation affect ant communities and the
+    ecosystem processes that they mediate?
+  authors:
+  - Fayle, Tom M
+  - Yusah, Kalsum M
+  - Ewers, Robert M
+  - Boyle, Michael J. W.
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3247484
+  keywords:
+  - Ants
+  - Foraging
+  - Bait removal
+  - SAFE project
+  - Formicidae
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:21:37Z'
