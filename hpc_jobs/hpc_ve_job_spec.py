@@ -34,8 +34,8 @@ class JobSpec:
     ) -> None:
         """Populate the total num of jobs and map jobs to respective array indices."""
         # Map each subJob index to the corresponding job index from the config.
-        # e.g. where the first job has 3 repeats, and the second job has 1 repeat then: 
-        # subjob_repeats_map = [0, 0, 0, 1] 
+        # e.g. where the first job has 3 repeats, and the second job has 1 repeat then:
+        # subjob_repeats_map = [0, 0, 0, 1]
         self.subjob_repeats_map = [
             job_index
             for job_index, job in enumerate(self.jobs)
@@ -63,8 +63,6 @@ def load_job_spec(job_file: Path) -> JobSpec:
     """
     with open(job_file, "rb") as jobs:
         data = tomllib.load(jobs)
-
-
 
     # Validate the job specification using Pydantic
     # (calls the __post_init__ method to populate n_jobs and subjob_repeats_map)
