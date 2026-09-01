@@ -1,6 +1,6 @@
 """Submit an array of Virtual Ecosystem jobs.
 
-This file loads the job_array and resource configurations, 
+This file loads the job_array and resource configurations,
 prepares the output directories, and submits an array using ``qsub``.
 """
 
@@ -60,8 +60,6 @@ def main() -> None:
             "Exiting to avoid overwriting an existing directory."
         )
 
-    
-
     # Validate the array job config and resources config using Pydantic
     # (as well as populate n_jobs and subjob_repeats_map)
     try:
@@ -76,7 +74,6 @@ def main() -> None:
         sys.exit(f"Invalid TOML syntax: {error}")
     except ValidationError as error:
         sys.exit(f"Invalid configuration:\n{error}")
-
 
     # Validate that all config paths exist relative to the site directory.
     site_directory = arrayJob_spec.site_directory.resolve()
@@ -99,7 +96,7 @@ def main() -> None:
                 ve_run(
                     cfg_paths=job_config_paths,
                     cli_config=job.config,
-                    validate_only=True
+                    validate_only=True,
                 )
             except ConfigurationError as error:
                 raise ValueError(
@@ -111,9 +108,6 @@ def main() -> None:
     else:
         print("Skipping Virtual Ecosystem configuration validation.")
 
-
-
-
     # Inform user of progress
     print("Configuration files processed and validated.")
     print(f"Number of jobs: {arrayJob_spec.n_jobs}")
@@ -123,7 +117,6 @@ def main() -> None:
     print(f"  Memory: {resources_spec.mem_gb} GB")
     print(f"  Walltime: {resources_spec.walltime}")
 
-
     # Create the output directory now that configs and inputs have been validated.
     args.output_directory.mkdir(parents=True)
     print("Generated output directories")
@@ -131,9 +124,9 @@ def main() -> None:
     for job_index in range(1, arrayJob_spec.n_jobs + 1):
         (args.output_directory / f"array_subJob_{job_index}").mkdir()
 
-    #resolve paths before running qsub
+    # resolve paths before running qsub
     arrayJob_config = args.arrayJob_config.resolve()
-    output_directory = args.output_directory.resolve() 
+    output_directory = args.output_directory.resolve()
     root_directory = site_directory.parent.resolve()
 
     # Define the PBS script for the array job
@@ -181,7 +174,6 @@ cd "$ROOT_DIRECTORY"
         sys.exit(1)
     else:
         print(f"Array job submitted successfully:\n{process.stdout}")
-
 
 
 if __name__ == "__main__":

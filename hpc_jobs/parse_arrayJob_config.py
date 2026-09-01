@@ -1,6 +1,6 @@
+import tomllib
 from pathlib import Path
 from typing import Any, BinaryIO
-import tomllib
 
 from pydantic import Field
 from pydantic.dataclasses import dataclass
@@ -14,6 +14,7 @@ class SubJob:
     config: dict[str, Any]
     repeats: int = Field(default=1, ge=1)
 
+
 @dataclass
 class arrayJobSpec:
     """Defines the whole arrayJob."""
@@ -25,10 +26,12 @@ class arrayJobSpec:
     n_jobs: int = Field(init=False)
     subjob_repeats_map: list[int] = Field(init=False)
 
-    def __post_init__(self,) -> None:
+    def __post_init__(
+        self,
+    ) -> None:
         """Map each PBS array index to a configured job.
 
-        Repeated jobs occupy consecutive array indices. For example, if job 1 has 
+        Repeated jobs occupy consecutive array indices. For example, if job 1 has
         repeats = 3, and jobs 2 and 3 are not repeated the resulting map would be:
         ``[0, 0, 0, 1, 2]``.
         """
@@ -49,6 +52,7 @@ class arrayJobSpec:
         # Return the corresponding job.
         return self.jobs[job_index]
 
+
 def load_arrayJob_spec(arrayJob_file: BinaryIO) -> arrayJobSpec:
     """Load and validate an array job config file.
 
@@ -57,6 +61,7 @@ def load_arrayJob_spec(arrayJob_file: BinaryIO) -> arrayJobSpec:
 
     Returns:
         An instance of ``arrayJobSpec`` representing the loaded array job configuration.
+
     """
     arrayJob_config = tomllib.load(arrayJob_file)
     # Validate the job specification using Pydantic

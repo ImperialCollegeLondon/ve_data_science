@@ -39,7 +39,7 @@ if not output_dir.is_dir():
 core_config = cli_config.setdefault("core", {})
 output_options = core_config.setdefault("data_output_options", {})
 output_options["out_path"] = str(output_dir)
-#print(f"[DEBUG] cli_config: {cli_config}", flush=True)
+# print(f"[DEBUG] cli_config: {cli_config}", flush=True)
 
 # 5. Start the run
 ve_run(

@@ -41,5 +41,3 @@ def load_resources_spec(resources_config_file: BinaryIO) -> Resources:
     resources_spec = tomllib.load(resources_config_file)
 
     return Resources(**resources_spec.get("resources", {}))
-
-
