@@ -99,7 +99,7 @@ def get_all_configs():
             "cell_nx": 50,
             "cell_ny": 50,
             "res": 100,
-            "bbox": (4.7170137, 116.9492683, 4.7569565, 116.9890846),
+            "bbox": (4.7072522, 116.9243027, 4.7524439, 116.9693404),
             "timing": {
                 "start_date": "2010-01-01",
                 "update_interval": "1 month",
