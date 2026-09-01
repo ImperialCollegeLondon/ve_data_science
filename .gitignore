@@ -68,6 +68,9 @@ analysis/soil/issue_tracker/*.html
 .Rproj.user/
 *.Rproj
 
+# renv files
+.Rprofile
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
