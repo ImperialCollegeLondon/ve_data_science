@@ -109,8 +109,13 @@ A minimal local dashboard provides the same workflow for all pending `proceed`
 records. Launch it from the repository root:
 
 ```r
+Sys.setenv(VE_MODULE = "soil")
 shiny::runApp("analysis/soil/validation/schema_dashboard")
 ```
+
+The dashboard derives the source-record directory from `VE_MODULE`. Set
+`VE_SOURCES_DIR` as well when the records are stored outside the standard
+repository layout.
 
 The dashboard reads the YAML records directly, shows screening notes, and loads
 the selected record into a browser YAML editor. It calls

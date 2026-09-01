@@ -293,6 +293,11 @@ test_that("find_screening_record matches normalised DOI forms", {
 
 test_that("screening helpers require explicit sources_dir", {
   expect_error(
+    list_screening_records(),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
     find_screening_record("10.5281/zenodo.8158810"),
     "argument .*sources_dir.*missing"
   )
