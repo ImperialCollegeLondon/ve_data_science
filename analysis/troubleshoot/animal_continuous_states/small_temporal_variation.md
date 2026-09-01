@@ -144,6 +144,7 @@ if (!file.exists(lock_path)) {
   }
 }
 ```
+
 - OS: Windows 11
 
 ## Animal continuous state variables
@@ -175,7 +176,7 @@ animal_cont <- tidy_continuous_data(ve_output_path, variables = animal_vars)
 
 ::: {.callout-caution collapse="false"}
 
-## Outdated
+Outdated:
 
 First I saw that the range of these state variables are very small. Are they truly very small, or are they numerical imprecisions that need to be clamped to zero?
 
@@ -269,7 +270,7 @@ resource_cont |>
 
 ::: {.callout-caution collapse="false"}
 
-## Outdated
+Outdated:
 
 A few follow-up questions upon seeing the temporal graphs:
 
@@ -287,7 +288,7 @@ The only persisting question seems to be the non-zero lower bounds of some anima
 
 ::: {.callout-caution collapse="false"}
 
-## Outdated
+Outdated:
 
 Mainly so that we can include animal-related state variables into the sensitivity analyses. More importantly, the animal variables feed back into the non-animal variables. Unless we are truly aiming for an empty-forest scenario, we will be left with a half-complete sensitivity analysis.
 
