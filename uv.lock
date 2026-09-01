@@ -3360,6 +3360,7 @@ dependencies = [
     { name = "jupyterlab" },
     { name = "jupyterlab-myst" },
     { name = "jupytext" },
+    { name = "matplotlib" },
     { name = "numpy" },
     { name = "pre-commit" },
     { name = "pyproj" },
