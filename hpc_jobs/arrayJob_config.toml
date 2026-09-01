@@ -7,7 +7,8 @@ common_config_paths = [
     'config/plant_config.toml',
     'config/soil_config.toml',
 ]
-site_directory = "/rds/general/user/mtnichol/home/ve_data_science/ve_example"
+site_directory = "/rds/general/user/$USER/home/ve_data_science/ve_example"
+
 
 
 [[jobs]]

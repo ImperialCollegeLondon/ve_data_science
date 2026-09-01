@@ -25,7 +25,9 @@ ssh userid@login.cx3.hpc.imperial.ac.uk
 See the [Imperial RCS documentation](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/getting-started/)
 for further information about connecting to the cluster.
 If you are new to HPC environments, do make sure that you familiarise yourself with the
-documentation. It is highly recommended to attend the [Introduction to HPC at Imperial course](https://www.imperial.ac.uk/early-career-researcher-institute/learning-and-development/courses-by-programme/research-computing-and-data-science/introduction-to-hpc/), but if you cannot make it, the materials for the course are freely available and give a good overview of how to work with the system.
+documentation. It is highly recommended to attend the [Introduction to HPC at Imperial course](https://www.imperial.ac.uk/early-career-researcher-institute/learning-and-development/courses-by-programme/research-computing-and-data-science/introduction-to-hpc/)
+, but if you cannot make it, the materials for the course are freely available and give
+ a good overview of how to work with the system.
 
 *Importantly: Login nodes are intended for tasks such as editing files, preparing jobs,
 and submitting jobs. Computationally intensive work should be submitted to compute
@@ -69,7 +71,7 @@ ve_run --install-example .
 Create a TOML job specification that describes the Virtual Ecosystem runs in
 the array. You can produce the job entries with a sampling method such as Morris,
 Sobol, or Latin hypercube sampling. A small example is available in
-`hpc_jobs/job_config.toml`.
+`hpc_jobs/arrayJob_config.toml`.
 
 The specification has four parts:
 
@@ -88,25 +90,41 @@ The specification has four parts:
 
 The submission script takes three arguments:
 
-1. the job configuration TOML file;
-2. the resources configuration TOML file (see [Choose job resources](#choose-job-resources));
+1. the array job configuration TOML file;
+2. the PBS resources configuration TOML file (see
+   [Choose job resources](#choose-job-resources));
 3. a new output directory for the completed array run.
 
 The output directory must not already exist. The script creates it and then creates
-one child directory per PBS array sub-job. You can submit from any working directory:
+one child directory per PBS array sub-job. From the repository root, run:
 
 ```bash
-bash hpc_jobs/submit_ve_array_job.sh \
-    hpc_jobs/job_config.toml \
-    hpc_jobs/resources_config.toml \
+uv run python -m hpc_jobs.submit_ve_array_job \
+    hpc_jobs/arrayJob_config.toml \
+    hpc_jobs/pbs_resources_config.toml \
     ve_example/<experiment-output>
 ```
 
-The submission script validates the job configuration and resources configuration,
-calculates the PBS array size, creates the requested output directory, and submits the
-array using `qsub`. It creates `arraySubJob_<index>` directories before submitting the
-array. Validation happens before the output directory is created or any jobs are
-submitted, so invalid configurations fail fast.
+The submission script loads and validates both TOML configuration files using
+Pydantic. By default, it also validates each Virtual Ecosystem configuration before
+calculating the PBS array size, creating the requested output directory, and submitting
+the array using `qsub`. It creates an `array_subJob_<index>` directory for each sub-job.
+Validation happens before the output directory is created or any jobs are submitted, so
+invalid configurations fail fast.
+
+For known-good Virtual Ecosystem configurations, add `--skip-ve-validation` to skip
+their model-level validation:
+
+```bash
+uv run python -m hpc_jobs.submit_ve_array_job \
+    hpc_jobs/arrayJob_config.toml \
+    hpc_jobs/pbs_resources_config.toml \
+    ve_example/<experiment-output> \
+    --skip-ve-validation
+```
+
+This option does not skip loading, TOML parsing, or Pydantic validation of the array job
+and PBS resources configuration files.
 
 ## Monitor jobs
 
@@ -130,13 +148,13 @@ Cancel a job:
 qdel <job_id>
 ```
 
-Each array sub-job receives an `arraySubJob_<index>` directory. The combined PBS stdout
-and stderr are written to `pbs.log`; the Virtual Ecosystem log is written to `ve.log` and
-model outputs are written in the same directory:
+Each array sub-job receives an `array_subJob_<index>` directory. The combined PBS
+standard output and standard error are written to `pbs.log`; the Virtual Ecosystem log
+is written to `ve.log`, and model outputs are written in the same directory:
 
 ```text
 ve_example/<experiment-output>/
-    arraySubJob_1/
+    array_subJob_1/
         pbs.log
         ve.log
         compiled_configuration.toml
@@ -145,8 +163,9 @@ ve_example/<experiment-output>/
 
 ## Choose job resources
 
-The PBS resource request is defined in a resourse config TOML file.
-`hpc_jobs/resources_config.toml` has a small allocation suitable for the example data
+The PBS resource request is defined in a resource configuration TOML file.
+`hpc_jobs/pbs_resources_config.toml` has a small allocation suitable for the example
+data.
 
 Every value applies to each individual array sub-job,
 apart from `max_concurrent_jobs`, which caps how many sub-jobs the scheduler runs at once.
@@ -154,10 +173,10 @@ apart from `max_concurrent_jobs`, which caps how many sub-jobs the scheduler run
 Larger datasets may require more memory, CPUs, or wall time.
 More jobs don't need more resources as resources are set per job.
 
-`hpc_jobs/resources.py` loads and validates the resource configuration, while
-`hpc_jobs/hpc_ve_job_spec.py` validates the job configuration. Each resource field is
-bounds checked, and an out-of-range or missing value aborts the submission with an error
-rather than sending a bad request to `qsub`:
+`hpc_jobs/parse_resources_config.py` loads and validates the resource configuration,
+while `hpc_jobs/parse_arrayJob_config.py` loads and validates the array job
+configuration. Each resource field is bounds checked, and an out-of-range value aborts
+the submission with an error rather than sending a bad request to `qsub`:
 
 | Field | Allowed range |
 | --- | --- |
