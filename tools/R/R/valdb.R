@@ -283,16 +283,13 @@ new_screening_record <- function(
 #' Read all dataset screening records
 #'
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently hardcoded to the soil module; to relax this later.
 #'
 #' @returns A named list of screening records. Names are the source filenames
 #'   without their `.yaml` extension.
 #'
 #' @export
 
-list_screening_records <- function(
-  sources_dir = "data/derived/soil/validation/config/sources"
-) {
+list_screening_records <- function(sources_dir) {
   if (!dir.exists(sources_dir)) {
     return(list())
   }
