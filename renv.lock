@@ -279,71 +279,6 @@
       "Maintainer": "Achim Zeileis <Achim.Zeileis@R-project.org>",
       "Repository": "CRAN"
     },
-    "IRdisplay": {
-      "Package": "IRdisplay",
-      "Version": "1.1",
-      "Source": "Repository",
-      "Title": "'Jupyter' Display Machinery",
-      "Description": "An interface to the rich display capabilities of 'Jupyter' front-ends (e.g. 'Jupyter Notebook') <https://jupyter.org>. Designed to be used from a running 'IRkernel' session <https://irkernel.github.io>.",
-      "Authors@R": "c( person('Thomas', 'Kluyver', role = c('aut', 'cph'), email = 'thomas@kluyver.me.uk'), person('Philipp', 'Angerer', role = c('aut', 'cph', 'cre'), email = 'phil.angerer@gmail.com', comment = c(ORCID = \"0000-0002-0369-2888\")), person('Jan', 'Schulz', role = c('aut', 'cph'), email = 'jasc@gmx.net'))",
-      "URL": "https://github.com/IRkernel/IRdisplay",
-      "BugReports": "https://github.com/IRkernel/IRdisplay/issues/",
-      "Depends": [
-        "R (>= 3.0.1)"
-      ],
-      "Suggests": [
-        "testthat",
-        "withr"
-      ],
-      "Imports": [
-        "methods",
-        "repr"
-      ],
-      "License": "MIT + file LICENSE",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.1.2",
-      "NeedsCompilation": "no",
-      "Author": "Thomas Kluyver [aut, cph], Philipp Angerer [aut, cph, cre] (<https://orcid.org/0000-0002-0369-2888>), Jan Schulz [aut, cph]",
-      "Maintainer": "Philipp Angerer <phil.angerer@gmail.com>",
-      "Repository": "CRAN"
-    },
-    "IRkernel": {
-      "Package": "IRkernel",
-      "Version": "1.3.2",
-      "Source": "Repository",
-      "Title": "Native R Kernel for the 'Jupyter Notebook'",
-      "Description": "The R kernel for the 'Jupyter' environment executes R code which the front-end ('Jupyter Notebook' or other front-ends) submits to the kernel via the network.",
-      "Authors@R": "c( person('Thomas', 'Kluyver', role = c('aut', 'cph'), email = 'thomas@kluyver.me.uk'), person('Philipp', 'Angerer', role = c('aut', 'cph', 'cre'), email = 'phil.angerer@gmail.com', comment = c(ORCID = \"0000-0002-0369-2888\")), person('Jan', 'Schulz', role = c('aut', 'cph'), email = 'jasc@gmx.net'), person('Karthik', 'Ram', role = c('aut', 'cph'), email = 'karthik.ram@gmail.com'))",
-      "URL": "https://irkernel.github.io",
-      "BugReports": "https://github.com/IRkernel/IRkernel/issues/",
-      "Depends": [
-        "R (>= 3.2.0)"
-      ],
-      "Suggests": [
-        "testthat",
-        "roxygen2"
-      ],
-      "SystemRequirements": "jupyter, jupyter_kernel_test (Python package for testing)",
-      "License": "MIT + file LICENSE",
-      "Encoding": "UTF-8",
-      "Imports": [
-        "repr (>= 0.4.99)",
-        "methods",
-        "evaluate (>= 0.10)",
-        "IRdisplay (>= 0.3.0.9999)",
-        "pbdZMQ (>= 0.2-1)",
-        "crayon",
-        "jsonlite (>= 0.9.6)",
-        "uuid",
-        "digest"
-      ],
-      "Collate": "'class_unions.r' 'logging.r' 'comm_manager.r' 'compat.r' 'completion.r' 'environment_runtime.r' 'environment_shadow.r' 'options.r' 'execution.r' 'handlers.r' 'help.r' 'installspec.r' 'utils.r' 'kernel.r' 'main.r' 'onload.r'",
-      "RoxygenNote": "7.2.3",
-      "NeedsCompilation": "no",
-      "Author": "Thomas Kluyver [aut, cph], Philipp Angerer [aut, cph, cre] (<https://orcid.org/0000-0002-0369-2888>), Jan Schulz [aut, cph], Karthik Ram [aut, cph]",
-      "Maintainer": "Philipp Angerer <phil.angerer@gmail.com>",
-      "Repository": "CRAN"
-    },
     "KernSmooth": {
       "Package": "KernSmooth",
       "Version": "2.23-26",
@@ -529,118 +464,6 @@
       "Author": "Andrew R. Johnson [aut, cre] (ORCID: <https://orcid.org/0000-0001-7000-8065>), QuickJS Authors [cph] (QuickJS sources and headers), QuickJS-NG Authors [cph] (QuickJS-NG sources and headers)",
       "Maintainer": "Andrew R. Johnson <andrew.johnson@arjohnsonau.com>",
       "Repository": "CRAN"
-    },
-    "R.cache": {
-      "Package": "R.cache",
-      "Version": "0.17.0",
-      "Source": "Repository",
-      "Depends": [
-        "R (>= 2.14.0)"
-      ],
-      "Imports": [
-        "utils",
-        "R.methodsS3 (>= 1.8.1)",
-        "R.oo (>= 1.24.0)",
-        "R.utils (>= 2.10.1)",
-        "digest (>= 0.6.13)"
-      ],
-      "Title": "Fast and Light-Weight Caching (Memoization) of Objects and Results to Speed Up Computations",
-      "Authors@R": "c(person(\"Henrik\", \"Bengtsson\", role=c(\"aut\", \"cre\", \"cph\"), email = \"henrikb@braju.com\"))",
-      "Author": "Henrik Bengtsson [aut, cre, cph]",
-      "Maintainer": "Henrik Bengtsson <henrikb@braju.com>",
-      "Description": "Memoization can be used to speed up repetitive and computational expensive function calls.  The first time a function that implements memoization is called the results are stored in a cache memory.  The next time the function is called with the same set of parameters, the results are momentarily retrieved from the cache avoiding repeating the calculations.  With this package, any R object can be cached in a key-value storage where the key can be an arbitrary set of R objects.  The cache memory is persistent (on the file system).",
-      "License": "LGPL (>= 2.1)",
-      "LazyLoad": "TRUE",
-      "URL": "https://github.com/HenrikBengtsson/R.cache",
-      "BugReports": "https://github.com/HenrikBengtsson/R.cache/issues",
-      "Encoding": "UTF-8",
-      "NeedsCompilation": "no",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03"
-    },
-    "R.methodsS3": {
-      "Package": "R.methodsS3",
-      "Version": "1.8.2",
-      "Source": "Repository",
-      "Depends": [
-        "R (>= 2.13.0)"
-      ],
-      "Imports": [
-        "utils"
-      ],
-      "Suggests": [
-        "codetools"
-      ],
-      "Title": "S3 Methods Simplified",
-      "Authors@R": "c(person(\"Henrik\", \"Bengtsson\", role=c(\"aut\", \"cre\", \"cph\"), email = \"henrikb@braju.com\"))",
-      "Author": "Henrik Bengtsson [aut, cre, cph]",
-      "Maintainer": "Henrik Bengtsson <henrikb@braju.com>",
-      "Description": "Methods that simplify the setup of S3 generic functions and S3 methods.  Major effort has been made in making definition of methods as simple as possible with a minimum of maintenance for package developers.  For example, generic functions are created automatically, if missing, and naming conflict are automatically solved, if possible.  The method setMethodS3() is a good start for those who in the future may want to migrate to S4.  This is a cross-platform package implemented in pure R that generates standard S3 methods.",
-      "License": "LGPL (>= 2.1)",
-      "LazyLoad": "TRUE",
-      "URL": "https://github.com/HenrikBengtsson/R.methodsS3",
-      "BugReports": "https://github.com/HenrikBengtsson/R.methodsS3/issues",
-      "NeedsCompilation": "no",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03",
-      "Encoding": "UTF-8"
-    },
-    "R.oo": {
-      "Package": "R.oo",
-      "Version": "1.27.1",
-      "Source": "Repository",
-      "Depends": [
-        "R (>= 2.13.0)",
-        "R.methodsS3 (>= 1.8.2)"
-      ],
-      "Imports": [
-        "methods",
-        "utils"
-      ],
-      "Suggests": [
-        "tools"
-      ],
-      "Title": "R Object-Oriented Programming with or without References",
-      "Authors@R": "c(person(\"Henrik\", \"Bengtsson\", role=c(\"aut\", \"cre\", \"cph\"), email = \"henrikb@braju.com\"))",
-      "Author": "Henrik Bengtsson [aut, cre, cph]",
-      "Maintainer": "Henrik Bengtsson <henrikb@braju.com>",
-      "Description": "Methods and classes for object-oriented programming in R with or without references.  Large effort has been made on making definition of methods as simple as possible with a minimum of maintenance for package developers.  The package has been developed since 2001 and is now considered very stable.  This is a cross-platform package implemented in pure R that defines standard S3 classes without any tricks.",
-      "License": "LGPL (>= 2.1)",
-      "LazyLoad": "TRUE",
-      "URL": "https://henrikbengtsson.github.io/R.oo/, https://github.com/HenrikBengtsson/R.oo",
-      "BugReports": "https://github.com/HenrikBengtsson/R.oo/issues",
-      "NeedsCompilation": "no",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03",
-      "Encoding": "UTF-8"
-    },
-    "R.utils": {
-      "Package": "R.utils",
-      "Version": "2.13.0",
-      "Source": "Repository",
-      "Depends": [
-        "R (>= 2.14.0)",
-        "R.oo"
-      ],
-      "Imports": [
-        "methods",
-        "utils",
-        "tools",
-        "R.methodsS3"
-      ],
-      "Suggests": [
-        "datasets",
-        "digest (>= 0.6.10)"
-      ],
-      "Title": "Various Programming Utilities",
-      "Authors@R": "c(person(\"Henrik\", \"Bengtsson\", role=c(\"aut\", \"cre\", \"cph\"), email = \"henrikb@braju.com\"))",
-      "Author": "Henrik Bengtsson [aut, cre, cph]",
-      "Maintainer": "Henrik Bengtsson <henrikb@braju.com>",
-      "Description": "Utility functions useful when programming and developing R packages.",
-      "License": "LGPL (>= 2.1)",
-      "LazyLoad": "TRUE",
-      "URL": "https://henrikbengtsson.github.io/R.utils/, https://github.com/HenrikBengtsson/R.utils",
-      "BugReports": "https://github.com/HenrikBengtsson/R.utils/issues",
-      "NeedsCompilation": "no",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03",
-      "Encoding": "UTF-8"
     },
     "R6": {
       "Package": "R6",
@@ -1791,27 +1614,6 @@
       "Maintainer": "Konrad Rudolph <konrad.rudolph@gmail.com>",
       "Repository": "CRAN"
     },
-    "brew": {
-      "Package": "brew",
-      "Version": "1.0-10",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Templating Framework for Report Generation",
-      "Authors@R": "c( person(\"Jeffrey\", \"Horner\", role = c(\"aut\", \"cph\")), person(\"Greg\", \"Hunt\", , \"greg@firmansyah.com\", role = c(\"aut\", \"cre\", \"cph\")) )",
-      "Description": "Implements a templating framework for mixing text and R code for report generation. brew template syntax is similar to PHP, Ruby's erb module, Java Server Pages, and Python's psp module.",
-      "License": "GPL (>= 2)",
-      "URL": "https://github.com/gregfrog/brew",
-      "BugReports": "https://github.com/gregfrog/brew/issues",
-      "Suggests": [
-        "testthat (>= 3.0.0)"
-      ],
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03",
-      "NeedsCompilation": "no",
-      "Author": "Jeffrey Horner [aut, cph], Greg Hunt [aut, cre, cph]",
-      "Maintainer": "Greg Hunt <greg@firmansyah.com>"
-    },
     "bridgesampling": {
       "Package": "bridgesampling",
       "Version": "1.2-1",
@@ -2599,28 +2401,6 @@
       "URL": "https://gitlab.com/luke-tierney/codetools",
       "License": "GPL",
       "NeedsCompilation": "no",
-      "Repository": "CRAN"
-    },
-    "collections": {
-      "Package": "collections",
-      "Version": "0.3.12",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "High Performance Container Data Types",
-      "Date": "2026-03-21",
-      "Authors@R": "c(person(given = \"Randy\", family = \"Lai\", role = c(\"aut\", \"cre\"), email = \"randy.cs.lai@gmail.com\"), person(given = \"Andrea\", family = \"Mazzoleni\", role = \"cph\", comment = \"tommy hash table library\"), person(given = \"Yann\", family = \"Collet\", role = \"cph\", comment = \"xxhash algorithm\"))",
-      "Description": "Provides high performance container data types such as queues, stacks, deques, dicts and ordered dicts. Benchmarks <https://randy3k.github.io/collections/articles/benchmark.html> have shown that these containers are asymptotically more efficient than those offered by other packages.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://github.com/randy3k/collections/",
-      "Suggests": [
-        "testthat (>= 2.3.1)"
-      ],
-      "ByteCompile": "yes",
-      "Encoding": "UTF-8",
-      "NeedsCompilation": "yes",
-      "RoxygenNote": "7.1.0",
-      "Author": "Randy Lai [aut, cre], Andrea Mazzoleni [cph] (tommy hash table library), Yann Collet [cph] (xxhash algorithm)",
-      "Maintainer": "Randy Lai <randy.cs.lai@gmail.com>",
       "Repository": "CRAN"
     },
     "colorspace": {
@@ -5954,60 +5734,6 @@
       ],
       "Repository": "CRAN"
     },
-    "languageserver": {
-      "Package": "languageserver",
-      "Version": "0.3.18",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Language Server Protocol",
-      "Date": "2026-05-01",
-      "Authors@R": "c(person(given = \"Randy\", family = \"Lai\", role = c(\"aut\", \"cre\"), email = \"randy.cs.lai@gmail.com\"), person(given = \"Kun\", family = \"Ren\", role = \"ctb\", email = \"mail@renkun.me\"))",
-      "Description": "An implementation of the Language Server Protocol for R. The Language Server protocol is used by an editor client to integrate features like auto completion. See <https://microsoft.github.io/language-server-protocol/> for details.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://github.com/REditorSupport/languageserver/",
-      "Depends": [
-        "R (>= 3.4.0)"
-      ],
-      "Imports": [
-        "callr (>= 3.0.0)",
-        "collections (>= 0.3.0)",
-        "digest",
-        "fs (>= 1.3.1)",
-        "jsonlite (>= 1.6)",
-        "lintr (>= 3.0.0)",
-        "parallel",
-        "R6 (>= 2.4.1)",
-        "roxygen2 (>= 7.0.0)",
-        "stringi (>= 1.1.7)",
-        "styler (>= 1.5.1)",
-        "tools",
-        "utils",
-        "xml2 (>= 1.2.2)",
-        "xmlparsedata (>= 1.0.3)"
-      ],
-      "Suggests": [
-        "covr (>= 3.4.0)",
-        "magrittr (>= 1.5)",
-        "mockery (>= 0.4.2)",
-        "pacman",
-        "processx (>= 3.4.1)",
-        "purrr (>= 0.3.3)",
-        "testthat (>= 2.1.0)",
-        "withr (>= 2.3.0)",
-        "rmarkdown (>= 2.0)",
-        "stringr"
-      ],
-      "ByteCompile": "yes",
-      "Encoding": "UTF-8",
-      "NeedsCompilation": "yes",
-      "RoxygenNote": "7.3.3",
-      "Config/testthat/edition": "3",
-      "Config/testthat/parallel": "true",
-      "Config/Needs/development": "testthat, magrittr, mockery, purrr, withr, rmarkdown",
-      "Author": "Randy Lai [aut, cre], Kun Ren [ctb]",
-      "Maintainer": "Randy Lai <randy.cs.lai@gmail.com>",
-      "Repository": "CRAN"
-    },
     "later": {
       "Package": "later",
       "Version": "1.4.8",
@@ -6409,61 +6135,6 @@
       "Author": "Lionel Henry [aut, cre], Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Lionel Henry <lionel@posit.co>",
       "Repository": "https://packagemanager.posit.co/cran/2026-07-03"
-    },
-    "lintr": {
-      "Package": "lintr",
-      "Version": "3.4.0",
-      "Source": "Repository",
-      "Title": "A 'Linter' for R Code",
-      "Authors@R": "c( person(\"Jim\", \"Hester\", , role = \"aut\"), person(\"Florent\", \"Angly\", role = \"aut\", comment = c(GitHub = \"fangly\")), person(\"Russ\", \"Hyde\", role = \"aut\"), person(\"Michael\", \"Chirico\", email = \"michaelchirico4@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-0787-087X\")), person(\"Kun\", \"Ren\", role = \"aut\"), person(\"Alexander\", \"Rosenstock\", role = \"aut\", comment = c(GitHub = \"AshesITR\")), person(\"Indrajeet\", \"Patil\", email = \"patilindrajeet.science@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0003-1995-6531\")), person(\"Hugo\", \"Gruson\", role = \"aut\", comment = c(ORCID = \"0000-0002-4094-1476\")), person(\"Emmanuel\", \"Ferdman\", role = \"aut\") )",
-      "Description": "Checks adherence to a given style, syntax errors and possible semantic issues.  Supports on the fly checking of R code edited with 'RStudio IDE', 'Emacs', 'Vim', 'Sublime Text', 'Atom' and 'Visual Studio Code'.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://lintr.r-lib.org, https://github.com/r-lib/lintr",
-      "BugReports": "https://github.com/r-lib/lintr/issues",
-      "Depends": [
-        "R (>= 4.1.0)"
-      ],
-      "Imports": [
-        "cli (>= 3.4.0)",
-        "codetools",
-        "digest",
-        "glue",
-        "knitr",
-        "rex",
-        "stats",
-        "utils",
-        "xfun",
-        "xml2 (>= 1.3.4)",
-        "xmlparsedata (>= 1.0.5)"
-      ],
-      "Suggests": [
-        "bookdown",
-        "cyclocomp",
-        "jsonlite",
-        "patrick (>= 0.2.0)",
-        "rlang",
-        "rmarkdown",
-        "rstudioapi (>= 0.2)",
-        "testthat (>= 3.3.0)",
-        "tibble",
-        "tufte",
-        "withr (>= 2.5.0)"
-      ],
-      "Enhances": [
-        "data.table"
-      ],
-      "VignetteBuilder": "knitr",
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "Config/Needs/development": "pkgload, testthat, patrick",
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "Collate": "'make_linter_from_xpath.R' 'xp_utils.R' 'utils.R' 'AAA.R' 'T_and_F_symbol_linter.R' 'absolute_path_linter.R' 'actions.R' 'addins.R' 'all_equal_linter.R' 'any_duplicated_linter.R' 'any_is_na_linter.R' 'assignment_linter.R' 'backport_linter.R' 'boolean_arithmetic_linter.R' 'brace_linter.R' 'cache.R' 'class_equals_linter.R' 'coalesce_linter.R' 'commas_linter.R' 'commented_code_linter.R' 'comparison_negation_linter.R' 'condition_call_linter.R' 'condition_message_linter.R' 'conjunct_test_linter.R' 'consecutive_assertion_linter.R' 'consecutive_mutate_linter.R' 'cyclocomp_linter.R' 'declared_functions.R' 'deprecated.R' 'download_file_linter.R' 'duplicate_argument_linter.R' 'empty_assignment_linter.R' 'equals_na_linter.R' 'exclude.R' 'expect_comparison_linter.R' 'expect_identical_linter.R' 'expect_length_linter.R' 'expect_lint.R' 'expect_named_linter.R' 'expect_not_linter.R' 'expect_null_linter.R' 'expect_s3_class_linter.R' 'expect_s4_class_linter.R' 'expect_true_false_linter.R' 'expect_type_linter.R' 'extract.R' 'fixed_regex_linter.R' 'for_loop_index_linter.R' 'function_argument_linter.R' 'function_left_parentheses_linter.R' 'function_return_linter.R' 'get_source_expressions.R' 'ids_with_token.R' 'if_not_else_linter.R' 'if_switch_linter.R' 'ifelse_censor_linter.R' 'implicit_assignment_linter.R' 'implicit_integer_linter.R' 'indentation_linter.R' 'infix_spaces_linter.R' 'inner_combine_linter.R' 'is_lint_level.R' 'is_numeric_linter.R' 'keyword_quote_linter.R' 'length_levels_linter.R' 'length_test_linter.R' 'lengths_linter.R' 'library_call_linter.R' 'line_length_linter.R' 'lint.R' 'linter_tag_docs.R' 'linter_tags.R' 'lintr-package.R' 'list2df_linter.R' 'list_comparison_linter.R' 'literal_coercion_linter.R' 'make_linter_from_regex.R' 'matrix_apply_linter.R' 'methods.R' 'missing_argument_linter.R' 'missing_package_linter.R' 'namespace.R' 'namespace_linter.R' 'nested_ifelse_linter.R' 'nested_pipe_linter.R' 'nonportable_path_linter.R' 'shared_constants.R' 'nrow_subset_linter.R' 'numeric_leading_zero_linter.R' 'nzchar_linter.R' 'object_length_linter.R' 'object_name_linter.R' 'object_overwrite_linter.R' 'object_usage_linter.R' 'one_call_pipe_linter.R' 'outer_negation_linter.R' 'package_hooks_linter.R' 'paren_body_linter.R' 'paste_linter.R' 'path_utils.R' 'pipe_call_linter.R' 'pipe_consistency_linter.R' 'pipe_continuation_linter.R' 'pipe_return_linter.R' 'print_linter.R' 'quotes_linter.R' 'redundant_equals_linter.R' 'redundant_ifelse_linter.R' 'regex_subset_linter.R' 'rep_len_linter.R' 'repeat_linter.R' 'return_linter.R' 'routine_registration_linter.R' 'sample_int_linter.R' 'scalar_in_linter.R' 'semicolon_linter.R' 'seq_linter.R' 'settings.R' 'settings_utils.R' 'sort_linter.R' 'source_utils.R' 'spaces_inside_linter.R' 'spaces_left_parentheses_linter.R' 'sprintf_linter.R' 'stopifnot_all_linter.R' 'string_boundary_linter.R' 'strings_as_factors_linter.R' 'system_file_linter.R' 'terminal_close_linter.R' 'todo_comment_linter.R' 'trailing_blank_lines_linter.R' 'trailing_whitespace_linter.R' 'tree_utils.R' 'undesirable_function_linter.R' 'undesirable_operator_linter.R' 'unnecessary_concatenation_linter.R' 'unnecessary_lambda_linter.R' 'unnecessary_nesting_linter.R' 'unnecessary_placeholder_linter.R' 'unreachable_code_linter.R' 'unused_import_linter.R' 'use_lintr.R' 'vector_logic_linter.R' 'which_grepl_linter.R' 'whitespace_linter.R' 'with.R' 'with_id.R' 'xml_nodes_to_lints.R' 'xml_utils.R' 'yoda_test_linter.R' 'zzz.R'",
-      "Language": "en-US",
-      "Config/roxygen2/version": "8.0.0",
-      "NeedsCompilation": "no",
-      "Author": "Jim Hester [aut], Florent Angly [aut] (GitHub: fangly), Russ Hyde [aut], Michael Chirico [aut, cre] (ORCID: <https://orcid.org/0000-0003-0787-087X>), Kun Ren [aut], Alexander Rosenstock [aut] (GitHub: AshesITR), Indrajeet Patil [aut] (ORCID: <https://orcid.org/0000-0003-1995-6531>), Hugo Gruson [aut] (ORCID: <https://orcid.org/0000-0002-4094-1476>), Emmanuel Ferdman [aut]",
-      "Maintainer": "Michael Chirico <michaelchirico4@gmail.com>",
-      "Repository": "CRAN"
     },
     "listenv": {
       "Package": "listenv",
@@ -7552,30 +7223,6 @@
       "Author": "Thomas Lin Pedersen [cre, aut] (ORCID: <https://orcid.org/0000-0002-5147-4711>)",
       "Repository": "CRAN"
     },
-    "pbdZMQ": {
-      "Package": "pbdZMQ",
-      "Version": "0.3-14",
-      "Source": "Repository",
-      "Date": "2025-04-12",
-      "Title": "Programming with Big Data -- Interface to 'ZeroMQ'",
-      "Authors@R": "c(person(\"Wei-Chen\", \"Chen\", role = c(\"aut\", \"cre\"), email = \"wccsnow@gmail.com\"), person(\"Drew\", \"Schmidt\", role = \"aut\"), person(\"Christian\", \"Heckendorf\", role = \"aut\", comment = \"file transfer\"), person(\"George\", \"Ostrouchov\", role = \"aut\", comment = \"Mac OSX\"), person(\"Whit\", \"Armstrong\", role = \"ctb\", comment = \"some functions are modified from the rzmq package for backwards compatibility\"), person(\"Brian\", \"Ripley\", role = \"ctb\", comment = \"C code of shellexec, and Solaris\"), person(\"R Core team\", role = \"ctb\", comment = \"some functions and headers are copied or modified from the R source code\"), person(\"Philipp\", \"A.\", role = \"ctb\", comment = \"Fedora\"), person(\"Elliott Sales\", \"de Andrade\", role = \"ctb\", comment = \"sprintf\"), person(\"Spencer\", \"Aiello\", role = \"ctb\", comment = \"windows conf\"), person(\"Paul\", \"Andrey\", role = \"ctb\", comment = \"Mac OSX conf\"), person(\"Panagiotis\", \"Cheilaris\", role = \"ctb\", comment = \"add serialize version\"), person(\"Jeroen\", \"Ooms\", role = \"ctb\", comment = \"clang++ on MacOS ARM64\"), person(\"ZeroMQ authors\", role = c(\"aut\", \"cph\"), comment = \"source files in 'src/zmq_src/'\") )",
-      "Depends": [
-        "R (>= 3.5.0)"
-      ],
-      "LazyLoad": "yes",
-      "Copyright": "See files AUTHORS, COPYING, and COPYING.LESSER in 'inst/zmq_copyright/' for the 'ZeroMQ' source files in 'src/zmq_src/' which are under GPL-3.",
-      "Description": "'ZeroMQ' is a well-known library for high-performance asynchronous messaging in scalable, distributed applications.  This package provides high level R wrapper functions to easily utilize 'ZeroMQ'. We mainly focus on interactive client/server programming frameworks. For convenience, a minimal 'ZeroMQ' library (4.2.2) is shipped with 'pbdZMQ', which can be used if no system installation of 'ZeroMQ' is available.  A few wrapper functions compatible with 'rzmq' are also provided.",
-      "SystemRequirements": "Linux, Mac OSX, and Windows, or 'ZeroMQ' library >= 4.0.4. Solaris 10 needs 'ZeroMQ' library 4.0.7 and 'OpenCSW'.",
-      "StagedInstall": "TRUE",
-      "License": "GPL-3",
-      "URL": "https://pbdr.org/",
-      "BugReports": "https://github.com/snoweye/pbdZMQ/issues",
-      "NeedsCompilation": "yes",
-      "Maintainer": "Wei-Chen Chen <wccsnow@gmail.com>",
-      "RoxygenNote": "7.2.3",
-      "Author": "Wei-Chen Chen [aut, cre], Drew Schmidt [aut], Christian Heckendorf [aut] (file transfer), George Ostrouchov [aut] (Mac OSX), Whit Armstrong [ctb] (some functions are modified from the rzmq package for backwards compatibility), Brian Ripley [ctb] (C code of shellexec, and Solaris), R Core team [ctb] (some functions and headers are copied or modified from the R source code), Philipp A. [ctb] (Fedora), Elliott Sales de Andrade [ctb] (sprintf), Spencer Aiello [ctb] (windows conf), Paul Andrey [ctb] (Mac OSX conf), Panagiotis Cheilaris [ctb] (add serialize version), Jeroen Ooms [ctb] (clang++ on MacOS ARM64), ZeroMQ authors [aut, cph] (source files in 'src/zmq_src/')",
-      "Repository": "CRAN"
-    },
     "pbkrtest": {
       "Package": "pbkrtest",
       "Version": "0.5.5",
@@ -8580,36 +8227,6 @@
       "Maintainer": "Georgi N. Boshnakov <georgi.boshnakov@manchester.ac.uk>",
       "Repository": "CRAN"
     },
-    "rdtools": {
-      "Package": "rdtools",
-      "Version": "0.1.0",
-      "Source": "Repository",
-      "Title": "Efficient Manipulation of 'Rd' Files and Help Topics",
-      "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\", \"cph\"), comment = c(ORCID = \"0000-0003-4757-117X\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"), comment = c(ROR = \"03wc8by49\")) )",
-      "Description": "Provides fast, cached lookup of help topics and aliases across installed, source, and in-development packages, plus efficient retrieval of parsed 'Rd' ('R' documentation) objects. Per-package indexes are built once and cached, making repeated retrieval cheap enough to call in a tight loop.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://rdtools.r-lib.org, https://github.com/r-lib/rdtools",
-      "BugReports": "https://github.com/r-lib/rdtools/issues",
-      "Depends": [
-        "R (>= 4.0)"
-      ],
-      "Imports": [
-        "stats",
-        "tools"
-      ],
-      "Suggests": [
-        "testthat (>= 3.0.0)",
-        "withr"
-      ],
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "8.0.0",
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "NeedsCompilation": "yes",
-      "Author": "Hadley Wickham [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
-      "Maintainer": "Hadley Wickham <hadley@posit.co>",
-      "Repository": "CRAN"
-    },
     "readr": {
       "Package": "readr",
       "Version": "2.2.0",
@@ -8839,52 +8456,6 @@
       "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
       "Repository": "CRAN"
     },
-    "repr": {
-      "Package": "repr",
-      "Version": "1.1.7",
-      "Source": "Repository",
-      "Title": "Serializable Representations",
-      "Authors@R": "c( person('Philipp', 'Angerer', email = 'phil.angerer@gmail.com', role = c('aut', 'cre'), comment = c(ORCID = \"0000-0002-0369-2888\")), person('Thomas', 'Kluyver', email = 'thomas@kluyver.me.uk', role = 'aut'), person('Jan', 'Schulz', email = 'jasc@gmx.net', role = 'aut'), person('abielr', role = 'ctb'), person('Denilson', 'Figueiredo de Sa', role = 'ctb'), person('Jim', 'Hester', role = 'ctb'), person('karldw', role = 'ctb'), person('Dave', 'Foster', role = 'ctb'), person('Carson', 'Sievert', role = 'ctb') )",
-      "Maintainer": "Philipp Angerer <phil.angerer@gmail.com>",
-      "Description": "String and binary representations of objects for several formats / mime types.",
-      "URL": "https://github.com/IRkernel/repr/",
-      "BugReports": "https://github.com/IRkernel/repr/issues/",
-      "Depends": [
-        "R (>= 3.0.1)"
-      ],
-      "Imports": [
-        "utils",
-        "grDevices",
-        "htmltools",
-        "jsonlite",
-        "pillar (>= 1.4.0)",
-        "base64enc"
-      ],
-      "Suggests": [
-        "methods",
-        "highr",
-        "Cairo",
-        "stringr",
-        "testthat (>= 3.0.0)",
-        "leaflet"
-      ],
-      "Enhances": [
-        "data.table",
-        "tibble",
-        "htmlwidgets",
-        "vegalite",
-        "plotly",
-        "geojsonio"
-      ],
-      "Config/testthat/edition": "3",
-      "License": "GPL (>= 3)",
-      "Encoding": "UTF-8",
-      "Collate": "'generics.r' 'options.r' 'package.r' 'repr_datatable.r' 'repr_datetime.r' 'utils.r' 'repr_list.r' 'repr_vector.r' 'repr_factor.r' 'repr_function.r' 'repr_help_files_with_topic.r' 'repr_htmlwidget.r' 'repr_matrix_df.r' 'repr_packageIQR.r' 'repr_plotly.r' 'repr_recordedplot.r' 'repr_spatial.r' 'repr_ts.r' 'repr_vega.r' 'zzz_onload.r'",
-      "RoxygenNote": "7.3.1",
-      "NeedsCompilation": "no",
-      "Author": "Philipp Angerer [aut, cre] (<https://orcid.org/0000-0002-0369-2888>), Thomas Kluyver [aut], Jan Schulz [aut], abielr [ctb], Denilson Figueiredo de Sa [ctb], Jim Hester [ctb], karldw [ctb], Dave Foster [ctb], Carson Sievert [ctb]",
-      "Repository": "CRAN"
-    },
     "reprex": {
       "Package": "reprex",
       "Version": "2.1.1",
@@ -9021,43 +8592,6 @@
       "Author": "Tomasz Kalinowski [ctb, cre], Kevin Ushey [aut], JJ Allaire [aut], RStudio [cph, fnd], Yuan Tang [aut, cph] (ORCID: <https://orcid.org/0000-0001-5243-233X>), Dirk Eddelbuettel [ctb, cph], Bryan Lewis [ctb, cph], Sigrid Keydana [ctb], Ryan Hafen [ctb, cph], Marcus Geelnard [ctb, cph] (TinyThread library, http://tinythreadpp.bitsnbites.eu/)",
       "Maintainer": "Tomasz Kalinowski <tomasz@posit.co>",
       "Repository": "CRAN"
-    },
-    "rex": {
-      "Package": "rex",
-      "Version": "1.2.2",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Friendly Regular Expressions",
-      "Authors@R": "c( person(\"Kevin\", \"Ushey\", , \"kevin@rstudio.com\", role = c(\"aut\", \"cre\")), person(\"Jim\", \"Hester\", , \"james.f.hester@gmail.com\", role = \"aut\"), person(\"Robert\", \"Krzyzanowski\", , \"rkrzyzanowski@gmail.com\", role = \"aut\") )",
-      "Description": "A friendly interface for the construction of regular expressions.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://rex.r-lib.org, https://github.com/r-lib/rex",
-      "BugReports": "https://github.com/r-lib/rex/issues",
-      "Suggests": [
-        "covr",
-        "dplyr",
-        "ggplot2",
-        "Hmisc",
-        "knitr",
-        "magrittr",
-        "rmarkdown",
-        "roxygen2",
-        "rvest",
-        "stringr",
-        "testthat"
-      ],
-      "VignetteBuilder": "knitr",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.1.2",
-      "Collate": "'aaa.R' 'utils.R' 'escape.R' 'capture.R' 'character_class.R' 'counts.R' 'lookarounds.R' 'match.R' 'or.R' 'rex-mode.R' 'rex.R' 'shortcuts.R' 'wildcards.R' 'zzz.R'",
-      "Config/Needs/website": "r-lib/pkgdown, tidyverse/tidytemplate",
-      "Imports": [
-        "withr"
-      ],
-      "NeedsCompilation": "no",
-      "Author": "Kevin Ushey [aut, cre], Jim Hester [aut], Robert Krzyzanowski [aut]",
-      "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03"
     },
     "rgbif": {
       "Package": "rgbif",
@@ -9230,62 +8764,6 @@
       "NeedsCompilation": "yes",
       "Author": "Christophe Dutang [aut, cre] (<https://orcid.org/0000-0001-6732-1501>), Petr Savicky [aut], F. Panneton [ctb] (C Code), P. L'Ecuyer [ctb] (C Code), M. Matsumoto [ctb] (C Code)",
       "Maintainer": "Christophe Dutang <dutangc@gmail.com>",
-      "Repository": "CRAN"
-    },
-    "roxygen2": {
-      "Package": "roxygen2",
-      "Version": "8.1.0",
-      "Source": "Repository",
-      "Title": "In-Line Documentation for R",
-      "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\", \"cph\"), comment = c(ORCID = \"0000-0003-4757-117X\")), person(\"Peter\", \"Danenberg\", , \"pcd@roxygen.org\", role = c(\"aut\", \"cph\")), person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = \"aut\"), person(\"Manuel\", \"Eugster\", role = c(\"aut\", \"cph\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"), comment = c(ROR = \"03wc8by49\")) )",
-      "Description": "Generate your Rd documentation, 'NAMESPACE' file, and collation field using specially formatted comments. Writing documentation in-line with code makes it easier to keep your documentation up-to-date as your requirements change. 'roxygen2' is inspired by the 'Doxygen' system for C++.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://roxygen2.r-lib.org/, https://github.com/r-lib/roxygen2",
-      "BugReports": "https://github.com/r-lib/roxygen2/issues",
-      "Depends": [
-        "R (>= 4.1)"
-      ],
-      "Imports": [
-        "brew",
-        "cli (>= 3.3.0)",
-        "commonmark",
-        "desc (>= 1.2.0)",
-        "knitr",
-        "lifecycle",
-        "methods",
-        "pkgload (>= 1.5.2)",
-        "R6 (>= 2.1.2)",
-        "rdtools (>= 0.1.0)",
-        "rlang (>= 1.1.0)",
-        "utils",
-        "withr",
-        "xml2"
-      ],
-      "Suggests": [
-        "covr",
-        "R.methodsS3",
-        "S7",
-        "R.oo",
-        "rmarkdown (>= 2.16)",
-        "testthat (>= 3.1.2)",
-        "yaml"
-      ],
-      "LinkingTo": [
-        "cpp11"
-      ],
-      "VignetteBuilder": "knitr",
-      "Config/Needs/development": "testthat",
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "Config/roxygen2/load": "installed",
-      "Config/roxygen2/markdown": "TRUE",
-      "Config/roxygen2/version": "8.0.0.9000",
-      "Config/testthat/edition": "3",
-      "Config/testthat/parallel": "TRUE",
-      "Encoding": "UTF-8",
-      "Language": "en-GB",
-      "NeedsCompilation": "yes",
-      "Author": "Hadley Wickham [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Peter Danenberg [aut, cph], Gábor Csárdi [aut], Manuel Eugster [aut, cph], Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
-      "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
     },
     "rprojroot": {
@@ -10410,55 +9888,6 @@
       "Author": "Hadley Wickham [aut, cre, cph], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
-    },
-    "styler": {
-      "Package": "styler",
-      "Version": "1.11.0",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Non-Invasive Pretty Printing of R Code",
-      "Authors@R": "c(person(given = \"Kirill\", family = \"Müller\", role = \"aut\", email = \"kirill@cynkra.com\", comment = c(ORCID = \"0000-0002-1416-3412\")), person(given = \"Lorenz\", family = \"Walthert\", role = c(\"cre\", \"aut\"), email = \"lorenz.walthert@icloud.com\"), person(given = \"Indrajeet\", family = \"Patil\", role = \"aut\", email = \"patilindrajeet.science@gmail.com\", comment = c(ORCID = \"0000-0003-1995-6531\")))",
-      "Description": "Pretty-prints R code without changing the user's formatting intent.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://github.com/r-lib/styler, https://styler.r-lib.org",
-      "BugReports": "https://github.com/r-lib/styler/issues",
-      "Depends": [
-        "R (>= 4.0.0)"
-      ],
-      "Imports": [
-        "cli (>= 3.1.1)",
-        "magrittr (>= 2.0.0)",
-        "purrr (>= 1.0.2)",
-        "R.cache (>= 0.15.0)",
-        "rlang (>= 1.0.0)",
-        "rprojroot (>= 1.1)",
-        "tools",
-        "vctrs (>= 0.4.1)",
-        "withr (>= 2.3.0)"
-      ],
-      "Suggests": [
-        "data.tree (>= 0.1.6)",
-        "digest",
-        "here",
-        "knitr",
-        "prettycode",
-        "rmarkdown",
-        "roxygen2",
-        "rstudioapi (>= 0.7)",
-        "tibble (>= 1.4.2)",
-        "testthat (>= 3.2.1)"
-      ],
-      "VignetteBuilder": "knitr",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.3",
-      "Language": "en-US",
-      "Config/testthat/edition": "3",
-      "Config/testthat/parallel": "true",
-      "Collate": "'addins.R' 'communicate.R' 'compat-dplyr.R' 'compat-tidyr.R' 'detect-alignment-utils.R' 'detect-alignment.R' 'environments.R' 'expr-is.R' 'indent.R' 'initialize.R' 'io.R' 'nest.R' 'nested-to-tree.R' 'options.R' 'parse.R' 'reindent.R' 'token-define.R' 'relevel.R' 'roxygen-examples-add-remove.R' 'roxygen-examples-find.R' 'roxygen-examples-parse.R' 'roxygen-examples.R' 'rules-indention.R' 'rules-line-breaks.R' 'rules-spaces.R' 'rules-tokens.R' 'serialize.R' 'set-assert-args.R' 'style-guides.R' 'styler-package.R' 'stylerignore.R' 'testing-mocks.R' 'testing-public-api.R' 'ui-caching.R' 'testing.R' 'token-create.R' 'transform-block.R' 'transform-code.R' 'transform-files.R' 'ui-styling.R' 'unindent.R' 'utils-cache.R' 'utils-files.R' 'utils-navigate-nest.R' 'utils-strings.R' 'utils.R' 'vertical.R' 'visit.R' 'zzz.R'",
-      "NeedsCompilation": "no",
-      "Author": "Kirill Müller [aut] (ORCID: <https://orcid.org/0000-0002-1416-3412>), Lorenz Walthert [cre, aut], Indrajeet Patil [aut] (ORCID: <https://orcid.org/0000-0003-1995-6531>)",
-      "Maintainer": "Lorenz Walthert <lorenz.walthert@icloud.com>",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03"
     },
     "survival": {
       "Package": "survival",
@@ -12005,31 +11434,6 @@
       "NeedsCompilation": "yes",
       "Author": "Hadley Wickham [aut], Jim Hester [aut], Jeroen Ooms [aut, cre], Posit Software, PBC [cph, fnd], R Foundation [ctb] (Copy of R-project homepage cached as example)",
       "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
-      "Repository": "https://packagemanager.posit.co/cran/2026-07-03"
-    },
-    "xmlparsedata": {
-      "Package": "xmlparsedata",
-      "Version": "1.0.5",
-      "Source": "Repository",
-      "Title": "Parse Data of 'R' Code as an 'XML' Tree",
-      "Author": "Gábor Csárdi",
-      "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
-      "Description": "Convert the output of 'utils::getParseData()' to an 'XML' tree, that one can search via 'XPath', and easier to manipulate in general.",
-      "License": "MIT + file LICENSE",
-      "LazyData": "true",
-      "URL": "https://github.com/r-lib/xmlparsedata#readme",
-      "BugReports": "https://github.com/r-lib/xmlparsedata/issues",
-      "RoxygenNote": "6.0.1",
-      "Suggests": [
-        "covr",
-        "testthat",
-        "xml2"
-      ],
-      "Depends": [
-        "R (>= 3.0.0)"
-      ],
-      "Encoding": "UTF-8",
-      "NeedsCompilation": "no",
       "Repository": "https://packagemanager.posit.co/cran/2026-07-03"
     },
     "xtable": {
