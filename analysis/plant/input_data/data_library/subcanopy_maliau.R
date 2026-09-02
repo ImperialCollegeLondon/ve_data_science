@@ -105,7 +105,7 @@
 #|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Calculated as the mean SLA across selected non-tree subcanopy growth forms and converted to a carbon-mass basis using the same carbon fraction as for biomass."
+#|         assumptions: "Calculated as the mean SLA across selected non-tree subcanopy growth forms, converted from the source cm2 g-1 values (mislabelled as m2 kg-1 in the source file) to m2 kg-1, and then converted to a carbon-mass basis using the same carbon fraction as for biomass."
 #|       - name: subcanopy_reproductive_allocation
 #|         type: numeric
 #|         units: dimensionless
@@ -543,8 +543,10 @@ taxa_present_info <-
 # orcunk
 
 # Calculate total subcanopy dry mass across all plots
+# Note that drwgt is expressed per m2 so we need to multiple these values by 4
+# to capture the drywgt per plot
 dobert_2019_plot_species_data$drywgt_total <-
-  sum(dobert_2019_plot_species_data$drywgt)
+  sum(dobert_2019_plot_species_data$drywgt * 4)
 
 # Calculate total plot area (2x2 = 4 m2)
 dobert_2019_plot_species_data$total_plot_area <-
@@ -560,8 +562,7 @@ dobert_2019_plot_species_data$drywgt_total_m2_plot <- ave(
   dobert_2019_plot_species_data$drywgt,
   dobert_2019_plot_species_data$plot.code,
   FUN = sum
-) /
-  4
+)
 
 # Correct these values for carbon content
 # 41.747% carbon content for herb layer reported by
@@ -578,21 +579,52 @@ dobert_2019_plot_species_data$drywgt_total_m2_plot_carbon <-
 data$mean_total_subcanopy_carbon_mass <-
   unique(dobert_2019_plot_species_data$drywgt_total_m2_carbon)
 
+# Correct sla.dry to account for carbon content (use 41.747% carbon content for herb
+# layer reported by Wu et al. (2022; https://doi.org/10.3390/su142416517)
+# Unit is m2 kg-1 C
+dobert_2019_plot_species_data$sla.dry <-
+  as.numeric(dobert_2019_plot_species_data$sla.dry)
+
+# sla.dry is stored as cm2 g-1 despite being labelled m2 kg-1 in the source
+# file; convert to m2 kg-1 (factor 0.1) before correcting for carbon content
+dobert_2019_plot_species_data$sla_dry_C <-
+  (dobert_2019_plot_species_data$sla.dry * 0.1) / 0.41747
+
+# Correct sla_dry_C for shrinkage (unit is already m2 kg-1)
+# Divide sla_dry_C by shrinkage factor
+dobert_2019_plot_species_data$shrinkage <-
+  as.numeric(dobert_2019_plot_species_data$shrinkage)
+
+dobert_2019_plot_species_data$sla_fresh_C <-
+  dobert_2019_plot_species_data$sla_dry_C /
+  dobert_2019_plot_species_data$shrinkage
+
+# Add sla_fresh_C to data based on species.code
+data <- merge(
+  data,
+  dobert_2019_plot_species_data[, c("species.code", "sla_fresh_C")],
+  by = "species.code",
+  all.x = TRUE
+)
+
 # Subset data to only include species in taxa_present
 data <- data[data$species.code %in% taxa_present, ]
 
 # Subset data to only include relevant columns
-data <- data[, c("mean_total_subcanopy_carbon_mass", "sla")]
+data <- data[, c(
+  "mean_total_subcanopy_carbon_mass",
+  "species.code",
+  "sla_fresh_C"
+)]
 
-# Calculate mean SLA and set to unique values only
-data$sla <- as.numeric(data$sla)
-data$sla <- mean(data$sla)
 data <- unique(data)
 
-# Correct SLA to account for carbon content (use 41.747% carbon content for herb
-# layer reported by Wu et al. (2022; https://doi.org/10.3390/su142416517)
-# Unit is m2 kg-1 C
-data$sla <- data$sla / 0.41747
+# Create new final sla column and assign mean value across species
+data$sla <- mean(data$sla_fresh_C)
+
+# Subset to final form
+data <- data[, c("mean_total_subcanopy_carbon_mass", "sla")]
+data <- unique(data)
 
 ##################################################
 

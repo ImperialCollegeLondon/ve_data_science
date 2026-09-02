@@ -26,12 +26,6 @@
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
 #|       A CSV file listing T-model parameters by pft.
-#|   - name: reproduction_maliau.csv
-#|     path: data/derived/plant/input_data/data_library
-#|     description: |
-#|       This CSV file contains a summary of the ratios needed to calculate
-#|       reproductive tissue allocation, and to separate propagules from
-#|       non-propagules.
 #|   - name: subcanopy_maliau.csv
 #|     path: data/derived/plant/input_data/data_library
 #|     description: |
@@ -66,7 +60,7 @@
 #|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Loaded from subcanopy_maliau.csv. Original assumption: Calculated as the mean SLA across selected non-tree subcanopy growth forms and converted to a carbon-mass basis using the same carbon fraction as for biomass."
+#|         assumptions: "Loaded from subcanopy_maliau.csv. Original assumption: Calculated as the mean SLA across selected non-tree subcanopy growth forms, converted from the source cm2 g-1 values (mislabelled as m2 kg-1 in the source file) to m2 kg-1, and then converted to a carbon-mass basis using the same carbon fraction as for biomass."
 #|       - name: subcanopy_reproductive_allocation
 #|         type: numeric
 #|         units: dimensionless
@@ -461,44 +455,6 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Loaded from stoichiometry_maliau.csv. Original assumption: Derived from a global mean fine-root lignin fraction combined with fine-root carbon content from Imai et al. rather than from site-specific lignin measurements."
-#|       - name: propagule_mass_portion
-#|         type: numeric
-#|         units: dimensionless
-#|         description: |
-#|           Fraction of live reproductive-organ carbon mass allocated to propagules.
-#|         references:
-#|           - citation: "Ichie et al. (2005)"
-#|             doi: "https://doi.org/10.1016/S0378-1127(03)00161-0"
-#|             url: "https://www.sciencedirect.com/science/article/pii/S0378112703001610?via%3Dihub"
-#|             origin: null
-#|             biome: null
-#|             vegetation_type: null
-#|             site_condition: null
-#|             date: null
-#|         assumptions: "Loaded from reproduction_maliau.csv using the Ichie dipterocarp forest propagule_live_organ_carbon_percentage value."
-#|       - name: c_mass_per_fruit_seed
-#|         type: numeric
-#|         units: g C
-#|         description: |
-#|           Carbon mass per seed within a mature fruit.
-#|         references:
-#|           - citation: "Ichie et al. (2005)"
-#|             doi: "https://doi.org/10.1016/S0378-1127(03)00161-0"
-#|             url: "https://www.sciencedirect.com/science/article/pii/S0378112703001610?via%3Dihub"
-#|             origin: null
-#|             biome: null
-#|             vegetation_type: null
-#|             site_condition: null
-#|             date: null
-#|           - citation: "Nakagawa and Nakashizuka (2004)"
-#|             doi: "https://doi.org/10.1111/1365-2745.12379"
-#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
-#|             origin: null
-#|             biome: null
-#|             vegetation_type: null
-#|             site_condition: null
-#|             date: null
-#|         assumptions: "Loaded from stoichiometry_maliau.csv. Original assumption: Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration, assuming one seed per fruit."
 #|
 #| package_dependencies:
 #|   - tidyverse
@@ -520,11 +476,6 @@ stoichiometry_maliau <- read.csv(
 
 t_model_maliau <- read.csv(
   "../../../../data/derived/plant/input_data/data_library/t_model_maliau.csv",
-  header = TRUE
-)
-
-reproduction_maliau <- read.csv(
-  "../../../../data/derived/plant/input_data/data_library/reproduction_maliau.csv",
   header = TRUE
 )
 
@@ -569,8 +520,6 @@ plant_constants_maliau_2 <- subset(
 # plant_reproductive_tissue_lignin ADD from stoichiometry_maliau
 # root_lignin ADD from stoichiometry_maliau
 # root_exudates ADD from t_model_maliau
-# propagule_mass_portion ADD from reproduction_maliau
-# c_mass_per_fruit_seed ADD from stoichiometry_maliau
 
 # Add missing ones
 
@@ -601,20 +550,6 @@ plant_constants_maliau_2$plant_reproductive_tissue_lignin <-
 # root_lignin
 plant_constants_maliau_2$root_lignin <-
   unique(stoichiometry_maliau$root_lignin)
-
-# propagule_mass_portion
-# Use the propagule live-organ carbon percentage for dipterocarp forest.
-plant_constants_maliau_2$propagule_mass_portion <- as.numeric(
-  reproduction_maliau$value[
-    reproduction_maliau$variable == "propagule_live_organ_carbon_percentage" &
-      reproduction_maliau$source == "ichie" &
-      reproduction_maliau$notes == "dipterocarp forest"
-  ][1]
-)
-
-# c_mass_per_fruit_seed
-plant_constants_maliau_2$c_mass_per_fruit_seed <-
-  unique(stoichiometry_maliau$c_mass_per_fruit_seed)
 
 # Write out summary of variable data types and units
 
