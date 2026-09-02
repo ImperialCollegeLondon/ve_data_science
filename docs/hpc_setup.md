@@ -48,22 +48,19 @@ cd ve_data_science
 
 See [uv setup](uv_setup.md) for instructions about using uv.
 
-**note:** If you are using R, conda may be better suited than uv.
-**note:** for test runs with the example data I use:
+A pinned verion of virtula ecosystem is available for running the example:
 
 ```bash
 uv venv
-uv pip install virtual-ecosystem
+uv sync --group hpc-pinned
 ```
-
-as it installs a version of Veco which is compatable with the example.
 
 ## Install the example data/configs
 
 For testing the HPC workflow, install the example data and configuration files:
 
 ```bash
-ve_run --install-example .
+uv run --group hpc-pined ve_run --install-example .
 ```
 
 ## Create a batch job configuration
@@ -80,8 +77,8 @@ The specification has four parts:
     with the path to your checkout's `ve_example` directory.
 - `common_config_paths`: paths to configuration files, relative to
     `site_directory`, that every array sub-job uses.
-- `[[jobs]]`: one or more job entries. Each can provide additional
-    `config_paths` and a `config` table of values that override the loaded
+- `[[subJobs]]`: one or more job entries. Each can provide additional
+    `config_paths` and a `cli_config` table of values that override the loaded
     configuration.
 - `repeats`: a positive integer on each job entry. The total number
     of PBS array sub-jobs is the sum of all `repeats` values.
@@ -99,7 +96,7 @@ The output directory must not already exist. The script creates it and then crea
 one child directory per PBS array sub-job. From the repository root, run:
 
 ```bash
-uv run python -m hpc_jobs.submit_ve_array_job \
+uv run --group hpc-pinned python -m hpc_jobs.submit_ve_array_job \
     hpc_jobs/arrayJob_config.toml \
     hpc_jobs/pbs_resources_config.toml \
     ve_example/<experiment-output>
@@ -107,8 +104,8 @@ uv run python -m hpc_jobs.submit_ve_array_job \
 
 The submission script loads and validates both TOML configuration files using
 Pydantic. By default, it also validates each Virtual Ecosystem configuration before
-calculating the PBS array size, creating the requested output directory, and submitting
-the array using `qsub`. It creates an `array_subJob_<index>` directory for each sub-job.
+creating the requested output directory, and submitting the array using `qsub`.
+It creates an `array_subJob_<index>` directory for each sub-job.
 Validation happens before the output directory is created or any jobs are submitted, so
 invalid configurations fail fast.
 
@@ -116,7 +113,7 @@ For known-good Virtual Ecosystem configurations, add `--skip-ve-validation` to s
 their model-level validation:
 
 ```bash
-uv run python -m hpc_jobs.submit_ve_array_job \
+uv run --group hpc-pinned python -m hpc_jobs.submit_ve_array_job \
     hpc_jobs/arrayJob_config.toml \
     hpc_jobs/pbs_resources_config.toml \
     ve_example/<experiment-output> \
