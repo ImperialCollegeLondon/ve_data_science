@@ -17,12 +17,10 @@ description: |
     - **Shared model configuration**: A list of `common_config_paths` pointing
       to base configuration files that apply to all runs.
     - **Scenario data directory**: The `site_directory` path, which specifies
-      the input datasets (e.g. climate, soil, plant, animal) copied to compute
-      nodes before execution.
-    - **Individual job entries**: Each `[[jobs]]` block includes a unique run
-      name, repeat count, optional per-job configuration files, and a
-      `[jobs.config]` section with parameter overrides corresponding to the
-      sampled values.
+      the input datasets (e.g. climate, soil, plant, animal).
+    - **Individual job entries**: Each `[[subJobs]]` block includes a repeat count,
+      optional per-job configuration files, and a `[subJobs.cli_config]` section
+      with parameter overrides corresponding to the sampled values.
 
 virtual_ecosystem_module:
     -All
@@ -42,7 +40,7 @@ usage_notes: |
   and should not normally be executed directly.
 
   The generated configuration file is compatible with the existing
-  Virtual Ecosystem HPC batch workflow.
+  Virtual Ecosystem HPC array job workflow.
 ---
 """  # noqa: D400, D205, D212, D415
 
@@ -55,10 +53,10 @@ import tomli_w
 # GENERATE JOB CONFIGURATION
 # =============================================================================
 # Create a `job_config.toml` file from sampled parameter values so that each
-# sample becomes one HPC simulation job with shared and per-job settings.
+# sample becomes one HPC simulation array job with shared and per-job settings.
 
 
-def generate_job_config(
+def generate_arrayJob_config(
     samples: np.ndarray,
     parameter_names: list[str],
     common_config_paths: list[str | Path],
@@ -88,7 +86,7 @@ def generate_job_config(
             execution.
 
         output_file:
-            Path to the generated ``job_config.toml`` file.
+            Path to the generated ``arrayJob_config.toml`` file.
 
         config_paths:
             Optional configuration files specific to each job.
@@ -122,26 +120,34 @@ def generate_job_config(
         raise ValueError("Number of parameter names does not match sample columns.")
 
     # Build structured TOML data
-    jobs = []
-    for run_id, values in enumerate(samples, start=1):
-        job = {
-            "name": f"run_{run_id:04d}",
+    subJobs = []
+    for values in samples:
+        cli_config = {}
+
+        for parameter, value in zip(parameter_names, values):
+            config_section = cli_config
+            *parent_keys, final_key = parameter.split(".")
+
+            for key in parent_keys:
+                config_section = config_section.setdefault(key, {})
+
+            config_section[final_key] = (
+                float(value) if isinstance(value, (float, np.floating)) else value
+            )
+
+        subJob = {
+            "config_paths": config_paths,
             "repeats": repeats,
-            "config": {
-                parameter: (
-                    float(value) if isinstance(value, (float, np.floating)) else value
-                )
-                for parameter, value in zip(parameter_names, values)
-            },
+            "cli_config": cli_config,
         }
         if config_paths:
-            job["config_paths"] = config_paths
-        jobs.append(job)  # ✅ ensure this is inside the loop
+            subJob["config_paths"] = config_paths
+        subJobs.append(subJob)  # ✅ ensure this is inside the loop
 
     data = {
         "common_config_paths": common_config_paths,
         "site_directory": site_directory,
-        "jobs": jobs,
+        "subJobs": subJobs,
     }
 
     # Write TOML file using tomli_w
