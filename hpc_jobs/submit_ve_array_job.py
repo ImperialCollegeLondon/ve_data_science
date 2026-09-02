@@ -128,7 +128,7 @@ def main() -> None:
     # resolve paths before running qsub
     arrayJob_config = args.arrayJob_config.resolve()
     output_directory = args.output_directory.resolve()
-    root_directory = site_directory.parent.resolve()
+    root_directory = Path(__file__).resolve().parent.parent
 
     # Define the PBS script for the array job
     pbs_script = f"""\
