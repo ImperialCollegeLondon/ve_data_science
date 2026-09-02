@@ -220,6 +220,26 @@
 #|           Derived as the inverse of the reported annual reproductive-organ
 #|           turnover and applied uniformly across PFTs using the same source
 #|           and approach as leaf turnover.
+#|       - name: tau_b
+#|         type: numeric
+#|         units: years
+#|         description: |
+#|           Branch turnover time.
+#|         references:
+#|           - citation: "Anderson et al. (1983)"
+#|             doi: "https://doi.org/10.2307/2259731"
+#|             url: "https://www.jstor.org/stable/2259731?origin=crossref"
+#|             origin: "Gunung Mulu National Park, Sarawak, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: "primary"
+#|             date: "1978"
+#|         assumptions: |
+#|           Calculated from Anderson et al. small wood (<2 cm diameter) and
+#|           large wood (2-10 cm diameter) input and standing crop values for
+#|           dipterocarp forest. The combined turnover rate is total branch input
+#|           divided by total branch standing crop, then inverted to turnover
+#|           time and applied uniformly across PFTs.
 #|       - name: tau_r
 #|         type: numeric
 #|         units: years
@@ -1611,9 +1631,31 @@ summary$light_extinction_coefficient <- 0.6
 summary$turnover_leaf <- 1 / 1.7
 
 # Reproductive organ turnover
-# The same approach and data is used as for leaf turnover
+# The same approach and data is used as for leaf turnover (Anderson et al., 1983)
+# (DOI; https://doi.org/10.2307/2259731)
 
 summary$turnover_reproductive_organ <- 1 / 10
+
+# Branch turnover
+# The same approach and data is used as for leaf turnover (Anderson et al., 1983)
+# (DOI; https://doi.org/10.2307/2259731) but with a slight adjustment:
+# Instead of using the average turnover rate across the two branch diameter classes
+# we obtain a weighted average by using branch input and standing crop
+# This approach is the same as used by Anderson et al. to obtain the turnover rate
+anderson_dipterocarp_branch_input <- c(
+  small_wood_lt_2cm = 2.1,
+  large_wood_2_10cm = 0.5
+)
+
+anderson_dipterocarp_branch_standing_crop <- c(
+  small_wood_lt_2cm = 2.7,
+  large_wood_2_10cm = 5.5
+)
+
+branch_turnover_rate <- sum(anderson_dipterocarp_branch_input) /
+  sum(anderson_dipterocarp_branch_standing_crop)
+
+summary$turnover_branch <- 1 / branch_turnover_rate
 
 # Fine root turnover
 # Value based on Huaraca Huasco et al. (2021)
@@ -1913,6 +1955,7 @@ summary <- summary[, c(
   "light_extinction_coefficient",
   "turnover_leaf",
   "turnover_reproductive_organ",
+  "turnover_branch",
   "turnover_fine_root",
   "respiration_fine_root",
   "respiration_leaf",
@@ -1937,6 +1980,7 @@ colnames(summary) <- c(
   "LEC",
   "turnover_leaf",
   "turnover_RT",
+  "turnover_branch",
   "turnover_root",
   "respiration_root",
   "respiration_leaf",
@@ -1963,6 +2007,7 @@ colnames(summary) <- c(
 # LEC is par_ext (-)
 # turnover_leaf is tau_f (years)
 # turnover_RT is tau_rt (years)
+# turnover_branch is tau_b (years)
 # turnover_root is tau_r (years)
 # respiration_root is resp_r (year-1)
 # respiration_leaf is resp_f (year-1)
@@ -1984,6 +2029,7 @@ colnames(summary) <- c(
   "par_ext",
   "tau_f",
   "tau_rt",
+  "tau_b",
   "tau_r",
   "resp_r",
   "resp_f",

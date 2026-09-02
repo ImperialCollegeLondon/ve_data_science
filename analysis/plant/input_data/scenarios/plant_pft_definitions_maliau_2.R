@@ -215,6 +215,27 @@
 #|           inverse of the reported annual reproductive-organ turnover and
 #|           applied uniformly across PFTs using the same source and approach as
 #|           leaf turnover.
+#|       - name: tau_b
+#|         type: numeric
+#|         units: years
+#|         description: |
+#|           Branch turnover time.
+#|         references:
+#|           - citation: "Anderson et al. (1983)"
+#|             doi: "https://doi.org/10.2307/2259731"
+#|             url: "https://www.jstor.org/stable/2259731?origin=crossref"
+#|             origin: "Gunung Mulu National Park, Sarawak, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: "primary"
+#|             date: "1978"
+#|         assumptions: |
+#|           Loaded from t_model_maliau.csv. Original assumption: Calculated from
+#|           Anderson et al. small wood (<2 cm diameter) and large wood (2-10 cm
+#|           diameter) input and standing crop values for dipterocarp forest. The
+#|           combined turnover rate is total branch input divided by total branch
+#|           standing crop, then inverted to turnover time and applied uniformly
+#|           across PFTs.
 #|       - name: tau_r
 #|         type: numeric
 #|         units: years
@@ -411,6 +432,59 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Extracted from the reproduction_maliau.csv summary using the Kitayama dipterocarp non-mast value reported in the Aoyagi comparison."
+#|       - name: c_mass_fruit_flesh
+#|         type: numeric
+#|         units: g C
+#|         description: |
+#|           Carbon mass per mature fruit flesh after subtracting seed carbon mass.
+#|         references:
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Calculated from mature fruit dry mass and carbon percentage for Dipterocarpus tempehes, after subtracting the estimated carbon mass of one seed."
+#|       - name: c_mass_per_fruit_seed
+#|         type: numeric
+#|         units: g C
+#|         description: |
+#|           Carbon mass per seed within a mature fruit.
+#|         references:
+#|           - citation: "Ichie et al. (2005)"
+#|             doi: "https://doi.org/10.1017/S0266467404002214"
+#|             url: null
+#|             origin: null
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
+#|           - citation: "Nakagawa and Nakashizuka (2004)"
+#|             doi: "https://doi.org/10.1079/SSR2004181"
+#|             url: null
+#|             origin: null
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Derived using seed dry mass from Nakagawa and Nakashizuka with fruit carbon concentration from Ichie as a proxy for seed carbon concentration, assuming one seed per fruit."
+#|       - name: seeds_per_fruit
+#|         type: numeric
+#|         units: dimensionless
+#|         description: |
+#|           Number of seeds per mature fruit.
+#|         references:
+#|           - citation: "Nakagawa and Nakashizuka (2004)"
+#|             doi: "https://doi.org/10.1079/SSR2004181"
+#|             url: null
+#|             origin: null
+#|             biome: "tropical"
+#|             vegetation_type: "dipterocarp forest"
+#|             site_condition: null
+#|             date: null
+#|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Assumed to be one seed per fruit for dipterocarps."
 #|       - name: deadwood_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
@@ -629,6 +703,7 @@ plant_pft_definitions_maliau_2 <- subset(
 # sla OK
 # tau_f OK
 # tau_rt OK
+# tau_b OK
 # tau_r OK
 # par_ext OK
 # yld OK
@@ -657,6 +732,9 @@ plant_pft_definitions_maliau_2 <- subset(
 # root_turnover_c_n_ratio ADD from stoichiometry
 # foliage_c_n_ratio ADD from stoichiometry
 # foliage_c_p_ratio ADD from stoichiometry
+# c_mass_fruit_flesh ADD from stoichiometry
+# c_mass_per_fruit_seed ADD from stoichiometry
+# seeds_per_fruit ADD from stoichiometry
 
 # Add missing ones.
 plant_pft_definitions_maliau_2$m <- 2
@@ -697,7 +775,10 @@ temp <- stoichiometry_maliau[, c(
   "root_turnover_c_n_ratio",
   "root_turnover_c_p_ratio",
   "foliage_c_n_ratio",
-  "foliage_c_p_ratio"
+  "foliage_c_p_ratio",
+  "c_mass_fruit_flesh",
+  "c_mass_per_fruit_seed",
+  "seeds_per_fruit"
 )]
 
 plant_pft_definitions_maliau_2 <-
