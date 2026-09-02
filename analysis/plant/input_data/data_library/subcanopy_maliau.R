@@ -59,7 +59,12 @@
 #|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "Derived from old-growth SAFE subcanopy dry biomass and converted to carbon mass using a herb-layer carbon fraction from Wu et al."
+#|         assumptions: |
+#|           Derived from old-growth SAFE subcanopy dry biomass and converted to
+#|           carbon mass using a herb-layer carbon fraction from Wu et al. Total
+#|           dry weight is used because the model allocates subcanopy carbon to
+#|           leafy biomass; using leaf dry weight only would better match predicted
+#|           leaf area but would underestimate total subcanopy carbon.
 #|       - name: subcanopy_seedbank_biomass
 #|         type: numeric
 #|         units: kg C m^-2
@@ -377,7 +382,12 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2014"
-#|         assumptions: null
+#|         assumptions: |
+#|           Derived from old-growth SAFE subcanopy dry biomass and converted to
+#|           carbon mass using a herb-layer carbon fraction from Wu et al. Total
+#|           dry weight is used because the model allocates subcanopy carbon to
+#|           leafy biomass; using leaf dry weight only would better match predicted
+#|           leaf area but would underestimate total subcanopy carbon.
 #|       - name: subcanopy_seedbank_carbon_mass_mean
 #|         type: numeric
 #|         units: kg C m^-2
@@ -392,7 +402,9 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2014"
-#|         assumptions: null
+#|         assumptions: |
+#|           Derived from the mean total-dry-weight vegetation carbon mass using
+#|           a reproductive allocation and seedbank fraction.
 #|       - name: subcanopy_vegetation_carbon_mass_plot
 #|         type: numeric
 #|         units: kg C m^-2
@@ -408,7 +420,12 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2014"
-#|         assumptions: null
+#|         assumptions: |
+#|           Derived from old-growth SAFE subcanopy dry biomass and converted to
+#|           carbon mass using a herb-layer carbon fraction from Wu et al. Total
+#|           dry weight is used because the model allocates subcanopy carbon to
+#|           leafy biomass; using leaf dry weight only would better match predicted
+#|           leaf area but would underestimate total subcanopy carbon.
 #|       - name: subcanopy_seedbank_carbon_mass_plot
 #|         type: numeric
 #|         units: kg C m^-2
@@ -424,7 +441,9 @@
 #|             vegetation_type: "lowland tropical rain forest"
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2014"
-#|         assumptions: null
+#|         assumptions: |
+#|           Derived from the plot-level total-dry-weight vegetation carbon mass
+#|           using a reproductive allocation and seedbank fraction.
 #|
 #| package_dependencies:
 #|   - readxl
@@ -545,6 +564,11 @@ taxa_present_info <-
 # Calculate total subcanopy dry mass across all plots
 # Note that drwgt is expressed per m2 so we need to multiple these values by 4
 # to capture the drywgt per plot
+# Also note that the VE allocates all carbon mass to leafy growth, so we should
+# use drywgt (but this will overestimate leaf area). The alternative is to use
+# leafdrywgt only which will give the correct leaf area but will underestimate
+# total plant carbon since the stem carbon is excluded.
+# For now, we will use drywgt
 dobert_2019_plot_species_data$drywgt_total <-
   sum(dobert_2019_plot_species_data$drywgt * 4)
 
