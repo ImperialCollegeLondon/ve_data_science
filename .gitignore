@@ -24,6 +24,7 @@ data/derived/litter/stock/litter_stock.csv
 *.duckdb
 analysis/troubleshoot/cnp_ratios/*png
 *.parquet
+data/derived/soil/spatial_model
 
 # MkDocs build output
 site/
