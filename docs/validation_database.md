@@ -49,7 +49,9 @@ source("tools/R/R/valdb.R")
 ```
 
 After `box::use()`, call exported functions as `valdb$function_name()`.
-After `source()`, call them as `function_name()`.
+After `source()`, call them as `function_name()`. If you call
+`join_ve_outputs()` after `source()`, also source
+`tools/R/R/get_ve_variables.R` so VE variable readers are available.
 
 ## Workflow overview
 
@@ -223,6 +225,13 @@ the single `dedup_key` column against `Location name` and reads `Latitude` and
 explicit `match_data_column`. Coordinates must be WGS84 decimal degrees. Use
 `same_for_all_rows.latitude` and `same_for_all_rows.longitude` when one location
 applies to the complete dataset.
+
+After that first join, the workflow runs a second-pass gazetteer fill using
+`data/primary/site/gazetteer.geojson`. For rows still missing latitude or
+longitude, it matches the configured location key to `location` in the
+gazetteer and fills coordinates from centroid values (`centroid_x`,
+`centroid_y`). Rows filled this way are flagged as
+`coordinate_source: gazetteer_second_pass`.
 
 Temporal metadata can come from one `date_column`, from paired `start_column`
 and `end_column` values, or from `same_for_all_rows.start` and

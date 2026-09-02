@@ -2,115 +2,98 @@
 #| title: Extract continuous state variables into long-format dataframe
 #|
 #| description: |
-#|     Tidy up continuous state variables into a long-format dataframe.
-#|     Currently this function is designed with the downstream visualisation
-#|     of output from Virtual Ecosystem in mind.
+#|     Tidy up continuous state variables from a Virtual Ecosystem Zarr output
+#|     dataset into a long-format tibble. Spatial (x, y) and temporal
+#|     (timestamp) coordinates are joined onto each observation. Optionally,
+#|     initial-state values can be prepended with a time_index of -1.
+#|     The function is designed for use in downstream visualisation and
+#|     sensitivity analysis workflows.
 #|
-#| VE_module: All
+#| virtual_ecosystem_module: All
 #|
 #| author: Hao Ran Lai
 #|
 #| status: final
 #|
 #| input_files:
+#|     - Virtual Ecosystem Zarr output dataset (.zarr), passed via `path`
 #|
 #| output_files:
+#|     - None (returns an R tibble)
+#|
+#| source_files:
+#|     - name: get_ve_variables.R
+#|       path: tools/R/R/get_ve_variables.R
+#|       description: |
+#|           Provides get_data_variables() used to read variables from the
+#|           Zarr dataset.
 #|
 #| package_dependencies:
-#|     - tidyverse
-#|     - tidync
+#|     - dplyr
+#|     - tidyr
+#|     - reshape2
 #|
 #| usage_notes: |
-#|    See an example of use case in
-#|    analysis/soil/sensitivity/visualise_continuous_data.R
+#|     See examples of use in:
+#|       - analysis/soil/sensitivity/visualise_continuous_data.R
+#|       - analysis/animal/continuous_states/small_temporal_variation.qmd
 #| ---
 
 #' Extract continuous state variables into long-format dataframe
 #'
-#' Tidy up continuous state variables into a long-format dataframe. Currently
-#' this function is designed with the downstream visualisation of output from
-#' Virtual Ecosystem in mind.
+#' Reads selected state variables from a Virtual Ecosystem Zarr output dataset
+#' and returns them as a long-format tibble with spatial (x, y) and temporal
+#' (timestamp) coordinates joined onto each observation. Designed for use in
+#' downstream visualisation and sensitivity analysis workflows.
 #'
-#' @param continuous Filename of the merged continuous data file.
-#' @param variables A character string of state variables to extract.
-#' @param initial Optional. Filename of the initial state data file. If this supplied, then the initial values are added to the tidy output.
+#' @param path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param variables Character vector of state variable names to extract.
+#' @param initial Logical. If `TRUE`, initial-state values from the `"init"`
+#'   group are prepended to the output with `time_index = -1` and
+#'   `timestamp = -1`.
 #'
-#' @returns A long-format dataframe of continuous state variables.
+#' @returns A long-format tibble with columns `variable`, `value`, `cell_id`,
+#'   `x`, `y`, `time_index`, and `timestamp`.
 
-# libraries to add to @Import later
-require(tidync)
-require(tidyverse)
-
-tidy_continuous_data <- function(continuous, variables, initial = NULL) {
+tidy_continuous_data <- function(path, variables, initial = FALSE) {
   # load continuous data file
-  cont <- tidync(continuous)
+  outputs <- get_data_variables(path, group = "outputs", variables)
 
-  # extract the index of spatial and temporal dimensions
-  dims_cont <-
-    list(space = "cell_id", time = "time_index") |>
-    map(\(dim_name) {
-      cont |> hyper_dims() |> filter(name == dim_name) |> pull(id)
-    })
   # spatial coordinates to join by cell_id
-  coords_cont <-
-    cont |>
-    activate(paste0("D", dims_cont$space)) |>
-    hyper_tibble()
+  xy <-
+    get_data_variables(path, group = "outputs", variables = c("x", "y")) |>
+    reshape2::melt() |>
+    tidyr::pivot_wider(names_from = L1)
   # temporal coordinates to join by time_index
-  time_cont <-
-    cont |>
-    activate(paste0("D", dims_cont$time)) |>
-    hyper_tibble()
+  timestamp <-
+    get_data_variables(path, group = "outputs", variables = "timestamp") |>
+    reshape2::melt() |>
+    tidyr::pivot_wider(names_from = L1)
 
   # tidy, long-format version of the continuous data
   tidy_cont <-
-    variables |>
-    map(\(variable) {
-      cont |>
-        activate(variable) |>
-        hyper_tibble() |>
-        pivot_longer(
-          cols = all_of(variable),
-          names_to = "variable"
-        ) |>
-        # add spatial and temporal coordinates
-        left_join(coords_cont, by = join_by(cell_id)) |>
-        left_join(time_cont, by = join_by(time_index))
-    }) |>
-    list_c() |>
-    mutate(time_index = as.numeric(time_index))
+    outputs |>
+    reshape2::melt() |>
+    dplyr::left_join(xy, by = dplyr::join_by(cell_id)) |>
+    dplyr::left_join(timestamp, by = dplyr::join_by(time_index)) |>
+    dplyr::mutate(time_index = as.numeric(time_index))
 
   # if initial data is requested, ditto the tidying process above and then
   # merge it with the continuous data;
   # the initial values are assigned a time_index of -1
-  if (!is.null(initial)) {
-    init <- tidync(initial)
-    dims_init <-
-      init |> hyper_dims() |> filter(name == "cell_id") |> pull(id)
-    coords_init <-
-      init |>
-      activate(paste0("D", dims_init)) |>
-      hyper_tibble() |>
-      select(cell_id, x, y)
+  if (initial) {
+    init <- get_data_variables(path, group = "init", variables)
 
     tidy_init <-
-      variables |>
-      map(\(variable) {
-        init |>
-          activate(variable) |>
-          hyper_tibble() |>
-          pivot_longer(
-            cols = all_of(variable),
-            names_to = "variable"
-          ) |>
-          left_join(coords_init, by = join_by(cell_id))
-      }) |>
-      list_c() |>
-      mutate(timestamp = -1, time_index = -1)
+      init |>
+      reshape2::melt() |>
+      dplyr::left_join(xy, by = dplyr::join_by(cell_id)) |>
+      dplyr::mutate(timestamp = -1, time_index = -1)
 
     # merge initial and continuous data
-    tidy_cont <- bind_rows(tidy_init, tidy_cont)
+    tidy_cont <- dplyr::bind_rows(tidy_init, tidy_cont)
   }
 
-  return(tidy_cont)
+  # finalise output
+  tidy_cont |> dplyr::rename(variable = L1) |> dplyr::as_tibble()
 }
