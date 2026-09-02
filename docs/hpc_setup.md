@@ -190,3 +190,28 @@ The upper bounds match the largest CX3 nodes rather than realistic per-job reque
 staying inside them does not guarantee that a job will be scheduled promptly. Check the
 [Imperial RCS documentation](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/queues/)
 for more detail.
+
+## Manage file quotas
+
+The example data generates approximately 3,600 files per array sub-job. This currently
+limits large runs because HPC storage quotas limit both storage space and
+the number of files.
+
+Check your current usage with:
+
+```bash
+quota
+```
+
+Home storage permits 10 million files. At 3,600 files per sub-job, a completely
+empty quota could hold the outputs of approximately 2,700 sub-jobs.
+Existing files reduce this capacity.
+
+For larger runs, consider archiving completed outputs with `tar`, moving the
+archives to ephemeral storage, and analysing them there. Ephemeral storage has a
+20-million-file limit. However, **Ephemeral storage is temporary**.
+Files stored there for longer than 30 days are automatically deleted.
+
+If large runs are routinely required, the Virtual Ecosystem output method should
+be reviewed. If no suitable solution is available, contact the platforms team for
+advice or request a temporary quota increase.
