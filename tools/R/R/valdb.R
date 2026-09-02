@@ -18,6 +18,7 @@
 #|
 #| author:
 #|   - Hao Ran Lai
+#|   - Nicholas Wei Cheng Tan
 #|
 #| status: final
 #|

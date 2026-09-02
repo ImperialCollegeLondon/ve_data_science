@@ -11,7 +11,9 @@
 #|
 #| virtual_ecosystem_module: All
 #|
-#| author: Hao Ran Lai & Nicholas Wei Cheng Tan
+#| author:
+#|   - Hao Ran Lai
+#|   - Nicholas Wei Cheng Tan
 #|
 #| status: wip
 #|
