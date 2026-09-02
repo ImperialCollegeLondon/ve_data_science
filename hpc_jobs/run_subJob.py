@@ -10,7 +10,7 @@ from hpc_jobs.parse_arrayJob_config import load_arrayJob_spec
 
 # Get the command line arguments
 batch_file = Path(sys.argv[1])
-job_array_index = int(sys.argv[2])
+pbs_array_index = int(sys.argv[2])
 output_dir = Path(sys.argv[3])
 
 # Load batch job specification
@@ -25,11 +25,11 @@ with batch_file.open("rb") as array_job_file:
 os.chdir(arrayJob_spec.site_directory)
 
 # Extract the job from the jobs spec by index
-subJob = arrayJob_spec.get_subJob(job_array_index)
+subJob = arrayJob_spec.get_subJob(pbs_array_index)
 
 # Build into args for ve_run function
 config_paths = [*arrayJob_spec.common_config_paths, *subJob.config_paths]
-cli_config = subJob.config
+cli_config = subJob.cli_config
 
 # check that the output directory exists
 if not output_dir.is_dir():

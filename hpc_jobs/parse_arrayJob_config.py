@@ -4,7 +4,7 @@ import tomllib
 from pathlib import Path
 from typing import Any, BinaryIO
 
-from pydantic import Field
+from pydantic import DirectoryPath, Field
 from pydantic.dataclasses import dataclass
 
 
@@ -13,7 +13,7 @@ class SubJob:
     """Defines a single sub-job."""
 
     config_paths: list[Path]
-    config: dict[str, Any]
+    cli_config: dict[str, Any]
     repeats: int = Field(default=1, ge=1)
 
 
@@ -22,10 +22,10 @@ class arrayJobSpec:
     """Defines the whole arrayJob."""
 
     common_config_paths: list[Path]
-    site_directory: Path
-    jobs: list[SubJob] = Field(min_length=1)
+    site_directory: DirectoryPath
+    subJobs: list[SubJob] = Field(min_length=1)
 
-    n_jobs: int = Field(init=False)
+    n_subJobs: int = Field(init=False)
     subjob_repeats_map: list[int] = Field(init=False)
 
     def __post_init__(
@@ -39,11 +39,11 @@ class arrayJobSpec:
         """
         self.subjob_repeats_map = [
             job_index
-            for job_index, job in enumerate(self.jobs)
+            for job_index, job in enumerate(self.subJobs)
             for _ in range(job.repeats)
         ]
-        # calculate the total number of jobs (inc repeats) based on the job map.
-        self.n_jobs = len(self.subjob_repeats_map)
+        # calculate the total number of subJobs (inc repeats) based on the job map.
+        self.n_subJobs = len(self.subjob_repeats_map)
 
     def get_subJob(self, array_index: int) -> SubJob:
         """Get the correct job for a job array index."""
@@ -52,7 +52,7 @@ class arrayJobSpec:
         job_index = self.subjob_repeats_map[array_index - 1]
 
         # Return the corresponding job.
-        return self.jobs[job_index]
+        return self.subJobs[job_index]
 
 
 def load_arrayJob_spec(arrayJob_file: BinaryIO) -> arrayJobSpec:
@@ -67,7 +67,7 @@ def load_arrayJob_spec(arrayJob_file: BinaryIO) -> arrayJobSpec:
     """
     arrayJob_config = tomllib.load(arrayJob_file)
     # Validate the job specification using Pydantic
-    # (calls the __post_init__ method to populate n_jobs and subjob_repeats_map)
+    # (calls the __post_init__ method to populate n_subJobs and subjob_repeats_map)
     arrayJob_spec = arrayJobSpec(**arrayJob_config)
 
     return arrayJob_spec

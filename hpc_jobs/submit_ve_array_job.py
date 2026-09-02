@@ -86,21 +86,21 @@ def main() -> None:
         from virtual_ecosystem.core.logger import LOGGER
         from virtual_ecosystem.main import ve_run
 
-        for job_index, job in enumerate(arrayJob_spec.jobs, start=1):
-            job_config_paths = [
+        for subJob_index, subJob in enumerate(arrayJob_spec.subJobs, start=1):
+            subJob_config_paths = [
                 site_directory / path
-                for path in (*arrayJob_spec.common_config_paths, *job.config_paths)
+                for path in (*arrayJob_spec.common_config_paths, *subJob.config_paths)
             ]
             try:
                 LOGGER.disabled = True
                 ve_run(
-                    cfg_paths=job_config_paths,
-                    cli_config=job.config,
+                    cfg_paths=subJob_config_paths,
+                    cli_config=subJob.cli_config,
                     validate_only=True,
                 )
             except ConfigurationError as error:
                 raise ValueError(
-                    f"Invalid Virtual Ecosystem configuration for job: {job_index} \n"
+                    f"Invalid Virtual Ecosystem config for subJob: {subJob_index} \n"
                     f"{error}"
                 ) from error
             finally:
@@ -111,9 +111,9 @@ def main() -> None:
 
     # Inform user of progress
     print("Configuration files processed and validated.")
-    print(f"Number of jobs: {arrayJob_spec.n_jobs}")
+    print(f"Number of subJobs: {arrayJob_spec.n_subJobs}")
     print("Per subJob Resources:")
-    print(f"  Maximum concurrent jobs: {resources_spec.max_concurrent_jobs}")
+    print(f"  Maximum concurrent subJobs: {resources_spec.max_concurrent_jobs}")
     print(f"  Number of CPUs: {resources_spec.ncpus}")
     print(f"  Memory: {resources_spec.mem_gb} GB")
     print(f"  Walltime: {resources_spec.walltime}")
@@ -122,8 +122,8 @@ def main() -> None:
     args.output_directory.mkdir(parents=True)
     print("Generated output directories")
     # create subdirectories for each job
-    for job_index in range(1, arrayJob_spec.n_jobs + 1):
-        (args.output_directory / f"array_subJob_{job_index}").mkdir()
+    for pbs_array_index in range(1, arrayJob_spec.n_subJobs + 1):
+        (args.output_directory / f"array_subJob_{pbs_array_index}").mkdir()
 
     # resolve paths before running qsub
     arrayJob_config = args.arrayJob_config.resolve()
@@ -147,7 +147,7 @@ cd "$ROOT_DIRECTORY"
     qsub_command = [
         "qsub",
         "-J",
-        f"1-{arrayJob_spec.n_jobs}%{resources_spec.max_concurrent_jobs}",
+        f"1-{arrayJob_spec.n_subJobs}%{resources_spec.max_concurrent_jobs}",
         f"-lselect={resources_spec.select}",
         f"-lwalltime={resources_spec.walltime}",
         "-j",
