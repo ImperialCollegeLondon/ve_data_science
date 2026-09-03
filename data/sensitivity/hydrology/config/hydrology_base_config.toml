@@ -1,0 +1,33 @@
+[hydrology]
+static = false
+initial_soil_moisture = 0.5
+initial_groundwater_saturation = 0.9
+p_wet_wet = 0.6
+p_wet_dry = 0.3
+rainfall_shape_parameter = 1.5
+rainfall_scale_parameter = 1.0
+
+[hydrology.constants]
+soil_moisture_residual = 0.175
+soil_moisture_saturation = 0.51
+saturated_hydraulic_conductivity = 3.5e-05
+van_genuchten_nonlinearily_parameter = 1.598
+intercept_parameters = [
+    0.935,
+    0.498,
+    0.00575,
+]
+veg_density_param = 0.046
+groundwater_capacity = 500.0
+bypass_flow_coefficient = 1.0
+extinction_coefficient_global_radiation = 0.74
+max_percolation_rate_uzlz = 2.7
+groundwater_loss = 1.0
+reservoir_const_upper_groundwater = 20.0
+reservoir_const_lower_groundwater = 20.0
+initial_aerodynamic_resistance_soil = 12.5
+drag_coefficient_evaporation = 0.2
+initial_stomatal_conductance = 1000.0
+pore_connectivity_parameter = 0.5
+air_entry_potential_inverse = 0.042
+m_to_kpa = 9.804

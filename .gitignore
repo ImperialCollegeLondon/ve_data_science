@@ -18,10 +18,13 @@ data/primary
 
 # Derived data
 data/derived/troubleshoot/runtime_per_cell/*.png
-data/derived/soil/validation/database
 data/derived/soil/necromass/li_et_al_2023.csv
+data/derived/soil/llm/soil_constant_usage.toml
 data/derived/litter/stock/litter_stock.csv
+*.duckdb
 analysis/troubleshoot/cnp_ratios/*png
+*.parquet
+data/derived/soil/spatial_model
 
 # MkDocs build output
 site/
@@ -65,6 +68,9 @@ analysis/soil/issue_tracker/*.html
 # RStudio files
 .Rproj.user/
 *.Rproj
+
+# renv files
+.Rprofile
 
 # produced vignettes
 vignettes/*.html

@@ -1,0 +1,30 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3265703
+doi: 10.5281/zenodo.3265703
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Litter recorded as cover only.
+  screened_at: '2026-08-18T07:20:16Z'
+metadata:
+  title: Species richness, composition and microhabitat characteristics of non-volant
+    terrestrial mammals in disturbed habitats
+  authors:
+  - Wai, Leona
+  - Bernard, Henry
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3265703
+  keywords:
+  - Small mammals
+  - Habitat disturbance
+  - Microhabitat preferences
+  - Microhabitat use-pattern
+  - Species richness
+  - Non-volent mammals
+  - Oil palm
+  - Disturbed forest
+  - SAFE project
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:19:41Z'

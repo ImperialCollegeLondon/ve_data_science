@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1220269
+doi: 10.5281/zenodo.1220269
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Contains soil pH, and litter depth and decay data, but not useful for     validation
+    targets.
+  screened_at: '2026-08-14T02:30:45Z'
+metadata:
+  title: The Impact Of Invertebrates And Fungi On Litter Decomposition Rate In Modified
+    Forests
+  authors:
+  - Plowman, Nicola
+  - Ewers, Robert M.
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1220269
+  keywords:
+  - leaf litter
+  - decomposition
+  - exclusion experiment
+  - invertebrate
+  - fungi
+  provider: doi_content_search
+  retrieved_at: '2026-08-14T02:30:30Z'
