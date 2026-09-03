@@ -82,10 +82,10 @@ doi-10-5281-zenodo-2024580.yaml
 Existing DOI records are not overwritten. To amend a screening decision,
 delete its per-DOI YAML file and screen the dataset again.
 
-## 2) Add a schema template for one `proceed` dataset
+## 2) Add a schema template for one `proceed` DOI record
 
-`add_schema()` locates a screening record by DOI and adds the fields required by
-the current build step.
+`add_schema()` locates a screening record by DOI and adds one nested dataset
+template under `datasets:` for the current build step.
 
 ```r
 valdb$add_schema(doi = "10.5281/zenodo.2024580")
@@ -107,20 +107,23 @@ it is normalised before lookup. The record must already exist, have
 the template is written safely and only the target per-DOI YAML file is opened
 for manual editing. Existing schemas are not overwritten.
 
-A minimal local dashboard provides the same workflow for all pending `proceed`
+The initial template always uses the nested `datasets` layout, even when the
+DOI record currently contains only one dataset.
+
+A minimal local dashboard provides the same workflow for all `proceed`
 records. Launch it from the repository root:
 
 ```r
 shiny::runApp("analysis/soil/validation/schema_dashboard")
 ```
 
-The dashboard reads the YAML records directly, shows screening notes, and loads
-the selected record into a browser YAML editor. It calls
-`initialise_source_schema()` only when a schema does not exist. Untouched or
-partially completed template schemas remain in the to-do list as drafts. Saving
-validates the YAML and record identity before replacing the filesystem record.
-The record can also be opened in the desktop editor. The dashboard does not
-maintain a separate database.
+The dashboard reads the YAML records directly, shows one row per dataset for
+`proceed` records, and loads the selected per-DOI YAML file into a browser
+editor. It calls `initialise_source_schema()` only when a schema does not
+exist. Untouched or partially completed dataset entries remain visible as
+`Draft`. Saving validates the YAML and record identity before replacing the
+filesystem record. The record can also be opened in the desktop editor. The
+dashboard does not maintain a separate database.
 
 ## 3) Download the dataset and convert it to CSV
 
@@ -144,7 +147,7 @@ The template is an editable scaffold, not a build-ready configuration. Replace
 every placeholder with values from the source dataset, remove unused example
 entries, and add one `variables` entry for each source column to include.
 
-For each dataset with a `proceed` decision, complete:
+For each dataset entry under `datasets:`, complete:
 
 - `source_id` (e.g. `dobert_2019`)
 - `data_file` (path to the CSV file)
@@ -152,11 +155,10 @@ For each dataset with a `proceed` decision, complete:
 - `variables` (original name, canonical name, original unit)
 - `dedup_key`
 
-These fields are added at the top level of the existing per-DOI record. They
-sit alongside `schema_version`, `record_id`, `doi`, `screening`, and `metadata`;
-they are not nested under a separate `schema` key.
+Dataset-specific fields are nested under `datasets`, while record-level fields
+stay at the top level.
 
-Example:
+Example with one dataset:
 
 ```yaml
 schema_version: 1
@@ -172,21 +174,26 @@ metadata:
   authors:
     - Doe, Jane
   year: 2019
-source_id: dobert_2019
-data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
-skip_rows: 9
-variables:
-  soilN:
-    var_canonical: total_soil_n_per_volume
-    unit: mg cm^-3
-    description: Total soil nitrogen content
-  soilP:
-    var_canonical: dissolved_phosphorus
-    unit: ug cm^-3
-    description: Plant available soil phosphorus content
-dedup_key:
-  - plot.code
+datasets:
+  - source_id: dobert_2019
+    data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
+    skip_rows: 9
+    variables:
+      soilN:
+        var_canonical: total_soil_n_per_volume
+        unit: mg cm^-3
+        description: Total soil nitrogen content
+      soilP:
+        var_canonical: dissolved_phosphorus
+        unit: ug cm^-3
+        description: Plant available soil phosphorus content
+    dedup_key:
+      - plot.code
 ```
+
+To add another dataset from the same DOI, append another entry under
+`datasets:` in the same YAML file. The build pipeline still consumes one flat
+source schema per dataset internally, keyed by unique `source_id`.
 
 Assumptions and expectations:
 
@@ -276,15 +283,16 @@ Default behavior:
 - Converts known variables directly between compatible units with `units`
 - Reads per-DOI records in filename order from
   `data/derived/soil/validation/config/sources/*.yaml`
+- Flattens each record to one build source per dataset entry under `datasets`
 - Ignores screening-only records
-- Warns about initialised schemas that still contain mandatory placeholders and
+- Warns about dataset entries that still contain mandatory placeholders and
   skips them
 - Requires every schema record to retain a `proceed` screening decision
 - Writes Parquet output to `data/derived/soil/validation/database`
 
 A `proceed` decision alone does not make a record build-ready. The builder only
-uses records with a completed top-level schema. It stops if no completed schemas
-remain after screening-only and draft records are excluded.
+uses completed dataset entries. It stops if no completed dataset schemas remain
+after screening-only and draft entries are excluded.
 
 ## 6) Combine the validation database with VE outputs
 
