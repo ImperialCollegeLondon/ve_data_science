@@ -385,7 +385,7 @@ schema_dashboard_server <- function(
 
           path <- if (
             !record_has_nested_datasets(record) &&
-              !record_has_legacy_flat_schema(record)
+              !record_has_flat_schema_fields(record)
           ) {
             initialise_source_schema(doi, sources_dir)
           } else {
