@@ -4,38 +4,74 @@ doi: 10.5281/zenodo.8158810
 screening:
   decision: proceed
   reason: relevant_validation_data
-  notes: Heartwood nutrient may be able to approximate woody litter nutrient pools.
-  screened_at: '2026-08-17T03:07:17Z'
+  notes:
+    Heartwood nutrient may be able to approximate woody litter nutrient pools.
+  screened_at: "2026-08-17T03:07:17Z"
 metadata:
-  title: Nutrients and wood density in coarse root, trunk and branches in Bornean
+  title:
+    Nutrients and wood density in coarse root, trunk and branches in Bornean
     tree species
   authors:
-  - Inagawa, Takeshi
-  - Riutta, Terhi
-  - Malhi, Yadvinder
-  - Majalap, Noreen
-  - Nilus, Reuben
-  - Josue, James
+    - Inagawa, Takeshi
+    - Riutta, Terhi
+    - Malhi, Yadvinder
+    - Majalap, Noreen
+    - Nilus, Reuben
+    - Josue, James
   year: 2023
   journal: ~
   publisher: Zenodo
   url: https://zenodo.org/record/8158810
   keywords:
-  - wood traits
-  - bark
-  - sapwood
-  - heartwood
-  - coarse root
-  - branch
-  - carbon
-  - nitrogen
-  - phosphorus
-  - potassium
-  - calcium
-  - magnesium
-  - wood specific gravity
-  - nutrient cycling
-  - wood resorption
-  - wood density
+    - wood traits
+    - bark
+    - sapwood
+    - heartwood
+    - coarse root
+    - branch
+    - carbon
+    - nitrogen
+    - phosphorus
+    - potassium
+    - calcium
+    - magnesium
+    - wood specific gravity
+    - nutrient cycling
+    - wood resorption
+    - wood density
   provider: doi_content_search
-  retrieved_at: '2026-08-17T03:07:04Z'
+  retrieved_at: "2026-08-17T03:07:04Z"
+datasets:
+  - source_id: author_year
+    data_file: data/primary/soil/author_year/*.csv
+    skip_rows: 0
+    variables:
+      var_original_1:
+        var_canonical: var_ve_1
+        unit: unit
+        description: ~
+    dedup_key:
+      - sample_id
+      - date
+      - site_id
+    coordinates:
+      same_for_all_rows:
+        latitude: ~
+        longitude: ~
+      latitude_column: ~
+      longitude_column: ~
+      from_file: ~
+      match_data_column: ~
+      match_location_column: ~
+    temporal:
+      date_column: ~
+      start_column: ~
+      end_column: ~
+      format: ~
+      timezone: ~
+      precision: ~
+      same_for_all_rows:
+        start: ~
+        end: ~
+        precision: ~
+        note: ~
