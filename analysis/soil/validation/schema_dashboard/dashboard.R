@@ -9,15 +9,12 @@
 # Convert YAML records into a rectangular data frame suitable for a Shiny
 # table. The dashboard shows one row per dataset for `proceed` records, with a
 # placeholder row for screening-only records that have not yet been initialised.
-dataset_schema_status <- function(record, dataset = NULL) {
+dataset_schema_status <- function(dataset = NULL) {
   if (is.null(dataset)) {
     return("Not started")
   }
-  if (record_has_nested_datasets(record)) {
-    if (dataset_needs_completion(dataset)) "Draft" else "Complete"
-  } else {
-    if (dataset_needs_completion(dataset)) "Legacy draft" else "Legacy complete"
-  }
+
+  if (dataset_needs_completion(dataset)) "Draft" else "Complete"
 }
 
 
@@ -30,36 +27,21 @@ record_rows_for_dashboard <- function(record) {
   year <- as.integer(record$metadata$year %||% NA_integer_)
   notes <- record$screening$notes %||% ""
   screened_at <- record$screening$screened_at %||% ""
+  datasets <- record_dataset_entries(record)
 
-  if (record_has_nested_datasets(record)) {
-    return(purrr::imap(record$datasets, function(dataset, dataset_index) {
+  if (length(datasets) > 0L) {
+    return(purrr::imap(datasets, function(dataset, dataset_index) {
       data.frame(
         doi = record$doi,
         title = title,
         year = year,
         notes = notes,
         source_id = dataset$source_id %||% "",
-        schema_status = dataset_schema_status(record, dataset),
+        schema_status = dataset_schema_status(dataset),
         screened_at = screened_at,
-        dataset_index = as.integer(dataset_index),
-        layout = "nested"
+        dataset_index = as.integer(dataset_index)
       )
     }))
-  }
-
-  if (record_has_legacy_flat_schema(record)) {
-    dataset <- record_dataset_entries(record)[[1]]
-    return(list(data.frame(
-      doi = record$doi,
-      title = title,
-      year = year,
-      notes = notes,
-      source_id = dataset$source_id %||% "",
-      schema_status = dataset_schema_status(record, dataset),
-      screened_at = screened_at,
-      dataset_index = 1L,
-      layout = "legacy_flat"
-    )))
   }
 
   list(data.frame(
@@ -68,10 +50,9 @@ record_rows_for_dashboard <- function(record) {
     year = year,
     notes = notes,
     source_id = "",
-    schema_status = dataset_schema_status(record, NULL),
+    schema_status = dataset_schema_status(NULL),
     screened_at = screened_at,
-    dataset_index = NA_integer_,
-    layout = "screening_only"
+    dataset_index = NA_integer_
   ))
 }
 
@@ -90,8 +71,7 @@ pending_schema_records <- function(records) {
       source_id = character(),
       schema_status = character(),
       screened_at = character(),
-      dataset_index = integer(),
-      layout = character()
+      dataset_index = integer()
     ))
   }
 
@@ -135,18 +115,23 @@ save_yaml_record <- function(yaml_text, path) {
   }
 
   has_nested <- record_has_nested_datasets(record)
-  has_legacy <- record_has_legacy_flat_schema(record)
-  if (has_nested && has_legacy) {
+  has_flat_schema <- record_has_flat_schema_fields(record)
+  if (has_nested && has_flat_schema) {
     cli::cli_abort(
-      "The YAML mixes legacy top-level schema fields with a {.field datasets} list. Use one layout only."
+      "The YAML mixes flat top-level schema fields with a {.field datasets} list. Use the nested layout only."
     )
   }
-  if (has_nested) {
-    if (!is.list(record$datasets) || length(record$datasets) == 0L) {
-      cli::cli_abort(
-        "The {.field datasets} field must contain at least one dataset entry."
-      )
-    }
+  if (has_flat_schema && !has_nested) {
+    cli::cli_abort(
+      "Flat top-level schema fields are no longer supported. Convert the record to nested {.field datasets} layout."
+    )
+  }
+  if (
+    has_nested && (!is.list(record$datasets) || length(record$datasets) == 0L)
+  ) {
+    cli::cli_abort(
+      "The {.field datasets} field must contain at least one dataset entry."
+    )
   }
 
   temporary <- tempfile(

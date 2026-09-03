@@ -632,13 +632,13 @@ dataset_needs_completion <- function(dataset) {
 }
 
 
-#' Check whether a validation record still needs schema completion
+#' Check whether a screening record still lacks a completed dataset schema
 #'
-#' Legacy flat records are assessed directly. Nested records are considered
-#' incomplete when they have no datasets or when every dataset entry is still a
-#' draft.
+#' Returns `TRUE` when a record has no dataset entries yet, or when every entry
+#' under `datasets` still contains placeholder values from
+#' [new_schema_template()].
 #'
-#' @param record A screening record, optionally with schema fields.
+#' @param record A screening record, optionally with a `datasets` field.
 #'
 #' @returns `TRUE` when the record has no completed dataset schemas.
 
@@ -650,26 +650,55 @@ schema_needs_completion <- function(record) {
 }
 
 
+#' Check whether a screening record uses the nested dataset layout
+#'
+#' This helper detects the supported record structure, where dataset schemas are
+#' stored under the top-level `datasets` field.
+#'
+#' @param record A candidate screening record.
+#'
+#' @returns `TRUE` when `record` has a top-level `datasets` field.
+
 record_has_nested_datasets <- function(record) {
   is.list(record) && "datasets" %in% names(record)
 }
 
 
-record_has_legacy_flat_schema <- function(record) {
+#' Check whether a screening record still contains top-level schema fields
+#'
+#' Flat top-level schema fields are no longer supported. This helper is used to
+#' detect that invalid layout before dataset processing continues.
+#'
+#' @param record A candidate screening record.
+#'
+#' @returns `TRUE` when `record` contains any dataset-schema field at top level.
+
+record_has_flat_schema_fields <- function(record) {
   schema_fields <- names(new_schema_template())
 
   is.list(record) && any(schema_fields %in% names(record))
 }
 
 
-record_dataset_entries <- function(record) {
-  schema_fields <- names(new_schema_template())
+#' Extract dataset-schema entries from a screening record
+#'
+#' Supported records store dataset schemas under the top-level `datasets`
+#' field. Records with deprecated flat top-level schema fields abort with a
+#' layout error instead of being coerced.
+#'
+#' @param record A screening record.
+#'
+#' @returns A list of dataset-schema entries, or an empty list for
+#'   screening-only records.
 
+record_dataset_entries <- function(record) {
   if (record_has_nested_datasets(record)) {
     return(record$datasets %||% list())
   }
-  if (record_has_legacy_flat_schema(record)) {
-    return(list(record[schema_fields]))
+  if (record_has_flat_schema_fields(record)) {
+    cli::cli_abort(
+      "Found legacy flat schema fields in a source record. Convert the record to nested {.field datasets} layout before continuing."
+    )
   }
 
   list()
@@ -1059,7 +1088,7 @@ initialise_source_schema <- function(
     )
   }
   if (
-    record_has_nested_datasets(record) || record_has_legacy_flat_schema(record)
+    record_has_nested_datasets(record) || record_has_flat_schema_fields(record)
   ) {
     cli::cli_abort(c(
       "DOI {.val {doi}} already has a schema.",

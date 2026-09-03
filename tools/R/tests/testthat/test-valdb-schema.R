@@ -234,20 +234,6 @@ test_that("initialise_source_schema requires a proceed decision", {
 })
 
 
-test_that("initialise_source_schema does not replace an existing schema", {
-  sources_dir <- withr::local_tempdir()
-  record <- c(new_schema_test_record(), new_schema_template())
-  path <- file.path(sources_dir, paste0(record$record_id, ".yaml"))
-  yaml::write_yaml(record, path)
-
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "already has a schema"
-  )
-  expect_identical(yaml::read_yaml(path), record)
-})
-
-
 test_that("schema_needs_completion handles nested records by dataset", {
   record <- new_schema_test_record()
   record$datasets <- list(new_schema_template())

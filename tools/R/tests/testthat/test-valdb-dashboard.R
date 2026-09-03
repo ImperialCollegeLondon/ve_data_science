@@ -73,7 +73,6 @@ test_that("pending_schema_records keeps proceed records without schemas", {
   expect_identical(pending_row$source_id, "")
   expect_identical(pending_row$schema_status, "Not started")
   expect_identical(pending_row$screened_at, pending$screening$screened_at)
-  expect_identical(pending_row$layout, "screening_only")
 })
 
 
@@ -90,8 +89,7 @@ test_that("pending_schema_records returns an empty display table", {
       "source_id",
       "schema_status",
       "screened_at",
-      "dataset_index",
-      "layout"
+      "dataset_index"
     )
   )
   expect_equal(nrow(result), 0L)
@@ -106,7 +104,6 @@ test_that("pending_schema_records keeps initialised templates as drafts", {
 
   expect_identical(result$doi, record$doi)
   expect_identical(result$schema_status, "Draft")
-  expect_identical(result$layout, "nested")
 })
 
 
@@ -194,7 +191,7 @@ test_that("save_yaml_record saves valid edits", {
 })
 
 
-test_that("save_yaml_record rejects mixed nested and legacy layouts", {
+test_that("save_yaml_record rejects mixed nested and flat layouts", {
   sources_dir <- withr::local_tempdir()
   record <- new_dashboard_test_record("10.1000/mixed")
   path <- write_screening_record(record, sources_dir)
@@ -203,7 +200,20 @@ test_that("save_yaml_record rejects mixed nested and legacy layouts", {
 
   expect_error(
     save_yaml_record(yaml::as.yaml(record), path),
-    "mixes legacy"
+    "mixes flat"
+  )
+})
+
+
+test_that("save_yaml_record rejects flat top-level schema fields", {
+  sources_dir <- withr::local_tempdir()
+  record <- c(new_dashboard_test_record("10.1000/flat"), new_schema_template())
+  path <- file.path(sources_dir, paste0(record$record_id, ".yaml"))
+  yaml::write_yaml(record, path)
+
+  expect_error(
+    save_yaml_record(yaml::as.yaml(record), path),
+    "no longer supported"
   )
 })
 

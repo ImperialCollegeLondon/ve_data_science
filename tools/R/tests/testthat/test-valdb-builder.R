@@ -23,11 +23,30 @@
 source(here::here("tools/R/R/valdb.R"))
 
 
+new_builder_test_schema <- function(doi) {
+  dataset <- new_schema_template()
+  dataset$source_id <- paste0("source_", stringr::str_extract(doi, "[^/]+$"))
+  dataset$data_file <- paste0(
+    "data/primary/soil/",
+    dataset$source_id,
+    "/data.csv"
+  )
+  dataset$variables <- list(
+    soil_carbon = list(
+      var_canonical = "soil_c_pool_lmwc",
+      unit = "kg m-3",
+      description = NULL
+    )
+  )
+  dataset$dedup_key <- "sample_id"
+  dataset
+}
+
+
 new_builder_test_record <- function(
   doi,
   decision = "proceed",
-  schema = TRUE,
-  nested = FALSE
+  schema = TRUE
 ) {
   record <- new_screening_record(
     doi = doi,
@@ -45,28 +64,8 @@ new_builder_test_record <- function(
     return(record)
   }
 
-  dataset <- new_schema_template()
-  dataset$source_id <- paste0("source_", stringr::str_extract(doi, "[^/]+$"))
-  dataset$data_file <- paste0(
-    "data/primary/soil/",
-    dataset$source_id,
-    "/data.csv"
-  )
-  dataset$variables <- list(
-    soil_carbon = list(
-      var_canonical = "soil_c_pool_lmwc",
-      unit = "kg m-3",
-      description = NULL
-    )
-  )
-  dataset$dedup_key <- "sample_id"
-
-  if (nested) {
-    record$datasets <- list(dataset)
-    return(record)
-  }
-
-  c(record, dataset)
+  record$datasets <- list(new_builder_test_schema(doi))
+  record
 }
 
 
@@ -87,10 +86,13 @@ test_that("list_build_sources discovers completed schemas deterministically", {
 
   result <- list_build_sources(sources_dir)
 
-  expect_identical(names(result), sort(c(first$source_id, second$source_id)))
+  expect_identical(
+    names(result),
+    sort(c(first$datasets[[1]]$source_id, second$datasets[[1]]$source_id))
+  )
   expect_identical(
     unname(purrr::map_chr(result, "source_id")),
-    sort(c(first$source_id, second$source_id))
+    sort(c(first$datasets[[1]]$source_id, second$datasets[[1]]$source_id))
   )
 })
 
@@ -104,16 +106,14 @@ test_that("list_build_sources ignores screening-only records", {
 
   result <- list_build_sources(sources_dir)
 
-  expect_named(result, complete$source_id)
+  expect_named(result, complete$datasets[[1]]$source_id)
 })
 
 
 test_that("list_build_sources warns and skips draft schemas", {
   sources_dir <- withr::local_tempdir()
-  draft <- c(
-    new_builder_test_record("10.1000/draft", schema = FALSE),
-    new_schema_template()
-  )
+  draft <- new_builder_test_record("10.1000/draft", schema = FALSE)
+  draft$datasets <- list(new_schema_template())
   complete <- new_builder_test_record("10.1000/complete")
   draft_path <- write_builder_test_record(draft, sources_dir)
   write_builder_test_record(complete, sources_dir)
@@ -123,7 +123,7 @@ test_that("list_build_sources warns and skips draft schemas", {
     basename(draft_path),
     fixed = TRUE
   )
-  expect_named(result, complete$source_id)
+  expect_named(result, complete$datasets[[1]]$source_id)
 })
 
 
@@ -141,10 +141,8 @@ test_that("list_build_sources errors when only screening records exist", {
 
 test_that("list_build_sources errors when only draft schemas exist", {
   sources_dir <- withr::local_tempdir()
-  draft <- c(
-    new_builder_test_record("10.1000/draft", schema = FALSE),
-    new_schema_template()
-  )
+  draft <- new_builder_test_record("10.1000/draft", schema = FALSE)
+  draft$datasets <- list(new_schema_template())
   write_builder_test_record(draft, sources_dir)
 
   expect_warning(
@@ -160,7 +158,8 @@ test_that("list_build_sources errors when only draft schemas exist", {
 test_that("list_build_sources recognises partial schemas as drafts", {
   sources_dir <- withr::local_tempdir()
   partial <- new_builder_test_record("10.1000/partial", schema = FALSE)
-  partial$data_file <- "data/primary/soil/partial/data.csv"
+  partial$datasets <- list(new_schema_template())
+  partial$datasets[[1]]$data_file <- "data/primary/soil/partial/data.csv"
   complete <- new_builder_test_record("10.1000/complete")
   partial_path <- write_builder_test_record(partial, sources_dir)
   write_builder_test_record(complete, sources_dir)
@@ -170,7 +169,7 @@ test_that("list_build_sources recognises partial schemas as drafts", {
     basename(partial_path),
     fixed = TRUE
   )
-  expect_named(result, complete$source_id)
+  expect_named(result, complete$datasets[[1]]$source_id)
 })
 
 
@@ -210,7 +209,10 @@ test_that("list_build_sources rejects duplicate DOI records", {
 
 test_that("list_build_sources rejects schemas without a proceed decision", {
   sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record("10.1000/excluded", decision = "exclude")
+  record <- new_builder_test_record(
+    "10.1000/excluded",
+    decision = "exclude"
+  )
   path <- write_builder_test_record(record, sources_dir)
 
   expect_error(
@@ -223,7 +225,7 @@ test_that("list_build_sources rejects schemas without a proceed decision", {
 
 test_that("list_build_sources flattens nested multi-dataset records", {
   sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record("10.1000/nested", nested = TRUE)
+  record <- new_builder_test_record("10.1000/nested")
   second_dataset <- new_schema_template()
   second_dataset$source_id <- "source_nested_b"
   second_dataset$data_file <- "data/primary/soil/source_nested_b/data.csv"
@@ -253,7 +255,7 @@ test_that("list_build_sources flattens nested multi-dataset records", {
 
 test_that("list_build_sources reads nested single-dataset records", {
   sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record("10.1000/nested-single", nested = TRUE)
+  record <- new_builder_test_record("10.1000/nested-single")
   write_builder_test_record(record, sources_dir)
 
   result <- list_build_sources(sources_dir)
@@ -268,7 +270,7 @@ test_that("validate_source_schema checks required fields and source files", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
   readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
-  source <- new_builder_test_record("10.1000/valid")
+  source <- new_builder_test_schema("10.1000/valid")
   source$data_file <- data_path
   schema_path <- file.path(directory, "source.yaml")
 
@@ -291,7 +293,7 @@ test_that("validate_source_schema checks scalar fields and collections", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
   readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
-  source <- new_builder_test_record("10.1000/valid")
+  source <- new_builder_test_schema("10.1000/valid")
   source$data_file <- data_path
   schema_path <- file.path(directory, "source.yaml")
 
@@ -327,8 +329,8 @@ test_that("validate_build_sources rejects duplicate source IDs", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
   readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
-  first <- new_builder_test_record("10.1000/first")
-  second <- new_builder_test_record("10.1000/second")
+  first <- new_builder_test_schema("10.1000/first")
+  second <- new_builder_test_schema("10.1000/second")
   first$data_file <- data_path
   second$data_file <- data_path
   first$schema_path <- file.path(directory, "first.yaml")
@@ -343,7 +345,7 @@ test_that("validate_build_sources rejects duplicate source IDs", {
 
 
 test_that("prepare_source_data rejects missing deduplication columns", {
-  source <- new_builder_test_record("10.1000/missing-key")
+  source <- new_builder_test_schema("10.1000/missing-key")
   data <- tibble::tibble(soil_carbon = 2)
 
   expect_error(prepare_source_data(data, source), "sample_id")
@@ -351,7 +353,7 @@ test_that("prepare_source_data rejects missing deduplication columns", {
 
 
 test_that("prepare_source_data warns and skips missing measurements", {
-  source <- new_builder_test_record("10.1000/missing-measurement")
+  source <- new_builder_test_schema("10.1000/missing-measurement")
   source$variables$soil_nitrogen <- source$variables$soil_carbon
   data <- tibble::tibble(sample_id = 1:2, soil_carbon = c(2, 3))
 
@@ -365,7 +367,7 @@ test_that("prepare_source_data warns and skips missing measurements", {
 
 
 test_that("prepare_source_data skips sources without measurements", {
-  source <- new_builder_test_record("10.1000/no-measurements")
+  source <- new_builder_test_schema("10.1000/no-measurements")
   data <- tibble::tibble(sample_id = 1:2)
 
   expect_warning(
@@ -377,7 +379,7 @@ test_that("prepare_source_data skips sources without measurements", {
 
 
 test_that("prepare_source_data rejects missing and duplicate keys", {
-  source <- new_builder_test_record("10.1000/invalid-keys")
+  source <- new_builder_test_schema("10.1000/invalid-keys")
 
   missing <- tibble::tibble(
     sample_id = c("a", NA_character_),
@@ -394,7 +396,7 @@ test_that("prepare_source_data rejects missing and duplicate keys", {
 
 
 test_that("add_observation_id rejects concatenation collisions", {
-  source <- new_builder_test_record("10.1000/collision")
+  source <- new_builder_test_schema("10.1000/collision")
   source$dedup_key <- c("plot", "sample")
   data <- tibble::tibble(
     plot = c("a_b", "a"),
@@ -523,14 +525,14 @@ test_that("configured spatial and temporal values survive a database build", {
     data_path
   )
   source <- new_builder_test_record("10.1000/spatiotemporal")
-  source$data_file <- data_path
-  source$variables$soil_carbon$var_canonical <- "known_variable"
-  source$variables$soil_carbon$unit <- "kg"
-  source$coordinates$same_for_all_rows <- list(
+  source$datasets[[1]]$data_file <- data_path
+  source$datasets[[1]]$variables$soil_carbon$var_canonical <- "known_variable"
+  source$datasets[[1]]$variables$soil_carbon$unit <- "kg"
+  source$datasets[[1]]$coordinates$same_for_all_rows <- list(
     latitude = 4.74,
     longitude = 116.97
   )
-  source$temporal$same_for_all_rows <- list(
+  source$datasets[[1]]$temporal$same_for_all_rows <- list(
     start = "2011-01-01",
     end = "2011-12-31",
     precision = "day",
@@ -598,7 +600,7 @@ test_that("harmonisation retains unknown canonical mappings", {
     tibble::tibble(sample_id = c("a", "b"), unknown = c(2, 3)),
     data_path
   )
-  source <- new_builder_test_record("10.1000/unknown")
+  source <- new_builder_test_schema("10.1000/unknown")
   source$data_file <- data_path
   source$variables <- list(
     unknown = list(
