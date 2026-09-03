@@ -392,8 +392,7 @@ source("analysis/soil/ammonium_nitrate/model.R")
 # simulation purpose (they have the same fixed effects)
 flux_forest_idx <- which(flux$landuse == "forest")[1]
 
-# simulate ammonium and nitrate
-# 1 mg N cm-3 = 1 kg N m-3 so no conversion needed
+# simulate ammonium and nitrate (already in kg{N} m-3)
 ammonium_sim <- as.numeric(
   glmmTMB:::simulate.glmmTMB(mod_ammonium, nsim = n_sim)[flux_forest_idx, ]
 )
