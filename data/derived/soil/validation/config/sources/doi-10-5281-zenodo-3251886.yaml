@@ -5,59 +5,61 @@ screening:
   decision: proceed
   reason: relevant_validation_data
   notes: Contains soil and litter C and N.
-  screened_at: '2026-08-18T07:12:35Z'
+  screened_at: "2026-08-18T07:12:35Z"
 metadata:
-  title: Soil greenhouse gas fluxes along transects from oil palm to riparian forests
+  title:
+    Soil greenhouse gas fluxes along transects from oil palm to riparian forests
     in the SAFE landscape
   authors:
-  - Drewer, Julia
-  - Kuling, Harry John
-  - Sentian, Justin
-  - Skiba, Ute
+    - Drewer, Julia
+    - Kuling, Harry John
+    - Sentian, Justin
+    - Skiba, Ute
   year: 2019
   journal: ~
   publisher: Zenodo
   url: https://zenodo.org/record/3251886
   keywords:
-  - HTMF
-  - river
-  - methane
-  - gas exchange
-  - SAFE project
-  - biogeochemistry
-  - greenhouse gases
-  - GHG
-  - nitrous oxide
-  - riparian
+    - HTMF
+    - river
+    - methane
+    - gas exchange
+    - SAFE project
+    - biogeochemistry
+    - greenhouse gases
+    - GHG
+    - nitrous oxide
+    - riparian
   provider: doi_content_search
-  retrieved_at: '2026-08-18T07:11:40Z'
+  retrieved_at: "2026-08-18T07:11:40Z"
 datasets:
-- source_id: drewer_2019a
-  data_file: data/primary/soil/drewer_2019a/1_HJ_river_water_riparian.csv
-  skip_rows: 5
-  variables:
-    soil_N:
-      var_canonical: total_soil_n_per_mass
-      unit: '%'
-      description: Soil nitrogen content from elemental analysis.
-    soil_C:
-      var_canonical: total_soil_c_per_mass
-      unit: '%'
-      description: Soil carbon content from elemental analysis.
-    litter_N:
-      var_canonical: total_litter_above_n_per_mass
-      unit: '%'
-      description: Litter nitrogen content from elemental analysis.
-    litter_C:
-      var_canonical: total_litter_above_c_per_mass
-      unit: '%'
-      description: Litter carbon content from elemental analysis.
-  dedup_key: Location
-  coordinates:
-    latitude_column: Latitude
-    longitude_column: Longitude
-  temporal:
-    same_for_all_rows:
-      start: 1/11/2016
-      end: 30/11/2017
-      note: Date range from the Summary sheet.
+  - source_id: drewer_2019a
+    data_file: data/primary/soil/drewer_2019a/1_HJ_river_water_riparian.csv
+    skip_rows: 5
+    variables:
+      soil_N:
+        var_canonical: total_soil_n_per_mass
+        unit: "%"
+        description: Soil nitrogen content from elemental analysis.
+      soil_C:
+        var_canonical: total_soil_c_per_mass
+        unit: "%"
+        description: Soil carbon content from elemental analysis.
+      litter_N:
+        var_canonical: total_litter_above_n_per_mass
+        unit: "%"
+        description: Litter nitrogen content from elemental analysis.
+      litter_C:
+        var_canonical: total_litter_above_c_per_mass
+        unit: "%"
+        description: Litter carbon content from elemental analysis.
+    dedup_key: Location
+    coordinates:
+      latitude_column: Latitude
+      longitude_column: Longitude
+    temporal:
+      format: "%d/%m/%Y"
+      same_for_all_rows:
+        start: 1/11/2016
+        end: 30/11/2017
+        note: Date range from the Summary sheet.
