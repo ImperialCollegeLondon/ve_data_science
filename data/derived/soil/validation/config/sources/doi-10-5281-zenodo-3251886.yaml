@@ -4,7 +4,12 @@ doi: 10.5281/zenodo.3251886
 screening:
   decision: proceed
   reason: relevant_validation_data
-  notes: Contains soil and litter C and N.
+  notes:
+    Contains soil and litter C and N. Added soil C and N, but litter are leaf
+    litter, and there is easy way to convert them to aboveground structural +
+    metabolic litter since we do not know the wood and reproductive organs'
+    contribution in this empirical dataset. This will be an ongoing challenge to
+    find litter validation data.
   screened_at: "2026-08-18T07:12:35Z"
 metadata:
   title:
@@ -45,14 +50,6 @@ datasets:
         var_canonical: total_soil_c_per_mass
         unit: "%"
         description: Soil carbon content from elemental analysis.
-      litter_N:
-        var_canonical: total_litter_above_n_per_mass
-        unit: "%"
-        description: Litter nitrogen content from elemental analysis.
-      litter_C:
-        var_canonical: total_litter_above_c_per_mass
-        unit: "%"
-        description: Litter carbon content from elemental analysis.
     dedup_key: Location
     coordinates:
       latitude_column: Latitude
