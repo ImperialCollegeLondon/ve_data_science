@@ -582,6 +582,9 @@ new_schema_template <- function() {
       )
     ),
     dedup_key = c("sample_id", "date", "site_id"),
+    # Optional row filters are applied with fixed AND semantics.
+    # Example: c("quality_flag == 'accepted'", "replicate != 'blank'")
+    row_filter = NULL,
     # Coordinates specification with precedence: (1) blanket, (2) data columns,
     # (3) external file. Check in order above; first non-null case applies.
     coordinates = list(
@@ -830,7 +833,7 @@ list_build_sources <- function(sources_dir) {
 #' @keywords internal
 
 validate_source_schema <- function(source, path) {
-  required_fields <- names(new_schema_template())
+  required_fields <- setdiff(names(new_schema_template()), "row_filter")
   missing_fields <- setdiff(required_fields, names(source))
   if (length(missing_fields) > 0L) {
     cli::cli_abort(
@@ -909,6 +912,40 @@ validate_source_schema <- function(source, path) {
        {.field dedup_key} values."
     )
   }
+  if (!is.null(source$row_filter)) {
+    invalid_row_filter <-
+      !is.character(source$row_filter) ||
+      length(source$row_filter) == 0L ||
+      any(is.na(source$row_filter)) ||
+      any(stringr::str_length(stringr::str_trim(source$row_filter)) == 0L)
+
+    if (invalid_row_filter) {
+      cli::cli_abort(
+        "Source schema {.path {path}} must have {.field row_filter} as a non-empty character vector when provided."
+      )
+    }
+
+    purrr::walk2(
+      source$row_filter,
+      seq_along(source$row_filter),
+      function(filter_clause, filter_index) {
+        tryCatch(
+          rlang::parse_expr(filter_clause),
+          error = function(error) {
+            cli::cli_abort(
+              c(
+                "Invalid {.field row_filter} expression in source schema {.path {path}}.",
+                "x" = "Entry {filter_index} cannot be parsed: {.val {filter_clause}}.",
+                "i" = conditionMessage(error)
+              ),
+              parent = error
+            )
+          }
+        )
+      }
+    )
+  }
+
   if (!file.exists(source$data_file)) {
     cli::cli_abort(
       "Data file {.path {source$data_file}} configured by source schema \
@@ -951,6 +988,81 @@ validate_build_sources <- function(sources, sources_dir) {
   }
 
   invisible(sources)
+}
+
+
+validate_row_filter_clause <- function(clause, data, source_id, filter_index) {
+  expression <- rlang::parse_expr(clause)
+
+  referenced_columns <- all.vars(expression)
+  missing_columns <- setdiff(referenced_columns, names(data))
+  if (length(missing_columns) > 0L) {
+    cli::cli_abort(
+      c(
+        "Invalid {.field row_filter} in source {.val {source_id}}.",
+        "x" = "Entry {filter_index} references unknown column{?s} {.field {missing_columns}}."
+      )
+    )
+  }
+
+  evaluated <- tryCatch(
+    {
+      rlang::eval_tidy(expression, data = data)
+    },
+    error = function(error) {
+      cli::cli_abort(
+        c(
+          "Invalid {.field row_filter} in source {.val {source_id}}.",
+          "x" = "Entry {filter_index} failed during evaluation: {.val {clause}}.",
+          "i" = conditionMessage(error)
+        ),
+        parent = error
+      )
+    }
+  )
+
+  if (!is.logical(evaluated)) {
+    cli::cli_abort(
+      c(
+        "Invalid {.field row_filter} in source {.val {source_id}}.",
+        "x" = "Entry {filter_index} must evaluate to a logical vector."
+      )
+    )
+  }
+
+  if (!(length(evaluated) %in% c(1L, nrow(data)))) {
+    cli::cli_abort(
+      c(
+        "Invalid {.field row_filter} in source {.val {source_id}}.",
+        "x" = "Entry {filter_index} returned length {length(evaluated)}; expected 1 or {nrow(data)}."
+      )
+    )
+  }
+
+  if (length(evaluated) == 1L) {
+    rep(evaluated, nrow(data))
+  } else {
+    evaluated
+  }
+}
+
+
+apply_schema_row_filter <- function(data, source) {
+  row_filter <- source$row_filter
+  if (is.null(row_filter)) {
+    return(data)
+  }
+
+  keep <- purrr::map2(
+    row_filter,
+    seq_along(row_filter),
+    \(clause, filter_index) {
+      validate_row_filter_clause(clause, data, source$source_id, filter_index)
+    }
+  ) |>
+    purrr::reduce(`&`)
+
+  dplyr::filter(data, keep)
 }
 
 
@@ -1297,11 +1409,12 @@ harmonise_source_data <- function(src, canonical_units) {
 
   data <-
     data |>
+    apply_schema_row_filter(src) |>
     # Attach metadata before `unite()` consumes the deduplication columns.
     add_coordinates(src) |>
     add_temporal(src) |>
     add_observation_id(src) |>
-    # Pivot long for unit conversion and missing-value removal.
+    # Pivot long for unit conversion and mandatory missing-value removal.
     tidyr::pivot_longer(
       cols = tidyr::all_of(measurement_columns),
       names_to = "var_original"
