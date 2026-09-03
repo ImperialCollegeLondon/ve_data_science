@@ -213,21 +213,108 @@ values blank when the source does not provide the corresponding metadata.
 Missing spatial or temporal metadata produces a warning and typed missing
 values in the database; it does not make an otherwise complete schema a draft.
 
-By default, the builder looks for `locations.csv` beside `data_file`. It matches
-the single `dedup_key` column against `Location name` and reads `Latitude` and
-`Longitude`. Use `match_data_column`, `match_location_column`,
-`latitude_column`, and `longitude_column` to override those names, or
-`from_file` to use another location file. A multi-column `dedup_key` requires an
-explicit `match_data_column`. Coordinates must be WGS84 decimal degrees. Use
-`same_for_all_rows.latitude` and `same_for_all_rows.longitude` when one location
-applies to the complete dataset.
+#### Coordinate sources and precedence
 
-After that first join, the workflow runs a second-pass gazetteer fill using
-`data/primary/site/gazetteer.geojson`. For rows still missing latitude or
-longitude, it matches the configured location key to `location` in the
-gazetteer and fills coordinates from centroid values (`centroid_x`,
-`centroid_y`). Rows filled this way are flagged as
-`coordinate_source: gazetteer_second_pass`.
+The builder fills coordinates using one of the following methods, in order of
+precedence. All methods produce a `coordinate_source` field indicating which
+source was used:
+
+1. **Blanket coordinates** (`same_for_all_rows`): Use when one location applies
+   to the entire dataset. Set both `same_for_all_rows.latitude` and
+   `same_for_all_rows.longitude` to scalar values in WGS84 decimal degrees.
+   Rows filled this way have `coordinate_source: blanket_coordinates`.
+
+2. **Data-column coordinates** (`latitude_column`, `longitude_column`): Use when
+   the source CSV contains separate latitude and longitude columns. Set both
+   `latitude_column` and `longitude_column` to the original column names.
+   The builder reads these columns directly from `data_file`, converts them to
+   numeric WGS84 decimal degrees, and flags rows as
+   `coordinate_source: data_columns`. If either column name is missing or
+   contains only `NULL` values, this method is skipped.
+
+3. **External locations file** (`from_file`, `match_data_column`,
+   `match_location_column`, `latitude_column`, `longitude_column`): Use when
+   coordinates are stored in a separate file. By default, the builder looks for
+   `locations.csv` beside `data_file`. To use another file, set `from_file`.
+   Match the data using `match_data_column` (column in `data_file`) and
+   `match_location_column` (column in the locations file). Within the locations
+   file, read latitude and longitude from `latitude_column` and
+   `longitude_column` (default: `Latitude` and `Longitude`). A multi-column
+   `dedup_key` requires an explicit `match_data_column`. Rows filled this way
+   have `coordinate_source: locations_file`.
+
+4. **Gazetteer second pass**: If rows still lack coordinates after the above
+   methods, the builder attempts to match the location key against
+   `data/primary/site/gazetteer.geojson` and fills missing coordinates from
+   centroid values (`centroid_x`, `centroid_y`). Rows filled this way are
+   flagged as `coordinate_source: gazetteer_second_pass`.
+
+All coordinate values must be WGS84 decimal degrees. Rows with invalid
+coordinates (non-numeric, out-of-range, or both missing) are flagged as
+`coordinate_source: missing`.
+
+Temporal metadata can come from one `date_column`, from paired `start_column`
+and `end_column` values, or from `same_for_all_rows.start` and
+`same_for_all_rows.end`. Columns used for time metadata must also be retained by
+`dedup_key` or `variables`. Optional `format`, `timezone`, and `precision`
+settings control parsing; supported precision values are `second`, `day`,
+`month`, and `year`. Times are stored in UTC as half-open intervals
+`[time_start, time_end)`. Source end values are interpreted as the last
+inclusive precision unit, and `same_for_all_rows.end: open` represents an
+unbounded end. The optional blanket `note` is stored in `time_note`.
+
+#### Example: Coordinates from data columns
+
+```yaml
+coordinates:
+  latitude_column: Latitude
+  longitude_column: Longitude
+```
+
+The builder reads `Latitude` and `Longitude` directly from the source CSV
+(`data_file`) and converts them to numeric WGS84 values.
+
+#### Example: Blanket coordinates
+
+```yaml
+coordinates:
+  same_for_all_rows:
+    latitude: 4.3975
+    longitude: 117.3659
+```
+
+All rows receive this single coordinate pair; the location is treated as
+constant across the dataset.
+
+#### Example: External locations file (default)
+
+```yaml
+coordinates:
+  match_data_column: plot.code
+  match_location_column: Location name
+  latitude_column: Latitude
+  longitude_column: Longitude
+```
+
+The builder looks for `locations.csv` beside `data_file`. It matches
+`plot.code` from the data against `Location name` in the locations file, and
+reads coordinates from the locations file's `Latitude` and `Longitude` columns.
+
+#### Example: External locations file (custom path)
+
+```yaml
+coordinates:
+  from_file: data/primary/soil/dobert_2019/sites.csv
+  match_data_column: plot.code
+  match_location_column: site_id
+  latitude_column: lat
+  longitude_column: lon
+```
+
+The builder reads coordinates from the specified `from_file` path, matching
+and column names as configured.
+
+#### Temporal metadata
 
 Temporal metadata can come from one `date_column`, from paired `start_column`
 and `end_column` values, or from `same_for_all_rows.start` and
@@ -242,15 +329,6 @@ unbounded end. The optional blanket `note` is stored in `time_note`.
 For example:
 
 ```yaml
-coordinates:
-  from_file:
-  match_data_column: plot.code
-  match_location_column: Location name
-  latitude_column: Latitude
-  longitude_column: Longitude
-  same_for_all_rows:
-    latitude:
-    longitude:
 temporal:
   date_column:
   start_column:
