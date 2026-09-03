@@ -53,6 +53,7 @@ test_that("new_schema_template returns the builder contract", {
       "skip_rows",
       "variables",
       "dedup_key",
+      "row_filter",
       "coordinates",
       "temporal"
     )
@@ -75,15 +76,16 @@ test_that("new_schema_template returns the builder contract", {
   expect_identical(template$variables$var_original_1$unit, "unit")
   expect_null(template$variables$var_original_1$description)
   expect_identical(template$dedup_key, c("sample_id", "date", "site_id"))
+  expect_null(template$row_filter)
   expect_named(
     template$coordinates,
     c(
-      "from_file",
-      "match_data_column",
-      "match_location_column",
+      "same_for_all_rows",
       "latitude_column",
       "longitude_column",
-      "same_for_all_rows"
+      "from_file",
+      "match_data_column",
+      "match_location_column"
     )
   )
   expect_named(
@@ -106,7 +108,7 @@ test_that("new_schema_template returns the builder contract", {
     template$temporal$same_for_all_rows,
     c("start", "end", "precision", "note")
   )
-  expect_true(all(purrr::map_lgl(template$coordinates[1:5], is.null)))
+  expect_true(all(purrr::map_lgl(template$coordinates[2:6], is.null)))
   expect_true(all(purrr::map_lgl(
     template$coordinates$same_for_all_rows,
     is.null

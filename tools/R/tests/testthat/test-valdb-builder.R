@@ -322,6 +322,27 @@ test_that("validate_source_schema checks scalar fields and collections", {
   invalid_key <- source
   invalid_key$dedup_key <- c("sample_id", "sample_id")
   expect_error(validate_source_schema(invalid_key, schema_path), "dedup_key")
+
+  invalid_row_filter_type <- source
+  invalid_row_filter_type$row_filter <- list("sample_id == 1")
+  expect_error(
+    validate_source_schema(invalid_row_filter_type, schema_path),
+    "row_filter"
+  )
+
+  invalid_row_filter_blank <- source
+  invalid_row_filter_blank$row_filter <- c("sample_id == 1", "")
+  expect_error(
+    validate_source_schema(invalid_row_filter_blank, schema_path),
+    "row_filter"
+  )
+
+  invalid_row_filter_parse <- source
+  invalid_row_filter_parse$row_filter <- "sample_id =="
+  expect_error(
+    validate_source_schema(invalid_row_filter_parse, schema_path),
+    "cannot be parsed"
+  )
 })
 
 
@@ -406,6 +427,93 @@ test_that("add_observation_id rejects concatenation collisions", {
   data <- prepare_source_data(data, source)
 
   expect_error(add_observation_id(data, source), "collide")
+})
+
+
+test_that("apply_schema_row_filter applies fixed AND semantics", {
+  source <- new_builder_test_schema("10.1000/row-filter-and")
+  source$row_filter <- c(
+    "quality_flag == 'accepted'",
+    "replicate != 'blank'"
+  )
+
+  data <- tibble::tibble(
+    sample_id = c("a", "b", "c"),
+    quality_flag = c("accepted", "rejected", "accepted"),
+    replicate = c("main", "main", "blank"),
+    soil_carbon = c(1, 2, 3)
+  )
+
+  result <- apply_schema_row_filter(data, source)
+
+  expect_identical(result$sample_id, "a")
+})
+
+
+test_that("apply_schema_row_filter rejects unknown columns", {
+  source <- new_builder_test_schema("10.1000/row-filter-missing-column")
+  source$row_filter <- "unknown_column == 1"
+
+  data <- tibble::tibble(sample_id = c("a", "b"), soil_carbon = c(1, 2))
+
+  expect_error(
+    apply_schema_row_filter(data, source),
+    "unknown column"
+  )
+})
+
+
+test_that("apply_schema_row_filter rejects non-logical expressions", {
+  source <- new_builder_test_schema("10.1000/row-filter-non-logical")
+  source$row_filter <- "soil_carbon + 1"
+
+  data <- tibble::tibble(sample_id = c("a", "b"), soil_carbon = c(1, 2))
+
+  expect_error(
+    apply_schema_row_filter(data, source),
+    "logical vector"
+  )
+})
+
+
+test_that("harmonise_source_data always removes missing measurement values", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  readr::write_csv(
+    tibble::tibble(
+      sample_id = c("a", "b", "c"),
+      quality_flag = c("accepted", "accepted", "rejected"),
+      soil_carbon = c(2, NA, 3)
+    ),
+    data_path
+  )
+
+  source <- new_builder_test_schema("10.1000/row-filter-na-removal")
+  source$data_file <- data_path
+  source$row_filter <- "quality_flag == 'accepted'"
+  source$variables$soil_carbon$var_canonical <- "known_variable"
+  source$variables$soil_carbon$unit <- "kg"
+  source$coordinates$same_for_all_rows <- list(
+    latitude = 4.74,
+    longitude = 116.97
+  )
+  source$temporal$same_for_all_rows <- list(
+    start = "2011-01-01",
+    end = "2011-12-31",
+    precision = "day",
+    note = NULL
+  )
+
+  canonical_units <- tibble::tibble(
+    var_canonical = "known_variable",
+    unit_canonical = "kg"
+  )
+
+  result <- harmonise_source_data(source, canonical_units)
+
+  expect_equal(nrow(result), 1L)
+  expect_identical(result$ID, "a")
+  expect_false(any(is.na(result$value)))
 })
 
 
