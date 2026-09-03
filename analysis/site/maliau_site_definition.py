@@ -35,8 +35,8 @@ description: |
     - VE-compatible grid configuration (core.grid) and
       timing configuration (core.timing)
 
-  Existing scenarios are preserved across runs, and new scenarios are added without
-  overwriting previous entries.
+  Every run regenerates the TOML file from scratch using all scenarios defined in
+  `get_all_configs`, overwriting any previous file contents.
 
 author:
   - name: David Orme
@@ -59,17 +59,14 @@ package_dependencies:
   - pyproj
   - tomli_w
   - shapely
-  - tomllib
 
 usage_notes: |
   - Add and edit scenario information to the list under `get_all_configs` in this script
   - In the terminal, run this script `python maliau_site_definition.py` from the root
     directory
-  - Select a scenario interactively by typing, for example, `maliau_1,
-    `maliau_2` etc.
-  - A TOML file will be created at the specified `output_path`
-  - To update or add additional scenario to the TOML file, rerun the script and select
-    the new scenario name.
+  - All scenarios defined in `get_all_configs` are written in a single run
+  - A TOML file will be created (or fully overwritten) at the specified `output_path`
+  - To update grid or timing settings, edit `get_all_configs` and rerun the script
   - Scenarios are stored under [Scenario.<name>] with their own grid and timing
     configuration blocks.
 
@@ -77,9 +74,6 @@ usage_notes: |
 ---
 
 """  # noqa: D400, D212, D205, D415
-
-import os
-import tomllib
 
 import pyproj
 import tomli_w
@@ -127,14 +121,6 @@ def get_all_configs():
             },
         },
     }
-
-
-def get_grid_config(grid_name: str):
-    """Return the configuration dictionary for a given grid scenario."""
-    configs = get_all_configs()
-    if grid_name not in configs:
-        raise ValueError(f"Invalid grid_name: {grid_name}")
-    return configs[grid_name]
 
 
 # ============================================================
@@ -274,61 +260,25 @@ def write_all_scenarios(data, output_path):
 ## ============================================================
 # MAIN RUN FUNCTION
 # ============================================================
-# Generate and write a grid scenario to the TOML file.
-# Loads existing scenarios, prevents overwriting, and ensures
-# a complete VE-compatible TOML structure.
-def run(grid_name):
-    """Generate and save a grid scenario to the TOML file."""
+# Build every scenario defined in `get_all_configs` and write them all to the
+# TOML file in a single run, overwriting any previous file contents.
+def run_all():
+    """Generate and save every defined grid scenario to the TOML file."""
 
     # Output file path
     output_path = "data/derived/site/maliau/maliau_grid_definition.toml"
 
-    # Load existing scenarios (if file exists)
-    if os.path.exists(output_path):
-        with open(output_path, "rb") as f:
-            data = tomllib.load(f)
-    else:
-        data = {}
+    configs = get_all_configs()
+    data = {
+        "Scenario": {
+            name: build_grid_definition(config) for name, config in configs.items()
+        }
+    }
 
-    # Ensure "Scenario" container exists
-    if "Scenario" not in data:
-        data["Scenario"] = {}
-
-    # Prevent overwriting existing scenario
-    if grid_name in data["Scenario"]:
-        raise ValueError(
-            f"❌ Scenario '{grid_name}' already exists.\n"
-            f"Delete it manually if you want to regenerate."
-        )
-    # Build new scenario
-    config = get_grid_config(grid_name)
-    new_grid = build_grid_definition(config)
-
-    # Add only if new
-    data["Scenario"][grid_name] = new_grid
-
-    # Write full TOML file
     write_all_scenarios(data, output_path)
-    print(f"\n✔ Scenario '{grid_name}' written successfully (write-once).\n")
+    scenario_names = ", ".join(configs)
+    print(f"\n✔ Wrote {len(configs)} scenario(s) to {output_path}: {scenario_names}\n")
 
-
-# ============================================================
-# INTERACTIVE ENTRY POINT
-# ============================================================
-# Displays available scenarios, prompts user selection,validates input, and executes
-# the selected scenario via the run() function.
 
 if __name__ == "__main__":
-    configs = get_all_configs()
-    names = list(configs.keys())
-
-    print("\nAvailable scenarios:")
-    for n in names:
-        print(f" - {n}")
-
-    choice = input("\nEnter scenario: ").strip()
-
-    if choice not in names:
-        raise ValueError("Invalid choice")
-
-    run(choice)
+    run_all()
