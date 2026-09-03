@@ -542,3 +542,37 @@ get_total_soil_p_per_area <- function(zarr_path, config) {
   total_soil_p_per_volume <- get_total_soil_p_per_volume(zarr_path, config)
   convert_volume_to_area_basis(total_soil_p_per_volume, config)
 }
+
+#' Calculate soil ammonium pool per mass
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil ammonium pool per mass.
+#' @export
+
+get_soil_n_pool_ammonium_per_mass <- function(zarr_path, config) {
+  soil_n_pool_ammonium_per_volume <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_n_pool_ammonium"
+  )
+  convert_volume_to_mass_basis(soil_n_pool_ammonium_per_volume, config)
+}
+
+#' Calculate soil nitrate pool per mass
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil nitrate pool per mass.
+#' @export
+
+get_soil_n_pool_nitrate_per_mass <- function(zarr_path, config) {
+  soil_n_pool_nitrate_per_volume <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_n_pool_nitrate"
+  )
+  convert_volume_to_mass_basis(soil_n_pool_nitrate_per_volume, config)
+}
