@@ -552,9 +552,9 @@ screen_dataset <- function(
 
 # Schema template contract -----------------------------------------------
 
-#' Construct a validation dataset schema template
+#' Construct one validation dataset schema template
 #'
-#' The template contains the YAML fields currently consumed by
+#' The template contains the dataset-level YAML fields currently consumed by
 #' [build_validation_database()]. The returned list is an editable scaffold,
 #' not a build-ready schema. Before running [build_validation_database()],
 #' replace every example value with the actual CSV path, source column names,
@@ -564,7 +564,7 @@ screen_dataset <- function(
 #'
 #' This helper function is intended to be used with [initialise_source_schema()].
 #'
-#' @returns A named list containing placeholders for the mandatory source fields
+#' @returns A named list containing placeholders for the mandatory dataset fields
 #'   and optional `coordinates` and `temporal` blocks.
 #'
 #' @export
@@ -1027,13 +1027,13 @@ add_observation_id <- function(data, source) {
 
 #' Initialise a validation dataset schema
 #'
-#' Adds [new_schema_template()] to an existing screening record. The record must
-#' have a `proceed` decision and must not already contain a schema. Existing
-#' screening and DOI metadata fields are preserved.
+#' Adds one nested dataset template under `datasets` to an existing screening
+#' record. The record must have a `proceed` decision and must not already
+#' contain a schema. Existing screening and DOI metadata fields are preserved.
 #'
 #' The updated record is written to a temporary file, read back to verify the
 #' YAML round trip, and then moved to the original record path. To amend an
-#' existing schema, delete its YAML file and screen the dataset again.
+#' existing schema, edit the YAML record directly.
 #'
 #' @param doi A DOI accepted by [normalise_doi()].
 #' @param sources_dir Directory containing one YAML file per screened dataset.
@@ -1058,10 +1058,12 @@ initialise_source_schema <- function(
       "DOI {.val {doi}} must have a {.val proceed} screening decision before a schema can be added."
     )
   }
-  if (!is.null(record$source_id)) {
+  if (
+    record_has_nested_datasets(record) || record_has_legacy_flat_schema(record)
+  ) {
     cli::cli_abort(c(
       "DOI {.val {doi}} already has a schema.",
-      "i" = "To amend it, delete the existing YAML file and screen it again."
+      "i" = "Edit the existing YAML record directly instead of initialising a new schema."
     ))
   }
 
@@ -1075,7 +1077,7 @@ initialise_source_schema <- function(
     )
   }
 
-  updated_record <- c(record, new_schema_template())
+  updated_record <- c(record, list(datasets = list(new_schema_template())))
   temporary <- tempfile(
     pattern = stringr::str_c(".", doi_to_record_id(doi), "-"),
     tmpdir = sources_dir,

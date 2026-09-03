@@ -163,7 +163,7 @@ test_that("configured optional schema blocks round trip through YAML", {
 })
 
 
-test_that("initialise_source_schema adds schema and preserves screening fields", {
+test_that("initialise_source_schema adds nested schema and preserves screening fields", {
   sources_dir <- withr::local_tempdir()
   record <- new_schema_test_record()
   path <- write_screening_record(record, sources_dir)
@@ -173,11 +173,8 @@ test_that("initialise_source_schema adds schema and preserves screening fields",
 
   expect_identical(result, path)
   expect_identical(updated[names(record)], record)
-  expect_identical(
-    updated[names(new_schema_template())],
-    new_schema_template()
-  )
-  expect_named(updated, c(names(record), names(new_schema_template())))
+  expect_identical(updated$datasets, list(new_schema_template()))
+  expect_named(updated, c(names(record), "datasets"))
   expect_identical(
     list.files(sources_dir, all.files = TRUE),
     c(".", "..", basename(path))
@@ -299,10 +296,7 @@ test_that("add_schema initialises and opens only the target record", {
   expect_identical(result, target_path)
   expect_identical(editor_calls$paths, target_path)
   expect_identical(updated[names(target)], target)
-  expect_identical(
-    updated[names(new_schema_template())],
-    new_schema_template()
-  )
+  expect_identical(updated$datasets, list(new_schema_template()))
   expect_identical(yaml::read_yaml(other_path), other)
   expect_identical(yaml::read_yaml(target_path), updated)
 })
@@ -396,5 +390,20 @@ test_that("add_schema does not replace an existing schema", {
     "already has a schema"
   )
   expect_false(editor_called)
+  expect_identical(yaml::read_yaml(path), record)
+})
+
+
+test_that("initialise_source_schema does not replace an existing nested schema", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_schema_test_record()
+  record$datasets <- list(new_schema_template())
+  path <- file.path(sources_dir, paste0(record$record_id, ".yaml"))
+  yaml::write_yaml(record, path)
+
+  expect_error(
+    initialise_source_schema(record$doi, sources_dir),
+    "already has a schema"
+  )
   expect_identical(yaml::read_yaml(path), record)
 })
