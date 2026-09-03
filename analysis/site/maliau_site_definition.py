@@ -6,19 +6,27 @@ description: |
   This script generates grid-based site definitions for the Maliau Basin and stores
   them as multiple scenarios within a single TOML file.
 
-  Each scenario (e.g., maliau_1, maliau_2) is defined by a user-specified geographic
-  bounding box (WGS84), grid resolution (meters), grid dimensions
-  (cell_nx, cell_ny), simulation timing configuration (core.timing)
+  Each scenario (e.g., maliau_1, maliau_2) is defined by a user-specified bounding
+  box in projected UTM Zone 50N coordinates (meters), grid resolution (meters), grid
+  dimensions (cell_nx, cell_ny), simulation timing configuration (core.timing)
 
   The workflow:
-    1. Converts geographic coordinates (WGS84) to UTM Zone 50N
-    2. Aligns the grid to the specified resolution using a snapped lower-left origin
-    3. Computes grid extent (lower-left and upper-right coordinates)
+    1. Uses the bbox lower-left corner directly (already in UTM Zone 50N) as the
+       grid origin
+    2. Computes grid extent (lower-left and upper-right coordinates) in UTM Zone 50N
+    3. Converts the grid extent to WGS84 for reference/output only
     4. Calculates cell centre coordinates for compatibility with input datasets
     5. Attaches VE-compatible configuration blocks:
          - core.grid   (spatial configuration)
          - core.timing (temporal configuration)
     6. Writes all scenarios into a structured TOML file under [Scenario.<name>]
+
+  The bounding box is specified directly in UTM Zone 50N rather than WGS84 so the
+  grid is defined and aligned purely in projected coordinates; deriving the UTM
+  extent from a WGS84 bounding box would introduce reprojection rounding before
+  the grid origin is even set. The bbox corner is used as-is, with no snapping to
+  a resolution multiple, so a deliberately chosen extent (e.g. buffered around
+  known plot coordinates) is preserved exactly.
 
   The output TOML file contains:
     - Grid extent (UTM coordinates)
@@ -33,10 +41,11 @@ description: |
 author:
   - name: David Orme
   - name: Lelavathy
+  - name: Arne Scheire
 
 virtual_ecosystem_module: all
 
-status: draft
+status: final
 
 input_files:
   - description: User-defined grid and timing configurations (within script)
@@ -69,7 +78,6 @@ usage_notes: |
 
 """  # noqa: D400, D212, D205, D415
 
-import math
 import os
 import tomllib
 
@@ -85,7 +93,8 @@ from shapely.ops import transform
 #    Each scenario includes:
 #    - cell_nx, cell_ny : grid dimensions
 #    - res              : grid resolution (meters)
-#    - bbox             : bounding box in WGS84 (lat_min, lon_min, lat_max, lon_max)
+#    - bbox             : bounding box in UTM Zone 50N, EPSG:32650
+#                         (minx, miny, maxx, maxy), in meters
 #    - timing           : simulation timing configuration (core.timing)
 #        - start_date      : simulation start date (YYYY-MM-DD)
 #        - update_interval : model update timestep (e.g. "1 month", "1 day")
@@ -99,7 +108,7 @@ def get_all_configs():
             "cell_nx": 50,
             "cell_ny": 50,
             "res": 100,
-            "bbox": (4.7072522, 116.9243027, 4.7524439, 116.9693404),
+            "bbox": (491559.3, 520298.8, 496559.3, 525298.8),
             "timing": {
                 "start_date": "2010-01-01",
                 "update_interval": "1 month",
@@ -110,7 +119,7 @@ def get_all_configs():
             "cell_nx": 10,
             "cell_ny": 10,
             "res": 100,
-            "bbox": (4.744301, 116.961225, 4.7524439, 116.9693404),
+            "bbox": (495559.3, 524298.8, 496559.3, 525298.8),
             "timing": {
                 "start_date": "2010-01-01",
                 "update_interval": "1 month",
@@ -133,12 +142,11 @@ def get_grid_config(grid_name: str):
 # ============================================================
 # Generate grid definition from configuration.
 #   Steps:
-#    1. Convert bounding box (WGS84 → UTM)
-#    2. Snap grid to resolution
-#    3. Compute grid extent (LL and UR)
-#    4. Convert back to WGS84
-#    5. Compute cell centres
-#    6. Assemble final grid definition dictionary
+#    1. Use bbox lower-left corner directly (already in UTM, no snapping)
+#    2. Compute grid extent (LL and UR)
+#    3. Convert to WGS84 for reference/output only
+#    4. Compute cell centres
+#    5. Assemble final grid definition dictionary
 
 
 def build_grid_definition(config):
@@ -147,40 +155,23 @@ def build_grid_definition(config):
     cell_nx = config["cell_nx"]  # Number of grid cells in X direction
     cell_ny = config["cell_ny"]  # Number of grid cells in Y direction
     res = config["res"]  # Grid resolution of each grid cell (in meters)
-    (lat_min, lon_min, lat_max, lon_max) = config[
+    (minx, miny, _, _) = config[
         "bbox"
-    ]  # Bounding box in WGS84 geographic coordinates
+    ]  # Bounding box in UTM Zone 50N projected coordinates
     timing = config.get("timing", None)  # timing configuration
 
-    # Define projection systems and transformation functions between WGS84
-    # and UTM Zone50N
-    # - WGS84 (EPSG:4326): Geographic coordinate system using latitude
-    #   and longitude (deg)
-    # - UTM Zone 50N (EPSG:32650): Projected coordinate system in meters
-    wgs84 = pyproj.Proj("epsg:4326")
+    # UTM Zone 50N (EPSG:32650) is a projected coordinate system in meters.
+    # The bounding box is already supplied in this system, so no WGS84 to UTM
+    # conversion is needed here. WGS84 (EPSG:4326) is only used afterwards to
+    # report the grid extent in geographic coordinates.
     utm50 = pyproj.Proj("epsg:32650")
-
-    # Transformers are defined for bidirectional conversion:
-    #   - wgs84_to_utm50N: converts (lon, lat) → (x, y) in meters
-    #   - utm50N_to_wgs84: converts (x, y) → (lon, lat)
-    to_utm = pyproj.Transformer.from_proj(wgs84, utm50, always_xy=True)
+    wgs84 = pyproj.Proj("epsg:4326")
     to_wgs = pyproj.Transformer.from_proj(utm50, wgs84, always_xy=True)
 
-    # NOTE:
-    # always_xy=True ensures coordinate order is always:
-    # (longitude, latitude), avoiding axis confusion
-    # Create bounding box (lon, lat order for shapely)
-
-    # Create bounding box polygon in WGS84
-    poly = box(lon_min, lat_min, lon_max, lat_max)
-    poly_utm = transform(to_utm.transform, poly)
-
-    # Extract bounding box limits in UTM
-    minx, miny, _, _ = poly_utm.bounds
-
-    # Snap lower-left corner to grid resolution
-    ll_x = math.floor(minx / res) * res
-    ll_y = math.floor(miny / res) * res
+    # No snapping: the bbox corner is used as-is, so the caller's exact
+    # extent (e.g. buffered around known plot coordinates) is preserved.
+    ll_x = minx
+    ll_y = miny
 
     # Compute upper-right corner of grid
     ur_x = ll_x + cell_nx * res
