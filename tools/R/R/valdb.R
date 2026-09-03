@@ -1066,6 +1066,20 @@ apply_schema_row_filter <- function(data, source) {
 }
 
 
+source_row_filter_columns <- function(source) {
+  row_filter <- source$row_filter
+  if (is.null(row_filter)) {
+    return(character())
+  }
+
+  row_filter |>
+    purrr::map(rlang::parse_expr) |>
+    purrr::map(all.vars) |>
+    unlist(use.names = FALSE) |>
+    unique()
+}
+
+
 #' Validate and select columns from one source dataset
 #'
 #' Requires all configured deduplication columns. Missing measurement columns
@@ -1116,10 +1130,16 @@ prepare_source_data <- function(data, source) {
   )
   coord_cols <- coord_cols[!is.na(coord_cols) & !is.null(coord_cols)]
 
+  row_filter_cols <- setdiff(
+    source_row_filter_columns(source),
+    c(source$dedup_key, available_measurements, coord_cols)
+  )
+
   data <- dplyr::select(
     data,
     tidyr::all_of(c(source$dedup_key, available_measurements)),
-    tidyr::any_of(coord_cols)
+    tidyr::any_of(coord_cols),
+    tidyr::any_of(row_filter_cols)
   )
   key_data <- dplyr::select(data, tidyr::all_of(source$dedup_key))
   missing_values <- key_data |>
