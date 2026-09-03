@@ -40,7 +40,8 @@
 #|
 #|   There is a corrigendum https://doi.org/10.5194/bg-18-1559-2021-corrigendum
 #|   that states the unit of measurement to be mg kg−1, not mg g-1 as in the
-#|   unchanged dataset.
+#|   unchanged dataset. Future versions of the dataset on Zenodo will have
+#|   corrected units.
 #| ---
 
 library(tidyverse)
