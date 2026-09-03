@@ -611,24 +611,99 @@ new_schema_template <- function() {
 }
 
 
-#' Check whether a validation dataset schema needs completion
+#' Check whether one validation dataset schema entry needs completion
 #'
-#' A schema needs completion when it has not been initialised or still contains
-#' a mandatory value copied from [new_schema_template()]. Optional spatial and
+#' A dataset schema needs completion when it is absent or still contains a
+#' mandatory value copied from [new_schema_template()]. Optional spatial and
 #' temporal fields do not affect completion status.
 #'
-#' @param record A screening record, optionally with schema fields.
+#' @param dataset One dataset-schema entry.
 #'
 #' @returns `TRUE` when the mandatory schema is absent or still a draft.
 
-schema_needs_completion <- function(record) {
+dataset_needs_completion <- function(dataset) {
   template <- new_schema_template()
 
-  is.null(record$source_id) ||
-    identical(record$source_id, template$source_id) ||
-    identical(record$data_file, template$data_file) ||
-    identical(record$variables, template$variables) ||
-    identical(record$dedup_key, template$dedup_key)
+  is.null(dataset$source_id) ||
+    identical(dataset$source_id, template$source_id) ||
+    identical(dataset$data_file, template$data_file) ||
+    identical(dataset$variables, template$variables) ||
+    identical(dataset$dedup_key, template$dedup_key)
+}
+
+
+#' Check whether a validation record still needs schema completion
+#'
+#' Legacy flat records are assessed directly. Nested records are considered
+#' incomplete when they have no datasets or when every dataset entry is still a
+#' draft.
+#'
+#' @param record A screening record, optionally with schema fields.
+#'
+#' @returns `TRUE` when the record has no completed dataset schemas.
+
+schema_needs_completion <- function(record) {
+  datasets <- record_dataset_entries(record)
+
+  length(datasets) == 0L ||
+    all(purrr::map_lgl(datasets, dataset_needs_completion))
+}
+
+
+record_has_nested_datasets <- function(record) {
+  is.list(record) && "datasets" %in% names(record)
+}
+
+
+record_has_legacy_flat_schema <- function(record) {
+  schema_fields <- names(new_schema_template())
+
+  is.list(record) && any(schema_fields %in% names(record))
+}
+
+
+record_dataset_entries <- function(record) {
+  schema_fields <- names(new_schema_template())
+
+  if (record_has_nested_datasets(record)) {
+    return(record$datasets %||% list())
+  }
+  if (record_has_legacy_flat_schema(record)) {
+    return(list(record[schema_fields]))
+  }
+
+  list()
+}
+
+
+flatten_record_dataset <- function(record, dataset, path, dataset_index) {
+  schema_fields <- names(new_schema_template())
+  top_level <- record[setdiff(names(record), c(schema_fields, "datasets"))]
+
+  c(
+    top_level,
+    dataset,
+    list(
+      schema_path = path,
+      dataset_index = dataset_index
+    )
+  )
+}
+
+
+format_dataset_schema_label <- function(source) {
+  path <- source$schema_path %||% "<unknown path>"
+
+  if (
+    is.character(source$source_id) &&
+      length(source$source_id) == 1L &&
+      !is.na(source$source_id) &&
+      stringr::str_trim(source$source_id) != ""
+  ) {
+    paste0(path, " (source_id: ", source$source_id, ")")
+  } else {
+    paste0(path, " (dataset ", source$dataset_index, ")")
+  }
 }
 
 
@@ -639,7 +714,7 @@ schema_needs_completion <- function(record) {
 #'
 #' @param sources_dir Directory containing one YAML file per screened dataset.
 #'
-#' @returns A named list of build-ready source records.
+#' @returns A named list of build-ready source records, one per dataset.
 
 list_build_sources <- function(sources_dir) {
   records <- list_screening_records(sources_dir)
@@ -654,7 +729,6 @@ list_build_sources <- function(sources_dir) {
     }
   })
 
-  # check for duplicated DOIs
   duplicated_dois <- unique(dois[!is.na(dois) & duplicated(dois)])
   if (length(duplicated_dois) > 0L) {
     cli::cli_abort(
@@ -662,38 +736,49 @@ list_build_sources <- function(sources_dir) {
     )
   }
 
-  # check for draft (incomplete) schema
-  schema_fields <- names(new_schema_template())
-  with_schema <- purrr::keep(records, function(record) {
-    is.list(record) && any(schema_fields %in% names(record))
-  })
-  invalid_decisions <- purrr::keep(with_schema, function(record) {
-    !identical(record$screening$decision, "proceed")
-  })
-  if (length(invalid_decisions) > 0L) {
-    paths <- file.path(sources_dir, paste0(names(invalid_decisions), ".yaml"))
+  sources <- purrr::imap(records, function(record, record_name) {
+    datasets <- record_dataset_entries(record)
+    if (length(datasets) == 0L) {
+      return(list())
+    }
+
+    path <- file.path(sources_dir, paste0(record_name, ".yaml"))
+    if (!identical(record$screening$decision, "proceed")) {
+      cli::cli_abort(
+        "Source record {.path {path}} contain{?s} a schema without a
+         {.val proceed} screening decision."
+      )
+    }
+
+    purrr::imap(datasets, function(dataset, dataset_index) {
+      flatten_record_dataset(record, dataset, path, dataset_index)
+    })
+  }) |>
+    purrr::flatten()
+
+  if (length(sources) == 0L) {
     cli::cli_abort(
-      "Source record{?s} {.path {paths}} contain{?s} a schema without a
-       {.val proceed} screening decision."
+      "No completed source schemas were found in {.path {sources_dir}}."
     )
   }
 
-  drafts <- purrr::keep(with_schema, schema_needs_completion)
-  if (length(drafts) > 0L) {
-    paths <- file.path(sources_dir, paste0(names(drafts), ".yaml"))
+  draft_sources <- purrr::keep(sources, dataset_needs_completion)
+  if (length(draft_sources) > 0L) {
+    labels <- purrr::map_chr(draft_sources, format_dataset_schema_label)
     cli::cli_warn(
-      "Skipping draft source schema{?s} {.path {paths}}. Complete the
+      "Skipping draft source schema{?s} {.path {labels}}. Complete the
        placeholder values before building the database."
     )
   }
 
-  build_sources <- purrr::discard(with_schema, schema_needs_completion)
+  build_sources <- purrr::discard(sources, dataset_needs_completion)
   if (length(build_sources) == 0L) {
     cli::cli_abort(
       "No completed source schemas were found in {.path {sources_dir}}."
     )
   }
 
+  names(build_sources) <- purrr::map_chr(build_sources, "source_id")
   build_sources
 }
 
@@ -819,10 +904,10 @@ validate_source_schema <- function(source, path) {
 #' @keywords internal
 
 validate_build_sources <- function(sources, sources_dir) {
-  purrr::iwalk(sources, function(source, record_id) {
+  purrr::iwalk(sources, function(source, source_id) {
     validate_source_schema(
       source,
-      file.path(sources_dir, paste0(record_id, ".yaml"))
+      source$schema_path %||% file.path(sources_dir, paste0(source_id, ".yaml"))
     )
   })
 

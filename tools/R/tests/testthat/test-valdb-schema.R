@@ -251,6 +251,25 @@ test_that("initialise_source_schema does not replace an existing schema", {
 })
 
 
+test_that("schema_needs_completion handles nested records by dataset", {
+  record <- new_schema_test_record()
+  record$datasets <- list(new_schema_template())
+  expect_true(schema_needs_completion(record))
+
+  record$datasets[[1]]$source_id <- "example_2023"
+  record$datasets[[1]]$data_file <- "data/primary/soil/example_2023/data.csv"
+  record$datasets[[1]]$variables <- list(
+    soil_carbon = list(
+      var_canonical = "soil_c_pool_lmwc",
+      unit = "kg m-3",
+      description = NULL
+    )
+  )
+  record$datasets[[1]]$dedup_key <- "sample_id"
+  expect_false(schema_needs_completion(record))
+})
+
+
 test_that("initialise_source_schema requires the canonical record path", {
   sources_dir <- withr::local_tempdir()
   record <- new_schema_test_record()

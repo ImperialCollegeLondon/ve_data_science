@@ -26,7 +26,8 @@ source(here::here("tools/R/R/valdb.R"))
 new_builder_test_record <- function(
   doi,
   decision = "proceed",
-  schema = TRUE
+  schema = TRUE,
+  nested = FALSE
 ) {
   record <- new_screening_record(
     doi = doi,
@@ -44,22 +45,28 @@ new_builder_test_record <- function(
     return(record)
   }
 
-  record <- c(record, new_schema_template())
-  record$source_id <- paste0("source_", stringr::str_extract(doi, "[^/]+$"))
-  record$data_file <- paste0(
+  dataset <- new_schema_template()
+  dataset$source_id <- paste0("source_", stringr::str_extract(doi, "[^/]+$"))
+  dataset$data_file <- paste0(
     "data/primary/soil/",
-    record$source_id,
+    dataset$source_id,
     "/data.csv"
   )
-  record$variables <- list(
+  dataset$variables <- list(
     soil_carbon = list(
       var_canonical = "soil_c_pool_lmwc",
       unit = "kg m-3",
       description = NULL
     )
   )
-  record$dedup_key <- "sample_id"
-  record
+  dataset$dedup_key <- "sample_id"
+
+  if (nested) {
+    record$datasets <- list(dataset)
+    return(record)
+  }
+
+  c(record, dataset)
 }
 
 
@@ -80,10 +87,10 @@ test_that("list_build_sources discovers completed schemas deterministically", {
 
   result <- list_build_sources(sources_dir)
 
-  expect_identical(names(result), sort(c(first$record_id, second$record_id)))
+  expect_identical(names(result), sort(c(first$source_id, second$source_id)))
   expect_identical(
     unname(purrr::map_chr(result, "source_id")),
-    c(first$source_id, second$source_id)
+    sort(c(first$source_id, second$source_id))
   )
 })
 
@@ -97,7 +104,7 @@ test_that("list_build_sources ignores screening-only records", {
 
   result <- list_build_sources(sources_dir)
 
-  expect_named(result, complete$record_id)
+  expect_named(result, complete$source_id)
 })
 
 
@@ -116,7 +123,7 @@ test_that("list_build_sources warns and skips draft schemas", {
     basename(draft_path),
     fixed = TRUE
   )
-  expect_named(result, complete$record_id)
+  expect_named(result, complete$source_id)
 })
 
 
@@ -163,7 +170,7 @@ test_that("list_build_sources recognises partial schemas as drafts", {
     basename(partial_path),
     fixed = TRUE
   )
-  expect_named(result, complete$record_id)
+  expect_named(result, complete$source_id)
 })
 
 
@@ -211,6 +218,49 @@ test_that("list_build_sources rejects schemas without a proceed decision", {
     basename(path),
     fixed = TRUE
   )
+})
+
+
+test_that("list_build_sources flattens nested multi-dataset records", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_builder_test_record("10.1000/nested", nested = TRUE)
+  second_dataset <- new_schema_template()
+  second_dataset$source_id <- "source_nested_b"
+  second_dataset$data_file <- "data/primary/soil/source_nested_b/data.csv"
+  second_dataset$variables <- list(
+    soil_nitrogen = list(
+      var_canonical = "total_soil_n_per_mass",
+      unit = "%",
+      description = NULL
+    )
+  )
+  second_dataset$dedup_key <- "sample_id"
+  record$datasets[[2]] <- second_dataset
+  write_builder_test_record(record, sources_dir)
+
+  result <- list_build_sources(sources_dir)
+
+  expect_identical(
+    names(result),
+    c(record$datasets[[1]]$source_id, second_dataset$source_id)
+  )
+  expect_identical(result[[1]]$record_id, record$record_id)
+  expect_identical(result[[2]]$record_id, record$record_id)
+  expect_identical(result[[1]]$dataset_index, 1L)
+  expect_identical(result[[2]]$dataset_index, 2L)
+})
+
+
+test_that("list_build_sources reads nested single-dataset records", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_builder_test_record("10.1000/nested-single", nested = TRUE)
+  write_builder_test_record(record, sources_dir)
+
+  result <- list_build_sources(sources_dir)
+
+  expect_named(result, record$datasets[[1]]$source_id)
+  expect_identical(result[[1]]$source_id, record$datasets[[1]]$source_id)
+  expect_identical(result[[1]]$record_id, record$record_id)
 })
 
 
@@ -281,6 +331,8 @@ test_that("validate_build_sources rejects duplicate source IDs", {
   second <- new_builder_test_record("10.1000/second")
   first$data_file <- data_path
   second$data_file <- data_path
+  first$schema_path <- file.path(directory, "first.yaml")
+  second$schema_path <- file.path(directory, "second.yaml")
   second$source_id <- first$source_id
 
   expect_error(
