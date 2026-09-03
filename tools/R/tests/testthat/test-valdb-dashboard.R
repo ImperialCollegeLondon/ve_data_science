@@ -45,35 +45,35 @@ new_dashboard_test_record <- function(
 
 test_that("pending_schema_records keeps proceed records without schemas", {
   pending <- new_dashboard_test_record("10.1000/pending", title = "Pending")
-  complete <- c(
-    new_dashboard_test_record("10.1000/complete", title = "Complete"),
-    new_schema_template()
-  )
-  excluded <- new_dashboard_test_record(
-    "10.1000/excluded",
-    decision = "exclude",
-    title = "Excluded"
-  )
-
-  complete$source_id <- "complete_2024"
-  complete$data_file <- "data/primary/soil/complete/data.csv"
-  complete$variables <- list(
+  complete <- new_dashboard_test_record("10.1000/complete", title = "Complete")
+  complete$datasets <- list(new_schema_template())
+  complete$datasets[[1]]$source_id <- "complete_2024"
+  complete$datasets[[1]]$data_file <- "data/primary/soil/complete/data.csv"
+  complete$datasets[[1]]$variables <- list(
     soil_carbon = list(
       var_canonical = "soil_c_pool_lmwc",
       unit = "kg C m-3",
       description = NULL
     )
   )
-  complete$dedup_key <- "sample_id"
+  complete$datasets[[1]]$dedup_key <- "sample_id"
+  excluded <- new_dashboard_test_record(
+    "10.1000/excluded",
+    decision = "exclude",
+    title = "Excluded"
+  )
 
   result <- pending_schema_records(list(pending, complete, excluded))
+  pending_row <- result[result$doi == pending$doi, , drop = FALSE]
 
-  expect_identical(result$doi, pending$doi)
-  expect_identical(result$title, "Pending")
-  expect_identical(result$year, 2024L)
-  expect_identical(result$notes, "Screening note")
-  expect_identical(result$schema_status, "Not started")
-  expect_identical(result$screened_at, pending$screening$screened_at)
+  expect_identical(pending_row$doi, pending$doi)
+  expect_identical(pending_row$title, "Pending")
+  expect_identical(pending_row$year, 2024L)
+  expect_identical(pending_row$notes, "Screening note")
+  expect_identical(pending_row$source_id, "")
+  expect_identical(pending_row$schema_status, "Not started")
+  expect_identical(pending_row$screened_at, pending$screening$screened_at)
+  expect_identical(pending_row$layout, "screening_only")
 })
 
 
@@ -82,22 +82,54 @@ test_that("pending_schema_records returns an empty display table", {
 
   expect_named(
     result,
-    c("doi", "title", "year", "notes", "schema_status", "screened_at")
+    c(
+      "doi",
+      "title",
+      "year",
+      "notes",
+      "source_id",
+      "schema_status",
+      "screened_at",
+      "dataset_index",
+      "layout"
+    )
   )
   expect_equal(nrow(result), 0L)
 })
 
 
 test_that("pending_schema_records keeps initialised templates as drafts", {
-  record <- c(
-    new_dashboard_test_record("10.1000/draft"),
-    new_schema_template()
-  )
+  record <- new_dashboard_test_record("10.1000/draft")
+  record$datasets <- list(new_schema_template())
 
   result <- pending_schema_records(list(record))
 
   expect_identical(result$doi, record$doi)
   expect_identical(result$schema_status, "Draft")
+  expect_identical(result$layout, "nested")
+})
+
+
+test_that("pending_schema_records creates one row per nested dataset", {
+  record <- new_dashboard_test_record("10.1000/two-datasets")
+  record$datasets <- list(new_schema_template(), new_schema_template())
+  record$datasets[[1]]$source_id <- "first_2024"
+  record$datasets[[1]]$data_file <- "data/primary/soil/first/data.csv"
+  record$datasets[[1]]$variables <- list(
+    soil_carbon = list(
+      var_canonical = "soil_c_pool_lmwc",
+      unit = "kg C m-3",
+      description = NULL
+    )
+  )
+  record$datasets[[1]]$dedup_key <- "sample_id"
+
+  result <- pending_schema_records(list(record))
+
+  expect_equal(nrow(result), 2L)
+  expect_identical(result$source_id, c("first_2024", "author_year"))
+  expect_identical(result$schema_status, c("Complete", "Draft"))
+  expect_identical(result$dataset_index, c(1L, 2L))
 })
 
 
@@ -113,7 +145,8 @@ test_that("pending_records_table adds one action for each source", {
   expect_match(html, 'data-doi="10.1000/first"', fixed = TRUE)
   expect_match(html, 'data-doi="10.1000/second"', fixed = TRUE)
   expect_length(stringr::str_extract_all(html, "Shiny.setInputValue")[[1]], 2L)
-  expect_match(html, "{priority: &#39;event&#39;}", fixed = TRUE)
+  expect_match(html, 'data-dataset-index="null"', fixed = TRUE)
+  expect_match(html, 'Open record', fixed = TRUE)
 })
 
 
@@ -145,8 +178,9 @@ test_that("save_yaml_record saves valid edits", {
   sources_dir <- withr::local_tempdir()
   record <- new_dashboard_test_record("10.1000/pending")
   path <- write_screening_record(record, sources_dir)
-  updated <- c(record, new_schema_template())
-  updated$source_id <- "example_2024"
+  updated <- record
+  updated$datasets <- list(new_schema_template())
+  updated$datasets[[1]]$source_id <- "example_2024"
   yaml_text <- yaml::as.yaml(updated)
 
   expect_invisible(result <- save_yaml_record(yaml_text, path))
@@ -156,6 +190,20 @@ test_that("save_yaml_record saves valid edits", {
   expect_identical(
     list.files(sources_dir, all.files = TRUE),
     c(".", "..", basename(path))
+  )
+})
+
+
+test_that("save_yaml_record rejects mixed nested and legacy layouts", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_dashboard_test_record("10.1000/mixed")
+  path <- write_screening_record(record, sources_dir)
+  record$datasets <- list(new_schema_template())
+  record$source_id <- "legacy_field"
+
+  expect_error(
+    save_yaml_record(yaml::as.yaml(record), path),
+    "mixes legacy"
   )
 })
 
@@ -194,14 +242,20 @@ test_that("dashboard initialises and loads the selected record", {
     {
       expect_identical(pending()$doi, record$doi)
 
-      session$setInputs(open_schema = record$doi)
+      session$setInputs(
+        open_schema = list(
+          doi = record$doi,
+          dataset_index = NA_integer_,
+          source_id = ""
+        )
+      )
 
       expect_identical(editor_path(), path)
       expect_identical(pending()$doi, record$doi)
       expect_identical(pending()$schema_status, "Draft")
       expect_identical(
-        yaml::read_yaml(path)[names(new_schema_template())],
-        new_schema_template()
+        yaml::read_yaml(path)$datasets,
+        list(new_schema_template())
       )
     }
   )
@@ -218,7 +272,13 @@ test_that("dashboard reopens an initialised draft without changing it", {
   shiny::testServer(
     schema_dashboard_server(sources_dir),
     {
-      session$setInputs(open_schema = record$doi)
+      session$setInputs(
+        open_schema = list(
+          doi = record$doi,
+          dataset_index = 1L,
+          source_id = "author_year"
+        )
+      )
 
       expect_identical(editor_path(), path)
       expect_identical(yaml::read_yaml(path), before)
@@ -241,7 +301,13 @@ test_that("dashboard opens the loaded record in the desktop editor", {
   shiny::testServer(
     schema_dashboard_server(sources_dir, editor),
     {
-      session$setInputs(open_schema = record$doi)
+      session$setInputs(
+        open_schema = list(
+          doi = record$doi,
+          dataset_index = NA_integer_,
+          source_id = ""
+        )
+      )
       session$setInputs(open_editor = 1L)
 
       expect_identical(editor_calls$paths, path)

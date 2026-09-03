@@ -6,48 +6,94 @@
 # The remaining functions are ordinary R helpers. Keeping file and data logic
 # outside the server makes that logic easier to understand and test.
 
-# Convert the nested YAML records into a rectangular data frame suitable for a
-# Shiny table. Only datasets approved with a `proceed` decision and requiring
-# further schema work are shown.
-pending_schema_records <- function(records) {
-  pending <- Filter(
-    function(record) {
-      is.list(record) &&
-        identical(record$screening$decision, "proceed") &&
-        schema_needs_completion(record)
-    },
-    records
-  )
+# Convert YAML records into a rectangular data frame suitable for a Shiny
+# table. The dashboard shows one row per dataset for `proceed` records, with a
+# placeholder row for screening-only records that have not yet been initialised.
+dataset_schema_status <- function(record, dataset = NULL) {
+  if (is.null(dataset)) {
+    return("Not started")
+  }
+  if (record_has_nested_datasets(record)) {
+    if (dataset_needs_completion(dataset)) "Draft" else "Complete"
+  } else {
+    if (dataset_needs_completion(dataset)) "Legacy draft" else "Legacy complete"
+  }
+}
 
-  # Return an empty data frame with the normal columns. This allows the table
-  # renderer to keep working when there are no outstanding records.
-  if (length(pending) == 0L) {
+
+record_rows_for_dashboard <- function(record) {
+  if (!is.list(record) || !identical(record$screening$decision, "proceed")) {
+    return(list())
+  }
+
+  title <- record$metadata$title %||% ""
+  year <- as.integer(record$metadata$year %||% NA_integer_)
+  notes <- record$screening$notes %||% ""
+  screened_at <- record$screening$screened_at %||% ""
+
+  if (record_has_nested_datasets(record)) {
+    return(purrr::imap(record$datasets, function(dataset, dataset_index) {
+      data.frame(
+        doi = record$doi,
+        title = title,
+        year = year,
+        notes = notes,
+        source_id = dataset$source_id %||% "",
+        schema_status = dataset_schema_status(record, dataset),
+        screened_at = screened_at,
+        dataset_index = as.integer(dataset_index),
+        layout = "nested"
+      )
+    }))
+  }
+
+  if (record_has_legacy_flat_schema(record)) {
+    dataset <- record_dataset_entries(record)[[1]]
+    return(list(data.frame(
+      doi = record$doi,
+      title = title,
+      year = year,
+      notes = notes,
+      source_id = dataset$source_id %||% "",
+      schema_status = dataset_schema_status(record, dataset),
+      screened_at = screened_at,
+      dataset_index = 1L,
+      layout = "legacy_flat"
+    )))
+  }
+
+  list(data.frame(
+    doi = record$doi,
+    title = title,
+    year = year,
+    notes = notes,
+    source_id = "",
+    schema_status = dataset_schema_status(record, NULL),
+    screened_at = screened_at,
+    dataset_index = NA_integer_,
+    layout = "screening_only"
+  ))
+}
+
+
+pending_schema_records <- function(records) {
+  rows <- records |>
+    lapply(record_rows_for_dashboard) |>
+    unlist(recursive = FALSE)
+
+  if (length(rows) == 0L) {
     return(data.frame(
       doi = character(),
       title = character(),
       year = integer(),
       notes = character(),
+      source_id = character(),
       schema_status = character(),
-      screened_at = character()
+      screened_at = character(),
+      dataset_index = integer(),
+      layout = character()
     ))
   }
-
-  # Each YAML record is a nested list. Extract only the fields needed by the
-  # dashboard, producing one data-frame row per record.
-  rows <- lapply(pending, function(record) {
-    data.frame(
-      doi = record$doi,
-      title = record$metadata$title %||% "",
-      year = as.integer(record$metadata$year %||% NA_integer_),
-      notes = record$screening$notes %||% "",
-      schema_status = if (is.null(record$source_id)) {
-        "Not started"
-      } else {
-        "Draft"
-      },
-      screened_at = record$screening$screened_at %||% ""
-    )
-  })
 
   do.call(rbind, rows)
 }
@@ -64,8 +110,6 @@ read_yaml_text <- function(path) {
 # must be treated as untrusted: it may contain invalid YAML or may accidentally
 # change the identity fields that connect a DOI to its canonical filename.
 save_yaml_record <- function(yaml_text, path) {
-  # Parse the text before touching the existing file. tryCatch() converts the
-  # parser's technical error into a concise message suitable for the UI.
   record <- tryCatch(
     yaml::yaml.load(yaml_text),
     error = function(error) {
@@ -77,8 +121,6 @@ save_yaml_record <- function(yaml_text, path) {
     cli::cli_abort("The YAML must contain {.field doi} and {.field record_id}.")
   }
 
-  # These three identity values must agree. The dashboard supports editing a
-  # schema, not moving one DOI's contents into another DOI's record.
   doi <- normalise_doi(record$doi)
   expected_record_id <- doi_to_record_id(doi)
   if (
@@ -92,8 +134,21 @@ save_yaml_record <- function(yaml_text, path) {
     cli::cli_abort("YAML record {.path {path}} does not exist.")
   }
 
-  # Write and verify a temporary file first. The original record is preserved
-  # until the edited YAML has passed a complete read-back check.
+  has_nested <- record_has_nested_datasets(record)
+  has_legacy <- record_has_legacy_flat_schema(record)
+  if (has_nested && has_legacy) {
+    cli::cli_abort(
+      "The YAML mixes legacy top-level schema fields with a {.field datasets} list. Use one layout only."
+    )
+  }
+  if (has_nested) {
+    if (!is.list(record$datasets) || length(record$datasets) == 0L) {
+      cli::cli_abort(
+        "The {.field datasets} field must contain at least one dataset entry."
+      )
+    }
+  }
+
   temporary <- tempfile(
     pattern = paste0(".", expected_record_id, "-"),
     tmpdir = dirname(path),
@@ -112,8 +167,6 @@ save_yaml_record <- function(yaml_text, path) {
     cli::cli_abort("The edited record changed during YAML serialisation.")
   }
 
-  # Replace the original through a backup. If installing the edited file fails,
-  # the function attempts to restore the original record.
   if (!file.rename(path, backup)) {
     cli::cli_abort("Could not prepare YAML record {.path {path}} for update.")
   }
@@ -130,14 +183,14 @@ save_yaml_record <- function(yaml_text, path) {
 }
 
 
-# Render pending records as a Bootstrap table with an action beside each source.
-# The data DOI identifies the record without exposing a filesystem path.
+# Render dataset rows as a Bootstrap table with an action beside each source.
 pending_records_table <- function(records) {
   headings <- c(
     "DOI",
     "Title",
     "Year",
     "Notes",
+    "Source ID",
     "Schema status",
     "Screened at",
     ""
@@ -154,11 +207,29 @@ pending_records_table <- function(records) {
     shiny::tags$tbody(
       lapply(seq_len(nrow(records)), function(index) {
         record <- records[index, , drop = FALSE]
+        dataset_index_js <- if (is.na(record$dataset_index)) {
+          "null"
+        } else {
+          as.character(record$dataset_index)
+        }
+        onclick <- paste0(
+          "Shiny.setInputValue('open_schema', ",
+          "{doi: '",
+          record$doi,
+          "', dataset_index: ",
+          dataset_index_js,
+          ", source_id: '",
+          record$source_id,
+          "'}, ",
+          "{priority: 'event'});"
+        )
+
         shiny::tags$tr(
           shiny::tags$td(record$doi),
           shiny::tags$td(record$title),
           shiny::tags$td(record$year),
           shiny::tags$td(record$notes),
+          shiny::tags$td(record$source_id),
           shiny::tags$td(record$schema_status),
           shiny::tags$td(record$screened_at),
           shiny::tags$td(
@@ -166,11 +237,10 @@ pending_records_table <- function(records) {
               type = "button",
               class = "btn btn-primary btn-sm open-schema",
               `data-doi` = record$doi,
-              onclick = paste(
-                "Shiny.setInputValue(",
-                "'open_schema', this.dataset.doi, {priority: 'event'});"
-              ),
-              "Open schema"
+              `data-source-id` = record$source_id,
+              `data-dataset-index` = dataset_index_js,
+              onclick = onclick,
+              "Open record"
             )
           )
         )
@@ -219,8 +289,9 @@ schema_dashboard_ui <- function() {
       shiny::actionButton("refresh", "Refresh records"),
       bslib::input_dark_mode(id = "dark_mode"),
       shiny::helpText(
-        "Opening adds a schema template when needed, then loads the YAML ",
-        "record into the browser editor. Drafts remain in the to-do list."
+        "The table shows one row per dataset for proceed records. Opening a row ",
+        "loads the full per-DOI YAML file into the browser editor. Add more ",
+        "datasets by editing the nested `datasets:` list manually."
       )
     ),
     # Bootstrap divides each row into 12 columns. Giving each card all 12
@@ -229,7 +300,7 @@ schema_dashboard_ui <- function() {
       col_widths = c(12, 12),
       bslib::card(
         full_screen = TRUE,
-        bslib::card_header("Proceed records awaiting schemas"),
+        bslib::card_header("Proceed records by dataset"),
         shiny::uiOutput("pending_records")
       ),
       bslib::card(
@@ -282,6 +353,7 @@ schema_dashboard_server <- function(
     # Keep the loaded record's path on the server. The browser edits text but
     # does not choose arbitrary filesystem paths.
     editor_path <- shiny::reactiveVal(NULL)
+    editor_context <- shiny::reactiveVal("No record loaded")
 
     # A reactive expression caches its result and recomputes when a reactive
     # dependency changes. Calling refresh_token() establishes that dependency.
@@ -300,7 +372,11 @@ schema_dashboard_server <- function(
     # Display only the filename to avoid exposing a long machine-specific path.
     output$editor_path <- shiny::renderText({
       path <- editor_path()
-      if (is.null(path)) "No record loaded" else basename(path)
+      if (is.null(path)) {
+        editor_context()
+      } else {
+        paste0(basename(path), " — ", editor_context())
+      }
     })
 
     # observeEvent() runs its body in response to an event. Action buttons hold
@@ -309,27 +385,35 @@ schema_dashboard_server <- function(
       refresh_token(refresh_token() + 1L)
     })
 
-    # Open the schema requested by a row button. req() stops this observer
+    # Open the record requested by a row button. req() stops this observer
     # quietly if no DOI was supplied, avoiding operations with an empty value.
     shiny::observeEvent(input$open_schema, {
       shiny::req(input$open_schema)
 
       tryCatch(
         {
-          doi <- input$open_schema
+          request <- input$open_schema
+          doi <- request$doi
+          dataset_index <- request$dataset_index
+          source_id <- request$source_id %||% ""
           record <- find_screening_record(doi, sources_dir)
 
-          # Initialise only a new schema. Existing drafts must be reopened
-          # without overwriting work already saved in their YAML records.
-          path <- if (is.null(record$source_id)) {
+          path <- if (
+            !record_has_nested_datasets(record) &&
+              !record_has_legacy_flat_schema(record)
+          ) {
             initialise_source_schema(doi, sources_dir)
           } else {
             file.path(sources_dir, paste0(record$record_id, ".yaml"))
           }
           editor_path(path)
 
-          # update_code_editor() sends the file contents from R to the existing
-          # browser editor widget; it does not save changes back to disk.
+          if (!is.null(dataset_index) && !is.na(dataset_index)) {
+            editor_context(paste0("dataset ", dataset_index, ": ", source_id))
+          } else {
+            editor_context("new dataset schema")
+          }
+
           bslib::update_code_editor(
             "yaml_editor",
             value = read_yaml_text(path),
@@ -338,12 +422,10 @@ schema_dashboard_server <- function(
           )
           refresh_token(refresh_token() + 1L)
           shiny::showNotification(
-            "Schema loaded into the YAML editor.",
+            "Record loaded into the YAML editor.",
             type = "message"
           )
         },
-        # File and validation errors appear as notifications rather than ending
-        # the Shiny session and disconnecting the browser.
         error = function(error) {
           shiny::showNotification(conditionMessage(error), type = "error")
         }
