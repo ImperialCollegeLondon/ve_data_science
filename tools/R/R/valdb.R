@@ -1485,10 +1485,15 @@ add_coordinates <- function(dat, src) {
   }
 
   # Case 1b: coordinates are columns in the data itself
+  # Only apply this when from_file is NOT specified (coordinates are in data, not external).
+  # This ensures that external locations files take precedence over similarly named
+  # data columns, maintaining the documented coordinate precedence order.
   data_lat_col <- spec$latitude_column
   data_lon_col <- spec$longitude_column
 
-  if (!is.null(data_lat_col) && !is.null(data_lon_col)) {
+  if (
+    !is.null(data_lat_col) && !is.null(data_lon_col) && is.null(spec$from_file)
+  ) {
     dat <-
       dat |>
       dplyr::mutate(
@@ -1573,18 +1578,42 @@ add_coordinates <- function(dat, src) {
     }
 
     # join locations to the data
+    # For multi-column keys (e.g., [site, chamber_id]), create a temporary unified key
+    # for the join to avoid the error "names attribute must be the same length as vector".
+    # This handles datasets like drewer_2019_1b where locations are matched on multiple columns.
+    if (length(key_data) > 1) {
+      dat <- dat |>
+        tidyr::unite(
+          "_temp_location_key",
+          tidyr::all_of(key_data),
+          remove = FALSE,
+          sep = "_"
+        )
+      locations <- locations |>
+        dplyr::rename("_temp_location_key" = "location_key")
+      join_by_spec <- dplyr::join_by("_temp_location_key")
+    } else {
+      join_by_spec <- stats::setNames("location_key", key_data)
+    }
+
     dat <-
       dat |>
       dplyr::left_join(
         locations,
-        # setNames() because the column name comes from a variable
-        by = stats::setNames("location_key", key_data),
+        by = join_by_spec,
         # errors if the locations file has duplicated keys, which would
         # silently inflate the number of observations
         # NB: many-to-one should also cover one-to-one
         relationship = "many-to-one"
-      ) |>
-      # cover the case of partial missingness in a location file
+      )
+
+    # Remove temporary key column if it was created
+    if (length(key_data) > 1) {
+      dat <- dplyr::select(dat, -"_temp_location_key")
+    }
+
+    # cover the case of partial missingness in a location file
+    dat <- dat |>
       dplyr::mutate(
         coordinate_source = dplyr::if_else(
           is.na(latitude) | is.na(longitude),
@@ -1595,16 +1624,46 @@ add_coordinates <- function(dat, src) {
   }
 
   # Second pass: fill remaining missing coordinates from gazetteer centroids.
+  # Apply the same multi-column key handling to the gazetteer lookup as was applied
+  # to the locations file join. This ensures consistent coordinate resolution across
+  # both sources for datasets with composite location identifiers.
   if (!is.null(key_data)) {
+    gazetteer_data <- sf::st_read(
+      "data/primary/site/gazetteer.geojson",
+      quiet = TRUE
+    ) |>
+      sf::st_drop_geometry() |>
+      dplyr::select(location, centroid_x, centroid_y)
+
+    if (length(key_data) > 1) {
+      dat <- dat |>
+        tidyr::unite(
+          "_temp_gaz_key",
+          tidyr::all_of(key_data),
+          remove = FALSE,
+          sep = "_"
+        )
+      gazetteer_data <- gazetteer_data |>
+        dplyr::rename("_temp_gaz_key" = "location")
+      gaz_join_spec <- dplyr::join_by("_temp_gaz_key")
+    } else {
+      gaz_join_spec <- stats::setNames("location", key_data)
+    }
+
     dat <-
       dat |>
       dplyr::left_join(
-        sf::st_read("data/primary/site/gazetteer.geojson", quiet = TRUE) |>
-          sf::st_drop_geometry() |>
-          dplyr::select(location, centroid_x, centroid_y),
-        by = stats::setNames("location", key_data),
+        gazetteer_data,
+        by = gaz_join_spec,
         relationship = "many-to-one"
-      ) |>
+      )
+
+    # Remove temporary key column if it was created
+    if (length(key_data) > 1) {
+      dat <- dplyr::select(dat, -"_temp_gaz_key")
+    }
+
+    dat <- dat |>
       dplyr::mutate(
         longitude_missing_before = is.na(longitude),
         latitude_missing_before = is.na(latitude),
@@ -1702,7 +1761,8 @@ validate_coordinates <- function(dat, source_id) {
 #' \code{time_precision}, \code{time_source} and \code{time_note}.
 #'
 #' Times are stored as a HALF-OPEN interval \code{[time_start, time_end)} in
-#' UTC, so that consecutive periods tile without overlapping. A point-in-time
+#' UTC, so that consecutive periods tile without overlapping; defaults to
+#' Asia/Kuching since we start building with SAFE datasets. A point-in-time
 #' observation is widened to its precision granule: a date-only sample becomes
 #' a one-day interval rather than a zero-width one, because a zero-width
 #' half-open interval would match nothing under any filter.
@@ -1730,7 +1790,7 @@ add_temporal <- function(dat, src) {
 
   # UTC throughout, so that the build is reproducible regardless of the
   # machine's locale. The source zone is only used to interpret the input.
-  tz_in <- spec$timezone %||% "UTC"
+  tz_in <- spec$timezone %||% "Asia/Kuching"
   precision <- spec$precision %||% "day"
 
   # Case 0: nothing configured at all. Note that `drop_blanks()` only strips
