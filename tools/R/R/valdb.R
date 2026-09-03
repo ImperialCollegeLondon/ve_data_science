@@ -582,16 +582,18 @@ new_schema_template <- function() {
       )
     ),
     dedup_key = c("sample_id", "date", "site_id"),
+    # Coordinates specification with precedence: (1) blanket, (2) data columns,
+    # (3) external file. Check in order above; first non-null case applies.
     coordinates = list(
-      from_file = NULL,
-      match_data_column = NULL,
-      match_location_column = NULL,
-      latitude_column = NULL,
-      longitude_column = NULL,
       same_for_all_rows = list(
         latitude = NULL,
         longitude = NULL
-      )
+      ),
+      latitude_column = NULL,
+      longitude_column = NULL,
+      from_file = NULL,
+      match_data_column = NULL,
+      match_location_column = NULL
     ),
     temporal = list(
       date_column = NULL,
@@ -995,9 +997,17 @@ prepare_source_data <- function(data, source) {
     )
   }
 
+  # Extract coordinate column names if specified
+  coord_cols <- c(
+    source$coordinates$latitude_column,
+    source$coordinates$longitude_column
+  )
+  coord_cols <- coord_cols[!is.na(coord_cols) & !is.null(coord_cols)]
+
   data <- dplyr::select(
     data,
-    tidyr::all_of(c(source$dedup_key, available_measurements))
+    tidyr::all_of(c(source$dedup_key, available_measurements)),
+    tidyr::any_of(coord_cols)
   )
   key_data <- dplyr::select(data, tidyr::all_of(source$dedup_key))
   missing_values <- key_data |>
@@ -1422,12 +1432,23 @@ convert_canonical_value <- function(
 #' columns to a dataset: \code{latitude}, \code{longitude},
 #' \code{location_type} and \code{coordinate_source}.
 #'
-#' Most SAFE Zenodo datasets need no configuration at all, because they are
-#' curated to a common standard: a \code{Locations} sheet holding
-#' \code{Location name}, \code{Latitude} and \code{Longitude} in decimal
-#' degrees (WGS84). Following the manual-conversion convention for the data
-#' sheet, export that sheet to \code{locations.csv} in the same folder as
-#' \code{data_file} and this function will find it automatically.
+#' Coordinates can be obtained in three ways, checked in this order:
+#' \enumerate{
+#'   \item A single coordinate for the entire dataset, specified via
+#'     \code{coordinates: same_for_all_rows} in the source YAML.
+#'   \item Coordinates as columns in the data file itself, specified via
+#'     \code{coordinates: latitude_column} and
+#'     \code{coordinates: longitude_column} in the source YAML.
+#'   \item Coordinates from an external locations file (SAFE convention or
+#'     custom path), specified via \code{coordinates: from_file} in the
+#'     source YAML.
+#' }
+#'
+#' Most SAFE Zenodo datasets use approach (3) by default: a \code{Locations}
+#' sheet holding \code{Location name}, \code{Latitude} and \code{Longitude}
+#' in decimal degrees (WGS84). Following the manual-conversion convention for
+#' the data sheet, export that sheet to \code{locations.csv} in the same
+#' folder as \code{data_file} and this function will find it automatically.
 #'
 #' Datasets that deviate are handled by the optional \code{coordinates} block
 #' in the source YAML; see [add_schema()] for the annotated template.
@@ -1461,6 +1482,37 @@ add_coordinates <- function(dat, src) {
       location_type = "whole dataset",
       coordinate_source = "same_for_all_rows"
     ))
+  }
+
+  # Case 1b: coordinates are columns in the data itself
+  data_lat_col <- spec$latitude_column
+  data_lon_col <- spec$longitude_column
+
+  if (!is.null(data_lat_col) && !is.null(data_lon_col)) {
+    dat <-
+      dat |>
+      dplyr::mutate(
+        latitude = as.numeric(.data[[data_lat_col]]),
+        longitude = as.numeric(.data[[data_lon_col]]),
+        location_type = NA_character_,
+        coordinate_source = dplyr::if_else(
+          is.na(latitude) | is.na(longitude),
+          "missing",
+          "data_columns"
+        )
+      )
+
+    validate_coordinates(dat, src$source_id)
+
+    # Check row count hasn't changed
+    if (nrow(dat) != n_before) {
+      cli::cli_abort(
+        "Extracting coordinates changed the number of rows of
+         {.val {src$source_id}} from {n_before} to {nrow(dat)}."
+      )
+    }
+
+    return(dat)
   }
 
   # Case 2: look the coordinates up from a locations file
