@@ -186,7 +186,10 @@
 #|           Cohort abundance is spatially predicted from field plot data using
 #|           the TCH-only basal-area model. In the current
 #|           implementation, this model uses canopy height model-derived total
-#|           canopy height, and predicted abundances are rounded to whole stems.
+#|           canopy height. 25 x 25 m aggregation pixels with no finite CHM
+#|           value are filled with the mean finite aggregated canopy height
+#|           before the model is fitted or applied, and predicted abundances
+#|           are rounded to whole stems.
 #|   - name: cohort_data_1_cm_maliau_2.csv
 #|     path: data/derived/plant/input_data/scenarios/maliau_2
 #|     description: |
@@ -281,8 +284,11 @@
 #|         assumptions: |
 #|           Basal area for cohorts above 10 cm DBH is spatially predicted using
 #|           the TCH-only model and canopy-height-model-derived total canopy
-#|           height. Jucker et al. (2018, Eq. S3) supplies the correction used
-#|           to estimate total basal area for stems at or above 1 cm. The
+#|           height. 25 x 25 m aggregation pixels with no finite CHM value are
+#|           filled with the mean finite aggregated canopy height before the
+#|           model is fitted or applied. Jucker et al. (2018, Eq. S3) supplies
+#|           the correction used to estimate total basal area for stems at or
+#|           above 1 cm. The
 #|           difference between estimated total basal area and the basal area
 #|           above 10 cm is assigned to the missing 1-10 cm cohorts. These
 #|           cohorts are distributed across three DBH classes using reported
@@ -446,6 +452,23 @@ cover_20_1m <- (chm_1m >= 20) * 1 # Convert logical TRUE/FALSE to 1/0
 
 # 4.2 Aggregate to Plot Grid Scale (25x25m)
 tch <- terra::aggregate(chm_1m, fact = 25, fun = "mean", na.rm = TRUE)
+
+# `na.rm = TRUE` handles partially missing 1 m CHM values within each 25 x 25 m
+# aggregation window. If an aggregated pixel is still missing, all contributing
+# height values were missing, so use the mean finite aggregated canopy height as
+# a conservative fallback before fitting and applying the basal-area model.
+mean_tch <- terra::global(tch, fun = "mean", na.rm = TRUE)[1, 1]
+missing_tch_cells <- terra::global(is.na(tch), fun = "sum", na.rm = TRUE)[1, 1]
+
+if (missing_tch_cells > 0) {
+  message(
+    missing_tch_cells,
+    " aggregated 25 x 25 m CHM pixels had no finite height data; ",
+    "using the mean finite aggregated canopy height instead."
+  )
+  tch <- terra::ifel(is.na(tch), mean_tch, tch)
+}
+
 cover_20_obs <- terra::aggregate(
   cover_20_1m,
   fact = 25,

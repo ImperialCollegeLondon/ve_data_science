@@ -338,7 +338,9 @@
 #|           to values extracted from every available LiDAR raster. A separate
 #|           univariate linear model is fitted for each candidate predictor and
 #|           the predictor with the highest R-squared is selected. For the
-#|           current parameterisation, this is Maliau_pad_mean.tif. That raster
+#|           current parameterisation, this is Maliau_pad_mean.tif. Pixels with
+#|           no finite value in the selected predictor raster are filled with
+#|           the mean finite value of that raster before extraction. That raster
 #|           is extracted at each grid-cell centre, the fitted model is used to
 #|           predict biomass, negative predictions are clipped to zero, and the
 #|           results are ordered by cell_id before being written as one value for
@@ -952,8 +954,38 @@ grid_vect <- vect(
 )
 
 # Extract the selected LiDAR field value for each cell.
+selected_predictor_raster <- raster_list[[selected_predictor]]
+
+# If a pixel has no finite predictor value, all underlying data at that
+# location were missing, so fall back to the mean finite predictor value
+# before extraction (mirrors the CHM fallback in plant_cohort_data_maliau_2.R).
+mean_selected_predictor <- terra::global(
+  selected_predictor_raster,
+  fun = "mean",
+  na.rm = TRUE
+)[1, 1]
+missing_predictor_cells <- terra::global(
+  is.na(selected_predictor_raster),
+  fun = "sum",
+  na.rm = TRUE
+)[1, 1]
+
+if (missing_predictor_cells > 0) {
+  message(
+    missing_predictor_cells,
+    " pixels in ",
+    selected_predictor,
+    " had no finite value; using the mean finite predictor value instead."
+  )
+  selected_predictor_raster <- terra::ifel(
+    is.na(selected_predictor_raster),
+    mean_selected_predictor,
+    selected_predictor_raster
+  )
+}
+
 prediction_grid[[selected_predictor]] <- extract(
-  raster_list[[selected_predictor]],
+  selected_predictor_raster,
   grid_vect
 )[, 2]
 
