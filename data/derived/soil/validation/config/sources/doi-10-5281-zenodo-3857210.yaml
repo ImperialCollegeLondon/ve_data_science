@@ -1,0 +1,23 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3857210
+doi: 10.5281/zenodo.3857210
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Contains soil variables such as soil depth, infiltration, bulk density etc.     but
+    these are either static states or are not validation targets.
+  screened_at: '2026-08-17T03:00:52Z'
+metadata:
+  title: Land use effect on earthworms
+  authors: Rao, Sri
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3857210
+  keywords:
+  - Earthworms
+  - Soil pits
+  - Soil structure
+  - Below ground biodiversity
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:00:34Z'

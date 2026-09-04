@@ -1,5 +1,32 @@
 # Change log of maliau_1 scenario input data
 
+2026-09-03
+- Module: Soil
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+  - data/scenarios/maliau/maliau_1/data/litter_maliau.nc
+- Changes made:
+  - Corrected the unit of soil_n_pool_nitrate and soil_n_pool_ammonium from mg/g
+    to mg/kg (it was overlooked that the original study had a corrigendum);
+    courtesy of Jacob Cook.
+- References:
+  - PR #579 addressing Issue #571
+
+2026-08-13
+- Module: Soil
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+- Changes made:
+  - Updated the SAFE soil campaign empirical dataset with the following change:
+    - The soil clay, silt and sand compositions previously did not sum to 100%,
+      these have been normalised so that this is now the case
+  - Predictors in the spatial soil model are now log- or log1p-transformed
+    because all of them were right-skewed
+- References:
+  - PR #538 addressing Issue #489
+
 2026-08-07
 - Module: Animal
 - Author: Baizurah Malik
@@ -22,7 +49,7 @@
     the associated input-data records.
 
 2026-08-07
-- Module: Soil, Litter
+- Module: Soil
 - Author: Hao Ran Lai
 - Files changed:
   - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
@@ -109,3 +136,14 @@
 - References:
   - PR #379 to close Issues #372, #374 and #375
   - PR #382 to close Issue #378
+
+2026-08-21
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
+- Changes made:
+  - Added new file named plant_pft_definitions_Maliau_50x50_dev that has the
+    newly required pft_name instead of name (VE dev only version)
+- References:
+  - Issue #460

@@ -1,0 +1,62 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-10044772
+doi: 10.5281/zenodo.10044772
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Soil variables are PCA axes and EM fungi is tree data (Quadrat level proportion
+    of basal area contributed by EcM trees).
+  screened_at: '2026-08-18T07:59:31Z'
+metadata:
+  title: 'Dataset and Code Accompanying the Study by Medina-Vega et al. in Nature
+    Ecology & Evolution: Tropical Tree Ectomycorrhiza Are Distributed Independently
+    of Soil Nutrients'
+  authors:
+  - Medina-Vega, José A.
+  - Zuleta, Daniel
+  - Aguilar, Salomón
+  - Alonso, Alfonso
+  - Bissiengou, Pulchérie
+  - Brockelman, Warren Y.
+  - Bunyavejchewin, Sarayudh
+  - Burslem, David F.R.P.
+  - Castaño, Nicolás
+  - Chave, Jérôme
+  - Dalling, James W.
+  - de Oliveira, Alexandre A.
+  - Duque, Álvaro
+  - Ediriweera, Sisira
+  - Ewango, Corneille E.N.
+  - Filip, Jonah
+  - Hubbell, Stephen P.
+  - Itoh, Akira
+  - Kiratiprayoon, Somboon
+  - Lum, Shawn K.Y.
+  - Makana, Jean-Remy
+  - Memiaghe, Hervé
+  - Mitre, David
+  - Mohamad, Mohizah Bt.
+  - Nathalang, Anuttara
+  - Nilus, Reuben
+  - Nkongolo, Nsalambi V.
+  - Novotny, Vojtech
+  - O'Brien, Michael J.
+  - Pérez, Rolando
+  - Pongpattananurak, Nantachai
+  - Reynolds, Glen
+  - Russo, Sabrina E.
+  - Tan, Sylvester
+  - Thompson, Jill
+  - Uriarte, María
+  - Valencia, Renato
+  - Vicentini, Alberto
+  - Yao, Tze Leong
+  - Zimmerman, Jess K.
+  - Davies, Stuart J.
+  year: 2023
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.10044772
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:58:17Z'

@@ -25,6 +25,7 @@ data/derived/litter/stock/litter_stock.csv
 *.duckdb
 analysis/troubleshoot/cnp_ratios/*png
 *.parquet
+data/derived/soil/spatial_model
 
 # MkDocs build output
 site/
@@ -38,6 +39,7 @@ data/scenarios/*/*/*
 
 # troubleshoot files
 analysis/troubleshoot/zarr_test/ve_example
+analysis/troubleshoot/inorganic_n_too_high/*.png
 
 # Notebooks
 /.quarto/
@@ -68,6 +70,9 @@ analysis/soil/issue_tracker/*.html
 # RStudio files
 .Rproj.user/
 *.Rproj
+
+# renv files
+.Rprofile
 
 # produced vignettes
 vignettes/*.html
