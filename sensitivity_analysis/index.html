@@ -1,0 +1,1985 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mydomain.org/mysite/sensitivity_analysis/">
+      
+      
+        <link rel="prev" href="../renv/">
+      
+      
+        <link rel="next" href="../uploading_r_scripts/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Sensitivity Analysis - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sensitivity-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sensitivity Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Virtual Ecosystem data science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derived_variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derived and emergent variables from the Virtual Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started with the ve_data_science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Github Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../renv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using renv to create reproducible environments for R projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sensitivity Analysis
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sensitivity Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-versus-global-sensitivity-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local versus Global Sensitivity Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-sensitivity-analysis-lsa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local Sensitivity Analysis (LSA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-sensitivity-analysis-gsa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Sensitivity Analysis (GSA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-global-sensitivity-analysis-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Global Sensitivity Analysis Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#morris-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Method
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Morris Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#morris-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#morris-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Advantages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#morris-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sobol-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Method
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sobol Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sobol-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sobol-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Advantages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sobol-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#morris-versus-sobol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris versus Sobol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-sensitivity-analysis-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Sensitivity Analysis Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-define-parameter-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1. Define parameter ranges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1. Define parameter ranges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-load-parameter-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2. Load parameter definitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2. Load parameter definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 Tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-generate-parameter-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Generate parameter samples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Generate parameter samples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-3-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 Tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-driver-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 Driver scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-generate-hpc-job-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4. Generate HPC job configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4. Generate HPC job configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-4-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 Tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-input-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 Input files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-execute-virtual-ecosystem-simulations-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Execute Virtual Ecosystem simulations (planned)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-post-processing-sensitivity-analysis-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Post-processing sensitivity analysis (planned)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#salib" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SALib
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SALib">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#salib-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SALib Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R Script to a GitHub Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../using_globus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using GLOBUS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uv_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uv setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building a validation database for soil and litter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What are all those odd files?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-versus-global-sensitivity-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local versus Global Sensitivity Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-sensitivity-analysis-lsa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local Sensitivity Analysis (LSA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-sensitivity-analysis-gsa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Sensitivity Analysis (GSA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-global-sensitivity-analysis-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Global Sensitivity Analysis Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#morris-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Method
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Morris Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#morris-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#morris-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Advantages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#morris-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sobol-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Method
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sobol Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sobol-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sobol-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Advantages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sobol-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sobol Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#morris-versus-sobol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Morris versus Sobol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-sensitivity-analysis-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Sensitivity Analysis Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-define-parameter-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1. Define parameter ranges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1. Define parameter ranges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-load-parameter-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2. Load parameter definitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2. Load parameter definitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 Tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-generate-parameter-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Generate parameter samples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Generate parameter samples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-3-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 Tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-driver-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 Driver scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-generate-hpc-job-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4. Generate HPC job configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4. Generate HPC job configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-4-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 Tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-input-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 Input files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-execute-virtual-ecosystem-simulations-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Execute Virtual Ecosystem simulations (planned)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-post-processing-sensitivity-analysis-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Post-processing sensitivity analysis (planned)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#salib" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SALib
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SALib">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#salib-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SALib Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sensitivity-analysis">Sensitivity Analysis</h1>
+<h2 id="overview">Overview</h2>
+<p>Sensitivity analysis (SA) evaluates how uncertainty in model parameters
+propagates to model outputs and quantifies the relative importance of model
+parameters. It provides a systematic framework for understanding model
+behaviour, identifying influential parameters, supporting uncertainty
+quantification, and guiding model calibration (Saltelli et al., 2004;
+Pianosi et al., 2016).</p>
+<p>For the Virtual Ecosystem (VE), sensitivity analysis helps to:</p>
+<ul>
+<li>identify influential parameters;</li>
+<li>rank parameter importance;</li>
+<li>quantify parameter interactions;</li>
+<li>detect nonlinear model behaviour;</li>
+<li>reduce parameter dimensionality before calibration;</li>
+<li>prioritise field measurements;</li>
+<li>support uncertainty analysis.</li>
+</ul>
+<p>Sensitivity analysis is particularly important for complex ecosystem models
+because their behaviour is often nonlinear, involves interactions between
+parameters, and represents multiple interconnected physical and biological
+processes (Pianosi et al., 2016).</p>
+<hr />
+<h2 id="local-versus-global-sensitivity-analysis">Local versus Global Sensitivity Analysis</h2>
+<p>Sensitivity analysis methods are generally classified into <strong>local</strong> and
+<strong>global</strong> approaches.</p>
+<h2 id="local-sensitivity-analysis-lsa">Local Sensitivity Analysis (LSA)</h2>
+<p>Local sensitivity analysis evaluates the effect of changing one parameter
+around a single point in parameter space, typically a calibrated parameter
+set.</p>
+<p>Characteristics:</p>
+<ul>
+<li>one parameter varied at a time;</li>
+<li>computationally inexpensive;</li>
+<li>ignores parameter interactions;</li>
+<li>suitable for preliminary model diagnostics.</li>
+</ul>
+<p>Typical methods include:</p>
+<ul>
+<li>One-at-a-Time (OAT);</li>
+<li>finite difference methods;</li>
+<li>derivative-based approaches.</li>
+</ul>
+<p>Local sensitivity analysis is useful for simple models but becomes less
+representative for highly nonlinear systems because it only explores a small
+region of the parameter space (Saltelli et al., 2004; Pianosi et al., 2016).</p>
+<hr />
+<h2 id="global-sensitivity-analysis-gsa">Global Sensitivity Analysis (GSA)</h2>
+<p>Global sensitivity analysis evaluates parameter importance across the entire
+parameter space.</p>
+<p>Unlike local methods, all parameters vary simultaneously, allowing nonlinear
+responses and parameter interactions to be quantified.</p>
+<p>Characteristics:</p>
+<ul>
+<li>explores the complete parameter space;</li>
+<li>captures nonlinear behaviour;</li>
+<li>accounts for parameter interactions;</li>
+<li>provides robust parameter rankings;</li>
+<li>requires substantially more model evaluations.</li>
+</ul>
+<p>Global sensitivity analysis is generally recommended for hydrological and
+ecosystem models because these systems exhibit complex interactions between
+parameters and processes (Pianosi et al., 2016).</p>
+<hr />
+<h2 id="common-global-sensitivity-analysis-methods">Common Global Sensitivity Analysis Methods</h2>
+<p>Several approaches are available for global sensitivity analysis.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Category</th>
+<th>Captures interactions</th>
+<th>Computational cost</th>
+<th>Typical application</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One-at-a-Time (OAT)</td>
+<td>Local</td>
+<td>No</td>
+<td>Very low</td>
+<td>Model debugging</td>
+</tr>
+<tr>
+<td>Morris</td>
+<td>Screening</td>
+<td>Partial</td>
+<td>Low</td>
+<td>Initial parameter screening</td>
+</tr>
+<tr>
+<td>Sobol</td>
+<td>Variance-based</td>
+<td>Yes</td>
+<td>High</td>
+<td>Detailed sensitivity analysis</td>
+</tr>
+<tr>
+<td>eFAST</td>
+<td>Variance-based</td>
+<td>Yes</td>
+<td>Moderate</td>
+<td>Alternative to Sobol</td>
+</tr>
+<tr>
+<td>Regression-based</td>
+<td>Statistical</td>
+<td>Limited</td>
+<td>Low</td>
+<td>Linear models</td>
+</tr>
+<tr>
+<td>PAWN</td>
+<td>Density-based</td>
+<td>Yes</td>
+<td>Moderate</td>
+<td>Distribution-based analysis</td>
+</tr>
+<tr>
+<td>Random Forest</td>
+<td>Machine learning</td>
+<td>Implicit</td>
+<td>Moderate</td>
+<td>Large simulation datasets</td>
+</tr>
+</tbody>
+</table>
+<p>For the Virtual Ecosystem, the <strong>Morris</strong> and <strong>Sobol</strong> methods are currently
+implemented using the <strong>SALib</strong> Python library. Morris provides efficient
+parameter screening, while Sobol performs a rigorous variance decomposition of
+model outputs (Saltelli et al., 2004; Wang &amp; Solomatine, 2019).</p>
+<hr />
+<h2 id="morris-method">Morris Method</h2>
+<p>The Morris method, also known as the <strong>Method of Elementary Effects</strong>, is a
+computationally efficient screening technique designed to identify influential
+parameters within high-dimensional parameter spaces (Morris, 1991).</p>
+<p>Rather than providing exact variance contributions, Morris estimates the
+overall importance of each parameter using repeated elementary effects
+calculated across the parameter space.</p>
+<h3 id="morris-outputs">Morris Outputs</h3>
+<ul>
+<li><strong>μ</strong> — mean elementary effect;</li>
+<li><strong>μ*</strong> — mean absolute elementary effect (overall parameter importance);</li>
+<li><strong>σ</strong> — variability of elementary effects, indicating nonlinear behaviour or
+  parameter interactions.</li>
+</ul>
+<h3 id="morris-advantages">Morris Advantages</h3>
+<ul>
+<li>computationally efficient;</li>
+<li>suitable for large parameter sets;</li>
+<li>identifies influential parameters quickly;</li>
+<li>ideal before calibration.</li>
+</ul>
+<h3 id="morris-limitations">Morris Limitations</h3>
+<ul>
+<li>qualitative rather than quantitative;</li>
+<li>interaction effects are inferred indirectly;</li>
+<li>does not provide variance decomposition.</li>
+</ul>
+<p>The Morris method has been widely applied in hydrological modelling as an
+efficient first-stage screening tool before more computationally intensive
+methods are applied (van Griensven et al., 2006; Zhan et al., 2013).</p>
+<hr />
+<h2 id="sobol-method">Sobol Method</h2>
+<p>Sobol analysis is a variance-based global sensitivity analysis method that
+decomposes model output variance into contributions from individual
+parameters and their interactions (Sobol, 2001).</p>
+<p>Unlike Morris, Sobol provides quantitative sensitivity indices and explicitly
+measures parameter interactions.</p>
+<h3 id="sobol-outputs">Sobol Outputs</h3>
+<ul>
+<li><strong>S₁</strong> — first-order sensitivity index;</li>
+<li><strong>S₂</strong> — second-order interaction index;</li>
+<li><strong>ST</strong> — total-order sensitivity index.</li>
+</ul>
+<h3 id="sobol-advantages">Sobol Advantages</h3>
+<ul>
+<li>quantitative parameter ranking;</li>
+<li>captures parameter interactions;</li>
+<li>suitable for highly nonlinear models;</li>
+<li>regarded as one of the most rigorous global sensitivity analysis methods.</li>
+</ul>
+<h3 id="sobol-limitations">Sobol Limitations</h3>
+<ul>
+<li>computationally expensive;</li>
+<li>requires substantially more model evaluations;</li>
+<li>less practical for large parameter sets without prior screening.</li>
+</ul>
+<p>Sobol analysis is widely regarded as one of the most comprehensive methods for
+quantifying parameter importance in nonlinear environmental models (Sobol,
+2001; Saltelli et al., 2004).</p>
+<hr />
+<h2 id="morris-versus-sobol">Morris versus Sobol</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Morris</th>
+<th>Sobol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Method type</td>
+<td>Screening</td>
+<td>Variance decomposition</td>
+</tr>
+<tr>
+<td>Parameter ranking</td>
+<td>Qualitative</td>
+<td>Quantitative</td>
+</tr>
+<tr>
+<td>Parameter interactions</td>
+<td>Indirect</td>
+<td>Explicit</td>
+</tr>
+<tr>
+<td>Computational cost</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Suitable for many parameters</td>
+<td>Yes</td>
+<td>Limited</td>
+</tr>
+<tr>
+<td>Recommended stage</td>
+<td>Before calibration</td>
+<td>Detailed analysis</td>
+</tr>
+</tbody>
+</table>
+<p>Comparative studies consistently recommend Morris for efficiently identifying
+influential parameters with relatively few model evaluations, while Sobol is
+better suited for detailed quantitative analysis once the parameter space has
+been reduced (van Griensven et al., 2006; Wang &amp; Solomatine, 2019; Zhan et al.,
+2013).</p>
+<hr />
+<h2 id="python-sensitivity-analysis-workflow">Python Sensitivity Analysis Workflow</h2>
+<p>The current Python workflow implements <strong>global sensitivity analysis for the
+Virtual Ecosystem hydrology module</strong>. However, the workflow has been designed
+to be modular and reusable, allowing the same pipeline to be adapted for other
+Virtual Ecosystem modules (e.g. abiotic, soil, plant, animal and litter) by
+providing the appropriate parameter definitions and base configuration files.</p>
+<p>The implemented workflow currently
+covers parameter definition, sample generation, and creation of HPC job
+configurations required to execute batch
+simulations runs.</p>
+<p>The workflow consists of the following stages.</p>
+<div class="highlight"><pre><span></span><code>Define parameter ranges
+    │
+    ▼
+Load parameter definitions
+    │
+    ▼
+Generate parameter samples
+(Morris / Sobol)
+    │
+    ▼
+Generate HPC job configuration
+(job_config.toml)
+    │
+    ▼
+Submit HPC batch jobs
+    │
+    ▼
+Run batch HPC simulations
+    │
+    ▼
+Future work
+(Output extraction, sensitivity analysis and reporting)
+</code></pre></div>
+<hr />
+<h2 id="step-1-define-parameter-ranges">Step 1. Define parameter ranges</h2>
+<p>Parameter names and sampling bounds are defined in</p>
+<p><code>sensitivity_parameters.toml</code></p>
+<p>Each parameter is identified using its full Virtual Ecosystem configuration
+key (for example,</p>
+<p><code>hydrology.constants.groundwater_capacity</code>)</p>
+<p>together with lower and upper sampling bounds.</p>
+<h3 id="step-1-files">Step 1 Files</h3>
+<div class="highlight"><pre><span></span><code>data/sensitivity/hydrology/config/sensitivity_parameters.toml
+</code></pre></div>
+<h3 id="step-1-purpose">Step 1 Purpose</h3>
+<p>The parameter definition file specifies:</p>
+<ul>
+<li>parameter groups (e.g. hydrology, soil, abiotic);</li>
+<li>Virtual Ecosystem configuration keys;</li>
+<li>lower and upper sampling bounds.</li>
+</ul>
+<p>Adding a new module simply requires defining a new parameter group within
+<code>sensitivity_parameters.toml</code>.</p>
+<hr />
+<h2 id="step-2-load-parameter-definitions">Step 2. Load parameter definitions</h2>
+<p>The helper function</p>
+<div class="highlight"><pre><span></span><code><span class="n">load_problem</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p>reads the selected parameter groups and constructs a SALib-compatible problem
+definition containing:</p>
+<ul>
+<li>parameter names;</li>
+<li>sampling bounds;</li>
+<li>number of variables.</li>
+</ul>
+<h3 id="step-2-tool">Step 2 Tool</h3>
+<div class="highlight"><pre><span></span><code>tools/python/abiotic/sensitivity_tools.py
+</code></pre></div>
+<h3 id="step-2-output">Step 2 Output</h3>
+<div class="highlight"><pre><span></span><code><span class="n">problem</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"num_vars"</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+    <span class="s2">"names"</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+    <span class="s2">"bounds"</span><span class="p">:</span> <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This problem dictionary is then passed directly to SALib sampling routines.</p>
+<hr />
+<h2 id="step-3-generate-parameter-samples">Step 3: Generate parameter samples</h2>
+<p>Parameter samples are generated using either</p>
+<div class="highlight"><pre><span></span><code><span class="n">generate_morris_samples</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p>or</p>
+<div class="highlight"><pre><span></span><code><span class="n">generate_sobol_samples</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p>implemented using the SALib Python package (Herman &amp; Usher, 2017; Iwanaga et al., 2022).</p>
+<h3 id="step-3-tool">Step 3 Tool</h3>
+<div class="highlight"><pre><span></span><code>tools/python/abiotic/sensitivity_tools.py
+</code></pre></div>
+<h3 id="step-3-driver-scripts">Step 3 Driver scripts</h3>
+<div class="highlight"><pre><span></span><code>analysis/abiotic/sensitivity/morris_sample.py
+
+analysis/abiotic/sensitivity/sobol_sample.py
+</code></pre></div>
+<h3 id="step-3-output">Step 3 Output</h3>
+<p>The generated sample matrix contains one parameter combination per simulation.</p>
+<hr />
+<h2 id="step-4-generate-hpc-job-configuration">Step 4. Generate HPC job configuration</h2>
+<p>The sampled parameter combinations are converted into a Virtual Ecosystem
+<code>job_config.toml</code> file using</p>
+<div class="highlight"><pre><span></span><code><span class="n">generate_job_config</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p>Each sampled parameter set becomes one independent Virtual Ecosystem
+simulation.</p>
+<h3 id="step-4-tool">Step 4 Tool</h3>
+<div class="highlight"><pre><span></span><code>tools/python/abiotic/job_config_tools.py
+</code></pre></div>
+<h3 id="step-4-input-files">Step 4 Input files</h3>
+<p>The base configuration provides the default Virtual Ecosystem model settings.
+Only the sampled parameters are overridden for each simulation.</p>
+<div class="highlight"><pre><span></span><code>data/sensitivity/hydrology/config/hydrology_base_config.toml
+</code></pre></div>
+<h3 id="step-4-output">Step 4 Output</h3>
+<div class="highlight"><pre><span></span><code>data/sensitivity/hydrology/config/job_config_sobol.toml
+
+or
+
+data/sensitivity/hydrology/config/job_config_morris.toml
+</code></pre></div>
+<p>These job configuration files define the sensitivity analysis simulations and
+are intended to be used by the Virtual Ecosystem HPC batch workflow to execute
+ensembles of model runs. Each <code>[[jobs]]</code> entry represents a single simulation
+with a unique set of sampled parameter values.</p>
+<hr />
+<h2 id="step-5-execute-virtual-ecosystem-simulations-planned">Step 5: Execute Virtual Ecosystem simulations <em>(planned)</em></h2>
+<p>This stage is <strong>currently under development</strong> and has <strong>not yet been
+implemented</strong>. Once the sensitivity sampling workflow is complete, the
+generated <code>job_config.toml</code> files will be submitted through the
+Virtual Ecosystem HPC batch workflow to execute the sensitivity analysis
+experiments.</p>
+<div class="highlight"><pre><span></span><code>job_config.toml
+        │
+        ▼
+PBS job array
+        │
+        ▼
+Multiple Virtual Ecosystem simulations
+</code></pre></div>
+<p>Each <code>[[jobs]]</code> entry represents one simulation with a unique parameter set.</p>
+<hr />
+<h2 id="step-6-post-processing-sensitivity-analysis-planned">Step 6: Post-processing sensitivity analysis <em>(planned)</em></h2>
+<p>This stage has <strong>not yet been implemented</strong> and represents the next phase of
+the sensitivity analysis pipeline.</p>
+<p>Following successful execution of the HPC simulations, a post-processing
+workflow will be developed to:</p>
+<ul>
+<li>extract Virtual Ecosystem model outputs;</li>
+<li>aggregate model outputs across simulations;</li>
+<li>compute Morris elementary effects (μ, μ*, σ);</li>
+<li>compute Sobol sensitivity indices (S₁, ST and S₂);</li>
+<li>rank influential parameters;</li>
+<li>identify parameter interactions;</li>
+<li>generate figures, tables and summary reports.</li>
+</ul>
+<p>The completed workflow will support interpretation of sensitivity results and
+provide a basis for selecting parameters for subsequent calibration and
+validation.</p>
+<p>The planned implementation will make use of the SALib analysis routines
+(<code>SALib.analyze.morris</code> and <code>SALib.analyze.sobol</code>) (Herman &amp; Usher, 2017;
+Iwanaga et al., 2022).</p>
+<hr />
+<h2 id="recommended-strategy">Recommended Strategy</h2>
+<p>For the Virtual Ecosystem, a staged sensitivity analysis strategy is
+recommended.</p>
+<div class="highlight"><pre><span></span><code>Morris screening
+        │
+        ▼
+Reduce parameter set
+        │
+        ▼
+Sobol analysis
+        │
+        ▼
+Calibration
+        │
+        ▼
+Model validation
+</code></pre></div>
+<p>This staged workflow combines the computational efficiency of Morris with the
+rigorous variance decomposition of Sobol, reducing computational cost while
+retaining robust parameter ranking and interaction analysis (van Griensven et
+al., 2006; Wang &amp; Solomatine, 2019; Pianosi et al., 2016).</p>
+<hr />
+<h2 id="salib">SALib</h2>
+<p>The Virtual Ecosystem sensitivity analysis workflow is implemented using
+<strong>SALib</strong>, an open-source Python library for global sensitivity analysis
+(Herman &amp; Usher, 2017).</p>
+<p>SALib currently provides implementations of:</p>
+<ul>
+<li>Morris;</li>
+<li>Sobol;</li>
+<li>FAST;</li>
+<li>eFAST;</li>
+<li>PAWN;</li>
+<li>Delta;</li>
+<li>DGSM;</li>
+<li>Fractional Factorial Sampling.</li>
+</ul>
+<p>As sensitivity analysis becomes a core capability of the Virtual Ecosystem,
+SALib is expected to become a core project dependency managed using the
+project's <code>uv</code> environment, ensuring consistent package versions across local
+development, continuous integration and HPC system.</p>
+<h3 id="salib-documentation">SALib Documentation</h3>
+<p>Official documentation: <a href="https://salib.readthedocs.io/">SALib Documentation</a></p>
+<p>GitHub repository: <a href="https://github.com/SALib/SALib">SALib GitHub</a></p>
+<hr />
+<h2 id="references">References</h2>
+<ul>
+<li>
+<p>Herman, J., &amp; Usher, W. (2017). <em>SALib: An open-source Python library for
+  sensitivity analysis.</em> Journal of Open Source Software, 2(9), 97.</p>
+</li>
+<li>
+<p>Iwanaga, T., Usher, W., &amp; Herman, J. (2022). <em>Toward SALib 2.0: Advancing the
+  accessibility and interpretability of global sensitivity analyses.</em>
+  Socio-Environmental Systems Modelling, 4, 18155.</p>
+</li>
+<li>
+<p>Morris, M. D. (1991). <em>Factorial sampling plans for preliminary computational
+  experiments.</em> Technometrics, 33(2), 161–174.</p>
+</li>
+<li>
+<p>Pianosi, F., Beven, K., Freer, J., Hall, J. W., Rougier, J., Stephenson, D.
+  B., &amp; Wagener, T. (2016). <em>Sensitivity analysis of environmental models: A
+  systematic review with practical workflow.</em> Environmental Modelling &amp; Software,
+  79, 214–232.</p>
+</li>
+<li>
+<p>Saltelli, A., Tarantola, S., Campolongo, F., &amp; Ratto, M. (2004). <em>Sensitivity
+  Analysis in Practice: A Guide to Assessing Scientific Models.</em> John Wiley &amp;
+  Sons.</p>
+</li>
+<li>
+<p>Sobol, I. M. (2001). <em>Global sensitivity indices for nonlinear mathematical
+  models and their Monte Carlo estimates.</em> Mathematics and Computers in
+  Simulation, 55(1–3), 271–280.</p>
+</li>
+<li>
+<p>van Griensven, A., Meixner, T., Grunwald, S., Bishop, T., Di Luzio, M., &amp;
+  Srinivasan, R. (2006). <em>A global sensitivity analysis tool for the parameters
+  of multi-variable catchment models.</em> Journal of Hydrology, 324(1–4), 10–23.</p>
+</li>
+<li>
+<p>Wang, A., &amp; Solomatine, D. P. (2019). <em>Practical experience of sensitivity
+  analysis: Comparing six methods on three hydrological models with three
+  performance criteria.</em> Water, 11(5), 1062.</p>
+</li>
+<li>
+<p>Zhan, C. S., Song, X. M., Xia, J., &amp; Tong, C. (2013). <em>An efficient integrated
+  approach for global sensitivity analysis of hydrological model parameters.</em>
+  Environmental Modelling &amp; Software, 41, 39–52.</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

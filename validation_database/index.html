@@ -1,0 +1,1448 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mydomain.org/mysite/validation_database/">
+      
+      
+        <link rel="prev" href="../uv_setup/">
+      
+      
+        <link rel="next" href="../what_are_those_odd_files/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Building a validation database for soil and litter - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#building-a-validation-database-for-soil-and-litter" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Building a validation database for soil and litter
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Virtual Ecosystem data science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derived_variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derived and emergent variables from the Virtual Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started with the ve_data_science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Github Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../renv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using renv to create reproducible environments for R projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensitivity_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sensitivity Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R Script to a GitHub Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../using_globus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using GLOBUS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uv_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uv setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building a validation database for soil and litter
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building a validation database for soil and litter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#repository-paths-used-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository paths used by default
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-load-the-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to load the functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-data-screening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Data screening
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-add-a-schema-template-for-one-proceed-doi-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Add a schema template for one proceed DOI record
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-download-the-dataset-and-convert-it-to-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Download the dataset and convert it to CSV
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-complete-schema-fields-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Complete schema fields manually
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Complete schema fields manually">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spatial-and-temporal-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spatial and temporal metadata
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spatial and temporal metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#coordinate-sources-and-precedence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coordinate sources and precedence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-coordinates-from-data-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Coordinates from data columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-blanket-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Blanket coordinates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-custom-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (custom path)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build-the-validation-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Build the validation database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-combine-the-validation-database-with-ve-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Combine the validation database with VE outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy-screening-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy screening records
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ongoing-metadata-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ongoing metadata curation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-for-contributors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes for contributors
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What are all those odd files?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#repository-paths-used-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository paths used by default
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-load-the-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to load the functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-data-screening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Data screening
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-add-a-schema-template-for-one-proceed-doi-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Add a schema template for one proceed DOI record
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-download-the-dataset-and-convert-it-to-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Download the dataset and convert it to CSV
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-complete-schema-fields-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Complete schema fields manually
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Complete schema fields manually">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spatial-and-temporal-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spatial and temporal metadata
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spatial and temporal metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#coordinate-sources-and-precedence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coordinate sources and precedence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-coordinates-from-data-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Coordinates from data columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-blanket-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Blanket coordinates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-custom-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (custom path)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build-the-validation-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Build the validation database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-combine-the-validation-database-with-ve-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Combine the validation database with VE outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy-screening-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy screening records
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ongoing-metadata-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ongoing metadata curation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-for-contributors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes for contributors
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="building-a-validation-database-for-soil-and-litter">Building a validation database for soil and litter</h1>
+<p>This workflow uses YAML metadata to read, harmonise, unit-convert, and combine
+multiple source datasets into one validation database (Parquet).</p>
+<h2 id="repository-paths-used-by-default">Repository paths used by default</h2>
+<p>Run commands from the repository root.</p>
+<div class="highlight"><pre><span></span><code>data/primary/soil/&lt;author&gt;_&lt;year&gt;/
+└── &lt;data sheet&gt;.csv            # source data, converted manually
+data/derived/soil/validation/
+├── config/
+│   ├── sources/                # one screening/schema YAML file per DOI
+│   └── derived_variables.toml  # non-VE canonical variables (optional)
+└── database/                   # output Parquet dataset
+tools/R/R/valdb.R               # workflow functions
+</code></pre></div>
+<h2 id="how-to-load-the-functions">How to load the functions</h2>
+<p>These functions are written to work with both <code>box::use()</code> and <code>source()</code>.</p>
+<p>With <code>box::use()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">box</span><span class="o">::</span><span class="nf">use</span><span class="p">(</span><span class="n">tools</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">valdb</span><span class="p">)</span>
+</code></pre></div>
+<p>With <code>source()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nf">source</span><span class="p">(</span><span class="s">"tools/R/R/valdb.R"</span><span class="p">)</span>
+</code></pre></div>
+<p>After <code>box::use()</code>, call exported functions as <code>valdb$function_name()</code>.
+After <code>source()</code>, call them as <code>function_name()</code>. If you call
+<code>join_ve_outputs()</code> after <code>source()</code>, also source
+<code>tools/R/R/get_ve_variables.R</code> so VE variable readers are available.</p>
+<h2 id="workflow-overview">Workflow overview</h2>
+<ol>
+<li>Screen each candidate dataset and save one per-DOI YAML record.</li>
+<li>Initialise schema fields for a dataset with a <code>proceed</code> decision.</li>
+<li>Download the source dataset and convert it to CSV.</li>
+<li>Complete the schema manually (file path, variable mapping, units, keys).</li>
+<li>Build the harmonised validation database.</li>
+<li>Combine the validation database with VE outputs.</li>
+</ol>
+<h2 id="1-data-screening">1) Data screening</h2>
+<p>Use <code>screen_dataset()</code> to retrieve DOI metadata and record whether a dataset
+should proceed, be excluded, or be deferred.</p>
+<div class="highlight"><pre><span></span><code><span class="n">box</span><span class="o">::</span><span class="nf">use</span><span class="p">(</span><span class="n">tools</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">valdb</span><span class="p">)</span>
+<span class="n">valdb</span><span class="o">$</span><span class="nf">screen_dataset</span><span class="p">()</span>
+</code></pre></div>
+<p>The function prompts for a DOI, a decision, a decision-specific reason, and
+notes. The available decisions are:</p>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>proceed</code></td>
+<td>The source contains relevant validation data.</td>
+</tr>
+<tr>
+<td><code>exclude</code></td>
+<td>The source is unsuitable for the validation database.</td>
+</tr>
+<tr>
+<td><code>defer</code></td>
+<td>A decision requires more information or another opinion.</td>
+</tr>
+</tbody>
+</table>
+<p>Notes are required for <code>defer</code> decisions and when the selected reason is
+<code>other</code>. DOI metadata must be resolvable through DOI content negotiation
+(<code>rcrossref::cr_cn()</code>).</p>
+<p>Each successful screening creates one file under
+<code>data/derived/soil/validation/config/sources/</code>. The filename is a stable ID
+derived from the normalised DOI, for example:</p>
+<div class="highlight"><pre><span></span><code>doi-10-5281-zenodo-2024580.yaml
+</code></pre></div>
+<p>Existing DOI records are not overwritten. To amend a screening decision,
+delete its per-DOI YAML file and screen the dataset again.</p>
+<h2 id="2-add-a-schema-template-for-one-proceed-doi-record">2) Add a schema template for one <code>proceed</code> DOI record</h2>
+<p><code>add_schema()</code> locates a screening record by DOI and adds one nested dataset
+template under <code>datasets:</code> for the current build step.</p>
+<div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">add_schema</span><span class="p">(</span><span class="n">doi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"10.5281/zenodo.2024580"</span><span class="p">)</span>
+</code></pre></div>
+<p>Set <code>sources_dir</code> only when the records are stored outside the default
+directory:</p>
+<div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">add_schema</span><span class="p">(</span>
+<span class="w">  </span><span class="n">doi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"10.5281/zenodo.2024580"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">sources_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"data/derived/soil/validation/config/sources"</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The DOI may use upper-case characters, a <code>doi:</code> prefix, or a DOI resolver URL;
+it is normalised before lookup. The record must already exist, have
+<code>screening.decision: proceed</code>, and not contain a schema. If these checks pass,
+the template is written safely and only the target per-DOI YAML file is opened
+for manual editing. Existing schemas are not overwritten.</p>
+<p>The initial template always uses the nested <code>datasets</code> layout, even when the
+DOI record currently contains only one dataset.</p>
+<p>A minimal local dashboard provides the same workflow for all <code>proceed</code>
+records. Launch it from the repository root:</p>
+<div class="highlight"><pre><span></span><code><span class="n">shiny</span><span class="o">::</span><span class="nf">runApp</span><span class="p">(</span><span class="s">"analysis/soil/validation/schema_dashboard"</span><span class="p">)</span>
+</code></pre></div>
+<p>The dashboard reads the YAML records directly, shows one row per dataset for
+<code>proceed</code> records, and loads the selected per-DOI YAML file into a browser
+editor. It calls <code>initialise_source_schema()</code> only when a schema does not
+exist. Untouched or partially completed dataset entries remain visible as
+<code>Draft</code>. Saving validates the YAML and record identity before replacing the
+filesystem record. The record can also be opened in the desktop editor. The
+dashboard does not maintain a separate database.</p>
+<h2 id="3-download-the-dataset-and-convert-it-to-csv">3) Download the dataset and convert it to CSV</h2>
+<p>Download the dataset to <code>data/primary/&lt;module&gt;/&lt;author&gt;_&lt;year&gt;</code>. Note that the
+soil folder is used as an example throughout this page, and that
+<code>author_year</code> is a folder naming convention. If there are conflicts, then the
+next folder should be named <code>author_year_2</code>, and so on.</p>
+<p>We work with CSV files. If the published dataset is in another format (for
+example Excel or zip), then manually convert the desired data sheet into a CSV
+file. We opted not to accommodate multiple data formats because the cost of
+manual conversion is relatively minor even in the long run.</p>
+<p>Keep any location or coordinate files supplied with the source dataset. For the
+default spatial workflow, export the source location table as <code>locations.csv</code>
+beside the measurement CSV.</p>
+<h2 id="4-complete-schema-fields-manually">4) Complete schema fields manually</h2>
+<p>The template is an editable scaffold, not a build-ready configuration. Replace
+every placeholder with values from the source dataset, remove unused example
+entries, and add one <code>variables</code> entry for each source column to include.</p>
+<p>For each dataset entry under <code>datasets:</code>, complete:</p>
+<ul>
+<li><code>source_id</code> (e.g. <code>dobert_2019</code>)</li>
+<li><code>data_file</code> (path to the CSV file)</li>
+<li><code>skip_rows</code></li>
+<li><code>variables</code> (original name, canonical name, original unit)</li>
+<li><code>dedup_key</code></li>
+</ul>
+<p>Dataset-specific fields are nested under <code>datasets</code>, while record-level fields
+stay at the top level.</p>
+<p>Example with one dataset:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">record_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">doi-10-5281-zenodo-2024580</span>
+<span class="nt">doi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.5281/zenodo.2024580</span>
+<span class="nt">screening</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">decision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">proceed</span>
+<span class="w">  </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relevant_validation_data</span>
+<span class="w">  </span><span class="nt">notes</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">screened_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-08-13T12:05:00Z"</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example dataset</span>
+<span class="w">  </span><span class="nt">authors</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Doe, Jane</span>
+<span class="w">  </span><span class="nt">year</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2019</span>
+<span class="nt">datasets</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dobert_2019</span>
+<span class="w">    </span><span class="nt">data_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv</span>
+<span class="w">    </span><span class="nt">skip_rows</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9</span>
+<span class="w">    </span><span class="nt">variables</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">soilN</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">var_canonical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">total_soil_n_per_volume</span>
+<span class="w">        </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mg cm^-3</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Total soil nitrogen content</span>
+<span class="w">      </span><span class="nt">soilP</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">var_canonical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dissolved_phosphorus</span>
+<span class="w">        </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ug cm^-3</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Plant available soil phosphorus content</span>
+<span class="w">    </span><span class="nt">dedup_key</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plot.code</span>
+</code></pre></div>
+<p>To add another dataset from the same DOI, append another entry under
+<code>datasets:</code> in the same YAML file. The build pipeline still consumes one flat
+source schema per dataset internally, keyed by unique <code>source_id</code>.</p>
+<p>Assumptions and expectations:</p>
+<ul>
+<li>Input files are CSV (<code>readr::read_csv()</code> is used internally).</li>
+<li>Known <code>var_canonical</code> names are resolved against the latest VE
+  <code>data_variables.toml</code> from the <code>develop</code> branch and
+  <code>config/derived_variables.toml</code>.</li>
+<li>Source and canonical units are interpreted and converted directly with the
+  <code>units</code> package. Malformed or dimensionally incompatible units are errors.</li>
+<li>Unknown canonical names produce a warning. Their observations and original
+  units are retained, while canonical values and units are recorded as missing.</li>
+</ul>
+<h3 id="spatial-and-temporal-metadata">Spatial and temporal metadata</h3>
+<p>The <code>coordinates</code> and <code>temporal</code> blocks are optional. Leave their template
+values blank when the source does not provide the corresponding metadata.
+Missing spatial or temporal metadata produces a warning and typed missing
+values in the database; it does not make an otherwise complete schema a draft.</p>
+<h4 id="coordinate-sources-and-precedence">Coordinate sources and precedence</h4>
+<p>The builder fills coordinates using one of the following methods, in order of
+precedence. All methods produce a <code>coordinate_source</code> field indicating which
+source was used:</p>
+<ol>
+<li>
+<p><strong>Blanket coordinates</strong> (<code>same_for_all_rows</code>): Use when one location applies
+   to the entire dataset. Set both <code>same_for_all_rows.latitude</code> and
+   <code>same_for_all_rows.longitude</code> to scalar values in WGS84 decimal degrees.
+   Rows filled this way have <code>coordinate_source: blanket_coordinates</code>.</p>
+</li>
+<li>
+<p><strong>Data-column coordinates</strong> (<code>latitude_column</code>, <code>longitude_column</code>): Use when
+   the source CSV contains separate latitude and longitude columns. Set both
+   <code>latitude_column</code> and <code>longitude_column</code> to the original column names.
+   The builder reads these columns directly from <code>data_file</code>, converts them to
+   numeric WGS84 decimal degrees, and flags rows as
+   <code>coordinate_source: data_columns</code>. If either column name is missing or
+   contains only <code>NULL</code> values, this method is skipped.</p>
+</li>
+<li>
+<p><strong>External locations file</strong> (<code>from_file</code>, <code>match_data_column</code>,
+   <code>match_location_column</code>, <code>latitude_column</code>, <code>longitude_column</code>): Use when
+   coordinates are stored in a separate file. By default, the builder looks for
+   <code>locations.csv</code> beside <code>data_file</code>. To use another file, set <code>from_file</code>.
+   Match the data using <code>match_data_column</code> (column in <code>data_file</code>) and
+   <code>match_location_column</code> (column in the locations file). Within the locations
+   file, read latitude and longitude from <code>latitude_column</code> and
+   <code>longitude_column</code> (default: <code>Latitude</code> and <code>Longitude</code>). A multi-column
+   <code>dedup_key</code> requires an explicit <code>match_data_column</code>. Rows filled this way
+   have <code>coordinate_source: locations_file</code>.</p>
+</li>
+<li>
+<p><strong>Gazetteer second pass</strong>: If rows still lack coordinates after the above
+   methods, the builder attempts to match the location key against
+   <code>data/primary/site/gazetteer.geojson</code> and fills missing coordinates from
+   centroid values (<code>centroid_x</code>, <code>centroid_y</code>). Rows filled this way are
+   flagged as <code>coordinate_source: gazetteer_second_pass</code>.</p>
+</li>
+</ol>
+<p>All coordinate values must be WGS84 decimal degrees. Rows with invalid
+coordinates (non-numeric, out-of-range, or both missing) are flagged as
+<code>coordinate_source: missing</code>.</p>
+<p>Temporal metadata can come from one <code>date_column</code>, from paired <code>start_column</code>
+and <code>end_column</code> values, or from <code>same_for_all_rows.start</code> and
+<code>same_for_all_rows.end</code>. Columns used for time metadata must also be retained by
+<code>dedup_key</code> or <code>variables</code>. Optional <code>format</code>, <code>timezone</code>, and <code>precision</code>
+settings control parsing; supported precision values are <code>second</code>, <code>day</code>,
+<code>month</code>, and <code>year</code>. Times are stored in UTC as half-open intervals
+<code>[time_start, time_end)</code>. Source end values are interpreted as the last
+inclusive precision unit, and <code>same_for_all_rows.end: open</code> represents an
+unbounded end. The optional blanket <code>note</code> is stored in <code>time_note</code>.</p>
+<h4 id="example-coordinates-from-data-columns">Example: Coordinates from data columns</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Latitude</span>
+<span class="w">  </span><span class="nt">longitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Longitude</span>
+</code></pre></div>
+<p>The builder reads <code>Latitude</code> and <code>Longitude</code> directly from the source CSV
+(<code>data_file</code>) and converts them to numeric WGS84 values.</p>
+<h4 id="example-blanket-coordinates">Example: Blanket coordinates</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">same_for_all_rows</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4.3975</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">117.3659</span>
+</code></pre></div>
+<p>All rows receive this single coordinate pair; the location is treated as
+constant across the dataset.</p>
+<h4 id="example-external-locations-file-default">Example: External locations file (default)</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">match_data_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plot.code</span>
+<span class="w">  </span><span class="nt">match_location_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Location name</span>
+<span class="w">  </span><span class="nt">latitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Latitude</span>
+<span class="w">  </span><span class="nt">longitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Longitude</span>
+</code></pre></div>
+<p>The builder looks for <code>locations.csv</code> beside <code>data_file</code>. It matches
+<code>plot.code</code> from the data against <code>Location name</code> in the locations file, and
+reads coordinates from the locations file's <code>Latitude</code> and <code>Longitude</code> columns.</p>
+<h4 id="example-external-locations-file-custom-path">Example: External locations file (custom path)</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">from_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/primary/soil/dobert_2019/sites.csv</span>
+<span class="w">  </span><span class="nt">match_data_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plot.code</span>
+<span class="w">  </span><span class="nt">match_location_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">site_id</span>
+<span class="w">  </span><span class="nt">latitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lat</span>
+<span class="w">  </span><span class="nt">longitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lon</span>
+</code></pre></div>
+<p>The builder reads coordinates from the specified <code>from_file</code> path, matching
+and column names as configured.</p>
+<h4 id="temporal-metadata">Temporal metadata</h4>
+<p>Temporal metadata can come from one <code>date_column</code>, from paired <code>start_column</code>
+and <code>end_column</code> values, or from <code>same_for_all_rows.start</code> and
+<code>same_for_all_rows.end</code>. Columns used for time metadata must also be retained by
+<code>dedup_key</code> or <code>variables</code>. Optional <code>format</code>, <code>timezone</code>, and <code>precision</code>
+settings control parsing; supported precision values are <code>second</code>, <code>day</code>,
+<code>month</code>, and <code>year</code>. Times are stored in UTC as half-open intervals
+<code>[time_start, time_end)</code>. Source end values are interpreted as the last
+inclusive precision unit, and <code>same_for_all_rows.end: open</code> represents an
+unbounded end. The optional blanket <code>note</code> is stored in <code>time_note</code>.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">temporal</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">date_column</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">start_column</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">end_column</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">format</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UTC</span>
+<span class="w">  </span><span class="nt">precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">day</span>
+<span class="w">  </span><span class="nt">same_for_all_rows</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2011-01-01</span>
+<span class="w">    </span><span class="nt">end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2014-12-31</span>
+<span class="w">    </span><span class="nt">precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">day</span>
+<span class="w">    </span><span class="nt">note</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sampling period reported by the source</span>
+</code></pre></div>
+<p>Use either per-row settings or <code>same_for_all_rows</code> within each block, and remove
+unused entries when the schema is complete.</p>
+<h2 id="5-build-the-validation-database">5) Build the validation database</h2>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">build_validation_database</span><span class="p">()</span>
+</code></pre></div>
+<p>Default behavior:</p>
+<ul>
+<li>Downloads current canonical variable metadata from the VE <code>develop</code> branch
+  and combines it with local derived-variable metadata</li>
+<li>Converts known variables directly between compatible units with <code>units</code></li>
+<li>Reads per-DOI records in filename order from
+  <code>data/derived/soil/validation/config/sources/*.yaml</code></li>
+<li>Flattens each record to one build source per dataset entry under <code>datasets</code></li>
+<li>Ignores screening-only records</li>
+<li>Warns about dataset entries that still contain mandatory placeholders and
+  skips them</li>
+<li>Requires every schema record to retain a <code>proceed</code> screening decision</li>
+<li>Writes Parquet output to <code>data/derived/soil/validation/database</code></li>
+</ul>
+<p>A <code>proceed</code> decision alone does not make a record build-ready. The builder only
+uses completed dataset entries. It stops if no completed dataset schemas remain
+after screening-only and draft entries are excluded.</p>
+<h2 id="6-combine-the-validation-database-with-ve-outputs">6) Combine the validation database with VE outputs</h2>
+<p>Use
+<a href="analysis/soil/validation/combine_validation_database.R">analysis/soil/validation/combine_validation_database.R</a>
+as a reference workflow.</p>
+<div class="highlight"><pre><span></span><code><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
+<span class="n">box</span><span class="o">::</span><span class="nf">use</span><span class="p">(</span><span class="n">tools</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">valdb</span><span class="p">)</span>
+
+<span class="n">validation_database</span><span class="w"> </span><span class="o">&lt;-</span>
+<span class="w">  </span><span class="nf">open_dataset</span><span class="p">(</span><span class="s">"data/derived/soil/validation/database"</span><span class="p">)</span><span class="w"> </span><span class="o">|&gt;</span>
+<span class="w">  </span><span class="n">dplyr</span><span class="o">::</span><span class="nf">collect</span><span class="p">()</span>
+
+<span class="n">combined_database</span><span class="w"> </span><span class="o">&lt;-</span>
+<span class="w">  </span><span class="n">valdb</span><span class="o">$</span><span class="nf">join_ve_outputs</span><span class="p">(</span>
+<span class="w">    </span><span class="n">validation_database</span><span class="p">,</span>
+<span class="w">    </span><span class="n">zarr_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"data/scenarios/maliau/maliau_2/out/model_data.zarr"</span><span class="p">,</span>
+<span class="w">    </span><span class="n">config_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"</span>
+<span class="w">  </span><span class="p">)</span>
+
+<span class="n">combined_database</span><span class="w"> </span><span class="o">|&gt;</span>
+<span class="w">  </span><span class="n">dplyr</span><span class="o">::</span><span class="nf">group_by</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="w"> </span><span class="o">|&gt;</span>
+<span class="w">  </span><span class="nf">write_dataset</span><span class="p">(</span><span class="s">"data/derived/soil/validation/database_combined"</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"parquet"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>join_ve_outputs()</code> takes the validation database and VE scenario outputs (from
+a Zarr store), then join the spatiotemporally aggregated VE outputs for each
+row. It reads direct and derived VE variables, classifies each observation by
+spatial/temporal overlap with the scenario bounds, and then returns three added
+columns: the lower quantile <code>value_VE_q05</code>, median <code>value_VE_q50</code>, and the upper
+quantile <code>value_VE_q95</code>.</p>
+<p>Current implementation supports:</p>
+<ul>
+<li>full spatial and temporal matching (<code>spatial_within_temporal_within</code>)</li>
+<li>temporal-only matching for observations outside VE spatial bounds
+  (<code>spatial_outside_temporal_within</code>)</li>
+</ul>
+<p>Other spatiotemporal classes currently return <code>NA</code> quantiles with a warning.</p>
+<h2 id="legacy-screening-records">Legacy screening records</h2>
+<p><code>data/derived/soil/validation/config/sources.yaml</code> is retained temporarily as
+migration input. It is not read by the current screening, schema, or build
+workflow. Some historical screening records and completed schemas in that file
+have not yet been reconciled with <code>config/sources/</code>; do not delete it until the
+migration has been checked DOI by DOI.</p>
+<p>The report source at
+<code>analysis/soil/validation/safe_database_screen/dataset_screening.qmd</code> has been
+retired because it reads the legacy aggregate format. Its existing generated
+HTML is a historical snapshot and must not be treated as current workflow
+output.</p>
+<h2 id="ongoing-metadata-curation">Ongoing metadata curation</h2>
+<p>When new derived variables are needed, edit
+<code>data/derived/soil/validation/config/derived_variables.toml</code>. Source schemas
+should use unit strings understood by the <code>units</code> package.</p>
+<h2 id="notes-for-contributors">Notes for contributors</h2>
+<ul>
+<li>Keep schema edits small and commit frequently.</li>
+<li>Prefer explicit relative paths from repo root.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
