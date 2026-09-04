@@ -38,6 +38,7 @@ data/scenarios/*/*/*
 
 # troubleshoot files
 analysis/troubleshoot/zarr_test/ve_example
+analysis/troubleshoot/inorganic_n_too_high/*.png
 
 # Notebooks
 /.quarto/

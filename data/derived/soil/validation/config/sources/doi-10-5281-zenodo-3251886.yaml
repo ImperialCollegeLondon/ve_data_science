@@ -4,30 +4,90 @@ doi: 10.5281/zenodo.3251886
 screening:
   decision: proceed
   reason: relevant_validation_data
-  notes: Contains soil and litter C and N.
-  screened_at: '2026-08-18T07:12:35Z'
+  notes:
+    Contains soil and litter C and N. Added soil C and N, but litter are leaf
+    litter, and there is easy way to convert them to aboveground structural +
+    metabolic litter since we do not know the wood and reproductive organs'
+    contribution in this empirical dataset. This will be an ongoing challenge to
+    find litter validation data.
+  screened_at: "2026-08-18T07:12:35Z"
 metadata:
-  title: Soil greenhouse gas fluxes along transects from oil palm to riparian forests
+  title:
+    Soil greenhouse gas fluxes along transects from oil palm to riparian forests
     in the SAFE landscape
   authors:
-  - Drewer, Julia
-  - Kuling, Harry John
-  - Sentian, Justin
-  - Skiba, Ute
+    - Drewer, Julia
+    - Kuling, Harry John
+    - Sentian, Justin
+    - Skiba, Ute
   year: 2019
   journal: ~
   publisher: Zenodo
   url: https://zenodo.org/record/3251886
   keywords:
-  - HTMF
-  - river
-  - methane
-  - gas exchange
-  - SAFE project
-  - biogeochemistry
-  - greenhouse gases
-  - GHG
-  - nitrous oxide
-  - riparian
+    - HTMF
+    - river
+    - methane
+    - gas exchange
+    - SAFE project
+    - biogeochemistry
+    - greenhouse gases
+    - GHG
+    - nitrous oxide
+    - riparian
   provider: doi_content_search
-  retrieved_at: '2026-08-18T07:11:40Z'
+  retrieved_at: "2026-08-18T07:11:40Z"
+datasets:
+  - source_id: drewer_2019_1a
+    data_file: data/primary/soil/drewer_2019_1/data_one_off_field.csv
+    skip_rows: 5
+    variables:
+      soil_N:
+        var_canonical: total_soil_n_per_mass
+        unit: "%"
+        description: Soil nitrogen content from elemental analysis.
+      soil_C:
+        var_canonical: total_soil_c_per_mass
+        unit: "%"
+        description: Soil carbon content from elemental analysis.
+    dedup_key: Location
+    coordinates:
+      latitude_column: Latitude
+      longitude_column: Longitude
+    temporal:
+      format: "%d/%m/%Y"
+      same_for_all_rows:
+        start: 1/11/2016
+        end: 30/11/2017
+        note: Date range from the Summary sheet.
+  - source_id: drewer_2019_1b
+    data_file: data/primary/soil/drewer_2019_1/data_repeated_measures.csv
+    skip_rows: 5
+    variables:
+      NH4-N_KCl:
+        var_canonical: soil_n_pool_ammonium_per_mass
+        unit: "mg g^-1"
+        description:
+          Soil NH4 concentration extracted with 1M KCl and used colorimetry for
+          analysis.
+      NO3-N_KCl:
+        var_canonical: soil_n_pool_nitrate_per_mass
+        unit: "mg g^-1"
+        description:
+          Soil NO3 concentration extracted with 1M KCl and used colorimetry for
+          analysis.
+    dedup_key:
+      - site
+      - chamber_id
+      - date
+    coordinates:
+      latitude_column: Latitude
+      longitude_column: Longitude
+      from_file: data/primary/soil/drewer_2019_1/locations.csv
+      match_data_column:
+        - site
+        - chamber_id
+      match_location_column: Location name
+    temporal:
+      date_column: date
+      format: "%d/%m/%y"

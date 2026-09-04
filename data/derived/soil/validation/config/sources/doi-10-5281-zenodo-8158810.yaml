@@ -2,40 +2,53 @@ schema_version: 1
 record_id: doi-10-5281-zenodo-8158810
 doi: 10.5281/zenodo.8158810
 screening:
-  decision: proceed
-  reason: relevant_validation_data
-  notes: Heartwood nutrient may be able to approximate woody litter nutrient pools.
-  screened_at: '2026-08-17T03:07:17Z'
+  decision: defer
+  reason: needs_second_opinion
+  notes:
+    Heartwood nutrient may be able to approximate woody litter nutrient pools.
+    However, this is plant tissue nutrient measured in [mass nutrient / mass
+    tissue]. We need [mass tissue / spatial area] to convert it to woody litter
+    nutrient per area. This raises a broader issue on what's normally collected
+    in the field versus what's simulated in VE. For the litter module, many
+    datasets collect either [mass nutrient / mass tissue] or [mass tissue /
+    spatial area]; if we are lucky we get both, but then we will need to convert
+    them before adding to the validation database (though how to minimise
+    bespoke script per dataset in a validation pipeline problem, not a VE
+    problem in itself.) For the plant module though, [mass nutrient / mass
+    tissue] is directly useful; so perhaps a dataset like this is more for plant
+    validation than for litter.
+  screened_at: "2026-08-17T03:07:17Z"
 metadata:
-  title: Nutrients and wood density in coarse root, trunk and branches in Bornean
+  title:
+    Nutrients and wood density in coarse root, trunk and branches in Bornean
     tree species
   authors:
-  - Inagawa, Takeshi
-  - Riutta, Terhi
-  - Malhi, Yadvinder
-  - Majalap, Noreen
-  - Nilus, Reuben
-  - Josue, James
+    - Inagawa, Takeshi
+    - Riutta, Terhi
+    - Malhi, Yadvinder
+    - Majalap, Noreen
+    - Nilus, Reuben
+    - Josue, James
   year: 2023
   journal: ~
   publisher: Zenodo
   url: https://zenodo.org/record/8158810
   keywords:
-  - wood traits
-  - bark
-  - sapwood
-  - heartwood
-  - coarse root
-  - branch
-  - carbon
-  - nitrogen
-  - phosphorus
-  - potassium
-  - calcium
-  - magnesium
-  - wood specific gravity
-  - nutrient cycling
-  - wood resorption
-  - wood density
+    - wood traits
+    - bark
+    - sapwood
+    - heartwood
+    - coarse root
+    - branch
+    - carbon
+    - nitrogen
+    - phosphorus
+    - potassium
+    - calcium
+    - magnesium
+    - wood specific gravity
+    - nutrient cycling
+    - wood resorption
+    - wood density
   provider: doi_content_search
-  retrieved_at: '2026-08-17T03:07:04Z'
+  retrieved_at: "2026-08-17T03:07:04Z"

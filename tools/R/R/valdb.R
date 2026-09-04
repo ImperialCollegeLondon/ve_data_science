@@ -552,9 +552,9 @@ screen_dataset <- function(
 
 # Schema template contract -----------------------------------------------
 
-#' Construct a validation dataset schema template
+#' Construct one validation dataset schema template
 #'
-#' The template contains the YAML fields currently consumed by
+#' The template contains the dataset-level YAML fields currently consumed by
 #' [build_validation_database()]. The returned list is an editable scaffold,
 #' not a build-ready schema. Before running [build_validation_database()],
 #' replace every example value with the actual CSV path, source column names,
@@ -564,7 +564,7 @@ screen_dataset <- function(
 #'
 #' This helper function is intended to be used with [initialise_source_schema()].
 #'
-#' @returns A named list containing placeholders for the mandatory source fields
+#' @returns A named list containing placeholders for the mandatory dataset fields
 #'   and optional `coordinates` and `temporal` blocks.
 #'
 #' @export
@@ -582,16 +582,18 @@ new_schema_template <- function() {
       )
     ),
     dedup_key = c("sample_id", "date", "site_id"),
+    # Coordinates specification with precedence: (1) blanket, (2) data columns,
+    # (3) external file. Check in order above; first non-null case applies.
     coordinates = list(
-      from_file = NULL,
-      match_data_column = NULL,
-      match_location_column = NULL,
-      latitude_column = NULL,
-      longitude_column = NULL,
       same_for_all_rows = list(
         latitude = NULL,
         longitude = NULL
-      )
+      ),
+      latitude_column = NULL,
+      longitude_column = NULL,
+      from_file = NULL,
+      match_data_column = NULL,
+      match_location_column = NULL
     ),
     temporal = list(
       date_column = NULL,
@@ -611,24 +613,128 @@ new_schema_template <- function() {
 }
 
 
-#' Check whether a validation dataset schema needs completion
+#' Check whether one validation dataset schema entry needs completion
 #'
-#' A schema needs completion when it has not been initialised or still contains
-#' a mandatory value copied from [new_schema_template()]. Optional spatial and
+#' A dataset schema needs completion when it is absent or still contains a
+#' mandatory value copied from [new_schema_template()]. Optional spatial and
 #' temporal fields do not affect completion status.
 #'
-#' @param record A screening record, optionally with schema fields.
+#' @param dataset One dataset-schema entry.
 #'
 #' @returns `TRUE` when the mandatory schema is absent or still a draft.
 
-schema_needs_completion <- function(record) {
+dataset_needs_completion <- function(dataset) {
   template <- new_schema_template()
 
-  is.null(record$source_id) ||
-    identical(record$source_id, template$source_id) ||
-    identical(record$data_file, template$data_file) ||
-    identical(record$variables, template$variables) ||
-    identical(record$dedup_key, template$dedup_key)
+  is.null(dataset$source_id) ||
+    identical(dataset$source_id, template$source_id) ||
+    identical(dataset$data_file, template$data_file) ||
+    identical(dataset$variables, template$variables) ||
+    identical(dataset$dedup_key, template$dedup_key)
+}
+
+
+#' Check whether a screening record still lacks a completed dataset schema
+#'
+#' Returns `TRUE` when a record has no dataset entries yet, or when every entry
+#' under `datasets` still contains placeholder values from
+#' [new_schema_template()].
+#'
+#' @param record A screening record, optionally with a `datasets` field.
+#'
+#' @returns `TRUE` when the record has no completed dataset schemas.
+
+schema_needs_completion <- function(record) {
+  datasets <- record_dataset_entries(record)
+
+  length(datasets) == 0L ||
+    all(purrr::map_lgl(datasets, dataset_needs_completion))
+}
+
+
+#' Check whether a screening record uses the nested dataset layout
+#'
+#' This helper detects the supported record structure, where dataset schemas are
+#' stored under the top-level `datasets` field.
+#'
+#' @param record A candidate screening record.
+#'
+#' @returns `TRUE` when `record` has a top-level `datasets` field.
+
+record_has_nested_datasets <- function(record) {
+  is.list(record) && "datasets" %in% names(record)
+}
+
+
+#' Check whether a screening record still contains top-level schema fields
+#'
+#' Flat top-level schema fields are no longer supported. This helper is used to
+#' detect that invalid layout before dataset processing continues.
+#'
+#' @param record A candidate screening record.
+#'
+#' @returns `TRUE` when `record` contains any dataset-schema field at top level.
+
+record_has_flat_schema_fields <- function(record) {
+  schema_fields <- names(new_schema_template())
+
+  is.list(record) && any(schema_fields %in% names(record))
+}
+
+
+#' Extract dataset-schema entries from a screening record
+#'
+#' Supported records store dataset schemas under the top-level `datasets`
+#' field. Records with deprecated flat top-level schema fields abort with a
+#' layout error instead of being coerced.
+#'
+#' @param record A screening record.
+#'
+#' @returns A list of dataset-schema entries, or an empty list for
+#'   screening-only records.
+
+record_dataset_entries <- function(record) {
+  if (record_has_nested_datasets(record)) {
+    return(record$datasets %||% list())
+  }
+  if (record_has_flat_schema_fields(record)) {
+    cli::cli_abort(
+      "Found legacy flat schema fields in a source record. Convert the record to nested {.field datasets} layout before continuing."
+    )
+  }
+
+  list()
+}
+
+
+flatten_record_dataset <- function(record, dataset, path, dataset_index) {
+  schema_fields <- names(new_schema_template())
+  top_level <- record[setdiff(names(record), c(schema_fields, "datasets"))]
+
+  c(
+    top_level,
+    dataset,
+    list(
+      schema_path = path,
+      dataset_index = dataset_index
+    )
+  )
+}
+
+
+format_dataset_schema_label <- function(source) {
+  path <- source$schema_path %||% "<unknown path>"
+
+  if (
+    is.character(source$source_id) &&
+      length(source$source_id) == 1L &&
+      !is.na(source$source_id) &&
+      stringr::str_trim(source$source_id) != ""
+  ) {
+    paste0(path, " (source_id: ", source$source_id, ")")
+  } else {
+    paste0(path, " (dataset ", source$dataset_index, ")")
+  }
 }
 
 
@@ -639,7 +745,7 @@ schema_needs_completion <- function(record) {
 #'
 #' @param sources_dir Directory containing one YAML file per screened dataset.
 #'
-#' @returns A named list of build-ready source records.
+#' @returns A named list of build-ready source records, one per dataset.
 
 list_build_sources <- function(sources_dir) {
   records <- list_screening_records(sources_dir)
@@ -654,7 +760,6 @@ list_build_sources <- function(sources_dir) {
     }
   })
 
-  # check for duplicated DOIs
   duplicated_dois <- unique(dois[!is.na(dois) & duplicated(dois)])
   if (length(duplicated_dois) > 0L) {
     cli::cli_abort(
@@ -662,38 +767,49 @@ list_build_sources <- function(sources_dir) {
     )
   }
 
-  # check for draft (incomplete) schema
-  schema_fields <- names(new_schema_template())
-  with_schema <- purrr::keep(records, function(record) {
-    is.list(record) && any(schema_fields %in% names(record))
-  })
-  invalid_decisions <- purrr::keep(with_schema, function(record) {
-    !identical(record$screening$decision, "proceed")
-  })
-  if (length(invalid_decisions) > 0L) {
-    paths <- file.path(sources_dir, paste0(names(invalid_decisions), ".yaml"))
+  sources <- purrr::imap(records, function(record, record_name) {
+    datasets <- record_dataset_entries(record)
+    if (length(datasets) == 0L) {
+      return(list())
+    }
+
+    path <- file.path(sources_dir, paste0(record_name, ".yaml"))
+    if (!identical(record$screening$decision, "proceed")) {
+      cli::cli_abort(
+        "Source record {.path {path}} contain{?s} a schema without a
+         {.val proceed} screening decision."
+      )
+    }
+
+    purrr::imap(datasets, function(dataset, dataset_index) {
+      flatten_record_dataset(record, dataset, path, dataset_index)
+    })
+  }) |>
+    purrr::flatten()
+
+  if (length(sources) == 0L) {
     cli::cli_abort(
-      "Source record{?s} {.path {paths}} contain{?s} a schema without a
-       {.val proceed} screening decision."
+      "No completed source schemas were found in {.path {sources_dir}}."
     )
   }
 
-  drafts <- purrr::keep(with_schema, schema_needs_completion)
-  if (length(drafts) > 0L) {
-    paths <- file.path(sources_dir, paste0(names(drafts), ".yaml"))
+  draft_sources <- purrr::keep(sources, dataset_needs_completion)
+  if (length(draft_sources) > 0L) {
+    labels <- purrr::map_chr(draft_sources, format_dataset_schema_label)
     cli::cli_warn(
-      "Skipping draft source schema{?s} {.path {paths}}. Complete the
+      "Skipping draft source schema{?s} {.path {labels}}. Complete the
        placeholder values before building the database."
     )
   }
 
-  build_sources <- purrr::discard(with_schema, schema_needs_completion)
+  build_sources <- purrr::discard(sources, dataset_needs_completion)
   if (length(build_sources) == 0L) {
     cli::cli_abort(
       "No completed source schemas were found in {.path {sources_dir}}."
     )
   }
 
+  names(build_sources) <- purrr::map_chr(build_sources, "source_id")
   build_sources
 }
 
@@ -819,10 +935,10 @@ validate_source_schema <- function(source, path) {
 #' @keywords internal
 
 validate_build_sources <- function(sources, sources_dir) {
-  purrr::iwalk(sources, function(source, record_id) {
+  purrr::iwalk(sources, function(source, source_id) {
     validate_source_schema(
       source,
-      file.path(sources_dir, paste0(record_id, ".yaml"))
+      source$schema_path %||% file.path(sources_dir, paste0(source_id, ".yaml"))
     )
   })
 
@@ -881,9 +997,17 @@ prepare_source_data <- function(data, source) {
     )
   }
 
+  # Extract coordinate column names if specified
+  coord_cols <- c(
+    source$coordinates$latitude_column,
+    source$coordinates$longitude_column
+  )
+  coord_cols <- coord_cols[!is.na(coord_cols) & !is.null(coord_cols)]
+
   data <- dplyr::select(
     data,
-    tidyr::all_of(c(source$dedup_key, available_measurements))
+    tidyr::all_of(c(source$dedup_key, available_measurements)),
+    tidyr::any_of(coord_cols)
   )
   key_data <- dplyr::select(data, tidyr::all_of(source$dedup_key))
   missing_values <- key_data |>
@@ -942,13 +1066,13 @@ add_observation_id <- function(data, source) {
 
 #' Initialise a validation dataset schema
 #'
-#' Adds [new_schema_template()] to an existing screening record. The record must
-#' have a `proceed` decision and must not already contain a schema. Existing
-#' screening and DOI metadata fields are preserved.
+#' Adds one nested dataset template under `datasets` to an existing screening
+#' record. The record must have a `proceed` decision and must not already
+#' contain a schema. Existing screening and DOI metadata fields are preserved.
 #'
 #' The updated record is written to a temporary file, read back to verify the
 #' YAML round trip, and then moved to the original record path. To amend an
-#' existing schema, delete its YAML file and screen the dataset again.
+#' existing schema, edit the YAML record directly.
 #'
 #' @param doi A DOI accepted by [normalise_doi()].
 #' @param sources_dir Directory containing one YAML file per screened dataset.
@@ -972,10 +1096,12 @@ initialise_source_schema <- function(
       "DOI {.val {doi}} must have a {.val proceed} screening decision before a schema can be added."
     )
   }
-  if (!is.null(record$source_id)) {
+  if (
+    record_has_nested_datasets(record) || record_has_flat_schema_fields(record)
+  ) {
     cli::cli_abort(c(
       "DOI {.val {doi}} already has a schema.",
-      "i" = "To amend it, delete the existing YAML file and screen it again."
+      "i" = "Edit the existing YAML record directly instead of initialising a new schema."
     ))
   }
 
@@ -989,7 +1115,7 @@ initialise_source_schema <- function(
     )
   }
 
-  updated_record <- c(record, new_schema_template())
+  updated_record <- c(record, list(datasets = list(new_schema_template())))
   temporary <- tempfile(
     pattern = stringr::str_c(".", doi_to_record_id(doi), "-"),
     tmpdir = sources_dir,
@@ -1319,12 +1445,23 @@ convert_canonical_value <- function(
 #' columns to a dataset: \code{latitude}, \code{longitude},
 #' \code{location_type} and \code{coordinate_source}.
 #'
-#' Most SAFE Zenodo datasets need no configuration at all, because they are
-#' curated to a common standard: a \code{Locations} sheet holding
-#' \code{Location name}, \code{Latitude} and \code{Longitude} in decimal
-#' degrees (WGS84). Following the manual-conversion convention for the data
-#' sheet, export that sheet to \code{locations.csv} in the same folder as
-#' \code{data_file} and this function will find it automatically.
+#' Coordinates can be obtained in three ways, checked in this order:
+#' \enumerate{
+#'   \item A single coordinate for the entire dataset, specified via
+#'     \code{coordinates: same_for_all_rows} in the source YAML.
+#'   \item Coordinates as columns in the data file itself, specified via
+#'     \code{coordinates: latitude_column} and
+#'     \code{coordinates: longitude_column} in the source YAML.
+#'   \item Coordinates from an external locations file (SAFE convention or
+#'     custom path), specified via \code{coordinates: from_file} in the
+#'     source YAML.
+#' }
+#'
+#' Most SAFE Zenodo datasets use approach (3) by default: a \code{Locations}
+#' sheet holding \code{Location name}, \code{Latitude} and \code{Longitude}
+#' in decimal degrees (WGS84). Following the manual-conversion convention for
+#' the data sheet, export that sheet to \code{locations.csv} in the same
+#' folder as \code{data_file} and this function will find it automatically.
 #'
 #' Datasets that deviate are handled by the optional \code{coordinates} block
 #' in the source YAML; see [add_schema()] for the annotated template.
@@ -1358,6 +1495,42 @@ add_coordinates <- function(dat, src) {
       location_type = "whole dataset",
       coordinate_source = "same_for_all_rows"
     ))
+  }
+
+  # Case 1b: coordinates are columns in the data itself
+  # Only apply this when from_file is NOT specified (coordinates are in data, not external).
+  # This ensures that external locations files take precedence over similarly named
+  # data columns, maintaining the documented coordinate precedence order.
+  data_lat_col <- spec$latitude_column
+  data_lon_col <- spec$longitude_column
+
+  if (
+    !is.null(data_lat_col) && !is.null(data_lon_col) && is.null(spec$from_file)
+  ) {
+    dat <-
+      dat |>
+      dplyr::mutate(
+        latitude = as.numeric(.data[[data_lat_col]]),
+        longitude = as.numeric(.data[[data_lon_col]]),
+        location_type = NA_character_,
+        coordinate_source = dplyr::if_else(
+          is.na(latitude) | is.na(longitude),
+          "missing",
+          "data_columns"
+        )
+      )
+
+    validate_coordinates(dat, src$source_id)
+
+    # Check row count hasn't changed
+    if (nrow(dat) != n_before) {
+      cli::cli_abort(
+        "Extracting coordinates changed the number of rows of
+         {.val {src$source_id}} from {n_before} to {nrow(dat)}."
+      )
+    }
+
+    return(dat)
   }
 
   # Case 2: look the coordinates up from a locations file
@@ -1418,18 +1591,42 @@ add_coordinates <- function(dat, src) {
     }
 
     # join locations to the data
+    # For multi-column keys (e.g., [site, chamber_id]), create a temporary unified key
+    # for the join to avoid the error "names attribute must be the same length as vector".
+    # This handles datasets like drewer_2019_1b where locations are matched on multiple columns.
+    if (length(key_data) > 1) {
+      dat <- dat |>
+        tidyr::unite(
+          "_temp_location_key",
+          tidyr::all_of(key_data),
+          remove = FALSE,
+          sep = "_"
+        )
+      locations <- locations |>
+        dplyr::rename("_temp_location_key" = "location_key")
+      join_by_spec <- dplyr::join_by("_temp_location_key")
+    } else {
+      join_by_spec <- stats::setNames("location_key", key_data)
+    }
+
     dat <-
       dat |>
       dplyr::left_join(
         locations,
-        # setNames() because the column name comes from a variable
-        by = stats::setNames("location_key", key_data),
+        by = join_by_spec,
         # errors if the locations file has duplicated keys, which would
         # silently inflate the number of observations
         # NB: many-to-one should also cover one-to-one
         relationship = "many-to-one"
-      ) |>
-      # cover the case of partial missingness in a location file
+      )
+
+    # Remove temporary key column if it was created
+    if (length(key_data) > 1) {
+      dat <- dplyr::select(dat, -"_temp_location_key")
+    }
+
+    # cover the case of partial missingness in a location file
+    dat <- dat |>
       dplyr::mutate(
         coordinate_source = dplyr::if_else(
           is.na(latitude) | is.na(longitude),
@@ -1440,16 +1637,46 @@ add_coordinates <- function(dat, src) {
   }
 
   # Second pass: fill remaining missing coordinates from gazetteer centroids.
+  # Apply the same multi-column key handling to the gazetteer lookup as was applied
+  # to the locations file join. This ensures consistent coordinate resolution across
+  # both sources for datasets with composite location identifiers.
   if (!is.null(key_data)) {
+    gazetteer_data <- sf::st_read(
+      "data/primary/site/gazetteer.geojson",
+      quiet = TRUE
+    ) |>
+      sf::st_drop_geometry() |>
+      dplyr::select(location, centroid_x, centroid_y)
+
+    if (length(key_data) > 1) {
+      dat <- dat |>
+        tidyr::unite(
+          "_temp_gaz_key",
+          tidyr::all_of(key_data),
+          remove = FALSE,
+          sep = "_"
+        )
+      gazetteer_data <- gazetteer_data |>
+        dplyr::rename("_temp_gaz_key" = "location")
+      gaz_join_spec <- dplyr::join_by("_temp_gaz_key")
+    } else {
+      gaz_join_spec <- stats::setNames("location", key_data)
+    }
+
     dat <-
       dat |>
       dplyr::left_join(
-        sf::st_read("data/primary/site/gazetteer.geojson", quiet = TRUE) |>
-          sf::st_drop_geometry() |>
-          dplyr::select(location, centroid_x, centroid_y),
-        by = stats::setNames("location", key_data),
+        gazetteer_data,
+        by = gaz_join_spec,
         relationship = "many-to-one"
-      ) |>
+      )
+
+    # Remove temporary key column if it was created
+    if (length(key_data) > 1) {
+      dat <- dplyr::select(dat, -"_temp_gaz_key")
+    }
+
+    dat <- dat |>
       dplyr::mutate(
         longitude_missing_before = is.na(longitude),
         latitude_missing_before = is.na(latitude),
@@ -1547,7 +1774,8 @@ validate_coordinates <- function(dat, source_id) {
 #' \code{time_precision}, \code{time_source} and \code{time_note}.
 #'
 #' Times are stored as a HALF-OPEN interval \code{[time_start, time_end)} in
-#' UTC, so that consecutive periods tile without overlapping. A point-in-time
+#' UTC, so that consecutive periods tile without overlapping; defaults to
+#' Asia/Kuching since we start building with SAFE datasets. A point-in-time
 #' observation is widened to its precision granule: a date-only sample becomes
 #' a one-day interval rather than a zero-width one, because a zero-width
 #' half-open interval would match nothing under any filter.
@@ -1575,7 +1803,7 @@ add_temporal <- function(dat, src) {
 
   # UTC throughout, so that the build is reproducible regardless of the
   # machine's locale. The source zone is only used to interpret the input.
-  tz_in <- spec$timezone %||% "UTC"
+  tz_in <- spec$timezone %||% "Asia/Kuching"
   precision <- spec$precision %||% "day"
 
   # Case 0: nothing configured at all. Note that `drop_blanks()` only strips
