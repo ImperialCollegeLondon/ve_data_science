@@ -709,7 +709,6 @@ record_dataset_entries <- function(record) {
   list()
 }
 
-
 flatten_record_dataset <- function(record, dataset, path, dataset_index) {
   schema_fields <- names(new_schema_template())
   top_level <- record[setdiff(names(record), c(schema_fields, "datasets"))]
@@ -723,7 +722,6 @@ flatten_record_dataset <- function(record, dataset, path, dataset_index) {
     )
   )
 }
-
 
 format_dataset_schema_label <- function(source) {
   path <- source$schema_path %||% "<unknown path>"

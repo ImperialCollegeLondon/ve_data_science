@@ -189,11 +189,39 @@ datasets:
         description: Plant available soil phosphorus content
     dedup_key:
       - plot.code
+    row_filter:
+      - quality_flag == "accepted"
+      - replicate != "blank"
 ```
 
 To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still consumes one flat
 source schema per dataset internally, keyed by unique `source_id`.
+
+### Optional `row_filter` for dataset-specific row selection
+
+Use `row_filter` when a source dataset needs explicit row-level inclusion rules.
+Set it as a YAML list of R filter expressions. Each clause is applied with fixed
+AND semantics.
+
+```yaml
+row_filter:
+  - quality_flag == "accepted"
+  - replicate != "blank"
+  - !is.na(c_pct)
+```
+
+Rules:
+
+- `row_filter` is optional.
+- Each clause must be a non-empty expression string.
+- Referenced columns must exist in the source CSV.
+- Each expression must evaluate to logical values suitable for
+  `dplyr::filter()`.
+
+When `row_filter` is absent, the builder keeps the previous behavior and does
+not apply dataset-specific filtering. Independently of `row_filter`, rows with
+missing measurement values are always removed from the long-format output.
 
 Assumptions and expectations:
 
@@ -365,6 +393,7 @@ Default behavior:
 - Ignores screening-only records
 - Warns about dataset entries that still contain mandatory placeholders and
   skips them
+- Applies optional dataset-level `row_filter` clauses with fixed AND semantics
 - Requires every schema record to retain a `proceed` screening decision
 - Writes Parquet output to `data/derived/soil/validation/database`
 
