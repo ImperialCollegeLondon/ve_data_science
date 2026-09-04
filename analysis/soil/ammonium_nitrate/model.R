@@ -37,6 +37,11 @@
 #|   The soil cores in this dataset was collected from 0-10 cm soil depth. VE
 #|   soil depth is 25 cm, so we are assuming that the the 0-10 cm soil properties
 #|   hold until 25 cm. We may want to revisit this assumption later.
+#|
+#|   There is a corrigendum https://doi.org/10.5194/bg-18-1559-2021-corrigendum
+#|   that states the unit of measurement to be mg kg−1, not mg g-1 as in the
+#|   unchanged dataset. Future versions of the dataset on Zenodo will have
+#|   corrected units.
 #| ---
 
 library(tidyverse)
@@ -90,8 +95,9 @@ flux <-
   ) %>%
   # zero-truncate negative values
   mutate_at(vars(ammonium, nitrate), ~ ifelse(. < 0, 0, .)) %>%
-  # convert nitrogen measurements from mg N g-1 to mg N cm-3
-  mutate_at(vars(ammonium, nitrate), ~ . * bulk_density)
+  # convert nitrogen measurements from mg{N} kg-1 to kg{N} m-3
+  # NB: the dataset mistakenly stated the unit to be mg{N} g-1
+  mutate_at(vars(ammonium, nitrate), ~ . * bulk_density * 0.001)
 
 
 # Models ------------------------------------------------------------------
