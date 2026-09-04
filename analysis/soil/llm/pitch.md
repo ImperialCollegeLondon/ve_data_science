@@ -114,9 +114,9 @@
 
 ## Preliminary outputs
 
-- I don't anything concrete to share at the moment, but will update you asap. I
-  plan to revisit this project next week or so. Basically I just need to quickly
-  learn how to send parallel chats.
+- I don't have anything concrete to share at the moment, but will update you
+  asap. I plan to revisit this project next week or so. Basically I just need to
+  quickly learn how to send parallel chats.
 - From the previous pilot though, I found that the LLM would simply read the
   constants' docstring and if they find a cited source, they would simply use
   that source and retrieve the same value... This is why I wrote something like
