@@ -60,7 +60,7 @@ library(ellmer)
 library(here)
 library(glue)
 
-data_folder <- here("data/derived/llm")
+data_folder <- here("data/derived/soil/llm")
 
 
 # Read the parameter database --------------------------------------------
