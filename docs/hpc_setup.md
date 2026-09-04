@@ -40,7 +40,8 @@ shared project directory. This avoids conflicts with other users' files.
 
 ```bash
 cd ~
-git clone https://github.com/ImperialCollegeLondon/ve_data_science.git
+git clone --branch hpc-workflow-preview-v1 --single-branch \
+    https://github.com/ImperialCollegeLondon/ve_data_science.git
 cd ve_data_science
 ```
 
