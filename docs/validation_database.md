@@ -3,14 +3,28 @@
 This workflow uses YAML metadata to read, harmonise, unit-convert, and combine
 multiple source datasets into one validation database (Parquet).
 
-## Repository paths used by default
+## Configure repository paths
 
-Run commands from the repository root.
+Run commands from the repository root. Choose the module explicitly and derive
+the standard paths once for use throughout the workflow.
+
+```r
+module_name <- "soil"
+
+validation_root <- here::here(
+  "data", "derived", module_name, "validation"
+)
+config_dir <- file.path(validation_root, "config")
+sources_dir <- file.path(config_dir, "sources")
+db_path <- file.path(validation_root, "database")
+```
+
+The resulting repository layout is:
 
 ```text
-data/primary/soil/<author>_<year>/
+data/primary/<module>/<author>_<year>/
 └── <data sheet>.csv            # source data, converted manually
-data/derived/soil/validation/
+data/derived/<module>/validation/
 ├── config/
 │   ├── sources/                # one screening/schema YAML file per DOI
 │   └── derived_variables.toml  # non-VE canonical variables (optional)
@@ -55,7 +69,7 @@ should proceed, be excluded, or be deferred.
 
 ```r
 box::use(tools/R/R/valdb)
-valdb$screen_dataset()
+valdb$screen_dataset(sources_dir = sources_dir)
 ```
 
 The function prompts for a DOI, a decision, a decision-specific reason, and
@@ -71,9 +85,8 @@ Notes are required for `defer` decisions and when the selected reason is
 `other`. DOI metadata must be resolvable through DOI content negotiation
 (`rcrossref::cr_cn()`).
 
-Each successful screening creates one file under
-`data/derived/soil/validation/config/sources/`. The filename is a stable ID
-derived from the normalised DOI, for example:
+Each successful screening creates one file under `sources_dir`. The filename is
+a stable ID derived from the normalised DOI, for example:
 
 ```text
 doi-10-5281-zenodo-2024580.yaml
@@ -88,16 +101,9 @@ delete its per-DOI YAML file and screen the dataset again.
 template under `datasets:` for the current build step.
 
 ```r
-valdb$add_schema(doi = "10.5281/zenodo.2024580")
-```
-
-Set `sources_dir` only when the records are stored outside the default
-directory:
-
-```r
 valdb$add_schema(
   doi = "10.5281/zenodo.2024580",
-  sources_dir = "data/derived/soil/validation/config/sources"
+  sources_dir = sources_dir
 )
 ```
 
@@ -114,6 +120,7 @@ A minimal local dashboard provides the same workflow for all `proceed`
 records. Launch it from the repository root:
 
 ```r
+Sys.setenv(VE_MODULE = "soil")
 shiny::runApp("analysis/soil/validation/schema_dashboard")
 ```
 
@@ -351,10 +358,14 @@ unused entries when the schema is complete.
 Run:
 
 ```r
-valdb$build_validation_database()
+valdb$build_validation_database(
+  config_dir = config_dir,
+  sources_dir = sources_dir,
+  db_path = db_path
+)
 ```
 
-Default behavior:
+Build behaviour:
 
 - Downloads current canonical variable metadata from the VE `develop` branch
   and combines it with local derived-variable metadata
@@ -366,7 +377,7 @@ Default behavior:
 - Warns about dataset entries that still contain mandatory placeholders and
   skips them
 - Requires every schema record to retain a `proceed` screening decision
-- Writes Parquet output to `data/derived/soil/validation/database`
+- Writes Parquet output to `db_path`
 
 A `proceed` decision alone does not make a record build-ready. The builder only
 uses completed dataset entries. It stops if no completed dataset schemas remain
@@ -379,24 +390,18 @@ Use
 as a reference workflow.
 
 ```r
-library(arrow)
-box::use(tools/R/R/valdb)
+source("analysis/soil/validation/combine_validation_database.R")
 
-validation_database <-
-  open_dataset("data/derived/soil/validation/database") |>
-  dplyr::collect()
-
-combined_database <-
-  valdb$join_ve_outputs(
-    validation_database,
-    zarr_path = "data/scenarios/maliau/maliau_2/out/model_data.zarr",
-    config_path = "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
-  )
-
-combined_database |>
-  dplyr::group_by(dataset) |>
-  write_dataset("data/derived/soil/validation/database_combined", format = "parquet")
+combine_validation_database(
+  module_name = "soil",
+  scenario_group = "maliau",
+  scenario_name = "maliau_2"
+)
 ```
+
+The wrapper derives standard repository paths from the module and scenario.
+Supply its `zarr_path`, `config_path`, `db_path`, or `combined_db_path`
+arguments when files are stored outside that layout.
 
 `join_ve_outputs()` takes the validation database and VE scenario outputs (from
 a Zarr store), then join the spatiotemporally aggregated VE outputs for each
