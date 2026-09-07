@@ -24,3 +24,38 @@ metadata:
     - Malaysia
   provider: doi_content_search
   retrieved_at: "2026-08-18T07:56:44Z"
+datasets:
+  - source_id: burslem_2025
+    data_file: data/primary/soil/burslem_2025/50-ha_soil_data.csv
+    skip_rows: 10
+    variables:
+      RB_NH4:
+        var_canonical: soil_n_pool_ammonium
+        unit:
+        description: Concentration of ammonium in resin bag.
+      RB_NO3:
+        var_canonical: soil_n_pool_nitrate
+        unit:
+        description: Concentration of nitrate in resin bag.
+      RB_PO4:
+        var_canonical:
+        unit:
+        description: Concentration of phosphate in resin bag.
+      Mehlich_P:
+        var_canonical: soil_p_pool_labile
+        unit:
+        description:
+          Plant available phosphorous extracted using Mehlich-III solution.
+    dedup_key:
+      - sample_ID
+    coordinates:
+      latitude_column: Latitude
+      longitude_column: Longitude
+    temporal:
+      format: "%d/%m/%Y"
+      same_for_all_rows:
+        start: 1/10/2016
+        precision: "month"
+        note:
+          Sampling date stated in the description documentation
+          data/primary/soil/burslem_2025/danum_soil_sampling_and_analysis_methods.docx
