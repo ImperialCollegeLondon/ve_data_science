@@ -14,8 +14,10 @@ module_name <- "soil"
 validation_root <- here::here(
   "data", "derived", module_name, "validation"
 )
-config_dir <- file.path(validation_root, "config")
-sources_dir <- file.path(config_dir, "sources")
+variables_derived <- here::here(
+  "data", "derived", "validation", "derived_variables.toml"
+)
+sources_dir <- file.path(validation_root, "sources")
 db_path <- file.path(validation_root, "database")
 ```
 
@@ -25,10 +27,10 @@ The resulting repository layout is:
 data/primary/<module>/<author>_<year>/
 └── <data sheet>.csv            # source data, converted manually
 data/derived/<module>/validation/
-├── config/
-│   ├── sources/                # one screening/schema YAML file per DOI
-│   └── derived_variables.toml  # non-VE canonical variables (optional)
+├── sources/                    # one screening/schema YAML file per DOI
 └── database/                   # output Parquet dataset
+data/derived/validation/
+└── derived_variables.toml      # non-VE canonical variables (optional)
 tools/R/R/valdb.R               # workflow functions
 ```
 
@@ -207,7 +209,7 @@ Assumptions and expectations:
 - Input files are CSV (`readr::read_csv()` is used internally).
 - Known `var_canonical` names are resolved against the latest VE
   `data_variables.toml` from the `develop` branch and
-  `config/derived_variables.toml`.
+  `data/derived/validation/derived_variables.toml`.
 - Source and canonical units are interpreted and converted directly with the
   `units` package. Malformed or dimensionally incompatible units are errors.
 - Unknown canonical names produce a warning. Their observations and original
@@ -359,7 +361,7 @@ Run:
 
 ```r
 valdb$build_validation_database(
-  config_dir = config_dir,
+  variables_derived = variables_derived,
   sources_dir = sources_dir,
   db_path = db_path
 )
@@ -371,7 +373,7 @@ Build behaviour:
   and combines it with local derived-variable metadata
 - Converts known variables directly between compatible units with `units`
 - Reads per-DOI records in filename order from
-  `data/derived/soil/validation/config/sources/*.yaml`
+  `data/derived/soil/validation/sources/*.yaml`
 - Flattens each record to one build source per dataset entry under `datasets`
 - Ignores screening-only records
 - Warns about dataset entries that still contain mandatory placeholders and
@@ -420,12 +422,6 @@ Other spatiotemporal classes currently return `NA` quantiles with a warning.
 
 ## Legacy screening records
 
-`data/derived/soil/validation/config/sources.yaml` is retained temporarily as
-migration input. It is not read by the current screening, schema, or build
-workflow. Some historical screening records and completed schemas in that file
-have not yet been reconciled with `config/sources/`; do not delete it until the
-migration has been checked DOI by DOI.
-
 The report source at
 `analysis/soil/validation/safe_database_screen/dataset_screening.qmd` has been
 retired because it reads the legacy aggregate format. Its existing generated
@@ -435,8 +431,8 @@ output.
 ## Ongoing metadata curation
 
 When new derived variables are needed, edit
-`data/derived/soil/validation/config/derived_variables.toml`. Source schemas
-should use unit strings understood by the `units` package.
+`data/derived/validation/derived_variables.toml`. Source schemas should use
+unit strings understood by the `units` package.
 
 ## Notes for contributors
 

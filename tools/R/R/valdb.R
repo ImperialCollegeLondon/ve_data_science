@@ -479,7 +479,7 @@ write_screening_record <- function(
 #' box::help(valdb$screen_dataset)  # if you need a conventional R help page
 #' module_name <- "soil"
 #' sources_dir <- here::here(
-#'   "data", "derived", module_name, "validation", "config", "sources"
+#'   "data", "derived", module_name, "validation", "sources"
 #' )
 #' valdb$screen_dataset(sources_dir = sources_dir)
 
@@ -1172,7 +1172,7 @@ initialise_source_schema <- function(
 #' box::use(tools/R/R/valdb)
 #' module_name <- "soil"
 #' sources_dir <- here::here(
-#'   "data", "derived", module_name, "validation", "config", "sources"
+#'   "data", "derived", module_name, "validation", "sources"
 #' )
 #' valdb$add_schema("10.5281/zenodo.8158810", sources_dir = sources_dir)
 
@@ -1194,7 +1194,7 @@ add_schema <- function(
 #' Build or rebuild the validation database based on the YAML configs of source
 #' datasets.
 #'
-#' @param config_dir Path containing validation database configuration.
+#' @param variables_derived Path to local derived-variable metadata.
 #' @param sources_dir Directory containing one YAML record per screened dataset.
 #' @param db_path Output path for the harmonised database.
 #'
@@ -1209,16 +1209,23 @@ add_schema <- function(
 #' validation_root <- here::here(
 #'   "data", "derived", module_name, "validation"
 #' )
-#' config_dir <- file.path(validation_root, "config")
+#' variables_derived <- here::here(
+#'   "data", "derived", "validation", "derived_variables.toml"
+#' )
 #' valdb$build_validation_database(
-#'   config_dir = config_dir,
-#'   sources_dir = file.path(config_dir, "sources"),
+#'   variables_derived = variables_derived,
+#'   sources_dir = file.path(validation_root, "sources"),
 #'   db_path = file.path(validation_root, "database")
 #' )
 
 build_validation_database <- function(
-  config_dir,
-  sources_dir = file.path(config_dir, "sources"),
+  variables_derived = file.path(
+    "data",
+    "derived",
+    "validation",
+    "derived_variables.toml"
+  ),
+  sources_dir,
   db_path
 ) {
   # Ingest datasets --------------------------------------------------------
@@ -1230,9 +1237,7 @@ build_validation_database <- function(
 
   # Load canonical units only after local source preflight succeeds.
   canonical_units <- build_canonical_units_table(
-    variables_derived = file.path(
-      "data/derived/validation/derived_variables.toml"
-    )
+    variables_derived = variables_derived
   )
 
   # Harmonise each dataset ------------------------------------------------
@@ -1644,7 +1649,7 @@ add_coordinates <- function(dat, src) {
   # both sources for datasets with composite location identifiers.
   if (!is.null(key_data)) {
     gazetteer_data <- sf::st_read(
-      "data/primary/site/gazetteer.geojson",
+      here::here("data/primary/site/gazetteer.geojson"),
       quiet = TRUE
     ) |>
       sf::st_drop_geometry() |>

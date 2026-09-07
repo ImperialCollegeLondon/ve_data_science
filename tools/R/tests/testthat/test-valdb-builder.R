@@ -560,7 +560,6 @@ test_that("configured spatial and temporal values survive a database build", {
   )
 
   build_validation_database(
-    config_dir = directory,
     sources_dir = sources_dir,
     db_path = db_path
   )
