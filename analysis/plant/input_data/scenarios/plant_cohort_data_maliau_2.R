@@ -189,7 +189,10 @@
 #|           canopy height. 25 x 25 m aggregation pixels with no finite CHM
 #|           value are filled with the mean finite aggregated canopy height
 #|           before the model is fitted or applied, and predicted abundances
-#|           are rounded to whole stems.
+#|           are rounded to whole stems. The pooled PFT/DBH basal-area
+#|           composition from the sampled plots is applied to every predicted
+#|           grid cell; plot-level variation in cohort composition is not
+#|           modelled separately.
 #|   - name: cohort_data_1_cm_maliau_2.csv
 #|     path: data/derived/plant/input_data/scenarios/maliau_2
 #|     description: |
@@ -294,7 +297,10 @@
 #|           cohorts are distributed across three DBH classes using reported
 #|           tree-number fractions and class midpoint basal areas, then
 #|           allocated among PFTs according to their existing cell-level
-#|           abundance. Final cohort abundances are rounded to whole stems.
+#|           abundance. The pooled PFT/DBH basal-area composition from the
+#|           sampled plots is applied to every predicted grid cell; plot-level
+#|           variation in cohort composition is not modelled separately. Final
+#|           cohort abundances are rounded to whole stems.
 #|
 #| package_dependencies:
 #|   - sf
@@ -596,7 +602,7 @@ rho0_local <- local_params["rho0"]
 
 # 5.1 Spatial Prediction Across the Maliau Landscape
 # Apply the fitted linear relationship: BA = rho0 * TCH.
-ba_pred_local <- rho0_local * tch_safe
+ba_pred_local <- rho0_local * tch
 names(ba_pred_local) <- "Predicted_BA_Local"
 
 # Plot locally calibrated raster map
@@ -703,7 +709,7 @@ cohort_fraction$total_ba <- sum(cohort_fraction$cohort_ba, na.rm = TRUE)
 # Express as m2 per hectare and compare to Maliau from Riutta et al. 2018
 # where basal area = 34.7-41.6 m2 per hectare
 unique(cohort_fraction$total_ba) /
-  # Verify if realistic (total ba in m2 per area across all plots)
+  (length(unique(cohort_fraction$plot_id)) * 25 * 25) *
   10000
 
 # Now calculate cohort_ba_fraction, representing the pooled fraction that a pft dbh
