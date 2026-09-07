@@ -640,15 +640,8 @@ dobert_2019_plot_species_data <-
   read_excel(
     "../../../../data/primary/plant/traits_data/dobert_2019_plot_species_trait_data.xlsx",
     sheet = "DoebertTF_SAFE_PlotSpeciesMeasu",
-    col_names = FALSE
+    skip = 9,
   )
-
-# Clean dataset and overwrite fragment column to dobert_2019_plot_data
-colnames(dobert_2019_plot_species_data) <- dobert_2019_plot_species_data[10, ]
-dobert_2019_plot_species_data <- dobert_2019_plot_species_data[
-  11:max(nrow(dobert_2019_plot_species_data)),
-]
-names(dobert_2019_plot_species_data)
 
 # Rename columns
 names(dobert_2019_plot_species_data) <- tolower(gsub(
