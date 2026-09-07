@@ -1,21 +1,20 @@
-#' ---
-#' title: Compare functional group population density across herbivore tests
-#'
-#' description: |
-#'     Calculate functional group population density for three herbivore test
-#'     simulations and combine the results for direct comparison.
-#'
-#'     Density can be calculated using either the total simulation area
-#'     (landscape density) or the combined unique territory area associated
-#'     with each functional group (territory density). A comparison summary
-#'     reports trajectory-based metrics that can be derived from these outputs.
-#'
-#' VE_module: Animal
-#'
-#' author:
-#'   - name: Siti Nor Baizurah
-#'
-#' status: wip
+"""Compare functional group population density across herbivore tests.
+
+---
+title: Compare functional group population density across herbivore tests
+
+description: |
+  Calculate functional group population density for three herbivore test
+  simulations and combine the results for direct comparison.
+
+virtual_ecosystem_module: Animal
+
+author:
+  - name: Siti Nor Baizurah
+
+status: wip
+---
+"""  # noqa: D400, D212, D205, D415
 #'
 #' input_files:
 #'   - name: animal_cohort_data.csv
