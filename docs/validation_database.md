@@ -256,7 +256,9 @@ source was used:
    methods, the builder attempts to match the location key against
    `data/primary/site/gazetteer.geojson` and fills missing coordinates from
    centroid values (`centroid_x`, `centroid_y`). Rows filled this way are
-   flagged as `coordinate_source: gazetteer_second_pass`.
+   flagged as `coordinate_source: gazetteer_second_pass`. If the gazetteer file
+   is absent, unresolved coordinates remain `NA` and the builder warns that the
+   gazetteer could have been used to check or fill them if present.
 
 All coordinate values must be WGS84 decimal degrees. Rows with invalid
 coordinates (non-numeric, out-of-range, or both missing) are flagged as
