@@ -37,13 +37,9 @@ datasets:
         var_canonical: soil_n_pool_nitrate
         unit:
         description: Concentration of nitrate in resin bag.
-      RB_PO4:
-        var_canonical:
-        unit:
-        description: Concentration of phosphate in resin bag.
       Mehlich_P:
         var_canonical: soil_p_pool_labile
-        unit:
+        unit: mg kg^-1
         description:
           Plant available phosphorous extracted using Mehlich-III solution.
     dedup_key:
