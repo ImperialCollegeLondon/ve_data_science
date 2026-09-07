@@ -156,7 +156,7 @@ def check_grid_dimensions(
         )
 
 
-def parse_territory_cells(territory_value: object) -> set[int]:
+def parse_territory_cells(territory_value: str | list[int]) -> set[int]:
     """Convert a territory value into unique grid-cell identifiers.
 
     Args:
