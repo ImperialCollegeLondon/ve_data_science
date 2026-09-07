@@ -345,16 +345,17 @@
 #|         assumptions: |
 #|           Observed plot-level biomass from the Dobert-derived input is joined
 #|           to values extracted from every available LiDAR raster. A separate
-#|           univariate linear model is fitted for each candidate predictor and
-#|           the predictor with the highest R-squared is selected. For the
+#|           Gamma GLM with a log link is fitted for each candidate predictor,
+#|           and the predictor with the highest R-squared is selected. For the
 #|           current parameterisation, this is Maliau_pad_mean.tif. Pixels with
 #|           no finite value in the selected predictor raster are filled with
 #|           the mean finite value of that raster before extraction. That raster
 #|           is extracted at each grid-cell centre, the fitted model is used to
-#|           predict biomass, negative predictions are clipped to zero, and the
-#|           results are ordered by cell_id before being written as one value for
-#|           each cell. The selected predictor should be re-evaluated when the
-#|           script is reused with another calibration dataset or scenario.
+#|           predict positive biomass, and the results are ordered by cell_id
+#|           before being written as one value for each cell. Any remaining
+#|           missing predictions are written as zero.
+#|           The selected predictor should be re-evaluated when the script is
+#|           reused with another calibration dataset or scenario.
 #|       - name: subcanopy_seedbank_biomass
 #|         type: numeric
 #|         units: kg C m-2
@@ -614,15 +615,8 @@ dobert_2019_plot_data <-
   read_excel(
     "../../../../data/primary/plant/traits_data/dobert_2019_plot_species_trait_data.xlsx",
     sheet = "DoebertTF_SAFE_PlotData",
-    col_names = FALSE
+    skip = 9
   )
-
-# Clean dataset and create subset based on species classification
-colnames(dobert_2019_plot_data) <- dobert_2019_plot_data[10, ]
-dobert_2019_plot_data <- dobert_2019_plot_data[
-  11:max(nrow(dobert_2019_plot_data)),
-]
-names(dobert_2019_plot_data)
 
 # Subset columns
 # Keep all columns except: field_name and Fragment (with capital letter)
@@ -812,6 +806,20 @@ model_data <- cbind(
 # ensures that every fitted model is based on complete observations only.
 model_data <- model_data[complete.cases(model_data), , drop = FALSE]
 
+get_glm_p_value <- function(model, coefficient_name) {
+  coefficient_table <- summary(model)$coefficients
+  p_value_columns <- intersect(
+    c("Pr(>|z|)", "Pr(>|t|)"),
+    colnames(coefficient_table)
+  )
+
+  if (length(p_value_columns) != 1) {
+    stop("Could not identify the GLM p-value column.")
+  }
+
+  coefficient_table[coefficient_name, p_value_columns]
+}
+
 # Step 2: screen candidate predictors and compare their fit
 #
 # We fit a simple univariate regression for every LiDAR layer:
@@ -821,14 +829,18 @@ model_data <- model_data[complete.cases(model_data), , drop = FALSE]
 candidate_predictors <- names(plot_lidar_extracted)
 
 candidate_results <- lapply(candidate_predictors, function(pred_name) {
-  fit <- lm(as.formula(paste("biomass ~", pred_name)), data = model_data)
-  s <- summary(fit)
+  fit <- glm(
+    as.formula(paste("biomass ~", pred_name)),
+    data = model_data,
+    family = Gamma(link = "log")
+  )
+  fitted_biomass <- predict(fit, type = "response")
 
   data.frame(
     predictor = pred_name,
-    r_squared = s$r.squared,
-    p_value = s$coefficients[2, 4],
-    rmse = sqrt(mean(residuals(fit)^2)),
+    r_squared = cor(model_data$biomass, fitted_biomass)^2,
+    p_value = get_glm_p_value(fit, pred_name),
+    rmse = sqrt(mean((model_data$biomass - fitted_biomass)^2)),
     n = nobs(fit),
     stringsAsFactors = FALSE
   )
@@ -872,25 +884,23 @@ if (length(significant_predictors) > 1) {
 # A single-predictor model is used as the default because it is simpler, more
 # interpretable, and less prone to overfitting with the limited calibration data.
 selected_predictor <- as.character(candidate_results$predictor[1])
-final_model <- lm(
+final_model <- glm(
   as.formula(paste("biomass ~", selected_predictor)),
-  data = model_data
+  data = model_data,
+  family = Gamma(link = "log")
 )
 
 # Summarise the final model fit so that we can see whether the chosen predictor is
 # statistically credible and how much variance it explains.
 model_summary <- summary(final_model)
+pseudo_r_squared <- 1 - model_summary$deviance / model_summary$null.deviance
+predictor_p_value <- get_glm_p_value(final_model, selected_predictor)
 cat(sprintf(
-  "\n=== FINAL BIOMASS MODEL ===\nSelected predictor: %s\nR²: %.4f | RSE: %.4f | p-value: %.5e\n\n",
+  "\n=== FINAL BIOMASS MODEL ===\nSelected predictor: %s\nPseudo-R²: %.4f | Deviance: %.4f | p-value: %.5e\n\n",
   selected_predictor,
-  model_summary$r.squared,
-  model_summary$sigma,
-  pf(
-    model_summary$fstatistic[1],
-    model_summary$fstatistic[2],
-    model_summary$fstatistic[3],
-    lower.tail = FALSE
-  )
+  pseudo_r_squared,
+  model_summary$deviance,
+  predictor_p_value
 ))
 
 # Step 4: Compare the fitted model at observed plot locations
@@ -907,19 +917,16 @@ cat(sprintf(
 observed_predictions <- predict(
   final_model,
   newdata = model_data,
-  interval = "prediction",
-  level = 0.95
+  type = "response"
 )
 
-# Store observed and predicted biomass values, along with prediction intervals and
-# the residual difference (observed minus predicted). The residual is useful for
-# understanding whether the model tends to over- or under-estimate biomass.
+# Store observed and predicted biomass values and the residual difference
+# (observed minus predicted). The residual is useful for understanding whether
+# the model tends to over- or under-estimate biomass.
 validation_df <- data.frame(
   observed = model_data$biomass,
-  predicted = observed_predictions[, "fit"],
-  residual = model_data$biomass - observed_predictions[, "fit"],
-  lwr_95 = observed_predictions[, "lwr"],
-  upr_95 = observed_predictions[, "upr"]
+  predicted = observed_predictions,
+  residual = model_data$biomass - observed_predictions
 )
 
 # Summarise prediction quality using RMSE, MAE, and R^2.
@@ -1002,35 +1009,21 @@ prediction_grid[[selected_predictor]] <- extract(
 preds <- predict(
   final_model,
   newdata = prediction_grid,
-  interval = "prediction",
-  level = 0.95
+  type = "response"
 )
 
-# Save the predicted mean and uncertainty bounds for each cell.
-prediction_grid$predicted_biomass <- preds[, "fit"]
-prediction_grid$lwr_95 <- preds[, "lwr"]
-prediction_grid$upr_95 <- preds[, "upr"]
+# Save the predicted mean for each cell.
+prediction_grid$predicted_biomass <- as.numeric(preds)
 
 # Step 6: post-process predictions for ecological realism
 #
-# Biomass cannot be negative, so values below zero are truncated to zero. Cells
-# with missing LiDAR values cannot be predicted by the model; these are treated as
-# zero biomass in the final grid so that missing values do not enter the input
-# file. The same treatment is applied to the prediction interval bounds.
-prediction_grid$predicted_biomass_clipped <- ifelse(
+# The Gamma log-link model produces positive biomass predictions. Any remaining
+# missing predictions are treated as zero so that missing values do not enter
+# the input file.
+prediction_grid$predicted_biomass_for_export <- ifelse(
   is.na(prediction_grid$predicted_biomass),
   0,
-  pmax(0, prediction_grid$predicted_biomass)
-)
-prediction_grid$lwr_95_clipped <- ifelse(
-  is.na(prediction_grid$lwr_95),
-  0,
-  pmax(0, prediction_grid$lwr_95)
-)
-prediction_grid$upr_95_clipped <- ifelse(
-  is.na(prediction_grid$upr_95),
-  0,
-  pmax(0, prediction_grid$upr_95)
+  prediction_grid$predicted_biomass
 )
 
 # Print a quick summary of the resulting spatial predictions to confirm that the
@@ -1043,15 +1036,14 @@ cat(sprintf(
 ))
 
 print(summary(prediction_grid[, c(
-  "predicted_biomass_clipped",
-  "lwr_95_clipped",
-  "upr_95_clipped"
+  "predicted_biomass_for_export"
 )]))
 head(prediction_grid)
 
-# For the final NetCDF export, use the clipped spatial prediction as the cell-wise
-# subcanopy vegetation biomass estimate. The seedbank biomass can be derived from
-# this in a separate, explicit step if required.
+# For the final NetCDF export, use the spatial prediction with missing values
+# replaced by zero as the cell-wise subcanopy vegetation biomass estimate. The
+# seedbank biomass can be derived from this in a separate, explicit step if
+# required.
 
 #####
 
@@ -1100,7 +1092,8 @@ ggplot(prediction_grid, aes(x = x_utm32650, y = y_utm32650)) +
 prediction_grid <- prediction_grid[order(prediction_grid$cell_id), ]
 
 # NetCDF stores one vegetation biomass value per cell_id.
-subcanopy_vegetation_biomass <- prediction_grid$predicted_biomass_clipped
+subcanopy_vegetation_biomass <-
+  prediction_grid$predicted_biomass_for_export
 
 stopifnot(
   length(prediction_grid$cell_id) == length(cell_id_index),
