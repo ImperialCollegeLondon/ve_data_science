@@ -573,11 +573,11 @@ test_that("configured spatial and temporal values survive a database build", {
     c("same_for_all_rows", "same_for_all_rows")
   )
   expect_equal(
-    format(result$time_start, "%Y-%m-%d", tz = "UTC"),
+    format(result$time_start, "%Y-%m-%d", tz = "Asia/Kuching"),
     c("2011-01-01", "2011-01-01")
   )
   expect_equal(
-    format(result$time_end, "%Y-%m-%d", tz = "UTC"),
+    format(result$time_end, "%Y-%m-%d", tz = "Asia/Kuching"),
     c("2012-01-01", "2012-01-01")
   )
   expect_identical(result$time_precision, c("day", "day"))
