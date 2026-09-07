@@ -73,7 +73,7 @@ test_that("coordinates are looked up from the default locations.csv", {
   dir <- withr::local_tempdir()
   write_locations(dir)
 
-  out <- add_coordinates(test_data(), make_source(dir))
+  expect_no_warning(out <- add_coordinates(test_data(), make_source(dir)))
 
   expect_equal(nrow(out), 2)
   expect_equal(out$latitude, c(4.71, 4.72))
@@ -94,6 +94,53 @@ test_that("locations without coordinates are flagged, not dropped", {
   )
   expect_equal(nrow(out), 2)
   expect_equal(out$coordinate_source, c("locations_file", "missing"))
+})
+
+
+test_that("missing gazetteer warns and leaves unresolved coordinates as NA", {
+  dir <- withr::local_tempdir()
+  write_locations(dir)
+  dat <- tibble::tibble(location_name = c("plot_a", "plot_c"), soil_N = 1:2)
+
+  real_file_exists <- base::file.exists
+  target_env <- environment(add_coordinates)
+  had_local_binding <- exists(
+    "file.exists",
+    envir = target_env,
+    inherits = FALSE
+  )
+  if (had_local_binding) {
+    original_file_exists <- get(
+      "file.exists",
+      envir = target_env,
+      inherits = FALSE
+    )
+  }
+  withr::defer({
+    if (had_local_binding) {
+      assign("file.exists", original_file_exists, envir = target_env)
+    } else {
+      rm("file.exists", envir = target_env)
+    }
+  })
+  assign(
+    "file.exists",
+    function(path) {
+      out <- real_file_exists(path)
+      out[grepl("gazetteer\\.geojson$", path)] <- FALSE
+      out
+    },
+    envir = target_env
+  )
+
+  expect_warning(
+    out <- add_coordinates(dat, make_source(dir)),
+    "gazetteer.*missing.*could have been used"
+  )
+  expect_equal(nrow(out), 2)
+  expect_equal(out$coordinate_source, c("locations_file", "missing"))
+  expect_true(is.na(out$latitude[2]))
+  expect_true(is.na(out$longitude[2]))
 })
 
 
@@ -337,6 +384,41 @@ test_that("a missing locations file warns and yields missing coordinates", {
   expect_warning(
     out <- add_coordinates(test_data(), make_source(dir)),
     "cannot find"
+  )
+  expect_equal(nrow(out), 2)
+  expect_true(all(out$coordinate_source == "missing"))
+  expect_true(all(is.na(out$latitude)))
+})
+
+
+test_that("missing gazetteer after missing locations file also warns", {
+  dir <- withr::local_tempdir()
+
+  target_env <- environment(add_coordinates)
+  had_local_binding <- exists(
+    "file.exists",
+    envir = target_env,
+    inherits = FALSE
+  )
+  if (had_local_binding) {
+    original_file_exists <- get(
+      "file.exists",
+      envir = target_env,
+      inherits = FALSE
+    )
+  }
+  withr::defer({
+    if (had_local_binding) {
+      assign("file.exists", original_file_exists, envir = target_env)
+    } else {
+      rm("file.exists", envir = target_env)
+    }
+  })
+  assign("file.exists", function(path) FALSE, envir = target_env)
+
+  expect_warning(
+    out <- add_coordinates(test_data(), make_source(dir)),
+    "gazetteer.*missing.*could have been used"
   )
   expect_equal(nrow(out), 2)
   expect_true(all(out$coordinate_source == "missing"))
