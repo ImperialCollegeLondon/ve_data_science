@@ -134,7 +134,16 @@
 #|           the scenario cell area. The resulting total is distributed among
 #|           PFTs according to each cell's relative cohort abundance from
 #|           cohort_data_1_cm_maliau_2.csv, and values are rounded to whole
-#|           propagules.
+#|           propagules. This first-pass allocation assumes that relative PFT
+#|           cohort abundance is proportional to relative propagule abundance,
+#|           equivalent to a 1:1 tree-to-propagule relationship among PFTs. It
+#|           therefore does not account for PFT-specific fecundity, tree size,
+#|           size-dependent reproductive output, differences in size at
+#|           reproductive maturity, or episodic mast-fruiting events. Masting
+#|           may substantially change propagule production between years and
+#|           may be especially important for emergent PFTs. These effects may
+#|           cause propagule abundance to differ from standing tree abundance
+#|           but are not parameterised here.
 #|       - name: subcanopy_vegetation_biomass
 #|         type: numeric
 #|         units: kg C m-2
