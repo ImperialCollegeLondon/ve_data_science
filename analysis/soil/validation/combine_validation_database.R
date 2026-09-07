@@ -10,8 +10,7 @@
 #|
 #| virtual_ecosystem_module: Soil
 #|
-#| authors:
-#|   - Hao Ran Lai
+#| author: Hao Ran Lai
 #|
 #| status: wip
 #|
@@ -19,9 +18,9 @@
 #|   - name: database
 #|     path: data/derived/soil/validation/
 #|     description: |
-#|       Validation database used as the base table for joining VE outputs.
+#|       Soil validation database used as the base table for joining VE outputs.
 #|   - name: model_data.zarr
-#|     path: data/scenarios/<scenario_group>/<scenario_name>/out/
+#|     path: data/scenarios/maliau/maliau_2/out/
 #|     description: |
 #|       VE scenario output Zarr store providing model variables for joining.
 #|   - name: compiled_configuration.toml
