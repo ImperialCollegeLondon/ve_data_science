@@ -1647,63 +1647,73 @@ add_coordinates <- function(dat, src) {
   # Apply the same multi-column key handling to the gazetteer lookup as was applied
   # to the locations file join. This ensures consistent coordinate resolution across
   # both sources for datasets with composite location identifiers.
-  if (!is.null(key_data)) {
-    gazetteer_data <- sf::st_read(
-      here::here("data/primary/site/gazetteer.geojson"),
-      quiet = TRUE
-    ) |>
-      sf::st_drop_geometry() |>
-      dplyr::select(location, centroid_x, centroid_y)
+  # Only consult the gazetteer when coordinates are still missing after the first pass.
+  missing_coordinates <- any(is.na(dat$latitude) | is.na(dat$longitude))
+  gazetteer_path <- here::here("data/primary/site/gazetteer.geojson")
 
-    if (length(key_data) > 1) {
+  if (!is.null(key_data) && missing_coordinates) {
+    if (file.exists(gazetteer_path)) {
+      gazetteer_data <-
+        sf::st_read(gazetteer_path, quiet = TRUE) |>
+        sf::st_drop_geometry() |>
+        dplyr::select(location, centroid_x, centroid_y)
+
+      if (length(key_data) > 1) {
+        dat <- dat |>
+          tidyr::unite(
+            "_temp_gaz_key",
+            tidyr::all_of(key_data),
+            remove = FALSE,
+            sep = "_"
+          )
+        gazetteer_data <- gazetteer_data |>
+          dplyr::rename("_temp_gaz_key" = "location")
+        gaz_join_spec <- dplyr::join_by("_temp_gaz_key")
+      } else {
+        gaz_join_spec <- stats::setNames("location", key_data)
+      }
+
+      dat <-
+        dat |>
+        dplyr::left_join(
+          gazetteer_data,
+          by = gaz_join_spec,
+          relationship = "many-to-one"
+        )
+
+      # Remove temporary key column if it was created
+      if (length(key_data) > 1) {
+        dat <- dplyr::select(dat, -"_temp_gaz_key")
+      }
+
       dat <- dat |>
-        tidyr::unite(
-          "_temp_gaz_key",
-          tidyr::all_of(key_data),
-          remove = FALSE,
-          sep = "_"
+        dplyr::mutate(
+          longitude_missing_before = is.na(longitude),
+          latitude_missing_before = is.na(latitude),
+          longitude = dplyr::if_else(is.na(longitude), centroid_x, longitude),
+          latitude = dplyr::if_else(is.na(latitude), centroid_y, latitude),
+          gazetteer_filled = (longitude_missing_before & !is.na(centroid_x)) |
+            (latitude_missing_before & !is.na(centroid_y)),
+          coordinate_source = dplyr::if_else(
+            gazetteer_filled,
+            "gazetteer_second_pass",
+            coordinate_source
+          )
+        ) |>
+        dplyr::select(
+          -centroid_x,
+          -centroid_y,
+          -longitude_missing_before,
+          -latitude_missing_before,
+          -gazetteer_filled
         )
-      gazetteer_data <- gazetteer_data |>
-        dplyr::rename("_temp_gaz_key" = "location")
-      gaz_join_spec <- dplyr::join_by("_temp_gaz_key")
     } else {
-      gaz_join_spec <- stats::setNames("location", key_data)
-    }
-
-    dat <-
-      dat |>
-      dplyr::left_join(
-        gazetteer_data,
-        by = gaz_join_spec,
-        relationship = "many-to-one"
+      cli::cli_warn(
+        "Some coordinates for {.val {src$source_id}} remain missing. The gazetteer
+         file {.file {gazetteer_path}} is missing and could have been used to
+         check or fill missing coordinates if present."
       )
-
-    # Remove temporary key column if it was created
-    if (length(key_data) > 1) {
-      dat <- dplyr::select(dat, -"_temp_gaz_key")
     }
-
-    dat <- dat |>
-      dplyr::mutate(
-        longitude_missing_before = is.na(longitude),
-        latitude_missing_before = is.na(latitude),
-        longitude = dplyr::if_else(is.na(longitude), centroid_x, longitude),
-        latitude = dplyr::if_else(is.na(latitude), centroid_y, latitude),
-        gazetteer_filled = (longitude_missing_before & !is.na(centroid_x)) |
-          (latitude_missing_before & !is.na(centroid_y)),
-        coordinate_source = dplyr::if_else(
-          gazetteer_filled,
-          "gazetteer_second_pass",
-          coordinate_source
-        )
-      ) |>
-      dplyr::select(
-        -centroid_x,
-        -centroid_y,
-        -longitude_missing_before,
-        -latitude_missing_before,
-        -gazetteer_filled
-      )
   }
 
   # check the join in case the dplyr::left_join `relationship` argument is
