@@ -14,7 +14,7 @@ author:
 
 status: wip
 ---
-"""  # noqa: D400, D212, D205, D415
+"""
 #'
 #' input_files:
 #'   - name: animal_cohort_data.csv
