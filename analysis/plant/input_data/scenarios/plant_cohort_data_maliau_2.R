@@ -379,13 +379,7 @@ site_def <- site_definition$Scenario[[site]]
 
 cell_x_centres <- site_def$cell_x_centres
 cell_y_centres <- site_def$cell_y_centres
-
-# Safely calculate cell length
-cell_length <- if (length(cell_x_centres) > 1) {
-  cell_x_centres[2] - cell_x_centres[1]
-} else {
-  NA
-}
+cell_length <- site_def$res
 
 grid_cells <- expand.grid(
   x = cell_x_centres,
@@ -457,6 +451,7 @@ tch <- terra::aggregate(chm_1m, fact = 25, fun = "mean", na.rm = TRUE)
 # aggregation window. If an aggregated pixel is still missing, all contributing
 # height values were missing, so use the mean finite aggregated canopy height as
 # a conservative fallback before fitting and applying the basal-area model.
+# In plain terms, this fills in the NA cells with the mean across the LiDAR data.
 mean_tch <- terra::global(tch, fun = "mean", na.rm = TRUE)[1, 1]
 missing_tch_cells <- terra::global(is.na(tch), fun = "sum", na.rm = TRUE)[1, 1]
 
@@ -514,8 +509,10 @@ calibration_data <- plot_observed_ba %>%
 
 # 4.4 Estimate canopy-cover residuals
 #
-# Canopy cover is first modelled as a function of TCH. The residual compares
-# observed cover with the cover expected for a plot of that height:
+# Canopy cover is first modelled as a function of TCH.
+# This is equation 4 in Jucker et al. (2018)
+# The residual compares observed cover with the cover expected for a plot of
+# that height:
 #
 #   cover_resid > 0: more cover than expected from TCH
 #   cover_resid < 0: less cover than expected from TCH
@@ -598,11 +595,8 @@ rho0_local <- local_params["rho0"]
 ###############################################################################
 
 # 5.1 Spatial Prediction Across the Maliau Landscape
-tch_safe <- terra::clamp(tch, lower = 0.1)
-
 # Apply the fitted linear relationship: BA = rho0 * TCH.
 ba_pred_local <- rho0_local * tch_safe
-ba_pred_local <- terra::clamp(ba_pred_local, lower = 0)
 names(ba_pred_local) <- "Predicted_BA_Local"
 
 # Plot locally calibrated raster map
@@ -697,17 +691,19 @@ cohort_fraction$cohort_ba <-
   cohort_fraction$plant_cohorts_n
 
 # Sum the basal area by cohort_id across plots
+# This assumes the pooled PFT/DBH basal-area composition from the sampled
+# plots is representative of every predicted grid cell.
 cohort_fraction$cohort_ba_sum <-
   ave(cohort_fraction$cohort_ba, cohort_fraction$cohort_id, FUN = sum)
 
 # Calculate the total basal area across all cohort_id across plots
 cohort_fraction$total_ba <- sum(cohort_fraction$cohort_ba, na.rm = TRUE)
 
-# Verify is realistic (total ba in m2 per area across all plots)
+# Verify if realistic (total ba in m2 per area across all plots)
 # Express as m2 per hectare and compare to Maliau from Riutta et al. 2018
 # where basal area = 34.7-41.6 m2 per hectare
 unique(cohort_fraction$total_ba) /
-  (length(unique(cohort_fraction$plot_id)) * 25 * 25) *
+  # Verify if realistic (total ba in m2 per area across all plots)
   10000
 
 # Now calculate cohort_ba_fraction, representing the pooled fraction that a pft dbh
@@ -769,13 +765,9 @@ model_output_df$predicted_cohort_ba_m2_ha <-
 model_output_df$stem_ba_m2 <-
   pi * (model_output_df$plant_cohorts_dbh / 2)^2
 
-# Convert cohort basal area density to tree density.
-model_output_df$plant_cohorts_n_per_ha <- ifelse(
-  model_output_df$stem_ba_m2 > 0,
+model_output_df$plant_cohorts_n_per_ha <-
   model_output_df$predicted_cohort_ba_m2_ha /
-    model_output_df$stem_ba_m2,
-  0
-)
+  model_output_df$stem_ba_m2
 
 # Convert tree density to the actual number of trees in each model cell.
 model_output_df$plant_cohorts_n <-
