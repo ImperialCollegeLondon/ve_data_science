@@ -582,18 +582,18 @@ new_schema_template <- function() {
       )
     ),
     dedup_key = c("sample_id", "date", "site_id"),
-    # Coordinates specification with precedence: (1) blanket, (2) data columns,
-    # (3) external file. Check in order above; first non-null case applies.
+    # Coordinates specification. Keep this field order stable for YAML templates:
+    # file mapping first, then optional in-data columns, then blanket coordinates.
     coordinates = list(
+      from_file = NULL,
+      match_data_column = NULL,
+      match_location_column = NULL,
+      latitude_column = NULL,
+      longitude_column = NULL,
       same_for_all_rows = list(
         latitude = NULL,
         longitude = NULL
-      ),
-      latitude_column = NULL,
-      longitude_column = NULL,
-      from_file = NULL,
-      match_data_column = NULL,
-      match_location_column = NULL
+      )
     ),
     temporal = list(
       date_column = NULL,
