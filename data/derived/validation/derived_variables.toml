@@ -51,3 +51,15 @@ name = "total_soil_p_per_area"
 description = "Total soil phosphorous per area"
 unit = "kg{P} m^-2"
 function = "get_total_soil_p_per_area"
+
+[[variable]]
+name = "soil_n_pool_ammonium_per_mass"
+description = "Mass-basis of nitrogen contained in the soil ammonium (NH4+) pool"
+unit = "kg{N} kg^-1"
+function = "get_soil_n_pool_ammonium_per_mass"
+
+[[variable]]
+name = "soil_n_pool_nitrate_per_mass"
+description = "Mass-basis amount of nitrogen contained in the soil nitrate (NO3-) pool"
+unit = "kg{N} kg^-1"
+function = "get_soil_n_pool_nitrate_per_mass"

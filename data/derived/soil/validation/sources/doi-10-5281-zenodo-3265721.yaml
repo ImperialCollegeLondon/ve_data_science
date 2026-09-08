@@ -1,0 +1,36 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3265721
+doi: 10.5281/zenodo.3265721
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes:
+    Contains total aboveground litter mass (leaf, reproduction, twig). Unit of
+    measurement was g in the dataset, but Robert Ewers confirmed that the litter
+    trap area was 1 m x 1 m. Litter mass is total biomass, not carbon mass. Most
+    of the litter trap datasets will be total biomass, not carbon mass; we need
+    to discuss if we simply discard total litter mass datasets, or convert total
+    mass to carbon mass using a fixed ratio. I guess it depends on how much
+    litter validation datasets we can get at the end without having to assume
+    such a fixed ratio.
+  screened_at: "2026-08-17T23:37:41Z"
+metadata:
+  title: Fine litter dynamics
+  authors:
+    - Turner, Edgar
+    - Ewers, Robert M
+    - Nilus, Reuben
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3265721
+  keywords:
+    - Leaf litter
+    - Biomass
+    - Fine leaf litter
+    - Wet weight
+    - Dry weight
+    - SAFE Project
+    - Leaves
+  provider: doi_content_search
+  retrieved_at: "2026-08-17T23:35:11Z"

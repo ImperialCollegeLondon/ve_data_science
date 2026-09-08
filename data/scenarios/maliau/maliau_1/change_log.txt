@@ -1,5 +1,18 @@
 # Change log of maliau_1 scenario input data
 
+2026-09-03
+- Module: Soil
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+  - data/scenarios/maliau/maliau_1/data/litter_maliau.nc
+- Changes made:
+  - Corrected the unit of soil_n_pool_nitrate and soil_n_pool_ammonium from mg/g
+    to mg/kg (it was overlooked that the original study had a corrigendum);
+    courtesy of Jacob Cook.
+- References:
+  - PR #579 addressing Issue #571
+
 2026-08-13
 - Module: Soil
 - Author: Hao Ran Lai

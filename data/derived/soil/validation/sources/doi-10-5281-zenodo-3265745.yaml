@@ -1,0 +1,56 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3265745
+doi: 10.5281/zenodo.3265745
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes:
+    Contains mineralization rates of plant available soil nutrients, which
+    may     align with litter_mineralisation_rate_cnp. Also contains soil
+    moisture.
+  screened_at: "2026-08-14T02:36:08Z"
+metadata:
+  title:
+    Termite abundance and ecosystem processes in Maliau Basin, 2015-2016 [HMTF]
+  authors:
+    - Ashton, Louise
+    - Griffiths, Hannah
+    - Parr, Catherine
+    - Evans, Theodore
+    - Eggleton, Paul
+    - Vairappan, Charles
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3265745
+  keywords:
+    - Bulbitermtes
+    - Coptotermes
+    - Dicuspiditermes
+    - Globertermes
+    - Hetertermes
+    - HMTF
+    - Homallotermes
+    - Human-modified tropical forest
+    - Hypotermes
+    - invertebrates
+    - leaf litter
+    - litter bags
+    - Macrotermes
+    - Malaysia
+    - Malaysiotermes
+    - Maliau Basin Conservation Area
+    - Microcerotermes
+    - Odontotermes
+    - Parrhinotermes
+    - Procapritermes
+    - Prohamitermes
+    - rainfall
+    - Sabah
+    - Schedorhinotermes
+    - soil moisture
+    - soil nutrients
+    - Termes
+    - termites
+  provider: doi_content_search
+  retrieved_at: "2026-08-14T02:36:02Z"
