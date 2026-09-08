@@ -13,6 +13,20 @@
   - PR #558
   - PR #597
 
+2026-09-08
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_cohort_data_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_constants_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_input_data_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
+- Changes made:
+  - All plant input files were moved to data\scenarios\plant_legacy_folder\maliau_1\data
+    the updated files from the new plant input pipeline will be added soon
+- References:
+  - PR #572
 
 2026-09-03
 - Module: Soil
@@ -26,6 +40,17 @@
     courtesy of Jacob Cook.
 - References:
   - PR #579 addressing Issue #571
+
+2026-08-21
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
+- Changes made:
+  - Added new file named plant_pft_definitions_Maliau_50x50_dev that has the
+    newly required pft_name instead of name (VE dev only version)
+- References:
+  - Issue #460
 
 2026-08-13
 - Module: Soil
@@ -150,29 +175,3 @@
 - References:
   - PR #379 to close Issues #372, #374 and #375
   - PR #382 to close Issue #378
-
-2026-08-21
-- Module: Plants
-- Author: Arne Scheire
-- Files changed:
-  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
-- Changes made:
-  - Added new file named plant_pft_definitions_Maliau_50x50_dev that has the
-    newly required pft_name instead of name (VE dev only version)
-- References:
-  - Issue #460
-
-2026-09-08
-- Module: Plants
-- Author: Arne Scheire
-- Files changed:
-  - data/scenarios/maliau/maliau_1/data/plant_cohort_data_Maliau_50x50
-  - data/scenarios/maliau/maliau_1/data/plant_constants_Maliau_50x50
-  - data/scenarios/maliau/maliau_1/data/plant_input_data_Maliau_50x50
-  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50
-  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
-- Changes made:
-  - All plant input files were moved to data\scenarios\plant_legacy_folder\maliau_1\data
-    the updated files from the new plant input pipeline will be added soon
-- References:
-  - PR #572
