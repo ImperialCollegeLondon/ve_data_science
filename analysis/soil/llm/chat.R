@@ -48,6 +48,7 @@
 #|   - here
 #|   - glue
 #|   - RcppTOML
+#|   - cli
 #|
 #| usage_notes: |
 #|   Run extract_constant_metadata.R first. Values returned by this script are
@@ -59,6 +60,7 @@ library(tidyverse)
 library(ellmer)
 library(here)
 library(glue)
+library(cli)
 
 data_folder <- here("data/derived/soil/llm")
 
@@ -315,6 +317,10 @@ type_output <- type_array(
 
 # One request per constant. This keeps each prompt small and focused, and lets
 # the workflow scale to the full repository by extending candidate_constants.
+# A map-based serial loop is used deliberately rather than
+# ellmer::parallel_chat_structured(): parallel requests would likely improve
+# throughput, but speed is not a priority here, and serial execution is less
+# likely to hit provider-side rate limits while staying simple to debug.
 chat <- chat_openai_compatible(
   base_url = "https://ellmer.openai.azure.com/openai/v1",
   model = "gpt-5.6-terra",
@@ -324,12 +330,29 @@ chat <- chat_openai_compatible(
 constant_values <-
   candidate_constants |>
   set_names() |>
-  map(\(qualified_name) {
-    chat$clone()$chat_structured(
-      user_prompt(qualified_name),
-      type = type_output
+  (\(constant_names) {
+    progress_id <- cli_progress_bar(
+      format = "Querying literature values for constants [{cli::pb_current}/{cli::pb_total}] {name}",
+      total = length(constant_names),
+      extra = list(name = "")
     )
-  })
+
+    map(constant_names, \(qualified_name) {
+      cli_progress_update(
+        id = progress_id,
+        set = list(name = qualified_name),
+        force = TRUE
+      )
+
+      result <- chat$clone()$chat_structured(
+        user_prompt(qualified_name),
+        type = type_output
+      )
+
+      cli_progress_update(id = progress_id)
+      result
+    })
+  })()
 
 
 # Assemble and save ------------------------------------------------------
