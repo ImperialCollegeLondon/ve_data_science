@@ -161,3 +161,18 @@
     newly required pft_name instead of name (VE dev only version)
 - References:
   - Issue #460
+
+2026-09-08
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_cohort_data_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_constants_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_input_data_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
+- Changes made:
+  - All plant input files were moved to data\scenarios\plant_legacy_folder\maliau_1\data
+    the updated files from the new plant input pipeline will be added soon
+- References:
+  - PR #572
