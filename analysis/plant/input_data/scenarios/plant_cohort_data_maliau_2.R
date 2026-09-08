@@ -987,14 +987,14 @@ cohort_data_10_cm_maliau_2$plant_cohorts_n <- round(
 )
 
 dir.create(
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2",
+  "../../../../data/scenarios/maliau/maliau_2/data",
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 write.csv(
   cohort_data_10_cm_maliau_2,
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2/cohort_data_10_cm_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/cohort_data_10_cm_maliau_2.csv",
   row.names = FALSE
 )
 
