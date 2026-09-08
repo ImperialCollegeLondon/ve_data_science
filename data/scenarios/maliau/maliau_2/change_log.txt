@@ -1,5 +1,17 @@
 # Change log of maliau_2 scenario input data
 
+2026-09-08
+- Module: Abiotic & Hydrology
+- Author: Lelavathy
+- Files changed:
+  - `data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc` (Globus)
+  - `data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc` (Globus)
+- Changes made:
+  - Climate and elevation data updated to align with the new coordinate system defined
+   in maliau_grid_definition.toml.
+- References:
+  - PR #518
+
 2026-09-03
 - Module: Soil
 - Author: Hao Ran Lai
