@@ -10,7 +10,8 @@
   - Climate and elevation data updated to align with the new coordinate system defined
    in maliau_grid_definition.toml.
 - References:
-  - PR #518
+  - PR #558 
+  - PR #597
 
 2026-09-03
 - Module: Soil
