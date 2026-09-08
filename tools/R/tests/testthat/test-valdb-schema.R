@@ -60,7 +60,7 @@ test_that("new_schema_template returns the builder contract", {
   expect_identical(template$source_id, "author_year")
   expect_identical(
     template$data_file,
-    "data/primary/soil/author_year/*.csv"
+    "data/primary/<module>/author_year/*.csv"
   )
   expect_identical(template$skip_rows, 0L)
   expect_named(template$variables, "var_original_1")
@@ -193,6 +193,19 @@ test_that("initialise_source_schema normalises common DOI forms", {
       sources_dir
     ),
     path
+  )
+})
+
+
+test_that("schema helpers require explicit sources_dir", {
+  expect_error(
+    initialise_source_schema("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
+    add_schema("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
   )
 })
 

@@ -576,3 +576,13 @@ get_soil_n_pool_nitrate_per_mass <- function(zarr_path, config) {
   )
   convert_volume_to_mass_basis(soil_n_pool_nitrate_per_volume, config)
 }
+
+
+get_soil_p_pool_labile_per_mass <- function(zarr_path, config) {
+  soil_p_pool_labile <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_p_pool_labile"
+  )
+  convert_volume_to_mass_basis(soil_p_pool_labile, config)
+}

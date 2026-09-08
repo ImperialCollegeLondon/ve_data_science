@@ -1,5 +1,48 @@
 # Change log of maliau_2 scenario input data
 
+2026-09-08
+- Module: Abiotic & Hydrology
+- Author: Lelavathy
+- Files changed:
+  - `data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc` (Globus)
+  - `data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc` (Globus)
+- Changes made:
+  - Climate and elevation data updated to align with the new coordinate system defined
+   in maliau_grid_definition.toml.
+- References:
+  - PR #558
+  - PR #597
+
+2026-09-08
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2
+  - data/scenarios/maliau/maliau_2/data/cohort_data_10_cm_maliau_2
+  - data/scenarios/maliau/maliau_2/data/plant_constants_maliau_2
+  - data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_2
+  - data/scenarios/maliau/maliau_2/data/plant_pft_definitions_maliau_2
+- Changes made:
+  - Five new files, obtained by running the master_data_library and
+   master_scenarios scripts.
+- References:
+  - PR #572
+
+2026-09-08
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/plant_cohort_data_Maliau_10x10
+  - data/scenarios/maliau/maliau_2/data/plant_constants_Maliau_10x10
+  - data/scenarios/maliau/maliau_2/data/plant_input_data_Maliau_10x10
+  - data/scenarios/maliau/maliau_2/data/plant_pft_definitions_Maliau_10x10
+  - data/scenarios/maliau/maliau_2/data/plant_pft_definitions_Maliau_10x10_dev
+- Changes made:
+  - All plant input files were moved to data\scenarios\plant_legacy_folder\maliau_2\data
+    the updated files from the new plant input pipeline will be added soon
+- References:
+  - PR #572
+
 2026-09-03
 - Module: Soil
 - Author: Hao Ran Lai
@@ -12,6 +55,17 @@
     courtesy of Jacob Cook.
 - References:
   - PR #579 addressing Issue #571
+
+2026-08-21
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_10x10_dev
+- Changes made:
+  - Added new file named plant_pft_definitions_Maliau_10x10_dev that has the
+    newly required pft_name instead of name (VE dev only version)
+- References:
+  - Issue #460
 
 2026-08-13
 - Module: Soil
@@ -135,14 +189,3 @@
 - Reference:
   - PR #379 to close Issues #372, #374 and #375
   - PR #382 to close Issue #378
-
-2026-08-21
-- Module: Plants
-- Author: Arne Scheire
-- Files changed:
-  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_10x10_dev
-- Changes made:
-  - Added new file named plant_pft_definitions_Maliau_10x10_dev that has the
-    newly required pft_name instead of name (VE dev only version)
-- References:
-  - Issue #460
