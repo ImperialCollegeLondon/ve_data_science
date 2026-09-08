@@ -173,11 +173,15 @@ system_prompt <-
   states that a default was chosen for convenience rather than measured. Never
   return the default value back as a recommendation.
 
-  You have no literature search tool. Propose only values you can recall
-  specifically and concretely. If you cannot recall a specific study, say so:
-  report status `no_evidence` rather than constructing a plausible-looking
-  citation. A fabricated citation is far more damaging than an admission of
-  ignorance, because it will be acted upon.
+  A web search tool is available. Use it to find published empirical
+  literature before answering. Prefer primary sources and report only values
+  that are traceable to a specific publication.
+
+  If search does not find a suitable source, or if the source does not report
+  this quantity specifically enough to support a conversion, report status
+  `no_evidence` rather than constructing a plausible-looking citation. A
+  fabricated or weakly grounded citation is far more damaging than an
+  admission of uncertainty, because it will be acted upon.
   </evidence_policy>
 
   <units>
@@ -326,30 +330,26 @@ chat <- chat_openai_compatible(
   model = "gpt-5.6-terra",
   system_prompt = system_prompt
 )
+chat$register_tool(openai_tool_web_search())
 
 constant_values <-
   candidate_constants |>
   set_names() |>
   (\(constant_names) {
     progress_id <- cli_progress_bar(
-      format = "Querying literature values for constants [{cli::pb_current}/{cli::pb_total}] {name}",
-      total = length(constant_names),
-      extra = list(name = "")
+      format = "Querying literature values for constants [{cli::pb_current}/{cli::pb_total}]",
+      total = length(constant_names)
     )
 
     map(constant_names, \(qualified_name) {
-      cli_progress_update(
-        id = progress_id,
-        set = list(name = qualified_name),
-        force = TRUE
-      )
+      cli_progress_update(id = progress_id, force = TRUE)
 
       result <- chat$clone()$chat_structured(
         user_prompt(qualified_name),
-        type = type_output
+        type = type_output,
+        echo = "none"
       )
 
-      cli_progress_update(id = progress_id)
       result
     })
   })()
@@ -384,8 +384,8 @@ write_csv(
 
 # Flag rows needing human checking ---------------------------------------
 
-# Every citation is unverified: the model has no literature search tool. These
-# checks catch the failure modes that can be detected mechanically.
+# These checks catch citation rows that still need human review, even when a
+# web search tool is available to the model.
 constant_values_table |>
   mutate(
     missing_doi = status == "value_found" & (is.na(doi) | doi == ""),
