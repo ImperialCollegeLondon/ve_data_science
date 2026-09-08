@@ -10,7 +10,7 @@
   - Soil and litter data updated to align with the new coordinate system defined
     in maliau_grid_definition.toml.
 - References:
-  - PR #558
+  - PR #600
 
 2026-09-08
 - Module: Abiotic & Hydrology
