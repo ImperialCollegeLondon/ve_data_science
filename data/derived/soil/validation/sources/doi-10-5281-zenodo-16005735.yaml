@@ -32,7 +32,7 @@ datasets:
     skip_rows: 10
     variables:
       Mehlich_P:
-        var_canonical: soil_p_pool_labile
+        var_canonical: soil_p_pool_labile_per_mass
         unit: mg kg^-1
         description:
           Plant available phosphorous extracted using Mehlich-III solution.
@@ -41,6 +41,7 @@ datasets:
     coordinates:
       latitude_column: Latitude
       longitude_column: Longitude
+      from_file: data/primary/soil/burslem_2025/locations.csv
     temporal:
       format: "%d/%m/%Y"
       same_for_all_rows:

@@ -63,3 +63,9 @@ name = "soil_n_pool_nitrate_per_mass"
 description = "Mass-basis amount of nitrogen contained in the soil nitrate (NO3-) pool"
 unit = "kg{N} kg^-1"
 function = "get_soil_n_pool_nitrate_per_mass"
+
+[[variable]]
+name = "soil_p_pool_labile_per_mass"
+description = "Mass-basis amount of inorganic phosphorus that is in a labile form"
+unit = "kg{P} kg^-1"
+function = "get_soil_p_pool_labile_per_mass"
