@@ -34,7 +34,7 @@
 #|
 #| output_files:
 #|   - name: plant_constants_maliau_2.csv
-#|     path: data/derived/plant/input_data/scenarios/maliau_2
+#|     path: data/scenarios/maliau/maliau_2/data
 #|     description: |
 #|       Plant constants table for the Maliau 2 scenario.
 #|     variables:
@@ -551,13 +551,17 @@ plant_constants_maliau_2$plant_reproductive_tissue_lignin <-
 plant_constants_maliau_2$root_lignin <-
   unique(stoichiometry_maliau$root_lignin)
 
-# Write out summary of variable data types and units
-
 # Write CSV file
+
+dir.create(
+  "../../../../data/scenarios/maliau/maliau_2/data",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
 
 write.csv(
   plant_constants_maliau_2,
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/plant_constants_maliau_2.csv",
   row.names = FALSE
 )
 
