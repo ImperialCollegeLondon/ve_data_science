@@ -5,8 +5,10 @@ screening:
   decision: proceed
   reason: relevant_validation_data
   notes:
-    Contains ammonium, nitrate and phosphorus concentrations. Data embargoed but
-    Hao Ran has obtained permission.
+    Contains ammonium, nitrate and phosphorus concentrations; but ammonium and
+    nitrate were measured with resin bags and could not be converted to VE's
+    mass per mass basis. I used the Mehlich-III phosphorous because it can be
+    converted to VE's unit. Data embargoed but Hao Ran has obtained permission.
   screened_at: "2026-08-18T07:57:56Z"
 metadata:
   title: Danum Valley 50-Ha Plot Soil Nutrient Data
@@ -29,14 +31,6 @@ datasets:
     data_file: data/primary/soil/burslem_2025/50-ha_soil_data.csv
     skip_rows: 10
     variables:
-      RB_NH4:
-        var_canonical: soil_n_pool_ammonium
-        unit:
-        description: Concentration of ammonium in resin bag.
-      RB_NO3:
-        var_canonical: soil_n_pool_nitrate
-        unit:
-        description: Concentration of nitrate in resin bag.
       Mehlich_P:
         var_canonical: soil_p_pool_labile
         unit: mg kg^-1
