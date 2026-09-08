@@ -41,7 +41,7 @@
 #|
 #| output_files:
 #|   - name: plant_pft_definitions_maliau_2.csv
-#|     path: data/derived/plant/input_data/scenarios/maliau_2
+#|     path: data/scenarios/maliau/maliau_2/data
 #|     description: |
 #|       Plant functional type definition table for the Maliau 2 scenario.
 #|       This scenario-specific table is assembled from the canonical Maliau
@@ -789,7 +789,7 @@ plant_pft_definitions_maliau_2 <-
 # Write CSV file.
 write.csv(
   plant_pft_definitions_maliau_2,
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2/plant_pft_definitions_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/plant_pft_definitions_maliau_2.csv",
   row.names = FALSE
 )
 

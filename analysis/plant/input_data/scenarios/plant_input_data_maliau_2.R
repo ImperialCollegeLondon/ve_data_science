@@ -16,7 +16,7 @@
 #|
 #| input_files:
 #|   - name: cohort_data_1_cm_maliau_2.csv
-#|     path: data/derived/plant/input_data/scenarios/maliau_2
+#|     path: data/scenarios/maliau/maliau_2/data
 #|     description: |
 #|       Cohorts below the 10 cm census threshold are estimated from the
 #|       difference between modelled total basal area for stems at or above 1 cm
@@ -63,7 +63,7 @@
 #|
 #| output_files:
 #|   - name: plant_input_data_maliau_2.nc
-#|     path: data/derived/plant/input_data/scenarios/maliau_2
+#|     path: data/scenarios/maliau/maliau_2/data
 #|     description: |
 #|       NetCDF file containing spatially distributed plant propagule and
 #|       subcanopy vegetation and seedbank carbon mass for the Maliau 2 scenario.
@@ -410,7 +410,7 @@ library(terra)
 
 # Load the Maliau cohort distribution
 cohort_distribution <- read.csv(
-  "../../../../data/derived/plant/input_data/scenarios/maliau_2/cohort_data_1_cm_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2.csv",
   header = TRUE
 )
 
@@ -1134,7 +1134,7 @@ stopifnot(
 # Open NetCDF file
 nc <-
   create.nc(
-    "../../../../data/derived/plant/input_data/scenarios/maliau_2/plant_input_data_maliau_2.nc",
+    "../../../../data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_2.nc",
     format = "netcdf4"
   )
 
@@ -1166,7 +1166,7 @@ close.nc(nc)
 # Here we use NCDF4 for exploration in RStudio (as RNetCDF cannot do this)
 plant_input_data_maliau_2 <-
   nc_open(
-    "../../../../data/derived/plant/input_data/scenarios/maliau_2/plant_input_data_maliau_2.nc"
+    "../../../../data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_2.nc"
   )
 
 names(plant_input_data_maliau_2$var)
