@@ -86,12 +86,24 @@ constants <- constant_database$constants
 # unique. Bare names are not: `turnover_rate`, `c_n_ratio`, `constants` and
 # `static` are each declared on several configuration classes.
 candidate_constants <- c(
-  "virtual_ecosystem.models.soil.model_config.SoilConstants.maom_desorption_rate",
-  "virtual_ecosystem.models.soil.model_config.SoilConstants.lmwc_sorption_rate",
-  "virtual_ecosystem.models.soil.model_config.SoilConstants.litter_leaching_fraction_carbon",
-  "virtual_ecosystem.models.soil.model_config.SoilConstants.litter_leaching_fraction_nitrogen",
-  "virtual_ecosystem.models.soil.model_config.SoilConstants.litter_leaching_fraction_phosphorus",
-  "virtual_ecosystem.models.soil.model_config.SoilConstants.necromass_decay_rate"
+  # constants with high uncertainty
+  "maom_desorption_rate",
+  "lmwc_sorption_rate",
+  "litter_leaching_fraction_carbon",
+  "litter_leaching_fraction_nitrogen",
+  "litter_leaching_fraction_phosphorus",
+  "necromass_decay_rate",
+  # constants for groundtruthing or benchmarking
+  "free_living_N_fixation_q10_coefficent",
+  "microbial_water_response_curvature",
+  "nitrification_optimum_temperature",
+  "nitrification_thermal_sensitivity",
+  "denitrification_thermal_sensitivity",
+  "nitrogen_fixation_cost_thermal_sensitivity"
+)
+candidate_constants <- paste0(
+  "virtual_ecosystem.models.soil.model_config.SoilConstants.",
+  candidate_constants
 )
 
 stopifnot(all(candidate_constants %in% names(constants)))
@@ -325,9 +337,9 @@ type_output <- type_array(
 # ellmer::parallel_chat_structured(): parallel requests would likely improve
 # throughput, but speed is not a priority here, and serial execution is less
 # likely to hit provider-side rate limits while staying simple to debug.
-chat <- chat_openai_compatible(
+chat <- chat_openai(
   base_url = "https://ellmer.openai.azure.com/openai/v1",
-  model = "gpt-5.6-terra",
+  model = "gpt-5.6-sol",
   system_prompt = system_prompt
 )
 chat$register_tool(openai_tool_web_search())
