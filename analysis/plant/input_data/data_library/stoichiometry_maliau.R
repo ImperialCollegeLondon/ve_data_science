@@ -1306,8 +1306,8 @@ colnames(summary) <- c(
   "leaf_turnover_c_n_ratio",
   "leaf_turnover_c_p_ratio",
   "senesced_leaf_lignin",
-  "reproductive_organ_CN", # not used anymore but kept for now
-  "reproductive_organ_CP", # not used anymore but kept for now
+  "reproductive_organ_CN", # not required anymore but kept for comparison
+  "reproductive_organ_CP", # not required anymore but kept for comparison
   "plant_reproductive_tissue_turnover_c_n_ratio", # old "mature_fruit_c_n_ratio"
   "plant_reproductive_tissue_turnover_c_p_ratio", # old "mature_fruit_c_p_ratio"
   "c_mass_fruit_flesh", # old "mature_fruit_c_mass"
