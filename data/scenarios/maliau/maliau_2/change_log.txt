@@ -1,6 +1,18 @@
 # Change log of maliau_2 scenario input data
 
 2026-09-08
+- Module: Soil & Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/soil_maliau.nc
+  - data/scenarios/maliau/maliau_2/data/litter_maliau.nc
+- Changes made:
+  - Soil and litter data updated to align with the new coordinate system defined
+    in maliau_grid_definition.toml.
+- References:
+  - PR #558
+
+2026-09-08
 - Module: Abiotic & Hydrology
 - Author: Lelavathy
 - Files changed:
