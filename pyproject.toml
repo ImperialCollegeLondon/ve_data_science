@@ -50,6 +50,11 @@ dev = [
 # the release version on PyPI is always tested to be stable
 dev-pinned = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@0f67349"]
 
+# a version of virtual ecosystem which works with the example data
+# Use for the HPC docuementation
+hpc-pinned = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@929c6cb",
+              "pyrealm==2.0.0",]
+
 [tool.ruff]
 line-length = 88
 
@@ -83,5 +88,5 @@ cell_metadata_filter = "all,-trusted"
 package = false
 default-groups = []
 conflicts = [
-  [{ group = "dev" }, { group = "dev-pinned" }]
+  [{ group = "dev" }, { group = "dev-pinned" }, { group = "hpc-pinned" }]
 ]

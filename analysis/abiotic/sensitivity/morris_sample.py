@@ -4,14 +4,15 @@ title: Morris sampling and job configuration generation for sensitivity analysis
 
 description: |
   This script generates Morris samples for selected Virtual Ecosystem model
-  parameters/constants and creates a `job_config_morris.toml` file for batch model runs.
+  parameters/constants and creates an `arrayJob_config_morris.toml` file for
+  batch model runs.
 
   It loads parameter and group definitions from
   `sensitivity_parameters.toml`, builds the Morris problem specification, and
   generates trajectories using the configured number of levels, trajectories,
   and random seed options (if present). The resulting samples are translated
-  into `job_config_morris.toml` entries so each sampled parameter set is executed as a
-  separate simulation job.
+  into `arrayJob_config_morris.toml` entries so each sampled parameter set is executed
+  as a separate simulation sub job.
 
   The workflow is generic and can be used for constants from any Virtual
   Ecosystem module, provided the relevant parameter/constant ranges are defined
@@ -45,14 +46,14 @@ input_files:
       values, and model settings for the Virtual Ecosystem hydrology module.
       Each sensitivity analysis simulation inherits this configuration, with
       only the selected parameters replaced by the sampled values specified in
-      the generated `job_config_sobol.toml`.
+      the generated `arrayJob_config_sobol.toml`.
 
 output_files:
-  - name: job_config_morris.toml
-    path: data/sensitivity/hydrology/config/job_config_morris.toml
+  - name: arrayJob_config_morris.toml
+    path: data/sensitivity/hydrology/config/arrayJob_config_morris.toml
     description: |
       HPC batch job configuration generated from the Morris
-      sampling workflow. Each `[[jobs]]` entry represents a single Virtual
+      sampling workflow. Each `[[subJobs]]` entry represents a single Virtual
       Ecosystem simulation with a unique set of sampled parameter values. This
       file is used as input to the HPC batch submission workflow to execute the
       complete sensitivity analysis experiment.
@@ -77,7 +78,7 @@ requirements:
     - pathlib
 
   local_modules:
-    - ve_data_tools.job_config_tools
+    - ve_data_tools.hpc_arrayJob_config_tools
     - ve_data_tools.sensitivity_tools
 
   notes: |
@@ -116,7 +117,7 @@ usage_notes: |
 
        `uv run python analysis/abiotic/sensitivity/morris_sample.py`
 
-  8. The script generates `job_config_morris.toml`, containing one Virtual
+  8. The script generates `arrayJob_config_morris.toml`, containing one Virtual
      Ecosystem job for each sampled parameter combination.
 
 
@@ -144,8 +145,8 @@ python_source = project_root / "tools" / "python" / "src"
 if str(python_source) not in sys.path:
     sys.path.insert(0, str(python_source))
 
-from ve_data_tools.job_config_tools import (  # noqa: E402
-    generate_job_config,
+from ve_data_tools.hpc_arrayJob_config_tools import (  # noqa: E402
+    generate_arrayJob_config,
 )
 from ve_data_tools.sensitivity_tools import (  # noqa: E402
     generate_morris_samples,
@@ -205,12 +206,12 @@ parameter_file = config_directory / "sensitivity_parameters.toml"
 
 base_config = config_directory / "hydrology_base_config.toml"
 
-output_file = config_directory / "job_config_morris.toml"
+output_file = config_directory / "arrayJob_config_morris.toml"
 
 # Scenario data directory containing the Virtual Ecosystem input datasets
 # (e.g. climate, soil, vegetation and other site-specific data) required to
 # execute each simulation. This directory is referenced by the generated
-# `job_config_morris.toml` and is used by the HPC workflow when running VE.
+# `arrayJob_config_morris.toml` and is used by the HPC workflow when running VE.
 site_directory = project_root / "data/sensitivity/hydrology/data"
 
 # =============================================================================
@@ -242,7 +243,7 @@ samples = generate_morris_samples(
 # =============================================================================
 # Write sampled parameter sets into a job configuration TOML file.
 
-metadata = generate_job_config(
+metadata = generate_arrayJob_config(
     samples=samples,
     parameter_names=problem["names"],
     common_config_paths=[base_config],

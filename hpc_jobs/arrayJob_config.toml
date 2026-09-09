@@ -1,0 +1,42 @@
+common_config_paths = [
+    "config/data_config.toml",
+    'config/abiotic_simple_config.toml',
+    'config/animal_config.toml',
+    'config/hydrology_config.toml',
+    'config/litter_config.toml',
+    'config/plant_config.toml',
+    'config/soil_config.toml',
+]
+site_directory = "/rds/general/user/mtnichol/home/ve_data_science/ve_example"
+
+
+
+[[subJobs]]
+config_paths = []
+repeats = 1
+
+[subJobs.cli_config.hydrology.constants]
+saturated_hydraulic_conductivity = 1e-06
+soil_moisture_saturation = 0.65
+groundwater_capacity = 1066.0
+bypass_flow_coefficient = 2.0
+
+[[subJobs]]
+config_paths = []
+repeats = 1
+
+[subJobs.cli_config.hydrology.constants]
+saturated_hydraulic_conductivity = 1e-06
+soil_moisture_saturation = 0.65
+groundwater_capacity = 200.0
+bypass_flow_coefficient = 2.0
+
+[[subJobs]]
+config_paths = []
+repeats = 2
+
+[subJobs.cli_config.hydrology.constants]
+saturated_hydraulic_conductivity = 3.4e-5
+soil_moisture_saturation = 0.65
+groundwater_capacity = 200.0
+bypass_flow_coefficient = 2.0
