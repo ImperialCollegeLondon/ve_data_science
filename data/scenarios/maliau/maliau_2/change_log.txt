@@ -1,5 +1,17 @@
 # Change log of maliau_2 scenario input data
 
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/config/data_config
+  - data/scenarios/maliau/maliau_2/config/plant_config
+- Changes made:
+  - Updated core grid settings and ordered variables according to the docs array
+   variables table. Plant config has updated paths and constants values.
+- References:
+  - PR #572
+
 2026-09-08
 - Module: Soil & Litter
 - Author: Hao Ran Lai
