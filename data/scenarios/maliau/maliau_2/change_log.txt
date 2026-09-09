@@ -10,7 +10,7 @@
   - Updated core grid settings and ordered variables according to the docs array
    variables table. Plant config has updated paths and constants values.
 - References:
-  - PR #572
+  - NA
 
 2026-09-08
 - Module: Soil & Litter
