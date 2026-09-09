@@ -5,6 +5,16 @@
 - Author: Arne Scheire
 - Files changed:
   - data/scenarios/maliau/maliau_1/config/data_config
+- Changes made:
+  - Undo previous change to fungal_fruiting_bodies_cnp.
+- References:
+  - NA
+
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/config/data_config
   - data/scenarios/maliau/maliau_1/config/plant_config
 - Changes made:
   - Updated core grid settings and corrected spelling of fungal_fruiting_bodies_cnp.
