@@ -30,12 +30,15 @@ data/derived/soil/spatial_model
 # MkDocs build output
 site/
 
-# Scenario files, except the change_log.txt file
-# ignore the directory's contents (/*), not the directory itself — otherwise
-# the ! negation for the file won't work (git can't un-ignore files inside an
-# ignored directory).
-data/scenarios/*/*/*
+# Scenario files: ignore everything under each scenario folder by default.
+# We use `/**` so Git keeps the folders visible, then we can make exceptions
+# with `!` for specific files we do want to track (for example change logs or
+# one config file). If the folder itself were ignored, those exceptions would
+# not work.
+data/scenarios/*/*/*/**
 !data/scenarios/maliau/*/change_log.txt
+!data/scenarios/maliau/maliau_2/config/config.toml
+data/scenarios/runtime_per_cell
 
 # troubleshoot files
 analysis/troubleshoot/zarr_test/ve_example
