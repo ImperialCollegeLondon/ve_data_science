@@ -111,7 +111,7 @@ var_name = "soil_p_pool_labile"
 file_path = "../data/soil_maliau.nc"
 var_name = "fungal_fruiting_bodies"
 
-# Litter 
+# Litter
 [[core.data.variable]]
 file_path = "../data/litter_maliau.nc"
 var_name = "litter_pool_above_metabolic_cnp"
