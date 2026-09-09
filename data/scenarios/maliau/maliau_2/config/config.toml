@@ -1,32 +1,19 @@
 [core.grid]
-grid_type = "square"
+# cell_area, cell_nx and cell_ny of Maliau 2 happens to be the same as the
+# default, but it feels weird to remove them...
 cell_area = 10000
 cell_nx = 10
 cell_ny = 10
 xoff = 496400
 yoff = 524100
 
-[core.layers]
-soil_layers = [
-    -0.25,
-    -1.0,
-]
-canopy_layers = 10
-above_canopy_height_offset = 2.0
-subcanopy_layer_height = 1.5
-surface_layer_height = 0.1
-
 [core.timing]
 start_date = "2010-01-01"
-update_interval = "1 month"
+update_interval = "1 month" # this is also the default, but feels weird to remove
 run_length = "11 years"
 
 [core.data_output_options]
-out_path = "../output"
-output_data_file_name = "model_data.zarr"
-save_compiled_configuration = true
-compiled_configuration_file_name = "compiled_configuration.toml"
-variables_to_save = []
+out_path = "../output" # with this we can remove --out ../output in ve_run?
 
 # Climate data
 [[core.data.variable]]
