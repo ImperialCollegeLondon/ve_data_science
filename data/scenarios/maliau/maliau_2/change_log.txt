@@ -8,7 +8,8 @@
   - data/scenarios/maliau/maliau_2/config/plant_config
 - Changes made:
   - Updated core grid settings and ordered variables according to the docs array
-   variables table. Plant config has updated paths and constants values.
+    variables table, also corrected spelling of fungal_fruiting_bodies_cnp.
+  - Plant config has updated paths and constants values.
 - References:
   - NA
 
