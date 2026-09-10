@@ -188,10 +188,14 @@ float_format = "%0.5f"
 
 [litter]
 
+# Plant config settings
 [plants]
+
+# Plant input data file paths
 cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv"
 pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
 
+# Plant output data export settings
 [plants.community_data_export]
 required_data = ["cohorts","community_canopy","stem_canopy"]
 cohort_attributes = []
@@ -199,7 +203,7 @@ community_canopy_attributes = []
 stem_canopy_attributes = []
 float_format = "%0.5f"
 
-# Plant data
+# Plant array variables
 [[core.data.variable]]
 file_path = "../data/plant_input_data_maliau_2.nc"
 var_name = "plant_pft_propagules"
@@ -213,6 +217,7 @@ var_name = "subcanopy_seedbank_biomass"
 file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "downward_shortwave_radiation"
 
+# Plant constants (non-defaults)
 [plants.constants]
 subcanopy_specific_leaf_area = 73.4169120128073
 subcanopy_reproductive_allocation = 0.223545331529093
