@@ -189,8 +189,8 @@ float_format = "%0.5f"
 [litter]
 
 [plants]
-cohort_data_path = "../data/plant_cohort_data_Maliau_10x10.csv"
-pft_definitions_path = "../data/plant_pft_definitions_Maliau_10x10.csv"
+cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv"
+pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
 
 # Plant data
 [[core.data.variable]]
