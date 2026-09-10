@@ -11,7 +11,7 @@
 - Our draft prompt can be found at the end of this document; it will provide
   context for how we use LLM to mine parameters.
 
-### Parameterisation
+### Parameterisation / calibration
 
 - Number of constant parameters: about 350
   - Some parameters are well-calibrated or have good source value, but we are
