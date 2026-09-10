@@ -1,5 +1,27 @@
 # Change log of maliau_1 scenario input data
 
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/config/data_config
+- Changes made:
+  - Undo previous change to fungal_fruiting_bodies_cnp.
+- References:
+  - NA
+
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/config/data_config
+  - data/scenarios/maliau/maliau_1/config/plant_config
+- Changes made:
+  - Updated core grid settings and corrected spelling of fungal_fruiting_bodies_cnp.
+  - Plant config deleted as maliau_1 currently has no plant data files due to grid.
+- References:
+  - NA
+
 2026-09-08
 - Module: Soil & Litter
 - Author: Hao Ran Lai
