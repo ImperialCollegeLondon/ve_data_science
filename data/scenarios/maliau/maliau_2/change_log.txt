@@ -1,5 +1,28 @@
 # Change log of maliau_2 scenario input data
 
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/config/data_config
+- Changes made:
+  - Undo previous change to fungal_fruiting_bodies_cnp.
+- References:
+  - NA
+
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/config/data_config
+  - data/scenarios/maliau/maliau_2/config/plant_config
+- Changes made:
+  - Updated core grid settings and ordered variables according to the docs array
+    variables table, also corrected spelling of fungal_fruiting_bodies_cnp.
+  - Plant config has updated paths and constants values.
+- References:
+  - NA
+
 2026-09-08
 - Module: Plants
 - Author: Arne Scheire
