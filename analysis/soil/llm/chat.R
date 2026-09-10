@@ -200,6 +200,14 @@ system_prompt <-
   Report values in the units implied by the code context. If a source uses
   different units or a differently parameterised functional form, convert
   explicitly, state the conversion factor, and show the reasoning.
+
+  For constants declared on SoilMicrobialGroup, provide group-specific
+  estimates for all four microbial groups (bacteria, saprotrophic_fungi,
+  arbuscular_mycorrhiza, ectomycorrhiza) rather than a pooled or mean value.
+
+  For constants declared on SoilEnzymeClass, provide source-specific estimates
+  for both enzyme source groups (bacteria and fungi) rather than a pooled or
+  mean value.
   </units>
 
   <uncertainty>
