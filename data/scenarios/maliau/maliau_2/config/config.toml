@@ -192,6 +192,13 @@ float_format = "%0.5f"
 cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv"
 pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
 
+[plants.community_data_export]
+required_data = ["cohorts","community_canopy","stem_canopy"]
+cohort_attributes = []
+community_canopy_attributes = []
+stem_canopy_attributes = []
+float_format = "%0.5f"
+
 # Plant data
 [[core.data.variable]]
 file_path = "../data/plant_input_data_maliau_2.nc"
