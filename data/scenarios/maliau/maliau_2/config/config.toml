@@ -191,9 +191,10 @@ float_format = "%0.5f"
 # Plant config settings
 [plants]
 
-# Plant input data file paths
-cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv"
+# Plant pft definitions file path
 pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
+# Plant cohort data file path
+cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv"
 
 # Plant output data export settings
 [plants.community_data_export]
