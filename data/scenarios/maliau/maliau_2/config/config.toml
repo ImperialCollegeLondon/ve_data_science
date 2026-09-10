@@ -207,28 +207,28 @@ file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "downward_shortwave_radiation"
 
 [plants.constants]
-per_stem_annual_mortality_probability = 0.0159
-per_propagule_annual_recruitment_probability = 0.025
+subcanopy_specific_leaf_area = 73.4169120128073
+subcanopy_reproductive_allocation = 0.223545331529093
+subcanopy_respiration_fraction = 0.132
+subcanopy_extinction_coef = 0.48
+subcanopy_yield = 0.68
+subcanopy_vegetation_turnover = 2.57142857142857
+subcanopy_vegetation_c_n_ratio = 17.2010712814174
+subcanopy_vegetation_c_p_ratio = 206.668316831683
+subcanopy_vegetation_lignin = 0.291937145184085
+subcanopy_seedbank_turnover = 0.32
+subcanopy_sprout_rate = 0.68
+subcanopy_sprout_yield = 0.68
+subcanopy_seedbank_c_n_ratio = 64.0759493670886
+subcanopy_seedbank_c_p_ratio = 82.983606557377
+subcanopy_seedbank_lignin = 0.177795337811142
+per_stem_annual_mortality_probability = 0.02
+per_propagule_annual_recruitment_probability = 0.0207154994055789
+root_exudates = 0.047
 dsr_to_ppfd = 2.04
 stem_lignin = 0.31318082788671
 senesced_leaf_lignin = 0.29
 plant_reproductive_tissue_lignin = 0.177795337811142
 root_lignin = 0.304203539823009
-subcanopy_extinction_coef = 0.48
-subcanopy_specific_leaf_area = 56.7498434446958
-subcanopy_respiration_fraction = 0.132
-subcanopy_yield = 0.68
-subcanopy_reproductive_allocation = 0.223545331529093
-subcanopy_sprout_rate = 0.68
-subcanopy_sprout_yield = 0.68
-subcanopy_vegetation_turnover = 2.57142857142857
-subcanopy_seedbank_turnover = 0.32
-subcanopy_seedbank_c_n_ratio = 37.1222841063908
-subcanopy_seedbank_c_p_ratio = 598.922484461952
-subcanopy_vegetation_c_n_ratio = 17.2010712814174
-subcanopy_vegetation_c_p_ratio = 206.668316831683
-subcanopy_vegetation_lignin = 0.291937145184085
-subcanopy_seedbank_lignin = 0.177795337811142
-root_exudates = 0.0201055284
 
 [soil]
