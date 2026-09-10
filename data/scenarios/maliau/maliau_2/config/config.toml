@@ -202,7 +202,6 @@ required_data = ["cohorts","community_canopy","stem_canopy"]
 cohort_attributes = []
 community_canopy_attributes = []
 stem_canopy_attributes = []
-float_format = "%0.5f"
 
 # Plant array variables
 [[core.data.variable]]
