@@ -194,17 +194,17 @@ pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
 
 # Plant data
 [[core.data.variable]]
-file_path = "../data/plant_input_data_Maliau_10x10.nc"
+file_path = "../data/plant_input_data_maliau_2.nc"
 var_name = "plant_pft_propagules"
+[[core.data.variable]]
+file_path = "../data/plant_input_data_maliau_2.nc"
+var_name = "subcanopy_vegetation_biomass"
+[[core.data.variable]]
+file_path = "../data/plant_input_data_maliau_2.nc"
+var_name = "subcanopy_seedbank_biomass"
 [[core.data.variable]]
 file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "downward_shortwave_radiation"
-[[core.data.variable]]
-file_path = "../data/plant_input_data_Maliau_10x10.nc"
-var_name = "subcanopy_vegetation_biomass"
-[[core.data.variable]]
-file_path = "../data/plant_input_data_Maliau_10x10.nc"
-var_name = "subcanopy_seedbank_biomass"
 
 [plants.constants]
 per_stem_annual_mortality_probability = 0.0159
