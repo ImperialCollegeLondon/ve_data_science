@@ -1,5 +1,67 @@
 # Change log of maliau_1 scenario input data
 
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/config/data_config
+- Changes made:
+  - Undo previous change to fungal_fruiting_bodies_cnp.
+- References:
+  - NA
+
+2026-09-09
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/config/data_config
+  - data/scenarios/maliau/maliau_1/config/plant_config
+- Changes made:
+  - Updated core grid settings and corrected spelling of fungal_fruiting_bodies_cnp.
+  - Plant config deleted as maliau_1 currently has no plant data files due to grid.
+- References:
+  - NA
+
+2026-09-08
+- Module: Soil & Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+  - data/scenarios/maliau/maliau_1/data/litter_maliau.nc
+- Changes made:
+  - Soil and litter data updated to align with the new coordinate system defined
+    in maliau_grid_definition.toml.
+- References:
+  - PR #600
+
+2026-09-08
+- Module: Abiotic & Hydrology
+- Author: Lelavathy
+- Files changed:
+  - `data/scenarios/maliau/maliau_1/data/era5_maliau_2010_2020_100m.nc` (Globus)
+  - `data/scenarios/maliau/maliau_1/data/elevation_maliau_2010_2020_100m.nc` (Globus)
+- Changes made:
+  - Climate and elevation data updated to align with the new coordinate system defined
+   in maliau_grid_definition.toml.
+- References:
+  - PR #558
+  - PR #597
+
+2026-09-08
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_cohort_data_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_constants_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_input_data_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
+- Changes made:
+  - All plant input files were moved to data\scenarios\plant_legacy_folder\maliau_1\data
+    the updated files from the new plant input pipeline will be added soon
+- References:
+  - PR #572
+
 2026-09-03
 - Module: Soil
 - Author: Hao Ran Lai
@@ -12,6 +74,17 @@
     courtesy of Jacob Cook.
 - References:
   - PR #579 addressing Issue #571
+
+2026-08-21
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
+- Changes made:
+  - Added new file named plant_pft_definitions_Maliau_50x50_dev that has the
+    newly required pft_name instead of name (VE dev only version)
+- References:
+  - Issue #460
 
 2026-08-13
 - Module: Soil
@@ -136,14 +209,3 @@
 - References:
   - PR #379 to close Issues #372, #374 and #375
   - PR #382 to close Issue #378
-
-2026-08-21
-- Module: Plants
-- Author: Arne Scheire
-- Files changed:
-  - data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50_dev
-- Changes made:
-  - Added new file named plant_pft_definitions_Maliau_50x50_dev that has the
-    newly required pft_name instead of name (VE dev only version)
-- References:
-  - Issue #460

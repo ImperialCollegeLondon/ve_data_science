@@ -14,9 +14,12 @@
 *.RData
 
 # Primary data
-data/primary
+data/primary/*
+!data/primary/site/
+!data/primary/site/gazetteer.geojson
 
 # Derived data
+data/derived/plant/**/*.csv
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/necromass/li_et_al_2023.csv
 data/derived/soil/llm/soil_constant_usage.toml
