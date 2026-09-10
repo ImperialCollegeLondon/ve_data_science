@@ -241,7 +241,6 @@ root_exudates = 0.047
 dsr_to_ppfd = 2.04
 stem_lignin = 0.31318082788671
 senesced_leaf_lignin = 0.29
-plant_reproductive_tissue_lignin = 0.177795337811142
 root_lignin = 0.304203539823009
 
 [soil]
