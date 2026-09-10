@@ -14,7 +14,9 @@
 *.RData
 
 # Primary data
-data/primary
+data/primary/*
+!data/primary/site/
+!data/primary/site/gazetteer.geojson
 
 # Derived data
 data/derived/plant/**/*.csv
