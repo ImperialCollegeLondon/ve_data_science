@@ -521,7 +521,7 @@ pft_abundance <- tapply(
   cohort_distribution$plant_cohorts_n,
   list(
     factor(cohort_distribution$plant_cohorts_pft, levels = pft_index),
-    factor(cohort_distribution$cell_id, levels = cell_id_index)
+    factor(cohort_distribution$plant_cohorts_cell_id, levels = cell_id_index)
   ),
   sum,
   default = 0
