@@ -51,7 +51,6 @@ var_name = "diurnal_temperature_range_ref"
 file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "precipitation"
 [[core.data.variable]]
-file_path = "../data/elevation_maliau_10x10.nc"
 var_name = "elevation"
 file_path = "../data/elevation_maliau_10x10.nc"
 var_name = "elevation"
