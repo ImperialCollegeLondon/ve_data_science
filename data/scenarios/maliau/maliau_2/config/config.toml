@@ -26,9 +26,6 @@ file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "atmospheric_pressure_ref"
 [[core.data.variable]]
 file_path = "../data/era5_maliau_10x10_2010_2020.nc"
-var_name = "precipitation"
-[[core.data.variable]]
-file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "atmospheric_co2_ref"
 [[core.data.variable]]
 file_path = "../data/era5_maliau_10x10_2010_2020.nc"
