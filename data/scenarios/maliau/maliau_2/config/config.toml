@@ -48,7 +48,6 @@ var_name = "diurnal_temperature_range_ref"
 file_path = "../data/elevation_maliau_10x10.nc"
 var_name = "elevation"
 
-[abiotic_simple]
 
 # Animal config settings
 [animal]
