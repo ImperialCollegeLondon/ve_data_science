@@ -402,11 +402,11 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Assigned in this script as the Maliau 2 scenario value."
-#|       - name: gpp_topslice
+#|       - name: root_symbiote_npp_fraction
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
-#|           Scenario-specific plant model parameter gpp_topslice.
+#|           Fraction of net primary production allocated to root symbionts.
 #|         references:
 #|           - citation: null
 #|             doi: null
@@ -417,7 +417,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Assigned in this script as the Maliau 2 scenario value."
-#|       - name: p_foliage_for_reproductive_tissue
+#|       - name: fruit_seed_foliage_mass_fraction
 #|         type: numeric
 #|         units: dimensionless
 #|         description: |
@@ -447,7 +447,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Calculated from mature fruit dry mass and carbon percentage for Dipterocarpus tempehes, after subtracting the estimated carbon mass of one seed."
-#|       - name: c_mass_per_fruit_seed
+#|       - name: c_mass_fruit_seed
 #|         type: numeric
 #|         units: g C
 #|         description: |
@@ -485,7 +485,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Assumed to be one seed per fruit for dipterocarps."
-#|       - name: deadwood_c_n_ratio
+#|       - name: stem_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
@@ -530,11 +530,11 @@
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Calculated from leaf trait measurements and aggregated to PFT using species-to-PFT matching, with genus-level matching where species-level matching is unavailable."
-#|       - name: root_turnover_c_n_ratio
+#|       - name: root_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
-#|           Carbon-to-nitrogen ratio for fine root turnover material.
+#|           Carbon-to-nitrogen ratio for fine root tissue.
 #|         references:
 #|           - citation: "Imai et al. (2010)"
 #|             doi: "https://doi.org/10.1017/S0266467410000350"
@@ -545,11 +545,11 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Used directly from fine-root stoichiometry values rather than derived separately for turnover material."
-#|       - name: root_turnover_c_p_ratio
+#|       - name: root_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
-#|           Carbon-to-phosphorus ratio for fine root turnover material.
+#|           Carbon-to-phosphorus ratio for fine root tissue.
 #|         references:
 #|           - citation: "Imai et al. (2010)"
 #|             doi: "https://doi.org/10.1017/S0266467410000350"
@@ -560,7 +560,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Used directly from fine-root stoichiometry values rather than derived separately for turnover material."
-#|       - name: leaf_turnover_c_n_ratio
+#|       - name: foliage_turnover_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
@@ -575,7 +575,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Derived from foliage C:N using a fixed nitrogen resorption efficiency rather than direct senesced leaf measurements."
-#|       - name: leaf_turnover_c_p_ratio
+#|       - name: foliage_turnover_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
@@ -590,7 +590,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Derived from foliage C:P using a fixed phosphorus resorption efficiency rather than direct senesced leaf measurements."
-#|       - name: plant_reproductive_tissue_turnover_c_n_ratio
+#|       - name: fruit_seed_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
@@ -605,7 +605,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
-#|       - name: plant_reproductive_tissue_turnover_c_p_ratio
+#|       - name: fruit_seed_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
@@ -620,7 +620,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Joined from stoichiometry_maliau.csv using the PFT name. Original assumption: Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
-#|       - name: deadwood_c_p_ratio
+#|       - name: stem_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
@@ -718,34 +718,34 @@ plant_pft_definitions_maliau_2 <- subset(
 # f_g ADD default
 # q_m ADD default
 # z_max_prop ADD default
-# gpp_topslice ADD default
+# root_symbiote_npp_fraction ADD default
 
-# p_foliage_for_reproductive_tissue ADD from reproductive_tissue_allocation
+# fruit_seed_foliage_mass_fraction ADD from reproductive_tissue_allocation
 
-# deadwood_c_n_ratio ADD from stoichiometry
-# deadwood_c_p_ratio ADD from stoichiometry
-# leaf_turnover_c_n_ratio ADD from stoichiometry
-# leaf_turnover_c_p_ratio ADD from stoichiometry
-# plant_reproductive_tissue_turnover_c_n_ratio ADD from stoichiometry
-# plant_reproductive_tissue_turnover_c_p_ratio ADD from stoichiometry
-# root_turnover_c_p_ratio ADD from stoichiometry
-# root_turnover_c_n_ratio ADD from stoichiometry
+# stem_c_n_ratio ADD from stoichiometry
+# stem_c_p_ratio ADD from stoichiometry
+# foliage_turnover_c_n_ratio ADD from stoichiometry
+# foliage_turnover_c_p_ratio ADD from stoichiometry
+# fruit_seed_c_n_ratio ADD from stoichiometry
+# fruit_seed_c_p_ratio ADD from stoichiometry
+# root_c_p_ratio ADD from stoichiometry
+# root_c_n_ratio ADD from stoichiometry
 # foliage_c_n_ratio ADD from stoichiometry
 # foliage_c_p_ratio ADD from stoichiometry
 # c_mass_fruit_flesh ADD from stoichiometry
-# c_mass_per_fruit_seed ADD from stoichiometry
+# c_mass_fruit_seed ADD from stoichiometry
 # seeds_per_fruit ADD from stoichiometry
 
 # Add missing ones.
 plant_pft_definitions_maliau_2$m <- 2
 plant_pft_definitions_maliau_2$n <- 5
 plant_pft_definitions_maliau_2$f_g <- 0.02
-plant_pft_definitions_maliau_2$gpp_topslice <- 0.1
+plant_pft_definitions_maliau_2$root_symbiote_npp_fraction <- 0.1
 
-# p_foliage_for_reproductive_tissue
+# fruit_seed_foliage_mass_fraction
 # Extract the value from the reproduction_maliau summary table matching the
 # Kitayama dipterocarp, non-mast ratio used in the reproductive allocation.
-plant_pft_definitions_maliau_2$p_foliage_for_reproductive_tissue <- as.numeric(
+plant_pft_definitions_maliau_2$fruit_seed_foliage_mass_fraction <- as.numeric(
   reproduction_maliau$value[
     reproduction_maliau$variable == "reproductive_to_leaf_ratio_C" &
       reproduction_maliau$approach == "3" &
@@ -754,30 +754,30 @@ plant_pft_definitions_maliau_2$p_foliage_for_reproductive_tissue <- as.numeric(
   ][1]
 )
 
-# deadwood_c_n_ratio
-# deadwood_c_p_ratio
-# leaf_turnover_c_n_ratio
-# leaf_turnover_c_p_ratio
-# plant_reproductive_tissue_turnover_c_n_ratio
-# plant_reproductive_tissue_turnover_c_p_ratio
-# root_turnover_c_n_ratio
-# root_turnover_c_p_ratio
+# stem_c_n_ratio
+# stem_c_p_ratio
+# foliage_turnover_c_n_ratio
+# foliage_turnover_c_p_ratio
+# fruit_seed_c_n_ratio
+# fruit_seed_c_p_ratio
+# root_c_n_ratio
+# root_c_p_ratio
 # foliage_c_n_ratio
 # foliage_c_p_ratio
 temp <- stoichiometry_maliau[, c(
   "pft_name",
-  "deadwood_c_n_ratio",
-  "deadwood_c_p_ratio",
-  "leaf_turnover_c_n_ratio",
-  "leaf_turnover_c_p_ratio",
-  "plant_reproductive_tissue_turnover_c_n_ratio",
-  "plant_reproductive_tissue_turnover_c_p_ratio",
-  "root_turnover_c_n_ratio",
-  "root_turnover_c_p_ratio",
+  "stem_c_n_ratio",
+  "stem_c_p_ratio",
+  "foliage_turnover_c_n_ratio",
+  "foliage_turnover_c_p_ratio",
+  "fruit_seed_c_n_ratio",
+  "fruit_seed_c_p_ratio",
+  "root_c_n_ratio",
+  "root_c_p_ratio",
   "foliage_c_n_ratio",
   "foliage_c_p_ratio",
   "c_mass_fruit_flesh",
-  "c_mass_per_fruit_seed",
+  "c_mass_fruit_seed",
   "seeds_per_fruit"
 )]
 
