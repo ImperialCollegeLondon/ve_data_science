@@ -61,6 +61,7 @@ library(ellmer)
 library(here)
 library(glue)
 library(cli)
+library(ragnar)
 
 data_folder <- here("data/derived/soil/llm")
 
@@ -175,6 +176,17 @@ system_prompt <-
   Your only task is to propose values supported by published empirical
   literature.
   </task>
+
+  <retrieval>
+  A retrieval tool provides context from the Virtual Ecosystem documentation.
+  Use that retrieved documentation when it is relevant for understanding the
+  model context, terminology, or documented behaviour of the constant or
+  process under discussion.
+
+  Treat retrieved Virtual Ecosystem documentation as supporting context about
+  the model, not as empirical literature. If the documentation is not relevant,
+  answer normally using the supplied code context and literature search.
+  </retrieval>
 
   <evidence_policy>
   The supplied code context is authoritative for what the constant means, its
@@ -339,6 +351,12 @@ type_output <- type_array(
 
 # Query the model --------------------------------------------------------
 
+# Open the existing Virtual Ecosystem documentation RAG store and register its
+# retrieval tool on the main chat object before issuing any requests.
+rag_store <- ragnar_store_connect(
+  file.path(data_folder, "virtual_ecosystem_repo.ragnar.duckdb")
+)
+
 # One request per constant. This keeps each prompt small and focused, and lets
 # the workflow scale to the full repository by extending candidate_constants.
 # A map-based serial loop is used deliberately rather than
@@ -349,6 +367,12 @@ chat <- chat_openai(
   base_url = "https://ellmer.openai.azure.com/openai/v1",
   model = "gpt-5.6-sol",
   system_prompt = system_prompt
+)
+ragnar_register_tool_retrieve(
+  chat,
+  rag_store,
+  top_k = 10,
+  description = "Virtual Ecosystem documentation"
 )
 chat$register_tool(openai_tool_web_search())
 
