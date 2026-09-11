@@ -43,7 +43,16 @@ var_name = "downward_longwave_radiation"
 file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "diurnal_temperature_range_ref"
 
-# Elevation
+# Hydrology config settings
+[hydrology]
+
+# Hydrology array variables
+[[core.data.variable]]
+file_path = "../data/era5_maliau_10x10_2010_2020.nc"
+var_name = "precipitation"
+[[core.data.variable]]
+file_path = "../data/elevation_maliau_10x10.nc"
+var_name = "elevation"
 [[core.data.variable]]
 file_path = "../data/elevation_maliau_10x10.nc"
 var_name = "elevation"
