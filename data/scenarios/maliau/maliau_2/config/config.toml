@@ -56,11 +56,9 @@ functional_group_definitions_path = "../data/animal_functional_groups_Maliau_lev
 
 [animal.cohort_data_export]
 enabled = true
-float_format = "%0.5f"
 
 [animal.resource_pool_export]
 enabled = true
-float_format = "%0.5f"
 
 [hydrology]
 
