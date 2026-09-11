@@ -1,6 +1,5 @@
+# Core settings
 [core.grid]
-# cell_area, cell_nx and cell_ny of Maliau 2 happens to be the same as the
-# default, but it feels weird to remove them...
 cell_area = 10000
 cell_nx = 10
 cell_ny = 10
@@ -9,11 +8,8 @@ yoff = 524298.8
 
 [core.timing]
 start_date = "2010-01-01"
-update_interval = "1 month" # this is also the default, but feels weird to remove
+update_interval = "1 month"
 run_length = "11 years"
-
-[core.data_output_options]
-out_path = "../output" # with this we can remove --out ../output in ve_run?
 
 # Climate data
 [[core.data.variable]]
@@ -49,7 +45,79 @@ var_name = "diurnal_temperature_range_ref"
 file_path = "../data/elevation_maliau_10x10.nc"
 var_name = "elevation"
 
-# Soil
+[abiotic_simple]
+
+[animal]
+functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv"
+
+[animal.cohort_data_export]
+enabled = true
+float_format = "%0.5f"
+
+[animal.resource_pool_export]
+enabled = true
+float_format = "%0.5f"
+
+[hydrology]
+
+# Plant config settings
+[plants]
+
+# Plant pft definitions file path
+pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
+# Plant cohort data file path
+cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv"
+
+# Plant output data export settings
+[plants.community_data_export]
+required_data = ["cohorts","community_canopy","stem_canopy"]
+cohort_attributes = []
+community_canopy_attributes = []
+stem_canopy_attributes = []
+
+# Plant array variables
+[[core.data.variable]]
+file_path = "../data/plant_input_data_maliau_2.nc"
+var_name = "plant_pft_propagules"
+[[core.data.variable]]
+file_path = "../data/plant_input_data_maliau_2.nc"
+var_name = "subcanopy_vegetation_biomass"
+[[core.data.variable]]
+file_path = "../data/plant_input_data_maliau_2.nc"
+var_name = "subcanopy_seedbank_biomass"
+[[core.data.variable]]
+file_path = "../data/era5_maliau_10x10_2010_2020.nc"
+var_name = "downward_shortwave_radiation"
+
+# Plant constants (non-defaults)
+[plants.constants]
+subcanopy_specific_leaf_area = 73.4169120128073
+subcanopy_reproductive_allocation = 0.223545331529093
+subcanopy_respiration_fraction = 0.132
+subcanopy_extinction_coef = 0.48
+subcanopy_yield = 0.68
+subcanopy_vegetation_turnover = 2.57142857142857
+subcanopy_vegetation_c_n_ratio = 17.2010712814174
+subcanopy_vegetation_c_p_ratio = 206.668316831683
+subcanopy_vegetation_lignin = 0.291937145184085
+subcanopy_seedbank_turnover = 0.32
+subcanopy_sprout_rate = 0.68
+subcanopy_sprout_yield = 0.68
+subcanopy_seedbank_c_n_ratio = 64.0759493670886
+subcanopy_seedbank_c_p_ratio = 82.983606557377
+subcanopy_seedbank_lignin = 0.177795337811142
+per_stem_annual_mortality_probability = 0.02
+per_propagule_annual_recruitment_probability = 0.0207154994055789
+root_exudates = 0.047
+dsr_to_ppfd = 2.04
+stem_lignin = 0.31318082788671
+senesced_leaf_lignin = 0.29
+root_lignin = 0.304203539823009
+
+# Soil config settings
+[soil]
+
+# Soil array variables
 [[core.data.variable]]
 file_path = "../data/soil_maliau.nc"
 var_name = "pH"
@@ -111,7 +179,10 @@ var_name = "soil_p_pool_labile"
 file_path = "../data/soil_maliau.nc"
 var_name = "fungal_fruiting_bodies"
 
-# Litter
+# Litter config settings
+[litter]
+
+# Litter array variables
 [[core.data.variable]]
 file_path = "../data/litter_maliau.nc"
 var_name = "litter_pool_above_metabolic_cnp"
@@ -136,110 +207,3 @@ var_name = "lignin_woody"
 [[core.data.variable]]
 file_path = "../data/litter_maliau.nc"
 var_name = "lignin_below_structural"
-
-[abiotic_simple]
-
-# animal_functional_groups.toml
-
-[animal]
-functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv"
-
-[animal.cohort_data_export]
-enabled = true
-
-# select whichever subset of attributes is of interest
-cohort_attributes = [
-  "time",
-  "cohort_id",
-  "functional_group",
-  "diet_type",
-  "development_type",
-  "age",
-  "individuals",
-  "is_alive",
-  "is_mature",
-  "time_to_maturity",
-  "time_since_maturity",
-  "location_status",
-  "centroid_key",
-  "territory_size",
-  "territory",
-  "occupancy_proportion",
-  "largest_mass_achieved",
-  "mass_carbon",
-  "mass_nitrogen",
-  "mass_phosphorus",
-  "reproductive_mass_carbon",
-  "reproductive_mass_nitrogen",
-  "reproductive_mass_phosphorus",
-  "activity_window_proportion",
-  "reference_temp",
-  "current_temperature",
-]
-
-float_format = "%0.5f"
-
-
-[animal.resource_pool_export]
-enabled = true
-float_format = "%0.5f"
-
-[hydrology]
-
-[litter]
-
-# Plant config settings
-[plants]
-
-# Plant pft definitions file path
-pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
-# Plant cohort data file path
-cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv"
-
-# Plant output data export settings
-[plants.community_data_export]
-required_data = ["cohorts","community_canopy","stem_canopy"]
-cohort_attributes = []
-community_canopy_attributes = []
-stem_canopy_attributes = []
-
-# Plant array variables
-[[core.data.variable]]
-file_path = "../data/plant_input_data_maliau_2.nc"
-var_name = "plant_pft_propagules"
-[[core.data.variable]]
-file_path = "../data/plant_input_data_maliau_2.nc"
-var_name = "subcanopy_vegetation_biomass"
-[[core.data.variable]]
-file_path = "../data/plant_input_data_maliau_2.nc"
-var_name = "subcanopy_seedbank_biomass"
-[[core.data.variable]]
-file_path = "../data/era5_maliau_10x10_2010_2020.nc"
-var_name = "downward_shortwave_radiation"
-
-# Plant constants (non-defaults)
-[plants.constants]
-subcanopy_specific_leaf_area = 73.4169120128073
-subcanopy_reproductive_allocation = 0.223545331529093
-subcanopy_respiration_fraction = 0.132
-subcanopy_extinction_coef = 0.48
-subcanopy_yield = 0.68
-subcanopy_vegetation_turnover = 2.57142857142857
-subcanopy_vegetation_c_n_ratio = 17.2010712814174
-subcanopy_vegetation_c_p_ratio = 206.668316831683
-subcanopy_vegetation_lignin = 0.291937145184085
-subcanopy_seedbank_turnover = 0.32
-subcanopy_sprout_rate = 0.68
-subcanopy_sprout_yield = 0.68
-subcanopy_seedbank_c_n_ratio = 64.0759493670886
-subcanopy_seedbank_c_p_ratio = 82.983606557377
-subcanopy_seedbank_lignin = 0.177795337811142
-per_stem_annual_mortality_probability = 0.02
-per_propagule_annual_recruitment_probability = 0.0207154994055789
-root_exudates = 0.047
-dsr_to_ppfd = 2.04
-stem_lignin = 0.31318082788671
-senesced_leaf_lignin = 0.29
-root_lignin = 0.304203539823009
-
-[soil]
