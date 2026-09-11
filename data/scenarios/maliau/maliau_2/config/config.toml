@@ -48,10 +48,10 @@ var_name = "elevation"
 [abiotic_simple]
 
 # Animal config settings
-# This configuration currently uses Maliau Level 3 FG
-# A simpler Level 1 FG is also available through Globus.
-
 [animal]
+
+# Animal functional group definitions file path
+# Currently uses Maliau_level3, other levels are also available through Globus.
 functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv"
 
 [animal.cohort_data_export]
