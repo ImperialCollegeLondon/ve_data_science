@@ -86,28 +86,34 @@ constants <- constant_database$constants
 # Constants are keyed by qualified name (module.Class.attribute), which is
 # unique. Bare names are not: `turnover_rate`, `c_n_ratio`, `constants` and
 # `static` are each declared on several configuration classes.
-candidate_constants <- c(
-  # constants with high uncertainty
-  "maom_desorption_rate",
-  "lmwc_sorption_rate",
-  "litter_leaching_fraction_carbon",
-  "litter_leaching_fraction_nitrogen",
-  "litter_leaching_fraction_phosphorus",
-  "necromass_decay_rate",
-  # constants for groundtruthing or benchmarking
-  "free_living_N_fixation_q10_coefficent",
-  "microbial_water_response_curvature",
-  "nitrification_optimum_temperature",
-  "nitrification_thermal_sensitivity",
-  "denitrification_thermal_sensitivity",
-  "nitrogen_fixation_cost_thermal_sensitivity"
-)
-candidate_constants <- paste0(
-  "virtual_ecosystem.models.soil.model_config.SoilConstants.",
-  candidate_constants
-)
+# candidate_constants <- c(
+#   # constants with high uncertainty
+#   "maom_desorption_rate",
+#   "lmwc_sorption_rate",
+#   "litter_leaching_fraction_carbon",
+#   "litter_leaching_fraction_nitrogen",
+#   "litter_leaching_fraction_phosphorus",
+#   "necromass_decay_rate",
+#   # constants for groundtruthing or benchmarking
+#   "free_living_N_fixation_q10_coefficent",
+#   "microbial_water_response_curvature",
+#   "nitrification_optimum_temperature",
+#   "nitrification_thermal_sensitivity",
+#   "denitrification_thermal_sensitivity",
+#   "nitrogen_fixation_cost_thermal_sensitivity"
+# )
+# candidate_constants <- paste0(
+#   "virtual_ecosystem.models.soil.model_config.SoilConstants.",
+#   candidate_constants
+# )
+# stopifnot(all(candidate_constants %in% names(constants)))
 
-stopifnot(all(candidate_constants %in% names(constants)))
+candidate_constants <- constants |>
+  keep(
+    ~ .x$class_name %in%
+      c("SoilConstants", "SoilEnzymeClass", "SoilMicrobialGroup")
+  ) |>
+  names()
 
 
 # Build the deterministic context for one constant -----------------------
@@ -422,7 +428,7 @@ constant_values_table <-
 
 write_csv(
   constant_values_table,
-  file.path(data_folder, "constant_literature_values.csv")
+  file.path(data_folder, "soil_constant_literature_values.csv")
 )
 
 
