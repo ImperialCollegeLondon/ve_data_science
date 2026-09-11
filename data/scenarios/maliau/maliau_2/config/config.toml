@@ -11,7 +11,10 @@ start_date = "2010-01-01"
 update_interval = "1 month"
 run_length = "11 years"
 
-# Climate data
+# Abiotic config settings
+[abiotic_simple]
+
+# Abiotic array variables
 [[core.data.variable]]
 file_path = "../data/era5_maliau_10x10_2010_2020.nc"
 var_name = "air_temperature_ref"
