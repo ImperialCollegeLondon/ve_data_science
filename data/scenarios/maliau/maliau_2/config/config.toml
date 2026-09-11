@@ -53,7 +53,6 @@ var_name = "precipitation"
 [[core.data.variable]]
 file_path = "../data/elevation_maliau_10x10.nc"
 var_name = "elevation"
-[[core.data.variable]]
 file_path = "../data/elevation_maliau_10x10.nc"
 var_name = "elevation"
 
