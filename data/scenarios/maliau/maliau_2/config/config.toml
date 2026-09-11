@@ -71,7 +71,6 @@ enabled = true
 [animal.resource_pool_export]
 enabled = true
 
-[hydrology]
 
 # Plant config settings
 [plants]
