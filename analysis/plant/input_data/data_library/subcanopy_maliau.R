@@ -830,9 +830,9 @@ plant_stoichiometry <- read.csv(
 )
 
 data$subcanopy_seedbank_c_n_ratio <-
-  unique(plant_stoichiometry$plant_reproductive_tissue_turnover_c_n_ratio)
+  unique(plant_stoichiometry$fruit_seed_c_n_ratio)
 data$subcanopy_seedbank_c_p_ratio <-
-  unique(plant_stoichiometry$plant_reproductive_tissue_turnover_c_p_ratio)
+  unique(plant_stoichiometry$fruit_seed_c_p_ratio)
 data$subcanopy_seedbank_lignin <-
   unique(plant_stoichiometry$plant_reproductive_tissue_lignin)
 

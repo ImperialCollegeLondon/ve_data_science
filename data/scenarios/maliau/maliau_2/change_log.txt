@@ -4,6 +4,16 @@
 - Module: Plants
 - Author: Arne Scheire
 - Files changed:
+  - data/scenarios/maliau/maliau_2/config/plant_pft_definitions_maliau_2
+- Changes made:
+  - Updates some of the pft trait names to newly required names.
+- References:
+  - PR #613
+
+2026-09-10
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
   - data/scenarios/maliau/maliau_2/config/plant_constants_maliau_2
 - Changes made:
   - Removed plant_reproductive_tissue_lignin as no longer used by VE.
