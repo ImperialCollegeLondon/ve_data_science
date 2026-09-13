@@ -30,8 +30,7 @@ Targets in this section are site specific.
 ### 2.1 Population and biomass density structure by functional group
 
 *Derivation:* Derive post-model population density and biomass density from
-cohort abundance, occupancy, territory, and elemental mass. This is the
-site-specific analogue of the global density-scaling check in 3.5.
+cohort abundance, occupancy, territory, and elemental mass.
 
 *Inputs:* individuals, functional_group, occupancy_proportion, territory_size,
 mass_carbon, mass_nitrogen, mass_phosphorus, is_mature.
@@ -45,7 +44,7 @@ TODO: Align with Arne how we approach verifying against spatially variable densi
 *Datasets needed:* Site-level abundance or density datasets, biomass density
 datasets, including live mammals trapping from Chapman et al. (2018), camera
 trap data from Wearn et al. (2016) and Wearn et al. (2017), and the 2011-13
-density estimate from Wearn et al. (2022). Also check Joshua March or Sarah Luke
+density estimate from Wearn et al. (2022). Also check Joshua March or SarahLuke
 for termite density and the Sri Rao thesis for earthworm density in SAFE Zenodo.
 
 TODO: contact Ollie Wearn and Phil Chapman.
@@ -206,7 +205,10 @@ persistence, and movement signatures against telemetry, home-range, and
 territory-use datasets for comparable taxa and body-size classes.
 
 *Datasets needed:* Home-range studies, telemetry datasets, territory-size
-summaries, and movement ecology datasets.
+summaries, and movement ecology datasets. Wearn et al. (2022) estimated
+home-range from camera trap, Brasington 2019 thesis estimated small mammal
+home ranges from live mammal traps. Estimates from both literature
+are species level and site-level.
 
 ## 3. Global validation relationships (Madingley emergent pattern checks)
 
@@ -365,7 +367,7 @@ estimates from terrestrial macroecological compilations.
 | 2.6 | Site-specific | Nutrient-return flux contributions from animals | Emergent | decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals | output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv | Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets | Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements | TBD site dataset |
 | 2.7 | Site-specific | Aggregated consumption partitions and assimilation-flow consistency | Emergent | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus | animal_trophic_interactions.csv, output.zarr | Compare derived habitat- or guild-level consumption partitions, intake totals, and assimilation-flow consistency against energetics and intake-partitioning studies; use AnimalGroup_Habitat when matching Malhi food-group tables | Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables | Malhi et al. (2022) |
 | 2.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare habitat-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates | Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables | Malhi et al. (2022) |
-| 2.9 | Site-specific | Space-use and territory-use realism | Emergent | occupancy_proportion, territory_size, centroid_key, territory, location_status, individuals, functional_group, time_index | animal_cohort_data.csv | Compare occupancy and territory-use distributions, persistence, and movement signatures against home-range and telemetry evidence | Home-range studies, telemetry datasets, territory-use summaries, movement ecology datasets | Wearn et al. (2013) |
+| 2.9 | Site-specific | Space-use and territory-use realism | Emergent | occupancy_proportion, territory_size, centroid_key, territory, location_status, individuals, functional_group, time_index | animal_cohort_data.csv | Compare occupancy and territory-use distributions, persistence, and movement signatures against home-range and telemetry evidence | Home-range studies, telemetry datasets, territory-use summaries, movement ecology datasets, species- and site-level estimates from camera traps and live trapping | Wearn et al. (2013), Wearn et al. (2022), Brasington (2019) |
 | 3.1 | Global | Growth rate versus body mass | Emergent | cohort_id, time_index, age, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved | animal_cohort_data.csv | Compare emergent growth-rate scaling with terrestrial vertebrate and invertebrate growth datasets | Growth datasets for reptiles, mammals, birds, and terrestrial invertebrates; length-mass conversions where needed | Case (1978), Ricklefs (1968, 1973), Harfoot et al. (2014) |
 | 3.2 | Global | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, is_mature | animal_cohort_data.csv | Compare modelled age at maturity against compiled maturation datasets | Maturation and life-history datasets for invertebrates, reptiles, mammals, and birds; length-mass conversions where needed | Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Blakley and Goodner (1978), Harfoot et al. (2014) |
 | 3.3 | Global | Mortality versus body mass | Emergent | cohort_id, time_index, is_alive, individuals | animal_cohort_data.csv | Compare mortality scaling with natural mortality datasets | Natural mortality datasets for invertebrates, mammals, and birds | Harfoot et al. (2014) |
