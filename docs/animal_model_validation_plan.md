@@ -3,8 +3,7 @@
 This is a draft plan for validating the animal model outputs in the VE project
 with the help of Copilot. It is intended to be a living document that will be
 updated as the model and its outputs evolve, as well as new validation datasets
-are identified. The idea is to review this with Bai and then go through section
-5 with Rob, especially on getting SAFE datasets.
+are identified. Currently, the document is written for Maliau and SAFE scenarios.
 
 Notes:
 
@@ -30,20 +29,26 @@ Targets in this section are site specific.
 
 ### 2.1 Population and biomass density structure by functional group
 
-*Derivation:* Derive post-spin-up population density, biomass density, and
-density-mass scaling from cohort abundance, occupancy, territory, and elemental
-mass.
+*Derivation:* Derive post-model population density and biomass density from
+cohort abundance, occupancy, territory, and elemental mass. This is the
+site-specific analogue of the global density-scaling check in 3.5.
 
 *Inputs:* individuals, functional_group, occupancy_proportion, territory_size,
 mass_carbon, mass_nitrogen, mass_phosphorus, is_mature.
 
 *Validation approach:* Compare equilibrium density ranges and biomass density
-against published benchmarks for comparable tropical or temperate forest
-systems. Stratify by body-mass class and diet class where available.
+against published empirical datasets in Maliau or SAFE. Stratify by body-mass
+class and diet class where available.
+
+TODO: Align with Arne how we approach verifying against spatially variable density.
 
 *Datasets needed:* Site-level abundance or density datasets, biomass density
-datasets, GBIF-linked occupancy studies, including Chapman et al. (2018), Wearn
-et al. (2016), and Wearn et al. (2017) from the SAFE project in Borneo.
+datasets, including live mammals trapping from Chapman et al. (2018), camera
+trap data from Wearn et al. (2016) and Wearn et al. (2017), and the 2011-13
+density estimate from Wearn et al. (2022). Also check Joshua March or Sarah Luke
+for termite density and the Sri Rao thesis for earthworm density in SAFE Zenodo.
+
+TODO: contact Ollie Wearn and Phil Chapman.
 
 ### 2.2 Reproduction and survival rates
 
@@ -348,8 +353,7 @@ estimates from terrestrial macroecological compilations.
 
 | Target ID | Scope | Target | Category | Variables used | Output source | Validation approach | Datasets needed | Reference |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2.1a | Site-specific | Equilibrium density range | Emergent | individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Derive post-spin-up density by functional group and compare against empirical density ranges, stratified by body-mass and diet class where available | Site-level abundance or density datasets, GBIF-linked occupancy studies | Chapman et al. (2018), Wearn et al. (2016), Wearn et al. (2017) |
-| 2.1b | Site-specific | Trophic biomass pyramid | Emergent | individuals, mass_carbon, mass_nitrogen, mass_phosphorus, functional_group | animal_cohort_data.csv | Compare trophic biomass ordering against food-web biomass datasets | Trophic biomass datasets, food-web benchmarks | TBD site dataset |
+| 2.1 | Site-specific | Population and biomass density structure by functional group | Emergent | individuals, functional_group, occupancy_proportion, territory_size, mass_carbon, mass_nitrogen, mass_phosphorus, is_mature | animal_cohort_data.csv | Derive post-spin-up density and biomass density by functional group and compare against empirical density ranges, stratified by body-mass and diet class where available | Site-level abundance or density datasets, biomass density datasets, mammal-trap and camera-trap studies | Chapman et al. (2018), Wearn et al. (2016), Wearn et al. (2017), Wearn et al. (2022) |
 | 2.2a | Site-specific | Survival by life stage | Emergent | cohort_id, is_alive, is_mature, age, individuals, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare survival and reproduction trajectories against demographic datasets | Survival curves, life-table studies, fecundity datasets | Chapman et al. (2018) |
 | 2.2b | Site-specific | Reproduction intensity | Emergent | cohort_id, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus, age | animal_cohort_data.csv | Compare reproductive output and recruitment timing against breeding datasets | Breeding frequency datasets, recruitment or fecundity data | TBD site dataset |
 | 2.3a | Site-specific | Asymptotic adult mass | Direct and emergent | largest_mass_achieved, is_mature, functional_group | animal_cohort_data.csv | Compare cohort mass trajectories against adult-mass and maturity datasets | Growth-curve datasets, age-mass datasets | TBD site dataset |
@@ -619,7 +623,6 @@ carbon mass per individual in group $g$.
   is populated.
 2. Madingley-style emergent checks should use Harfoot et al. (2014) as the core
   pattern-validation anchor.
-
 3. All calculations in this plan are post-processing targets and should be
   implemented without changing ecological process code unless a required output is
   unavailable.
