@@ -9,9 +9,6 @@ Notes:
 
 - Perhaps some of the sections can be split into smaller sections or subsections
   with lesser variables?
-- Decide whether we want to be already very specific with our validation
-  approaches? Or keep it rather general now to find out more about available
-  validation datasets first? Currently validation approaches are very broad.
 
 ## 1. Scope and rules
 
@@ -30,7 +27,7 @@ Targets in this section are site specific.
 ### 2.1 Population and biomass density structure by functional group
 
 *Derivation:* Derive post-model population density and biomass density from
-cohort abundance, occupancy, territory, and elemental mass.
+functional group abundance, occupancy, territory, and elemental mass.
 
 *Inputs:* individuals, functional_group, occupancy_proportion, territory_size,
 mass_carbon, mass_nitrogen, mass_phosphorus, is_mature.
@@ -44,25 +41,10 @@ TODO: Align with Arne how we approach verifying against spatially variable densi
 *Datasets needed:* Site-level abundance or density datasets, biomass density
 datasets, including live mammals trapping from Chapman et al. (2018), camera
 trap data from Wearn et al. (2016) and Wearn et al. (2017), and the 2011-13
-density estimate from Wearn et al. (2022). Also check Joshua March or SarahLuke
+density estimate from Wearn et al. (2022). Also check Joshua March or Sarah Luke
 for termite density and the Sri Rao thesis for earthworm density in SAFE Zenodo.
 
 TODO: contact Ollie Wearn and Phil Chapman.
-
-### 2.2 Reproduction and survival rates
-
-*Derivation:* Cohort-transition and persistence estimators over time windows.
-
-*Inputs:* cohort_id, time_index, individuals, is_alive, is_mature,
-reproductive_mass_carbon, reproductive_mass_nitrogen,
-reproductive_mass_phosphorus, age.
-
-*Validation approach:* Compare survival and reproduction dynamics against
-demographic studies with age structure, life-stage survival, and reproductive
-output by taxon or functional group.
-
-*Datasets needed:* Survival curves, demographic life-table studies, breeding
-frequency datasets, and recruitment or fecundity data.
 
 ### 2.3 Cohort growth rates
 
@@ -76,21 +58,6 @@ against published growth curves and allometric maturity relationships.
 
 *Datasets needed:* Growth-curve datasets, age-mass datasets, maturity-timing
 datasets, and stoichiometric composition datasets by taxa.
-
-### 2.4 Mortality rates
-
-*Derivation:* Inferred disappearance and biomass-loss accounting across
-timesteps.
-
-*Inputs:* cohort_id, time_index, individuals, is_alive, location_status,
-decomposed_carcasses_cnp, decomposed_excrement_cnp.
-
-*Validation approach:* Compare cohort mortality patterns against survival
-studies and carcass-production datasets, using age or size class to check
-whether mortality is within expected ranges.
-
-*Datasets needed:* Mortality-rate datasets, carcass production studies, and
-survival data by age or size class.
 
 ### 2.5a Respiration-intake consistency
 
@@ -356,12 +323,9 @@ estimates from terrestrial macroecological compilations.
 | Target ID | Scope | Target | Category | Variables used | Output source | Validation approach | Datasets needed | Reference |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2.1 | Site-specific | Population and biomass density structure by functional group | Emergent | individuals, functional_group, occupancy_proportion, territory_size, mass_carbon, mass_nitrogen, mass_phosphorus, is_mature | animal_cohort_data.csv | Derive post-spin-up density and biomass density by functional group and compare against empirical density ranges, stratified by body-mass and diet class where available | Site-level abundance or density datasets, biomass density datasets, mammal-trap and camera-trap studies | Chapman et al. (2018), Wearn et al. (2016), Wearn et al. (2017), Wearn et al. (2022) |
-| 2.2a | Site-specific | Survival by life stage | Emergent | cohort_id, is_alive, is_mature, age, individuals, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare survival and reproduction trajectories against demographic datasets | Survival curves, life-table studies, fecundity datasets | Chapman et al. (2018) |
-| 2.2b | Site-specific | Reproduction intensity | Emergent | cohort_id, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus, age | animal_cohort_data.csv | Compare reproductive output and recruitment timing against breeding datasets | Breeding frequency datasets, recruitment or fecundity data | TBD site dataset |
 | 2.3a | Site-specific | Asymptotic adult mass | Direct and emergent | largest_mass_achieved, is_mature, functional_group | animal_cohort_data.csv | Compare cohort mass trajectories against adult-mass and maturity datasets | Growth-curve datasets, age-mass datasets | TBD site dataset |
 | 2.3b | Site-specific | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, functional_group | animal_cohort_data.csv | Compare time-to-maturity scaling against allometric maturity datasets | Allometric maturity datasets | TBD site dataset |
 | 2.3c | Site-specific | Stoichiometric mass ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus | animal_cohort_data.csv | Compare C:N:P composition against stoichiometric trait datasets | Stoichiometric composition datasets by taxa | TBD site dataset |
-| 2.4 | Site-specific | Mortality partitioning | Emergent | individuals, is_alive, cohort_id, location_status, decomposed_carcasses_cnp, decomposed_excrement_cnp | animal_cohort_data.csv, output.zarr | Compare mortality and carcass-production patterns against survival and carcass datasets | Mortality-rate datasets, carcass production studies | TBD site dataset |
 | 2.5a | Site-specific | Respiration-intake consistency | Emergent | total_animal_respiration, C, N, P | output.zarr, animal_trophic_interactions.csv | Compare normalised respiration-intake coupling against metabolic scaling and field respiration data | Metabolic rate datasets, respiration-allometry datasets, energy-budget studies | TBD site dataset |
 | 2.5b | Site-specific | Modelled activity window and available foraging time | Emergent | air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, metabolic_type, t_opt, t_max_crit, t_min_crit, tau_f, diet_category_count, timestep duration | output.zarr, functional-group definitions, model constants | Reconstruct activity-window fraction and available foraging time, then compare predicted activity patterns against empirical activity budgets and thermal performance data | Diel activity datasets, thermal performance curves, time-budget studies | TBD site dataset |
 | 2.6 | Site-specific | Nutrient-return flux contributions from animals | Emergent | decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals | output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv | Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets | Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements | TBD site dataset |
@@ -504,20 +468,6 @@ $$
 g^e_{i,t} = \frac{m^e_{i,t+1} - m^e_{i,t}}{m^e_{i,t} \cdot \Delta t}
 $$
 
-Mortality rate (for 2.4, 3.3):
-
-$$
-\mu_{i,t} = \frac{\max(0, N_{i,t} - N_{i,t+1})}{N_{i,t} \cdot \Delta t}
-$$
-
-Reproductive allocation rate (for 2.2, 3.4):
-
-$$
-R^e_{i,t} = \frac{r^e_{i,t+1} - r^e_{i,t}}{\Delta t}
-$$
-
-where $r^e_{i,t}$ is reproductive_mass for element $e$.
-
 Trophic intake aggregation from interaction records (for 2.7, 2.8, and the intake
 term used in 2.5a):
 
@@ -628,3 +578,6 @@ carbon mass per individual in group $g$.
 3. All calculations in this plan are post-processing targets and should be
   implemented without changing ecological process code unless a required output is
   unavailable.
+4. Defer validation of reproduction, survival and mortality rates as we do not have
+detailed demographic models at the moment. Maybe possible with advanced statistical
+models such as the Cormack-Jolly-Seber (CJS) model.
