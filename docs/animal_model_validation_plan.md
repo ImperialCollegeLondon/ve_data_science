@@ -59,38 +59,6 @@ against published growth curves and allometric maturity relationships.
 *Datasets needed:* Growth-curve datasets, age-mass datasets, maturity-timing
 datasets, and stoichiometric composition datasets by taxa.
 
-### 2.5a Respiration-intake consistency
-
-*Derivation:* Compare aggregated respiration and trophic intake using harmonised
-units and normalised diagnostics.
-
-*Inputs:* total_animal_respiration, C, N, P.
-
-*Validation approach:* Evaluate respiration-intake coupling against metabolic
-scaling studies and field respiration data, focusing on temporal coherence and
-expected direction of response.
-
-*Datasets needed:* Metabolic rate datasets, respiration-allometry datasets, and
-animal energy-budget datasets.
-
-### 2.5b Modelled activity window and available foraging time
-
-*Derivation:* Reconstruct activity-window fraction and available foraging time
-from model equations and configuration metadata.
-
-*Inputs:* air_temperature, soil_temperature, canopy_temperature,
-diurnal_temperature_range, metabolic_type, t_opt, t_max_crit, t_min_crit, tau_f,
-diet_category_count, timestep duration.
-
-*Validation approach:* Estimate activity-window fraction and derived
-foraging-time availability, then compare predicted active-time patterns against
-empirical activity-budget and thermal-performance datasets. If required internal
-variables are unavailable for exact reconstruction, record this target as a
-validation gap pending exporter support.
-
-*Datasets needed:* Diel activity datasets, thermal performance curves, and
-time-budget studies.
-
 ### 2.6 Nutrient-return flux contributions from animals
 
 *Derivation:* Excrement and carcass proxies from consumed stoichiometry,
@@ -326,8 +294,6 @@ estimates from terrestrial macroecological compilations.
 | 2.3a | Site-specific | Asymptotic adult mass | Direct and emergent | largest_mass_achieved, is_mature, functional_group | animal_cohort_data.csv | Compare cohort mass trajectories against adult-mass and maturity datasets | Growth-curve datasets, age-mass datasets | TBD site dataset |
 | 2.3b | Site-specific | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, functional_group | animal_cohort_data.csv | Compare time-to-maturity scaling against allometric maturity datasets | Allometric maturity datasets | TBD site dataset |
 | 2.3c | Site-specific | Stoichiometric mass ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus | animal_cohort_data.csv | Compare C:N:P composition against stoichiometric trait datasets | Stoichiometric composition datasets by taxa | TBD site dataset |
-| 2.5a | Site-specific | Respiration-intake consistency | Emergent | total_animal_respiration, C, N, P | output.zarr, animal_trophic_interactions.csv | Compare normalised respiration-intake coupling against metabolic scaling and field respiration data | Metabolic rate datasets, respiration-allometry datasets, energy-budget studies | TBD site dataset |
-| 2.5b | Site-specific | Modelled activity window and available foraging time | Emergent | air_temperature, soil_temperature, canopy_temperature, diurnal_temperature_range, metabolic_type, t_opt, t_max_crit, t_min_crit, tau_f, diet_category_count, timestep duration | output.zarr, functional-group definitions, model constants | Reconstruct activity-window fraction and available foraging time, then compare predicted activity patterns against empirical activity budgets and thermal performance data | Diel activity datasets, thermal performance curves, time-budget studies | TBD site dataset |
 | 2.6 | Site-specific | Nutrient-return flux contributions from animals | Emergent | decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals | output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv | Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets | Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements | TBD site dataset |
 | 2.7 | Site-specific | Aggregated consumption partitions and assimilation-flow consistency | Emergent | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus | animal_trophic_interactions.csv, output.zarr | Compare derived habitat- or guild-level consumption partitions, intake totals, and assimilation-flow consistency against energetics and intake-partitioning studies; use AnimalGroup_Habitat when matching Malhi food-group tables | Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables | Malhi et al. (2022) |
 | 2.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare habitat-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates | Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables | Malhi et al. (2022) |
@@ -393,12 +359,8 @@ in the target registry notes
 | mass_carbon, mass_nitrogen, mass_phosphorus | animal_cohort_data.csv | kg element per individual | Convert to cohort-level elemental mass by multiplying by individuals |
 | reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | kg element per individual | Difference over timesteps for reproductive allocation rates; multiply by individuals for cohort totals |
 | C, N, P | animal_trophic_interactions.csv | kg element per interaction record (per update step) | Aggregate by cell/time/consumer group; divide by timestep duration for daily rates where needed |
-| air_temperature, soil_temperature | output.zarr | deg C | Convert to Kelvin for thermodynamic equations: K = deg C + 273.15 |
-| canopy_temperature, diurnal_temperature_range | output.zarr | deg C | Use for thermal-opportunity diagnostics and activity-window reconstruction; aggregate to territory-level means where needed |
 | net_radiation | output.zarr | W m^-2 | Aggregate by mean or integral over the same window as biological response variables |
 | wind_speed | output.zarr | m s^-1 | Aggregate by mean, quantiles, or threshold exceedance frequency |
-| sigma_f_t (derived), available_foraging_time_per_diet (derived) | Computed from model equations and configuration metadata | unitless fraction [0,1]; days | Compute sigma_f_t from activity-window equations, then available_foraging_time_per_diet = dt x tau_f x sigma_f_t / diet_category_count |
-| total_animal_respiration | output.zarr | ppm | Compare with intake using normalised anomalies (z-scores) rather than direct mass-ratio arithmetic |
 | decomposed_excrement_cnp, decomposed_carcasses_cnp | output.zarr | kg m^-2 day^-1 | Integrate over timestep window: mass = flux x days |
 | herbivory_waste_leaf_cnp | output.zarr | kg | Divide by grid-cell area for areal comparisons when needed |
 | litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp | output.zarr | registry: kg (some runs may expose kg m^-2 attrs) | If unit is kg, divide by area for areal comparisons; if unit is kg m^-2, integrate directly over area/time as needed |
@@ -409,10 +371,6 @@ in the target registry notes
 | subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed | output.zarr | kg C m^-2 | Aggregate by cell and timestep; convert to period totals via integration over time |
 | plant_ammonium_uptake, plant_nitrate_uptake | output.zarr | kg N m^-2 day^-1 | Already an areal daily uptake rate; aggregate directly by cell and timestep for productivity-gradient comparisons |
 | plant_phosphorus_uptake | output.zarr | kg P m^-2 day^-1 | Already an areal daily uptake rate; aggregate directly by cell and timestep for productivity-gradient comparisons |
-| metabolic_type | Functional-group definition table | categorical enum | Use as branch selector in activity-window and metabolic-rate calculations |
-| t_opt, t_max_crit, t_min_crit | Functional-group definition table | deg C | Use directly in activity-window equations; convert to Kelvin only if a downstream equation explicitly requires absolute temperature |
-| tau_f | Animal model constants (AnimalConstants) | unitless fraction [0,1] | Multiply timestep duration and activity-window fraction when estimating available foraging time |
-| diet_category_count | Derived from functional-group diet categories at cohort initialisation | integer count | Use as denominator when partitioning available foraging time across diet categories |
 | timestep duration | Run configuration metadata | days | Use as \(\Delta t\) in all rate-to-total and differencing calculations |
 
 <!-- markdownlint-disable MD013 -->
@@ -521,30 +479,6 @@ NR^e_{c,t} = decomposed\_excrement\_cnp^e_{c,t}
 + \frac{herbivory\_waste\_leaf\_cnp^e_{c,t}}{A_c}
 $$
 
-Respiration-intake consistency with unit harmonisation (for 2.5a):
-
-$$
-Z(X_{c,t}) = \frac{X_{c,t} - \mu_X}{\sigma_X}
-$$
-
-Use $Z(total\_animal\_respiration)$ and $Z(I^C)$ in correlation/regression models
-rather than raw mass ratios because respiration is reported in ppm while intake is
-mass-based.
-
-Activity-window fraction and available foraging time (for 2.5b):
-
-$$
-\sigma_{f,t} = f\left(T_{i,t}, \Delta T_{i,t}, metabolic\_type_i,
-t_{opt,i}, t_{max,i}^{crit}, t_{min,i}^{crit}\right)
-$$
-
-$$
-\Delta t^{avail}_{i,t,d} = \Delta t \cdot \tau_f \cdot \sigma_{f,t} / n^{diet}_i
-$$
-
-where $n^{diet}_i$ is diet_category_count for cohort $i$, and $d$ indexes diet
-categories.
-
 Biomass pyramid and herbivore:producer ratio (for 3.6):
 
 $$
@@ -581,3 +515,7 @@ carbon mass per individual in group $g$.
 4. Defer validation of reproduction, survival and mortality rates as we do not have
 detailed demographic models at the moment. Maybe possible with advanced statistical
 models such as the Cormack-Jolly-Seber (CJS) model.
+5. Defer validation of activity-window and respiration as there is no data, and they
+can be circular.
+TODO: confirm whether we would use camera trap data to be used for diel activity estimate
+in functional group parameter.
