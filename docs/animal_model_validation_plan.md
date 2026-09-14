@@ -46,19 +46,6 @@ for termite density and the Sri Rao thesis for earthworm density in SAFE Zenodo.
 
 TODO: contact Ollie Wearn and Phil Chapman.
 
-### 2.3 Cohort growth rates
-
-*Derivation:* Time-differenced mass trajectories by cohort and group.
-
-*Inputs:* mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved,
-time_to_maturity, age, is_mature, functional_group.
-
-*Validation approach:* Compare cohort growth trajectories and maturity timing
-against published growth curves and allometric maturity relationships.
-
-*Datasets needed:* Growth-curve datasets, age-mass datasets, maturity-timing
-datasets, and stoichiometric composition datasets by taxa.
-
 ### 2.6 Nutrient-return flux contributions from animals
 
 *Derivation:* Excrement and carcass proxies from consumed stoichiometry,
@@ -72,7 +59,9 @@ waste fluxes against empirical nutrient-return studies and litterfall or
 carcass-decomposition datasets.
 
 *Datasets needed:* Excretion datasets, carcass decomposition studies,
-nutrient-return studies, and herbivory waste measurements.
+nutrient-return studies, and herbivory waste measurements. Sui has carcass decomposition
+data from Danum and oil palm plantations - can be used only if appropriate and we found
+solution for spatial mismatch.
 
 ### 2.7 Aggregated consumption partitions and assimilation-flow consistency
 
@@ -294,7 +283,7 @@ estimates from terrestrial macroecological compilations.
 | 2.3a | Site-specific | Asymptotic adult mass | Direct and emergent | largest_mass_achieved, is_mature, functional_group | animal_cohort_data.csv | Compare cohort mass trajectories against adult-mass and maturity datasets | Growth-curve datasets, age-mass datasets | TBD site dataset |
 | 2.3b | Site-specific | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, functional_group | animal_cohort_data.csv | Compare time-to-maturity scaling against allometric maturity datasets | Allometric maturity datasets | TBD site dataset |
 | 2.3c | Site-specific | Stoichiometric mass ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus | animal_cohort_data.csv | Compare C:N:P composition against stoichiometric trait datasets | Stoichiometric composition datasets by taxa | TBD site dataset |
-| 2.6 | Site-specific | Nutrient-return flux contributions from animals | Emergent | decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals | output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv | Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets | Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements | TBD site dataset |
+| 2.6 | Site-specific | Nutrient-return flux contributions from animals | Emergent | decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals | output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv | Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets | Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements | Sui dataset of carcass decomposition |
 | 2.7 | Site-specific | Aggregated consumption partitions and assimilation-flow consistency | Emergent | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus | animal_trophic_interactions.csv, output.zarr | Compare derived habitat- or guild-level consumption partitions, intake totals, and assimilation-flow consistency against energetics and intake-partitioning studies; use AnimalGroup_Habitat when matching Malhi food-group tables | Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables | Malhi et al. (2022) |
 | 2.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare habitat-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates | Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables | Malhi et al. (2022) |
 | 2.9 | Site-specific | Space-use and territory-use realism | Emergent | occupancy_proportion, territory_size, centroid_key, territory, location_status, individuals, functional_group, time_index | animal_cohort_data.csv | Compare occupancy and territory-use distributions, persistence, and movement signatures against home-range and telemetry evidence | Home-range studies, telemetry datasets, territory-use summaries, movement ecology datasets, species- and site-level estimates from camera traps and live trapping | Wearn et al. (2013), Wearn et al. (2022), Brasington (2019) |
