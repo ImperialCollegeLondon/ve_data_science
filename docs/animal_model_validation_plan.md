@@ -8,21 +8,21 @@ are identified. Currently, the document is written for Maliau and SAFE scenarios
 Notes:
 
 - Perhaps some of the sections can be split into smaller sections or subsections
-  with lesser variables?
+  with fewer variables?
 
 ## 1. Scope and rules
 
 1. Animal-model validation only, including cross-module outputs when they
-   directly
-  support animal interpretation.
+  directly support animal interpretation.
 2. Validation metrics are computed from exported outputs and post-processing
    only.
-3. Targets are organised into 1) site-specific emergent or derived targets and
-   2) global emergent pattern checks (Madingley based).
+3. Targets are organised into
+  a) site-specific emergent or derived targets and
+  b) global emergent pattern checks (Madingley based).
 
 ## 2. Secondary validation targets (emergent or derived from outputs)
 
-Targets in this section are site specific.
+Targets in this section are site-specific.
 
 ### 2.1 Population and biomass density structure by functional group
 
@@ -39,16 +39,17 @@ class and diet class where available.
 TODO: Align with Arne how we approach verifying against spatially variable density.
 
 *Datasets needed:* Site-level abundance or density datasets, biomass density
-datasets, including live mammals trapping from Chapman et al. (2018), camera
-trap data from Wearn et al. (2016) and Wearn et al. (2017), and the 2011-13
-density estimate from Wearn et al. (2022).
-Also Sarah Luke has termite density <https://zenodo.org/records/1198833>
-Sri Rao thesis (pdf) for earthworm density <https://zenodo.org/records/3857210>
-For above and invertebrates, we have Maliau Quantitative Inventory <https://zenodo.org/records/5562260>
+datasets, including live-mammal trapping data from Chapman et al. (2018),
+camera-trap data from Wearn et al. (2016) and Wearn et al. (2017), and the
+2011-13 density estimate from Wearn et al. (2022). Sarah Luke has termite
+density data <https://zenodo.org/records/1198833>. Sri Rao's thesis (PDF)
+includes earthworm density data <https://zenodo.org/records/3857210>. For the
+above and other invertebrates, we have the Maliau Quantitative Inventory
+<https://zenodo.org/records/5562260>.
 
 TODO: contact Ollie Wearn and Phil Chapman.
 
-### 2.6 Nutrient-return flux contributions from animals
+### 2.2 Nutrient-return flux contributions from animals
 
 *Derivation:* Excrement and carcass proxies from consumed stoichiometry,
 assimilation efficiency assumptions, and mortality estimates.
@@ -61,11 +62,11 @@ waste fluxes against empirical nutrient-return studies and litterfall or
 carcass-decomposition datasets.
 
 *Datasets needed:* Excretion datasets, carcass decomposition studies,
-nutrient-return studies, and herbivory waste measurements. Sui has carcass decomposition
-data from Danum and oil palm plantations - can be used only if appropriate and we
-found solution for spatial mismatch.
+nutrient-return studies, and herbivory waste measurements. Sui has carcass
+decomposition data from Danum and oil palm plantations and can be used only if
+appropriate and if we find a solution for the spatial mismatch.
 
-### 2.7 Aggregated consumption partitions
+### 2.3 Aggregated consumption partitions
 
 *Derivation:* Aggregate trophic interaction records and consumption partitions to
 habitat-, guild-, or functional-group-level rates and proportions, then compare
@@ -80,8 +81,8 @@ litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp,
 total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp,
 mass_carbon, mass_nitrogen, and mass_phosphorus.
 
-*Validation approach:* Compare derived functional group level consumption
-sums, assimilation energetics against published datasets. For the Malhi
+*Validation approach:* Compare derived functional-group-level consumption
+sums and assimilation energetics against published datasets. For the Malhi
 supplementary tables, use AnimalGroup_Habitat as the habitat key when matching
 food-group energetics, because the ForestType labels in
 MOESM7_ESM__Energetics_byFoodGroup.csv are internally inconsistent for logged
@@ -93,7 +94,7 @@ datasets, animal energy-budget studies, stoichiometric balance datasets. For exa
 1) Malhi supplementary habitat-, guild-, and food-group energetics tables.
 2) Josh Twinning thesis on energy flows in beetles. Email for raw data.
 
-### 2.8 Coupled plant-animal productivity linkage
+### 2.4 Coupled plant-animal productivity linkage
 
 *Derivation:* Animal intake and biomass response versus plant productivity,
 plant allocation, and plant-supported intake ratios.
@@ -105,7 +106,7 @@ canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed,
 subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group,
 occupancy_proportion, territory_size.
 
-*Validation approach:* Compare modelled site animal intake from section 2.7 as a
+*Validation approach:* Compare modelled site animal intake from section 2.3 as a
 fraction of plant productivity (NPP) against observed energetic intake as %NPP from
 the Malhi NPP by plot tables. Plant ammonium, nitrate, and phosphorus uptake are
 already exported as areal daily uptake rates, so no rooting-depth conversion is
@@ -113,9 +114,9 @@ required.
 
 *Datasets needed:* Plant productivity datasets, herbivory impact datasets,
 coupled plant-animal interaction studies. Malhi supplementary has NPP kJm^-2 day^-1
-(5 safe plots, 2 maliau plots, 1 oil palm) and habitat energetics tables.
+(5 SAFE plots, 2 Maliau plots, 1 oil palm plot) and habitat energetics tables.
 
-### 2.9 Space-use and territory-use realism
+### 2.5 Space-use and territory-use realism
 
 *Derivation:* Build occupancy-weighted territory and location-use summaries by
 cohort and functional group through time.
@@ -128,14 +129,14 @@ persistence, and movement signatures against telemetry, home-range, and
 territory-use datasets for comparable taxa and body-size classes.
 
 *Datasets needed:* Home-range studies, telemetry datasets, territory-size
-summaries, and movement ecology datasets. Wearn et al. (2022) estimated
-home-range from camera trap, Brasington 2019 thesis estimated small mammal
-home ranges from live mammal traps. Estimates from both literature
-are species level and site-level.
+summaries, and movement ecology datasets. Wearn et al. (2022) estimated home
+ranges from camera-trap data, and the Brasington (2019) thesis estimated
+small-mammal home ranges from live-mammal trapping. Estimates from both sources
+are at species and site level.
 
 ## 3. Global validation relationships (Madingley emergent pattern checks)
 
-These all are much lower priority than site specific validation. Targets in this
+These are all much lower priority than site-specific validation. Targets in this
 section are global and not specific to any site. Bracketed numbers in this section
 refer to the numbered source references used by Harfoot et al. (2014) to support
 each comparison dataset.
@@ -214,12 +215,13 @@ territory_size.
 *Reference anchor:* Harfoot et al. (2014), Figures 4B, 4D, and S5.
 
 *Validation approach:* Compare density-body-mass slopes and biomass density of
-whole community (instead of large herbivore) against observed community assemblages.
+the whole community (instead of only large herbivores) against observed
+community assemblages.
 
-*Datasets needed:* Biomass and abundance estimates, and
-terrestrial assemblage abundance-density datasets. Malhi et al. (2022) provides
-biomass of plants and animals (vertebrates) to reconstruct, additionally we add
-invertebrate biomass data from section 2.1.
+*Datasets needed:* Biomass and abundance estimates, and terrestrial assemblage
+abundance-density datasets. Malhi et al. (2022) provides biomass for plants and
+vertebrate animals for reconstruction; additionally, we add invertebrate biomass
+data from section 2.1.
 
 ### 3.6 Biomass pyramids and herbivore:producer ratios
 
@@ -244,14 +246,14 @@ and plant biomass from Malhi et al. (2022).
 | Target ID | Scope | Target | Category | Variables used | Output source | Validation approach | Datasets needed | Reference |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2.1 | Site-specific | Population and biomass density structure by functional group | Emergent | individuals, functional_group, occupancy_proportion, territory_size, mass_carbon, mass_nitrogen, mass_phosphorus, is_mature | animal_cohort_data.csv | Derive post-spin-up density and biomass density by functional group and compare against empirical density ranges, stratified by body-mass and diet class where available | Site-level abundance or density datasets, biomass density datasets, mammal-trap and camera-trap studies | Chapman et al. (2018), Wearn et al. (2016), Wearn et al. (2017), Wearn et al. (2022), Maliau Quantitative Inventory, Sri Rao and Sarah Luke |
-| 2.6 | Site-specific | Nutrient-return flux contributions from animals | Emergent | decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals | output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv | Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets | Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements | Sui dataset of carcass decomposition |
-| 2.7 | Site-specific | Aggregated consumption partitions | Emergent | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus | animal_trophic_interactions.csv, output.zarr | Compare derived functional-group-level consumption sums and assimilation energetics against published intake-partitioning and energy-budget studies; use AnimalGroup_Habitat when matching Malhi food-group tables | Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables | Malhi et al. (2022) and Josh Twinning's thesis |
-| 2.8 | Site-specific | Plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare plot-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates | Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables | Malhi et al. (2022) |
-| 2.9 | Site-specific | Space-use and territory-use realism | Emergent | occupancy_proportion, territory_size, centroid_key, territory, location_status, individuals, functional_group, time_index | animal_cohort_data.csv | Compare occupancy and territory-use distributions, persistence, and movement signatures against home-range and telemetry evidence | Home-range studies, telemetry datasets, territory-use summaries, movement ecology datasets, species- and site-level estimates from camera traps and live trapping | Wearn et al. (2013), Wearn et al. (2022), Brasington (2019) |
-| 3.1 | Global | Growth rate versus body mass | Emergent | cohort_id, time_index, age, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved | animal_cohort_data.csv | Compare emergent growth-rate scaling with terrestrial vertebrate and invertebrate growth datasets | Growth datasets for reptiles, mammals, birds, and terrestrial invertebrates; length-mass conversions where needed | Case (1978), Ricklefs (1968, 1973), Harfoot et al. (2014) |
-| 3.2 | Global | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, is_mature | animal_cohort_data.csv | Compare modelled age at maturity against compiled maturation datasets | Maturation and life-history datasets for invertebrates, reptiles, mammals, and birds; length-mass conversions where needed | Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Blakley and Goodner (1978), Harfoot et al. (2014) |
-| 3.3 | Global | Mortality versus body mass | Emergent | cohort_id, time_index, is_alive, individuals | animal_cohort_data.csv | Compare mortality scaling with natural mortality datasets | Natural mortality datasets for invertebrates, mammals, and birds | Harfoot et al. (2014) |
-| 3.4 | Global | Lifetime reproductive success versus body mass | Emergent | cohort_id, time_index, is_mature, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare reproductive success scaling with mammal, bird, and insect datasets | Mammal, bird, and insect reproductive success datasets | Jones et al. (2009), Clutton-Brock (1988), Fedigan et al. (1986), Holland and Yalden (1994), Krüger and Lindström (2001), Merila and Sheldon (2000), Newton (1989), Oring et al. (1991), Schubert et al. (2007), Harfoot et al. (2014) |
+| 2.2 | Site-specific | Nutrient-return flux contributions from animals | Emergent | decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals | output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv | Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets | Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements | Sui dataset of carcass decomposition |
+| 2.3 | Site-specific | Aggregated consumption partitions | Emergent | resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus | animal_trophic_interactions.csv, output.zarr | Compare derived functional-group-level consumption sums and assimilation energetics against published intake-partitioning and energy-budget studies; use AnimalGroup_Habitat when matching Malhi food-group tables | Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables | Malhi et al. (2022) and Josh Twinning's thesis |
+| 2.4 | Site-specific | Coupled plant-animal productivity linkage | Emergent | canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | output.zarr, animal_cohort_data.csv | Compare plot-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates | Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables | Malhi et al. (2022) |
+| 2.5 | Site-specific | Space-use and territory-use realism | Emergent | occupancy_proportion, territory_size, centroid_key, territory, location_status, individuals, functional_group, time_index | animal_cohort_data.csv | Compare occupancy and territory-use distributions, persistence, and movement signatures against home-range and telemetry evidence | Home-range studies, telemetry datasets, territory-use summaries, movement ecology datasets, species- and site-level estimates from camera traps and live trapping | Wearn et al. (2013), Wearn et al. (2022), Brasington (2019) |
+| 3.1 | Global | Body mass versus growth rate | Emergent | cohort_id, time_index, age, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved | animal_cohort_data.csv | Compare emergent growth-rate scaling with terrestrial vertebrate and invertebrate growth datasets | Growth datasets for reptiles, mammals, birds, and terrestrial invertebrates; length-mass conversions where needed | Case (1978), Ricklefs (1968, 1973), Harfoot et al. (2014) |
+| 3.2 | Global | Body mass versus time to maturity | Emergent | time_to_maturity, largest_mass_achieved, is_mature | animal_cohort_data.csv | Compare modelled age at maturity against compiled maturation datasets | Maturation and life-history datasets for invertebrates, reptiles, mammals, and birds; length-mass conversions where needed | Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Blakley and Goodner (1978), Harfoot et al. (2014) |
+| 3.3 | Global | Body mass versus mortality rate | Emergent | cohort_id, time_index, is_alive, individuals | animal_cohort_data.csv | Compare mortality scaling with natural mortality datasets | Natural mortality datasets for invertebrates, mammals, and birds | Harfoot et al. (2014) |
+| 3.4 | Global | Body mass versus lifetime reproductive success | Emergent | cohort_id, time_index, is_mature, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare reproductive success scaling with mammal, bird, and insect datasets | Mammal, bird, and insect reproductive success datasets | Jones et al. (2009), Clutton-Brock (1988), Fedigan et al. (1986), Holland and Yalden (1994), Krüger and Lindström (2001), Merila and Sheldon (2000), Newton (1989), Oring et al. (1991), Schubert et al. (2007), Harfoot et al. (2014) |
 | 3.5 | Global | Biomass density and abundance-density scaling | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare density-body-mass slopes and biomass density of whole community (instead of large herbivore) against observed community assemblages | Biomass and abundance estimates and terrestrial assemblage abundance-density datasets; Malhi et al. (2022) biomass of plants and vertebrate animals, plus invertebrate biomass from section 2.1 | Malhi et al. (2022), Harfoot et al. (2014) |
 | 3.6 | Global | Biomass pyramids and herbivore:producer ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus, individuals, functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare terrestrial biomass pyramids and herbivore-to-producer biomass ratios against geographically located terrestrial ecosystem summaries | Aggregated animal biomass data from section 3.5 and plant biomass from Malhi et al. (2022) | Malhi et al. (2022), Harfoot et al. (2014) |
 
@@ -288,7 +290,7 @@ Build a target registry with one row per target including:
 Units below are taken from model metadata in data_variables.toml and the
 cohort/trophic exporter schema. Where run-level Zarr attrs differ from the registry
 unit, treat the run-level attrs as the value used in analysis and record the override
-in the target registry notes
+in the target registry notes.
 
 <!-- markdownlint-disable MD013 -->
 
@@ -345,7 +347,7 @@ $$
 N^{eff}_{i,t} = N_{i,t} \cdot w_{i,t}
 $$
 
-Functional-group density (for 2.1a, 3.5):
+Functional-group density (for 2.1, 3.5):
 
 $$
 D_{g,c,t} = \frac{\sum_{i \in (g,c)} N^{eff}_{i,t}}{A_c}
@@ -374,8 +376,7 @@ $$
 g^e_{i,t} = \frac{m^e_{i,t+1} - m^e_{i,t}}{m^e_{i,t} \cdot \Delta t}
 $$
 
-Trophic intake aggregation from interaction records (for 2.7, 2.8, and the intake
-term used in 2.5a):
+Trophic intake aggregation from interaction records (for 2.3 and 2.4):
 
 $$
 I^e_{c,t} = \sum_{k \in (c,t)} e_k
@@ -387,7 +388,7 @@ $$
 \dot{I}^e_{c,t} = \frac{I^e_{c,t}}{\Delta t}
 $$
 
-Soil consumption volumetric-to-areal conversion (for 2.6, 2.7):
+Soil consumption volumetric-to-areal conversion (for 2.2, 2.3):
 
 $$
 F^{e,areal}_{c,t} = F^{e,vol}_{c,t} \cdot z_{soil}
@@ -395,7 +396,7 @@ $$
 
 with $z_{soil}$ as the active soil depth in metres.
 
-Plant-supported intake ratio for plant-animal productivity linkage (for 2.8):
+Plant-supported intake ratio for plant-animal productivity linkage (for 2.4):
 
 $$
 Q_p = \frac{I^{plant}_p}{NPP_p}
@@ -407,7 +408,7 @@ Malhi plot-level NPP data. Plant ammonium, nitrate, and phosphorus uptake are
 already exported as areal daily rates, so no rooting-depth conversion is required
 for this comparison.
 
-Occupancy-weighted territory size and resident persistence (for 2.9):
+Occupancy-weighted territory size and resident persistence (for 2.5):
 
 $$
 \bar{T}_{g,c,t} = \frac{\sum_{i \in (g,c)}
@@ -420,7 +421,7 @@ P^{res}_{g,c,t} = \frac{\sum_{i \in (g,c)}
 \mathbf{1}(location\_status_{i,t}=\mathrm{resident})}{n_{g,c,t}}
 $$
 
-Nutrient return flux to soil (for 2.6):
+Nutrient return flux to soil (for 2.2):
 
 $$
 NR^e_{c,t} = decomposed\_excrement\_cnp^e_{c,t}
@@ -467,13 +468,15 @@ carbon mass per individual in group $g$.
 3. All calculations in this plan are post-processing targets and should be
   implemented without changing ecological process code unless a required output is
   unavailable.
-4. Defer validation of reproduction, survival and mortality rates as we do not have
-detailed demographic models at the moment. Maybe possible with advanced statistical
-models such as the Cormack-Jolly-Seber (CJS) model.
-5. Defer validation of activity-window and respiration as there is no data, and they
-can be circular.
-TODO: confirm whether we would use camera trap data to be used for diel activity estimate
-in functional group parameter.
-6. Global relationships: No significant productivity gradient among SAFE/Maliau, if we do Silwood,
-we can consider this
-7. Global relationships: global biomass patterns can be easily overwritten by local dynamics.
+4. Defer validation of reproduction, survival and mortality rates as we do not
+have detailed demographic models at the moment. This may be possible with
+advanced statistical models such as the Cormack-Jolly-Seber (CJS) model.
+5. Defer validation of activity-window and respiration as there are no data and
+these checks can be circular.
+TODO: confirm whether camera-trap data should be used for diel activity
+estimates in functional-group parameters.
+6. Defer this global relationship check: there is no significant productivity
+gradient between SAFE and Maliau. If we include Silwood, we can consider
+reopening it.
+7. Reject global biomass-pattern checks because they can be easily overwritten
+by local dynamics.
