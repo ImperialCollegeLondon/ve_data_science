@@ -79,19 +79,19 @@ litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp,
 total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp,
 mass_carbon, mass_nitrogen, and mass_phosphorus.
 
-*Validation approach:* Compare derived habitat- or guild-level consumption
+*Validation approach:* Compare derived functional group level consumption
 partitions, total intake, and assimilation-flow consistency against published
 intake partitioning studies and animal energetics datasets. For the Malhi
 supplementary tables, use AnimalGroup_Habitat as the habitat key when matching
 food-group energetics, because the ForestType labels in
 MOESM7_ESM__Energetics_byFoodGroup.csv are internally inconsistent for logged
-versus old-growth forest rows. Treat this target as emergent because it depends
-on post-processing, aggregation, and comparison of derived rates rather than
-direct exported records.
+versus old-growth forest rows.
 
 *Datasets needed:* Resource-specific intake studies, assimilation efficiency
-datasets, animal energy-budget studies, stoichiometric balance datasets, and
-Malhi supplementary habitat-, guild-, and food-group energetics tables.
+datasets, animal energy-budget studies, stoichiometric balance datasets. For example,
+
+1) Malhi supplementary habitat-, guild-, and food-group energetics tables.
+2) Josh Twinning thesis on energy flows in beetles. Email for raw data.
 
 ### 2.8 Coupled plant-animal productivity linkage
 
@@ -108,7 +108,7 @@ occupancy_proportion, territory_size.
 *Validation approach:* Compare modelled habitat-level animal intake as a
 fraction of plant productivity against observed energetic intake as %NPP from
 the Malhi habitat tables. Then test whether between-habitat shifts in intake
-composition follow observed habitat differences in plant allocation. Plant
+composition follow observed site-level differences in plant allocation. Plant
 ammonium, nitrate, and phosphorus uptake are already exported as areal daily
 uptake rates, so no rooting-depth conversion is required.
 
