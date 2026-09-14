@@ -466,3 +466,6 @@ models such as the Cormack-Jolly-Seber (CJS) model.
 can be circular.
 TODO: confirm whether we would use camera trap data to be used for diel activity estimate
 in functional group parameter.
+6. Global relationships: No significant productivity gradient among SAFE/Maliau, if we do Silwood,
+we can consider this
+7. Global relationships: global biomass patterns can be easily overwritten by local dynamics.
