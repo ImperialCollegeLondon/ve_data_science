@@ -235,42 +235,6 @@ ecosystem summaries.
 structure dataset [73], plus the terrestrial benchmark summaries used for Table
 S5 [80].
 
-### 3.7 Trophic structure along productivity gradients
-
-*Relationship type:* Macroecological gradient pattern.
-
-*Inputs:* mass_carbon, individuals, functional_group, occupancy_proportion,
-territory_size, canopy_foliage_cnp, subcanopy_vegetation_biomass,
-plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake.
-
-*Reference anchor:* Harfoot et al. (2014), Figure 6 and Figure S6.
-
-*Validation approach:* Compare modelled changes in trophic structure along
-terrestrials productivity gradients against empirical terrestrial community
-trophic-structure datasets.
-
-*Datasets needed:* Productivity-gradient datasets from terrestrial forest,
-woodland, and grassland communities, together with observed NPP as the basal
-resource proxy [97].
-
-### 3.8 Global biomass patterns and latitudinal structure
-
-*Relationship type:* Macroecological global pattern.
-
-*Inputs:* x, y, mass_carbon, individuals, functional_group,
-occupancy_proportion, territory_size, canopy_foliage_cnp,
-subcanopy_vegetation_biomass.
-
-*Reference anchor:* Harfoot et al. (2014), Figures 7 and S7, plus Table 8.
-
-*Validation approach:* Compare global heterotroph biomass density,
-herbivore:autotroph ratios, and latitudinal variation in biomass density against
-broad empirical and prior-model estimates.
-
-*Datasets needed:* Global terrestrial trophic-structure summaries from Cebrian
-et al. [73], global terrestrial NPP data [97], and prior terrestrial biomass
-estimates from terrestrial macroecological compilations.
-
 ## 4. Target summary table
 
 <!-- markdownlint-disable MD013 -->
@@ -288,8 +252,6 @@ estimates from terrestrial macroecological compilations.
 | 3.4 | Global | Lifetime reproductive success versus body mass | Emergent | cohort_id, time_index, is_mature, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare reproductive success scaling with mammal, bird, and insect datasets | Mammal, bird, and insect reproductive success datasets | Jones et al. (2009), Clutton-Brock (1988), Fedigan et al. (1986), Holland and Yalden (1994), Krüger and Lindström (2001), Merila and Sheldon (2000), Newton (1989), Oring et al. (1991), Schubert et al. (2007), Harfoot et al. (2014) |
 | 3.5 | Global | Biomass density and abundance-density scaling | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare community biomass and density scaling with terrestrial herbivore assemblage datasets | Biomass and abundance estimates for large African herbivores in Uganda; terrestrial herbivore-to-producer biomass summaries; terrestrial assemblage abundance-density datasets | Coe (1976), Harfoot et al. (2014) |
 | 3.6 | Global | Biomass pyramids and herbivore:producer ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus, individuals, functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare terrestrial trophic pyramids and herbivore:producer ratios with cross-site terrestrial ecosystem summaries | Terrestrial subsets of the global ecosystem structure dataset from Cebrian et al. plus terrestrial benchmark summaries | Cebrian et al. (2009), Begon et al. (2006), Harfoot et al. (2014) |
-| 3.7 | Global | Trophic structure along productivity gradients | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size, canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake | output.zarr, animal_cohort_data.csv | Compare gradient patterns with terrestrial community datasets along terrestrial productivity gradients | Productivity-gradient datasets from terrestrial forest, woodland, and grassland communities; observed terrestrial productivity proxies | Field (1998), Chase (2003), Harfoot et al. (2014) |
-| 3.8 | Global | Global biomass patterns and latitudinal structure | Emergent | x, y, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare terrestrial biomass and latitudinal structure with empirical and prior-model estimates | Global terrestrial trophic-structure summaries, terrestrial productivity proxies, prior terrestrial biomass estimates | Cebrian et al. (2009), Field (1998), Harfoot et al. (2014) |
 
 <!-- markdownlint-disable MD013 -->
 
