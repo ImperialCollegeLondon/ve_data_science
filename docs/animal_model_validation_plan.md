@@ -62,8 +62,8 @@ carcass-decomposition datasets.
 
 *Datasets needed:* Excretion datasets, carcass decomposition studies,
 nutrient-return studies, and herbivory waste measurements. Sui has carcass decomposition
-data from Danum and oil palm plantations - can be used only if appropriate and we found
-solution for spatial mismatch.
+data from Danum and oil palm plantations - can be used only if appropriate and we
+found solution for spatial mismatch.
 
 ### 2.7 Aggregated consumption partitions
 
@@ -107,8 +107,9 @@ occupancy_proportion, territory_size.
 
 *Validation approach:* Compare modelled site animal intake from section 2.7 as a
 fraction of plant productivity (NPP) against observed energetic intake as %NPP from
-the Malhi NPP by plot tables. Plant ammonium, nitrate, and phosphorus uptake are already
-exported as areal daily uptake rates, so no rooting-depth conversion is required.
+the Malhi NPP by plot tables. Plant ammonium, nitrate, and phosphorus uptake are
+already exported as areal daily uptake rates, so no rooting-depth conversion is
+required.
 
 *Datasets needed:* Plant productivity datasets, herbivory impact datasets,
 coupled plant-animal interaction studies. Malhi supplementary has NPP kJm^-2 day^-1
@@ -134,9 +135,10 @@ are species level and site-level.
 
 ## 3. Global validation relationships (Madingley emergent pattern checks)
 
-Bracketed numbers in this section refer to the numbered source references used
-by Harfoot et al. (2014) to support each comparison dataset. Targets in this
-section are global and not specific to any site.
+These all are much lower priority than site specific validation. Targets in this
+section are global and not specific to any site. Bracketed numbers in this section
+refer to the numbered source references used by Harfoot et al. (2014) to support
+each comparison dataset.
 
 ### 3.1 Body mass versus growth rate
 
@@ -212,11 +214,12 @@ territory_size.
 *Reference anchor:* Harfoot et al. (2014), Figures 4B, 4D, and S5.
 
 *Validation approach:* Compare density-body-mass slopes and biomass density of
-large herbivores against observed community assemblages.
+whole community (instead of large herbivore) against observed community assemblages.
 
-*Datasets needed:* Biomass and abundance estimates for large African herbivores
-in Uganda [72], terrestrial herbivore-to-producer biomass summaries [73], and
-terrestrial assemblage abundance-density datasets.
+*Datasets needed:* Biomass and abundance estimates, and
+terrestrial assemblage abundance-density datasets. Malhi et al. (2022) provides
+biomass of plants and animals (vertebrates) to reconstruct, additionally we add
+invertebrate biomass data from section 2.1.
 
 ### 3.6 Biomass pyramids and herbivore:producer ratios
 
@@ -231,9 +234,8 @@ functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass.
 herbivore-to-producer biomass ratios against geographically located terrestrial
 ecosystem summaries.
 
-*Datasets needed:* Terrestrial subsets of the Cebrian et al. global ecosystem
-structure dataset [73], plus the terrestrial benchmark summaries used for Table
-S5 [80].
+*Datasets needed:* Aggregated animal biomass data from section 3.5
+and plant biomass from Malhi et al. (2022).
 
 ## 4. Target summary table
 
@@ -250,8 +252,8 @@ S5 [80].
 | 3.2 | Global | Time to maturity versus body mass | Emergent | time_to_maturity, largest_mass_achieved, is_mature | animal_cohort_data.csv | Compare modelled age at maturity against compiled maturation datasets | Maturation and life-history datasets for invertebrates, reptiles, mammals, and birds; length-mass conversions where needed | Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Blakley and Goodner (1978), Harfoot et al. (2014) |
 | 3.3 | Global | Mortality versus body mass | Emergent | cohort_id, time_index, is_alive, individuals | animal_cohort_data.csv | Compare mortality scaling with natural mortality datasets | Natural mortality datasets for invertebrates, mammals, and birds | Harfoot et al. (2014) |
 | 3.4 | Global | Lifetime reproductive success versus body mass | Emergent | cohort_id, time_index, is_mature, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | Compare reproductive success scaling with mammal, bird, and insect datasets | Mammal, bird, and insect reproductive success datasets | Jones et al. (2009), Clutton-Brock (1988), Fedigan et al. (1986), Holland and Yalden (1994), Krüger and Lindström (2001), Merila and Sheldon (2000), Newton (1989), Oring et al. (1991), Schubert et al. (2007), Harfoot et al. (2014) |
-| 3.5 | Global | Biomass density and abundance-density scaling | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare community biomass and density scaling with terrestrial herbivore assemblage datasets | Biomass and abundance estimates for large African herbivores in Uganda; terrestrial herbivore-to-producer biomass summaries; terrestrial assemblage abundance-density datasets | Coe (1976), Harfoot et al. (2014) |
-| 3.6 | Global | Biomass pyramids and herbivore:producer ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus, individuals, functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare terrestrial trophic pyramids and herbivore:producer ratios with cross-site terrestrial ecosystem summaries | Terrestrial subsets of the global ecosystem structure dataset from Cebrian et al. plus terrestrial benchmark summaries | Cebrian et al. (2009), Begon et al. (2006), Harfoot et al. (2014) |
+| 3.5 | Global | Biomass density and abundance-density scaling | Emergent | mass_carbon, individuals, functional_group, occupancy_proportion, territory_size | animal_cohort_data.csv | Compare density-body-mass slopes and biomass density of whole community (instead of large herbivore) against observed community assemblages | Biomass and abundance estimates and terrestrial assemblage abundance-density datasets; Malhi et al. (2022) biomass of plants and vertebrate animals, plus invertebrate biomass from section 2.1 | Malhi et al. (2022), Harfoot et al. (2014) |
+| 3.6 | Global | Biomass pyramids and herbivore:producer ratios | Emergent | mass_carbon, mass_nitrogen, mass_phosphorus, individuals, functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass | output.zarr, animal_cohort_data.csv | Compare terrestrial biomass pyramids and herbivore-to-producer biomass ratios against geographically located terrestrial ecosystem summaries | Aggregated animal biomass data from section 3.5 and plant biomass from Malhi et al. (2022) | Malhi et al. (2022), Harfoot et al. (2014) |
 
 <!-- markdownlint-disable MD013 -->
 
@@ -440,11 +442,17 @@ $$
 R_{H:P,c,t} = \frac{B^{C}_{H,c,t}}{B^{C}_{P,c,t}}
 $$
 
+For 3.6, use animal biomass aggregates derived in 3.5 and pair them with plant
+biomass aligned to Malhi et al. (2022).
+
 Allometric density scaling regression (for 3.5):
 
 $$
 \log D_{g,c,t} = \alpha + \beta \log \bar{M}_{g,c,t} + \varepsilon
 $$
+
+For 3.5, apply this scaling to whole-community cohorts across functional
+groups, not a large-herbivore-only subset.
 
 where $\bar{M}_{g,c,t}$ can be represented by mean largest_mass_achieved or mean
 carbon mass per individual in group $g$.
