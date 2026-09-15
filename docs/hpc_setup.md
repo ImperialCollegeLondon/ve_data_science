@@ -49,7 +49,7 @@ cd ve_data_science
 
 See [uv setup](uv_setup.md) for instructions about using uv.
 
-A pinned verion of virtula ecosystem is available for running the example:
+A pinned version of Virtual Ecosystem is available for running the example:
 
 ```bash
 uv venv
