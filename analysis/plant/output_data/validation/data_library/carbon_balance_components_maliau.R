@@ -888,7 +888,7 @@ plant_variables <- c(
   "AbovegroundBiomassCarbonStock",
   "SE_AbovegroundBiomassCarbonStock",
   "CoarseRootBiomassCarbonStock",
-  "SE_CoarseRootBiomassCarbonStock",
+  "SE_CoarseRootBiomassCarbonStock"
 )
 
 cleaned_data <- maliau_data[, plant_variables]
