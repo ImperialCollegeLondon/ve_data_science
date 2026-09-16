@@ -46,20 +46,28 @@ class arrayJobSpec:
         self.n_subJobs = len(self.subjob_repeats_map)
 
     def get_subJob(self, array_index: int) -> SubJob:
-        """Get the correct job for a job array index."""
+        """Get the correct job for a PBS array index.
+        
+        Args:
+            array_index: The one-based PBS array index.
 
-        # Get the job index from the job map and return the corresponding job.
+        Returns:
+            The SubJob assigned to the PBS array index.
+        """
+
+        # Get the PBS array index from the map and return the corresponding subJob.
+        # -1 because array_index is 1 based.
         job_index = self.subjob_repeats_map[array_index - 1]
 
-        # Return the corresponding job.
+        # Return the corresponding subJob.
         return self.subJobs[job_index]
 
 
 def load_arrayJob_spec(arrayJob_file: BinaryIO) -> arrayJobSpec:
-    """Load and validate an array job config file.
+    """Load and validate an arrayJob config file.
 
     Args:
-        arrayJob_file: A TOML array job configuration as a binary file.
+        arrayJob_file: A TOML arrayJob configuration as a binary file.
 
     Returns:
         An instance of ``arrayJobSpec`` representing the loaded array job configuration.

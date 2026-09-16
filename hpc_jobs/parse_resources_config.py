@@ -36,6 +36,8 @@ def load_resources_spec(resources_config_file: BinaryIO) -> Resources:
     Args:
         resources_config_file: A path to a TOML resources configuration.
 
+    Returns:
+        ``Resources`` to pass to the qsub command.
     """
 
     resources_spec = tomllib.load(resources_config_file)
