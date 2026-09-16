@@ -594,6 +594,13 @@ get_soil_p_pool_labile_per_mass <- function(zarr_path, config) {
 #' individuals, aggregated to cell-level biomass, and converted to an annual
 #' area-normalised productivity rate between consecutive timesteps.
 #'
+#' The function first separates initial-state rows from regular output rows
+#' using missing `whole_crown_gpp`, then calculates cell-level interval rates.
+#' It returns temporal means and standard deviations for each cell, as well as
+#' spatial means and standard deviations across cells. The standard deviations
+#' describe variability in one deterministic prediction, not total prediction
+#' uncertainty.
+#'
 #' Rows with missing `whole_crown_gpp` are treated as the initial biomass state
 #' immediately before the regular `time_index = 0` output. This initial state
 #' is aggregated separately rather than added to the regular timestep-0
@@ -638,7 +645,7 @@ calculate_ve_realised_tissue_productivity <- function(
   start_date = NULL,
   end_date = NULL
 ) {
-  # These columns identify the cohort biomass, individuals, and the
+  # These columns identify the cohort biomass, individuals, state marker, and
   # timesteps needed to calculate the annual area-normalised change.
   required_columns <- c(
     "cell_id",
@@ -725,6 +732,7 @@ calculate_ve_realised_tissue_productivity <- function(
     )
   }
 
+  # Identify the pre-timestep-0 state and the regular model output rows.
   initial_rows <- is.na(cohort_data$whole_crown_gpp)
   regular_rows <- !initial_rows
   if (!any(initial_rows) || !any(regular_rows)) {
@@ -733,11 +741,12 @@ calculate_ve_realised_tissue_productivity <- function(
     )
   }
 
-  # Tissue biomass is per individual, so multiply by cohort abundance to get
-  # the biomass contributed by each cohort before state aggregation.
+  # Convert per-individual tissue biomass to cohort-level biomass.
   cohort_data$tissue_biomass_kg <-
     cohort_data$tissue_biomass * cohort_data$n_individuals
 
+  # Aggregate the initial state separately so it is not double-counted with
+  # the regular time_index-0 cohorts.
   initial_biomass <- aggregate(
     tissue_biomass_kg ~ cell_id,
     data = cohort_data[initial_rows, , drop = FALSE],
@@ -746,7 +755,7 @@ calculate_ve_realised_tissue_productivity <- function(
   )
   names(initial_biomass)[2] <- "initial_tissue_biomass_kg"
 
-  # Regular rows are the model states used for all subsequent intervals.
+  # Aggregate regular cohorts to cell-level model states.
   cell_tissue_biomass <- aggregate(
     tissue_biomass_kg ~ cell_id + time + time_index,
     data = cohort_data[regular_rows, , drop = FALSE],
@@ -754,8 +763,8 @@ calculate_ve_realised_tissue_productivity <- function(
     na.rm = TRUE
   )
 
-  # Calculate each cell's signed change. The first regular state uses the
-  # separately aggregated initial state; later states use regular lags.
+  # Calculate signed interval productivity. The first regular state uses the
+  # separate initial state; later states use the previous regular state.
   cell_data <- split(cell_tissue_biomass, cell_tissue_biomass$cell_id)
   cell_tissue_biomass <- lapply(cell_data, function(cell_data) {
     cell_data <- cell_data[order(cell_data$time), , drop = FALSE]
@@ -800,6 +809,7 @@ calculate_ve_realised_tissue_productivity <- function(
   })
   cell_tissue_biomass <- do.call(rbind, cell_tissue_biomass)
 
+  # Select the requested month range when both boundary months are available.
   selected_period_data <- NULL
   selected_period_label <- "not_requested"
   if (!is.null(start_date)) {
@@ -842,45 +852,63 @@ calculate_ve_realised_tissue_productivity <- function(
     }
   }
 
-  simulation_mean <- aggregate(
-    annual_area_normalised_change ~ cell_id,
-    data = cell_tissue_biomass,
-    FUN = mean,
-    na.rm = TRUE
-  )
-  names(simulation_mean)[2] <- paste0(
-    output_variable,
-    "_simulation_period_mean"
-  )
-  selected_period_mean <- data.frame(
-    cell_id = simulation_mean$cell_id,
-    selected_period_mean = NA_real_
-  )
-  if (!is.null(selected_period_data)) {
-    selected_period_mean <- aggregate(
-      annual_area_normalised_change ~ cell_id,
-      data = selected_period_data,
-      FUN = mean,
-      na.rm = TRUE
-    )
+  # Summarise interval productivity by cell for each temporal scope.
+  summarise_cell_productivity <- function(data, mean_name, sd_name) {
+    if (is.null(data)) {
+      summaries <- data.frame(
+        cell_id = simulation_mean$cell_id,
+        mean_value = NA_real_,
+        sd_value = NA_real_,
+        stringsAsFactors = FALSE
+      )
+      names(summaries)[2:3] <- c(mean_name, sd_name)
+      return(summaries)
+    }
+    summaries <- lapply(split(data, data$cell_id), function(cell_data) {
+      values <- cell_data$annual_area_normalised_change
+      data.frame(
+        cell_id = cell_data$cell_id[1],
+        mean_value = mean(values, na.rm = TRUE),
+        sd_value = if (sum(!is.na(values)) > 1) {
+          stats::sd(values, na.rm = TRUE)
+        } else {
+          NA_real_
+        },
+        stringsAsFactors = FALSE
+      )
+    })
+    summaries <- do.call(rbind, summaries)
+    names(summaries)[2:3] <- c(mean_name, sd_name)
+    summaries
   }
-  names(selected_period_mean)[2] <- paste0(
-    output_variable,
-    "_selected_period_mean"
+
+  simulation_mean <- summarise_cell_productivity(
+    cell_tissue_biomass,
+    paste0(output_variable, "_simulation_period_mean"),
+    paste0(output_variable, "_simulation_period_sd")
+  )
+  selected_period_mean <- summarise_cell_productivity(
+    selected_period_data,
+    paste0(output_variable, "_selected_period_mean"),
+    paste0(output_variable, "_selected_period_sd")
   )
 
+  # Calculate spatial summaries from the per-cell temporal summaries.
   spatial_simulation_mean <- mean(
-    cell_tissue_biomass$annual_area_normalised_change,
+    simulation_mean[[2]],
     na.rm = TRUE
   )
-  spatial_selected_period_mean <- NA_real_
-  if (!is.null(selected_period_data)) {
-    spatial_selected_period_mean <- mean(
-      selected_period_data$annual_area_normalised_change,
-      na.rm = TRUE
-    )
-  }
+  spatial_simulation_sd <- stats::sd(simulation_mean[[2]], na.rm = TRUE)
+  spatial_selected_period_mean <- mean(
+    selected_period_mean[[2]],
+    na.rm = TRUE
+  )
+  spatial_selected_period_sd <- stats::sd(
+    selected_period_mean[[2]],
+    na.rm = TRUE
+  )
 
+  # Keep interval values and all summary columns in the final output.
   interval_data <- cell_tissue_biomass[,
     c("cell_id", "time", "time_index", "annual_area_normalised_change"),
     drop = FALSE
@@ -904,8 +932,12 @@ calculate_ve_realised_tissue_productivity <- function(
   result$selected_period <- selected_period_label
   result[[paste0(output_variable, "_spatial_selected_period_mean")]] <-
     spatial_selected_period_mean
+  result[[paste0(output_variable, "_spatial_selected_period_sd")]] <-
+    spatial_selected_period_sd
   result[[paste0(output_variable, "_spatial_simulation_period_mean")]] <-
     spatial_simulation_mean
+  result[[paste0(output_variable, "_spatial_simulation_period_sd")]] <-
+    spatial_simulation_sd
   result$units <- output_units
   result <- result[,
     c(
@@ -915,9 +947,13 @@ calculate_ve_realised_tissue_productivity <- function(
       output_variable,
       "selected_period",
       paste0(output_variable, "_selected_period_mean"),
+      paste0(output_variable, "_selected_period_sd"),
       paste0(output_variable, "_simulation_period_mean"),
+      paste0(output_variable, "_simulation_period_sd"),
       paste0(output_variable, "_spatial_selected_period_mean"),
+      paste0(output_variable, "_spatial_selected_period_sd"),
       paste0(output_variable, "_spatial_simulation_period_mean"),
+      paste0(output_variable, "_spatial_simulation_period_sd"),
       "units"
     ),
     drop = FALSE

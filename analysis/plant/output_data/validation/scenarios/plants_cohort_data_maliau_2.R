@@ -35,6 +35,9 @@
 #|       Mg C ha^-1 year^-1, including interval values, cell-level means, and
 #|       spatial means across all cells for the selected period and the full
 #|       Maliau 2 simulation.
+#|       Each per-cell mean also has a temporal `sd` field, and each across-cell
+#|       mean has a spatial `sd` field. These describe variability in the
+#|       deterministic prediction and are not total prediction uncertainty.
 #|     period_start: 2011-08-25
 #|     period_end: 2018-07-17
 #|     period_label: 2011-08 to 2018-07
