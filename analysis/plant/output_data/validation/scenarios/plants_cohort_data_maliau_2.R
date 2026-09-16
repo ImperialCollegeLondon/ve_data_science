@@ -35,6 +35,130 @@
 #|       Mg C ha^-1 year^-1, including interval values, cell-level means, and
 #|       spatial means across all cells for the selected period and the full
 #|       Maliau 2 simulation.
+#|     period_start: 2011-08-25
+#|     period_end: 2018-07-17
+#|     period_label: 2011-08 to 2018-07
+#|     variables:
+#|       - name: cell_id
+#|         type: integer
+#|         units: dimensionless
+#|         description: VE spatial cell identifier.
+#|       - name: time
+#|         type: date
+#|         units: ISO 8601 date
+#|         description: Interval-ending simulation date.
+#|       - name: time_index
+#|         type: integer
+#|         units: dimensionless
+#|         description: Interval-ending simulation timestep index.
+#|       - name: selected_period
+#|         type: character
+#|         units: dimensionless
+#|         description: Month-based period used for the selected-period means.
+#|       - name: units
+#|         type: character
+#|         units: dimensionless
+#|         description: Units of the productivity columns.
+#|       - name: stem_c_productivity
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Interval realised stem carbon productivity for each cell.
+#|       - name: stem_c_productivity_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean stem carbon productivity per cell.
+#|       - name: stem_c_productivity_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean stem carbon productivity per cell.
+#|       - name: stem_c_productivity_spatial_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean stem carbon productivity across all cells.
+#|       - name: stem_c_productivity_spatial_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean stem carbon productivity across all cells.
+#|       - name: foliage_c_productivity
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Interval realised foliage carbon productivity for each cell.
+#|       - name: foliage_c_productivity_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean foliage carbon productivity per cell.
+#|       - name: foliage_c_productivity_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean foliage carbon productivity per cell.
+#|       - name: foliage_c_productivity_spatial_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean foliage carbon productivity across all cells.
+#|       - name: foliage_c_productivity_spatial_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean foliage carbon productivity across all cells.
+#|       - name: root_c_productivity
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Interval realised root carbon productivity for each cell.
+#|       - name: root_c_productivity_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean root carbon productivity per cell.
+#|       - name: root_c_productivity_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean root carbon productivity per cell.
+#|       - name: root_c_productivity_spatial_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean root carbon productivity across all cells.
+#|       - name: root_c_productivity_spatial_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean root carbon productivity across all cells.
+#|       - name: fruit_c_productivity
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Interval realised fruit carbon productivity for each cell.
+#|       - name: fruit_c_productivity_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean fruit carbon productivity per cell.
+#|       - name: fruit_c_productivity_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean fruit carbon productivity per cell.
+#|       - name: fruit_c_productivity_spatial_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean fruit carbon productivity across all cells.
+#|       - name: fruit_c_productivity_spatial_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean fruit carbon productivity across all cells.
+#|       - name: seed_c_productivity
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Interval realised seed carbon productivity for each cell.
+#|       - name: seed_c_productivity_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean seed carbon productivity per cell.
+#|       - name: seed_c_productivity_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean seed carbon productivity per cell.
+#|       - name: seed_c_productivity_spatial_selected_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Selected-period mean seed carbon productivity across all cells.
+#|       - name: seed_c_productivity_spatial_simulation_period_mean
+#|         type: numeric
+#|         units: Mg C ha^-1 year^-1
+#|         description: Full-simulation mean seed carbon productivity across all cells.
 #|
 #| package_dependencies: null
 #|
