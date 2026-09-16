@@ -9,7 +9,7 @@
   - Updated fungal_fruiting_bodies to fungal_fruiting_bodies_cnp
 - References:
   - PR #628
-  
+
 2026-09-10
 - Module: Plants
 - Author: Arne Scheire
