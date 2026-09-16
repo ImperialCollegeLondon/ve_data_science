@@ -69,7 +69,7 @@ uv run --group hpc-pined ve_run --install-example .
 Create a TOML job specification that describes the Virtual Ecosystem runs in
 the array. You can produce the job entries with a sampling method such as Morris,
 Sobol, or Latin hypercube sampling. A small example is available in
-`hpc_jobs/arrayJob_config.toml`.
+`hpc_jobs/examaple_hpc_configs/arrayJob_config.toml`.
 
 The specification has four parts:
 
@@ -98,8 +98,8 @@ one child directory per PBS array sub-job. From the repository root, run:
 
 ```bash
 uv run --group hpc-pinned python -m hpc_jobs.submit_ve_array_job \
-    hpc_jobs/arrayJob_config.toml \
-    hpc_jobs/pbs_resources_config.toml \
+    hpc_jobs/examaple_hpc_configs/arrayJob_config.toml \
+    hpc_jobs/examaple_hpc_configs/pbs_resources_config.toml \
     ve_example/<experiment-output>
 ```
 
@@ -115,8 +115,8 @@ their model-level validation:
 
 ```bash
 uv run --group hpc-pinned python -m hpc_jobs.submit_ve_array_job \
-    hpc_jobs/arrayJob_config.toml \
-    hpc_jobs/pbs_resources_config.toml \
+    hpc_jobs/examaple_hpc_configs/arrayJob_config.toml \
+    hpc_jobs/examaple_hpc_configs/pbs_resources_config.toml \
     ve_example/<experiment-output> \
     --skip-ve-validation
 ```
@@ -162,8 +162,8 @@ ve_example/<experiment-output>/
 ## Choose job resources
 
 The PBS resource request is defined in a resource configuration TOML file.
-`hpc_jobs/pbs_resources_config.toml` has a small allocation suitable for the example
-data.
+`hpc_jobs/examaple_hpc_configs/pbs_resources_config.toml` has a small allocation
+suitable for the example data.
 
 Every value applies to each individual array sub-job,
 apart from `max_concurrent_jobs`, which caps how many sub-jobs the scheduler runs at once.
