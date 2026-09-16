@@ -64,7 +64,7 @@ For testing the HPC workflow, install the example data and configuration files:
 uv run --group hpc-pined ve_run --install-example .
 ```
 
-## Create a batch job configuration
+## Create a array job configuration
 
 Create a TOML job specification that describes the Virtual Ecosystem runs in
 the array. You can produce the job entries with a sampling method such as Morris,

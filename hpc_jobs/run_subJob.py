@@ -1,4 +1,4 @@
-"""Python script to run one array job from a batch job array specification."""
+"""Python script to run one subJob from a arrayJob specification."""
 
 import os
 import sys
@@ -9,12 +9,12 @@ from virtual_ecosystem.main import ve_run
 from hpc_jobs.parse_arrayJob_config import load_arrayJob_spec
 
 # Get the command line arguments
-batch_file = Path(sys.argv[1])
+arrayJob_config_file = Path(sys.argv[1])
 pbs_array_index = int(sys.argv[2])
 output_dir = Path(sys.argv[3])
 
-# Load batch job specification
-with batch_file.open("rb") as array_job_file:
+# Load ArrayJob specification
+with arrayJob_config_file.open("rb") as array_job_file:
     arrayJob_spec = load_arrayJob_spec(array_job_file)
 
 # the output however contains MANY files

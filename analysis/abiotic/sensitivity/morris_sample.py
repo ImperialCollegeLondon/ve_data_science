@@ -5,7 +5,7 @@ title: Morris sampling and job configuration generation for sensitivity analysis
 description: |
   This script generates Morris samples for selected Virtual Ecosystem model
   parameters/constants and creates an `arrayJob_config_morris.toml` file for
-  batch model runs.
+  PBS array job runs.
 
   It loads parameter and group definitions from
   `sensitivity_parameters.toml`, builds the Morris problem specification, and
@@ -46,16 +46,16 @@ input_files:
       values, and model settings for the Virtual Ecosystem hydrology module.
       Each sensitivity analysis simulation inherits this configuration, with
       only the selected parameters replaced by the sampled values specified in
-      the generated `arrayJob_config_sobol.toml`.
+      the generated `arrayJob_config_morris.toml`.
 
 output_files:
   - name: arrayJob_config_morris.toml
     path: data/sensitivity/hydrology/config/arrayJob_config_morris.toml
     description: |
-      HPC batch job configuration generated from the Morris
+      HPC arrayJob configuration generated from the Morris
       sampling workflow. Each `[[subJobs]]` entry represents a single Virtual
       Ecosystem simulation with a unique set of sampled parameter values. This
-      file is used as input to the HPC batch submission workflow to execute the
+      file is used as input to the HPC arrayJob submission workflow to execute the
       complete sensitivity analysis experiment.
 
 

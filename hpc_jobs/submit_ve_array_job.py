@@ -140,7 +140,7 @@ JOB_OUTPUT_DIR="$RUN_OUTPUT_DIR/array_subJob_$PBS_ARRAY_INDEX"
 cd "$ROOT_DIRECTORY"
 
 {sys.executable} -m hpc_jobs.run_subJob \
-    "$VE_BATCH" "$PBS_ARRAY_INDEX" "$JOB_OUTPUT_DIR"
+    "$ARRAY_JOB_CONFIG" "$PBS_ARRAY_INDEX" "$JOB_OUTPUT_DIR"
 """
 
     # define the qsub command with resource specifications and environment variables
@@ -156,7 +156,7 @@ cd "$ROOT_DIRECTORY"
         str(output_directory / "array_subJob_^array_index^" / "pbs.log"),
         "-v",
         (
-            f"VE_BATCH={arrayJob_config},"
+            f"ARRAY_JOB_CONFIG={arrayJob_config},"
             f"RUN_OUTPUT_DIR={output_directory},"
             f"ROOT_DIRECTORY={root_directory}"
         ),

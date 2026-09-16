@@ -8,7 +8,7 @@ description: |
 
   Its primary role is to take parameter samples produced by global sensitivity
   analysis methods (such as Sobol or Morris sampling) and translate them into
-  the `job_config.toml` format required by the Virtual Ecosystem batch
+  the `job_config.toml` format required by the Virtual Ecosystem array job
   simulation workflow. Each row of sampled parameter values becomes a distinct
   simulation job definition, ensuring that large-scale sensitivity experiments
   can be executed consistently across HPC environments.
@@ -52,7 +52,7 @@ import tomli_w
 # =============================================================================
 # GENERATE JOB CONFIGURATION
 # =============================================================================
-# Create a `job_config.toml` file from sampled parameter values so that each
+# Create a `arrayJob_config.toml` file from sampled parameter values so that each
 # sample becomes one HPC simulation array job with shared and per-job settings.
 
 
@@ -65,7 +65,7 @@ def generate_arrayJob_config(
     config_paths: list[str | Path] | None = None,
     repeats: int = 1,
 ) -> dict:
-    """Generate a Virtual Ecosystem HPC job configuration file.
+    """Generate a Virtual Ecosystem HPC arrayJob configuration file.
 
     The generated TOML file contains one job definition for every sampled
     parameter set.
