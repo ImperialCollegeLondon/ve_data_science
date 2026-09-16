@@ -586,3 +586,341 @@ get_soil_p_pool_labile_per_mass <- function(zarr_path, config) {
   )
   convert_volume_to_mass_basis(soil_p_pool_labile, config)
 }
+
+
+#' Calculate productivity from VE realised tissue biomass outputs
+#'
+#' A named realised tissue biomass per individual is multiplied by cohort
+#' individuals, aggregated to cell-level biomass, and converted to an annual
+#' area-normalised productivity rate between consecutive timesteps.
+#'
+#' Rows with missing `whole_crown_gpp` are treated as the initial biomass state
+#' immediately before the regular `time_index = 0` output. This initial state
+#' is aggregated separately rather than added to the regular timestep-0
+#' cohorts, so the first returned interval represents the change from the
+#' initial state to regular `time_index = 0`. Its duration is inferred from the
+#' gap between regular timestep 0 and the next regular timestep.
+#'
+#' The function retains the productivity rate for every available cell and
+#' timestep. When a start and end date are supplied, dates are matched by
+#' month and a selected-period mean is calculated for each cell. A separate
+#' mean across the entire simulation is always calculated. If either requested
+#' month is unavailable, the selected-period mean is returned as `NA`.
+#'
+#' @param plants_cohort_data Path to a VE `plants_cohort_data.csv` file or a
+#'   data frame containing the required columns.
+#' @param input_variable Name of the per-individual realised tissue biomass
+#'   column. Values must be in kg C, kg N, or kg P.
+#' @param output_variable Name for the calculated productivity column.
+#' @param cell_area_ha Area represented by each cell in hectares. This must be
+#'   supplied explicitly.
+#' @param start_date Optional start date for calculating a period mean. Dates
+#'   are matched by month.
+#' @param end_date Optional end date for calculating a period mean. Dates are
+#'   matched by month.
+#'
+#' @returns A data frame retaining the interval-level change for each cell and
+#'   time and `time_index`, with selected-period and full-simulation means
+#'   repeated on each cell's rows, plus a `selected_period` label and `units`.
+#'   Spatial means across all cells are also repeated on each row for the
+#'   selected period and the full simulation.
+#'   If either
+#'   requested month is unavailable, the selected-period mean is `NA` and the
+#'   full-simulation mean remains populated.
+#'
+#' @export
+
+calculate_ve_realised_tissue_productivity <- function(
+  plants_cohort_data,
+  input_variable,
+  output_variable,
+  cell_area_ha,
+  start_date = NULL,
+  end_date = NULL
+) {
+  # These columns identify the cohort biomass, individuals, and the
+  # timesteps needed to calculate the annual area-normalised change.
+  required_columns <- c(
+    "cell_id",
+    "time",
+    "time_index",
+    "n_individuals",
+    "whole_crown_gpp",
+    input_variable
+  )
+
+  # Accept either the VE CSV path or data already loaded into a data frame.
+  if (is.character(plants_cohort_data) && length(plants_cohort_data) == 1) {
+    if (!file.exists(plants_cohort_data)) {
+      cli::cli_abort(
+        "Plants cohort data file does not exist: {.path {plants_cohort_data}}"
+      )
+    }
+    plants_cohort_data <- utils::read.csv(
+      plants_cohort_data,
+      stringsAsFactors = FALSE,
+      check.names = FALSE
+    )
+  }
+
+  # Fail early so malformed input does not produce misleading productivity.
+  if (!is.data.frame(plants_cohort_data)) {
+    cli::cli_abort("plants_cohort_data must be a CSV path or data frame.")
+  }
+
+  missing_columns <- setdiff(required_columns, names(plants_cohort_data))
+  if (length(missing_columns) > 0) {
+    cli::cli_abort(
+      "Missing required columns: {.val {missing_columns}}"
+    )
+  }
+
+  if (
+    !is.numeric(cell_area_ha) ||
+      length(cell_area_ha) != 1 ||
+      !is.finite(cell_area_ha) ||
+      cell_area_ha <= 0
+  ) {
+    cli::cli_abort("cell_area_ha must be one positive finite number.")
+  }
+
+  if (xor(is.null(start_date), is.null(end_date))) {
+    cli::cli_abort("start_date and end_date must be supplied together.")
+  }
+
+  if (
+    !is.null(start_date) &&
+      (length(start_date) != 1 ||
+        length(end_date) != 1)
+  ) {
+    cli::cli_abort("start_date and end_date must each contain one date.")
+  }
+
+  tissue_element <- toupper(sub(
+    ".*_([cCpPnN])_biomass$",
+    "\\1",
+    input_variable
+  ))
+  if (!tissue_element %in% c("C", "N", "P")) {
+    cli::cli_abort(
+      "input_variable must identify a C, N, or P biomass column."
+    )
+  }
+  output_units <- paste0("Mg ", tissue_element, " ha-1 year-1")
+
+  # Convert the source columns to the types used by the calculation.
+  cohort_data <- data.frame(
+    cell_id = plants_cohort_data$cell_id,
+    time = as.Date(plants_cohort_data$time),
+    time_index = as.numeric(plants_cohort_data$time_index),
+    n_individuals = as.numeric(plants_cohort_data$n_individuals),
+    whole_crown_gpp = plants_cohort_data$whole_crown_gpp,
+    tissue_biomass = as.numeric(plants_cohort_data[[input_variable]]),
+    stringsAsFactors = FALSE
+  )
+
+  if (anyNA(cohort_data$time)) {
+    cli::cli_abort(
+      "The time column contains values that cannot be parsed as dates."
+    )
+  }
+
+  initial_rows <- is.na(cohort_data$whole_crown_gpp)
+  regular_rows <- !initial_rows
+  if (!any(initial_rows) || !any(regular_rows)) {
+    cli::cli_abort(
+      "whole_crown_gpp must identify both initial and regular output rows."
+    )
+  }
+
+  # Tissue biomass is per individual, so multiply by cohort abundance to get
+  # the biomass contributed by each cohort before state aggregation.
+  cohort_data$tissue_biomass_kg <-
+    cohort_data$tissue_biomass * cohort_data$n_individuals
+
+  initial_biomass <- aggregate(
+    tissue_biomass_kg ~ cell_id,
+    data = cohort_data[initial_rows, , drop = FALSE],
+    FUN = sum,
+    na.rm = TRUE
+  )
+  names(initial_biomass)[2] <- "initial_tissue_biomass_kg"
+
+  # Regular rows are the model states used for all subsequent intervals.
+  cell_tissue_biomass <- aggregate(
+    tissue_biomass_kg ~ cell_id + time + time_index,
+    data = cohort_data[regular_rows, , drop = FALSE],
+    FUN = sum,
+    na.rm = TRUE
+  )
+
+  # Calculate each cell's signed change. The first regular state uses the
+  # separately aggregated initial state; later states use regular lags.
+  cell_data <- split(cell_tissue_biomass, cell_tissue_biomass$cell_id)
+  cell_tissue_biomass <- lapply(cell_data, function(cell_data) {
+    cell_data <- cell_data[order(cell_data$time), , drop = FALSE]
+    initial_value <- initial_biomass[
+      initial_biomass$cell_id == cell_data$cell_id[1],
+      "initial_tissue_biomass_kg"
+    ]
+    if (length(initial_value) != 1) {
+      cli::cli_abort(
+        "Each regular cell must have exactly one initial biomass value."
+      )
+    }
+    timestep_gap <- as.numeric(diff(cell_data$time)[1])
+    if (is.na(timestep_gap) || timestep_gap <= 0) {
+      cli::cli_abort(
+        "At least two regular timesteps are required to infer the initial interval."
+      )
+    }
+    cell_data$previous_time <- c(
+      cell_data$time[1] - timestep_gap,
+      head(cell_data$time, -1)
+    )
+    cell_data$previous_tissue_biomass_kg <- c(
+      initial_value,
+      head(cell_data$tissue_biomass_kg, -1)
+    )
+    cell_data$interval_years <- as.numeric(
+      cell_data$time - cell_data$previous_time
+    ) /
+      365.25
+    cell_data$annual_area_normalised_change <- (cell_data$tissue_biomass_kg -
+      cell_data$previous_tissue_biomass_kg) /
+      cell_data$interval_years /
+      cell_area_ha /
+      1000
+    cell_data[
+      !is.na(cell_data$previous_time) &
+        cell_data$interval_years > 0,
+      ,
+      drop = FALSE
+    ]
+  })
+  cell_tissue_biomass <- do.call(rbind, cell_tissue_biomass)
+
+  selected_period_data <- NULL
+  selected_period_label <- "not_requested"
+  if (!is.null(start_date)) {
+    start_date <- as.Date(start_date)
+    end_date <- as.Date(end_date)
+    if (is.na(start_date) || is.na(end_date) || start_date > end_date) {
+      cli::cli_abort("start_date and end_date must be valid ordered dates.")
+    }
+
+    available_dates <- unique(c(
+      cell_tissue_biomass$previous_time,
+      cell_tissue_biomass$time
+    ))
+    available_months <- format(available_dates, "%Y-%m")
+    start_month <- format(start_date, "%Y-%m")
+    end_month <- format(end_date, "%Y-%m")
+    dates_available <- start_month %in%
+      available_months &&
+      end_month %in% available_months
+
+    if (dates_available) {
+      period_data <- cell_tissue_biomass[
+        format(cell_tissue_biomass$previous_time, "%Y-%m") >= start_month &
+          format(cell_tissue_biomass$time, "%Y-%m") <= end_month,
+        ,
+        drop = FALSE
+      ]
+      if (nrow(period_data) > 0) {
+        selected_period_data <- period_data
+        selected_period_label <- paste(
+          start_month,
+          end_month,
+          sep = " to "
+        )
+      } else {
+        selected_period_label <- "unavailable_period"
+      }
+    } else {
+      selected_period_label <- "unavailable_period"
+    }
+  }
+
+  simulation_mean <- aggregate(
+    annual_area_normalised_change ~ cell_id,
+    data = cell_tissue_biomass,
+    FUN = mean,
+    na.rm = TRUE
+  )
+  names(simulation_mean)[2] <- paste0(
+    output_variable,
+    "_simulation_period_mean"
+  )
+  selected_period_mean <- data.frame(
+    cell_id = simulation_mean$cell_id,
+    selected_period_mean = NA_real_
+  )
+  if (!is.null(selected_period_data)) {
+    selected_period_mean <- aggregate(
+      annual_area_normalised_change ~ cell_id,
+      data = selected_period_data,
+      FUN = mean,
+      na.rm = TRUE
+    )
+  }
+  names(selected_period_mean)[2] <- paste0(
+    output_variable,
+    "_selected_period_mean"
+  )
+
+  spatial_simulation_mean <- mean(
+    cell_tissue_biomass$annual_area_normalised_change,
+    na.rm = TRUE
+  )
+  spatial_selected_period_mean <- NA_real_
+  if (!is.null(selected_period_data)) {
+    spatial_selected_period_mean <- mean(
+      selected_period_data$annual_area_normalised_change,
+      na.rm = TRUE
+    )
+  }
+
+  interval_data <- cell_tissue_biomass[,
+    c("cell_id", "time", "time_index", "annual_area_normalised_change"),
+    drop = FALSE
+  ]
+  names(interval_data)[4] <- output_variable
+
+  result <- merge(
+    interval_data,
+    selected_period_mean,
+    by = "cell_id",
+    all.x = TRUE,
+    sort = FALSE
+  )
+  result <- merge(
+    result,
+    simulation_mean,
+    by = "cell_id",
+    all.x = TRUE,
+    sort = FALSE
+  )
+  result$selected_period <- selected_period_label
+  result[[paste0(output_variable, "_spatial_selected_period_mean")]] <-
+    spatial_selected_period_mean
+  result[[paste0(output_variable, "_spatial_simulation_period_mean")]] <-
+    spatial_simulation_mean
+  result$units <- output_units
+  result <- result[,
+    c(
+      "cell_id",
+      "time",
+      "time_index",
+      output_variable,
+      "selected_period",
+      paste0(output_variable, "_selected_period_mean"),
+      paste0(output_variable, "_simulation_period_mean"),
+      paste0(output_variable, "_spatial_selected_period_mean"),
+      paste0(output_variable, "_spatial_simulation_period_mean"),
+      "units"
+    ),
+    drop = FALSE
+  ]
+  result
+}
