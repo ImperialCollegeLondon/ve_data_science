@@ -41,6 +41,11 @@
 #|       Point-range plot showing observed plot values with observational
 #|       standard errors and the predicted regional mean with spatial SD.
 #|
+#| comparison_observations:
+#|   - observed_variable: WoodyNPP_Stem
+#|     predicted_variable: stem_c_productivity
+#|     observation: Poor fit
+#|
 #| package_dependencies: null
 #|
 #| usage_notes: |
