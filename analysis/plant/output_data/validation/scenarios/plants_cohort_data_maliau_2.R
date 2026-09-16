@@ -28,7 +28,7 @@
 #|       mass per individual, cohort abundance, cell identifiers, and timestamps.
 #|
 #| output_files:
-#|   - name: plants_cohort_data_standardized_maliau_2.csv
+#|   - name: plants_cohort_data_standardised_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/scenarios
 #|     description: |
 #|       Realised stem, foliage, root, fruit, and seed carbon productivity in
