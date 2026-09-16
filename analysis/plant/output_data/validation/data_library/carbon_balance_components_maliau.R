@@ -98,7 +98,7 @@
 #|             date: "2011-2018"
 #|       - name: WoodyNPP_Stem
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Woody stem productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -114,7 +114,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_WoodyNPP_Stem
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of woody stem productivity
 #|         method: |
@@ -130,7 +130,7 @@
 #|             date: "2011-2018"
 #|       - name: WoodyNPP_CoarseRoot
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Coarse root productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -146,7 +146,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_WoodyNPP_CoarseRoot
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of coarse root productivity
 #|         method: |
@@ -162,7 +162,7 @@
 #|             date: "2011-2018"
 #|       - name: WoodyNPP_BranchTurnover
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Branch turnover productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -178,7 +178,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_WoodyNPP_BranchTurnover
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of branch turnover productivity
 #|         method: |
@@ -194,7 +194,7 @@
 #|             date: "2011-2018"
 #|       - name: WoodyNPP_Total
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Total woody net primary producivity
 #|         method: |
@@ -210,7 +210,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_WoodyNPP_Total
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of total woody net primary producivity
 #|         method: |
@@ -226,7 +226,7 @@
 #|             date: "2011-2018"
 #|       - name: CanopyNPP_Leaf
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Leaf productivity (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -242,7 +242,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_CanopyNPP_Leaf
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of leaf productivity
 #|         method: |
@@ -258,7 +258,7 @@
 #|             date: "2011-2018"
 #|       - name: CanopyNPP_Twig
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Twig productivity (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -274,7 +274,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_CanopyNPP_Twig
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of twig productivity
 #|         method: |
@@ -290,7 +290,7 @@
 #|             date: "2011-2018"
 #|       - name: CanopyNPP_Reproductive
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Reproductive productivity, i.e. fruit, seed and flowers (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -306,7 +306,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_CanopyNPP_Reproductive
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of reproductive productivity, i.e. fruit, seed and flowers
 #|         method: |
@@ -322,7 +322,7 @@
 #|             date: "2011-2018"
 #|       - name: CanopyNPP_Miscellaneous
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Unidentified canopy debris (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -338,7 +338,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_CanopyNPP_Miscellaneous
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of unidentified canopy debris
 #|         method: |
@@ -354,7 +354,7 @@
 #|             date: "2011-2018"
 #|       - name: CanopyNPP_Herbivory
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Leaf productivity lost to herbivory (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -370,7 +370,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_CanopyNPP_Herbivory
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of leaf productivity lost to herbivory
 #|         method: |
@@ -386,7 +386,7 @@
 #|             date: "2011-2018"
 #|       - name: CanopyNPP_Total
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Total canopy net primary producivty
 #|         method: |
@@ -402,7 +402,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_CanopyNPP_Total
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of total canopy net primary producivty
 #|         method: |
@@ -418,7 +418,7 @@
 #|             date: "2011-2018"
 #|       - name: FineRootNPP
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Fine root productivity
 #|         method: |
@@ -434,7 +434,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_FineRootNPP
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of fine root productivity
 #|         method: |
@@ -450,7 +450,7 @@
 #|             date: "2011-2018"
 #|       - name: TotalNPP_WithoutMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Total net primary productivity without mycorrhiza
 #|         method: |
@@ -466,7 +466,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_TotalNPP_WithoutMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of total net primary productivity without mycorrhiza
 #|         method: |
@@ -482,7 +482,7 @@
 #|             date: "2011-2018"
 #|       - name: TotalNPP_WithMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Total net primary productivity including mycorrhiza
 #|         method: |
@@ -498,7 +498,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_TotalNPP_WithMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of total net primary productivity including mycorrhiza
 #|         method: |
@@ -514,7 +514,7 @@
 #|             date: "2011-2018"
 #|       - name: GPP_WithoutMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Gross primary productivity without mycorrhiza
 #|         method: |
@@ -530,7 +530,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_GPP_WithoutMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of gross primary productivity without mycorrhiza
 #|         method: |
@@ -546,7 +546,7 @@
 #|             date: "2011-2018"
 #|       - name: GPP_WithMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Gross primary productivity  including mycorrhiza
 #|         method: |
@@ -562,7 +562,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_GPP_WithMycorrhiza
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of gross primary productivity  including mycorrhiza
 #|         method: |
@@ -578,7 +578,7 @@
 #|             date: "2011-2018"
 #|       - name: R_Stem
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Respiration from woody stems
 #|         method: |
@@ -594,7 +594,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_R_Stem
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of respiration from woody stems
 #|         method: |
@@ -610,7 +610,7 @@
 #|             date: "2011-2018"
 #|       - name: R_Leaf
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Leaf Respiration
 #|         method: |
@@ -626,7 +626,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_R_Leaf
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of leaf Respiration
 #|         method: |
@@ -642,7 +642,7 @@
 #|             date: "2011-2018"
 #|       - name: R_FineRoots
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Respiration from fine roots
 #|         method: |
@@ -658,7 +658,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_R_FineRoots
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of respiration from fine roots
 #|         method: |
@@ -674,7 +674,7 @@
 #|             date: "2011-2018"
 #|       - name: R_CoarseRoots
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Respiration from coarse roots
 #|         method: |
@@ -690,7 +690,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_R_CoarseRoots
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of respiration from coarse roots
 #|         method: |
@@ -706,7 +706,7 @@
 #|             date: "2011-2018"
 #|       - name: R_auto
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Total autotrophic respiration
 #|         method: |
@@ -722,7 +722,7 @@
 #|             date: "2011-2018"
 #|       - name: SE_R_auto
 #|         type: numeric
-#|         units: MgCha-1year-1
+#|         units: Mg C ha-1 year-1
 #|         description: |
 #|           Standard error of total autotrophic respiration
 #|         method: |

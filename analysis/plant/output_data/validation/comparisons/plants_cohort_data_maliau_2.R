@@ -46,7 +46,8 @@
 #|     predicted_variable: stem_c_productivity
 #|     observation: Poor fit
 #|
-#| package_dependencies: null
+#| package_dependencies:
+#|   - yaml
 #|
 #| usage_notes: |
 #|   The requested validation period is August 2011 to July 2018. The current
@@ -62,6 +63,7 @@
 validation_file <- "../../../../../data/derived/plant/output_data/validation/data_library/carbon_balance_components_maliau.csv"
 
 model_file <- "../../../../../data/derived/plant/output_data/validation/scenarios/plants_cohort_data_standardised_maliau_2.csv"
+scenarios_metadata_file <- "../../../../../analysis/plant/output_data/validation/metadata/master_validation_scenarios_metadata.yml"
 output_dir <- "../../../../../data/derived/plant/output_data/validation/comparisons"
 figure_dir <- file.path(output_dir, "figures_maliau_2")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -78,16 +80,6 @@ model_data <- utils::read.csv(
   check.names = FALSE
 )
 
-# The period and units should be loaded from the metadata summary instead.
-comparison_period <- "2011-08 to 2018-07"
-expected_units <- "Mg C ha-1 year-1"
-if (!all(model_data$units == expected_units)) {
-  stop("Predicted output units do not match the expected validation units.")
-}
-
-# Define comparison mappings by variable. Each tissue has its own mapping
-# object, so adding a later tissue cannot overwrite an earlier mapping.
-
 # Woody stem productivity -----------------------------------------------
 stem_variable_map <- data.frame(
   validation_variable = "WoodyNPP_Stem",
@@ -98,6 +90,62 @@ stem_variable_map <- data.frame(
   simulation_predicted_sd = "stem_c_productivity_spatial_simulation_period_sd",
   stringsAsFactors = FALSE
 )
+
+# Load the scenarios metadata so the comparison uses the same period and units
+# as the predicted-output processing workflow.
+scenario_metadata <- yaml::read_yaml(scenarios_metadata_file)
+scenario_script <- scenario_metadata$scripts[
+  vapply(
+    scenario_metadata$scripts,
+    function(script) script$title == "plants_cohort_data_maliau_2",
+    logical(1)
+  )
+][[1]]
+if (is.null(scenario_script)) {
+  stop("Scenario metadata does not define plants_cohort_data_maliau_2.")
+}
+scenario_output <- scenario_script$output_files[
+  vapply(
+    scenario_script$output_files,
+    function(output) {
+      output$name == "plants_cohort_data_standardised_maliau_2.csv"
+    },
+    logical(1)
+  )
+][[1]]
+if (is.null(scenario_output)) {
+  stop(
+    "Scenario metadata does not define the Maliau 2 standardised output."
+  )
+}
+comparison_period <- scenario_output$period_label
+period_start <- scenario_output$period_start
+period_end <- scenario_output$period_end
+
+stem_variable_metadata <- scenario_output$variables[
+  vapply(
+    scenario_output$variables,
+    function(variable) {
+      variable$name == stem_variable_map$simulation_predicted_variable
+    },
+    logical(1)
+  )
+][[1]]
+if (is.null(stem_variable_metadata)) {
+  stop(
+    sprintf(
+      "Scenario metadata does not define %s.",
+      stem_variable_map$simulation_predicted_variable
+    )
+  )
+}
+expected_units <- stem_variable_metadata$units
+if (!all(model_data$units == expected_units)) {
+  stop("Predicted output units do not match the expected validation units.")
+}
+
+# Define comparison mappings by variable. Each tissue has its own mapping
+# object, so adding a later tissue cannot overwrite an earlier mapping.
 
 # Foliage carbon productivity ------------------------------------------
 # Add the foliage observed/predicted variable mapping here.
