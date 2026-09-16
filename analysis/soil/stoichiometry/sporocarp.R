@@ -22,10 +22,10 @@
 #|       https://doi.org/10.5061/dryad.1d92k70
 #|
 #| output_files:
-#|   - name: CN_CP_ratio.csv
+#|   - name: sporocarp_CNP.csv
 #|     path: data/derived/soil/fungi_stoichiometry
 #|     description: |
-#|       Estimated C:N and C:P ratio for fungal fruiting body
+#|       Estimated stoichiometry for fungal fruiting body
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -88,6 +88,6 @@ CP_est <- C_est / P_est
 
 # save output
 write_csv(
-  tibble(CN = CN_est, CP = CP_est),
-  "data/derived/soil/fungi_stoichiometry/CN_CP_ratio.csv"
+  tibble(C = C_est, N = N_est, P = P_est, CN = CN_est, CP = CP_est),
+  "data/derived/soil/fungi_stoichiometry/sporocarp_CNP.csv"
 )
