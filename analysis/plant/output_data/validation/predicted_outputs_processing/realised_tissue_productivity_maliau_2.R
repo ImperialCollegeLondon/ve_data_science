@@ -1,5 +1,5 @@
 #| ---
-#| title: plants_cohort_data_maliau_2
+#| title: realised_tissue_productivity_maliau_2
 #|
 #| description: |
 #|   Calculates realised stem, foliage, root, fruit, and seed carbon
@@ -28,8 +28,8 @@
 #|       mass per individual, cohort abundance, cell identifiers, and timestamps.
 #|
 #| output_files:
-#|   - name: plants_cohort_data_standardised_maliau_2.csv
-#|     path: data/derived/plant/output_data/validation/scenarios
+#|   - name: realised_tissue_productivity_maliau_2.csv
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: |
 #|       Realised stem, foliage, root, fruit, and seed carbon productivity in
 #|       Mg C ha-1 year-1, including interval values, cell-level means, and
@@ -181,7 +181,7 @@ source("../../../../../tools/R/R/get_ve_variables.R")
 
 plants_cohort_data <- "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
 
-output_dir <- "../../../../../data/derived/plant/output_data/validation/scenarios"
+output_dir <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing"
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
 standardised_stem_c_productivity <- calculate_ve_realised_tissue_productivity(
@@ -274,7 +274,7 @@ write.csv(
   standardised_data,
   file.path(
     output_dir,
-    "plants_cohort_data_standardised_maliau_2.csv"
+    "realised_tissue_productivity_maliau_2.csv"
   ),
   row.names = FALSE
 )

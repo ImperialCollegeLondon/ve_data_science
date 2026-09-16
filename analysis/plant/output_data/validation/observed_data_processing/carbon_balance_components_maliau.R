@@ -30,7 +30,7 @@
 #|
 #| output_files:
 #|   - name: carbon_balance_components_maliau.csv
-#|     path: data/derived/plant/output_data/validation/data_library
+#|     path: data/derived/plant/output_data/validation/observed_data_processing
 #|     description: |
 #|       Cleaned and filtered carbon balance components for Maliau old-growth
 #|       plots MLA-01 (Belian) and MLA-02 (Seraya), subset to variables
@@ -894,7 +894,7 @@ plant_variables <- c(
 cleaned_data <- maliau_data[, plant_variables]
 
 # Output directory and file path
-output_dir <- "../../../../../data/derived/plant/output_data/validation/data_library"
+output_dir <- "../../../../../data/derived/plant/output_data/validation/observed_data_processing"
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 output_file <- file.path(output_dir, "carbon_balance_components_maliau.csv")
 

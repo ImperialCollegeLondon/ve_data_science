@@ -1,5 +1,5 @@
 #| ---
-#| title: master_validation_data_library
+#| title: master_observed_data_processing
 #|
 #| description: |
 #|     This is the master script for the plant validation data library.
@@ -18,14 +18,14 @@
 #| status: wip
 #|
 #| scripts:
-#|   - path: analysis/plant/output_data/validation/data_library/carbon_balance_components_maliau.R
+#|   - path: analysis/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.R
 #|
 #| output_files:
-#|   - name: master_validation_data_library_metadata.yml
+#|   - name: master_observed_data_processing_metadata.yml
 #|     path: analysis/plant/output_data/validation/metadata
 #|     description: |
 #|       This YAML file contains the combined metadata from all scripts listed
-#|       in master_validation_data_library.R.
+#|       in master_observed_data_processing.R.
 #|
 #| package_dependencies:
 #|   - yaml
@@ -41,7 +41,7 @@
 # Master validation data library script
 # Runs all individual validation data library scripts sequentially.
 # Working directory is assumed to be the location of this script:
-# analysis/plant/output_data/validation/data_library/
+# analysis/plant/output_data/validation/observed_data_processing/
 # ==============================================================================
 
 library(yaml)
@@ -218,15 +218,15 @@ build_metadata_summary <- function(script_paths) {
   })
 
   list(
-    title = "master_validation_data_library_metadata",
-    generated_by = "analysis/plant/output_data/validation/data_library/master_validation_data_library.R",
+    title = "master_observed_data_processing_metadata",
+    generated_by = "analysis/plant/output_data/validation/observed_data_processing/master_observed_data_processing.R",
     generated_on = as.character(Sys.Date()),
     scripts = script_metadata
   )
 }
 
 write_metadata_summary <- function(metadata_summary) {
-  output_path <- "../metadata/master_validation_data_library_metadata.yml"
+  output_path <- "../metadata/master_observed_data_processing_metadata.yml"
   output_dir <- dirname(output_path)
 
   if (!dir.exists(output_dir)) {

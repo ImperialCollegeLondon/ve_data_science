@@ -1,12 +1,12 @@
 #| ---
-#| title: master_validation_comparisons
+#| title: master_predicted_outputs_processing
 #|
 #| description: |
-#|   This is the master script for plant validation comparison workflows. It
-#|   runs comparison scripts sequentially and generates a metadata catalogue
-#|   describing the resulting observed and predicted comparison outputs.
-#|   Validation data preparation and predicted-output processing are managed by
-#|   separate master workflows.
+#|   This is the master script for plant validation scenario output workflows.
+#|   It runs scenario output-processing scripts sequentially and generates a
+#|   metadata catalogue summarising the scripts and their standardised outputs.
+#|   These workflows process Virtual Ecosystem outputs; they do not perform the
+#|   comparison with observational validation datasets.
 #|
 #| virtual_ecosystem_module:
 #|   - Plant
@@ -17,22 +17,24 @@
 #| status: wip
 #|
 #| scripts:
-#|   - path: analysis/plant/output_data/validation/comparisons/plants_cohort_data_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.R
 #|
 #| output_files:
-#|   - name: master_validation_comparisons_metadata.yml
+#|   - name: master_predicted_outputs_processing_metadata.yml
 #|     path: analysis/plant/output_data/validation/metadata
 #|     description: |
-#|       Combined metadata from all validation comparison scripts listed in
-#|       master_validation_comparisons.R.
+#|       This YAML file contains the combined metadata from all scenario output
+#|       processing scripts listed in master_predicted_outputs_processing.R.
 #|
 #| package_dependencies:
 #|   - yaml
 #|
 #| usage_notes: |
-#|   Run this script from its directory to regenerate all validation comparison
-#|   outputs and the comparison metadata catalogue. Add new comparison scripts
-#|   to the scripts vector below as the validation workflow expands.
+#|   Run this script from its directory to regenerate all plant validation
+#|   scenario outputs and the combined metadata catalogue. Add new
+#|   scenario-specific output-processing scripts to the scripts vector below.
+#|   Observational validation datasets remain managed by the separate
+#|   observed_data_processing/master_observed_data_processing.R workflow.
 #| ---
 
 library(yaml)
@@ -63,6 +65,14 @@ print_script_summary <- function(meta, index, total, script_path) {
     "   Description:",
     sprintf("     %s", gsub("\n", "\n     ", trimws(meta$description)))
   )
+
+  if (!is.null(meta$package_dependencies)) {
+    summary_lines <- c(
+      summary_lines,
+      "   Package dependencies:",
+      sprintf("     - %s", meta$package_dependencies)
+    )
+  }
 
   if (!is.null(meta$input_files)) {
     summary_lines <- c(summary_lines, "   Input files:")
@@ -135,15 +145,15 @@ build_metadata_summary <- function(script_paths) {
   })
 
   list(
-    title = "master_validation_comparisons_metadata",
-    generated_by = "analysis/plant/output_data/validation/comparisons/master_validation_comparisons.R",
+    title = "master_predicted_outputs_processing_metadata",
+    generated_by = "analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R",
     generated_on = as.character(Sys.Date()),
     scripts = script_metadata
   )
 }
 
 write_metadata_summary <- function(metadata_summary) {
-  output_path <- "../metadata/master_validation_comparisons_metadata.yml"
+  output_path <- "../metadata/master_predicted_outputs_processing_metadata.yml"
   output_dir <- dirname(output_path)
 
   if (!dir.exists(output_dir)) {
@@ -159,7 +169,7 @@ write_metadata_summary <- function(metadata_summary) {
 }
 
 scripts <- c(
-  "plants_cohort_data_maliau_2.R"
+  "realised_tissue_productivity_maliau_2.R"
 )
 
 n_scripts <- length(scripts)
@@ -175,7 +185,7 @@ message(
   paste(
     c(
       "================================================================================",
-      "All validation comparison scripts completed successfully.",
+      "All validation scenario scripts completed successfully.",
       "================================================================================"
     ),
     collapse = "\n"

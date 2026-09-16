@@ -1,5 +1,5 @@
 #| ---
-#| title: plants_cohort_data_maliau_2
+#| title: realised_tissue_productivity_comparison_maliau_2
 #|
 #| description: |
 #|   Compares standardised Virtual Ecosystem plant productivity predictions for
@@ -17,14 +17,14 @@
 #|
 #| input_files:
 #|   - name: carbon_balance_components_maliau.csv
-#|     path: data/derived/plant/output_data/validation/data_library
+#|     path: data/derived/plant/output_data/validation/observed_data_processing
 #|     description: Cleaned SAFE carbon-balance observations for Maliau plots.
-#|   - name: plants_cohort_data_standardised_maliau_2.csv
-#|     path: data/derived/plant/output_data/validation/scenarios
+#|   - name: realised_tissue_productivity_maliau_2.csv
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: Standardised Maliau 2 plant productivity outputs.
 #|
 #| output_files:
-#|   - name: plant_validation_comparison_maliau_2.csv
+#|   - name: realised_tissue_productivity_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: |
 #|       Merged observed and predicted woody stem productivity values retained
@@ -60,10 +60,10 @@
 #|   remain separate to preserve their spatial variation.
 #| ---
 
-validation_file <- "../../../../../data/derived/plant/output_data/validation/data_library/carbon_balance_components_maliau.csv"
+validation_file <- "../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv"
 
-model_file <- "../../../../../data/derived/plant/output_data/validation/scenarios/plants_cohort_data_standardised_maliau_2.csv"
-scenarios_metadata_file <- "../../../../../analysis/plant/output_data/validation/metadata/master_validation_scenarios_metadata.yml"
+model_file <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv"
+scenarios_metadata_file <- "../../../../../analysis/plant/output_data/validation/metadata/master_predicted_outputs_processing_metadata.yml"
 output_dir <- "../../../../../data/derived/plant/output_data/validation/comparisons"
 figure_dir <- file.path(output_dir, "figures_maliau_2")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -97,18 +97,20 @@ scenario_metadata <- yaml::read_yaml(scenarios_metadata_file)
 scenario_script <- scenario_metadata$scripts[
   vapply(
     scenario_metadata$scripts,
-    function(script) script$title == "plants_cohort_data_maliau_2",
+    function(script) script$title == "realised_tissue_productivity_maliau_2",
     logical(1)
   )
 ][[1]]
 if (is.null(scenario_script)) {
-  stop("Scenario metadata does not define plants_cohort_data_maliau_2.")
+  stop(
+    "Scenario metadata does not define realised_tissue_productivity_maliau_2."
+  )
 }
 scenario_output <- scenario_script$output_files[
   vapply(
     scenario_script$output_files,
     function(output) {
-      output$name == "plants_cohort_data_standardised_maliau_2.csv"
+      output$name == "realised_tissue_productivity_maliau_2.csv"
     },
     logical(1)
   )
@@ -365,6 +367,9 @@ dev.off()
 # Write one merged row per validation plot and mapped variable.
 write.csv(
   comparison_data,
-  file.path(output_dir, "plant_validation_comparison_maliau_2.csv"),
+  file.path(
+    output_dir,
+    "realised_tissue_productivity_comparison_maliau_2.csv"
+  ),
   row.names = FALSE
 )
