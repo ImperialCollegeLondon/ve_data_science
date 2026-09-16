@@ -22,6 +22,10 @@
 #| status: final
 #|
 #| input_files:
+#|   - name: sporocarp_CNP.csv
+#|     path: data/derived/soil/fungi_stoichiometry
+#|     description: |
+#|       Fungal fruiting body stoichiometry estimated.
 #|
 #| output_files:
 #|
