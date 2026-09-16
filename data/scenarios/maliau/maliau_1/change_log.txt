@@ -8,7 +8,7 @@
 - Changes made:
   - Updated fungal_fruiting_bodies to fungal_fruiting_bodies_cnp
 - References:
-  - PR #
+  - PR #628
 
 2026-09-09
 - Module: Plants
