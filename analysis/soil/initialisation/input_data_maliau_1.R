@@ -413,15 +413,18 @@ dat <-
 # fungal_fruiting_bodies
 source("analysis/soil/sporocarp_biomass/sporocarp_biomass.R")
 
-# simulate and add directly to dataset
+# simulate sporocarp biomass, then convert to CNP nutrients and add to dataset
+fungal_fruiting_bodies_biomass <-
+  rnorm(n_sim, sporocarp_biomass_mean, sporocarp_biomass_sd)
 dat <-
   dat |>
   mutate(
-    fungal_fruiting_bodies = rnorm(
-      n_sim,
-      sporocarp_biomass_mean,
-      sporocarp_biomass_sd
-    )
+    fungal_fruiting_body_c = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$C,
+    fungal_fruiting_body_n = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$N,
+    fungal_fruiting_body_p = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$P
   )
 
 
@@ -509,6 +512,14 @@ dat <-
         soil_c_pool_necromass,
         soil_n_pool_necromass,
         soil_p_pool_necromass
+      ),
+      c
+    ),
+    fungal_fruiting_body_cnp = pmap(
+      list(
+        fungal_fruiting_body_c,
+        fungal_fruiting_body_n,
+        fungal_fruiting_body_p
       ),
       c
     ),
