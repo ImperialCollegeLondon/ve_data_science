@@ -1,0 +1,21 @@
+schema_version: 1
+record_id: doi-10-7190-shu-thesis-00701
+doi: 10.7190/shu-thesis-00701
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Contains soil moisture and soil organic matter content, but sampled from
+    hiking trails without any undisturbed controls.
+  screened_at: '2026-09-17T13:53:07Z'
+metadata:
+  title: The ecological impacts of recreational trails in a tropical protected area
+  authors:
+  - .na.character
+  - Malandi, Wilter Azwal
+  year: .na.integer
+  journal: []
+  publisher: Sheffield Hallam University
+  url: http://dx.doi.org/10.7190/shu-thesis-00701
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-17T13:52:15Z'
