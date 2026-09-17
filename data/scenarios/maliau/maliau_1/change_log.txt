@@ -5,6 +5,7 @@
 - Author: Hao Ran Lai
 - Files changed:
   - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+  - data/scenarios/maliau/maliau_1/config/data_config.toml
 - Changes made:
   - Updated fungal_fruiting_bodies to fungal_fruiting_bodies_cnp
 - References:
