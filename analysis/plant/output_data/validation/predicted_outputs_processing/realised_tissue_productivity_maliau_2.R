@@ -179,7 +179,12 @@
 
 source("../../../../../tools/R/R/get_ve_variables.R")
 
-plants_cohort_data <- "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
+plants_cohort_data_path <- "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
+plants_cohort_data <- read.csv(
+  plants_cohort_data_path,
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
 
 output_dir <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing"
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
