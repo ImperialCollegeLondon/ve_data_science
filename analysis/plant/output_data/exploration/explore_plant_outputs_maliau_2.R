@@ -47,8 +47,9 @@
 #|   Update the input path for the VE simulation being explored. The script is
 #|   exploratory and will be extended as plant output variables are identified.
 #|
-#|   Uses the repository's uv-managed `.venv` (via reticulate) both to convert
-#|   Zarr to NetCDF with xarray and to import the installed
+#|   Uses the repository's uv-managed `.venv`, including the `dev` dependency
+#|   group, via reticulate both to convert Zarr to NetCDF with xarray and to
+#|   import the installed
 #|   `virtual_ecosystem` package for the PlantsModel variable lists. This
 #|   assumes that `.venv` has the same virtual_ecosystem version that produced
 #|   the model output being explored; re-run `uv sync` if that assumption no
@@ -139,29 +140,14 @@ ve_dimensions <- purrr::map(
 ) |>
   stats::setNames(unique(nc_data$dimension$name))
 
-# Create individual objects in the global environment for each dimension
-# (e.g. cell_id, time, layers, element, pft)
-list2env(ve_dimensions, envir = .GlobalEnv)
-
 # Preview the unique dimension names and their coordinate values.
 names(ve_dimensions)
 ve_dimensions
 
-# Record the dimensions of the variables loaded from NetCDF, labelled with
-# their dimension names (e.g. time, layers) rather than bare sizes.
-ve_output_dimensions <- purrr::map(names(ve_outputs), function(var) {
-  var_dim <- dim(ve_outputs[[var]])
-  # scalar/0-dimensional variables have no dim() to label
-  if (is.null(var_dim)) {
-    return(var_dim)
-  }
-  dim_names <- nc_data |>
-    tidync::activate(var) |>
-    tidync::hyper_dims(name = var) |>
-    dplyr::pull(name)
-  stats::setNames(var_dim, dim_names)
+# Record the lengths of each named dimension for every output variable.
+ve_output_dimensions <- lapply(ve_outputs, \(x) {
+  unlist(lapply(dimnames(x), length))
 })
-names(ve_output_dimensions) <- names(ve_outputs)
 
 # Display the NetCDF variables and their dimensions.
 names(ve_outputs)
@@ -174,9 +160,10 @@ ve_output_dimensions
 # The plant output variables are those listed on the PlantsModel class as
 # "vars_updated" (i.e. variables the plants model writes each update step).
 
-# Import from the same .venv activated earlier (use_virtualenv() above), so
-# this pulls the PlantsModel class from the repository's installed
-# virtual_ecosystem version rather than any other Python environment.
+# Import from the same .venv activated earlier (use_virtualenv() above). This
+# environment is managed by uv and includes the repository's dev group, so
+# this pulls the installed virtual_ecosystem version rather than another
+# Python environment.
 plants_model <- import("virtual_ecosystem.models.plants.plants_model")
 
 # Variables the plants model writes/updates each step: these are the
