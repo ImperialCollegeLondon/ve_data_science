@@ -210,7 +210,7 @@ source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
 source_type = "Lowland tropical rainforest of Deramakot, Borneo"
 comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
 
-[soil.fungal_fruiting_body_cnp]
+[soil.fungal_fruiting_bodies_cnp]
 unit = "kg m^-2"
 description = "Density (of carbon, nitrogen and phosphorous) of fungal fruiting bodies growing from the soil"
 script_path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"

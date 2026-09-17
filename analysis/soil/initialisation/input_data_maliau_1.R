@@ -410,7 +410,7 @@ dat <-
 
 
 # Fungal fruiting body biomass:
-# fungal_fruiting_bodies
+# fungal_fruiting_bodies_cnp
 source("analysis/soil/sporocarp_biomass/sporocarp_biomass.R")
 
 # simulate sporocarp biomass, then convert to CNP nutrients and add to dataset
@@ -515,7 +515,7 @@ dat <-
       ),
       c
     ),
-    fungal_fruiting_body_cnp = pmap(
+    fungal_fruiting_bodies_cnp = pmap(
       list(
         fungal_fruiting_body_c,
         fungal_fruiting_body_n,
