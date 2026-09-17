@@ -318,7 +318,7 @@ for (j in seq_along(ur_y)) {
               "soil_cnp_pool_necromass",
               "soil_cnp_pool_pom",
               "clay_fraction",
-              "fungal_fruiting_bodies",
+              "fungal_fruiting_bodies_cnp",
               "pH",
               "soil_c_pool_arbuscular_mycorrhiza",
               "soil_c_pool_bacteria",

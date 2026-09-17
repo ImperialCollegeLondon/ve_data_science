@@ -77,7 +77,7 @@ collect_data_paths <- function(plants, climate, elevation, soil, litter) {
           "soil_cnp_pool_necromass",
           "soil_cnp_pool_pom",
           "clay_fraction",
-          "fungal_fruiting_bodies",
+          "fungal_fruiting_bodies_cnp",
           "pH",
           "soil_c_pool_arbuscular_mycorrhiza",
           "soil_c_pool_bacteria",

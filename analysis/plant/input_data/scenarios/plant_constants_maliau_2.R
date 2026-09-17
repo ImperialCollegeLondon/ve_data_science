@@ -409,29 +409,6 @@
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
 #|         assumptions: "Loaded from stoichiometry_maliau.csv for the emergent PFT. Original assumption: Assumed equal to live foliage lignin because senesced leaf-specific lignin data were not separately derived."
-#|       - name: plant_reproductive_tissue_lignin
-#|         type: numeric
-#|         units: g lignin C g^-1 reproductive tissue C
-#|         description: |
-#|           Fraction of reproductive tissue carbon mass present as lignin.
-#|         references:
-#|           - citation: "Nakagawa and Nakashizuka (2004)"
-#|             doi: "https://doi.org/10.1111/1365-2745.12379"
-#|             url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379"
-#|             origin: "Mount Kinabalu, Borneo"
-#|             biome: "tropical"
-#|             vegetation_type: "dipterocarp forest"
-#|             site_condition: null
-#|             date: null
-#|           - citation: "Muddasar et al. (2024)"
-#|             doi: "https://doi.org/10.1016/j.mtsust.2024.100990"
-#|             url: "https://www.sciencedirect.com/science/article/pii/S2589234724003269?via%3Dihub"
-#|             origin: null
-#|             biome: null
-#|             vegetation_type: null
-#|             site_condition: null
-#|             date: null
-#|         assumptions: "Loaded from stoichiometry_maliau.csv. Original assumption: Estimated from seed lignin and carbon content, so it serves as a propagule-based proxy for broader reproductive tissue lignin."
 #|       - name: root_lignin
 #|         type: numeric
 #|         units: g lignin C g^-1 root C
@@ -517,7 +494,6 @@ plant_constants_maliau_2 <- subset(
 # dsr_to_ppfd ADD default
 # stem_lignin ADD from stoichiometry_maliau
 # senesced_leaf_lignin ADD from stoichiometry_maliau
-# plant_reproductive_tissue_lignin ADD from stoichiometry_maliau
 # root_lignin ADD from stoichiometry_maliau
 # root_exudates ADD from t_model_maliau
 
@@ -544,9 +520,6 @@ plant_constants_maliau_2$senesced_leaf_lignin <-
   unique(stoichiometry_maliau$senesced_leaf_lignin[
     stoichiometry_maliau$pft_name == "emergent"
   ]) # Note that 1 value can only be assigned
-# plant_reproductive_tissue_lignin
-plant_constants_maliau_2$plant_reproductive_tissue_lignin <-
-  unique(stoichiometry_maliau$plant_reproductive_tissue_lignin)
 # root_lignin
 plant_constants_maliau_2$root_lignin <-
   unique(stoichiometry_maliau$root_lignin)

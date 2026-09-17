@@ -103,7 +103,7 @@
 #|       Spatially predicted PFT cohort distribution for individuals with DBH
 #|       greater than 10 cm.
 #|     variables:
-#|       - name: cell_id
+#|       - name: plant_cohorts_cell_id
 #|         type: integer
 #|         units: dimensionless
 #|         description: |
@@ -203,7 +203,7 @@
 #|       5–10 cm size-class fractions, then allocated across PFTs using cell-level
 #|       PFT abundance.
 #|     variables:
-#|       - name: cell_id
+#|       - name: plant_cohorts_cell_id
 #|         type: integer
 #|         units: dimensionless
 #|         description: |
@@ -986,6 +986,10 @@ cohort_data_10_cm_maliau_2$plant_cohorts_n <- round(
   cohort_data_10_cm_maliau_2$plant_cohorts_n
 )
 
+names(cohort_data_10_cm_maliau_2)[
+  names(cohort_data_10_cm_maliau_2) == "cell_id"
+] <- "plant_cohorts_cell_id"
+
 dir.create(
   "../../../../data/scenarios/maliau/maliau_2/data",
   recursive = TRUE,
@@ -1156,6 +1160,10 @@ if (any(is.na(cohort_data_1_cm_maliau_2$plant_cohorts_n))) {
 cohort_data_1_cm_maliau_2$plant_cohorts_n <- round(
   cohort_data_1_cm_maliau_2$plant_cohorts_n
 )
+
+names(cohort_data_1_cm_maliau_2)[
+  names(cohort_data_1_cm_maliau_2) == "cell_id"
+] <- "plant_cohorts_cell_id"
 
 dir.create(
   "../../../../data/scenarios/maliau/maliau_2/data",
