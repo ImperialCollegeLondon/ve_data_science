@@ -163,7 +163,8 @@
 #|         units: Mg C ha-1 year-1
 #|         description: Full-simulation mean seed carbon productivity across all cells.
 #|
-#| package_dependencies: null
+#| package_dependencies:
+#|   - data.table
 #|
 #| usage_notes: |
 #|   If no period dates are supplied, the selected-period mean equals the full
@@ -180,8 +181,25 @@
 source("../../../../../tools/R/R/get_ve_variables.R")
 
 plants_cohort_data_path <- "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
-plants_cohort_data <- read.csv(
+
+# Read only the columns needed for the productivity calculations to reduce
+# memory pressure when this large scenario file is loaded into R. Using
+# data.table::fread(select = ...) avoids a large header-only pass over the CSV.
+required_columns <- c(
+  "cell_id",
+  "time",
+  "time_index",
+  "n_individuals",
+  "whole_crown_gpp",
+  "stem_c_biomass",
+  "foliage_c_biomass",
+  "root_c_biomass",
+  "fruit_c_biomass",
+  "seed_c_biomass"
+)
+plants_cohort_data <- data.table::fread(
   plants_cohort_data_path,
+  select = required_columns,
   stringsAsFactors = FALSE,
   check.names = FALSE
 )
