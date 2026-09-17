@@ -19,6 +19,14 @@
   to validate the LLM responses
   - We will protoype with the soil module parameters first, then scale to full
     VE
+  - **Important note:** the number of constants above is a huge underestimation
+    because of "hidden parameters", including animal and plant functional
+    group-specific trait and demographic parameters. These parameters also scale
+    up multiplicatively with the number of functional groups added to VE. For
+    example, each functional group of animals requires ~30 parameters, so even a
+    simple simulation with only four functional groups would add >120
+    parameters. Scaling up to the our most ambitious model with ~60 groups will
+    cost an additional ~1,800 parameters.
 - Basic list of what we're asking the LLM to search for:
   - Name or synonyms of the constant in the literature
   - Empirical or modelled values
@@ -29,6 +37,10 @@
   recipe from websites and organise them into a neat table)
 - Need a reviewer-friendly format for human perusal, improve workflow before
   scaling up to the entire of VE
+- AI may be useful less as a replacement for direct analyses, but more as a
+  complement: e.g., by finding auxiliary constraints, prior information,
+  suggesting comparable systems, or identifying which unvalidated modules are
+  most weakly constrained.
 
 ### Initialisation
 
@@ -38,6 +50,11 @@
 - The additional challenge of finding initial values is that they have specific
   spatiotemporal coordinates
 - Currently there are ~69 required initial values
+- Initial values need to be more site- or scenario-specific than the constants,
+  so the strength of LLM here may be to find very specific values (rather than
+  more global values.) For some sites, many of the values may come from grey
+  literature. LLM may be better at screening heterogenous data sources (e.g., a
+  mix of peer-reviewed literature and grey literature.)
 
 ### Validation
 
@@ -46,8 +63,13 @@
 - There are ~129 possible output variables directly out of VE for validation,
   not including a lot more derived outputs (e.g., animal density, total soil
   nutrient, stand biomass, diversity, network structure...)
+- If is hard to obtain exact values for validation, can LLM obtain a *range* of
+  values to validate if the VE predictions are within plausible bounds?
+- Following the above, can LLM derive validation values from first principles,
+  based on a set of authoritative, peer-reviewed literature? If so, we might be
+  able to extend the literature search to include *theoretical* works.
 
-### Mock reviewer persona
+### Mock reviewer persona (qualitative validation)
 
 - I have been playing with a rough idea of using LLMs as expert reviewers who
   validate VE predictions.
@@ -99,6 +121,18 @@
   from an efficiency standpoint). If we want a more exhaustive search, then we
   probably want a web crawler instead. So what is the advantage of LLM over a
   conventional web crawler? Or should we go hybrid?
+- There is no exact tool to do primary literature search in Anthropic Claude
+  (unlike Perplexity)? Claude has a web search tool which I can call directly
+  from my R session, but it's general purpose instead of scientific (not sure if
+  configurable)?
+- Units and scales: often we do have promising data for parameterisation,
+  initialisation or validation, but the empirical data are in the wrong unit or
+  scale of measurement. We spend a lot of human hours on deciding and
+  harmonising these datasets, sometimes only to find that we need to discard the
+  data. I think automating the harmonisation or analysis with LLM is not quite
+  there yet(?), but at least the LLM could screen through these datasets and
+  tell us which dataset *not* to use. Along this line, I wonder if LLM is better
+  at *screening* than ingesting datasets.
 - Hallucination: I find LLM these days hallucinate less, but they still do a
   bit. Maybe I have improved my prompts. I have written some guards into the
   prompt below to *try* reducing hallucination but I am never sure if they ever
