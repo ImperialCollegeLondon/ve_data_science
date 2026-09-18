@@ -38,9 +38,6 @@
 #|       for timesteps outside the selected period. The standard deviation
 #|       describes variability across cells and intervals, not prediction
 #|       uncertainty.
-#|     period_start: 2011-08-25
-#|     period_end: 2018-07-17
-#|     period_label: 2011-08 to 2018-07
 #|     variables:
 #|       - name: cell_id
 #|         type: integer

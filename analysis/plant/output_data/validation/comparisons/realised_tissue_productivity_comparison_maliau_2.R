@@ -36,9 +36,6 @@
 #|       carbon_balance_components_maliau.R and
 #|       realised_tissue_productivity_maliau_2.R respectively, so a mismatch
 #|       in scale between the two sides is visible directly in the output.
-#|     period_start: 2011-08-25
-#|     period_end: 2018-07-17
-#|     period_label: 2011-08 to 2018-07
 #|   - name: woody_stem_productivity_comparison_maliau_2.png
 #|     path: data/derived/plant/output_data/validation/comparisons/figures_maliau_2
 #|     description: |
