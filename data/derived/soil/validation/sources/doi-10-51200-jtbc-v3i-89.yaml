@@ -1,0 +1,26 @@
+schema_version: 1
+record_id: doi-10-51200-jtbc-v3i-89
+doi: 10.51200/jtbc.v3i.89
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Soil keyword describes sampling of fungi.
+  screened_at: '2026-09-18T05:30:29Z'
+metadata:
+  title: Actinomycetes and Fungi Isolated From Maliau Basin, Sabah and The Screening
+    For Novel Secondary Metabolites Against Eukaryotic Signal Transduction and Mycobacterium
+  authors:
+  - Christoper Voo, Lok Yung
+  - Lai, Ngit Shin
+  - Kibat, Caroline
+  - Puah, Seok Hwa
+  - Hew, Chaw Sen
+  - Lee, Kum-Hyung
+  - Ho, Coy Choke
+  year: 2023
+  journal: Journal of Tropical Biology &amp; Conservation (JTBC)
+  publisher: Universiti Malaysia Sabah (UMS)
+  url: http://dx.doi.org/10.51200/jtbc.v3i.89
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T05:30:11Z'

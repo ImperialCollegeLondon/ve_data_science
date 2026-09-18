@@ -1,0 +1,22 @@
+schema_version: 1
+record_id: doi-10-3759-tropics-19-85
+doi: 10.3759/tropics.19.85
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Contains ant composition and diversity, but probably not useful for animal
+    module because of a lack of density data.
+  screened_at: '2026-09-18T02:04:52Z'
+metadata:
+  title: 'Ground-dwelling ant diversity in Maliau Basin, Borneo: Evaluation of hand-sorting
+    methods to estimate ant diversity'
+  authors:
+  - Hashimoto, Yoshiaki
+  - Mohamed, Maryati
+  year: 2010
+  journal: Tropics
+  publisher: The Japan Society of Tropical Ecology
+  url: http://dx.doi.org/10.3759/tropics.19.85
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T02:04:27Z'

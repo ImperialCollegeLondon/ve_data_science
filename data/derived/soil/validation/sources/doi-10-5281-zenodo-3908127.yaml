@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3908127
+doi: 10.5281/zenodo.3908127
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains animal abundance data. Litter keyword is about sampling method.
+  screened_at: '2026-09-18T06:18:55Z'
+metadata:
+  title: Importance of riparian reserves and other forest fragments for small mammal
+    diversity in disturbed and converted forest landscapes
+  authors:
+  - Bernard, Henry
+  - Hee, Kueh Boon
+  - Wong, Anna
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3908127
+  keywords:
+  - small mammals
+  - SAFE project
+  - rats
+  - squirrels
+  - tree shrews
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:18:34Z'

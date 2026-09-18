@@ -1,0 +1,18 @@
+schema_version: 1
+record_id: doi-10-17638-03052228
+doi: 10.17638/03052228
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contain microclimate variables of ant habitats.
+  screened_at: '2026-09-18T06:00:51Z'
+metadata:
+  title: Ant ecology and wood decomposition in a vertically stratified tropical ecosystem
+  authors: Law, SJ
+  year: 2024
+  journal: University of Liverpool Repository
+  publisher: University of Liverpool Repository
+  url: https://livrepository.liverpool.ac.uk/id/eprint/3052228
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:00:30Z'
