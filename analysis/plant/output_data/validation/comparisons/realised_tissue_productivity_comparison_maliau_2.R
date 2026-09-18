@@ -198,8 +198,6 @@ comparison_rows <- lapply(
     validation_variable <- variable_map$validation_variable[variable_index]
     validation_se_variable <- variable_map$validation_se[variable_index]
     predicted_variable <- predicted_variables[variable_index]
-    # The output column is named without the "_mean" suffix used internally.
-    predicted_display_variable <- sub("_mean$", "", predicted_variable)
     predicted_value <- predicted_values[variable_index]
 
     observed_extent <- get_variable_extent(
@@ -221,7 +219,7 @@ comparison_rows <- lapply(
         SAFEPlotName = validation_data$SAFEPlotName[plot_index],
         PlotName = validation_data$PlotName[plot_index],
         observed_variable = validation_variable,
-        predicted_variable = predicted_display_variable,
+        predicted_variable = predicted_variable,
         validation_period = comparison_period,
         predicted_period = comparison_period,
         observed_spatial_extent = observed_extent$spatial_extent,
