@@ -19,6 +19,6 @@ if (file.exists(results_path)) {
 
 # Screen OpenAlex search results -----------------------------------------
 
-sources_dir <- here::here("data/derived/soil/validation/sources")
+results$id[13]
 
-valdb$screen_dataset(sources_dir = sources_dir)
+valdb$screen_dataset(sources_dir = "data/derived/soil/validation/sources")
