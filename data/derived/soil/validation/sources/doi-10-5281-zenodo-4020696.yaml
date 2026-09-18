@@ -1,0 +1,36 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-4020696
+doi: 10.5281/zenodo.4020696
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Contains LiDAR carbon and biomass data, but the data team is using it intensively
+    for input-data workflow.
+  screened_at: '2026-09-18T06:12:37Z'
+metadata:
+  title: LiDAR canopy structure 2014
+  authors:
+  - Swinfield, Tom
+  - Milodowski, David
+  - Jucker, Tommaso
+  - Michele, Dalponte
+  - Coomes, David
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/4020696
+  keywords:
+  - LiDAR
+  - Aboveground carbon density
+  - Tree
+  - SAFE project
+  - Maliau
+  - Danum
+  - Plant area density
+  - Plant area index
+  - Terrain
+  - point density
+  - carbon
+  - biomass
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:12:05Z'
