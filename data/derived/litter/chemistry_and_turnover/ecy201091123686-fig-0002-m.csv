@@ -1,0 +1,16 @@
+filename,variable,group_id,mean,sd,n,r,se,error_type,plot_type
+ecy201091123686-fig-0002-m.jpg,k,H. americanus,0.3068965517241379,NA,NA,NA,0.034482759,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,A. bonariensis,0.28206896551724137,NA,NA,NA,0.062068966,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,Ocotea sp.,0.27241379310344827,NA,NA,NA,0.056551724,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,O. guianensis,0.2696551724137931,NA,NA,NA,0.046896551724137925,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,C. concolor,0.22965517241379307,NA,NA,NA,0.064827586,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,S. saponaria,0.20758620689655166,NA,NA,NA,0.028965517,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,P. cecropiilolia,0.16206896551724131,NA,NA,NA,0.024827586206896624,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,C. estrellensis,0.094482759,NA,NA,NA,0.006896552,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,P. nemorosa,0.087586207,NA,NA,NA,0.013793103,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,T. micrantha,0.083448276,NA,NA,NA,0.026206896551724146,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,S. parahyba,0.066896552,NA,NA,NA,0.022068965517241412,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,F. boliviana,0.066896552,NA,NA,NA,0.012413793103448312,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,T. oblonga,0.053103448,NA,NA,NA,0.013793103448275834,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,P. laevis,0.047586206896551714,NA,NA,NA,0.005517241,se,mean_error
+ecy201091123686-fig-0002-m.jpg,k,H. crepitans,0.015862068965517173,NA,NA,NA,0.009655172,se,mean_error

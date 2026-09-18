@@ -1,0 +1,40 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3251901
+doi: 10.5281/zenodo.3251901
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Suspected to be the same SAFE dataset on     https://doi.org/10.5281/zenodo.3258117,
+    which was used in     analysis/soil/ammonium_nitrate/model.R
+  screened_at: '2026-08-14T02:34:34Z'
+metadata:
+  title: Linking potential greenhouse gas and nitric oxide fluxes to soil microbial
+    communities in incubation experiments with soil from the SAFE landscape
+  authors:
+  - Drewer, Julia
+  - Leduning, Melissa
+  - Zhao, Jun
+  - Gubry-Rangin, Cécile
+  - Skiba, Ute
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3251901
+  keywords:
+  - Soil microbial activity
+  - N2O
+  - CH4
+  - CO2
+  - 'NO'
+  - Soil moisture
+  - Soil pH
+  - SAFE project
+  - HTMF
+  - Oil palm
+  - riparian
+  - nitrous oxide
+  - carbon dioxide
+  - methane
+  - nitric oxide
+  provider: doi_content_search
+  retrieved_at: '2026-08-14T02:34:09Z'

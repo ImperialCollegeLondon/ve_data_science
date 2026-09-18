@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-15368680
+doi: 10.5281/zenodo.15368680
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Decomposition keyword is about Small Mammal Carrion Depletion Rates.
+  screened_at: '2026-08-18T08:10:49Z'
+metadata:
+  title: Small Mammal Carrion Depletion Rates in Tropical Landscapes (2023-2024)
+  authors:
+  - Heon, Sui P.
+  - Bernard, Henry
+  - Ewers, Robert M
+  year: 2025
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.15368680
+  keywords:
+  - Small mammals
+  - Scavengers
+  - Necromass
+  - Carrion decomposition
+  - Old-growth
+  - Oil palm
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T08:08:46Z'

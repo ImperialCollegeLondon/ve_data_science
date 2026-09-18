@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1198576
+doi: 10.5281/zenodo.1198576
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: Deadwood stock are raw volumetric measurements that need to be converted
+    to mass basis. This requires an extra layer of processing script outside of the
+    validation pipeline. Also need to check with Rob Ewers if this is a duplicate
+    of Terhi Riutta's datasets.
+  screened_at: '2026-08-18T07:27:21Z'
+metadata:
+  title: Deadwood Stocks And Dynamics
+  authors:
+  - Ewers, Rob
+  - Pfeifer, Marion
+  - Turner, Ed
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198576
+  keywords:
+  - coarse woody debris
+  - decomposition status
+  - tree mortality
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:24:44Z'

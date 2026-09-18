@@ -1,0 +1,39 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3948442
+doi: 10.5281/zenodo.3948442
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Bacteria keyword is about bacterial killing activity in bats.
+  screened_at: '2026-08-18T07:55:52Z'
+metadata:
+  title: Resilience and virus ecology of paleotropical bats
+  authors:
+  - Seltmann, Anne
+  - Corman, Victor M
+  - Rasche, Andrea
+  - Drosten, Christian
+  - Courtiol, Alexandre
+  - Czirjak, Gabor A
+  - Bernard, Henry
+  - Struebig, Matthew
+  - Voigt, Christian
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3948442
+  keywords:
+  - Bats
+  - Harp trapping
+  - Anthropogenic disturbance
+  - body mass
+  - chronic stress
+  - fragmentation
+  - white blood cell count
+  - coronaviruses
+  - astroviruses
+  - coinfection
+  - habitat fragmentation
+  - human-modified landscapes
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:55:01Z'

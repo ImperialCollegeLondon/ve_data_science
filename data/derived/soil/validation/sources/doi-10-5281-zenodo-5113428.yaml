@@ -1,0 +1,39 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-5113428
+doi: 10.5281/zenodo.5113428
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Contains delta-15 N and delta-13 C isotopes in soil, deadwood, litter and     leaves.
+    Need to ask Jacob if these can be validated against     litter_mineralisation_rate_cnp
+    etc.
+  screened_at: '2026-08-17T03:04:12Z'
+metadata:
+  title: Using stable isotopes to link biogeochemical processes to biodiversity of
+    conservation concern
+  authors:
+  - Kemp, Victoria
+  - Hemprich-Bennett, David
+  - Bernard, Henry
+  - Lewis, Owen
+  - Struebig, Matthew
+  - Kratina, Pavel
+  - Clare, Elizabeth L
+  - Rossiter, Stephen
+  - Grey, Jonathan
+  year: 2021
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/5113428
+  keywords:
+  - bats
+  - community
+  - logging
+  - forest
+  - trophic
+  - consumer
+  - predator
+  - HTMF
+  - SAFE Project
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:03:34Z'
