@@ -1,11 +1,10 @@
-#| ---
 #| title: realised_tissue_productivity_comparison_maliau_2
 #|
 #| description: |
-#|   Compares standardised Virtual Ecosystem plant productivity predictions for
-#|   the Maliau 2 scenario with the cleaned SAFE carbon-balance validation data.
-#|   The first comparison is limited to woody stem productivity; additional
-#|   tissue variables can be added later.
+#|   Compares standardised Virtual Ecosystem plant productivity predictions
+#|   with field observations for Maliau scenario 2. The tissues compared are
+#|   dynamically loaded from:
+#|   ../variable_mapping/realised_tissue_productivity_mapping_maliau_2.yml.
 #|
 #| virtual_ecosystem_module:
 #|   - Plant
@@ -27,39 +26,17 @@
 #|   - name: realised_tissue_productivity_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: |
-#|       Merged observed and predicted woody stem productivity values,
-#|       including the predicted standard deviation (pooled across cells and
-#|       timesteps in the selected period), and the spatial/temporal extent
-#|       of each side of the comparison (`observed_spatial_extent`,
-#|       `observed_temporal_extent`, `predicted_spatial_extent`,
-#|       `predicted_temporal_extent`), sourced from the metadata of
-#|       carbon_balance_components_maliau.R and
-#|       realised_tissue_productivity_maliau_2.R respectively, so a mismatch
-#|       in scale between the two sides is visible directly in the output.
-#|   - name: woody_stem_productivity_comparison_maliau_2.png
-#|     path: data/derived/plant/output_data/validation/comparisons/figures_maliau_2
-#|     description: |
-#|       Point-range plot showing observed plot values with observational
-#|       standard errors and the predicted regional mean with pooled SD.
-#|
-#| comparison_observations:
-#|   - observed_variable: WoodyNPP_Stem
-#|     predicted_variable: stem_c_productivity
-#|     observation: Poor fit
+#|       Merged observed and predicted values for all tissues mapped in the
+#|       validation contract, including pooled model SD and spatial/temporal
+#|       extent information.
 #|
 #| package_dependencies:
 #|   - yaml
 #|
 #| usage_notes: |
-#|   The predicted mean/sd/`selected_period` columns are read directly from
-#|   the standardised output; they are `NA` outside the requested period, so
-#|   this script simply takes the unique non-missing value of each. The two
-#|   observed plots remain separate to preserve their spatial variation.
-#|   The `*_spatial_extent`/`*_temporal_extent` columns are read from the
-#|   `variables` metadata of each mapped variable in
-#|   master_observed_data_processing_metadata.yml and
-#|   master_predicted_outputs_processing_metadata.yml, so they always match
-#|   the metadata headers of the two upstream scripts.
+#|   The comparison is driven by the realised_tissue_productivity_mapping_maliau_2.yml file.
+#|   To add or remove variables from this comparison, update the contract
+#|   YAML; no changes are required to this script.
 #| ---
 
 observed_data_file <- "../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv"
@@ -111,14 +88,24 @@ get_variable_extent <- function(metadata, output_file_name, variable_name) {
   ))
 }
 
-# Woody stem productivity -----------------------------------------------
-stem_variable_map <- data.frame(
-  validation_variable = "WoodyNPP_Stem",
-  validation_se = "SE_WoodyNPP_Stem",
-  predicted_variable = "stem_c_productivity_mean",
-  predicted_sd_variable = "stem_c_productivity_sd",
-  stringsAsFactors = FALSE
+# Load validation contract and generate variable_map dynamically
+contract <- yaml::yaml.load_file(
+  "../variable_mapping/realised_tissue_productivity_mapping_maliau_2.yml"
 )
+variable_map_list <- lapply(contract$variable_mappings, function(m) {
+  data.frame(
+    validation_variable = m$observed$variable,
+    validation_se = m$observed$se_variable,
+    predicted_variable = m$predicted$variable,
+    predicted_sd_variable = m$predicted$sd_variable,
+    stringsAsFactors = FALSE
+  )
+})
+variable_map <- do.call(rbind, variable_map_list)
+variable_map_dynamic <- do.call(rbind, variable_map_list)
+
+# Woody stem productivity -----------------------------------------------
+variable_map <- variable_map_dynamic
 
 # The predicted mean/sd/selected_period columns are NA outside the pooled
 # period, so the single non-missing value is the comparison value.
@@ -136,17 +123,6 @@ if (length(comparison_period) != 1) {
     "Predicted output must have exactly one non-missing selected_period value."
   )
 }
-
-# Define comparison mappings by variable. Each tissue has its own mapping
-# object, so adding a later tissue cannot overwrite an earlier mapping.
-
-# Foliage carbon productivity ------------------------------------------
-# Add the foliage observed/predicted variable mapping here.
-
-# Combine all tissue mappings before the shared processing code. Add future
-# tissue mapping objects to this list immediately above this line.
-variable_maps <- list(stem = stem_variable_map)
-variable_map <- do.call(rbind, variable_maps)
 
 # Shared validation, prediction selection, and merge logic
 
@@ -266,73 +242,6 @@ comparison_rows <- lapply(
 
 comparison_data <- do.call(rbind, unlist(comparison_rows, recursive = FALSE))
 row.names(comparison_data) <- NULL
-
-# Plot the observed plot values and the predicted regional value. Observed
-# error bars show observational SE; the predicted error bar shows spatial SD.
-plot_data <- comparison_data[
-  comparison_data$observed_variable == "WoodyNPP_Stem",
-  ,
-  drop = FALSE
-]
-predicted_row <- plot_data[1, , drop = FALSE]
-plot_labels <- c(
-  paste("Observed -", plot_data$ForestPlotsCode),
-  "Predicted"
-)
-plot_values <- c(plot_data$observed_value, predicted_row$predicted_value)
-plot_sd <- c(plot_data$observed_se, predicted_row$predicted_spatial_sd)
-finite_values <- c(
-  plot_values - ifelse(is.na(plot_sd), 0, plot_sd),
-  plot_values + ifelse(is.na(plot_sd), 0, plot_sd)
-)
-plot_range <- range(finite_values, na.rm = TRUE)
-plot_padding <- max(diff(plot_range) * 0.1, 1)
-
-png(
-  filename = file.path(
-    figure_dir,
-    "woody_stem_productivity_comparison_maliau_2.png"
-  ),
-  width = 1000,
-  height = 700,
-  res = 120
-)
-par(mar = c(5, 10, 4, 2) + 0.1)
-plot(
-  x = plot_values,
-  y = seq_along(plot_values),
-  xlim = plot_range + c(-plot_padding, plot_padding),
-  ylim = c(0.5, length(plot_values) + 0.5),
-  yaxt = "n",
-  pch = 19,
-  col = c(rep("#2C7FB8", nrow(plot_data)), "#D95F02"),
-  xlab = "Productivity (Mg C ha-1 year-1)",
-  ylab = "",
-  main = "Woody stem productivity: observed and predicted"
-)
-axis(2, at = seq_along(plot_values), labels = plot_labels, las = 1)
-segments(
-  x0 = plot_values - plot_sd,
-  x1 = plot_values + plot_sd,
-  y0 = seq_along(plot_values),
-  y1 = seq_along(plot_values),
-  col = c(rep("#2C7FB8", nrow(plot_data)), "#D95F02"),
-  lwd = 2
-)
-points(
-  plot_values,
-  seq_along(plot_values),
-  pch = 19,
-  col = c(rep("#2C7FB8", nrow(plot_data)), "#D95F02")
-)
-legend(
-  "topright",
-  legend = c("Observed value +/- SE", "Predicted mean +/- SD"),
-  pch = 19,
-  col = c("#2C7FB8", "#D95F02"),
-  bty = "n"
-)
-dev.off()
 
 # Write one merged row per validation plot and mapped variable.
 write.csv(
