@@ -1,0 +1,60 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-17458532
+doi: 10.5281/zenodo.17458532
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Soil nutrients very likely originated from the 50-Ha plot data (10.5281/zenodo.16005735),
+    which will be added to the validation database.
+  screened_at: '2026-08-18T08:04:59Z'
+metadata:
+  title: Data and code for Crown Exposure Regulates Aboveground Wood Productivity
+    Responses to Soil Fertility in Lowland Tropical Forests
+  authors:
+  - Medina-Vega, José
+  - Duque, Alvaro
+  - Zuleta, Daniel
+  - Castaño, Nicolas
+  - Valencia, Renato
+  - Aguilar, Salomón
+  - Mitre, David
+  - Pérez, Rolando
+  - Lum, Shawn K.Y.
+  - Burslem, David
+  - O'Brien, Michael
+  - Reynolds, Glen
+  - Bunyavejchewin, Sarayudh
+  - Pongpattananurak, Nantachai
+  - Phumsathan, Sangsan
+  - Ewango, Corneille
+  - Makana, Jean-Remy
+  - Itoh, Akira
+  - Mohamad, Mohizah Bt.
+  - Tan, Sylvester
+  - Thompson, Jill
+  - Uriarte, Maria
+  - Zimmerman, Jess K.
+  - Oliveira, Alexandre
+  - de Andrade, Ana C. S.
+  - da Silva, João Batista
+  - Vicentini, Alberto
+  - Brockelman, Warrren
+  - Nathalang, Anuttara
+  - Yao, Tze Leong
+  - Ediriweera, Sisira
+  - Novotny, Vojtech
+  - Weiblen, George
+  - Davies, Stuart
+  year: 2025
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.17458532
+  keywords:
+  - AWP
+  - Fertility
+  - Plant-soil feedbacks
+  - Productivity
+  - Tropical forests
+  - Wood productivity
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T08:04:03Z'

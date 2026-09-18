@@ -1,0 +1,29 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-13341608
+doi: 10.5281/zenodo.13341608
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains microbial diversity data but we do not consider them validation     targets
+    for now.
+  screened_at: '2026-08-14T02:32:54Z'
+metadata:
+  title: Soil microbial communities from tropical forest and oil palm
+  authors:
+  - Elias, Dafydd
+  - Both, Sabine
+  - Goodall, Tim
+  - Robinson, Samuel
+  - Majalap-Lee, Noreen
+  - Griffiths, Robert
+  - Ostle, Nick
+  - McNamara, Niall
+  year: 2024
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.13341608
+  keywords:
+  - soil
+  - soil microbial communities
+  provider: doi_content_search
+  retrieved_at: '2026-08-14T02:32:42Z'

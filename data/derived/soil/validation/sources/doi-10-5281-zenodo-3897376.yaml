@@ -1,0 +1,33 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3897376
+doi: 10.5281/zenodo.3897376
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Contains river bank soil cover, which is not a validation target.
+  screened_at: '2026-08-17T03:01:38Z'
+metadata:
+  title: Investigating the Distribution and Occupancy of Otter Species across Human-modified
+    Landscapes in Sabah, Malaysia.
+  authors:
+  - Pianzin, Annabel
+  - Wong, Anna
+  - Bernard, Henry
+  - Struebig, Matthew
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3897376
+  keywords:
+  - Otter
+  - Land-use change
+  - distribution
+  - occupancy
+  - riparian reserve
+  - human-modified landscapes
+  - oil palm
+  - SAFE project
+  - Aonyx cinereus
+  - Lutrogale perspicillata
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:01:27Z'

@@ -25,7 +25,7 @@
 #|   - name: fungal_bacteria_ratio.rds
 #|     path: data/derived/soil/nutrient_pools
 #|     description: |
-#|       Fungal and bacteria ratio
+#|       Fungal and bacteria ratio in different land-use types
 #|
 #| package_dependencies:
 #|     - tidyverse
@@ -110,7 +110,7 @@ dat_scaled <-
 # so I only included soil pH and moisture in the model (which are not very
 # correlated with one another)
 mod <- glmmTMB(
-  PLFA ~ 0 + Group * (soil_pH + moisture) + Plot_ID,
+  PLFA ~ 0 + Group * (soil_pH + moisture + Plot_ID),
   dispformula = ~ 0 + Group,
   family = lognormal(link = "log"),
   data = dat_scaled
@@ -119,20 +119,22 @@ mod <- glmmTMB(
 summary(mod)
 
 # predict fungal and bacterial biomass (in terms of PLFA)
-newdat <- data.frame(
-  Group = unique(plfa$Group),
-  soil_pH = 0,
-  moisture = 0,
-  Plot_ID = "OG"
-)
-yhat <-
-  predict(mod, newdata = newdat, type = "response", cov.fit = TRUE)
-
-# calculate (predicted) fungal-to-bacterial ratio using their predicted biomass
-fungal_bacteria_ratio <- yhat$fit[1] / yhat$fit[2]
+newdat <-
+  expand_grid(
+    Group = unique(dat_scaled$Group),
+    soil_pH = 0,
+    moisture = 0,
+    Plot_ID = unique(dat_scaled$Plot_ID)
+  )
+newdat <- newdat |>
+  bind_cols(fit = predict(mod, newdata = newdat, type = "response")) |>
+  pivot_wider(names_from = Group, values_from = fit) |>
+  # calculate (predicted) fungal-to-bacterial ratio using their predicted
+  # biomass
+  mutate(fungal_bacteria_ratio = Fungal / Bacteria)
 
 # save output
 write_rds(
-  fungal_bacteria_ratio,
+  newdat,
   "data/derived/soil/nutrient_pools/fungal_bacteria_ratio.rds"
 )

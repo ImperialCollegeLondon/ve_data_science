@@ -6,22 +6,52 @@
 *.geotiff
 *.jpg
 *.jpeg
-*.png
 *.xlsx
 *.xls
 *.dat
 *.txt
 *.rds
 *.RData
-data/primary
 
-# scenario files (inputs for VE)
-# we are going to keep metadata files
-data/scenarios/maliau/maliau_1
-data/scenarios/maliau/maliau_2
+# Primary data
+data/primary/*
+!data/primary/site/
+!data/primary/site/gazetteer.geojson
 
-# notebooks
-analysis/soil/validation/*html
+# Derived data
+data/derived/plant/**/*.csv
+data/derived/troubleshoot/runtime_per_cell/*.png
+data/derived/soil/necromass/li_et_al_2023.csv
+data/derived/soil/llm/soil_constant_usage.toml
+data/derived/litter/stock/litter_stock.csv
+*.duckdb
+analysis/troubleshoot/cnp_ratios/*png
+*.parquet
+data/derived/soil/spatial_model
+data/derived/soil/fungi_stoichiometry/sporocarp_CNP.csv
+
+# MkDocs build output
+site/
+
+# Scenario files: ignore everything under each scenario folder by default.
+# We use `/**` so Git keeps the folders visible, then we can make exceptions
+# with `!` for specific files we do want to track (for example change logs or
+# one config file). If the folder itself were ignored, those exceptions would
+# not work.
+data/scenarios/*/*/*/**
+!data/scenarios/maliau/*/change_log.txt
+!data/scenarios/maliau/maliau_2/config/config.toml
+data/scenarios/runtime_per_cell
+
+# troubleshoot files
+analysis/troubleshoot/zarr_test/ve_example
+analysis/troubleshoot/inorganic_n_too_high/*.png
+
+# Notebooks
+/.quarto/
+**/*.quarto_ipynb
+analysis/soil/validation/*/*.html
+analysis/soil/issue_tracker/*.html
 
 # History files
 .Rhistory
@@ -46,6 +76,9 @@ analysis/soil/validation/*html
 # RStudio files
 .Rproj.user/
 *.Rproj
+
+# renv files
+.Rprofile
 
 # produced vignettes
 vignettes/*.html
@@ -74,8 +107,9 @@ rsconnect/
 # Python noise
 __pycache__
 
-# notebook caching
+# Jupyter notebook
 .ipynb_checkpoints
+.ipynb
 
 # Mac .DS_store
 .DS_store
@@ -492,7 +526,7 @@ FodyWeavers.xsd
 # .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-!.vscode/launch.json
+#!.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
@@ -555,3 +589,12 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Quarto files
+/.quarto/
+**/*.quarto_ipynb
+**/*_files
+analysis/**/*.html
+
+# AI files
+.posit/assistant/

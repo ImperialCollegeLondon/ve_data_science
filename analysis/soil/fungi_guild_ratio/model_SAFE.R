@@ -162,11 +162,20 @@ mod <- gllvm(
 
 summary(mod)
 
-# retrieve species intercepts (these should be their relative abundance
-# since we included an offset, which turns the modelled outcome into
-# count per unit sample)
-rel_abun <- plogis(mod$params$beta0)
-rel_abun
+# generate counterfactual new data from env
+newdat <- model.matrix(~Type, data = site |> distinct(Type))
+
+# predict species relative abundances across land-use types
+# (when offset = FALSE, it is equivalent to setting offset = log(1) = 0),
+# which is what we want to obtain relative abundances
+rel_abun <- predict(
+  mod,
+  newX = newdat[, -1],
+  level = 0,
+  type = "response",
+  offset = FALSE
+)
+dimnames(rel_abun) <- list(levels(as.factor(site$Type)), colnames(comm_matrix))
 
 # save output
 write_rds(rel_abun, "data/derived/soil/nutrient_pools/fungi_rel_abun.rds")

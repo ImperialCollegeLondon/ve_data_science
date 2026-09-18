@@ -1,0 +1,27 @@
+common_config_paths = ["path1", "path2"]
+site_directory = "/rds/projects/blah/dir"
+
+[[jobs]]
+config_paths = ["path3"]
+name = "scenario_one"
+repeats = 1
+
+[jobs.config]
+"soil.constants.groundwater_storage" = 0.2
+
+[[jobs]]
+config_paths = ["path4"]
+name = "scenario_two"
+repeats = 2
+
+[jobs.config]
+"soil.constants.groundwater_storage" = 0.2
+
+[[jobs]]
+config_paths = ["path3"]
+name = "scenario_three"
+repeats = 3
+
+[jobs.config]
+"soil.constants.groundwater_storage" = 0.5
+"soil.constants.soil_porosity" = 0.5

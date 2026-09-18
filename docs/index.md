@@ -6,3 +6,7 @@ more content moves into these documents, this page will be expanded to give an o
 Links:
 
 * [Using GLOBUS](./using_globus.md)
+
+Vignettes:
+
+* [Calculate derived variables](./derived_variables.md)

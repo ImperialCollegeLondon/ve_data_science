@@ -1,0 +1,9 @@
+# ignore non-R folders
+.github/
+.venv/
+.vscode/
+bib/
+data/
+hpc_jobs/
+templates/
+tools/python/

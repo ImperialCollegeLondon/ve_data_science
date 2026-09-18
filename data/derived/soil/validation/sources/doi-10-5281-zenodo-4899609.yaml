@@ -1,0 +1,35 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-4899609
+doi: 10.5281/zenodo.4899609
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Used in woody litter pool input data analyses.
+  screened_at: '2026-08-17T03:03:27Z'
+metadata:
+  title: Deadwood decay and traits in the SAFE landscape
+  authors:
+  - Riutta, Terhi
+  - Ewers, Robert M
+  - Malhi, Yadvinder
+  - Majalap, Noreen
+  - Cornelissen, Hans
+  - Robert, Roland
+  year: 2021
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/4899609
+  keywords:
+  - Deadwood
+  - Decay
+  - Deadwood traits
+  - Coarse woody debris
+  - SAFE project
+  - Soil moisture
+  - Wood density
+  - Decay class
+  - Nitrogen
+  - Phophorus
+  - Carbon
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:03:22Z'

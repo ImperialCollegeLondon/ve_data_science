@@ -2,3 +2,5 @@
 MD013:
   # Number of characters
   line_length: 88
+  # Tables cannot wrap, so exempt them
+  tables: false
