@@ -39,6 +39,8 @@
 #|       - name: ForestType
 #|         type: character
 #|         units: dimensionless
+#|         spatial_extent: Not applicable (plot identifier).
+#|         temporal_extent: Not applicable (static identifier).
 #|         description: |
 #|           Old-growth or Logged
 #|         method: null
@@ -54,6 +56,8 @@
 #|       - name: SAFEPlotName
 #|         type: character
 #|         units: dimensionless
+#|         spatial_extent: Not applicable (plot identifier).
+#|         temporal_extent: Not applicable (static identifier).
 #|         description: |
 #|           SAFE plot name, as in the SAFE Gazetteer
 #|         method: null
@@ -69,6 +73,8 @@
 #|       - name: PlotName
 #|         type: character
 #|         units: dimensionless
+#|         spatial_extent: Not applicable (plot identifier).
+#|         temporal_extent: Not applicable (static identifier).
 #|         description: |
 #|           Plot name (used in field work)
 #|         method: null
@@ -84,6 +90,8 @@
 #|       - name: ForestPlotsCode
 #|         type: character
 #|         units: dimensionless
+#|         spatial_extent: Not applicable (plot identifier).
+#|         temporal_extent: Not applicable (static identifier).
 #|         description: |
 #|           Plot code, as in the ForestPlots database (this should be used in publications, instead of plot name)
 #|         method: null
@@ -99,6 +107,8 @@
 #|       - name: WoodyNPP_Stem
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Woody stem productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -115,6 +125,8 @@
 #|       - name: SE_WoodyNPP_Stem
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of woody stem productivity
 #|         method: |
@@ -131,6 +143,8 @@
 #|       - name: WoodyNPP_CoarseRoot
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Coarse root productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -147,6 +161,8 @@
 #|       - name: SE_WoodyNPP_CoarseRoot
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of coarse root productivity
 #|         method: |
@@ -163,6 +179,8 @@
 #|       - name: WoodyNPP_BranchTurnover
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Branch turnover productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -179,6 +197,8 @@
 #|       - name: SE_WoodyNPP_BranchTurnover
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of branch turnover productivity
 #|         method: |
@@ -195,6 +215,8 @@
 #|       - name: WoodyNPP_Total
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Total woody net primary producivity
 #|         method: |
@@ -211,6 +233,8 @@
 #|       - name: SE_WoodyNPP_Total
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of total woody net primary producivity
 #|         method: |
@@ -227,6 +251,8 @@
 #|       - name: CanopyNPP_Leaf
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Leaf productivity (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -243,6 +269,8 @@
 #|       - name: SE_CanopyNPP_Leaf
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of leaf productivity
 #|         method: |
@@ -259,6 +287,8 @@
 #|       - name: CanopyNPP_Twig
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Twig productivity (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -275,6 +305,8 @@
 #|       - name: SE_CanopyNPP_Twig
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of twig productivity
 #|         method: |
@@ -291,6 +323,8 @@
 #|       - name: CanopyNPP_Reproductive
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Reproductive productivity, i.e. fruit, seed and flowers (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -307,6 +341,8 @@
 #|       - name: SE_CanopyNPP_Reproductive
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of reproductive productivity, i.e. fruit, seed and flowers
 #|         method: |
@@ -323,6 +359,8 @@
 #|       - name: CanopyNPP_Miscellaneous
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Unidentified canopy debris (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -339,6 +377,8 @@
 #|       - name: SE_CanopyNPP_Miscellaneous
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of unidentified canopy debris
 #|         method: |
@@ -355,6 +395,8 @@
 #|       - name: CanopyNPP_Herbivory
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Leaf productivity lost to herbivory (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -371,6 +413,8 @@
 #|       - name: SE_CanopyNPP_Herbivory
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of leaf productivity lost to herbivory
 #|         method: |
@@ -387,6 +431,8 @@
 #|       - name: CanopyNPP_Total
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Total canopy net primary producivty
 #|         method: |
@@ -403,6 +449,8 @@
 #|       - name: SE_CanopyNPP_Total
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of total canopy net primary producivty
 #|         method: |
@@ -419,6 +467,8 @@
 #|       - name: FineRootNPP
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Fine root productivity
 #|         method: |
@@ -435,6 +485,8 @@
 #|       - name: SE_FineRootNPP
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of fine root productivity
 #|         method: |
@@ -451,6 +503,8 @@
 #|       - name: TotalNPP_WithoutMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Total net primary productivity without mycorrhiza
 #|         method: |
@@ -467,6 +521,8 @@
 #|       - name: SE_TotalNPP_WithoutMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of total net primary productivity without mycorrhiza
 #|         method: |
@@ -483,6 +539,8 @@
 #|       - name: TotalNPP_WithMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Total net primary productivity including mycorrhiza
 #|         method: |
@@ -499,6 +557,8 @@
 #|       - name: SE_TotalNPP_WithMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of total net primary productivity including mycorrhiza
 #|         method: |
@@ -515,6 +575,8 @@
 #|       - name: GPP_WithoutMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Gross primary productivity without mycorrhiza
 #|         method: |
@@ -531,6 +593,8 @@
 #|       - name: SE_GPP_WithoutMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of gross primary productivity without mycorrhiza
 #|         method: |
@@ -547,6 +611,8 @@
 #|       - name: GPP_WithMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Gross primary productivity  including mycorrhiza
 #|         method: |
@@ -563,6 +629,8 @@
 #|       - name: SE_GPP_WithMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of gross primary productivity  including mycorrhiza
 #|         method: |
@@ -579,6 +647,8 @@
 #|       - name: R_Stem
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Respiration from woody stems
 #|         method: |
@@ -595,6 +665,8 @@
 #|       - name: SE_R_Stem
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of respiration from woody stems
 #|         method: |
@@ -611,6 +683,8 @@
 #|       - name: R_Leaf
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Leaf Respiration
 #|         method: |
@@ -627,6 +701,8 @@
 #|       - name: SE_R_Leaf
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of leaf Respiration
 #|         method: |
@@ -643,6 +719,8 @@
 #|       - name: R_FineRoots
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Respiration from fine roots
 #|         method: |
@@ -659,6 +737,8 @@
 #|       - name: SE_R_FineRoots
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of respiration from fine roots
 #|         method: |
@@ -675,6 +755,8 @@
 #|       - name: R_CoarseRoots
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Respiration from coarse roots
 #|         method: |
@@ -691,6 +773,8 @@
 #|       - name: SE_R_CoarseRoots
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of respiration from coarse roots
 #|         method: |
@@ -707,6 +791,8 @@
 #|       - name: R_auto
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Total autotrophic respiration
 #|         method: |
@@ -723,6 +809,8 @@
 #|       - name: SE_R_auto
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of total autotrophic respiration
 #|         method: |
@@ -739,6 +827,8 @@
 #|       - name: AbovegroundBiomassCarbonStock
 #|         type: numeric
 #|         units: MgCha-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Plot above-ground biomass carbon stock
 #|         method: |
@@ -755,6 +845,8 @@
 #|       - name: SE_AbovegroundBiomassCarbonStock
 #|         type: numeric
 #|         units: MgCha-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of plot above-ground biomass carbon stock
 #|         method: |
@@ -771,6 +863,8 @@
 #|       - name: CoarseRootBiomassCarbonStock
 #|         type: numeric
 #|         units: MgCha-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Biomass carbon stock of coarse roots
 #|         method: |
@@ -787,6 +881,8 @@
 #|       - name: SE_CoarseRootBiomassCarbonStock
 #|         type: numeric
 #|         units: MgCha-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
 #|         description: |
 #|           Standard error of biomass carbon stock of coarse roots
 #|         method: |

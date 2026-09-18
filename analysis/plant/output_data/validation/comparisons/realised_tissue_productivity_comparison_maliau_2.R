@@ -27,11 +27,15 @@
 #|   - name: realised_tissue_productivity_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: |
-#|       Merged observed and predicted woody stem productivity values retained
-#|       as separate plot-level entries for structural inspection, including
-#|       predicted spatial standard deviation.
-#|       Predicted variability fields are calculated upstream from temporal
-#|       variation within cells and spatial variation among cell means.
+#|       Merged observed and predicted woody stem productivity values,
+#|       including the predicted standard deviation (pooled across cells and
+#|       timesteps in the selected period), and the spatial/temporal extent
+#|       of each side of the comparison (`observed_spatial_extent`,
+#|       `observed_temporal_extent`, `predicted_spatial_extent`,
+#|       `predicted_temporal_extent`), sourced from the metadata of
+#|       carbon_balance_components_maliau.R and
+#|       realised_tissue_productivity_maliau_2.R respectively, so a mismatch
+#|       in scale between the two sides is visible directly in the output.
 #|     period_start: 2011-08-25
 #|     period_end: 2018-07-17
 #|     period_label: 2011-08 to 2018-07
@@ -39,7 +43,7 @@
 #|     path: data/derived/plant/output_data/validation/comparisons/figures_maliau_2
 #|     description: |
 #|       Point-range plot showing observed plot values with observational
-#|       standard errors and the predicted regional mean with spatial SD.
+#|       standard errors and the predicted regional mean with pooled SD.
 #|
 #| comparison_observations:
 #|   - observed_variable: WoodyNPP_Stem
@@ -50,100 +54,90 @@
 #|   - yaml
 #|
 #| usage_notes: |
-#|   The requested validation period is August 2011 to July 2018. The current
-#|   predicted output does not yet cover that period, so this script uses the
-#|   full available simulation-period mean and records that choice in
-#|   `predicted_period` and `predicted_temporal_aggregation`. Once the longer
-#|   simulation is available, rerunning the validation scenario master creates
-#|   non-missing selected-period columns and this comparison script switches to
-#|   them automatically; no script edit is required. The two observed plots
-#|   remain separate to preserve their spatial variation.
+#|   The predicted mean/sd/`selected_period` columns are read directly from
+#|   the standardised output; they are `NA` outside the requested period, so
+#|   this script simply takes the unique non-missing value of each. The two
+#|   observed plots remain separate to preserve their spatial variation.
+#|   The `*_spatial_extent`/`*_temporal_extent` columns are read from the
+#|   `variables` metadata of each mapped variable in
+#|   master_observed_data_processing_metadata.yml and
+#|   master_predicted_outputs_processing_metadata.yml, so they always match
+#|   the metadata headers of the two upstream scripts.
 #| ---
 
-validation_file <- "../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv"
+observed_data_file <- "../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv"
+predicted_outputs_file <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv"
+observed_metadata_file <- "../metadata/master_observed_data_processing_metadata.yml"
+predicted_metadata_file <- "../metadata/master_predicted_outputs_processing_metadata.yml"
 
-model_file <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv"
-scenarios_metadata_file <- "../../../../../analysis/plant/output_data/validation/metadata/master_predicted_outputs_processing_metadata.yml"
 output_dir <- "../../../../../data/derived/plant/output_data/validation/comparisons"
 figure_dir <- file.path(output_dir, "figures_maliau_2")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(figure_dir, recursive = TRUE, showWarnings = FALSE)
 
 validation_data <- utils::read.csv(
-  validation_file,
+  observed_data_file,
   stringsAsFactors = FALSE,
   check.names = FALSE
 )
 model_data <- utils::read.csv(
-  model_file,
+  predicted_outputs_file,
   stringsAsFactors = FALSE,
   check.names = FALSE
 )
+observed_metadata <- yaml::yaml.load_file(observed_metadata_file)
+predicted_metadata <- yaml::yaml.load_file(predicted_metadata_file)
+
+# Look up one variable's spatial_extent/temporal_extent from a master
+# metadata object, by output file name and variable name, so the comparison
+# always reflects the upstream scripts' current metadata.
+get_variable_extent <- function(metadata, output_file_name, variable_name) {
+  for (script in metadata$scripts) {
+    for (output_file in script$output_files) {
+      if (!identical(output_file$name, output_file_name)) {
+        next
+      }
+      for (variable in output_file$variables) {
+        if (identical(variable$name, variable_name)) {
+          return(list(
+            spatial_extent = variable$spatial_extent,
+            temporal_extent = variable$temporal_extent
+          ))
+        }
+      }
+    }
+  }
+  stop(sprintf(
+    "Variable %s not found in output file %s metadata.",
+    variable_name,
+    output_file_name
+  ))
+}
 
 # Woody stem productivity -----------------------------------------------
 stem_variable_map <- data.frame(
   validation_variable = "WoodyNPP_Stem",
   validation_se = "SE_WoodyNPP_Stem",
-  selected_predicted_variable = "stem_c_productivity_spatial_selected_period_mean",
-  simulation_predicted_variable = "stem_c_productivity_spatial_simulation_period_mean",
-  selected_predicted_sd = "stem_c_productivity_spatial_selected_period_sd",
-  simulation_predicted_sd = "stem_c_productivity_spatial_simulation_period_sd",
+  predicted_variable = "stem_c_productivity_mean",
+  predicted_sd_variable = "stem_c_productivity_sd",
   stringsAsFactors = FALSE
 )
 
-# Load the scenarios metadata so the comparison uses the same period and units
-# as the predicted-output processing workflow.
-scenario_metadata <- yaml::read_yaml(scenarios_metadata_file)
-scenario_script <- scenario_metadata$scripts[
-  vapply(
-    scenario_metadata$scripts,
-    function(script) script$title == "realised_tissue_productivity_maliau_2",
-    logical(1)
-  )
-][[1]]
-if (is.null(scenario_script)) {
-  stop(
-    "Scenario metadata does not define realised_tissue_productivity_maliau_2."
-  )
+# The predicted mean/sd/selected_period columns are NA outside the pooled
+# period, so the single non-missing value is the comparison value.
+model_units <- unique(model_data$units)
+if (length(model_units) != 1) {
+  stop("Predicted output must have exactly one units value.")
 }
-scenario_output <- scenario_script$output_files[
-  vapply(
-    scenario_script$output_files,
-    function(output) {
-      output$name == "realised_tissue_productivity_maliau_2.csv"
-    },
-    logical(1)
-  )
-][[1]]
-if (is.null(scenario_output)) {
-  stop(
-    "Scenario metadata does not define the Maliau 2 standardised output."
-  )
-}
-comparison_period <- scenario_output$period_label
-period_start <- scenario_output$period_start
-period_end <- scenario_output$period_end
+expected_units <- model_units
 
-stem_variable_metadata <- scenario_output$variables[
-  vapply(
-    scenario_output$variables,
-    function(variable) {
-      variable$name == stem_variable_map$simulation_predicted_variable
-    },
-    logical(1)
-  )
-][[1]]
-if (is.null(stem_variable_metadata)) {
+comparison_period <- unique(
+  model_data$selected_period[!is.na(model_data$selected_period)]
+)
+if (length(comparison_period) != 1) {
   stop(
-    sprintf(
-      "Scenario metadata does not define %s.",
-      stem_variable_map$simulation_predicted_variable
-    )
+    "Predicted output must have exactly one non-missing selected_period value."
   )
-}
-expected_units <- stem_variable_metadata$units
-if (!all(model_data$units == expected_units)) {
-  stop("Predicted output units do not match the expected validation units.")
 }
 
 # Define comparison mappings by variable. Each tissue has its own mapping
@@ -164,10 +158,8 @@ variable_map <- do.call(rbind, variable_maps)
 required_columns <- c(
   variable_map$validation_variable,
   variable_map$validation_se,
-  variable_map$selected_predicted_variable,
-  variable_map$simulation_predicted_variable,
-  variable_map$selected_predicted_sd,
-  variable_map$simulation_predicted_sd,
+  variable_map$predicted_variable,
+  variable_map$predicted_sd_variable,
   "ForestPlotsCode",
   "SAFEPlotName",
   "PlotName"
@@ -185,49 +177,27 @@ if (length(missing_columns) > 0) {
   )
 }
 
-# Resolve one predicted value for each mapped variable. Prefer the requested
-# period and use the full-simulation mean only when that period value is unavailable.
+# Resolve one predicted value for each mapped variable from the pooled,
+# non-missing mean/sd.
 predicted_selection <- lapply(
   seq_len(nrow(variable_map)),
   function(variable_index) {
-    selected_variable <- variable_map$selected_predicted_variable[
+    predicted_variable <- variable_map$predicted_variable[variable_index]
+    predicted_sd_variable <- variable_map$predicted_sd_variable[
       variable_index
     ]
-    simulation_variable <- variable_map$simulation_predicted_variable[
-      variable_index
-    ]
-    selected_values <- unique(model_data[[selected_variable]][
-      !is.na(model_data[[selected_variable]])
+    predicted_values <- unique(model_data[[predicted_variable]][
+      !is.na(model_data[[predicted_variable]])
     ])
-    if (length(selected_values) > 0) {
-      if (length(selected_values) != 1) {
-        stop(sprintf("Expected one predicted value for %s.", selected_variable))
-      }
-      return(list(
-        value = selected_values,
-        variable = selected_variable,
-        period = comparison_period,
-        temporal_aggregation = "mean_across_selected_period",
-        sd = unique(model_data[[variable_map$selected_predicted_sd[
-          variable_index
-        ]]]),
-      ))
-    }
-
-    simulation_values <- unique(model_data[[simulation_variable]][
-      !is.na(model_data[[simulation_variable]])
-    ])
-    if (length(simulation_values) != 1) {
-      stop(sprintf("Expected one predicted value for %s.", simulation_variable))
+    if (length(predicted_values) != 1) {
+      stop(sprintf("Expected one predicted value for %s.", predicted_variable))
     }
     list(
-      value = simulation_values,
-      variable = simulation_variable,
-      period = "full_simulation",
-      temporal_aggregation = "mean_across_simulation",
-      sd = unique(model_data[[variable_map$simulation_predicted_sd[
-        variable_index
-      ]]])
+      value = predicted_values,
+      variable = predicted_variable,
+      sd = unique(model_data[[predicted_sd_variable]][
+        !is.na(model_data[[predicted_sd_variable]])
+      ])
     )
   }
 )
@@ -246,16 +216,6 @@ predicted_variables <- vapply(
   function(selection) selection$variable,
   character(1)
 )
-predicted_periods <- vapply(
-  predicted_selection,
-  function(selection) selection$period,
-  character(1)
-)
-predicted_temporal_aggregation <- vapply(
-  predicted_selection,
-  function(selection) selection$temporal_aggregation,
-  character(1)
-)
 
 # Repeat the regional predicted value for each validation plot. This creates a
 # merged structural table without adding comparison metrics yet.
@@ -265,7 +225,20 @@ comparison_rows <- lapply(
     validation_variable <- variable_map$validation_variable[variable_index]
     validation_se_variable <- variable_map$validation_se[variable_index]
     predicted_variable <- predicted_variables[variable_index]
+    # The output column is named without the "_mean" suffix used internally.
+    predicted_display_variable <- sub("_mean$", "", predicted_variable)
     predicted_value <- predicted_values[variable_index]
+
+    observed_extent <- get_variable_extent(
+      observed_metadata,
+      basename(observed_data_file),
+      validation_variable
+    )
+    predicted_extent <- get_variable_extent(
+      predicted_metadata,
+      basename(predicted_outputs_file),
+      predicted_variable
+    )
 
     lapply(seq_len(nrow(validation_data)), function(plot_index) {
       observed_value <- validation_data[[validation_variable]][plot_index]
@@ -275,13 +248,13 @@ comparison_rows <- lapply(
         SAFEPlotName = validation_data$SAFEPlotName[plot_index],
         PlotName = validation_data$PlotName[plot_index],
         observed_variable = validation_variable,
-        predicted_variable = predicted_variable,
+        predicted_variable = predicted_display_variable,
         validation_period = comparison_period,
-        predicted_period = predicted_periods[variable_index],
-        predicted_spatial_aggregation = "mean_across_cells",
-        predicted_temporal_aggregation = predicted_temporal_aggregation[
-          variable_index
-        ],
+        predicted_period = comparison_period,
+        observed_spatial_extent = observed_extent$spatial_extent,
+        observed_temporal_extent = observed_extent$temporal_extent,
+        predicted_spatial_extent = predicted_extent$spatial_extent,
+        predicted_temporal_extent = predicted_extent$temporal_extent,
         observed_units = expected_units,
         predicted_units = expected_units,
         observed_value = observed_value,
@@ -357,7 +330,7 @@ points(
 )
 legend(
   "topright",
-  legend = c("Observed value +/- SE", "Predicted mean +/- spatial SD"),
+  legend = c("Observed value +/- SE", "Predicted mean +/- SD"),
   pch = 19,
   col = c("#2C7FB8", "#D95F02"),
   bty = "n"

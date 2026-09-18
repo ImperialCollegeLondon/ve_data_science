@@ -4,13 +4,13 @@
 #| description: |
 #|   Calculates realised stem, foliage, root, fruit, and seed carbon
 #|   productivity from Virtual Ecosystem plant cohort output for the Maliau 2
-#|   scenario. Cohort-level biomasses are multiplied by cohort abundance,
+#|   scenario. Cohort-level biomasses are multiplied by cohort individuals,
 #|   summed to cell-level carbon stocks, and differenced between consecutive
-#|   timesteps. Rows with missing `whole_crown_gpp` are treated as the initial
-#|   state before regular `time_index = 0`, allowing the first productivity
-#|   interval to be calculated. The output retains interval values, cell-level
-#|   period means, and means across all cells for both the selected period and
-#|   full simulation.
+#|   timesteps to give an annual area-normalised rate per cell and timestep.
+#|   `time_index = 0` has no preceding timestep, so its rate is `NA`. The
+#|   rate is also pooled across all cells and timesteps within the selected
+#|   period into a single mean and standard deviation, matching the spatial
+#|   and temporal extent of the expected validation data.
 #|
 #| virtual_ecosystem_module:
 #|   - Plant
@@ -32,12 +32,12 @@
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: |
 #|       Realised stem, foliage, root, fruit, and seed carbon productivity in
-#|       Mg C ha-1 year-1, including interval values, cell-level means, and
-#|       spatial means across all cells for the selected period and the full
-#|       Maliau 2 simulation.
-#|       Each per-cell mean also has a temporal `sd` field, and each across-cell
-#|       mean has a spatial `sd` field. These describe variability in the
-#|       deterministic prediction and are not total prediction uncertainty.
+#|       Mg C ha-1 year-1, with one row per cell and timestep, plus a pooled
+#|       mean and standard deviation across all cells and timesteps within
+#|       the selected period. The mean/sd/`selected_period` columns are `NA`
+#|       for timesteps outside the selected period. The standard deviation
+#|       describes variability across cells and intervals, not prediction
+#|       uncertainty.
 #|     period_start: 2011-08-25
 #|     period_end: 2018-07-17
 #|     period_label: 2011-08 to 2018-07
@@ -57,7 +57,8 @@
 #|       - name: selected_period
 #|         type: character
 #|         units: dimensionless
-#|         description: Month-based period used for the selected-period means.
+#|         description: |
+#|           Month-based period used for calculating pooled mean/sd.
 #|       - name: units
 #|         type: character
 #|         units: dimensionless
@@ -65,117 +66,145 @@
 #|       - name: stem_c_productivity
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: Single cell (cell_id).
+#|         temporal_extent: Single interval ending at time/time_index.
 #|         description: Interval realised stem carbon productivity for each cell.
-#|       - name: stem_c_productivity_selected_period_mean
+#|       - name: stem_c_productivity_mean
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean stem carbon productivity per cell.
-#|       - name: stem_c_productivity_simulation_period_mean
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Mean stem carbon productivity pooled across all cells and
+#|           timesteps in the selected period. NA outside that period.
+#|       - name: stem_c_productivity_sd
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean stem carbon productivity per cell.
-#|       - name: stem_c_productivity_spatial_selected_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean stem carbon productivity across all cells.
-#|       - name: stem_c_productivity_spatial_simulation_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean stem carbon productivity across all cells.
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Standard deviation of stem carbon productivity pooled across all
+#|           cells and timesteps in the selected period. NA outside that period.
 #|       - name: foliage_c_productivity
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: Single cell (cell_id).
+#|         temporal_extent: Single interval ending at time/time_index.
 #|         description: Interval realised foliage carbon productivity for each cell.
-#|       - name: foliage_c_productivity_selected_period_mean
+#|       - name: foliage_c_productivity_mean
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean foliage carbon productivity per cell.
-#|       - name: foliage_c_productivity_simulation_period_mean
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Mean foliage carbon productivity pooled across all cells and
+#|           timesteps in the selected period. NA outside that period.
+#|       - name: foliage_c_productivity_sd
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean foliage carbon productivity per cell.
-#|       - name: foliage_c_productivity_spatial_selected_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean foliage carbon productivity across all cells.
-#|       - name: foliage_c_productivity_spatial_simulation_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean foliage carbon productivity across all cells.
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Standard deviation of foliage carbon productivity pooled across
+#|           all cells and timesteps in the selected period. NA outside that
+#|           period.
 #|       - name: root_c_productivity
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: Single cell (cell_id).
+#|         temporal_extent: Single interval ending at time/time_index.
 #|         description: Interval realised root carbon productivity for each cell.
-#|       - name: root_c_productivity_selected_period_mean
+#|       - name: root_c_productivity_mean
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean root carbon productivity per cell.
-#|       - name: root_c_productivity_simulation_period_mean
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Mean root carbon productivity pooled across all cells and
+#|           timesteps in the selected period. NA outside that period.
+#|       - name: root_c_productivity_sd
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean root carbon productivity per cell.
-#|       - name: root_c_productivity_spatial_selected_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean root carbon productivity across all cells.
-#|       - name: root_c_productivity_spatial_simulation_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean root carbon productivity across all cells.
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Standard deviation of root carbon productivity pooled across all
+#|           cells and timesteps in the selected period. NA outside that period.
 #|       - name: fruit_c_productivity
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: Single cell (cell_id).
+#|         temporal_extent: Single interval ending at time/time_index.
 #|         description: Interval realised fruit carbon productivity for each cell.
-#|       - name: fruit_c_productivity_selected_period_mean
+#|       - name: fruit_c_productivity_mean
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean fruit carbon productivity per cell.
-#|       - name: fruit_c_productivity_simulation_period_mean
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Mean fruit carbon productivity pooled across all cells and
+#|           timesteps in the selected period. NA outside that period.
+#|       - name: fruit_c_productivity_sd
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean fruit carbon productivity per cell.
-#|       - name: fruit_c_productivity_spatial_selected_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean fruit carbon productivity across all cells.
-#|       - name: fruit_c_productivity_spatial_simulation_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean fruit carbon productivity across all cells.
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Standard deviation of fruit carbon productivity pooled across all
+#|           cells and timesteps in the selected period. NA outside that period.
 #|       - name: seed_c_productivity
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
+#|         spatial_extent: Single cell (cell_id).
+#|         temporal_extent: Single interval ending at time/time_index.
 #|         description: Interval realised seed carbon productivity for each cell.
-#|       - name: seed_c_productivity_selected_period_mean
+#|       - name: seed_c_productivity_mean
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean seed carbon productivity per cell.
-#|       - name: seed_c_productivity_simulation_period_mean
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Mean seed carbon productivity pooled across all cells and
+#|           timesteps in the selected period. NA outside that period.
+#|       - name: seed_c_productivity_sd
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean seed carbon productivity per cell.
-#|       - name: seed_c_productivity_spatial_selected_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Selected-period mean seed carbon productivity across all cells.
-#|       - name: seed_c_productivity_spatial_simulation_period_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         description: Full-simulation mean seed carbon productivity across all cells.
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps in the selected period
+#|           (2011-08 to 2018-07).
+#|         description: |
+#|           Standard deviation of seed carbon productivity pooled across all
+#|           cells and timesteps in the selected period. NA outside that period.
 #|
 #| package_dependencies:
 #|   - data.table
 #|
 #| usage_notes: |
-#|   If no period dates are supplied, the selected-period mean equals the full
-#|   simulation-period mean. Dates are matched by month when supplied.
-#|   The validation data provide a regional mean rather than observations for
-#|   individual cells, so the spatial mean across all model cells for the
-#|   selected validation period is the primary comparison value. Cell-level
-#|   interval values and period means are retained for diagnostics and for
-#|   future validation cases with an exact spatial match.
-#|   This corresponds to a spatially aggregated, temporally resolved model
-#|   comparison followed by a mean over the selected validation period.
+#|   If no period dates are supplied, the mean/sd are pooled across the entire
+#|   simulation instead. Dates are matched by month.
+#|   The validation data provide a single regional mean rather than
+#|   observations for individual cells, so `<variable>_mean` (pooled across
+#|   all cells and timesteps in the selected period) is the primary
+#|   comparison value.
 #| ---
 
 source("../../../../../tools/R/R/get_ve_variables.R")
@@ -254,11 +283,6 @@ standardised_seed_c_productivity <-
     start_date = "2011-08-25",
     end_date = "2018-07-17"
   )
-
-# Note that the validation data here would compare against the column:
-# stem_c_productivity_spatial_simulation_period_mean, assuming we run the entire
-# simulation and that the period is included in the simulation (which should be
-# the case when not terminated early)
 
 # Merge the data together
 
