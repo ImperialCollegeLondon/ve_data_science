@@ -1,0 +1,37 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-13122107
+doi: 10.5281/zenodo.13122107
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains microbial diversity data but not soil or litter. The microbial     diversity
+    variables are not validation target for now.
+  screened_at: '2026-08-14T02:32:35Z'
+metadata:
+  title: Mycelial soil fungal communty attributes and mycelial production across a
+    forest disturbance gradient
+  authors:
+  - Robinson, Samuel JB
+  - Elias, Dafydd
+  - Johnson, David
+  - Both, Sabine
+  - Riutta, Terhi
+  - Goodall, Tim
+  - Majalap, Noreen
+  - McNamara, Niall P
+  - Griffiths, Robert
+  - Ostle, Nick
+  year: 2024
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.13122107
+  keywords:
+  - soil
+  - soil fungal communities
+  - mycelium
+  - hyphal growth
+  - mycorrhizae
+  - selectively logged forest
+  - oil palm
+  provider: doi_content_search
+  retrieved_at: '2026-08-14T02:32:22Z'

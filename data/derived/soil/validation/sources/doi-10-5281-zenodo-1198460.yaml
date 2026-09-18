@@ -1,0 +1,21 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1198460
+doi: 10.5281/zenodo.1198460
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains soil surface moisture.
+  screened_at: '2026-08-14T01:53:32Z'
+metadata:
+  title: The Effect Of Forest Modification On Ectoparasite Density And Diversity
+  authors: Kendall, Alex
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198460
+  keywords:
+  - Leech
+  - ectoparasite
+  - body size
+  provider: doi_content_search
+  retrieved_at: '2026-08-14T01:53:08Z'

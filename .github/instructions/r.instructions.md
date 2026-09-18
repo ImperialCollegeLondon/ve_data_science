@@ -94,6 +94,14 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
 - Qualify non-base calls in suggestions (e.g., `dplyr::mutate()`).
 - Suggest vectorized or tidy solutions over loops when idiomatic.
 - Prefer small helper functions over long pipelines.
+- When asked to document an R script with non-executable scaffolding, use R
+  section headers (comment lines that start with `#` and end with a repeated
+  marker run such as `-`, `=`, or `#`, e.g.,
+  `# Section One ---------------------------------`,
+  `# Section Two =================================`,
+  `### Section Three #############################`).
+  Insert a blank line between sections, and do not number section titles
+  unless explicitly requested.
 - When multiple approaches are equivalent, prefer readability and type stability and explain the trade-offs.
 
 ---

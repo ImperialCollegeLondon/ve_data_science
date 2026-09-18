@@ -101,7 +101,7 @@ library(glmmTMB)
 library(biogas)
 library(lubridate)
 library(hms)
-source("tools/R/convert_df_to_nc.R")
+box::use(tools/R/R/convert_df_to_nc[...])
 
 set.seed(20260313)
 
@@ -213,7 +213,13 @@ dat <-
 
 # Split SAFE campaign variables into specific pools -----------------------
 
-# first we predict POM and MAOM carbon and nitrogen fractions:
+# First, the SAFE campaign measured total_carbon and total_nitrogen in [%]
+# convert them to [g/g] = [kg/kg] for the downstream conversions
+dat <-
+  dat |>
+  mutate(across(c(total_carbon, total_nitrogen), ~ .x / 100))
+
+# Predict POM and MAOM carbon and nitrogen fractions:
 # soil_c_pool_pom
 # soil_c_pool_maom
 # soil_n_pool_particulate
@@ -222,6 +228,7 @@ dat <-
 # Both are predicted from control plots from a tropical forest in BCI
 source("analysis/soil/nutrient_pools/pom_maom_sayer.R")
 
+# Predict soil_c(or n)_pool_pom(or maom)
 dat <-
   dat |>
   mutate(
@@ -385,8 +392,7 @@ source("analysis/soil/ammonium_nitrate/model.R")
 # simulation purpose (they have the same fixed effects)
 flux_forest_idx <- which(flux$landuse == "forest")[1]
 
-# simulate ammonium and nitrate
-# 1 mg N cm-3 = 1 kg N m-3 so no conversion needed
+# simulate ammonium and nitrate (already in kg{N} m-3)
 ammonium_sim <- as.numeric(
   glmmTMB:::simulate.glmmTMB(mod_ammonium, nsim = n_sim)[flux_forest_idx, ]
 )
@@ -404,18 +410,21 @@ dat <-
 
 
 # Fungal fruiting body biomass:
-# fungal_fruiting_bodies
+# fungal_fruiting_bodies_cnp
 source("analysis/soil/sporocarp_biomass/sporocarp_biomass.R")
 
-# simulate and add directly to dataset
+# simulate sporocarp biomass, then convert to CNP nutrients and add to dataset
+fungal_fruiting_bodies_biomass <-
+  rnorm(n_sim, sporocarp_biomass_mean, sporocarp_biomass_sd)
 dat <-
   dat |>
   mutate(
-    fungal_fruiting_bodies = rnorm(
-      n_sim,
-      sporocarp_biomass_mean,
-      sporocarp_biomass_sd
-    )
+    fungal_fruiting_body_c = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$C,
+    fungal_fruiting_body_n = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$N,
+    fungal_fruiting_body_p = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$P
   )
 
 
@@ -503,6 +512,14 @@ dat <-
         soil_c_pool_necromass,
         soil_n_pool_necromass,
         soil_p_pool_necromass
+      ),
+      c
+    ),
+    fungal_fruiting_bodies_cnp = pmap(
+      list(
+        fungal_fruiting_body_c,
+        fungal_fruiting_body_n,
+        fungal_fruiting_body_p
       ),
       c
     ),

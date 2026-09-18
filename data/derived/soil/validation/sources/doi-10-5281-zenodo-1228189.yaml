@@ -1,0 +1,21 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1228189
+doi: 10.5281/zenodo.1228189
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains only soil surface temperature.
+  screened_at: '2026-08-14T02:31:02Z'
+metadata:
+  title: Forest Soil Temperature Data
+  authors: Ewers, Robert M.
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1228189
+  keywords:
+  - microclimate
+  - soil temperature
+  - belowground
+  provider: doi_content_search
+  retrieved_at: '2026-08-14T02:30:52Z'

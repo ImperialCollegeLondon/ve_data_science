@@ -1,65 +1,73 @@
 #| ---
-#| title: Descriptive name of the script
+#| title: Short, descriptive script title
 #|
 #| description: |
-#|     Brief description of what the script does, its main purpose, and any important
-#|     scientific context. Keep it concise but informative.
+#|   Briefly explain the purpose of the script, the problem it solves, and any
+#|   important assumptions or context needed to understand it.
 #|
-#|     This can include multiple paragraphs.
+#|   Use one or more paragraphs if needed. Keep the description specific enough
+#|   that a future reader can tell what the script is for without reading the
+#|   code.
 #|
-#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, None]
+#| virtual_ecosystem_module: [Animal, Plant, Abiotic, Soil, Litter, or All]
 #|
 #| author:
-#|   - David Orme
+#|   - Full name of the script author
 #|
 #| status: final or wip
 #|
 #| input_files:
 #|   - name: Input file name
-#|     path: Full file path on shared drive
+#|     path: Relative repository path to the input file
 #|     description: |
-#|       Source (short citation) and a brief explanation of what this input file
-#|       contains and its use case in this script
+#|       What the file contains and why the script needs it.
 #|
 #| output_files:
 #|   - name: Output file name
-#|     path: Full file path on shared drive
+#|     path: Relative repository path to the output file
 #|     description: |
-#|       What the output file contains and its significance, are they used in any other
-#|       scripts?
+#|       What the file contains and how it is intended to be used.
+#|
+#| source_files:
+#|   - name: Source script name
+#|     path: Relative repository path to the sourced file
+#|     description: |
+#|       Why the script is sourced or imported.
 #|
 #| package_dependencies:
-#|     - tools
+#|   - package_name
 #|
 #| usage_notes: |
-#|   Any known issues or bugs? Future plans for script/extensions or improvements
-#|   planned that should be noted?
+#|   Add important caveats, known limitations, required setup, or follow-up work.
+#|   Keep this field focused on information that helps a future maintainer run
+#|   or extend the script safely.
 #| ---
 
-# An R Script template
-# First we load the packages at the top of the notebook
+# Load required packages
+# Add only the packages actually used by this script.
+library(package_name)
 
-library(tools)
+# Optional helper functions
+# Define local helpers with source() or box::use() here if needed
+# These should be listed under source_files in the metadata header
 
-# We can define local functions and these should be documented using the
-# [ROxygen2 format](https://roxygen2.r-lib.org/articles/rd.html).
-
-my_function <- function(value = 10) {
-  #| A function to return a value
-  #|
-  #| This function simply prints out the value passed to it and then returns the value.
-  #| It is just a simple example to give a template for the function description syntax.
-  #|
-  #| @param value A value to be used in the function
-  #|
-  #| @return Returns the original valu
-
-  # Print the value
-  print(value)
-
-  # Return the value
-  return(value)
+#' Brief function summary
+#'
+#' Describe what the function does in one or more sentences.
+#'
+#' @param value Description of the input.
+#' @return Description of the returned value.
+#' @examples
+#' \dontrun{
+#'   example_function()
+#' }
+example_function <- function(value) {
+  value
 }
 
-# Now we can use the function.
-my_value <- my_function()
+# Main workflow
+# Keep the top-level execution in a clear, linear order.
+
+# Read inputs
+# Transform data
+# Write outputs

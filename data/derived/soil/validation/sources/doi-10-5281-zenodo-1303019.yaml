@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1303019
+doi: 10.5281/zenodo.1303019
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains soil temperature.
+  screened_at: '2026-08-14T02:32:14Z'
+metadata:
+  title: Microclimate And The Development Rate Of Mosquito Vectors
+  authors:
+  - Psomas, Elizabeth
+  - Chung, Arthur C.
+  - Ewers, Robert M.
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1303019
+  keywords:
+  - Mosquito-bourne disease
+  - microclimate
+  - vectorial capacity
+  - development rate
+  - soil temperature
+  - body size
+  provider: doi_content_search
+  retrieved_at: '2026-08-14T02:32:05Z'

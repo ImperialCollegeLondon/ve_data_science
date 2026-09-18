@@ -1,0 +1,30 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3698114
+doi: 10.5281/zenodo.3698114
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Usable data are duplicates of drewer_2019.
+  screened_at: '2026-08-18T07:17:52Z'
+metadata:
+  title: Soil VOC emission rates and associated parameters from forest and oil palm
+    in the SAFE landscape
+  authors:
+  - Drewer, Julia
+  - Leduning, Melissa
+  - Sentian, Justin
+  - Skiba, Ute
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3698114
+  keywords:
+  - HTMF
+  - soil
+  - monoterpenes
+  - gas exchange
+  - SAFE project
+  - biogeochemistry
+  - VOC
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T07:15:41Z'
