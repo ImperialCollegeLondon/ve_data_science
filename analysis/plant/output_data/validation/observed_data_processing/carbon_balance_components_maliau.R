@@ -108,7 +108,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Woody stem productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -126,7 +128,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of woody stem productivity
 #|         method: |
@@ -144,7 +148,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Coarse root productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -162,7 +168,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of coarse root productivity
 #|         method: |
@@ -180,7 +188,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Branch turnover productivity (subcomponent of woody net primary productivity)
 #|         method: |
@@ -198,7 +208,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of branch turnover productivity
 #|         method: |
@@ -216,7 +228,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Total woody net primary producivity
 #|         method: |
@@ -234,7 +248,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of total woody net primary producivity
 #|         method: |
@@ -252,7 +268,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Leaf productivity (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -270,7 +288,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of leaf productivity
 #|         method: |
@@ -288,7 +308,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Twig productivity (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -306,7 +328,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of twig productivity
 #|         method: |
@@ -324,7 +348,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Reproductive productivity, i.e. fruit, seed and flowers (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -342,7 +368,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of reproductive productivity, i.e. fruit, seed and flowers
 #|         method: |
@@ -360,7 +388,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Unidentified canopy debris (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -378,7 +408,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of unidentified canopy debris
 #|         method: |
@@ -396,7 +428,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Leaf productivity lost to herbivory (subcomponent of canopy net primary productivity)
 #|         method: |
@@ -414,7 +448,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of leaf productivity lost to herbivory
 #|         method: |
@@ -432,7 +468,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Total canopy net primary producivty
 #|         method: |
@@ -450,7 +488,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of total canopy net primary producivty
 #|         method: |
@@ -468,7 +508,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Fine root productivity
 #|         method: |
@@ -486,7 +528,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of fine root productivity
 #|         method: |
@@ -504,7 +548,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Total net primary productivity without mycorrhiza
 #|         method: |
@@ -522,7 +568,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of total net primary productivity without mycorrhiza
 #|         method: |
@@ -540,7 +588,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Total net primary productivity including mycorrhiza
 #|         method: |
@@ -558,7 +608,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of total net primary productivity including mycorrhiza
 #|         method: |
@@ -576,7 +628,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Gross primary productivity without mycorrhiza
 #|         method: |
@@ -594,7 +648,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of gross primary productivity without mycorrhiza
 #|         method: |
@@ -612,7 +668,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Gross primary productivity  including mycorrhiza
 #|         method: |
@@ -630,7 +688,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of gross primary productivity  including mycorrhiza
 #|         method: |
@@ -648,7 +708,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Respiration from woody stems
 #|         method: |
@@ -666,7 +728,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of respiration from woody stems
 #|         method: |
@@ -684,7 +748,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Leaf Respiration
 #|         method: |
@@ -702,7 +768,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of leaf Respiration
 #|         method: |
@@ -720,7 +788,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Respiration from fine roots
 #|         method: |
@@ -738,7 +808,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of respiration from fine roots
 #|         method: |
@@ -756,7 +828,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Respiration from coarse roots
 #|         method: |
@@ -774,7 +848,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of respiration from coarse roots
 #|         method: |
@@ -792,7 +868,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Total autotrophic respiration
 #|         method: |
@@ -810,7 +888,9 @@
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of total autotrophic respiration
 #|         method: |
@@ -828,7 +908,9 @@
 #|         type: numeric
 #|         units: MgCha-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Plot above-ground biomass carbon stock
 #|         method: |
@@ -846,7 +928,9 @@
 #|         type: numeric
 #|         units: MgCha-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of plot above-ground biomass carbon stock
 #|         method: |
@@ -864,7 +948,9 @@
 #|         type: numeric
 #|         units: MgCha-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Biomass carbon stock of coarse roots
 #|         method: |
@@ -882,7 +968,9 @@
 #|         type: numeric
 #|         units: MgCha-1
 #|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
-#|         temporal_extent: Represents average from 2011-08-25 until 2018-07-17.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
 #|         description: |
 #|           Standard error of biomass carbon stock of coarse roots
 #|         method: |

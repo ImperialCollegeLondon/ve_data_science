@@ -26,6 +26,13 @@
 #|     description: |
 #|       Virtual Ecosystem plant cohort output containing realised tissue carbon
 #|       mass per individual, cohort abundance, cell identifiers, and timestamps.
+#|   - name: master_observed_data_processing_metadata.yml
+#|     path: analysis/plant/output_data/validation/metadata
+#|     description: |
+#|       Provides the validation period (`period_start`/`period_end`) declared
+#|       by carbon_balance_components_maliau.R, so the pooled mean/sd below
+#|       always match the observed dataset's temporal extent. Requires
+#|       master_observed_data_processing.R to have been run first.
 #|
 #| output_files:
 #|   - name: realised_tissue_productivity_maliau_2.csv
@@ -71,8 +78,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Mean stem carbon productivity pooled across all cells and
 #|           timesteps in the selected period. NA outside that period.
@@ -81,8 +87,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Standard deviation of stem carbon productivity pooled across all
 #|           cells and timesteps in the selected period. NA outside that period.
@@ -97,8 +102,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Mean foliage carbon productivity pooled across all cells and
 #|           timesteps in the selected period. NA outside that period.
@@ -107,8 +111,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Standard deviation of foliage carbon productivity pooled across
 #|           all cells and timesteps in the selected period. NA outside that
@@ -124,8 +127,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Mean root carbon productivity pooled across all cells and
 #|           timesteps in the selected period. NA outside that period.
@@ -134,8 +136,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Standard deviation of root carbon productivity pooled across all
 #|           cells and timesteps in the selected period. NA outside that period.
@@ -150,8 +151,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Mean fruit carbon productivity pooled across all cells and
 #|           timesteps in the selected period. NA outside that period.
@@ -160,8 +160,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Standard deviation of fruit carbon productivity pooled across all
 #|           cells and timesteps in the selected period. NA outside that period.
@@ -176,8 +175,7 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Mean seed carbon productivity pooled across all cells and
 #|           timesteps in the selected period. NA outside that period.
@@ -186,14 +184,14 @@
 #|         units: Mg C ha-1 year-1
 #|         spatial_extent: Pooled across all cells.
 #|         temporal_extent: |
-#|           Pooled across all timesteps in the selected period
-#|           (2011-08 to 2018-07).
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
 #|         description: |
 #|           Standard deviation of seed carbon productivity pooled across all
 #|           cells and timesteps in the selected period. NA outside that period.
 #|
 #| package_dependencies:
 #|   - data.table
+#|   - yaml
 #|
 #| usage_notes: |
 #|   If no period dates are supplied, the mean/sd are pooled across the entire
@@ -202,11 +200,17 @@
 #|   observations for individual cells, so `<variable>_mean` (pooled across
 #|   all cells and timesteps in the selected period) is the primary
 #|   comparison value.
+#|   Each tissue's period is loaded at runtime from its own corresponding
+#|   variable in master_observed_data_processing_metadata.yml (stem ->
+#|   WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP, fruit and
+#|   seed -> CanopyNPP_Reproductive), so they always match the observed
+#|   dataset's declared periods without manual syncing.
 #| ---
 
 source("../../../../../tools/R/R/get_ve_variables.R")
 
 plants_cohort_data_path <- "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
+observed_metadata_file <- "../metadata/master_observed_data_processing_metadata.yml"
 
 # Read only the columns needed for the productivity calculations to reduce
 # memory pressure when this large scenario file is loaded into R. Using
@@ -233,13 +237,47 @@ plants_cohort_data <- data.table::fread(
 output_dir <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing"
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
+# Look up the observed period declared for a specific validation variable,
+# so each tissue's calculation uses its own corresponding observed variable
+# rather than a single shared reference.
+if (!file.exists(observed_metadata_file)) {
+  stop(
+    "Observed metadata not found. Run master_observed_data_processing.R first."
+  )
+}
+observed_metadata <- yaml::yaml.load_file(observed_metadata_file)
+observed_variables <- observed_metadata$scripts[[1]]$output_files[[1]]$variables
+
+get_observed_period <- function(variable_name) {
+  matches <- Filter(
+    function(variable) identical(variable$name, variable_name),
+    observed_variables
+  )
+  if (length(matches) != 1) {
+    stop(sprintf(
+      "Expected exactly one observed variable named '%s'.",
+      variable_name
+    ))
+  }
+  list(
+    start_date = matches[[1]]$period_start,
+    end_date = matches[[1]]$period_end
+  )
+}
+
+stem_period <- get_observed_period("WoodyNPP_Stem")
+foliage_period <- get_observed_period("CanopyNPP_Leaf")
+root_period <- get_observed_period("FineRootNPP")
+fruit_period <- get_observed_period("CanopyNPP_Reproductive")
+seed_period <- get_observed_period("CanopyNPP_Reproductive")
+
 standardised_stem_c_productivity <- calculate_ve_realised_tissue_productivity(
   plants_cohort_data = plants_cohort_data,
   input_variable = "stem_c_biomass",
   output_variable = "stem_c_productivity",
   cell_area_ha = 1,
-  start_date = "2011-08-25",
-  end_date = "2018-07-17"
+  start_date = stem_period$start_date,
+  end_date = stem_period$end_date
 )
 
 standardised_foliage_c_productivity <-
@@ -248,8 +286,8 @@ standardised_foliage_c_productivity <-
     input_variable = "foliage_c_biomass",
     output_variable = "foliage_c_productivity",
     cell_area_ha = 1,
-    start_date = "2011-08-25",
-    end_date = "2018-07-17"
+    start_date = foliage_period$start_date,
+    end_date = foliage_period$end_date
   )
 
 standardised_root_c_productivity <- calculate_ve_realised_tissue_productivity(
@@ -257,8 +295,8 @@ standardised_root_c_productivity <- calculate_ve_realised_tissue_productivity(
   input_variable = "root_c_biomass",
   output_variable = "root_c_productivity",
   cell_area_ha = 1,
-  start_date = "2011-08-25",
-  end_date = "2018-07-17"
+  start_date = root_period$start_date,
+  end_date = root_period$end_date
 )
 
 standardised_fruit_c_productivity <-
@@ -267,8 +305,8 @@ standardised_fruit_c_productivity <-
     input_variable = "fruit_c_biomass",
     output_variable = "fruit_c_productivity",
     cell_area_ha = 1,
-    start_date = "2011-08-25",
-    end_date = "2018-07-17"
+    start_date = fruit_period$start_date,
+    end_date = fruit_period$end_date
   )
 
 standardised_seed_c_productivity <-
@@ -277,8 +315,8 @@ standardised_seed_c_productivity <-
     input_variable = "seed_c_biomass",
     output_variable = "seed_c_productivity",
     cell_area_ha = 1,
-    start_date = "2011-08-25",
-    end_date = "2018-07-17"
+    start_date = seed_period$start_date,
+    end_date = seed_period$end_date
   )
 
 # Merge the data together
