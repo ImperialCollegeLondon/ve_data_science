@@ -1,5 +1,26 @@
 # Change log of maliau_2 scenario input data
 
+2026-09-16
+- Module: Soil
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/soil_maliau.nc
+  - data/scenarios/maliau/maliau_1/config/data_config.toml
+- Changes made:
+  - Updated fungal_fruiting_bodies to fungal_fruiting_bodies_cnp
+- References:
+  - PR #628
+
+2026-09-10
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/config/plant_pft_definitions_maliau_2
+- Changes made:
+  - Updates some of the pft trait names to newly required names.
+- References:
+  - PR #613
+
 2026-09-10
 - Module: Plants
 - Author: Arne Scheire
