@@ -304,7 +304,12 @@ def test_write_csv_safely_uses_suffixed_fallback_when_target_is_locked(
     calls: list[Path] = []
 
     def fake_to_csv(self, path_or_buf=None, *args, **kwargs):
-        target_path = Path(path_or_buf)
+        if isinstance(path_or_buf, Path):
+            target_path = path_or_buf
+        elif hasattr(path_or_buf, "name"):
+            target_path = Path(path_or_buf.name)
+        else:
+            target_path = Path(path_or_buf)
         calls.append(target_path)
         if target_path == output_path:
             raise PermissionError("File is locked")

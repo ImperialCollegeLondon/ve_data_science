@@ -569,15 +569,16 @@ def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
             fallback = output_path.with_name(
                 f"{output_path.stem}_{number}{output_path.suffix}"
             )
-            if fallback.exists():
+            try:
+                with fallback.open("x", encoding="utf-8", newline="\n") as output_file:
+                    data.to_csv(
+                        output_file,
+                        index=False,
+                        encoding="utf-8",
+                        lineterminator="\n",
+                    )
+            except FileExistsError:
                 continue
-
-            data.to_csv(
-                fallback,
-                index=False,
-                encoding="utf-8",
-                lineterminator="\n",
-            )
             print(
                 "\nWARNING: Could not overwrite the requested output file. "
                 "It may currently be open in another program."
