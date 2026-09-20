@@ -3,7 +3,9 @@
 #|
 #| description: |
 #|     This is a helper function for build_config() in build_config.R to collect
-#|     filenames and paths to input data into a dataframe.
+#|     filenames and paths to input data into a dataframe. Currently the input
+#|     variable names are hardcoded, which is not ideal against VE updates. We
+#|     should fix that later.
 #|
 #| VE_module: All
 #|
@@ -40,7 +42,8 @@ collect_data_paths <- function(plants, climate, elevation, soil, litter) {
     var_name = c(
       "plant_pft_propagules",
       "subcanopy_vegetation_biomass",
-      "subcanopy_seedbank_biomass"
+      "subcanopy_seedbank_biomass",
+      "downward_shortwave_radiation"
     ),
     file_path = plants
   ) |>
@@ -51,12 +54,12 @@ collect_data_paths <- function(plants, climate, elevation, soil, litter) {
           "air_temperature_ref",
           "relative_humidity_ref",
           "atmospheric_pressure_ref",
-          "precipitation",
           "atmospheric_co2_ref",
           "mean_annual_temperature",
           "wind_speed_ref",
           "downward_longwave_radiation",
-          "downward_shortwave_radiation"
+          "diurnal_temperature_range_ref",
+          "precipitation"
         ),
         file_path = climate
       )
