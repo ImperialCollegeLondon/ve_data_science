@@ -273,6 +273,30 @@ def test_default_output_path_uses_current_working_directory(
     assert output_path.is_file()
 
 
+def test_main_prints_audit_summary(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    sample_rows: list[dict[str, object]],
+) -> None:
+    """Emit the checksum and audit summary fields documented for the workflow."""
+
+    input_path = tmp_path / LANG_SCRIPT.EXPECTED_INPUT_NAME
+    output_path = tmp_path / LANG_SCRIPT.DEFAULT_OUTPUT_NAME
+    write_lang_csv(input_path, sample_rows)
+
+    LANG_SCRIPT.main(["--input", str(input_path), "--output", str(output_path)])
+    captured = capsys.readouterr().out
+
+    assert "Input file:" in captured
+    assert "Input SHA-256:" in captured
+    assert "Raw rows loaded:" in captured
+    assert "Assimilation-efficiency rows retained:" in captured
+    assert "Mapping status counts:" in captured
+    assert "Rows requiring manual review:" in captured
+    assert "Rows with recommended context checks:" in captured
+    assert "Output written:" in captured
+
+
 def test_deterministic_output_sorting_and_utf8_newlines(
     tmp_path: Path, sample_rows: list[dict[str, object]]
 ) -> None:

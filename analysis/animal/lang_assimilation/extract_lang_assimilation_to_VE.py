@@ -527,6 +527,74 @@ def finalise_output(mapped_data: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def write_fallback_csv(data: pd.DataFrame, output_path: Path) -> Path | None:
+    """Write to a suffixed fallback path when the preferred output is unavailable.
+
+    Args:
+        data: Output data frame to write.
+        output_path: Preferred output path whose stem is used for suffixes.
+
+    Returns:
+        The fallback path that was written, or ``None`` if no fallback succeeded.
+
+    Raises:
+        PermissionError: If an unexpected permission issue occurs while cleaning
+            up temporary files.
+
+    """
+
+    for number in range(1, 1000):
+        fallback = output_path.with_name(
+            f"{output_path.stem}_{number}{output_path.suffix}"
+        )
+        try:
+            reserved_file_descriptor = os.open(
+                fallback,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            )
+        except (FileExistsError, PermissionError):
+            continue
+
+        os.close(reserved_file_descriptor)
+
+        temporary_output = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                newline="\n",
+                delete=False,
+                dir=output_path.parent,
+                prefix=f"{fallback.stem}_",
+                suffix=fallback.suffix,
+            ) as output_file:
+                temporary_output = Path(output_file.name)
+                data.to_csv(
+                    output_file,
+                    index=False,
+                    encoding="utf-8",
+                    lineterminator="\n",
+                )
+            temporary_output.replace(fallback)
+        except PermissionError:
+            fallback.unlink(missing_ok=True)
+            if temporary_output is not None:
+                temporary_output.unlink(missing_ok=True)
+            continue
+        except Exception:
+            fallback.unlink(missing_ok=True)
+            if temporary_output is not None:
+                temporary_output.unlink(missing_ok=True)
+            raise
+        finally:
+            if temporary_output is not None and temporary_output.exists():
+                temporary_output.unlink(missing_ok=True)
+
+        return fallback
+
+    return None
+
+
 def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
     """Write the output CSV and fall back to suffixed filenames if needed.
 
@@ -554,64 +622,19 @@ def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
         )
         return output_path
     except PermissionError:
-        for number in range(1, 1000):
-            fallback = output_path.with_name(
-                f"{output_path.stem}_{number}{output_path.suffix}"
-            )
-            try:
-                reserved_file_descriptor = os.open(
-                    fallback,
-                    os.O_CREAT | os.O_EXCL | os.O_WRONLY,
-                )
-            except (FileExistsError, PermissionError):
-                continue
+        fallback = write_fallback_csv(data, output_path)
+        if fallback is None:
+            raise PermissionError(
+                f"Could not save {output_path.name}; the target appears to be locked "
+                "and no fallback filename was available."
+            ) from None
 
-            os.close(reserved_file_descriptor)
-
-            temporary_output = None
-            try:
-                with tempfile.NamedTemporaryFile(
-                    mode="w",
-                    encoding="utf-8",
-                    newline="\n",
-                    delete=False,
-                    dir=output_path.parent,
-                    prefix=f"{fallback.stem}_",
-                    suffix=fallback.suffix,
-                ) as output_file:
-                    temporary_output = Path(output_file.name)
-                    data.to_csv(
-                        output_file,
-                        index=False,
-                        encoding="utf-8",
-                        lineterminator="\n",
-                    )
-                temporary_output.replace(fallback)
-            except PermissionError:
-                fallback.unlink(missing_ok=True)
-                if temporary_output is not None:
-                    temporary_output.unlink(missing_ok=True)
-                continue
-            except Exception:
-                fallback.unlink(missing_ok=True)
-                if temporary_output is not None:
-                    temporary_output.unlink(missing_ok=True)
-                raise
-            finally:
-                if temporary_output is not None and temporary_output.exists():
-                    temporary_output.unlink(missing_ok=True)
-
-            print(
-                "\nWARNING: Could not overwrite the requested output file. "
-                "It may currently be open in another program."
-            )
-            print(f"Saved the output instead as:\n  {fallback}")
-            return fallback
-
-    raise PermissionError(
-        f"Could not save {output_path.name}; the target appears to be locked and "
-        "no fallback filename was available."
-    )
+        print(
+            "\nWARNING: Could not overwrite the requested output file. "
+            "It may currently be open in another program."
+        )
+        print(f"Saved the output instead as:\n  {fallback}")
+        return fallback
 
 
 def print_run_summary(
