@@ -292,6 +292,33 @@ def test_deterministic_output_sorting_and_utf8_newlines(
     assert "\r\n" not in first_output.read_text(encoding="utf-8")
 
 
+def test_write_csv_safely_uses_suffixed_fallback_when_target_is_locked(
+    tmp_path: Path,
+) -> None:
+    """Write a suffixed fallback file when the requested path raises PermissionError."""
+
+    output_path = tmp_path / "mapped.csv"
+    fallback_path = tmp_path / "mapped_1.csv"
+    data = pd.DataFrame({"value": [1, 2]})
+    original_to_csv = pd.DataFrame.to_csv
+    calls: list[Path] = []
+
+    def fake_to_csv(self, path_or_buf=None, *args, **kwargs):
+        target_path = Path(path_or_buf)
+        calls.append(target_path)
+        if target_path == output_path:
+            raise PermissionError("File is locked")
+        return original_to_csv(self, path_or_buf, *args, **kwargs)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(pd.DataFrame, "to_csv", fake_to_csv)
+        written_path = LANG_SCRIPT.write_csv_safely(data, output_path)
+
+    assert written_path == fallback_path
+    assert calls == [output_path, fallback_path]
+    assert fallback_path.is_file()
+
+
 def test_input_filename_validation(
     tmp_path: Path, sample_rows: list[dict[str, object]]
 ) -> None:

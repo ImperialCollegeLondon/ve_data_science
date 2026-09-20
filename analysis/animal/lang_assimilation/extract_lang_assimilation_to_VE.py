@@ -539,7 +539,7 @@ def finalise_output(mapped_data: pd.DataFrame) -> pd.DataFrame:
 
 
 def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
-    """Write the output CSV, preserving the existing locked-file fallback.
+    """Write the output CSV and fall back to suffixed filenames if needed.
 
     Args:
         data: Output data frame to write.
@@ -549,8 +549,8 @@ def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
         The path that was written.
 
     Raises:
-        PermissionError: If the target appears to be locked and no fallback is
-            available.
+        PermissionError: If the requested path appears to be locked and no
+            suffixed fallback filename is available.
 
     """
 
