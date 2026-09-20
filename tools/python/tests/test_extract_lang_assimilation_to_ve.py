@@ -147,6 +147,30 @@ def test_retained_values_must_be_between_zero_and_one(tmp_path: Path) -> None:
         LANG_SCRIPT.main(["--input", str(input_path)])
 
 
+def test_input_header_order_must_match_documented_schema(tmp_path: Path) -> None:
+    """Reject staged CSV files that reorder the documented Lang header."""
+
+    input_path = tmp_path / LANG_SCRIPT.EXPECTED_INPUT_NAME
+    rows = [
+        {
+            "resource": "Leaves",
+            "taxonomic.name": "Species A",
+            "taxonomic.group.consumer": "Insect",
+            "consumer.type": "Herbivore",
+            "body.size.gram": 1.1,
+            "temperature.degree.C": 20.0,
+            "assimilation.efficiency": 0.4,
+            "reference.short": "Ref A",
+            "reference.original": "Reference A",
+            "comments": "Header order should fail",
+        }
+    ]
+    write_lang_csv(input_path, rows)
+
+    with pytest.raises(ValueError, match="expected header order"):
+        LANG_SCRIPT.main(["--input", str(input_path)])
+
+
 def test_context_check_recommended_uses_consumer_and_reference_counts(
     tmp_path: Path,
 ) -> None:

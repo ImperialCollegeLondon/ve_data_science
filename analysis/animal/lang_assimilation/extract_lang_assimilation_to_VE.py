@@ -365,6 +365,13 @@ def load_raw_data(input_path: Path) -> pd.DataFrame:
             "Lang input file is missing required columns: " + ", ".join(missing_columns)
         )
 
+    loaded_header_order = raw_data.columns[: len(REQUIRED_INPUT_COLUMNS)].tolist()
+    if loaded_header_order != REQUIRED_INPUT_COLUMNS:
+        raise ValueError(
+            "Lang input file does not preserve the expected header order. "
+            f"Expected {REQUIRED_INPUT_COLUMNS} but found {loaded_header_order}."
+        )
+
     return raw_data
 
 
