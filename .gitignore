@@ -599,3 +599,7 @@ analysis/**/*.html
 
 # AI files
 .posit/assistant/
+
+# Lang et al. assimilation workflow staged inputs and generated outputs
+Lang_et_al_2017_data.csv
+Lang_et_al_2017_VE_mapped_observations*.csv
