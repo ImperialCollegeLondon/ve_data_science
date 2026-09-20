@@ -280,6 +280,46 @@ def test_context_overrides_are_applied_when_configured(
     assert bool(mapped["manual_review_required"]) is True
 
 
+def test_override_rows_appear_in_audit_review_list(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """List override-driven rows in the printed manual-review summary."""
+
+    monkeypatch.setitem(
+        LANG_SCRIPT.CONTEXT_OVERRIDES,
+        ("detritus", "detritivore", "ref d"),
+        LANG_SCRIPT.MappingRecord(
+            "herbivore",
+            "Project-specific override retained as a reproducibility record.",
+        ),
+    )
+    input_path = tmp_path / LANG_SCRIPT.EXPECTED_INPUT_NAME
+    output_path = tmp_path / LANG_SCRIPT.DEFAULT_OUTPUT_NAME
+    rows = [
+        {
+            "taxonomic.name": "Species D",
+            "taxonomic.group.consumer": "Insect",
+            "resource": "Detritus",
+            "consumer.type": "Detritivore",
+            "body.size.gram": 2.4,
+            "temperature.degree.C": 18.0,
+            "assimilation.efficiency": 0.3,
+            "reference.short": "Ref D",
+            "reference.original": "Reference D",
+            "comments": "Override review row",
+        }
+    ]
+    write_lang_csv(input_path, rows)
+
+    LANG_SCRIPT.main(["--input", str(input_path), "--output", str(output_path)])
+    captured = capsys.readouterr().out
+
+    assert "Resources requiring manual review:" in captured
+    assert "Detritus" in captured
+
+
 def test_default_output_path_uses_current_working_directory(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

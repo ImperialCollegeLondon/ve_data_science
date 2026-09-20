@@ -72,6 +72,7 @@ import hashlib
 import os
 import tempfile
 from collections.abc import Sequence
+from itertools import count
 from pathlib import Path
 from typing import NamedTuple
 
@@ -550,7 +551,7 @@ def write_fallback_csv(data: pd.DataFrame, output_path: Path) -> Path | None:
 
     """
 
-    for number in range(1, 1000):
+    for number in count(1):
         fallback = output_path.with_name(
             f"{output_path.stem}_{number}{output_path.suffix}"
         )
@@ -660,8 +661,8 @@ def print_run_summary(
 
     """
 
-    unmapped_resources = (
-        mapped_output.loc[mapped_output["mapping_status"] == "unmapped", "resource"]
+    review_resources = (
+        mapped_output.loc[mapped_output["manual_review_required"], "resource"]
         .dropna()
         .drop_duplicates()
         .sort_values()
@@ -683,9 +684,9 @@ def print_run_summary(
         f"{int(mapped_output['context_check_recommended'].sum())}"
     )
 
-    if unmapped_resources:
-        print("\nExplicitly unmapped resources:")
-        for resource in unmapped_resources:
+    if review_resources:
+        print("\nResources requiring manual review:")
+        for resource in review_resources:
             print(f"  - {resource}")
 
     print(f"\nOutput written:\n  {written_output}")
