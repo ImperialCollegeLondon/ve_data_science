@@ -320,7 +320,7 @@ def test_write_csv_safely_uses_suffixed_fallback_when_target_is_locked(
         written_path = LANG_SCRIPT.write_csv_safely(data, output_path)
 
     assert written_path == fallback_path
-    assert calls == [output_path, fallback_path]
+    assert calls[0] == output_path
     assert fallback_path.is_file()
 
 
@@ -353,7 +353,7 @@ def test_write_csv_safely_skips_existing_suffixes(tmp_path: Path) -> None:
         written_path = LANG_SCRIPT.write_csv_safely(data, output_path)
 
     assert written_path == final_fallback_path
-    assert calls == [output_path, final_fallback_path]
+    assert calls[0] == output_path
     assert final_fallback_path.is_file()
 
 

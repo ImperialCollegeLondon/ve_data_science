@@ -69,6 +69,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import os
+import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 from typing import NamedTuple
@@ -444,20 +446,7 @@ def lookup_resource_mapping(resource_label: object) -> MappingRecord | None:
     """
 
     normalised_label = normalise_text(resource_label)
-    singular_forms = [normalised_label]
-
-    if normalised_label.endswith("ies"):
-        singular_forms.append(normalised_label[:-3] + "y")
-    if normalised_label.endswith("es"):
-        singular_forms.append(normalised_label[:-2])
-    if normalised_label.endswith("s"):
-        singular_forms.append(normalised_label[:-1])
-
-    for candidate in singular_forms:
-        if candidate in RESOURCE_MAP:
-            return RESOURCE_MAP[candidate]
-
-    return None
+    return RESOURCE_MAP.get(normalised_label)
 
 
 def apply_mapping(row: pd.Series) -> pd.Series:
@@ -570,15 +559,48 @@ def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
                 f"{output_path.stem}_{number}{output_path.suffix}"
             )
             try:
-                with fallback.open("x", encoding="utf-8", newline="\n") as output_file:
+                reserved_file_descriptor = os.open(
+                    fallback,
+                    os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                )
+            except (FileExistsError, PermissionError):
+                continue
+
+            os.close(reserved_file_descriptor)
+
+            temporary_output = None
+            try:
+                with tempfile.NamedTemporaryFile(
+                    mode="w",
+                    encoding="utf-8",
+                    newline="\n",
+                    delete=False,
+                    dir=output_path.parent,
+                    prefix=f"{fallback.stem}_",
+                    suffix=fallback.suffix,
+                ) as output_file:
+                    temporary_output = Path(output_file.name)
                     data.to_csv(
                         output_file,
                         index=False,
                         encoding="utf-8",
                         lineterminator="\n",
                     )
-            except (FileExistsError, PermissionError):
+                temporary_output.replace(fallback)
+            except PermissionError:
+                fallback.unlink(missing_ok=True)
+                if temporary_output is not None:
+                    temporary_output.unlink(missing_ok=True)
                 continue
+            except Exception:
+                fallback.unlink(missing_ok=True)
+                if temporary_output is not None:
+                    temporary_output.unlink(missing_ok=True)
+                raise
+            finally:
+                if temporary_output is not None and temporary_output.exists():
+                    temporary_output.unlink(missing_ok=True)
+
             print(
                 "\nWARNING: Could not overwrite the requested output file. "
                 "It may currently be open in another program."
