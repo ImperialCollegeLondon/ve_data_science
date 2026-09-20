@@ -324,6 +324,39 @@ def test_write_csv_safely_uses_suffixed_fallback_when_target_is_locked(
     assert fallback_path.is_file()
 
 
+def test_write_csv_safely_skips_existing_suffixes(tmp_path: Path) -> None:
+    """Advance to the next suffix when the first fallback filename is occupied."""
+
+    output_path = tmp_path / "mapped.csv"
+    occupied_fallback_path = tmp_path / "mapped_1.csv"
+    final_fallback_path = tmp_path / "mapped_2.csv"
+    occupied_fallback_path.write_text("occupied\n", encoding="utf-8")
+
+    data = pd.DataFrame({"value": [1, 2]})
+    original_to_csv = pd.DataFrame.to_csv
+    calls: list[Path] = []
+
+    def fake_to_csv(self, path_or_buf=None, *args, **kwargs):
+        if isinstance(path_or_buf, Path):
+            target_path = path_or_buf
+        elif hasattr(path_or_buf, "name"):
+            target_path = Path(path_or_buf.name)
+        else:
+            target_path = Path(path_or_buf)
+        calls.append(target_path)
+        if target_path == output_path:
+            raise PermissionError("File is locked")
+        return original_to_csv(self, path_or_buf, *args, **kwargs)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(pd.DataFrame, "to_csv", fake_to_csv)
+        written_path = LANG_SCRIPT.write_csv_safely(data, output_path)
+
+    assert written_path == final_fallback_path
+    assert calls == [output_path, final_fallback_path]
+    assert final_fallback_path.is_file()
+
+
 def test_input_filename_validation(
     tmp_path: Path, sample_rows: list[dict[str, object]]
 ) -> None:

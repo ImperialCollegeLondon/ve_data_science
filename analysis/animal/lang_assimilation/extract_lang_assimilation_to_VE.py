@@ -577,7 +577,7 @@ def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
                         encoding="utf-8",
                         lineterminator="\n",
                     )
-            except FileExistsError:
+            except (FileExistsError, PermissionError):
                 continue
             print(
                 "\nWARNING: Could not overwrite the requested output file. "
