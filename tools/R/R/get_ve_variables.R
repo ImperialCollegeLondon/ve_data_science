@@ -752,18 +752,18 @@ calculate_ve_realised_tissue_productivity <- function(
         "At least two regular timesteps are required to calculate productivity."
       )
     }
-    # Assigning NA into an existing Date vector (rather than c()-combining
-    # with a bare NA) keeps the Date class intact.
     cell_data$interval_start_time <- c(
-      cell_data$time[1],
+      NA,
       head(cell_data$time, -1)
     )
-    cell_data$interval_start_time[1] <- NA
     cell_data$interval_years <- c(NA, diff(cell_data$time)) / 365.25
     biomass_change_kg <- c(NA, diff(cell_data$tissue_biomass_kg))
     cell_data[[output_variable]] <-
-      biomass_change_kg / cell_data$interval_years / cell_area_ha / 1000
-    cell_data
+      biomass_change_kg /
+      1000 /
+      cell_data$interval_years /
+      cell_area_ha /
+      cell_data
   })
   cell_tissue_biomass <- do.call(rbind, cell_tissue_biomass)
 
