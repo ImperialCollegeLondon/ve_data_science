@@ -36,7 +36,6 @@
 library(tidyverse)
 library(toml)
 source("tools/R/R/build_config.R")
-source("tools/R/R/collect_data_paths.R")
 
 
 # Source new values analysed elsewhere -----------------------------------

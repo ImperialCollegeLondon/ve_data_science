@@ -3,9 +3,9 @@
 #|
 #| description: |
 #|     Generate a single compiled TOML configuration file for the Virtual
-#|     Ecosystem's ve_run command. Values are serialized with the toml package,
-#|     while comments, section order, empty tables, and repeated
-#|     [[core.data.variable]] blocks are assembled explicitly.
+#|     Ecosystem's ve_run command. This file now collects the small helper
+#|     functions used to prepare and render configuration content, including
+#|     input path collection, TOML rendering, and final file writing.
 #|
 #| VE_module: All
 #|
@@ -18,7 +18,6 @@
 #| output_files:
 #|
 #| package_dependencies:
-#|   - purrr
 #|   - toml
 #|
 #| usage_notes: See details below
@@ -37,6 +36,89 @@
 #' @param file_name File name for the compiled TOML configuration file.
 #'
 #' @returns A compiled TOML configuration file saved in the specified path.
+
+#' Collect filenames and paths to input data into a data frame
+#'
+#' @param plants Full relative path and filename of the plants module input
+#'   data.
+#' @param climate Full relative path and filename of the climate variables in
+#'   the abiotic or abiotic_simple module input data.
+#' @param elevation Full relative path and filename of the elevation variable
+#'   in the abiotic or abiotic_simple module input data.
+#' @param soil Full relative path and filename of the soil module input data.
+#' @param litter Full relative path and filename of the litter module input
+#'   data.
+#'
+#' @returns A data.frame containing `var_name` and `file_path` columns.
+collect_data_paths <- function(plants, climate, elevation, soil, litter) {
+  rbind(
+    data.frame(
+      var_name = c(
+        "plant_pft_propagules",
+        "subcanopy_vegetation_biomass",
+        "subcanopy_seedbank_biomass",
+        "downward_shortwave_radiation"
+      ),
+      file_path = plants
+    ),
+    data.frame(
+      var_name = c(
+        "air_temperature_ref",
+        "relative_humidity_ref",
+        "atmospheric_pressure_ref",
+        "atmospheric_co2_ref",
+        "mean_annual_temperature",
+        "wind_speed_ref",
+        "downward_longwave_radiation",
+        "diurnal_temperature_range_ref",
+        "precipitation"
+      ),
+      file_path = climate
+    ),
+    data.frame(
+      var_name = "elevation",
+      file_path = elevation
+    ),
+    data.frame(
+      var_name = c(
+        "soil_cnp_pool_lmwc",
+        "soil_cnp_pool_maom",
+        "soil_cnp_pool_necromass",
+        "soil_cnp_pool_pom",
+        "clay_fraction",
+        "fungal_fruiting_bodies_cnp",
+        "pH",
+        "soil_c_pool_arbuscular_mycorrhiza",
+        "soil_c_pool_bacteria",
+        "soil_c_pool_ectomycorrhiza",
+        "soil_c_pool_saprotrophic_fungi",
+        "soil_enzyme_maom_bacteria",
+        "soil_enzyme_maom_fungi",
+        "soil_enzyme_pom_bacteria",
+        "soil_enzyme_pom_fungi",
+        "soil_n_pool_ammonium",
+        "soil_n_pool_nitrate",
+        "soil_p_pool_labile",
+        "soil_p_pool_primary",
+        "soil_p_pool_secondary"
+      ),
+      file_path = soil
+    ),
+    data.frame(
+      var_name = c(
+        "litter_pool_above_metabolic_cnp",
+        "litter_pool_above_structural_cnp",
+        "litter_pool_below_metabolic_cnp",
+        "litter_pool_below_structural_cnp",
+        "litter_pool_woody_cnp",
+        "lignin_above_structural",
+        "lignin_below_structural",
+        "lignin_woody"
+      ),
+      file_path = litter
+    )
+  )
+}
 
 normalize_comment_lines <- function(lines) {
   if (is.null(lines) || length(lines) == 0) {
