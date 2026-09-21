@@ -52,6 +52,7 @@
 #'
 #' @returns A named list ready for `core$data$variable`, grouped according to
 #'   the compiled TOML structure.
+
 build_variable_groups <- function(
   plants_path,
   climate_path,
@@ -60,6 +61,8 @@ build_variable_groups <- function(
   litter_path
 ) {
   make_entries <- function(file_path, var_names) {
+    # Variable names are hard-coded currently and must be updated if upstream
+    # Virtual Ecosystem variable names or module inputs change.
     lapply(var_names, function(var_name) {
       list(file_path = file_path, var_name = var_name)
     })
