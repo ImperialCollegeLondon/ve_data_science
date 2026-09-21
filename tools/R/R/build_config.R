@@ -27,6 +27,12 @@
 #|   These helpers expect callers to assemble the desired TOML section order
 #|   explicitly. They rely on `toml::write_toml()` for scalar and vector values,
 #|   but render repeated array-of-table sections manually.
+#|
+#|   **User responsibility**: The script using these helpers must ensure that
+#|   input data files (climate, elevation, soil, plants, litter) contain all
+#|   variables required by Virtual Ecosystem modules. This script does not
+#|   validate input file structure or variable presence. See Virtual Ecosystem
+#|   documentation for the list of required variables per module.
 #| ---
 
 #' Build grouped `core$data$variable` entries for the compiled TOML config
@@ -166,13 +172,26 @@ trim_blank_tail <- function(lines) {
   lines
 }
 
-# Internal helper: render scalar or vector TOML fields from a named list.
+# Internal helper: render scalar or vector TOML fields from a named list,
+# preserving full numeric precision (toml::write_toml defaults to 4 decimals).
 render_value_lines <- function(values) {
   if (is.null(values) || length(values) == 0) {
     return(character())
   }
 
-  lines <- strsplit(toml::write_toml(values), "\n", fixed = TRUE)[[1]]
+  # Use format() with full precision for numeric values before passing to toml.
+  # This preserves the full precision that would otherwise be lost.
+  preserve_numeric_precision <- function(x) {
+    if (is.numeric(x) && !is.na(x)) {
+      # Use format with sufficient digits; as.numeric round-trips through character.
+      as.numeric(format(x, digits = 15, scientific = FALSE))
+    } else {
+      x
+    }
+  }
+
+  values_precise <- lapply(values, preserve_numeric_precision)
+  lines <- strsplit(toml::write_toml(values_precise), "\n", fixed = TRUE)[[1]]
   trim_blank_tail(lines)
 }
 
