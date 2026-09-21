@@ -1,0 +1,26 @@
+schema_version: 1
+record_id: doi-10-1007-s00248-017-1043-6
+doi: 10.1007/s00248-017-1043-6
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Contains only bacterial compositional data. No bacterial-fungal comparison,
+    no bacterial C, no soil data.
+  screened_at: '2026-09-17T13:28:28Z'
+metadata:
+  title: Impact of Land-use Change on Vertical Soil Bacterial Communities in Sabah
+  authors:
+  - Tin, Hoe Seng
+  - Palaniveloo, Kishneth
+  - Anilik, Junia
+  - Vickneswaran, Mathavan
+  - Tashiro, Yukihiro
+  - Vairappan, Charles S.
+  - Sakai, Kenji
+  year: 2017
+  journal: Microbial Ecology
+  publisher: Springer Science and Business Media LLC
+  url: http://dx.doi.org/10.1007/s00248-017-1043-6
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-17T13:27:15Z'

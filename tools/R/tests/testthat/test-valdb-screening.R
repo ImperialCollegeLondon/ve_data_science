@@ -136,6 +136,26 @@ test_that("normalise_doi_metadata handles absent optional metadata", {
 })
 
 
+test_that("normalise_doi_metadata handles missing author name parts", {
+  response <- new_test_doi_response()
+  response$author <- data.frame(
+    family = c("Example", "Sukarno", NA_character_),
+    given = c("Alice", NA_character_, NA_character_),
+    literal = c(NA_character_, NA_character_, "World Agroforestry")
+  )
+
+  metadata <- normalise_doi_metadata(
+    response,
+    retrieved_at = as.POSIXct("2026-08-13 12:00:00", tz = "UTC")
+  )
+
+  expect_identical(
+    metadata$authors,
+    c("Example, Alice", "Sukarno", "World Agroforestry")
+  )
+})
+
+
 test_that("fetch_doi_metadata normalises DOI and retrieved metadata", {
   fake_fetcher <- function(doi, format) {
     expect_identical(doi, "10.5281/zenodo.8158810")

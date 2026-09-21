@@ -1,0 +1,25 @@
+schema_version: 1
+record_id: doi-10-21161-mjm-1461804
+doi: 10.21161/mjm.1461804
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Endophytic fungi associated with trees but no useful data corresponding to
+    VE outputs.
+  screened_at: '2026-09-18T05:28:48Z'
+metadata:
+  title: 'Endophytic fungi from Maliau Basin, Sabah: Identification of strains and
+    antimicrobial compounds'
+  authors:
+  - Chai, K. L.
+  - Latip, J.
+  - Appleton, D.
+  - Yap, W. B.
+  - Santhanam, J.
+  year: 2018
+  journal: Malaysian Journal of Microbiology
+  publisher: Malaysian Journal of Microbiology
+  url: http://dx.doi.org/10.21161/mjm.1461804
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T05:27:24Z'

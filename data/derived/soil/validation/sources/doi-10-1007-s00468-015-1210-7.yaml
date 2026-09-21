@@ -1,0 +1,24 @@
+schema_version: 1
+record_id: doi-10-1007-s00468-015-1210-7
+doi: 10.1007/s00468-015-1210-7
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Contains soil inorganic nitrogen and fine-root biomass. N can be directly
+    ingested, but fine-root biomass does not contain C content.
+  screened_at: '2026-09-18T02:03:42Z'
+metadata:
+  title: Variation in the aboveground stand structure and fine-root biomass of Bornean
+    heath (kerangas) forests in relation to altitude and soil nitrogen availability
+  authors:
+  - Miyamoto, Kazuki
+  - Wagai, Rota
+  - Aiba, Shin-ichiro
+  - Nilus, Reuben
+  year: 2015
+  journal: Trees
+  publisher: Springer Science and Business Media LLC
+  url: http://dx.doi.org/10.1007/s00468-015-1210-7
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T02:02:39Z'
