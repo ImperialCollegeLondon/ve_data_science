@@ -21,12 +21,12 @@
 #| output_files:
 #|
 #| package_dependencies:
-#|   - toml
+#|   - tomledit
 #|
 #| usage_notes: |
-#|   These helpers expect callers to assemble the desired TOML section order
-#|   explicitly. They rely on `toml::write_toml()` for scalar and vector values,
-#|   but render repeated array-of-table sections manually.
+#|   These functions expect users to assemble the desired TOML section order
+#|   explicitly. They rely on `tomledit` for writing/rendering scalar and
+#|   vector values, but render repeated array-of-table sections manually.
 #|
 #|   **User responsibility**: The script using these helpers must ensure that
 #|   input data files (climate, elevation, soil, plants, litter) contain all
@@ -172,26 +172,29 @@ trim_blank_tail <- function(lines) {
   lines
 }
 
-# Internal helper: render scalar or vector TOML fields from a named list,
-# preserving full numeric precision (toml::write_toml defaults to 4 decimals).
+# Internal helper: normalize scalar/vector values for tomledit serialization.
+normalize_values_for_tomledit <- function(values) {
+  lapply(values, function(x) {
+    if (is.list(x) && length(x) == 0) {
+      character()
+    } else {
+      x
+    }
+  })
+}
+
+# Internal helper: render scalar or vector TOML fields from a named list.
 render_value_lines <- function(values) {
   if (is.null(values) || length(values) == 0) {
     return(character())
   }
 
-  # Use format() with full precision for numeric values before passing to toml.
-  # This preserves the full precision that would otherwise be lost.
-  preserve_numeric_precision <- function(x) {
-    if (is.numeric(x) && !is.na(x)) {
-      # Use format with sufficient digits; as.numeric round-trips through character.
-      as.numeric(format(x, digits = 15, scientific = FALSE))
-    } else {
-      x
-    }
-  }
-
-  values_precise <- lapply(values, preserve_numeric_precision)
-  lines <- strsplit(toml::write_toml(values_precise), "\n", fixed = TRUE)[[1]]
+  values <- normalize_values_for_tomledit(values)
+  lines <- strsplit(
+    tomledit::to_toml(tomledit::as_toml(values)),
+    "\n",
+    fixed = TRUE
+  )[[1]]
   trim_blank_tail(lines)
 }
 

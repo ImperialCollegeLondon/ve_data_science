@@ -48,19 +48,24 @@
 #|
 #| usage_notes: |
 #|   Run this script from the repository root so that the relative paths used
-#|   by `source()`, `read_toml()`, `read_csv()`, and the rendered config remain
-#|   valid.
+#|   by `source()`, `toml::read_toml()`, `read_csv()`, and the rendered config
+#|   remain valid.
+#|
+#|   `tomledit` is used for writing/rendering scalar fields in the
+#|   sourced helper, but `toml` is used here to read the scenario input
+#|   into a plain R structure.
 #| ---
 
 library(tidyverse)
-library(toml)
 source("tools/R/R/build_config.R")
 
 
 # Read scenario inputs ----------------------------------------------------
 
 # Pull out just the compiled core settings for the maliau_2 scenario.
-maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
+maliau <- toml::read_toml(
+  "data/derived/site/maliau/maliau_grid_definition.toml"
+)
 maliau_2 <- maliau$Scenario$maliau_2$core
 
 # Group repeated core.data.variable entries by the module section that uses them.
