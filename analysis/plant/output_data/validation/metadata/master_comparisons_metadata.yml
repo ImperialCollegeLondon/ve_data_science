@@ -1,0 +1,33 @@
+title: master_comparisons_metadata
+generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
+generated_on: '2026-09-21'
+scripts:
+- script_path: realised_tissue_productivity_comparison_maliau_2.R
+  title: realised_tissue_productivity_comparison_maliau_2
+  description: |
+    Compares standardised Virtual Ecosystem plant productivity predictions
+    with field observations for Maliau scenario 2. The tissues compared are
+    dynamically loaded from:
+    ../variable_mapping/realised_tissue_productivity_mapping_maliau_2.yml.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: wip
+  input_files:
+  - name: carbon_balance_components_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Cleaned SAFE carbon-balance observations for Maliau plots.
+  - name: realised_tissue_productivity_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: Standardised Maliau 2 plant productivity outputs.
+  output_files:
+  - name: realised_tissue_productivity_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      Merged observed and predicted values for all tissues mapped in the
+      validation contract, including pooled model SD and spatial/temporal
+      extent information.
+  package_dependencies: yaml
+  usage_notes: |
+    The comparison is driven by the realised_tissue_productivity_mapping_maliau_2.yml file.
+    To add or remove variables from this comparison, update the contract
+    YAML; no changes are required to this script.
