@@ -22,6 +22,167 @@
 source(here::here("tools/R/R/build_config.R"))
 
 
+make_variable_groups_fixture <- function(
+  abiotic_name = "abiotic_simple",
+  abiotic_entries = list(list(file_path = "a.nc", var_name = "x")),
+  hydrology_entries = list(list(file_path = "b.nc", var_name = "y")),
+  plants_entries = list(list(file_path = "c.nc", var_name = "z")),
+  soil_entries = list(list(file_path = "d.nc", var_name = "s")),
+  litter_entries = list(list(file_path = "e.nc", var_name = "l"))
+) {
+  c(
+    stats::setNames(list(abiotic_entries), abiotic_name),
+    list(
+      hydrology = hydrology_entries,
+      plants = plants_entries,
+      soil = soil_entries,
+      litter = litter_entries
+    )
+  )
+}
+
+make_core_fixture <- function(
+  variable_groups = make_variable_groups_fixture()
+) {
+  list(
+    grid = list(cell_nx = 2, cell_ny = 3),
+    timing = list(
+      start_date = "2010-01-01",
+      update_interval = "1 month",
+      run_length = "11 years"
+    ),
+    data = list(variable = variable_groups)
+  )
+}
+
+make_plants_fixture <- function(
+  cohort_data_path = "plant.csv",
+  pft_definitions_path = "pft.csv",
+  community_data_export = list(
+    required_data = c("cohorts", "community_canopy"),
+    cohort_attributes = list(),
+    community_canopy_attributes = list(),
+    stem_canopy_attributes = list()
+  ),
+  constants = list(subcanopy_specific_leaf_area = 10)
+) {
+  list(
+    cohort_data_path = cohort_data_path,
+    pft_definitions_path = pft_definitions_path,
+    community_data_export = community_data_export,
+    constants = constants
+  )
+}
+
+make_animal_fixture <- function(
+  functional_group_definitions_path = "animal.csv",
+  cohort_data_export = list(enabled = TRUE),
+  resource_pool_export = list(enabled = TRUE)
+) {
+  list(
+    functional_group_definitions_path = functional_group_definitions_path,
+    cohort_data_export = cohort_data_export,
+    resource_pool_export = resource_pool_export
+  )
+}
+
+render_test_config_lines <- function(
+  core = make_core_fixture(),
+  plants = make_plants_fixture(),
+  animal = make_animal_fixture(),
+  abiotic_module = names(core$data$variable)[[1]],
+  abiotic_values = list(),
+  hydrology = list(),
+  soil = list(),
+  litter = list()
+) {
+  c(
+    render_comment("Core settings"),
+    render_module("core"),
+    render_table("core.grid", core$grid),
+    render_table("core.timing", core$timing),
+    render_comment("Abiotic config settings"),
+    render_module(abiotic_module, values = abiotic_values),
+    render_array_tables(
+      "core.data.variable",
+      core$data$variable[[abiotic_module]],
+      comment = "Abiotic array variables"
+    ),
+    render_comment("Hydrology config settings"),
+    render_module("hydrology", values = hydrology),
+    render_array_tables(
+      "core.data.variable",
+      core$data$variable$hydrology,
+      comment = "Hydrology array variables"
+    ),
+    render_comment("Animal config settings"),
+    render_module(
+      "animal",
+      values = animal,
+      field_comments = list(
+        functional_group_definitions_path = "Animal functional group definitions file path"
+      )
+    ),
+    render_table("animal.cohort_data_export", animal$cohort_data_export),
+    render_table(
+      "animal.resource_pool_export",
+      animal$resource_pool_export
+    ),
+    render_comment("Plant config settings"),
+    render_module(
+      "plants",
+      values = plants,
+      field_comments = list(
+        pft_definitions_path = "Plant pft definitions file path",
+        cohort_data_path = "Plant cohort data file path"
+      )
+    ),
+    render_table(
+      "plants.community_data_export",
+      plants$community_data_export
+    ),
+    render_array_tables(
+      "core.data.variable",
+      core$data$variable$plants,
+      comment = "Plant array variables"
+    ),
+    render_table(
+      "plants.constants",
+      plants$constants,
+      comment = "Plant constants (non-defaults)"
+    ),
+    render_comment("Soil config settings"),
+    render_module("soil", values = soil),
+    render_array_tables(
+      "core.data.variable",
+      core$data$variable$soil,
+      comment = "Soil array variables"
+    ),
+    render_comment("Litter config settings"),
+    render_module("litter", values = litter),
+    render_array_tables(
+      "core.data.variable",
+      core$data$variable$litter,
+      comment = "Litter array variables"
+    )
+  )
+}
+
+write_test_config <- function(lines) {
+  dir <- tempfile(pattern = "build-config-test-", tmpdir = tempdir())
+
+  build_config(lines = lines, path = dir)
+
+  output_path <- file.path(dir, "config.toml")
+
+  list(
+    path = output_path,
+    text = readLines(output_path),
+    parsed = toml::read_toml(output_path)
+  )
+}
+
+
 test_that("build_variable_groups returns TOML-ready variable groups", {
   variable_groups <- build_variable_groups(
     plants_path = "plants.nc",
@@ -58,154 +219,45 @@ test_that("build_variable_groups returns TOML-ready variable groups", {
 
 
 test_that("build_config writes the provided rendered lines", {
-  dir <- withr::local_tempdir()
+  result <- write_test_config(render_test_config_lines())
 
-  core <- list(
-    grid = list(cell_nx = 2, cell_ny = 3),
-    timing = list(
-      start_date = "2010-01-01",
-      update_interval = "1 month",
-      run_length = "11 years"
-    ),
-    data = list(
-      variable = list(
-        abiotic_simple = list(list(file_path = "a.nc", var_name = "x")),
-        hydrology = list(list(file_path = "b.nc", var_name = "y")),
-        plants = list(list(file_path = "c.nc", var_name = "z")),
-        soil = list(list(file_path = "d.nc", var_name = "s")),
-        litter = list(list(file_path = "e.nc", var_name = "l"))
-      )
-    )
-  )
-  hydrology <- list()
-  plants <- list(
-    cohort_data_path = "plant.csv",
-    pft_definitions_path = "pft.csv",
-    community_data_export = list(
-      required_data = c("cohorts", "community_canopy"),
-      cohort_attributes = list(),
-      community_canopy_attributes = list(),
-      stem_canopy_attributes = list()
-    ),
-    constants = list(subcanopy_specific_leaf_area = 10)
-  )
-  animal <- list(
-    functional_group_definitions_path = "animal.csv",
-    cohort_data_export = list(enabled = TRUE),
-    resource_pool_export = list(enabled = TRUE)
-  )
-  soil <- list()
-  litter <- list()
-  lines <- c(
-    render_comment("Core settings"),
-    render_module("core"),
-    render_table("core.grid", core$grid),
-    render_table("core.timing", core$timing),
-    render_comment("Abiotic config settings"),
-    render_module("abiotic_simple"),
-    render_comment("Abiotic array variables"),
-    render_array_tables(
-      "core.data.variable",
-      core$data$variable$abiotic_simple
-    ),
-    render_comment("Hydrology config settings"),
-    render_module("hydrology"),
-    render_comment("Hydrology array variables"),
-    render_array_tables(
-      "core.data.variable",
-      core$data$variable$hydrology
-    ),
-    render_comment("Animal config settings"),
-    render_module(
-      "animal",
-      values = animal,
-      field_comments = list(
-        functional_group_definitions_path = "Animal functional group definitions file path"
-      )
-    ),
-    render_table("animal.cohort_data_export", animal$cohort_data_export),
-    render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_comment("Plant config settings"),
-    render_module(
-      "plants",
-      values = plants,
-      field_comments = list(
-        pft_definitions_path = "Plant pft definitions file path",
-        cohort_data_path = "Plant cohort data file path"
-      )
-    ),
-    render_table(
-      "plants.community_data_export",
-      plants$community_data_export
-    ),
-    render_comment("Plant array variables"),
-    render_array_tables(
-      "core.data.variable",
-      core$data$variable$plants
-    ),
-    render_comment("Plant constants (non-defaults)"),
-    render_table("plants.constants", plants$constants),
-    render_comment("Soil config settings"),
-    render_module("soil"),
-    render_comment("Soil array variables"),
-    render_array_tables(
-      "core.data.variable",
-      core$data$variable$soil
-    ),
-    render_comment("Litter config settings"),
-    render_module("litter"),
-    render_comment("Litter array variables"),
-    render_array_tables(
-      "core.data.variable",
-      core$data$variable$litter
-    )
+  required_lines <- c(
+    "# Core settings",
+    "[core]",
+    "[core.grid]",
+    "[core.timing]",
+    "# Abiotic config settings",
+    "[abiotic_simple]",
+    "# Hydrology config settings",
+    "[hydrology]",
+    "# Animal config settings",
+    "# Animal functional group definitions file path",
+    "[animal]",
+    "[animal.cohort_data_export]",
+    "[animal.resource_pool_export]",
+    "# Plant config settings",
+    "# Plant pft definitions file path",
+    "# Plant cohort data file path",
+    "[plants]",
+    "[plants.community_data_export]",
+    "# Plant constants (non-defaults)",
+    "[plants.constants]",
+    "# Soil config settings",
+    "[soil]",
+    "# Litter config settings",
+    "[litter]",
+    "[[core.data.variable]]"
   )
 
-  build_config(lines = lines, path = dir)
-
-  output_path <- file.path(dir, "config.toml")
-  output_text <- readLines(output_path)
-
-  expect_true(file.exists(output_path))
-  parsed <- toml::read_toml(output_path)
-
-  expect_true(any(output_text == "# Core settings"))
-  expect_true(any(output_text == "[core]"))
-  expect_true(any(output_text == "[core.grid]"))
-  expect_true(any(output_text == "[core.timing]"))
-  expect_true(any(output_text == "# Abiotic config settings"))
-  expect_true(any(output_text == "[abiotic_simple]"))
-  expect_true(any(output_text == "# Hydrology config settings"))
-  expect_true(any(output_text == "[hydrology]"))
-  expect_true(any(output_text == "# Animal config settings"))
-  expect_true(any(
-    output_text == "# Animal functional group definitions file path"
-  ))
-  expect_true(any(output_text == "[animal]"))
-  expect_true(any(output_text == "[animal.cohort_data_export]"))
-  expect_true(any(output_text == "[animal.resource_pool_export]"))
-  expect_true(any(output_text == "# Plant config settings"))
-  expect_true(any(output_text == "# Plant pft definitions file path"))
-  expect_true(any(output_text == "# Plant cohort data file path"))
-  expect_true(any(output_text == "[plants]"))
-  expect_true(any(output_text == "[plants.community_data_export]"))
-  expect_true(any(output_text == "[plants.constants]"))
-  expect_true(any(output_text == "# Soil config settings"))
-  expect_true(any(output_text == "[soil]"))
-  expect_true(any(output_text == "# Litter config settings"))
-  expect_true(any(output_text == "[litter]"))
-  expect_true(any(output_text == "[[core.data.variable]]"))
-  expect_false(any(grepl("variable = \\[", output_text)))
-  expect_true(any(output_text == "# Plant constants (non-defaults)"))
-  expect_length(parsed$core$data$variable, 5)
-  expect_identical(parsed$core$data$variable[[1]]$var_name, "x")
-  expect_equal(parsed$plants$constants$subcanopy_specific_leaf_area, 10)
-})
-
-test_that("render_comment normalizes plain text comments", {
-  rendered <- render_comment("Core settings")
-
-  expect_identical(rendered, "# Core settings")
+  expect_true(file.exists(result$path))
+  expect_true(all(required_lines %in% result$text))
+  expect_false(any(grepl("variable = \\[", result$text)))
+  expect_length(result$parsed$core$data$variable, 5)
+  expect_identical(result$parsed$core$data$variable[[1]]$var_name, "x")
+  expect_equal(
+    result$parsed$plants$constants$subcanopy_specific_leaf_area,
+    10
+  )
 })
 
 
@@ -254,7 +306,7 @@ test_that("render_table places field comments with child-table fields", {
 })
 
 
-test_that("comment normalization supports plain text wrapping and multiline input", {
+test_that("render_comment normalizes plain text, wrapping, and multiline input", {
   wrapped_field_comment <- paste(
     "Animal functional group definitions file path\n",
     "Currently uses Maliau_level3, other levels are also available",
@@ -264,8 +316,9 @@ test_that("comment normalization supports plain text wrapping and multiline inpu
   rendered <- c(
     render_comment(
       paste(
-        "Animal configuration settings for a very long heading that should wrap",
-        "automatically to stay within the configured comment width."
+        "Animal configuration settings for a very long heading that",
+        "should wrap automatically to stay within the configured",
+        "comment width."
       ),
       comment_width = 50
     ),
@@ -290,6 +343,7 @@ test_that("comment normalization supports plain text wrapping and multiline inpu
     rendered
   )
 
+  expect_identical(render_comment("Core settings"), "# Core settings")
   expect_true(all(startsWith(comment_lines, "#")))
   expect_true(any(grepl(
     "Animal configuration settings",
@@ -310,125 +364,80 @@ test_that("comment normalization supports plain text wrapping and multiline inpu
 
 
 test_that("render_table omits nested list and NULL scalar fields", {
-  dir <- withr::local_tempdir()
-
-  core <- list(
-    grid = list(cell_nx = 2, cell_ny = 3),
-    timing = list(
-      start_date = "2010-01-01",
-      update_interval = "1 month",
-      run_length = "11 years"
-    ),
-    data = list(
-      variable = list(
-        abiotic_simple = list(),
-        hydrology = list(),
-        plants = list(),
-        soil = list(),
-        litter = list()
-      )
+  core <- make_core_fixture(
+    variable_groups = make_variable_groups_fixture(
+      abiotic_entries = list(),
+      hydrology_entries = list(),
+      plants_entries = list(),
+      soil_entries = list(),
+      litter_entries = list()
     )
   )
-  plants <- list(
+  plants <- make_plants_fixture(
     cohort_data_path = NULL,
     pft_definitions_path = NULL,
     community_data_export = list(required_data = c("cohorts")),
     constants = list()
   )
-  animal <- list(
-    functional_group_definitions_path = NULL,
-    cohort_data_export = list(enabled = TRUE),
-    resource_pool_export = list(enabled = TRUE)
+  animal <- make_animal_fixture(
+    functional_group_definitions_path = NULL
   )
 
-  lines <- c(
-    render_module("core"),
-    render_table("core.grid", core$grid),
-    render_table("core.timing", core$timing),
-    render_module("abiotic_simple"),
-    render_module("hydrology"),
-    render_module("animal", values = animal),
-    render_table("animal.cohort_data_export", animal$cohort_data_export),
-    render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_module("plants", values = plants),
-    render_table("plants.community_data_export", plants$community_data_export),
-    render_table("plants.constants", plants$constants),
-    render_module("soil"),
-    render_module("litter")
+  result <- write_test_config(
+    render_test_config_lines(
+      core = core,
+      plants = plants,
+      animal = animal
+    )
   )
-
-  build_config(lines = lines, path = dir)
-
-  output_path <- file.path(dir, "config.toml")
-  output_text <- readLines(output_path)
-  parsed <- toml::read_toml(output_path)
 
   expect_false(any(grepl(
     "functional_group_definitions_path",
-    output_text,
+    result$text,
     fixed = TRUE
   )))
-  expect_false(any(grepl("pft_definitions_path", output_text, fixed = TRUE)))
-  expect_false(any(grepl("cohort_data_path", output_text, fixed = TRUE)))
-  expect_false("functional_group_definitions_path" %in% names(parsed$animal))
-  expect_false("pft_definitions_path" %in% names(parsed$plants))
-  expect_false("cohort_data_path" %in% names(parsed$plants))
+  expect_false(any(grepl("pft_definitions_path", result$text, fixed = TRUE)))
+  expect_false(any(grepl("cohort_data_path", result$text, fixed = TRUE)))
+  expect_false(
+    "functional_group_definitions_path" %in% names(result$parsed$animal)
+  )
+  expect_false("pft_definitions_path" %in% names(result$parsed$plants))
+  expect_false("cohort_data_path" %in% names(result$parsed$plants))
 })
 
-test_that("callers can choose the abiotic module name", {
-  dir <- withr::local_tempdir()
 
-  core <- list(
-    grid = list(cell_nx = 2, cell_ny = 3),
-    timing = list(
-      start_date = "2010-01-01",
-      update_interval = "1 month",
-      run_length = "11 years"
-    ),
-    data = list(
-      variable = list(
-        abiotic = list(list(file_path = "a.nc", var_name = "x")),
-        hydrology = list(),
-        plants = list(),
-        soil = list(),
-        litter = list()
-      )
+test_that("callers can choose the abiotic module name", {
+  core <- make_core_fixture(
+    variable_groups = make_variable_groups_fixture(
+      abiotic_name = "abiotic",
+      hydrology_entries = list(),
+      plants_entries = list(),
+      soil_entries = list(),
+      litter_entries = list()
     )
   )
-  plants <- list(
+  plants <- make_plants_fixture(
+    cohort_data_path = NULL,
+    pft_definitions_path = NULL,
     community_data_export = list(required_data = c("cohorts")),
     constants = list()
   )
-  animal <- list(
-    cohort_data_export = list(enabled = TRUE),
-    resource_pool_export = list(enabled = TRUE)
+  animal <- make_animal_fixture(
+    functional_group_definitions_path = NULL
   )
 
-  lines <- c(
-    render_module("core"),
-    render_table("core.grid", core$grid),
-    render_table("core.timing", core$timing),
-    render_module("abiotic", values = list(option = "full")),
-    render_array_tables("core.data.variable", core$data$variable$abiotic),
-    render_module("hydrology"),
-    render_module("animal", values = animal),
-    render_table("animal.cohort_data_export", animal$cohort_data_export),
-    render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_module("plants", values = plants),
-    render_table("plants.community_data_export", plants$community_data_export),
-    render_table("plants.constants", plants$constants),
-    render_module("soil"),
-    render_module("litter")
+  result <- write_test_config(
+    render_test_config_lines(
+      core = core,
+      plants = plants,
+      animal = animal,
+      abiotic_module = "abiotic",
+      abiotic_values = list(option = "full")
+    )
   )
 
-  build_config(lines = lines, path = dir)
-
-  output_path <- file.path(dir, "config.toml")
-  output_text <- readLines(output_path)
-  parsed <- toml::read_toml(output_path)
-
-  expect_true(any(output_text == "[abiotic]"))
-  expect_false(any(output_text == "[abiotic_simple]"))
-  expect_identical(parsed$abiotic$option, "full")
-  expect_identical(parsed$core$data$variable[[1]]$var_name, "x")
+  expect_true(any(result$text == "[abiotic]"))
+  expect_false(any(result$text == "[abiotic_simple]"))
+  expect_identical(result$parsed$abiotic$option, "full")
+  expect_identical(result$parsed$core$data$variable[[1]]$var_name, "x")
 })
