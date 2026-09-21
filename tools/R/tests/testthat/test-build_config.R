@@ -261,6 +261,36 @@ test_that("build_config writes the provided rendered lines", {
 })
 
 
+test_that("build_config round-trips high-precision numerics", {
+  precise_table_value <- 73.4169120128073
+  precise_array_value <- 0.223545331529093
+
+  lines <- c(
+    render_table(
+      "plants.constants",
+      list(subcanopy_specific_leaf_area = precise_table_value)
+    ),
+    render_array_tables(
+      "core.data.variable",
+      list(list(file_path = "plants.nc", scalar = precise_array_value))
+    )
+  )
+
+  result <- write_test_config(lines)
+
+  expect_equal(
+    result$parsed$plants$constants$subcanopy_specific_leaf_area,
+    precise_table_value,
+    tolerance = .Machine$double.eps^0.5
+  )
+  expect_equal(
+    result$parsed$core$data$variable[[1]]$scalar,
+    precise_array_value,
+    tolerance = .Machine$double.eps^0.5
+  )
+})
+
+
 test_that("render_module renders a top-level module with direct fields", {
   rendered <- c(
     render_comment("Animal config settings"),
@@ -298,11 +328,43 @@ test_that("render_table places field comments with child-table fields", {
     "# Subcanopy specific leaf area",
     rendered
   )
-  field_index <- match("subcanopy_specific_leaf_area = 10", rendered)
+  field_index <- match("subcanopy_specific_leaf_area = 10.0", rendered)
 
   expect_false(is.na(comment_index))
   expect_false(is.na(field_index))
   expect_identical(comment_index + 1L, field_index)
+})
+
+
+test_that("render_table preserves high-precision numeric values", {
+  precise_value <- 73.4169120128073
+  rendered <- render_table(
+    "plants.constants",
+    list(subcanopy_specific_leaf_area = precise_value)
+  )
+
+  field_line <- rendered[grepl(
+    "^subcanopy_specific_leaf_area = ",
+    rendered
+  )]
+
+  expect_identical(
+    field_line,
+    "subcanopy_specific_leaf_area = 73.4169120128073"
+  )
+})
+
+
+test_that("render_array_tables preserves high-precision numeric values", {
+  precise_value <- 0.223545331529093
+  rendered <- render_array_tables(
+    "core.data.variable",
+    list(list(file_path = "plants.nc", scalar = precise_value))
+  )
+
+  field_line <- rendered[grepl("^scalar = ", rendered)]
+
+  expect_identical(field_line, "scalar = 0.223545331529093")
 })
 
 
