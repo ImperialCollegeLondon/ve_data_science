@@ -125,7 +125,7 @@ core <- list(
   )
 )
 
-abiotic_simple <- list()
+abiotic <- list()
 
 hydrology <- list()
 
@@ -153,26 +153,100 @@ litter <- list()
 
 # Build compiled configuration -------------------------------------------
 
-build_config(
-  core = core,
-  abiotic_simple = abiotic_simple,
-  hydrology = hydrology,
-  plants = plants,
-  animal = animal,
-  soil = soil,
-  litter = litter,
-  path = "data/scenarios/maliau/maliau_2/config",
-  file_name = "config_regenerated.toml",
-  comments = list(
-    animal_functional_group_definitions_path = c(
-      "# Animal functional group definitions file path",
-      paste0(
-        "# Currently uses Maliau_level3, other levels are also available ",
-        "through Globus."
-      )
-    ),
-    plants_pft_definitions_path = "# Plant pft definitions file path",
-    plants_cohort_data_path = "# Plant cohort data file path",
-    plants_community_data_export = "# Plant output data export settings"
+comments <- list(
+  core = "# Core settings",
+  abiotic = "# Abiotic config settings",
+  abiotic_variables = "# Abiotic array variables",
+  hydrology = "# Hydrology config settings",
+  hydrology_variables = "# Hydrology array variables",
+  animal = "# Animal config settings",
+  animal_functional_group_definitions_path = c(
+    "# Animal functional group definitions file path",
+    paste0(
+      "# Currently uses Maliau_level3, other levels are also available ",
+      "through Globus."
+    )
+  ),
+  plants = "# Plant config settings",
+  plants_pft_definitions_path = "# Plant pft definitions file path",
+  plants_cohort_data_path = "# Plant cohort data file path",
+  plants_community_data_export = "# Plant output data export settings",
+  plants_variables = "# Plant array variables",
+  plants_constants = "# Plant constants (non-defaults)",
+  soil = "# Soil config settings",
+  soil_variables = "# Soil array variables",
+  litter = "# Litter config settings",
+  litter_variables = "# Litter array variables"
+)
+
+core_values <- remove_nested_list_fields(core)
+animal_values <- remove_nested_list_fields(animal)
+plants_values <- remove_nested_list_fields(plants)
+
+lines <- c(
+  render_table("core", core_values, comments$core),
+  render_table("core.grid", core$grid),
+  render_table("core.timing", core$timing),
+  render_table("abiotic_simple", abiotic, comments$abiotic),
+  render_array_tables(
+    "core.data.variable",
+    core$data$variable$abiotic_simple,
+    comments$abiotic_variables
+  ),
+  render_table("hydrology", hydrology, comments$hydrology),
+  render_array_tables(
+    "core.data.variable",
+    core$data$variable$hydrology,
+    comments$hydrology_variables
+  ),
+  render_table_with_body_comments(
+    "animal",
+    animal_values,
+    comments$animal,
+    comments$animal_functional_group_definitions_path
+  ),
+  render_table("animal.cohort_data_export", animal$cohort_data_export),
+  render_table("animal.resource_pool_export", animal$resource_pool_export),
+  render_table_with_body_comments(
+    "plants",
+    plants_values,
+    comments$plants,
+    c(
+      normalize_comment_lines(comments$plants_pft_definitions_path),
+      normalize_comment_lines(comments$plants_cohort_data_path)
+    )
+  ),
+  render_table(
+    "plants.community_data_export",
+    plants$community_data_export,
+    comments$plants_community_data_export
+  ),
+  render_array_tables(
+    "core.data.variable",
+    core$data$variable$plants,
+    comments$plants_variables
+  ),
+  render_table(
+    "plants.constants",
+    plants$constants,
+    comments$plants_constants
+  ),
+  render_table("soil", soil, comments$soil),
+  render_array_tables(
+    "core.data.variable",
+    core$data$variable$soil,
+    comments$soil_variables
+  ),
+  render_table("litter", litter, comments$litter),
+  render_array_tables(
+    "core.data.variable",
+    core$data$variable$litter,
+    comments$litter_variables
   )
+)
+
+build_config(
+  lines = lines,
+  path = "data/scenarios/maliau/maliau_2/config",
+  file_name = "config_regenerated.toml"
 )
