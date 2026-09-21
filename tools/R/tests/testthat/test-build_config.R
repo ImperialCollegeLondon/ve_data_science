@@ -96,71 +96,78 @@ test_that("build_config writes the provided rendered lines", {
   )
   soil <- list()
   litter <- list()
-  comments <- list(
-    core = "# Core settings",
-    abiotic = "# Abiotic config settings",
-    abiotic_variables = "# Abiotic array variables",
-    hydrology = "# Hydrology config settings",
-    hydrology_variables = "# Hydrology array variables",
-    animal = "# Animal config settings",
-    plants = "# Plant config settings",
-    plants_constants = "# Plant constants (non-defaults)",
-    soil = "# Soil config settings",
-    soil_variables = "# Soil array variables",
-    litter = "# Litter config settings",
-    litter_variables = "# Litter array variables"
-  )
-
   lines <- c(
-    render_table("core", remove_nested_list_fields(core), comments$core),
+    render_table(
+      "core",
+      remove_nested_list_fields(core),
+      comment = "Core settings"
+    ),
     render_table("core.grid", core$grid),
     render_table("core.timing", core$timing),
-    render_table("abiotic_simple", list(), comments$abiotic),
+    render_table(
+      "abiotic_simple",
+      list(),
+      comment = "Abiotic config settings"
+    ),
     render_array_tables(
       "core.data.variable",
       core$data$variable$abiotic_simple,
-      comments$abiotic_variables
+      comment = "Abiotic array variables"
     ),
-    render_table("hydrology", hydrology, comments$hydrology),
+    render_table(
+      "hydrology",
+      hydrology,
+      comment = "Hydrology config settings"
+    ),
     render_array_tables(
       "core.data.variable",
       core$data$variable$hydrology,
-      comments$hydrology_variables
+      comment = "Hydrology array variables"
     ),
-    render_table_with_body_comments(
+    render_table(
       "animal",
       remove_nested_list_fields(animal),
-      comments$animal
+      comment = "Animal config settings",
+      field_comments = list(
+        functional_group_definitions_path = "Animal functional group definitions file path"
+      )
     ),
     render_table("animal.cohort_data_export", animal$cohort_data_export),
     render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_table_with_body_comments(
+    render_table(
       "plants",
       remove_nested_list_fields(plants),
-      comments$plants
+      comment = "Plant config settings",
+      field_comments = list(
+        pft_definitions_path = "Plant pft definitions file path",
+        cohort_data_path = "Plant cohort data file path"
+      )
     ),
-    render_table("plants.community_data_export", plants$community_data_export),
+    render_table(
+      "plants.community_data_export",
+      plants$community_data_export
+    ),
     render_array_tables(
       "core.data.variable",
       core$data$variable$plants,
-      comments$plants_variables
+      comment = "Plant array variables"
     ),
     render_table(
       "plants.constants",
       plants$constants,
-      comments$plants_constants
+      comment = "Plant constants (non-defaults)"
     ),
-    render_table("soil", soil, comments$soil),
+    render_table("soil", soil, comment = "Soil config settings"),
     render_array_tables(
       "core.data.variable",
       core$data$variable$soil,
-      comments$soil_variables
+      comment = "Soil array variables"
     ),
-    render_table("litter", litter, comments$litter),
+    render_table("litter", litter, comment = "Litter config settings"),
     render_array_tables(
       "core.data.variable",
       core$data$variable$litter,
-      comments$litter_variables
+      comment = "Litter array variables"
     )
   )
 
@@ -181,10 +188,15 @@ test_that("build_config writes the provided rendered lines", {
   expect_true(any(output_text == "# Hydrology config settings"))
   expect_true(any(output_text == "[hydrology]"))
   expect_true(any(output_text == "# Animal config settings"))
+  expect_true(any(
+    output_text == "# Animal functional group definitions file path"
+  ))
   expect_true(any(output_text == "[animal]"))
   expect_true(any(output_text == "[animal.cohort_data_export]"))
   expect_true(any(output_text == "[animal.resource_pool_export]"))
   expect_true(any(output_text == "# Plant config settings"))
+  expect_true(any(output_text == "# Plant pft definitions file path"))
+  expect_true(any(output_text == "# Plant cohort data file path"))
   expect_true(any(output_text == "[plants]"))
   expect_true(any(output_text == "[plants.community_data_export]"))
   expect_true(any(output_text == "[plants.constants]"))
@@ -199,6 +211,91 @@ test_that("build_config writes the provided rendered lines", {
   expect_identical(parsed$core$data$variable[[1]]$var_name, "x")
   expect_equal(parsed$plants$constants$subcanopy_specific_leaf_area, 10)
 })
+
+test_that("render_table places field comments with their fields", {
+  rendered <- render_table(
+    "plants",
+    list(
+      pft_definitions_path = "pft.csv",
+      cohort_data_path = "cohort.csv"
+    ),
+    comment = "Plant config settings",
+    field_comments = list(
+      pft_definitions_path = "Plant pft definitions file path",
+      cohort_data_path = "Plant cohort data file path"
+    )
+  )
+
+  pft_comment_index <- match(
+    "# Plant pft definitions file path",
+    rendered
+  )
+  pft_field_index <- match('pft_definitions_path = "pft.csv"', rendered)
+  cohort_comment_index <- match(
+    "# Plant cohort data file path",
+    rendered
+  )
+  cohort_field_index <- match('cohort_data_path = "cohort.csv"', rendered)
+
+  expect_false(is.na(pft_comment_index))
+  expect_false(is.na(pft_field_index))
+  expect_false(is.na(cohort_comment_index))
+  expect_false(is.na(cohort_field_index))
+  expect_identical(pft_comment_index + 1L, pft_field_index)
+  expect_identical(cohort_comment_index + 1L, cohort_field_index)
+})
+
+
+test_that("comment normalization supports plain text wrapping and multiline input", {
+  wrapped_field_comment <- paste(
+    "Animal functional group definitions file path\n",
+    "Currently uses Maliau_level3, other levels are also available",
+    "through Globus."
+  )
+
+  rendered <- render_table(
+    "animal",
+    list(functional_group_definitions_path = "animal.csv"),
+    comment = paste(
+      "Animal configuration settings for a very long heading that should wrap",
+      "automatically to stay within the configured comment width."
+    ),
+    field_comments = list(
+      functional_group_definitions_path = wrapped_field_comment
+    ),
+    comment_width = 50
+  )
+
+  comment_lines <- rendered[grepl("^#", rendered)]
+  field_comment_lines <- normalize_comment_lines(
+    wrapped_field_comment,
+    width = 50
+  )
+  field_comment_index <- match(field_comment_lines[[1]], rendered)
+  field_index <- match(
+    'functional_group_definitions_path = "animal.csv"',
+    rendered
+  )
+
+  expect_true(all(startsWith(comment_lines, "#")))
+  expect_true(sum(grepl("^#", comment_lines[1:3])) == 3)
+  expect_true(any(grepl(
+    "Animal configuration settings",
+    comment_lines,
+    fixed = TRUE
+  )))
+  expect_true(any(
+    comment_lines == "# Animal functional group definitions file path"
+  ))
+  expect_true(any(grepl("Maliau_level3", comment_lines, fixed = TRUE)))
+  expect_true(any(grepl("through Globus\\.$", comment_lines)))
+  expect_true(all(nchar(comment_lines) <= 50))
+  expect_identical(
+    field_comment_index + length(field_comment_lines),
+    field_index
+  )
+})
+
 
 test_that("render helpers omit optional NULL scalar fields", {
   dir <- withr::local_tempdir()

@@ -64,7 +64,7 @@ core <- list(
   data = list(variable = variable_groups)
 )
 
-abiotic <- list()
+abiotic_simple <- list()
 
 hydrology <- list()
 
@@ -79,6 +79,7 @@ plants <- list(
   ),
   constants = as.list(plants_constants[1, ])
 )
+
 animal <- list(
   functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv",
   cohort_data_export = list(enabled = TRUE),
@@ -92,95 +93,78 @@ litter <- list()
 
 # Build compiled configuration -------------------------------------------
 
-comments <- list(
-  core = "# Core settings",
-  abiotic = "# Abiotic config settings",
-  abiotic_variables = "# Abiotic array variables",
-  hydrology = "# Hydrology config settings",
-  hydrology_variables = "# Hydrology array variables",
-  animal = "# Animal config settings",
-  animal_functional_group_definitions_path = c(
-    "# Animal functional group definitions file path",
-    paste0(
-      "# Currently uses Maliau_level3, other levels are also available ",
-      "through Globus."
-    )
-  ),
-  plants = "# Plant config settings",
-  plants_pft_definitions_path = "# Plant pft definitions file path",
-  plants_cohort_data_path = "# Plant cohort data file path",
-  plants_community_data_export = "# Plant output data export settings",
-  plants_variables = "# Plant array variables",
-  plants_constants = "# Plant constants (non-defaults)",
-  soil = "# Soil config settings",
-  soil_variables = "# Soil array variables",
-  litter = "# Litter config settings",
-  litter_variables = "# Litter array variables"
-)
-
 core_values <- remove_nested_list_fields(core)
 animal_values <- remove_nested_list_fields(animal)
 plants_values <- remove_nested_list_fields(plants)
 
 lines <- c(
-  render_table("core", core_values, comments$core),
+  render_table("core", core_values, comment = "Core settings"),
   render_table("core.grid", core$grid),
   render_table("core.timing", core$timing),
-  render_table("abiotic_simple", abiotic, comments$abiotic),
+  render_table(
+    "abiotic_simple",
+    abiotic_simple,
+    comment = "Abiotic config settings"
+  ),
   render_array_tables(
     "core.data.variable",
     core$data$variable$abiotic_simple,
-    comments$abiotic_variables
+    comment = "Abiotic array variables"
   ),
-  render_table("hydrology", hydrology, comments$hydrology),
+  render_table("hydrology", hydrology, comment = "Hydrology config settings"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$hydrology,
-    comments$hydrology_variables
+    comment = "Hydrology array variables"
   ),
-  render_table_with_body_comments(
+  render_table(
     "animal",
     animal_values,
-    comments$animal,
-    comments$animal_functional_group_definitions_path
+    comment = "Animal config settings",
+    field_comments = list(
+      functional_group_definitions_path = c(
+        "Animal functional group definitions file path",
+        "Currently uses Maliau_level3, other levels are also available through Globus."
+      )
+    )
   ),
   render_table("animal.cohort_data_export", animal$cohort_data_export),
   render_table("animal.resource_pool_export", animal$resource_pool_export),
-  render_table_with_body_comments(
+  render_table(
     "plants",
     plants_values,
-    comments$plants,
-    c(
-      normalize_comment_lines(comments$plants_pft_definitions_path),
-      normalize_comment_lines(comments$plants_cohort_data_path)
+    comment = "Plant config settings",
+    field_comments = list(
+      pft_definitions_path = "Plant pft definitions file path",
+      cohort_data_path = "Plant cohort data file path"
     )
   ),
   render_table(
     "plants.community_data_export",
     plants$community_data_export,
-    comments$plants_community_data_export
+    comment = "Plant output data export settings"
   ),
   render_array_tables(
     "core.data.variable",
     core$data$variable$plants,
-    comments$plants_variables
+    comment = "Plant array variables"
   ),
   render_table(
     "plants.constants",
     plants$constants,
-    comments$plants_constants
+    comment = "Plant constants (non-defaults)"
   ),
-  render_table("soil", soil, comments$soil),
+  render_table("soil", soil, comment = "Soil config settings"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$soil,
-    comments$soil_variables
+    comment = "Soil array variables"
   ),
-  render_table("litter", litter, comments$litter),
+  render_table("litter", litter, comment = "Litter config settings"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$litter,
-    comments$litter_variables
+    comment = "Litter array variables"
   )
 )
 

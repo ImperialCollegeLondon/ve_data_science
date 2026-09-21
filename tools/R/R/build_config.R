@@ -36,6 +36,10 @@
 #' @param file_name File name for the compiled TOML configuration file.
 #'
 #' @returns A compiled TOML configuration file saved in the specified path.
+#'
+#' Comments supplied to the render helpers may be plain text, pre-prefixed with
+#' `#`, or multi-line text containing embedded newlines. Comment text is
+#' normalized to TOML comment lines and wrapped to the requested width.
 
 #' Build grouped `core$data$variable` entries for the compiled TOML config
 #'
@@ -138,12 +142,26 @@ build_variable_groups <- function(
   )
 }
 
-normalize_comment_lines <- function(lines) {
+normalize_comment_lines <- function(lines, width = 80, prefix = "# ") {
   if (is.null(lines) || length(lines) == 0) {
     return(character())
   }
 
-  unname(as.character(lines))
+  raw_lines <- unlist(strsplit(as.character(lines), "\n", fixed = TRUE))
+
+  unlist(
+    lapply(raw_lines, function(line) {
+      text <- sub("^\\s*#\\s?", "", line)
+
+      if (!nzchar(text)) {
+        return(sub("\\s+$", "", prefix))
+      }
+
+      wrapped <- strwrap(text, width = width - nchar(prefix))
+      paste0(prefix, wrapped)
+    }),
+    use.names = FALSE
+  )
 }
 
 trim_blank_tail <- function(lines) {
@@ -163,13 +181,50 @@ render_value_lines <- function(values) {
   trim_blank_tail(lines)
 }
 
-render_table <- function(header, values = list(), comment = NULL) {
-  c(
-    normalize_comment_lines(comment),
-    paste0("[", header, "]"),
-    render_value_lines(values),
-    ""
+render_table <- function(
+  header,
+  values = list(),
+  comment = NULL,
+  body_comments = NULL,
+  field_comments = NULL,
+  comment_width = 80
+) {
+  lines <- c(
+    normalize_comment_lines(comment, width = comment_width),
+    paste0("[", header, "]")
   )
+
+  if (length(body_comments) > 0) {
+    lines <- c(
+      lines,
+      "",
+      normalize_comment_lines(body_comments, width = comment_width)
+    )
+  }
+
+  if (length(values) > 0) {
+    for (field_name in names(values)) {
+      if (!is.null(field_comments) && field_name %in% names(field_comments)) {
+        lines <- c(
+          lines,
+          normalize_comment_lines(
+            field_comments[[field_name]],
+            width = comment_width
+          )
+        )
+      }
+
+      lines <- c(
+        lines,
+        render_value_lines(stats::setNames(
+          list(values[[field_name]]),
+          field_name
+        ))
+      )
+    }
+  }
+
+  c(lines, "")
 }
 
 remove_nested_list_fields <- function(values) {
@@ -182,23 +237,12 @@ remove_nested_list_fields <- function(values) {
   values[keep]
 }
 
-render_table_with_body_comments <- function(
+render_array_tables <- function(
   header,
-  values = list(),
+  entries = list(),
   comment = NULL,
-  body_comments = NULL
+  comment_width = 80
 ) {
-  c(
-    normalize_comment_lines(comment),
-    paste0("[", header, "]"),
-    if (length(body_comments) > 0 || length(values) > 0) "" else character(),
-    normalize_comment_lines(body_comments),
-    render_value_lines(values),
-    ""
-  )
-}
-
-render_array_tables <- function(header, entries = list(), comment = NULL) {
   if (is.null(entries) || length(entries) == 0) {
     return(character())
   }
@@ -212,7 +256,7 @@ render_array_tables <- function(header, entries = list(), comment = NULL) {
   })
 
   c(
-    normalize_comment_lines(comment),
+    normalize_comment_lines(comment, width = comment_width),
     unlist(blocks, use.names = FALSE)
   )
 }
