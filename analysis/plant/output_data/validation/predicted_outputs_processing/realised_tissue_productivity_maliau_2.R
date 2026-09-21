@@ -2,7 +2,7 @@
 #| title: realised_tissue_productivity_maliau_2
 #|
 #| description: |
-#|   Calculates realised stem, foliage, root, fruit, and seed carbon
+#|   Calculates realised stem, foliage and root carbon
 #|   productivity from Virtual Ecosystem plant cohort output for the Maliau 2
 #|   scenario. Cohort-level biomasses are multiplied by cohort individuals,
 #|   summed to cell-level carbon stocks, and differenced between consecutive
@@ -38,7 +38,7 @@
 #|   - name: realised_tissue_productivity_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: |
-#|       Realised stem, foliage, root, fruit, and seed carbon productivity in
+#|       Realised stem, foliage and root carbon productivity in
 #|       Mg C ha-1 year-1, with one row per cell and timestep, plus a pooled
 #|       mean and standard deviation across all cells and timesteps within
 #|       the selected period. The mean/sd/`selected_period` columns are `NA`
@@ -140,54 +140,6 @@
 #|         description: |
 #|           Standard deviation of root carbon productivity pooled across all
 #|           cells and timesteps in the selected period. NA outside that period.
-#|       - name: fruit_c_productivity
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         spatial_extent: Single cell (cell_id).
-#|         temporal_extent: Single interval ending at time/time_index.
-#|         description: Interval realised fruit carbon productivity for each cell.
-#|       - name: fruit_c_productivity_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         spatial_extent: Pooled across all cells.
-#|         temporal_extent: |
-#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
-#|         description: |
-#|           Mean fruit carbon productivity pooled across all cells and
-#|           timesteps in the selected period. NA outside that period.
-#|       - name: fruit_c_productivity_sd
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         spatial_extent: Pooled across all cells.
-#|         temporal_extent: |
-#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
-#|         description: |
-#|           Standard deviation of fruit carbon productivity pooled across all
-#|           cells and timesteps in the selected period. NA outside that period.
-#|       - name: seed_c_productivity
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         spatial_extent: Single cell (cell_id).
-#|         temporal_extent: Single interval ending at time/time_index.
-#|         description: Interval realised seed carbon productivity for each cell.
-#|       - name: seed_c_productivity_mean
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         spatial_extent: Pooled across all cells.
-#|         temporal_extent: |
-#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
-#|         description: |
-#|           Mean seed carbon productivity pooled across all cells and
-#|           timesteps in the selected period. NA outside that period.
-#|       - name: seed_c_productivity_sd
-#|         type: numeric
-#|         units: Mg C ha-1 year-1
-#|         spatial_extent: Pooled across all cells.
-#|         temporal_extent: |
-#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
-#|         description: |
-#|           Standard deviation of seed carbon productivity pooled across all
-#|           cells and timesteps in the selected period. NA outside that period.
 #|
 #| package_dependencies:
 #|   - data.table
@@ -202,9 +154,8 @@
 #|   comparison value.
 #|   Each tissue's period is loaded at runtime from its own corresponding
 #|   variable in master_observed_data_processing_metadata.yml (stem ->
-#|   WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP, fruit and
-#|   seed -> CanopyNPP_Reproductive), so they always match the observed
-#|   dataset's declared periods without manual syncing.
+#|   WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP), so they
+#|   always match the observed dataset's declared periods without manual syncing.
 #| ---
 
 source("../../../../../tools/R/R/get_ve_variables.R")
@@ -223,9 +174,7 @@ required_columns <- c(
   "whole_crown_gpp",
   "stem_c_biomass",
   "foliage_c_biomass",
-  "root_c_biomass",
-  "fruit_c_biomass",
-  "seed_c_biomass"
+  "root_c_biomass"
 )
 plants_cohort_data <- data.table::fread(
   plants_cohort_data_path,
@@ -268,8 +217,6 @@ get_observed_period <- function(variable_name) {
 stem_period <- get_observed_period("WoodyNPP_Stem")
 foliage_period <- get_observed_period("CanopyNPP_Leaf")
 root_period <- get_observed_period("FineRootNPP")
-fruit_period <- get_observed_period("CanopyNPP_Reproductive")
-seed_period <- get_observed_period("CanopyNPP_Reproductive")
 
 standardised_stem_c_productivity <- calculate_ve_realised_tissue_productivity(
   plants_cohort_data = plants_cohort_data,
@@ -299,26 +246,6 @@ standardised_root_c_productivity <- calculate_ve_realised_tissue_productivity(
   end_date = root_period$end_date
 )
 
-standardised_fruit_c_productivity <-
-  calculate_ve_realised_tissue_productivity(
-    plants_cohort_data = plants_cohort_data,
-    input_variable = "fruit_c_biomass",
-    output_variable = "fruit_c_productivity",
-    cell_area_ha = 1,
-    start_date = fruit_period$start_date,
-    end_date = fruit_period$end_date
-  )
-
-standardised_seed_c_productivity <-
-  calculate_ve_realised_tissue_productivity(
-    plants_cohort_data = plants_cohort_data,
-    input_variable = "seed_c_biomass",
-    output_variable = "seed_c_productivity",
-    cell_area_ha = 1,
-    start_date = seed_period$start_date,
-    end_date = seed_period$end_date
-  )
-
 # Merge the data together
 
 standardised_data <- merge(
@@ -331,20 +258,6 @@ standardised_data <- merge(
 standardised_data <- merge(
   standardised_data,
   standardised_root_c_productivity,
-  by = c("cell_id", "time", "time_index", "selected_period", "units"),
-  all = TRUE,
-  sort = FALSE
-)
-standardised_data <- merge(
-  standardised_data,
-  standardised_fruit_c_productivity,
-  by = c("cell_id", "time", "time_index", "selected_period", "units"),
-  all = TRUE,
-  sort = FALSE
-)
-standardised_data <- merge(
-  standardised_data,
-  standardised_seed_c_productivity,
   by = c("cell_id", "time", "time_index", "selected_period", "units"),
   all = TRUE,
   sort = FALSE
