@@ -65,7 +65,7 @@ maliau_2 <- maliau$Scenario$maliau_2$core
 
 # Group repeated core.data.variable entries by the module section that uses them.
 variable_groups <- build_variable_groups(
-  plants_path = "../data/plant_input_data_Maliau_10x10.nc",
+  plants_path = "../data/plant_input_data_maliau_2.nc",
   climate_path = "../data/era5_maliau_10x10_2010_2020.nc",
   elevation_path = "../data/elevation_maliau_10x10.nc",
   soil_path = "../data/soil_maliau.nc",
@@ -127,7 +127,7 @@ lines <- c(
   # This module has no top-level scalar values in this scenario.
   render_comment("Abiotic simple settings"),
   render_module("abiotic_simple"),
-  render_comment("Abiotic simple input variables"),
+  render_comment("Abiotic simple array variables"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$abiotic_simple
@@ -137,7 +137,7 @@ lines <- c(
   # As above, the scenario-specific content here is in the input variables.
   render_comment("Hydrology settings"),
   render_module("hydrology"),
-  render_comment("Hydrology input variables"),
+  render_comment("Hydrology array variables"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$hydrology
@@ -151,7 +151,7 @@ lines <- c(
     field_comments = list(
       functional_group_definitions_path = c(
         "Animal functional group definitions file path.",
-        "This scenario currently uses the Maliau level 3 definitions."
+        "Currently uses Maliau_level3, other levels are also available through Globus."
       )
     )
   ),
@@ -171,7 +171,7 @@ lines <- c(
   ),
   render_comment("Plant community data export settings"),
   render_table("plants.community_data_export", plants$community_data_export),
-  render_comment("Plants input variables"),
+  render_comment("Plants array variables"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$plants
@@ -183,7 +183,7 @@ lines <- c(
   # Compile the soil module.
   render_comment("Soil settings"),
   render_module("soil"),
-  render_comment("Soil input variables"),
+  render_comment("Soil array variables"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$soil
@@ -192,7 +192,7 @@ lines <- c(
   # Compile the litter module.
   render_comment("Litter settings"),
   render_module("litter"),
-  render_comment("Litter input variables"),
+  render_comment("Litter array variables"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$litter
