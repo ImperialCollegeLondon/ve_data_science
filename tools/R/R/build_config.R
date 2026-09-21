@@ -18,6 +18,7 @@
 #| output_files:
 #|
 #| package_dependencies:
+#|   - purrr
 #|   - toml
 #|
 #| usage_notes: See details below
@@ -152,7 +153,7 @@ build_config <- function(
     litter_variables = "# Litter array variables"
   )
 
-  comments <- utils::modifyList(default_comments, comments)
+  comments <- purrr::list_modify(default_comments, !!!comments)
 
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
 
@@ -209,7 +210,11 @@ build_config <- function(
       variable_groups$plants,
       comments$plants_variables
     ),
-    render_table("plants.constants", plants$constants, comments$plants_constants),
+    render_table(
+      "plants.constants",
+      plants$constants,
+      comments$plants_constants
+    ),
     render_table("soil", soil, comments$soil),
     render_array_tables(
       "core.data.variable",
