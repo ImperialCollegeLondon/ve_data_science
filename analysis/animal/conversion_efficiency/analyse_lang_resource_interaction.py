@@ -65,9 +65,6 @@ usage_notes: |
   treated as resource-level CE baselines rather than evidence that CE is
   identical across ectothermic and endothermic consumers.
 
-Example:
-    uv run python analysis/animal/analyse_lang_resource_interaction_CE.py \
-      --input C:/path/to/Globus/Lang_et_al_2017_VE_mapped_observations.csv
 ---
 
 """  # noqa: D400, D212, D205, D415
@@ -626,7 +623,7 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help=(
             "Local path to the mapped observation CSV produced by "
-            "extract_lang_assimilation_to_VE.py."
+            "extract_lang_assimilation.py."
         ),
     )
     parser.add_argument(
