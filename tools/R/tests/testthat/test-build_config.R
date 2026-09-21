@@ -22,6 +22,41 @@
 source(here::here("tools/R/R/build_config.R"))
 
 
+test_that("build_variable_groups returns TOML-ready variable groups", {
+  variable_groups <- build_variable_groups(
+    plants_path = "plants.nc",
+    climate_path = "climate.nc",
+    elevation_path = "elevation.nc",
+    soil_path = "soil.nc",
+    litter_path = "litter.nc"
+  )
+
+  expect_identical(
+    names(variable_groups),
+    c("abiotic_simple", "hydrology", "plants", "soil", "litter")
+  )
+  expect_identical(variable_groups$abiotic_simple[[1]]$file_path, "climate.nc")
+  expect_identical(
+    variable_groups$abiotic_simple[[1]]$var_name,
+    "air_temperature_ref"
+  )
+  expect_identical(variable_groups$hydrology[[1]]$var_name, "precipitation")
+  expect_identical(variable_groups$hydrology[[1]]$file_path, "climate.nc")
+  expect_identical(variable_groups$hydrology[[2]]$var_name, "elevation")
+  expect_identical(variable_groups$hydrology[[2]]$file_path, "elevation.nc")
+  expect_identical(
+    variable_groups$plants[[4]]$var_name,
+    "downward_shortwave_radiation"
+  )
+  expect_identical(variable_groups$plants[[4]]$file_path, "climate.nc")
+  expect_identical(variable_groups$soil[[1]]$var_name, "pH")
+  expect_identical(
+    variable_groups$litter[[length(variable_groups$litter)]]$var_name,
+    "lignin_below_structural"
+  )
+})
+
+
 test_that("build_config writes the provided rendered lines", {
   dir <- withr::local_tempdir()
 

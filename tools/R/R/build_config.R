@@ -37,32 +37,38 @@
 #'
 #' @returns A compiled TOML configuration file saved in the specified path.
 
-#' Collect filenames and paths to input data into a data frame
+#' Build grouped `core$data$variable` entries for the compiled TOML config
 #'
-#' @param plants Full relative path and filename of the plants module input
+#' @param plants_path Full relative path and filename of the plants module
+#'   input data.
+#' @param climate_path Full relative path and filename of the climate input
 #'   data.
-#' @param climate Full relative path and filename of the climate variables in
-#'   the abiotic or abiotic_simple module input data.
-#' @param elevation Full relative path and filename of the elevation variable
-#'   in the abiotic or abiotic_simple module input data.
-#' @param soil Full relative path and filename of the soil module input data.
-#' @param litter Full relative path and filename of the litter module input
+#' @param elevation_path Full relative path and filename of the elevation input
 #'   data.
+#' @param soil_path Full relative path and filename of the soil module input
+#'   data.
+#' @param litter_path Full relative path and filename of the litter module
+#'   input data.
 #'
-#' @returns A data.frame containing `var_name` and `file_path` columns.
-collect_data_paths <- function(plants, climate, elevation, soil, litter) {
-  rbind(
-    data.frame(
-      var_name = c(
-        "plant_pft_propagules",
-        "subcanopy_vegetation_biomass",
-        "subcanopy_seedbank_biomass",
-        "downward_shortwave_radiation"
-      ),
-      file_path = plants
-    ),
-    data.frame(
-      var_name = c(
+#' @returns A named list ready for `core$data$variable`, grouped according to
+#'   the compiled TOML structure.
+build_variable_groups <- function(
+  plants_path,
+  climate_path,
+  elevation_path,
+  soil_path,
+  litter_path
+) {
+  make_entries <- function(file_path, var_names) {
+    lapply(var_names, function(var_name) {
+      list(file_path = file_path, var_name = var_name)
+    })
+  }
+
+  list(
+    abiotic_simple = make_entries(
+      climate_path,
+      c(
         "air_temperature_ref",
         "relative_humidity_ref",
         "atmospheric_pressure_ref",
@@ -70,52 +76,61 @@ collect_data_paths <- function(plants, climate, elevation, soil, litter) {
         "mean_annual_temperature",
         "wind_speed_ref",
         "downward_longwave_radiation",
-        "diurnal_temperature_range_ref",
-        "precipitation"
+        "diurnal_temperature_range_ref"
+      )
+    ),
+    hydrology = c(
+      make_entries(climate_path, "precipitation"),
+      make_entries(elevation_path, "elevation")
+    ),
+    plants = c(
+      make_entries(
+        plants_path,
+        c(
+          "plant_pft_propagules",
+          "subcanopy_vegetation_biomass",
+          "subcanopy_seedbank_biomass"
+        )
       ),
-      file_path = climate
+      make_entries(climate_path, "downward_shortwave_radiation")
     ),
-    data.frame(
-      var_name = "elevation",
-      file_path = elevation
-    ),
-    data.frame(
-      var_name = c(
+    soil = make_entries(
+      soil_path,
+      c(
+        "pH",
+        "clay_fraction",
         "soil_cnp_pool_lmwc",
         "soil_cnp_pool_maom",
-        "soil_cnp_pool_necromass",
-        "soil_cnp_pool_pom",
-        "clay_fraction",
-        "fungal_fruiting_bodies_cnp",
-        "pH",
-        "soil_c_pool_arbuscular_mycorrhiza",
         "soil_c_pool_bacteria",
-        "soil_c_pool_ectomycorrhiza",
         "soil_c_pool_saprotrophic_fungi",
-        "soil_enzyme_maom_bacteria",
-        "soil_enzyme_maom_fungi",
+        "soil_c_pool_arbuscular_mycorrhiza",
+        "soil_c_pool_ectomycorrhiza",
+        "soil_cnp_pool_pom",
+        "soil_cnp_pool_necromass",
         "soil_enzyme_pom_bacteria",
+        "soil_enzyme_maom_bacteria",
         "soil_enzyme_pom_fungi",
+        "soil_enzyme_maom_fungi",
         "soil_n_pool_ammonium",
         "soil_n_pool_nitrate",
-        "soil_p_pool_labile",
         "soil_p_pool_primary",
-        "soil_p_pool_secondary"
-      ),
-      file_path = soil
+        "soil_p_pool_secondary",
+        "soil_p_pool_labile",
+        "fungal_fruiting_bodies_cnp"
+      )
     ),
-    data.frame(
-      var_name = c(
+    litter = make_entries(
+      litter_path,
+      c(
         "litter_pool_above_metabolic_cnp",
         "litter_pool_above_structural_cnp",
+        "litter_pool_woody_cnp",
         "litter_pool_below_metabolic_cnp",
         "litter_pool_below_structural_cnp",
-        "litter_pool_woody_cnp",
         "lignin_above_structural",
-        "lignin_below_structural",
-        "lignin_woody"
-      ),
-      file_path = litter
+        "lignin_woody",
+        "lignin_below_structural"
+      )
     )
   )
 }

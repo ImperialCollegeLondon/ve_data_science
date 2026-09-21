@@ -2,9 +2,9 @@
 #| title: Build the compiled configuration file for the maliau_2 scenario
 #|
 #| description: |
-#|     This R script uses a TOML-backed helper to build a single compiled TOML
-#|     configuration file for the maliau_2 scenario while keeping the manual
-#|     config structure close to the committed version.
+#|     This R script uses helper functions from build_config.R to build a
+#|     single compiled TOML configuration file for the maliau_2 scenario while
+#|     keeping the manual config structure close to the committed version.
 #|
 #| VE_module: All
 #|
@@ -43,21 +43,13 @@ source("tools/R/R/build_config.R")
 maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
 maliau_2 <- maliau$Scenario$maliau_2$core
 
-data_paths <- collect_data_paths(
-  plants = "../data/plant_input_data_Maliau_10x10.nc",
-  climate = "../data/era5_maliau_10x10_2010_2020.nc",
-  elevation = "../data/elevation_maliau_10x10.nc",
-  soil = "../data/soil_maliau.nc",
-  litter = "../data/litter_maliau.nc"
+variable_groups <- build_variable_groups(
+  plants_path = "../data/plant_input_data_Maliau_10x10.nc",
+  climate_path = "../data/era5_maliau_10x10_2010_2020.nc",
+  elevation_path = "../data/elevation_maliau_10x10.nc",
+  soil_path = "../data/soil_maliau.nc",
+  litter_path = "../data/litter_maliau.nc"
 )
-
-data_lookup <- split(data_paths, data_paths$var_name)
-make_entry <- function(var_name) {
-  as.list(data_lookup[[var_name]][1, c("file_path", "var_name")])
-}
-make_entries <- function(var_names) {
-  lapply(var_names, make_entry)
-}
 
 plants_constants <- read_csv(
   "data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv"
@@ -69,59 +61,7 @@ plants_constants <- read_csv(
 core <- list(
   grid = maliau_2$grid |> discard_at("grid_type"),
   timing = maliau_2$timing,
-  data = list(
-    variable = list(
-      abiotic_simple = make_entries(c(
-        "air_temperature_ref",
-        "relative_humidity_ref",
-        "atmospheric_pressure_ref",
-        "atmospheric_co2_ref",
-        "mean_annual_temperature",
-        "wind_speed_ref",
-        "downward_longwave_radiation",
-        "diurnal_temperature_range_ref"
-      )),
-      hydrology = make_entries(c("precipitation", "elevation")),
-      plants = make_entries(c(
-        "plant_pft_propagules",
-        "subcanopy_vegetation_biomass",
-        "subcanopy_seedbank_biomass",
-        "downward_shortwave_radiation"
-      )),
-      soil = make_entries(c(
-        "pH",
-        "clay_fraction",
-        "soil_cnp_pool_lmwc",
-        "soil_cnp_pool_maom",
-        "soil_c_pool_bacteria",
-        "soil_c_pool_saprotrophic_fungi",
-        "soil_c_pool_arbuscular_mycorrhiza",
-        "soil_c_pool_ectomycorrhiza",
-        "soil_cnp_pool_pom",
-        "soil_cnp_pool_necromass",
-        "soil_enzyme_pom_bacteria",
-        "soil_enzyme_maom_bacteria",
-        "soil_enzyme_pom_fungi",
-        "soil_enzyme_maom_fungi",
-        "soil_n_pool_ammonium",
-        "soil_n_pool_nitrate",
-        "soil_p_pool_primary",
-        "soil_p_pool_secondary",
-        "soil_p_pool_labile",
-        "fungal_fruiting_bodies_cnp"
-      )),
-      litter = make_entries(c(
-        "litter_pool_above_metabolic_cnp",
-        "litter_pool_above_structural_cnp",
-        "litter_pool_woody_cnp",
-        "litter_pool_below_metabolic_cnp",
-        "litter_pool_below_structural_cnp",
-        "lignin_above_structural",
-        "lignin_woody",
-        "lignin_below_structural"
-      ))
-    )
-  )
+  data = list(variable = variable_groups)
 )
 
 abiotic <- list()
