@@ -93,25 +93,17 @@ litter <- list()
 
 # Build compiled configuration -------------------------------------------
 
-core_values <- remove_nested_list_fields(core)
-animal_values <- remove_nested_list_fields(animal)
-plants_values <- remove_nested_list_fields(plants)
-
 lines <- c(
-  render_table("core", core_values, comment = "Core settings"),
+  render_module("core", comment = "Core settings"),
   render_table("core.grid", core$grid),
   render_table("core.timing", core$timing),
-  render_table(
-    "abiotic_simple",
-    abiotic_simple,
-    comment = "Abiotic config settings"
-  ),
+  render_module("abiotic_simple", comment = "Abiotic config settings"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$abiotic_simple,
     comment = "Abiotic array variables"
   ),
-  render_table("hydrology", hydrology, comment = "Hydrology config settings"),
+  render_module("hydrology", comment = "Hydrology config settings"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$hydrology,
@@ -119,7 +111,7 @@ lines <- c(
   ),
   render_table(
     "animal",
-    animal_values,
+    animal,
     comment = "Animal config settings",
     field_comments = list(
       functional_group_definitions_path = c(
@@ -132,7 +124,7 @@ lines <- c(
   render_table("animal.resource_pool_export", animal$resource_pool_export),
   render_table(
     "plants",
-    plants_values,
+    plants,
     comment = "Plant config settings",
     field_comments = list(
       pft_definitions_path = "Plant pft definitions file path",
@@ -154,13 +146,13 @@ lines <- c(
     plants$constants,
     comment = "Plant constants (non-defaults)"
   ),
-  render_table("soil", soil, comment = "Soil config settings"),
+  render_module("soil", comment = "Soil config settings"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$soil,
     comment = "Soil array variables"
   ),
-  render_table("litter", litter, comment = "Litter config settings"),
+  render_module("litter", comment = "Litter config settings"),
   render_array_tables(
     "core.data.variable",
     core$data$variable$litter,

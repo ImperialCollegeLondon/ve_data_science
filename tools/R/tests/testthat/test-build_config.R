@@ -97,28 +97,16 @@ test_that("build_config writes the provided rendered lines", {
   soil <- list()
   litter <- list()
   lines <- c(
-    render_table(
-      "core",
-      remove_nested_list_fields(core),
-      comment = "Core settings"
-    ),
+    render_module("core", comment = "Core settings"),
     render_table("core.grid", core$grid),
     render_table("core.timing", core$timing),
-    render_table(
-      "abiotic_simple",
-      list(),
-      comment = "Abiotic config settings"
-    ),
+    render_module("abiotic_simple", comment = "Abiotic config settings"),
     render_array_tables(
       "core.data.variable",
       core$data$variable$abiotic_simple,
       comment = "Abiotic array variables"
     ),
-    render_table(
-      "hydrology",
-      hydrology,
-      comment = "Hydrology config settings"
-    ),
+    render_module("hydrology", comment = "Hydrology config settings"),
     render_array_tables(
       "core.data.variable",
       core$data$variable$hydrology,
@@ -126,7 +114,7 @@ test_that("build_config writes the provided rendered lines", {
     ),
     render_table(
       "animal",
-      remove_nested_list_fields(animal),
+      animal,
       comment = "Animal config settings",
       field_comments = list(
         functional_group_definitions_path = "Animal functional group definitions file path"
@@ -136,7 +124,7 @@ test_that("build_config writes the provided rendered lines", {
     render_table("animal.resource_pool_export", animal$resource_pool_export),
     render_table(
       "plants",
-      remove_nested_list_fields(plants),
+      plants,
       comment = "Plant config settings",
       field_comments = list(
         pft_definitions_path = "Plant pft definitions file path",
@@ -157,13 +145,13 @@ test_that("build_config writes the provided rendered lines", {
       plants$constants,
       comment = "Plant constants (non-defaults)"
     ),
-    render_table("soil", soil, comment = "Soil config settings"),
+    render_module("soil", comment = "Soil config settings"),
     render_array_tables(
       "core.data.variable",
       core$data$variable$soil,
       comment = "Soil array variables"
     ),
-    render_table("litter", litter, comment = "Litter config settings"),
+    render_module("litter", comment = "Litter config settings"),
     render_array_tables(
       "core.data.variable",
       core$data$variable$litter,
@@ -211,6 +199,16 @@ test_that("build_config writes the provided rendered lines", {
   expect_identical(parsed$core$data$variable[[1]]$var_name, "x")
   expect_equal(parsed$plants$constants$subcanopy_specific_leaf_area, 10)
 })
+
+test_that("render_module renders a top-level module header", {
+  rendered <- render_module("core", comment = "Core settings")
+
+  expect_identical(
+    rendered,
+    c("# Core settings", "[core]", "")
+  )
+})
+
 
 test_that("render_table places field comments with their fields", {
   rendered <- render_table(
@@ -297,7 +295,7 @@ test_that("comment normalization supports plain text wrapping and multiline inpu
 })
 
 
-test_that("render helpers omit optional NULL scalar fields", {
+test_that("render_table omits nested list and NULL scalar fields", {
   dir <- withr::local_tempdir()
 
   core <- list(
@@ -330,19 +328,19 @@ test_that("render helpers omit optional NULL scalar fields", {
   )
 
   lines <- c(
-    render_table("core", remove_nested_list_fields(core)),
+    render_module("core"),
     render_table("core.grid", core$grid),
     render_table("core.timing", core$timing),
-    render_table("abiotic_simple", list()),
-    render_table("hydrology", list()),
-    render_table("animal", remove_nested_list_fields(animal)),
+    render_module("abiotic_simple"),
+    render_module("hydrology"),
+    render_table("animal", animal),
     render_table("animal.cohort_data_export", animal$cohort_data_export),
     render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_table("plants", remove_nested_list_fields(plants)),
+    render_table("plants", plants),
     render_table("plants.community_data_export", plants$community_data_export),
     render_table("plants.constants", plants$constants),
-    render_table("soil", list()),
-    render_table("litter", list())
+    render_module("soil"),
+    render_module("litter")
   )
 
   build_config(lines = lines, path = dir)
@@ -393,20 +391,20 @@ test_that("callers can choose the abiotic module name", {
   )
 
   lines <- c(
-    render_table("core", remove_nested_list_fields(core)),
+    render_module("core"),
     render_table("core.grid", core$grid),
     render_table("core.timing", core$timing),
     render_table("abiotic", list(option = "full")),
     render_array_tables("core.data.variable", core$data$variable$abiotic),
-    render_table("hydrology", list()),
-    render_table("animal", remove_nested_list_fields(animal)),
+    render_module("hydrology"),
+    render_table("animal", animal),
     render_table("animal.cohort_data_export", animal$cohort_data_export),
     render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_table("plants", remove_nested_list_fields(plants)),
+    render_table("plants", plants),
     render_table("plants.community_data_export", plants$community_data_export),
     render_table("plants.constants", plants$constants),
-    render_table("soil", list()),
-    render_table("litter", list())
+    render_module("soil"),
+    render_module("litter")
   )
 
   build_config(lines = lines, path = dir)
