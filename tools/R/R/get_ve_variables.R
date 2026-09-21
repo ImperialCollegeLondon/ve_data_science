@@ -723,7 +723,7 @@ calculate_ve_realised_tissue_productivity <- function(
   # are excluded so they are not double-counted in the cell-level aggregate.
   regular_rows <- !is.na(plants_cohort_data$whole_crown_gpp)
   if (!any(regular_rows)) {
-    cli::cli_abort("No regular output rows were found.")
+    cli::cli_abort("No regular output rows with computed whole_crown_gpp were found.")
   }
 
   # Convert per-individual tissue biomass to cohort-level biomass.
