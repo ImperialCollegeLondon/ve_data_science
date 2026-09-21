@@ -94,25 +94,35 @@ litter <- list()
 # Build compiled configuration -------------------------------------------
 
 lines <- c(
-  render_module("core", comment = "Core settings"),
+  # Compile the core module
+  render_comment("Core settings"),
+  render_module("core"),
   render_table("core.grid", core$grid),
   render_table("core.timing", core$timing),
-  render_module("abiotic_simple", comment = "Abiotic config settings"),
+
+  # Compile the abiotic_simple module
+  render_comment("Abiotic config settings"),
+  render_module("abiotic_simple"),
+  render_comment("Abiotic array variables"),
   render_array_tables(
     "core.data.variable",
-    core$data$variable$abiotic_simple,
-    comment = "Abiotic array variables"
+    core$data$variable$abiotic_simple
   ),
-  render_module("hydrology", comment = "Hydrology config settings"),
+
+  # Compile the hydrology module
+  render_comment("Hydrology config settings"),
+  render_module("hydrology"),
+  render_comment("Hydrology array variables"),
   render_array_tables(
     "core.data.variable",
-    core$data$variable$hydrology,
-    comment = "Hydrology array variables"
+    core$data$variable$hydrology
   ),
-  render_table(
+
+  # Compile the animal module
+  render_comment("Animal config settings"),
+  render_module(
     "animal",
-    animal,
-    comment = "Animal config settings",
+    values = animal,
     field_comments = list(
       functional_group_definitions_path = c(
         "Animal functional group definitions file path",
@@ -122,41 +132,43 @@ lines <- c(
   ),
   render_table("animal.cohort_data_export", animal$cohort_data_export),
   render_table("animal.resource_pool_export", animal$resource_pool_export),
-  render_table(
+
+  # Compile the plants module
+  render_comment("Plant config settings"),
+  render_module(
     "plants",
-    plants,
-    comment = "Plant config settings",
+    values = plants,
     field_comments = list(
       pft_definitions_path = "Plant pft definitions file path",
       cohort_data_path = "Plant cohort data file path"
     )
   ),
-  render_table(
-    "plants.community_data_export",
-    plants$community_data_export,
-    comment = "Plant output data export settings"
-  ),
+  render_comment("Plant output data export settings"),
+  render_table("plants.community_data_export", plants$community_data_export),
+  render_comment("Plant array variables"),
   render_array_tables(
     "core.data.variable",
-    core$data$variable$plants,
-    comment = "Plant array variables"
+    core$data$variable$plants
   ),
-  render_table(
-    "plants.constants",
-    plants$constants,
-    comment = "Plant constants (non-defaults)"
-  ),
-  render_module("soil", comment = "Soil config settings"),
+  render_comment("Plant constants (non-defaults)"),
+  render_table("plants.constants", plants$constants),
+
+  # Compile the soil module
+  render_comment("Soil config settings"),
+  render_module("soil"),
+  render_comment("Soil array variables"),
   render_array_tables(
     "core.data.variable",
-    core$data$variable$soil,
-    comment = "Soil array variables"
+    core$data$variable$soil
   ),
-  render_module("litter", comment = "Litter config settings"),
+
+  # Compile the litter module
+  render_comment("Litter config settings"),
+  render_module("litter"),
+  render_comment("Litter array variables"),
   render_array_tables(
     "core.data.variable",
-    core$data$variable$litter,
-    comment = "Litter array variables"
+    core$data$variable$litter
   )
 )
 

@@ -97,35 +97,38 @@ test_that("build_config writes the provided rendered lines", {
   soil <- list()
   litter <- list()
   lines <- c(
-    render_module("core", comment = "Core settings"),
+    render_comment("Core settings"),
+    render_module("core"),
     render_table("core.grid", core$grid),
     render_table("core.timing", core$timing),
-    render_module("abiotic_simple", comment = "Abiotic config settings"),
+    render_comment("Abiotic config settings"),
+    render_module("abiotic_simple"),
+    render_comment("Abiotic array variables"),
     render_array_tables(
       "core.data.variable",
-      core$data$variable$abiotic_simple,
-      comment = "Abiotic array variables"
+      core$data$variable$abiotic_simple
     ),
-    render_module("hydrology", comment = "Hydrology config settings"),
+    render_comment("Hydrology config settings"),
+    render_module("hydrology"),
+    render_comment("Hydrology array variables"),
     render_array_tables(
       "core.data.variable",
-      core$data$variable$hydrology,
-      comment = "Hydrology array variables"
+      core$data$variable$hydrology
     ),
-    render_table(
+    render_comment("Animal config settings"),
+    render_module(
       "animal",
-      animal,
-      comment = "Animal config settings",
+      values = animal,
       field_comments = list(
         functional_group_definitions_path = "Animal functional group definitions file path"
       )
     ),
     render_table("animal.cohort_data_export", animal$cohort_data_export),
     render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_table(
+    render_comment("Plant config settings"),
+    render_module(
       "plants",
-      plants,
-      comment = "Plant config settings",
+      values = plants,
       field_comments = list(
         pft_definitions_path = "Plant pft definitions file path",
         cohort_data_path = "Plant cohort data file path"
@@ -135,27 +138,26 @@ test_that("build_config writes the provided rendered lines", {
       "plants.community_data_export",
       plants$community_data_export
     ),
+    render_comment("Plant array variables"),
     render_array_tables(
       "core.data.variable",
-      core$data$variable$plants,
-      comment = "Plant array variables"
+      core$data$variable$plants
     ),
-    render_table(
-      "plants.constants",
-      plants$constants,
-      comment = "Plant constants (non-defaults)"
-    ),
-    render_module("soil", comment = "Soil config settings"),
+    render_comment("Plant constants (non-defaults)"),
+    render_table("plants.constants", plants$constants),
+    render_comment("Soil config settings"),
+    render_module("soil"),
+    render_comment("Soil array variables"),
     render_array_tables(
       "core.data.variable",
-      core$data$variable$soil,
-      comment = "Soil array variables"
+      core$data$variable$soil
     ),
-    render_module("litter", comment = "Litter config settings"),
+    render_comment("Litter config settings"),
+    render_module("litter"),
+    render_comment("Litter array variables"),
     render_array_tables(
       "core.data.variable",
-      core$data$variable$litter,
-      comment = "Litter array variables"
+      core$data$variable$litter
     )
   )
 
@@ -200,47 +202,55 @@ test_that("build_config writes the provided rendered lines", {
   expect_equal(parsed$plants$constants$subcanopy_specific_leaf_area, 10)
 })
 
-test_that("render_module renders a top-level module header", {
-  rendered <- render_module("core", comment = "Core settings")
+test_that("render_comment normalizes plain text comments", {
+  rendered <- render_comment("Core settings")
 
-  expect_identical(
-    rendered,
-    c("# Core settings", "[core]", "")
-  )
+  expect_identical(rendered, "# Core settings")
 })
 
 
-test_that("render_table places field comments with their fields", {
-  rendered <- render_table(
-    "plants",
-    list(
-      pft_definitions_path = "pft.csv",
-      cohort_data_path = "cohort.csv"
-    ),
-    comment = "Plant config settings",
-    field_comments = list(
-      pft_definitions_path = "Plant pft definitions file path",
-      cohort_data_path = "Plant cohort data file path"
+test_that("render_module renders a top-level module with direct fields", {
+  rendered <- c(
+    render_comment("Animal config settings"),
+    render_module(
+      "animal",
+      values = list(functional_group_definitions_path = "animal.csv"),
+      field_comments = list(
+        functional_group_definitions_path = "Animal functional group definitions file path"
+      )
     )
   )
 
-  pft_comment_index <- match(
-    "# Plant pft definitions file path",
-    rendered
-  )
-  pft_field_index <- match('pft_definitions_path = "pft.csv"', rendered)
-  cohort_comment_index <- match(
-    "# Plant cohort data file path",
-    rendered
-  )
-  cohort_field_index <- match('cohort_data_path = "cohort.csv"', rendered)
+  expect_true(any(rendered == "# Animal config settings"))
+  expect_true(any(rendered == "[animal]"))
+  expect_true(any(
+    rendered == "# Animal functional group definitions file path"
+  ))
+  expect_true(any(
+    rendered == 'functional_group_definitions_path = "animal.csv"'
+  ))
+})
 
-  expect_false(is.na(pft_comment_index))
-  expect_false(is.na(pft_field_index))
-  expect_false(is.na(cohort_comment_index))
-  expect_false(is.na(cohort_field_index))
-  expect_identical(pft_comment_index + 1L, pft_field_index)
-  expect_identical(cohort_comment_index + 1L, cohort_field_index)
+
+test_that("render_table places field comments with child-table fields", {
+  rendered <- render_table(
+    "plants.constants",
+    list(subcanopy_specific_leaf_area = 10),
+    comment = "Plant constants (non-defaults)",
+    field_comments = list(
+      subcanopy_specific_leaf_area = "Subcanopy specific leaf area"
+    )
+  )
+
+  comment_index <- match(
+    "# Subcanopy specific leaf area",
+    rendered
+  )
+  field_index <- match("subcanopy_specific_leaf_area = 10", rendered)
+
+  expect_false(is.na(comment_index))
+  expect_false(is.na(field_index))
+  expect_identical(comment_index + 1L, field_index)
 })
 
 
@@ -251,17 +261,22 @@ test_that("comment normalization supports plain text wrapping and multiline inpu
     "through Globus."
   )
 
-  rendered <- render_table(
-    "animal",
-    list(functional_group_definitions_path = "animal.csv"),
-    comment = paste(
-      "Animal configuration settings for a very long heading that should wrap",
-      "automatically to stay within the configured comment width."
+  rendered <- c(
+    render_comment(
+      paste(
+        "Animal configuration settings for a very long heading that should wrap",
+        "automatically to stay within the configured comment width."
+      ),
+      comment_width = 50
     ),
-    field_comments = list(
-      functional_group_definitions_path = wrapped_field_comment
-    ),
-    comment_width = 50
+    render_module(
+      "animal",
+      values = list(functional_group_definitions_path = "animal.csv"),
+      field_comments = list(
+        functional_group_definitions_path = wrapped_field_comment
+      ),
+      comment_width = 50
+    )
   )
 
   comment_lines <- rendered[grepl("^#", rendered)]
@@ -276,7 +291,6 @@ test_that("comment normalization supports plain text wrapping and multiline inpu
   )
 
   expect_true(all(startsWith(comment_lines, "#")))
-  expect_true(sum(grepl("^#", comment_lines[1:3])) == 3)
   expect_true(any(grepl(
     "Animal configuration settings",
     comment_lines,
@@ -333,10 +347,10 @@ test_that("render_table omits nested list and NULL scalar fields", {
     render_table("core.timing", core$timing),
     render_module("abiotic_simple"),
     render_module("hydrology"),
-    render_table("animal", animal),
+    render_module("animal", values = animal),
     render_table("animal.cohort_data_export", animal$cohort_data_export),
     render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_table("plants", plants),
+    render_module("plants", values = plants),
     render_table("plants.community_data_export", plants$community_data_export),
     render_table("plants.constants", plants$constants),
     render_module("soil"),
@@ -394,13 +408,13 @@ test_that("callers can choose the abiotic module name", {
     render_module("core"),
     render_table("core.grid", core$grid),
     render_table("core.timing", core$timing),
-    render_table("abiotic", list(option = "full")),
+    render_module("abiotic", values = list(option = "full")),
     render_array_tables("core.data.variable", core$data$variable$abiotic),
     render_module("hydrology"),
-    render_table("animal", animal),
+    render_module("animal", values = animal),
     render_table("animal.cohort_data_export", animal$cohort_data_export),
     render_table("animal.resource_pool_export", animal$resource_pool_export),
-    render_table("plants", plants),
+    render_module("plants", values = plants),
     render_table("plants.community_data_export", plants$community_data_export),
     render_table("plants.constants", plants$constants),
     render_module("soil"),

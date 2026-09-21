@@ -25,18 +25,12 @@
 
 #' Build a compiled configuration TOML for the Virtual Ecosystem
 #'
-#' Write a single compiled TOML configuration file for the Virtual Ecosystem's
-#' `ve_run` command from pre-rendered lines. Scalar, vector, and table values
-#' can be serialized with the helper renderers in this file, while the caller
-#' retains control of section order, chosen module names, comments, and repeated
-#' `[[core.data.variable]]` blocks.
+#' Write a compiled TOML configuration file for the Virtual Ecosystem from
+#' pre-rendered lines.
 #'
-#' Use `render_module()` for top-level module headers, `render_table()` for
-#' scalar fields within a table, and `render_array_tables()` for repeated
-#' array-of-table entries.
-#'
-#' The intended pattern is to emit a module first, then any child tables or
-#' array tables that belong to it.
+#' Use `render_comment()` for prose comments, `render_module()` for top-level
+#' modules and their direct scalar settings, `render_table()` for child tables,
+#' and `render_array_tables()` for repeated array-of-table entries.
 #'
 #' @param lines Character vector of TOML lines to write.
 #' @param path Directory to save the compiled TOML configuration file.
@@ -46,23 +40,14 @@
 #'
 #' @examples
 #' lines <- c(
-#'   render_module("core", comment = "Core settings"),
+#'   render_comment("Core settings"),
+#'   render_module("core"),
 #'   render_table("core.grid", list(cell_nx = 10, cell_ny = 10)),
 #'   render_table(
 #'     "core.timing",
 #'     list(start_date = "2010-01-01", run_length = "1 year")
-#'   ),
-#'   render_module("hydrology", comment = "Hydrology config settings"),
-#'   render_array_tables(
-#'     "core.data.variable",
-#'     list(list(file_path = "climate.nc", var_name = "precipitation")),
-#'     comment = "Hydrology array variables"
 #'   )
 #' )
-#'
-#' Comments supplied to the render helpers may be plain text, pre-prefixed with
-#' `#`, or multi-line text containing embedded newlines. Comment text is
-#' normalized to TOML comment lines and wrapped to the requested width.
 
 #' Build grouped `core$data$variable` entries for the compiled TOML config
 #'
@@ -204,33 +189,110 @@ render_value_lines <- function(values) {
   trim_blank_tail(lines)
 }
 
-#' Render a top-level TOML module header
+filter_scalar_fields <- function(values) {
+  if (is.null(values) || length(values) == 0) {
+    return(list())
+  }
+
+  keep <- !vapply(values, is.list, logical(1)) &
+    !vapply(values, is.null, logical(1))
+  values[keep]
+}
+
+render_field_lines <- function(
+  values,
+  field_comments = NULL,
+  comment_width = 80
+) {
+  values <- filter_scalar_fields(values)
+
+  if (length(values) == 0) {
+    return(character())
+  }
+
+  lines <- character()
+
+  for (field_name in names(values)) {
+    if (!is.null(field_comments) && field_name %in% names(field_comments)) {
+      lines <- c(
+        lines,
+        render_comment(
+          field_comments[[field_name]],
+          comment_width = comment_width
+        )
+      )
+    }
+
+    lines <- c(
+      lines,
+      render_value_lines(stats::setNames(
+        list(values[[field_name]]),
+        field_name
+      ))
+    )
+  }
+
+  lines
+}
+
+#' Render TOML comment lines
 #'
-#' @param module_name Name of the TOML module to render, such as `"core"`.
-#' @param comment Optional comment placed immediately above the module header.
+#' @param comment Plain text, pre-prefixed TOML comments, or multi-line text to
+#'   place in the output.
+#' @param comment_width Maximum width used when wrapping comment text.
+#'
+#' @returns A character vector of TOML comment lines.
+#'
+#' @examples
+#' render_comment("Core settings")
+render_comment <- function(comment, comment_width = 80) {
+  normalize_comment_lines(comment, width = comment_width)
+}
+
+#' Render a top-level TOML module and its direct scalar settings
+#'
+#' @param module_name Name of the TOML module to render, such as `"core"` or
+#'   `"animal"`.
+#' @param values Named list of values to write directly in the module. Nested
+#'   lists and `NULL` scalar fields are omitted.
+#' @param field_comments Optional named list of comments keyed by field name.
 #' @param comment_width Maximum width used when wrapping comment text.
 #'
 #' @returns A character vector of TOML lines ending with a blank line.
 #'
 #' @examples
-#' render_module("core", comment = "Core settings")
-render_module <- function(module_name, comment = NULL, comment_width = 80) {
+#' render_module(
+#'   "animal",
+#'   values = list(functional_group_definitions_path = "animal.csv"),
+#'   field_comments = list(
+#'     functional_group_definitions_path =
+#'       "Animal functional group definitions file path"
+#'   )
+#' )
+render_module <- function(
+  module_name,
+  values = list(),
+  field_comments = NULL,
+  comment_width = 80
+) {
   c(
-    normalize_comment_lines(comment, width = comment_width),
     paste0("[", module_name, "]"),
+    render_field_lines(
+      values = values,
+      field_comments = field_comments,
+      comment_width = comment_width
+    ),
     ""
   )
 }
 
-#' Render a TOML table with scalar fields
+#' Render a TOML child table with scalar fields
 #'
-#' @param module_name Name of the TOML table to render, such as `"core.grid"`
-#'   or `"plants.constants"`.
+#' @param module_name Name of the TOML child table to render, such as
+#'   `"core.grid"`, `"animal.cohort_data_export"`, or `"plants.constants"`.
 #' @param values Named list of values to write as scalar or vector TOML fields.
 #'   Nested lists and `NULL` scalar fields are omitted.
 #' @param comment Optional comment placed immediately above the table header.
-#' @param body_comments Optional comment lines placed between the table header
-#'   and the rendered fields.
 #' @param field_comments Optional named list of comments keyed by field name.
 #' @param comment_width Maximum width used when wrapping comment text.
 #'
@@ -238,69 +300,27 @@ render_module <- function(module_name, comment = NULL, comment_width = 80) {
 #'
 #' @examples
 #' render_table(
-#'   "plants",
-#'   list(
-#'     pft_definitions_path = "plants.csv",
-#'     constants = list(ignored = TRUE),
-#'     cohort_data_path = NULL
-#'   ),
-#'   comment = "Plant config settings",
-#'   field_comments = list(
-#'     pft_definitions_path = "Plant pft definitions file path"
-#'   )
+#'   "plants.constants",
+#'   list(subcanopy_specific_leaf_area = 10),
+#'   comment = "Plant constants (non-defaults)"
 #' )
 render_table <- function(
   module_name,
   values = list(),
   comment = NULL,
-  body_comments = NULL,
   field_comments = NULL,
   comment_width = 80
 ) {
-  if (is.null(values) || length(values) == 0) {
-    values <- list()
-  } else {
-    keep <- !vapply(values, is.list, logical(1)) &
-      !vapply(values, is.null, logical(1))
-    values <- values[keep]
-  }
-
-  lines <- c(
+  c(
     normalize_comment_lines(comment, width = comment_width),
-    paste0("[", module_name, "]")
+    paste0("[", module_name, "]"),
+    render_field_lines(
+      values = values,
+      field_comments = field_comments,
+      comment_width = comment_width
+    ),
+    ""
   )
-
-  if (length(body_comments) > 0) {
-    lines <- c(
-      lines,
-      "",
-      normalize_comment_lines(body_comments, width = comment_width)
-    )
-  }
-
-  if (length(values) > 0) {
-    for (field_name in names(values)) {
-      if (!is.null(field_comments) && field_name %in% names(field_comments)) {
-        lines <- c(
-          lines,
-          normalize_comment_lines(
-            field_comments[[field_name]],
-            width = comment_width
-          )
-        )
-      }
-
-      lines <- c(
-        lines,
-        render_value_lines(stats::setNames(
-          list(values[[field_name]]),
-          field_name
-        ))
-      )
-    }
-  }
-
-  c(lines, "")
 }
 
 #' Render repeated TOML array-of-table entries
