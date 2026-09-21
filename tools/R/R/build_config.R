@@ -45,7 +45,6 @@
 #' @returns A named list ready for `core$data$variable`, grouped according to
 #'   the compiled TOML structure.
 
-# Public helper: prepare repeated core.data.variable entries in module order.
 build_variable_groups <- function(
   plants_path,
   climate_path,
@@ -130,6 +129,7 @@ build_variable_groups <- function(
     )
   )
 }
+
 
 # Internal helpers ---------------------------------------------------------
 
@@ -225,6 +225,7 @@ render_field_lines <- function(
   lines
 }
 
+
 # Public rendering helpers -------------------------------------------------
 
 #' Render TOML comment lines
@@ -240,9 +241,11 @@ render_field_lines <- function(
 #'
 #' @examples
 #' render_comment("Core settings")
+
 render_comment <- function(comment, comment_width = 80) {
   normalize_comment_lines(comment, width = comment_width)
 }
+
 
 #' Render a top-level TOML module and its direct scalar settings
 #'
@@ -268,6 +271,7 @@ render_comment <- function(comment, comment_width = 80) {
 #'       "Animal functional group definitions file path"
 #'   )
 #' )
+
 render_module <- function(
   module_name,
   values = list(),
@@ -284,6 +288,7 @@ render_module <- function(
     ""
   )
 }
+
 
 #' Render a TOML child table with scalar fields
 #'
@@ -306,6 +311,7 @@ render_module <- function(
 #'   list(subcanopy_specific_leaf_area = 10),
 #'   comment = "Plant constants (non-defaults)"
 #' )
+
 render_table <- function(
   module_name,
   values = list(),
@@ -324,6 +330,7 @@ render_table <- function(
     ""
   )
 }
+
 
 #' Render repeated TOML array-of-table entries
 #'
@@ -348,6 +355,7 @@ render_table <- function(
 #'   ),
 #'   comment = "Hydrology array variables"
 #' )
+
 render_array_tables <- function(
   module_name,
   entries = list(),
@@ -372,6 +380,7 @@ render_array_tables <- function(
   )
 }
 
+
 # Public output helper -----------------------------------------------------
 
 #' Write a compiled Virtual Ecosystem TOML configuration file
@@ -387,6 +396,7 @@ render_array_tables <- function(
 #' @param file_name File name for the compiled TOML configuration file.
 #'
 #' @returns A compiled TOML configuration file written to `path/file_name`.
+#' @export
 #'
 #' @examples
 #' lines <- c(
@@ -399,6 +409,7 @@ render_array_tables <- function(
 #'   )
 #' )
 #' build_config(lines, tempdir(), "config.toml")
+
 build_config <- function(lines, path, file_name = "config.toml") {
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
 
