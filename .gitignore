@@ -32,7 +32,7 @@ data/derived/soil/fungi_stoichiometry/sporocarp_CNP.csv
 data/derived/soil/validation/literature_search/results.csv
 
 # MkDocs build output
-site/
+/site/
 
 # Scenario files: ignore everything under each scenario folder by default.
 # We use `/**` so Git keeps the folders visible, then we can make exceptions
