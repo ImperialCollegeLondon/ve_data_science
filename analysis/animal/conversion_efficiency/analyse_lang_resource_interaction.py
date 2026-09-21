@@ -65,10 +65,11 @@ usage_notes: |
   treated as resource-level CE baselines rather than evidence that CE is
   identical across ectothermic and endothermic consumers.
 
-  Example:
+Example:
     uv run python analysis/animal/analyse_lang_resource_interaction_CE.py \
       --input C:/path/to/Globus/Lang_et_al_2017_VE_mapped_observations.csv
 ---
+
 """  # noqa: D400, D212, D205, D415
 
 from __future__ import annotations
@@ -78,7 +79,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
-
 
 DEFAULT_OUTPUT_BASENAME = "Lang_et_al_2017_VE_CE_recommendations.csv"
 
@@ -392,16 +392,14 @@ def summarise_resource(
     direct = resource[resource["mapping_status"].eq("direct")].copy()
     inferred = resource[resource["mapping_status"].eq("inferred")].copy()
     proxy = resource[resource["mapping_status"].eq("proxy")].copy()
-    excluded = resource[
-        resource["mapping_status"].isin(["exclude", "unmapped"])
-    ].copy()
+    excluded = resource[resource["mapping_status"].isin(["exclude", "unmapped"])].copy()
     direct_plus_inferred = pd.concat([direct, inferred], ignore_index=True)
 
-    n_total = int(len(resource))
-    n_direct = int(len(direct))
-    n_inferred = int(len(inferred))
-    n_proxy = int(len(proxy))
-    n_excluded = int(len(excluded))
+    n_total = len(resource)
+    n_direct = len(direct)
+    n_inferred = len(inferred)
+    n_proxy = len(proxy)
+    n_excluded = len(excluded)
     n_direct_studies = int(direct["reference.original"].dropna().nunique())
     n_direct_species = int(direct["taxonomic.name"].dropna().nunique())
 
@@ -608,8 +606,7 @@ def print_summary(result: pd.DataFrame, input_path: Path, output_path: Path) -> 
     else:
         for _, row in needs_literature.iterrows():
             print(
-                f"  - {row['ve_resource_type']}: "
-                f"{row['additional_literature_needed']}"
+                f"  - {row['ve_resource_type']}: {row['additional_literature_needed']}"
             )
 
     print(f"\nCSV written:\n  {output_path}")

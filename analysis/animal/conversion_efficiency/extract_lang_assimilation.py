@@ -1,5 +1,4 @@
-"""
----
+"""---
 
 title: Extract Lang assimilation efficiency observations and map to VE resources
 
@@ -53,13 +52,14 @@ usage_notes: |
   The raw Lang dataset does not need to be stored in Git. Supply the local path
   to the data explicitly, for example after transferring it from Globus.
 
-  Example:
+Example:
     python extract_lang_assimilation.py --input C:/path/to/Globus/Lang_et_al_2017_data.csv
 
   If --output is omitted, the mapped observation CSV is written beside the
   input dataset. Use --output to write it elsewhere.
 
 ---
+
 """
 
 from __future__ import annotations
@@ -69,7 +69,6 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-
 
 DEFAULT_OUTPUT_BASENAME = "Lang_et_al_2017_VE_mapped_observations.csv"
 
@@ -96,6 +95,7 @@ def normalise_resource_label(resource: Any) -> str | None:
 
     Returns:
         A stripped, case-folded resource label, or None for a missing label.
+
     """
     if pd.isna(resource):
         return None
@@ -275,8 +275,7 @@ def build_resource_map() -> dict[str, dict[str, str | None]]:
         ),
         "Lactuca sativa": (
             "foliage",
-            "Living lettuce or plant tissue; closest current VE resource "
-            "is foliage.",
+            "Living lettuce or plant tissue; closest current VE resource is foliage.",
         ),
         "Ononis repens": (
             "foliage",
@@ -290,8 +289,7 @@ def build_resource_map() -> dict[str, dict[str, str | None]]:
         ),
         "Taraxacum officinale": (
             "foliage",
-            "Plant species fed to herbivores; the tissue type is not "
-            "specified.",
+            "Plant species fed to herbivores; the tissue type is not specified.",
         ),
         "Morus alba": (
             "foliage",
@@ -300,13 +298,11 @@ def build_resource_map() -> dict[str, dict[str, str | None]]:
         ),
         "Acer saccharinum": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Antirrhinum majus": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "cannibalism": (
             "invertebrates",
@@ -315,48 +311,39 @@ def build_resource_map() -> dict[str, dict[str, str | None]]:
         ),
         "Chenopodium album": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Ipomoea batatas": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Lactues sp.": (
             "foliage",
-            "Plant material fed to grass carp; closest current VE "
-            "resource is foliage.",
+            "Plant material fed to grass carp; closest current VE resource is foliage.",
         ),
         "Lycopersicon esculentum": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Phaseolus vulgaris": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Phytolacca americana": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Solanum tuberosum": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Spinacia oleracea": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
         "Ulmus pumila": (
             "foliage",
-            "Plant species used as herbivore food; the tissue type is "
-            "not specified.",
+            "Plant species used as herbivore food; the tissue type is not specified.",
         ),
     }
 
@@ -460,8 +447,7 @@ def load_raw_data(path: Path) -> pd.DataFrame:
     """Load and validate the raw Lang et al. dataset."""
     if not path.exists():
         raise FileNotFoundError(
-            f"Raw Lang dataset not found: {path}\n"
-            "Check the path supplied with --input."
+            f"Raw Lang dataset not found: {path}\nCheck the path supplied with --input."
         )
 
     # The first row contains metadata; headers begin on the second row.
@@ -529,9 +515,7 @@ def apply_mapping(row: pd.Series) -> pd.Series:
     if context_key in CONTEXT_OVERRIDES:
         decision = CONTEXT_OVERRIDES[context_key].copy()
 
-    mapping_status = str(
-        decision.get("mapping_status", "")
-    ).strip().lower()
+    mapping_status = str(decision.get("mapping_status", "")).strip().lower()
 
     return pd.Series(
         {
@@ -574,7 +558,6 @@ def write_csv_safely(data: pd.DataFrame, output_path: Path) -> Path:
             f"Could not save {output_path.name}; the target appears to be "
             "locked and no fallback filename was available."
         )
-
 
 
 def parse_args() -> argparse.Namespace:
@@ -679,10 +662,7 @@ def main() -> None:
     unmapped = mapped_output["mapping_status"].eq("unmapped")
     if unmapped.any():
         resources = sorted(
-            mapped_output.loc[unmapped, "resource"]
-            .dropna()
-            .astype(str)
-            .unique()
+            mapped_output.loc[unmapped, "resource"].dropna().astype(str).unique()
         )
         print("\nWARNING: Unmapped resource labels:")
         for resource in resources:

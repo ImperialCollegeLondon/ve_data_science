@@ -5,4 +5,4 @@ assimilation-efficiency data for the Virtual Ecosystem animal module.
 
 ## Data
 
-The raw dataset currently being stored in Globus under primary folder. 
+The raw dataset currently being stored in Globus under primary folder.
