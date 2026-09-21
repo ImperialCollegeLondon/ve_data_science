@@ -1,0 +1,34 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-18485311
+doi: 10.5281/zenodo.18485311
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Taxonomic work, litter keyword is about sampling location.
+  screened_at: '2026-09-18T06:21:58Z'
+metadata:
+  title: Strumigenys runa
+  authors:
+  - Hamer, Matthew T.
+  - Katzke, Julian
+  - Tang, Kit Lam
+  - Weemaels, André Ibáñez
+  - Hita-Garcia, Francisco
+  - Economo, Evan P.
+  - Guénard, Benoit
+  year: 2025
+  journal: Zenodo
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.18485311
+  keywords:
+  - Biodiversity
+  - Taxonomy
+  - Animalia
+  - Arthropoda
+  - Insecta
+  - Hymenoptera
+  - Formicidae
+  - Strumigenys
+  - Strumigenys runa
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:21:39Z'
