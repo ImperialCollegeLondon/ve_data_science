@@ -63,13 +63,29 @@ test_that("build_config writes the human-readable module order", {
     ),
     soil = list(),
     litter = list(),
-    path = dir
+    path = dir,
+    comments = list(
+      core = "# Core settings",
+      abiotic_simple = "# Abiotic config settings",
+      abiotic_variables = "# Abiotic array variables",
+      hydrology = "# Hydrology config settings",
+      hydrology_variables = "# Hydrology array variables",
+      animal = "# Animal config settings",
+      plants = "# Plant config settings",
+      plants_constants = "# Plant constants (non-defaults)",
+      soil = "# Soil config settings",
+      soil_variables = "# Soil array variables",
+      litter = "# Litter config settings",
+      litter_variables = "# Litter array variables"
+    )
   )
 
   output_path <- file.path(dir, "config.toml")
   output_text <- readLines(output_path)
 
   expect_true(file.exists(output_path))
+  parsed <- toml::read_toml(output_path)
+
   expect_true(any(output_text == "# Core settings"))
   expect_true(any(output_text == "[core.grid]"))
   expect_true(any(output_text == "[core.timing]"))
@@ -90,6 +106,9 @@ test_that("build_config writes the human-readable module order", {
   expect_true(any(output_text == "# Litter config settings"))
   expect_true(any(output_text == "[litter]"))
   expect_true(any(output_text == "[[core.data.variable]]"))
-  expect_false(any(grepl("variable = [", output_text, fixed = TRUE)))
+  expect_false(any(grepl("variable = \\[", output_text)))
   expect_true(any(output_text == "# Plant constants (non-defaults)"))
+  expect_length(parsed$core$data$variable, 5)
+  expect_identical(parsed$core$data$variable[[1]]$var_name, "x")
+  expect_equal(parsed$plants$constants$subcanopy_specific_leaf_area, 10)
 })

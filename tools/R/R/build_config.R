@@ -3,9 +3,9 @@
 #|
 #| description: |
 #|     Generate a single compiled TOML configuration file for the Virtual
-#|     Ecosystem's ve_run command. The caller supplies module lists in the
-#|     order they should appear in the output, and empty lists are written as
-#|     empty TOML tables.
+#|     Ecosystem's ve_run command. Values are serialized with the toml package,
+#|     while comments, section order, empty tables, and repeated
+#|     [[core.data.variable]] blocks are assembled explicitly.
 #|
 #| VE_module: All
 #|
@@ -18,6 +18,7 @@
 #| output_files:
 #|
 #| package_dependencies:
+#|   - toml
 #|
 #| usage_notes: See details below
 #| ---
@@ -25,9 +26,10 @@
 #' Build a compiled configuration TOML for the Virtual Ecosystem
 #'
 #' Generate a single compiled TOML configuration file for the Virtual
-#' Ecosystem's `ve_run` command. The caller supplies module lists in the order
-#' they should appear in the output, and empty lists are written as empty TOML
-#' tables.
+#' Ecosystem's `ve_run` command. Scalar, vector, and table values are
+#' serialized with `toml::write_toml()`, while comments, section order, empty
+#' tables, and repeated `[[core.data.variable]]` blocks are assembled
+#' explicitly.
 #'
 #' The schema used by the caller is a nested list with module names at the top
 #' level. `core$data$variable` is itself a named list of variable groups, and
@@ -43,150 +45,18 @@
 #' @param litter A named list of litter module settings.
 #' @param path Directory to save the compiled TOML configuration file.
 #' @param file_name File name for the compiled TOML configuration file.
+#' @param comments A named list of comment lines to insert before sections or
+#'   field groups. Each element should be a character vector of complete comment
+#'   lines, for example `c("# Plant config settings")`.
 #'
 #' @returns A compiled TOML configuration file saved in the specified path.
 
-format_number <- function(x, digits = 15) {
-  formatC(x, format = "fg", digits = digits, drop0trailing = TRUE)
-}
-
-format_value <- function(x, digits = 15) {
-  if (is.null(x) || (is.list(x) && length(x) == 0)) {
-    return("[]")
-  }
-
-  if (is.list(x)) {
-    stop("Nested lists must be rendered by a table helper.", call. = FALSE)
-  }
-
-  if (is.logical(x)) {
-    return(ifelse(isTRUE(x), "true", "false"))
-  }
-
-  if (is.numeric(x)) {
-    return(format_number(x, digits = digits))
-  }
-
-  if (is.character(x)) {
-    if (length(x) == 1) {
-      return(paste0('"', gsub('"', '\\"', x, fixed = TRUE), '"'))
-    }
-
-    return(paste0(
-      "[",
-      paste(
-        vapply(x, format_value, character(1), digits = digits),
-        collapse = ","
-      ),
-      "]"
-    ))
-  }
-
-  stop("Unsupported TOML value type.", call. = FALSE)
-}
-
-emit_simple_table <- function(header, values = list()) {
-  c(
-    paste0("[", header, "]"),
-    if (is.null(values) || length(values) == 0) {
-      character()
-    } else {
-      vapply(
-        names(values),
-        function(nm) {
-          if (is.list(values[[nm]])) {
-            stop(
-              "Nested lists must be rendered by a table helper.",
-              call. = FALSE
-            )
-          }
-          paste0(nm, " = ", format_value(values[[nm]]))
-        },
-        character(1)
-      )
-    },
-    ""
-  )
-}
-
-emit_variable_blocks <- function(comment, entries) {
-  if (is.null(entries) || length(entries) == 0) {
+normalize_comment_lines <- function(lines) {
+  if (is.null(lines) || length(lines) == 0) {
     return(character())
   }
 
-  blocks <- lapply(entries, function(entry) {
-    c(
-      "[[core.data.variable]]",
-      paste0("file_path = ", format_value(entry$file_path)),
-      paste0("var_name = ", format_value(entry$var_name)),
-      ""
-    )
-  })
-
-  c(comment, unlist(blocks, use.names = FALSE))
-}
-
-emit_empty_section <- function(comment, header) {
-  c(comment, paste0("[", header, "]"), "")
-}
-
-emit_module_with_subtables <- function(
-  comment,
-  header,
-  values,
-  subtables = list()
-) {
-  lines <- c(comment, paste0("[", header, "]"))
-
-  if (!is.null(values) && length(values) > 0) {
-    lines <- c(
-      lines,
-      vapply(
-        names(values),
-        function(nm) {
-          if (is.list(values[[nm]])) {
-            stop(
-              "Nested lists must be rendered by a table helper.",
-              call. = FALSE
-            )
-          }
-          paste0(nm, " = ", format_value(values[[nm]]))
-        },
-        character(1)
-      )
-    )
-  }
-
-  lines <- c(lines, "")
-
-  for (subtable_name in names(subtables)) {
-    subtable_values <- subtables[[subtable_name]]
-    lines <- c(lines, paste0("[", header, ".", subtable_name, "]"))
-    if (!is.null(subtable_values) && length(subtable_values) > 0) {
-      lines <- c(
-        lines,
-        vapply(
-          names(subtable_values),
-          function(nm) {
-            if (
-              is.list(subtable_values[[nm]]) &&
-                length(subtable_values[[nm]]) > 0
-            ) {
-              stop(
-                "Nested lists must be rendered by a table helper.",
-                call. = FALSE
-              )
-            }
-            paste0(nm, " = ", format_value(subtable_values[[nm]]))
-          },
-          character(1)
-        )
-      )
-    }
-    lines <- c(lines, "")
-  }
-
-  lines
+  unname(as.character(lines))
 }
 
 trim_blank_tail <- function(lines) {
@@ -195,6 +65,59 @@ trim_blank_tail <- function(lines) {
   }
 
   lines
+}
+
+render_value_lines <- function(values) {
+  if (is.null(values) || length(values) == 0) {
+    return(character())
+  }
+
+  lines <- strsplit(toml::write_toml(values), "\n", fixed = TRUE)[[1]]
+  trim_blank_tail(lines)
+}
+
+render_table <- function(header, values = list(), comment = NULL) {
+  c(
+    normalize_comment_lines(comment),
+    paste0("[", header, "]"),
+    render_value_lines(values),
+    ""
+  )
+}
+
+render_table_with_body_comments <- function(
+  header,
+  values = list(),
+  comment = NULL,
+  body_comments = NULL
+) {
+  c(
+    normalize_comment_lines(comment),
+    paste0("[", header, "]"),
+    if (length(body_comments) > 0 || length(values) > 0) "" else character(),
+    normalize_comment_lines(body_comments),
+    render_value_lines(values),
+    ""
+  )
+}
+
+render_array_tables <- function(header, entries = list(), comment = NULL) {
+  if (is.null(entries) || length(entries) == 0) {
+    return(character())
+  }
+
+  blocks <- lapply(entries, function(entry) {
+    c(
+      paste0("[[", header, "]]"),
+      render_value_lines(entry),
+      ""
+    )
+  })
+
+  c(
+    normalize_comment_lines(comment),
+    unlist(blocks, use.names = FALSE)
+  )
 }
 
 build_config <- function(
@@ -206,74 +129,99 @@ build_config <- function(
   soil,
   litter,
   path,
-  file_name = "config.toml"
+  file_name = "config.toml",
+  comments = list()
 ) {
-  if (is.null(core)) {
-    stop("`core` must be supplied.", call. = FALSE)
-  }
+  default_comments <- list(
+    core = "# Core settings",
+    abiotic_simple = "# Abiotic config settings",
+    abiotic_variables = "# Abiotic array variables",
+    hydrology = "# Hydrology config settings",
+    hydrology_variables = "# Hydrology array variables",
+    animal = "# Animal config settings",
+    animal_functional_group_definitions_path = character(),
+    plants = "# Plant config settings",
+    plants_pft_definitions_path = character(),
+    plants_cohort_data_path = character(),
+    plants_community_data_export = character(),
+    plants_variables = "# Plant array variables",
+    plants_constants = "# Plant constants (non-defaults)",
+    soil = "# Soil config settings",
+    soil_variables = "# Soil array variables",
+    litter = "# Litter config settings",
+    litter_variables = "# Litter array variables"
+  )
+
+  comments <- utils::modifyList(default_comments, comments)
 
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
 
   variable_groups <- core$data$variable
 
+  animal_values <- list(
+    functional_group_definitions_path = animal$functional_group_definitions_path
+  )
+
+  plants_values <- list(
+    pft_definitions_path = plants$pft_definitions_path,
+    cohort_data_path = plants$cohort_data_path
+  )
+
   lines <- c(
-    "# Core settings",
-    emit_simple_table("core.grid", core$grid),
-    emit_simple_table("core.timing", core$timing),
-    "# Abiotic config settings",
-    emit_empty_section("", "abiotic_simple"),
-    emit_variable_blocks(
-      "# Abiotic array variables",
-      variable_groups$abiotic_simple
+    render_table("core.grid", core$grid, comments$core),
+    render_table("core.timing", core$timing),
+    render_table("abiotic_simple", abiotic_simple, comments$abiotic_simple),
+    render_array_tables(
+      "core.data.variable",
+      variable_groups$abiotic_simple,
+      comments$abiotic_variables
     ),
-    "# Hydrology config settings",
-    emit_empty_section("", "hydrology"),
-    emit_variable_blocks(
-      "# Hydrology array variables",
-      variable_groups$hydrology
+    render_table("hydrology", hydrology, comments$hydrology),
+    render_array_tables(
+      "core.data.variable",
+      variable_groups$hydrology,
+      comments$hydrology_variables
     ),
-    "# Animal config settings",
-    emit_module_with_subtables(
-      "",
+    render_table_with_body_comments(
       "animal",
-      list(
-        functional_group_definitions_path = animal$functional_group_definitions_path
-      ),
-      subtables = list(
-        cohort_data_export = animal$cohort_data_export,
-        resource_pool_export = animal$resource_pool_export
-      )
+      animal_values,
+      comments$animal,
+      comments$animal_functional_group_definitions_path
     ),
-    "# Plant config settings",
-    emit_module_with_subtables(
-      "",
+    render_table("animal.cohort_data_export", animal$cohort_data_export),
+    render_table("animal.resource_pool_export", animal$resource_pool_export),
+    render_table_with_body_comments(
       "plants",
-      list(
-        cohort_data_path = plants$cohort_data_path,
-        pft_definitions_path = plants$pft_definitions_path
-      ),
-      subtables = list(
-        community_data_export = plants$community_data_export
+      plants_values,
+      comments$plants,
+      c(
+        normalize_comment_lines(comments$plants_pft_definitions_path),
+        normalize_comment_lines(comments$plants_cohort_data_path)
       )
     ),
-    "# Plant constants (non-defaults)",
-    "[plants.constants]",
-    vapply(
-      names(plants$constants),
-      function(nm) {
-        paste0(nm, " = ", format_value(plants$constants[[nm]]))
-      },
-      character(1)
+    render_table(
+      "plants.community_data_export",
+      plants$community_data_export,
+      comments$plants_community_data_export
     ),
-    "",
-    "# Plant array variables",
-    emit_variable_blocks("", variable_groups$plants),
-    "# Soil config settings",
-    emit_empty_section("", "soil"),
-    emit_variable_blocks("# Soil array variables", variable_groups$soil),
-    "# Litter config settings",
-    emit_empty_section("", "litter"),
-    emit_variable_blocks("# Litter array variables", variable_groups$litter)
+    render_array_tables(
+      "core.data.variable",
+      variable_groups$plants,
+      comments$plants_variables
+    ),
+    render_table("plants.constants", plants$constants, comments$plants_constants),
+    render_table("soil", soil, comments$soil),
+    render_array_tables(
+      "core.data.variable",
+      variable_groups$soil,
+      comments$soil_variables
+    ),
+    render_table("litter", litter, comments$litter),
+    render_array_tables(
+      "core.data.variable",
+      variable_groups$litter,
+      comments$litter_variables
+    )
   )
 
   lines <- unlist(lines, use.names = FALSE)

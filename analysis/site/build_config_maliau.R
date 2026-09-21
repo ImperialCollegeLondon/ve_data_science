@@ -2,8 +2,9 @@
 #| title: Build the compiled configuration file for the maliau_2 scenario
 #|
 #| description: |
-#|     This R script uses a custom function to build a single compiled TOML
-#|     configuration file for the maliau_2 scenario to reduce manual TOML edits.
+#|     This R script uses a TOML-backed helper to build a single compiled TOML
+#|     configuration file for the maliau_2 scenario while keeping the manual
+#|     config structure close to the committed version.
 #|
 #| VE_module: All
 #|
@@ -161,5 +162,17 @@ build_config(
   soil = soil,
   litter = litter,
   path = "data/scenarios/maliau/maliau_2/config",
-  file_name = "config_regenerated.toml"
+  file_name = "config_regenerated.toml",
+  comments = list(
+    animal_functional_group_definitions_path = c(
+      "# Animal functional group definitions file path",
+      paste0(
+        "# Currently uses Maliau_level3, other levels are also available ",
+        "through Globus."
+      )
+    ),
+    plants_pft_definitions_path = "# Plant pft definitions file path",
+    plants_cohort_data_path = "# Plant cohort data file path",
+    plants_community_data_export = "# Plant output data export settings"
+  )
 )
