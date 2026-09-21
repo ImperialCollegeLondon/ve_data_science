@@ -1,15 +1,18 @@
 #| ---
-#| title: Build a compiled configuration TOML for the Virtual Ecosystem
+#| title: Render compiled Virtual Ecosystem TOML config files
 #|
 #| description: |
-#|     Generate a single compiled TOML configuration file for the Virtual
-#|     Ecosystem's ve_run command. This file now collects the small helper
-#|     functions used to prepare and render configuration content, including
-#|     input path collection, TOML rendering, and final file writing.
+#|   Provide helper functions for building compiled TOML configuration files
+#|   for Virtual Ecosystem workflows.
 #|
-#| VE_module: All
+#|   The helpers cover grouped `core.data.variable` entries, comment rendering,
+#|   module and child-table rendering, repeated array-of-table rendering, and
+#|   final file writing.
 #|
-#| author: Hao Ran Lai
+#| virtual_ecosystem_module: All
+#|
+#| author:
+#|   - Hao Ran Lai
 #|
 #| status: final
 #|
@@ -20,34 +23,11 @@
 #| package_dependencies:
 #|   - toml
 #|
-#| usage_notes: See details below
+#| usage_notes: |
+#|   These helpers expect callers to assemble the desired TOML section order
+#|   explicitly. They rely on `toml::write_toml()` for scalar and vector values,
+#|   but render repeated array-of-table sections manually.
 #| ---
-
-#' Build a compiled configuration TOML for the Virtual Ecosystem
-#'
-#' Write a compiled TOML configuration file for the Virtual Ecosystem from
-#' pre-rendered lines.
-#'
-#' Use `render_comment()` for prose comments, `render_module()` for top-level
-#' modules and their direct scalar settings, `render_table()` for child tables,
-#' and `render_array_tables()` for repeated array-of-table entries.
-#'
-#' @param lines Character vector of TOML lines to write.
-#' @param path Directory to save the compiled TOML configuration file.
-#' @param file_name File name for the compiled TOML configuration file.
-#'
-#' @returns A compiled TOML configuration file saved in the specified path.
-#'
-#' @examples
-#' lines <- c(
-#'   render_comment("Core settings"),
-#'   render_module("core"),
-#'   render_table("core.grid", list(cell_nx = 10, cell_ny = 10)),
-#'   render_table(
-#'     "core.timing",
-#'     list(start_date = "2010-01-01", run_length = "1 year")
-#'   )
-#' )
 
 #' Build grouped `core$data$variable` entries for the compiled TOML config
 #'
@@ -65,6 +45,7 @@
 #' @returns A named list ready for `core$data$variable`, grouped according to
 #'   the compiled TOML structure.
 
+# Public helper: prepare repeated core.data.variable entries in module order.
 build_variable_groups <- function(
   plants_path,
   climate_path,
@@ -73,13 +54,13 @@ build_variable_groups <- function(
   litter_path
 ) {
   make_entries <- function(file_path, var_names) {
-    # Variable names are hard-coded currently and must be updated if upstream
-    # Virtual Ecosystem variable names or module inputs change.
+    # Keep these names aligned with the upstream Virtual Ecosystem inputs.
     lapply(var_names, function(var_name) {
       list(file_path = file_path, var_name = var_name)
     })
   }
 
+  # Return entries grouped to match the intended compiled TOML layout.
   list(
     abiotic_simple = make_entries(
       climate_path,
@@ -150,11 +131,15 @@ build_variable_groups <- function(
   )
 }
 
+# Internal helpers ---------------------------------------------------------
+
+# Internal helper: normalize comment text into TOML comment lines.
 normalize_comment_lines <- function(lines, width = 80, prefix = "# ") {
   if (is.null(lines) || length(lines) == 0) {
     return(character())
   }
 
+  # Split multi-line input first so wrapping is applied line by line.
   raw_lines <- unlist(strsplit(as.character(lines), "\n", fixed = TRUE))
 
   unlist(
@@ -172,6 +157,7 @@ normalize_comment_lines <- function(lines, width = 80, prefix = "# ") {
   )
 }
 
+# Internal helper: remove trailing blank lines from rendered output.
 trim_blank_tail <- function(lines) {
   while (length(lines) > 0 && identical(tail(lines, 1), "")) {
     lines <- lines[-length(lines)]
@@ -180,6 +166,7 @@ trim_blank_tail <- function(lines) {
   lines
 }
 
+# Internal helper: render scalar or vector TOML fields from a named list.
 render_value_lines <- function(values) {
   if (is.null(values) || length(values) == 0) {
     return(character())
@@ -189,6 +176,7 @@ render_value_lines <- function(values) {
   trim_blank_tail(lines)
 }
 
+# Internal helper: keep only non-NULL scalar/vector fields for direct output.
 filter_scalar_fields <- function(values) {
   if (is.null(values) || length(values) == 0) {
     return(list())
@@ -199,6 +187,7 @@ filter_scalar_fields <- function(values) {
   values[keep]
 }
 
+# Internal helper: render module or table fields with optional field comments.
 render_field_lines <- function(
   values,
   field_comments = NULL,
@@ -212,6 +201,7 @@ render_field_lines <- function(
 
   lines <- character()
 
+  # Render field comments immediately before the field they describe.
   for (field_name in names(values)) {
     if (!is.null(field_comments) && field_name %in% names(field_comments)) {
       lines <- c(
@@ -235,7 +225,12 @@ render_field_lines <- function(
   lines
 }
 
+# Public rendering helpers -------------------------------------------------
+
 #' Render TOML comment lines
+#'
+#' Accept plain text, already-prefixed TOML comments, or multi-line text and
+#' return normalized comment lines for insertion into the rendered output.
 #'
 #' @param comment Plain text, pre-prefixed TOML comments, or multi-line text to
 #'   place in the output.
@@ -250,6 +245,10 @@ render_comment <- function(comment, comment_width = 80) {
 }
 
 #' Render a top-level TOML module and its direct scalar settings
+#'
+#' Use this for section headers such as `[core]` or `[animal]`. Nested lists are
+#' ignored here and should instead be rendered with `render_table()` or
+#' `render_array_tables()`.
 #'
 #' @param module_name Name of the TOML module to render, such as `"core"` or
 #'   `"animal"`.
@@ -288,6 +287,9 @@ render_module <- function(
 
 #' Render a TOML child table with scalar fields
 #'
+#' Use this for nested sections such as `[core.grid]` or
+#' `[plants.community_data_export]`.
+#'
 #' @param module_name Name of the TOML child table to render, such as
 #'   `"core.grid"`, `"animal.cohort_data_export"`, or `"plants.constants"`.
 #' @param values Named list of values to write as scalar or vector TOML fields.
@@ -324,6 +326,9 @@ render_table <- function(
 }
 
 #' Render repeated TOML array-of-table entries
+#'
+#' Use this for repeated sections such as `[[core.data.variable]]`, where TOML
+#' needs separate array-of-table blocks rather than an inline array.
 #'
 #' @param module_name Name of the repeated TOML table, such as
 #'   `"core.data.variable"`.
@@ -367,9 +372,37 @@ render_array_tables <- function(
   )
 }
 
+# Public output helper -----------------------------------------------------
+
+#' Write a compiled Virtual Ecosystem TOML configuration file
+#'
+#' Write a compiled TOML configuration file from pre-rendered lines.
+#'
+#' Use `render_comment()` for prose comments, `render_module()` for top-level
+#' modules and their direct scalar settings, `render_table()` for child tables,
+#' and `render_array_tables()` for repeated array-of-table entries.
+#'
+#' @param lines Character vector of TOML lines to write.
+#' @param path Directory where the compiled TOML configuration file is written.
+#' @param file_name File name for the compiled TOML configuration file.
+#'
+#' @returns A compiled TOML configuration file written to `path/file_name`.
+#'
+#' @examples
+#' lines <- c(
+#'   render_comment("Core settings"),
+#'   render_module("core"),
+#'   render_table("core.grid", list(cell_nx = 10, cell_ny = 10)),
+#'   render_table(
+#'     "core.timing",
+#'     list(start_date = "2010-01-01", run_length = "1 year")
+#'   )
+#' )
+#' build_config(lines, tempdir(), "config.toml")
 build_config <- function(lines, path, file_name = "config.toml") {
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
 
+  # Flatten rendered fragments and remove any trailing blank lines.
   lines <- unlist(lines, use.names = FALSE)
   lines <- trim_blank_tail(lines)
 
