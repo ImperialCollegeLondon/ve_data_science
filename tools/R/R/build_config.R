@@ -177,12 +177,21 @@ render_value_lines <- function(values) {
 }
 
 # Internal helper: keep only non-NULL scalar/vector fields for direct output.
+# Allow empty lists (e.g., list()) to render as `field = []` in TOML.
 filter_scalar_fields <- function(values) {
   if (is.null(values) || length(values) == 0) {
     return(list())
   }
 
-  keep <- !vapply(values, is.list, logical(1)) &
+  # Keep fields that are:
+  # (a) NOT lists (scalars, vectors, or NULL), OR
+  # (b) empty lists (length == 0), which render as [] in TOML.
+  is_empty_list <- vapply(
+    values,
+    function(x) is.list(x) && length(x) == 0,
+    logical(1)
+  )
+  keep <- (!vapply(values, is.list, logical(1)) | is_empty_list) &
     !vapply(values, is.null, logical(1))
   values[keep]
 }
@@ -319,14 +328,23 @@ render_table <- function(
   field_comments = NULL,
   comment_width = 80
 ) {
+  # Render field content (this includes empty lists as `field = []`).
+  field_lines <- render_field_lines(
+    values = values,
+    field_comments = field_comments,
+    comment_width = comment_width
+  )
+
+  # If values is completely empty (no fields at all after field filtering),
+  # omit the entire table header to avoid empty [table] sections.
+  if (length(field_lines) == 0) {
+    return(character())
+  }
+
   c(
     normalize_comment_lines(comment, width = comment_width),
     paste0("[", module_name, "]"),
-    render_field_lines(
-      values = values,
-      field_comments = field_comments,
-      comment_width = comment_width
-    ),
+    field_lines,
     ""
   )
 }
