@@ -59,9 +59,8 @@ source("tools/R/R/build_config.R")
 
 # Read scenario inputs ----------------------------------------------------
 
-maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
-
 # Pull out just the compiled core settings for the maliau_2 scenario.
+maliau <- read_toml("data/derived/site/maliau/maliau_grid_definition.toml")
 maliau_2 <- maliau$Scenario$maliau_2$core
 
 # Group repeated core.data.variable entries by the module section that uses them.
@@ -88,10 +87,6 @@ core <- list(
   data = list(variable = variable_groups)
 )
 
-abiotic_simple <- list()
-
-hydrology <- list()
-
 # These values become the top-level [plants] section and child tables.
 plants <- list(
   cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv",
@@ -113,8 +108,9 @@ animal <- list(
 )
 
 # These modules use defaults at the top level for this scenario.
+abiotic_simple <- list()
+hydrology <- list()
 soil <- list()
-
 litter <- list()
 
 
