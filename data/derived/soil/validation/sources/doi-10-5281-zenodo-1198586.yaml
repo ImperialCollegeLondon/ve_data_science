@@ -1,0 +1,24 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1198586
+doi: 10.5281/zenodo.1198586
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Litter weights used in aboveground litter pools analysis.
+  screened_at: '2026-08-17T23:35:00Z'
+metadata:
+  title: Leaf Litter Fall
+  authors: Ewers, Rob
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198586
+  keywords:
+  - litterfall
+  - primary productivity
+  - fruit mass
+  - flower mass
+  - seed mass
+  - leaf mass
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T23:33:53Z'

@@ -1,5 +1,5 @@
 #| ---
-#| title: Very crude estimation of fungal fruiting body (sporocarp) biomass
+#| title: Very crude estimation of fungal fruiting body (sporocarp) CNP
 #|
 #| description: |
 #|     This is a very crude estimation of sporocarp biomass for the
@@ -19,9 +19,13 @@
 #| author:
 #|   - Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
+#|   - name: sporocarp_CNP.csv
+#|     path: data/derived/soil/fungi_stoichiometry
+#|     description: |
+#|       Fungal fruiting body stoichiometry estimated.
 #|
 #| output_files:
 #|
@@ -43,3 +47,8 @@ sporocarp_biomass_mean <- sporocarp_biomass_mean / 1e4
 
 # standard deviation to simulate spatial variation across Maliau grids
 sporocarp_biomass_sd <- 35 / 1e4
+
+# Convert total biomass to kg{nutrient}/m2 using stoichiometry
+sporocarp_stoich <- readr::read_csv(
+  "data/derived/soil/fungi_stoichiometry/sporocarp_CNP.csv"
+)

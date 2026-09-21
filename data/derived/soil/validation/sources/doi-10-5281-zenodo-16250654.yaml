@@ -1,0 +1,25 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-16250654
+doi: 10.5281/zenodo.16250654
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Decomposition keyword is about the decay of a single mammal.
+  screened_at: '2026-08-18T08:12:26Z'
+metadata:
+  title: A single observation of an Orangutan carcass decomposition
+  authors:
+  - Heon, Sui P.
+  - Bernard, Henry
+  - Ewers, Robert M
+  year: 2025
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/doi/10.5281/zenodo.16250654
+  keywords:
+  - Bornean Orangutan
+  - Scavengers
+  - Carrion Ecology
+  - Old-growth forest
+  provider: doi_content_search
+  retrieved_at: '2026-08-18T08:12:10Z'

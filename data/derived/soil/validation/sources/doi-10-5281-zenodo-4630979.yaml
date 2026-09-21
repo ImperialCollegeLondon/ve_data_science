@@ -1,0 +1,34 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-4630979
+doi: 10.5281/zenodo.4630979
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Contains litter decompositions but these are useful for input data or     constant
+    parameterisation, not validation.
+  screened_at: '2026-08-17T03:03:06Z'
+metadata:
+  title: Effect of vertebrate exclusion on ecosystem functioning
+  authors:
+  - Mackintosh, Emma
+  - Fraser, Adam
+  - Banks-Leite, Cristina
+  - Ewers, Robert M
+  - Chung, Arthur
+  year: 2021
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/4630979
+  keywords:
+  - Vertebrate exclusion
+  - invertebrate
+  - aboveground
+  - leaf litter
+  - belowground
+  - decomposition rate
+  - herbivory rate
+  - ecosystem functioning
+  - forest quality gradient
+  - trophic cascade
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:02:56Z'

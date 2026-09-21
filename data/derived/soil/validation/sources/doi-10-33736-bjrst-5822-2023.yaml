@@ -1,0 +1,22 @@
+schema_version: 1
+record_id: doi-10-33736-bjrst-5822-2023
+doi: 10.33736/bjrst.5822.2023
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Taxonomic discovery without relevant data.
+  screened_at: '2026-09-18T05:51:19Z'
+metadata:
+  title: New Record of Edible Chicken of the Wood Mushroom, Laetiporus versisporus
+    (Lloyd) Imazeki (Fomitopsidaceae, Polyporales) from Sabah (Northern Borneo), Malaysia
+  authors:
+  - ILY AZZEDINE ALAIA MH SUBARI
+  - JAYA SEELAN SATHIYA SEELAN
+  - TAN YEE SHIN
+  year: 2023
+  journal: Borneo Journal of Resource Science and Technology
+  publisher: UNIMAS Publisher
+  url: http://dx.doi.org/10.33736/bjrst.5822.2023
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T05:50:37Z'
