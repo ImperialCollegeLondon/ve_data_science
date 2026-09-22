@@ -1,0 +1,1823 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mydomain.org/mysite/animal_model_validation_plan/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../derived_variables/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Animal-model validation plan - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#animal-model-validation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Animal-model validation plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Virtual Ecosystem data science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animal-model validation plan
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animal-model validation plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-scope-and-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Scope and rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-secondary-validation-targets-emergent-or-derived-from-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Secondary validation targets (emergent or derived from outputs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Secondary validation targets (emergent or derived from outputs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-population-and-biomass-density-structure-by-functional-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Population and biomass density structure by functional group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-nutrient-return-flux-contributions-from-animals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Nutrient-return flux contributions from animals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-aggregated-consumption-partitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Aggregated consumption partitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-coupled-plant-animal-productivity-linkage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Coupled plant-animal productivity linkage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-space-use-and-territory-use-realism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Space-use and territory-use realism
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-global-validation-relationships-madingley-emergent-pattern-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Global validation relationships (Madingley emergent pattern checks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Global validation relationships (Madingley emergent pattern checks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-body-mass-versus-growth-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Body mass versus growth rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-body-mass-versus-time-to-maturity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Body mass versus time to maturity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-body-mass-versus-mortality-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Body mass versus mortality rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-body-mass-versus-lifetime-reproductive-success" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Body mass versus lifetime reproductive success
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-biomass-density-and-abundance-density-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Biomass density and abundance-density scaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-biomass-pyramids-and-herbivoreproducer-ratios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Biomass pyramids and herbivore:producer ratios
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-target-summary-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Target summary table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-data-source-mapping-deliverable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Data-source mapping deliverable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Data-source mapping deliverable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-target-registry-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Target registry fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-expected-source-files-to-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Expected source files to map
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-units-and-transformation-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Units and transformation rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-derivation-formulas-for-emergent-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Derivation formulas for emergent targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-notes-on-references-and-implementation-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Notes on references and implementation boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derived_variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derived and emergent variables from the Virtual Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started with the ve_data_science repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Github Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plant_validation_tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plant validation Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../renv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using renv to create reproducible environments for R projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensitivity_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sensitivity Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R Script to a GitHub Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../using_globus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using GLOBUS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uv_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uv setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building a validation database for soil and litter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What are all those odd files?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-scope-and-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Scope and rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-secondary-validation-targets-emergent-or-derived-from-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Secondary validation targets (emergent or derived from outputs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Secondary validation targets (emergent or derived from outputs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-population-and-biomass-density-structure-by-functional-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Population and biomass density structure by functional group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-nutrient-return-flux-contributions-from-animals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Nutrient-return flux contributions from animals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-aggregated-consumption-partitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Aggregated consumption partitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-coupled-plant-animal-productivity-linkage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Coupled plant-animal productivity linkage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-space-use-and-territory-use-realism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Space-use and territory-use realism
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-global-validation-relationships-madingley-emergent-pattern-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Global validation relationships (Madingley emergent pattern checks)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Global validation relationships (Madingley emergent pattern checks)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-body-mass-versus-growth-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Body mass versus growth rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-body-mass-versus-time-to-maturity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Body mass versus time to maturity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-body-mass-versus-mortality-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Body mass versus mortality rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-body-mass-versus-lifetime-reproductive-success" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Body mass versus lifetime reproductive success
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-biomass-density-and-abundance-density-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Biomass density and abundance-density scaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-biomass-pyramids-and-herbivoreproducer-ratios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Biomass pyramids and herbivore:producer ratios
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-target-summary-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Target summary table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-data-source-mapping-deliverable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Data-source mapping deliverable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Data-source mapping deliverable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-target-registry-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Target registry fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-expected-source-files-to-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Expected source files to map
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-units-and-transformation-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Units and transformation rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-derivation-formulas-for-emergent-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Derivation formulas for emergent targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-notes-on-references-and-implementation-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Notes on references and implementation boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="animal-model-validation-plan">Animal-model validation plan</h1>
+<p>This is a draft plan for validating the animal model outputs in the VE project
+with the help of Copilot. It is intended to be a living document that will be
+updated as the model and its outputs evolve, as well as new validation datasets
+are identified. Currently, the document is written for Maliau and SAFE scenarios.</p>
+<p>Notes:</p>
+<ul>
+<li>Perhaps some of the sections can be split into smaller sections or subsections
+  with fewer variables?</li>
+</ul>
+<h2 id="1-scope-and-rules">1. Scope and rules</h2>
+<ol>
+<li>Animal-model validation only, including cross-module outputs when they
+  directly support animal interpretation.</li>
+<li>Validation metrics are computed from exported outputs and post-processing
+   only.</li>
+<li>Targets are organised into
+  a) site-specific emergent or derived targets and
+  b) global emergent pattern checks (Madingley based).</li>
+</ol>
+<h2 id="2-secondary-validation-targets-emergent-or-derived-from-outputs">2. Secondary validation targets (emergent or derived from outputs)</h2>
+<p>Targets in this section are site-specific.</p>
+<h3 id="21-population-and-biomass-density-structure-by-functional-group">2.1 Population and biomass density structure by functional group</h3>
+<p><em>Derivation:</em> Derive post-model population density and biomass density from
+functional group abundance, occupancy, territory, and elemental mass.</p>
+<p><em>Inputs:</em> individuals, functional_group, occupancy_proportion, territory_size,
+mass_carbon, mass_nitrogen, mass_phosphorus, is_mature.</p>
+<p><em>Validation approach:</em> Compare equilibrium density ranges and biomass density
+against published empirical datasets in Maliau or SAFE. Stratify by body-mass
+class and diet class where available.</p>
+<p>TODO: Align with Arne how we approach verifying against spatially variable density.</p>
+<p><em>Datasets needed:</em> Site-level abundance or density datasets, biomass density
+datasets, including live-mammal trapping data from Chapman et al. (2018),
+camera-trap data from Wearn et al. (2016) and Wearn et al. (2017), and the
+2011-13 density estimate from Wearn et al. (2022). Sarah Luke has termite
+density data <a href="https://zenodo.org/records/1198833">https://zenodo.org/records/1198833</a>. Sri Rao's thesis (PDF)
+includes earthworm density data <a href="https://zenodo.org/records/3857210">https://zenodo.org/records/3857210</a>. For the
+above and other invertebrates, we have the Maliau Quantitative Inventory
+<a href="https://zenodo.org/records/5562260">https://zenodo.org/records/5562260</a>.</p>
+<p>TODO: contact Ollie Wearn and Phil Chapman.</p>
+<h3 id="22-nutrient-return-flux-contributions-from-animals">2.2 Nutrient-return flux contributions from animals</h3>
+<p><em>Derivation:</em> Excrement and carcass proxies from consumed stoichiometry,
+assimilation efficiency assumptions, and mortality estimates.</p>
+<p><em>Inputs:</em> decomposed_excrement_cnp, decomposed_carcasses_cnp,
+herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals.</p>
+<p><em>Validation approach:</em> Compare decomposed excrement, carcass loss, and herbivory
+waste fluxes against empirical nutrient-return studies and litterfall or
+carcass-decomposition datasets.</p>
+<p><em>Datasets needed:</em> Excretion datasets, carcass decomposition studies,
+nutrient-return studies, and herbivory waste measurements. Sui has carcass
+decomposition data from Danum and oil palm plantations and can be used only if
+appropriate and if we find a solution for the spatial mismatch.</p>
+<h3 id="23-aggregated-consumption-partitions">2.3 Aggregated consumption partitions</h3>
+<p><em>Derivation:</em> Aggregate trophic interaction records and consumption partitions to
+habitat-, guild-, or functional-group-level rates and proportions, then compare
+those derived quantities with observed energetic sums and assimilation.</p>
+<p><em>Inputs:</em> resource_kind, C, N, P from animal_trophic_interactions.csv;
+animal_pom_consumption_cnp, animal_bacteria_consumption,
+animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption,
+animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp,
+litter_consumed_above_structural_cnp, litter_consumed_woody_cnp,
+litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp,
+total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp,
+mass_carbon, mass_nitrogen, and mass_phosphorus.</p>
+<p><em>Validation approach:</em> Compare derived functional-group-level consumption
+sums and assimilation energetics against published datasets. For the Malhi
+supplementary tables, use AnimalGroup_Habitat as the habitat key when matching
+food-group energetics, because the ForestType labels in
+MOESM7_ESM__Energetics_byFoodGroup.csv are internally inconsistent for logged
+versus old-growth forest rows.</p>
+<p><em>Datasets needed:</em> Resource-specific intake studies, assimilation efficiency
+datasets, animal energy-budget studies, stoichiometric balance datasets. For example,</p>
+<p>1) Malhi supplementary habitat-, guild-, and food-group energetics tables.
+2) Josh Twinning thesis on energy flows in beetles. Email for raw data.</p>
+<h3 id="24-coupled-plant-animal-productivity-linkage">2.4 Coupled plant-animal productivity linkage</h3>
+<p><em>Derivation:</em> Animal intake and biomass response versus plant productivity,
+plant allocation, and plant-supported intake ratios.</p>
+<p><em>Inputs:</em> canopy_foliage_cnp, subcanopy_vegetation_biomass,
+plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake,
+canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed,
+canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed,
+subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group,
+occupancy_proportion, territory_size.</p>
+<p><em>Validation approach:</em> Compare modelled site animal intake from section 2.3 as a
+fraction of plant productivity (NPP) against observed energetic intake as %NPP from
+the Malhi NPP by plot tables. Plant ammonium, nitrate, and phosphorus uptake are
+already exported as areal daily uptake rates, so no rooting-depth conversion is
+required.</p>
+<p><em>Datasets needed:</em> Plant productivity datasets, herbivory impact datasets,
+coupled plant-animal interaction studies. Malhi supplementary has NPP kJm^-2 day^-1
+(5 SAFE plots, 2 Maliau plots, 1 oil palm plot) and habitat energetics tables.</p>
+<h3 id="25-space-use-and-territory-use-realism">2.5 Space-use and territory-use realism</h3>
+<p><em>Derivation:</em> Build occupancy-weighted territory and location-use summaries by
+cohort and functional group through time.</p>
+<p><em>Inputs:</em> occupancy_proportion, territory_size, centroid_key, territory,
+location_status, individuals, functional_group, time_index.</p>
+<p><em>Validation approach:</em> Compare occupancy and territory-use distributions,
+persistence, and movement signatures against telemetry, home-range, and
+territory-use datasets for comparable taxa and body-size classes.</p>
+<p><em>Datasets needed:</em> Home-range studies, telemetry datasets, territory-size
+summaries, and movement ecology datasets. Wearn et al. (2022) estimated home
+ranges from camera-trap data, and the Brasington (2019) thesis estimated
+small-mammal home ranges from live-mammal trapping. Estimates from both sources
+are at species and site level.</p>
+<h2 id="3-global-validation-relationships-madingley-emergent-pattern-checks">3. Global validation relationships (Madingley emergent pattern checks)</h2>
+<p>These are all much lower priority than site-specific validation. Targets in this
+section are global and not specific to any site. Bracketed numbers in this section
+refer to the numbered source references used by Harfoot et al. (2014) to support
+each comparison dataset.</p>
+<h3 id="31-body-mass-versus-growth-rate">3.1 Body mass versus growth rate</h3>
+<p><em>Relationship type:</em> Individual-level allometric scaling.</p>
+<p><em>Inputs:</em> cohort_id, time_index, age, mass_carbon, mass_nitrogen,
+mass_phosphorus, largest_mass_achieved.</p>
+<p><em>Reference anchor:</em> Harfoot et al. (2014), Figure 3A.</p>
+<p><em>Validation approach:</em> Compare emergent growth-rate scaling against observed
+growth data for terrestrial vertebrates and invertebrates.</p>
+<p><em>Datasets needed:</em> Growth datasets for reptiles, mammals, birds, and terrestrial
+invertebrates from Case (1978), Ricklefs (1968, 1973), and related compiled
+sources [46–48]. Where growth rates were derived from body length, use the
+length-mass conversions cited by Harfoot et al. [58–61].</p>
+<h3 id="32-body-mass-versus-time-to-maturity">3.2 Body mass versus time to maturity</h3>
+<p><em>Relationship type:</em> Individual-level allometric scaling.</p>
+<p><em>Inputs:</em> time_to_maturity, largest_mass_achieved, is_mature.</p>
+<p><em>Reference anchor:</em> Harfoot et al. (2014), Figure 3B.</p>
+<p><em>Validation approach:</em> Compare modelled age at maturity against published
+maturation datasets and check that larger-bodied cohorts mature later.</p>
+<p><em>Datasets needed:</em> Maturation and life-history datasets for invertebrates,
+reptiles, mammals, and birds [49–53,57], with length-mass conversions where
+necessary [58–60].</p>
+<h3 id="33-body-mass-versus-mortality-rate">3.3 Body mass versus mortality rate</h3>
+<p><em>Relationship type:</em> Individual-level allometric scaling.</p>
+<p><em>Inputs:</em> cohort_id, time_index, is_alive, individuals.</p>
+<p><em>Reference anchor:</em> Harfoot et al. (2014), Figure 3C.</p>
+<p><em>Validation approach:</em> Compare estimated mortality scaling against published
+natural mortality datasets and inspect whether the model reproduces the observed
+decline in mortality with increasing body mass.</p>
+<p><em>Datasets needed:</em> Natural mortality datasets for invertebrates, mammals, and
+birds from terrestrial mortality compilations and trait syntheses.</p>
+<h3 id="34-body-mass-versus-lifetime-reproductive-success">3.4 Body mass versus lifetime reproductive success</h3>
+<p><em>Relationship type:</em> Individual-level allometric scaling.</p>
+<p><em>Inputs:</em> cohort_id, time_index, is_mature, reproductive_mass_carbon,
+reproductive_mass_nitrogen, reproductive_mass_phosphorus.</p>
+<p><em>Reference anchor:</em> Harfoot et al. (2014), Figure 3D.</p>
+<p><em>Validation approach:</em> Compare predicted lifetime reproductive success against
+trait and demographic datasets, checking for the broad body-mass scaling seen in
+the paper.</p>
+<p><em>Datasets needed:</em> Mammal, bird, and insect reproductive success datasets
+compiled from PanTHERIA, bird reproductive studies, and insect life-history
+studies [63–71].</p>
+<h3 id="35-biomass-density-and-abundance-density-scaling">3.5 Biomass density and abundance-density scaling</h3>
+<p><em>Relationship type:</em> Community-level allometric scaling.</p>
+<p><em>Inputs:</em> mass_carbon, individuals, functional_group, occupancy_proportion,
+territory_size.</p>
+<p><em>Reference anchor:</em> Harfoot et al. (2014), Figures 4B, 4D, and S5.</p>
+<p><em>Validation approach:</em> Compare density-body-mass slopes and biomass density of
+the whole community (instead of only large herbivores) against observed
+community assemblages.</p>
+<p><em>Datasets needed:</em> Biomass and abundance estimates, and terrestrial assemblage
+abundance-density datasets. Malhi et al. (2022) provides biomass for plants and
+vertebrate animals for reconstruction; additionally, we add invertebrate biomass
+data from section 2.1.</p>
+<h3 id="36-biomass-pyramids-and-herbivoreproducer-ratios">3.6 Biomass pyramids and herbivore:producer ratios</h3>
+<p><em>Relationship type:</em> Community-level trophic structure.</p>
+<p><em>Inputs:</em> mass_carbon, mass_nitrogen, mass_phosphorus, individuals,
+functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass.</p>
+<p><em>Reference anchor:</em> Harfoot et al. (2014), Figure 4A and 4C, Tables S3 and S5.</p>
+<p><em>Validation approach:</em> Compare terrestrial biomass pyramids and
+herbivore-to-producer biomass ratios against geographically located terrestrial
+ecosystem summaries.</p>
+<p><em>Datasets needed:</em> Aggregated animal biomass data from section 3.5
+and plant biomass from Malhi et al. (2022).</p>
+<h2 id="4-target-summary-table">4. Target summary table</h2>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Target ID</th>
+<th>Scope</th>
+<th>Target</th>
+<th>Category</th>
+<th>Variables used</th>
+<th>Output source</th>
+<th>Validation approach</th>
+<th>Datasets needed</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1</td>
+<td>Site-specific</td>
+<td>Population and biomass density structure by functional group</td>
+<td>Emergent</td>
+<td>individuals, functional_group, occupancy_proportion, territory_size, mass_carbon, mass_nitrogen, mass_phosphorus, is_mature</td>
+<td>animal_cohort_data.csv</td>
+<td>Derive post-spin-up density and biomass density by functional group and compare against empirical density ranges, stratified by body-mass and diet class where available</td>
+<td>Site-level abundance or density datasets, biomass density datasets, mammal-trap and camera-trap studies</td>
+<td>Chapman et al. (2018), Wearn et al. (2016), Wearn et al. (2017), Wearn et al. (2022), Maliau Quantitative Inventory, Sri Rao and Sarah Luke</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Site-specific</td>
+<td>Nutrient-return flux contributions from animals</td>
+<td>Emergent</td>
+<td>decomposed_excrement_cnp, decomposed_carcasses_cnp, herbivory_waste_leaf_cnp, C, N, P, cohort_id, time_index, is_alive, individuals</td>
+<td>output.zarr, animal_trophic_interactions.csv, animal_cohort_data.csv</td>
+<td>Compare decomposed excrement, carcass loss, and herbivory waste fluxes against empirical nutrient-return studies and litterfall or carcass-decomposition datasets</td>
+<td>Excretion datasets, carcass decomposition studies, nutrient-return studies, herbivory waste measurements</td>
+<td>Sui dataset of carcass decomposition</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Site-specific</td>
+<td>Aggregated consumption partitions</td>
+<td>Emergent</td>
+<td>resource_kind, C, N, P, animal_pom_consumption_cnp, animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption, litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp, total_animal_respiration, decomposed_excrement_cnp, decomposed_carcasses_cnp, mass_carbon, mass_nitrogen, mass_phosphorus</td>
+<td>animal_trophic_interactions.csv, output.zarr</td>
+<td>Compare derived functional-group-level consumption sums and assimilation energetics against published intake-partitioning and energy-budget studies; use AnimalGroup_Habitat when matching Malhi food-group tables</td>
+<td>Intake partitioning studies, assimilation efficiency datasets, animal energy-budget studies, Malhi habitat-, guild-, and food-group energetics tables</td>
+<td>Malhi et al. (2022) and Josh Twinning's thesis</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>Site-specific</td>
+<td>Coupled plant-animal productivity linkage</td>
+<td>Emergent</td>
+<td>canopy_foliage_cnp, subcanopy_vegetation_biomass, plant_ammonium_uptake, plant_nitrate_uptake, plant_phosphorus_uptake, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed, subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed, mass_carbon, individuals, functional_group, occupancy_proportion, territory_size</td>
+<td>output.zarr, animal_cohort_data.csv</td>
+<td>Compare plot-level animal intake as a fraction of plant productivity and plant allocation against coupled herbivory-productivity datasets; use plant uptake directly as areal daily rates</td>
+<td>Plant productivity datasets, herbivory impact datasets, coupled interaction studies, Malhi NPP and habitat energetics tables</td>
+<td>Malhi et al. (2022)</td>
+</tr>
+<tr>
+<td>2.5</td>
+<td>Site-specific</td>
+<td>Space-use and territory-use realism</td>
+<td>Emergent</td>
+<td>occupancy_proportion, territory_size, centroid_key, territory, location_status, individuals, functional_group, time_index</td>
+<td>animal_cohort_data.csv</td>
+<td>Compare occupancy and territory-use distributions, persistence, and movement signatures against home-range and telemetry evidence</td>
+<td>Home-range studies, telemetry datasets, territory-use summaries, movement ecology datasets, species- and site-level estimates from camera traps and live trapping</td>
+<td>Wearn et al. (2013), Wearn et al. (2022), Brasington (2019)</td>
+</tr>
+<tr>
+<td>3.1</td>
+<td>Global</td>
+<td>Body mass versus growth rate</td>
+<td>Emergent</td>
+<td>cohort_id, time_index, age, mass_carbon, mass_nitrogen, mass_phosphorus, largest_mass_achieved</td>
+<td>animal_cohort_data.csv</td>
+<td>Compare emergent growth-rate scaling with terrestrial vertebrate and invertebrate growth datasets</td>
+<td>Growth datasets for reptiles, mammals, birds, and terrestrial invertebrates; length-mass conversions where needed</td>
+<td>Case (1978), Ricklefs (1968, 1973), Harfoot et al. (2014)</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>Global</td>
+<td>Body mass versus time to maturity</td>
+<td>Emergent</td>
+<td>time_to_maturity, largest_mass_achieved, is_mature</td>
+<td>animal_cohort_data.csv</td>
+<td>Compare modelled age at maturity against compiled maturation datasets</td>
+<td>Maturation and life-history datasets for invertebrates, reptiles, mammals, and birds; length-mass conversions where needed</td>
+<td>Millar and Zammuto (1983), Sæther (1987), Shine and Iverson (1995), Shine and Charnov (1992), Blakley and Goodner (1978), Harfoot et al. (2014)</td>
+</tr>
+<tr>
+<td>3.3</td>
+<td>Global</td>
+<td>Body mass versus mortality rate</td>
+<td>Emergent</td>
+<td>cohort_id, time_index, is_alive, individuals</td>
+<td>animal_cohort_data.csv</td>
+<td>Compare mortality scaling with natural mortality datasets</td>
+<td>Natural mortality datasets for invertebrates, mammals, and birds</td>
+<td>Harfoot et al. (2014)</td>
+</tr>
+<tr>
+<td>3.4</td>
+<td>Global</td>
+<td>Body mass versus lifetime reproductive success</td>
+<td>Emergent</td>
+<td>cohort_id, time_index, is_mature, reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus</td>
+<td>animal_cohort_data.csv</td>
+<td>Compare reproductive success scaling with mammal, bird, and insect datasets</td>
+<td>Mammal, bird, and insect reproductive success datasets</td>
+<td>Jones et al. (2009), Clutton-Brock (1988), Fedigan et al. (1986), Holland and Yalden (1994), Krüger and Lindström (2001), Merila and Sheldon (2000), Newton (1989), Oring et al. (1991), Schubert et al. (2007), Harfoot et al. (2014)</td>
+</tr>
+<tr>
+<td>3.5</td>
+<td>Global</td>
+<td>Biomass density and abundance-density scaling</td>
+<td>Emergent</td>
+<td>mass_carbon, individuals, functional_group, occupancy_proportion, territory_size</td>
+<td>animal_cohort_data.csv</td>
+<td>Compare density-body-mass slopes and biomass density of whole community (instead of large herbivore) against observed community assemblages</td>
+<td>Biomass and abundance estimates and terrestrial assemblage abundance-density datasets; Malhi et al. (2022) biomass of plants and vertebrate animals, plus invertebrate biomass from section 2.1</td>
+<td>Malhi et al. (2022), Harfoot et al. (2014)</td>
+</tr>
+<tr>
+<td>3.6</td>
+<td>Global</td>
+<td>Biomass pyramids and herbivore:producer ratios</td>
+<td>Emergent</td>
+<td>mass_carbon, mass_nitrogen, mass_phosphorus, individuals, functional_group, canopy_foliage_cnp, subcanopy_vegetation_biomass</td>
+<td>output.zarr, animal_cohort_data.csv</td>
+<td>Compare terrestrial biomass pyramids and herbivore-to-producer biomass ratios against geographically located terrestrial ecosystem summaries</td>
+<td>Aggregated animal biomass data from section 3.5 and plant biomass from Malhi et al. (2022)</td>
+<td>Malhi et al. (2022), Harfoot et al. (2014)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-disable MD013 -->
+
+<h2 id="5-data-source-mapping-deliverable">5. Data-source mapping deliverable</h2>
+<h3 id="51-target-registry-fields">5.1 Target registry fields</h3>
+<p>Build a target registry with one row per target including:</p>
+<ul>
+<li>target_id</li>
+<li>definition</li>
+<li>category (direct or emergent)</li>
+<li>variables_used</li>
+<li>source_file_names</li>
+<li>derivation_method (none for direct)</li>
+<li>external_reference</li>
+<li>notes_on_assumptions</li>
+</ul>
+<h3 id="52-expected-source-files-to-map">5.2 Expected source files to map</h3>
+<ul>
+<li>animal_cohort_data.csv.</li>
+<li>animal_trophic_interactions.csv.</li>
+<li>resource_pool_data.csv.</li>
+<li>output.zarr data variables for cross-module flux coupling.</li>
+<li>Functional-group definition table used for the run (includes metabolic_type,
+  t_opt, t_max_crit, t_min_crit).</li>
+<li>Animal model constants and run configuration metadata (for example tau_f and
+    timestep duration).</li>
+</ul>
+<h3 id="53-units-and-transformation-rules">5.3 Units and transformation rules</h3>
+<p>Units below are taken from model metadata in data_variables.toml and the
+cohort/trophic exporter schema. Where run-level Zarr attrs differ from the registry
+unit, treat the run-level attrs as the value used in analysis and record the override
+in the target registry notes.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Variable(s)</th>
+<th>Source</th>
+<th>Unit in exported data</th>
+<th>Transformation used for validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cohort_id, consumer_cohort_id, resource_id</td>
+<td>animal_cohort_data.csv, animal_trophic_interactions.csv</td>
+<td>identifier (UUID or string id)</td>
+<td>Use as join keys only; no arithmetic operations</td>
+</tr>
+<tr>
+<td>resource_cell_id, centroid_key, territory, x, y</td>
+<td>animal_trophic_interactions.csv, animal_cohort_data.csv, output.zarr</td>
+<td>integer grid index or list of grid indices</td>
+<td>Map to grid metadata before spatial summaries; do not treat as continuous physical units</td>
+</tr>
+<tr>
+<td>functional_group, resource_kind, location_status</td>
+<td>animal_cohort_data.csv, animal_trophic_interactions.csv</td>
+<td>categorical</td>
+<td>Encode as categories for grouping, faceting, and mixed-effects terms</td>
+</tr>
+<tr>
+<td>is_alive, is_mature</td>
+<td>animal_cohort_data.csv</td>
+<td>boolean</td>
+<td>Cast to 0/1 for survival, maturity, and transition-rate calculations</td>
+</tr>
+<tr>
+<td>time, time_index</td>
+<td>animal_cohort_data.csv, animal_trophic_interactions.csv</td>
+<td>datetime stamp; integer timestep index</td>
+<td>Use time_index for differencing and window summaries; use time for calendar grouping</td>
+</tr>
+<tr>
+<td>age, time_to_maturity, time_since_maturity</td>
+<td>animal_cohort_data.csv</td>
+<td>days</td>
+<td>Convert to years when comparison datasets are annual or life-stage based: years = days / 365.25</td>
+</tr>
+<tr>
+<td>individuals</td>
+<td>animal_cohort_data.csv</td>
+<td>count of individuals</td>
+<td>Use as abundance weight in all cohort-to-community aggregations</td>
+</tr>
+<tr>
+<td>occupancy_proportion</td>
+<td>animal_cohort_data.csv</td>
+<td>unitless proportion [0,1]</td>
+<td>Use as within-cell weighting factor for effective abundance</td>
+</tr>
+<tr>
+<td>territory_size</td>
+<td>animal_cohort_data.csv</td>
+<td>m^2</td>
+<td>Use for area-normalised density calculations and occupancy checks</td>
+</tr>
+<tr>
+<td>largest_mass_achieved</td>
+<td>animal_cohort_data.csv</td>
+<td>kg (body mass per individual)</td>
+<td>Convert to log10 mass for allometric regressions</td>
+</tr>
+<tr>
+<td>mass_carbon, mass_nitrogen, mass_phosphorus</td>
+<td>animal_cohort_data.csv</td>
+<td>kg element per individual</td>
+<td>Convert to cohort-level elemental mass by multiplying by individuals</td>
+</tr>
+<tr>
+<td>reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus</td>
+<td>animal_cohort_data.csv</td>
+<td>kg element per individual</td>
+<td>Difference over timesteps for reproductive allocation rates; multiply by individuals for cohort totals</td>
+</tr>
+<tr>
+<td>C, N, P</td>
+<td>animal_trophic_interactions.csv</td>
+<td>kg element per interaction record (per update step)</td>
+<td>Aggregate by cell/time/consumer group; divide by timestep duration for daily rates where needed</td>
+</tr>
+<tr>
+<td>net_radiation</td>
+<td>output.zarr</td>
+<td>W m^-2</td>
+<td>Aggregate by mean or integral over the same window as biological response variables</td>
+</tr>
+<tr>
+<td>wind_speed</td>
+<td>output.zarr</td>
+<td>m s^-1</td>
+<td>Aggregate by mean, quantiles, or threshold exceedance frequency</td>
+</tr>
+<tr>
+<td>decomposed_excrement_cnp, decomposed_carcasses_cnp</td>
+<td>output.zarr</td>
+<td>kg m^-2 day^-1</td>
+<td>Integrate over timestep window: mass = flux x days</td>
+</tr>
+<tr>
+<td>herbivory_waste_leaf_cnp</td>
+<td>output.zarr</td>
+<td>kg</td>
+<td>Divide by grid-cell area for areal comparisons when needed</td>
+</tr>
+<tr>
+<td>litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp</td>
+<td>output.zarr</td>
+<td>registry: kg (some runs may expose kg m^-2 attrs)</td>
+<td>If unit is kg, divide by area for areal comparisons; if unit is kg m^-2, integrate directly over area/time as needed</td>
+</tr>
+<tr>
+<td>animal_pom_consumption_cnp</td>
+<td>output.zarr</td>
+<td>kg m^-3 day^-1</td>
+<td>Convert to areal flux using active soil depth: kg m^-2 day^-1 = kg m^-3 day^-1 x depth_m</td>
+</tr>
+<tr>
+<td>animal_bacteria_consumption, animal_saprotrophic_fungi_consumption, animal_ectomycorrhiza_consumption, animal_arbuscular_mycorrhiza_consumption</td>
+<td>output.zarr</td>
+<td>kg C m^-3 day^-1</td>
+<td>Convert to areal carbon flux using active soil depth, then aggregate by cell/time</td>
+</tr>
+<tr>
+<td>canopy_foliage_cnp, canopy_foliage_cnp_consumed, canopy_seed_cnp_consumed, canopy_fruit_cnp_consumed</td>
+<td>output.zarr</td>
+<td>kg</td>
+<td>Use element-specific slices where required (for example carbon-only summaries)</td>
+</tr>
+<tr>
+<td>subcanopy_vegetation_biomass</td>
+<td>output.zarr</td>
+<td>kg C m^-2</td>
+<td>Use directly for areal producer-carbon metrics</td>
+</tr>
+<tr>
+<td>subcanopy_vegetation_cnp_consumed, subcanopy_seedbank_cnp_consumed</td>
+<td>output.zarr</td>
+<td>kg C m^-2</td>
+<td>Aggregate by cell and timestep; convert to period totals via integration over time</td>
+</tr>
+<tr>
+<td>plant_ammonium_uptake, plant_nitrate_uptake</td>
+<td>output.zarr</td>
+<td>kg N m^-2 day^-1</td>
+<td>Already an areal daily uptake rate; aggregate directly by cell and timestep for productivity-gradient comparisons</td>
+</tr>
+<tr>
+<td>plant_phosphorus_uptake</td>
+<td>output.zarr</td>
+<td>kg P m^-2 day^-1</td>
+<td>Already an areal daily uptake rate; aggregate directly by cell and timestep for productivity-gradient comparisons</td>
+</tr>
+<tr>
+<td>timestep duration</td>
+<td>Run configuration metadata</td>
+<td>days</td>
+<td>Use as (\Delta t) in all rate-to-total and differencing calculations</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-disable MD013 -->
+
+<h3 id="54-derivation-formulas-for-emergent-targets">5.4 Derivation formulas for emergent targets</h3>
+<p>The derivation formulas below were generated by Copilot and should be reviewed.</p>
+<p>Notation:</p>
+<ul>
+<li>$i$: cohort index</li>
+<li>$g$: functional group index</li>
+<li>$c$: grid-cell index</li>
+<li>$t$: timestep index</li>
+<li>$\Delta t$: timestep duration in days</li>
+<li>$A_c$: area of grid cell $c$ in m$^2$</li>
+<li>$N_{i,t}$: individuals for cohort $i$ at time $t$</li>
+<li>$w_{i,t}$: occupancy_proportion for cohort $i$ at time $t$</li>
+<li>$m^e_{i,t}$: per-individual cohort mass of element $e \in {C,N,P}$</li>
+</ul>
+<p>Effective abundance in a cell:</p>
+<p>$$
+N^{eff}<em>{i,t} = N</em>{i,t} \cdot w_{i,t}
+$$</p>
+<p>Functional-group density (for 2.1, 3.5):</p>
+<p>$$
+D_{g,c,t} = \frac{\sum_{i \in (g,c)} N^{eff}_{i,t}}{A_c}
+$$</p>
+<p>Element-specific cohort biomass and functional-group biomass density
+(for 2.1, 3.5, 3.6):</p>
+<p>$$
+B^e_{i,c,t} = N^{eff}<em>{i,t} \cdot m^e</em>{i,t}
+$$</p>
+<p>$$
+\rho^e_{g,c,t} = \frac{\sum_{i \in (g,c)} B^e_{i,c,t}}{A_c}
+$$</p>
+<p>Cohort growth rate (for 3.1):</p>
+<p>$$
+G^e_{i,t} = \frac{m^e_{i,t+1} - m^e_{i,t}}{\Delta t}
+$$</p>
+<p>and relative growth rate:</p>
+<p>$$
+g^e_{i,t} = \frac{m^e_{i,t+1} - m^e_{i,t}}{m^e_{i,t} \cdot \Delta t}
+$$</p>
+<p>Trophic intake aggregation from interaction records (for 2.3 and 2.4):</p>
+<p>$$
+I^e_{c,t} = \sum_{k \in (c,t)} e_k
+$$</p>
+<p>Per-day intake rate:</p>
+<p>$$
+\dot{I}^e_{c,t} = \frac{I^e_{c,t}}{\Delta t}
+$$</p>
+<p>Soil consumption volumetric-to-areal conversion (for 2.2, 2.3):</p>
+<p>$$
+F^{e,areal}<em>{c,t} = F^{e,vol}</em>{c,t} \cdot z_{soil}
+$$</p>
+<p>with $z_{soil}$ as the active soil depth in metres.</p>
+<p>Plant-supported intake ratio for plant-animal productivity linkage (for 2.4):</p>
+<p>$$
+Q_p = \frac{I^{plant}_p}{NPP_p}
+$$</p>
+<p>where $I^{plant}_p$ is plot-level intake from plant-derived resources and $NPP_p$
+is plot-level net primary productivity, matching the spatial resolution of the
+Malhi plot-level NPP data. Plant ammonium, nitrate, and phosphorus uptake are
+already exported as areal daily rates, so no rooting-depth conversion is required
+for this comparison.</p>
+<p>Occupancy-weighted territory size and resident persistence (for 2.5):</p>
+<p>$$
+\bar{T}<em>{g,c,t} = \frac{\sum</em>{i \in (g,c)}
+\left(w_{i,t}\cdot territory_size_{i,t}\right)}
+{\sum_{i \in (g,c)} w_{i,t}}
+$$</p>
+<p>$$
+P^{res}<em>{g,c,t} = \frac{\sum</em>{i \in (g,c)}
+\mathbf{1}(location_status_{i,t}=\mathrm{resident})}{n_{g,c,t}}
+$$</p>
+<p>Nutrient return flux to soil (for 2.2):</p>
+<p>$$
+NR^e_{c,t} = decomposed_excrement_cnp^e_{c,t}
++ decomposed_carcasses_cnp^e_{c,t}
++ \frac{herbivory_waste_leaf_cnp^e_{c,t}}{A_c}
+$$</p>
+<p>Biomass pyramid and herbivore:producer ratio (for 3.6):</p>
+<p>$$
+B^{C}<em>{H,c,t} = \sum</em>{i \in H} N^{eff}<em>{i,t} \cdot m^C</em>{i,t}
+$$</p>
+<p>$$
+B^{C}<em>{P,c,t} = canopy_foliage_cnp^{C}</em>{c,t} + subcanopy_vegetation_biomass_{c,t}
+$$</p>
+<p>$$
+R_{H:P,c,t} = \frac{B^{C}<em>{H,c,t}}{B^{C}</em>{P,c,t}}
+$$</p>
+<p>For 3.6, use animal biomass aggregates derived in 3.5 and pair them with plant
+biomass aligned to Malhi et al. (2022).</p>
+<p>Allometric density scaling regression (for 3.5):</p>
+<p>$$
+\log D_{g,c,t} = \alpha + \beta \log \bar{M}_{g,c,t} + \varepsilon
+$$</p>
+<p>For 3.5, apply this scaling to whole-community cohorts across functional
+groups, not a large-herbivore-only subset.</p>
+<p>where $\bar{M}_{g,c,t}$ can be represented by mean largest_mass_achieved or mean
+carbon mass per individual in group $g$.</p>
+<h2 id="6-notes-on-references-and-implementation-boundaries">6. Notes on references and implementation boundaries</h2>
+<ol>
+<li>Non-Madingley targets should prioritise SAFE-linked empirical references during
+  implementation, with target-specific citations added as the validation database
+  is populated.</li>
+<li>Madingley-style emergent checks should use Harfoot et al. (2014) as the core
+  pattern-validation anchor.</li>
+<li>All calculations in this plan are post-processing targets and should be
+  implemented without changing ecological process code unless a required output is
+  unavailable.</li>
+<li>Defer validation of reproduction, survival and mortality rates as we do not
+have detailed demographic models at the moment. This may be possible with
+advanced statistical models such as the Cormack-Jolly-Seber (CJS) model.</li>
+<li>Defer validation of activity-window and respiration as there are no data and
+these checks can be circular.
+TODO: confirm whether camera-trap data should be used for diel activity
+estimates in functional-group parameters.</li>
+<li>Defer this global relationship check: there is no significant productivity
+gradient between SAFE and Maliau. If we include Silwood, we can consider
+reopening it.</li>
+<li>Reject global biomass-pattern checks because they can be easily overwritten
+by local dynamics.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
