@@ -199,7 +199,7 @@ get_data_variables_nc <- function(tidync, variables = NULL) {
 #' \dontrun{
 #'   zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 #'   config_path <-
-#'     "data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
+#'     "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 #'   get_derived_variables(zarr_path, config_path)
 #' }
 #'
@@ -218,7 +218,27 @@ get_derived_variables <- function(zarr_path, config_path, ...) {
     total_soil_n_per_area = get_total_soil_n_per_area(zarr_path, config),
     total_soil_p_per_volume = get_total_soil_p_per_volume(zarr_path, config),
     total_soil_p_per_mass = get_total_soil_p_per_mass(zarr_path, config),
-    total_soil_p_per_area = get_total_soil_p_per_area(zarr_path, config)
+    total_soil_p_per_area = get_total_soil_p_per_area(zarr_path, config),
+    soil_n_pool_ammonium_per_mass = get_soil_n_pool_ammonium_per_mass(
+      zarr_path,
+      config
+    ),
+    soil_n_pool_nitrate_per_mass = get_soil_n_pool_nitrate_per_mass(
+      zarr_path,
+      config
+    ),
+    soil_p_pool_labile_per_mass = get_soil_p_pool_labile_per_mass(
+      zarr_path,
+      config
+    ),
+    soil_n_pool_inorganic_per_volume = get_soil_n_pool_inorganic_per_volume(
+      zarr_path,
+      config
+    ),
+    soil_n_pool_inorganic_per_area = get_soil_n_pool_inorganic_per_area(
+      zarr_path,
+      config
+    )
   ) |>
     # then collect the derived variables that are returned as a list of arrays
     append(
@@ -557,7 +577,10 @@ get_soil_n_pool_ammonium_per_mass <- function(zarr_path, config) {
     group = "outputs",
     variables = "soil_n_pool_ammonium"
   )
-  convert_volume_to_mass_basis(soil_n_pool_ammonium_per_volume, config)
+  convert_volume_to_mass_basis(
+    soil_n_pool_ammonium_per_volume$soil_n_pool_ammonium,
+    config
+  )
 }
 
 #' Calculate soil nitrate pool per mass
@@ -574,9 +597,20 @@ get_soil_n_pool_nitrate_per_mass <- function(zarr_path, config) {
     group = "outputs",
     variables = "soil_n_pool_nitrate"
   )
-  convert_volume_to_mass_basis(soil_n_pool_nitrate_per_volume, config)
+  convert_volume_to_mass_basis(
+    soil_n_pool_nitrate_per_volume$soil_n_pool_nitrate,
+    config
+  )
 }
 
+
+#' Calculate soil labile phosphorus pool per mass
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil labile phosphorus pool per mass.
+#' @export
 
 get_soil_p_pool_labile_per_mass <- function(zarr_path, config) {
   soil_p_pool_labile <- get_data_variables(
@@ -584,5 +618,49 @@ get_soil_p_pool_labile_per_mass <- function(zarr_path, config) {
     group = "outputs",
     variables = "soil_p_pool_labile"
   )
-  convert_volume_to_mass_basis(soil_p_pool_labile, config)
+  convert_volume_to_mass_basis(
+    soil_p_pool_labile$soil_p_pool_labile,
+    config
+  )
+}
+
+#' Calculate inorganic soil nitrogen per volume
+#'
+#' Sum the ammonium and nitrate pools on a volume basis.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of inorganic soil nitrogen per volume.
+#' @export
+
+get_soil_n_pool_inorganic_per_volume <- function(zarr_path, config) {
+  soil_n_pool_inorganic_per_volume <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = c("soil_n_pool_nitrate", "soil_n_pool_ammonium")
+  )
+  with(
+    soil_n_pool_inorganic_per_volume,
+    soil_n_pool_nitrate + soil_n_pool_ammonium
+  )
+}
+
+#' Calculate inorganic soil nitrogen per area
+#'
+#' Convert inorganic soil nitrogen per volume to an area basis.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of inorganic soil nitrogen per area.
+#' @export
+
+get_soil_n_pool_inorganic_per_area <- function(zarr_path, config) {
+  soil_n_pool_inorganic_per_volume <-
+    get_soil_n_pool_inorganic_per_volume(
+      zarr_path,
+      config
+    )
+  convert_volume_to_area_basis(soil_n_pool_inorganic_per_volume, config)
 }
