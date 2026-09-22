@@ -7457,6 +7457,7 @@
         "utils"
       ],
       "Encoding": "UTF-8",
+      "Roxygen": "list(markdown = TRUE, r6 = TRUE)",
       "RoxygenNote": "7.3.3",
       "VignetteBuilder": "knitr",
       "Suggests": [
@@ -7475,10 +7476,17 @@
       ],
       "Config/testthat/parallel": "false",
       "Config/testthat/edition": "3",
-      "NeedsCompilation": "no",
+      "Config/rextendr/version": "0.4.2",
+      "SystemRequirements": "Cargo (Rust's package manager), rustc >= 1.91, OpenSSL (libssl-dev on Debian/Ubuntu, openssl-devel on Fedora/RHEL)",
+      "Config/pak/sysreqs": "cmake make libicu-dev libssl-dev libclang-dev",
+      "Repository": "https://zarr-developers.r-universe.dev",
+      "NeedsCompilation": "yes",
       "Author": "David Blodgett [cre, aut] (ORCID: <https://orcid.org/0000-0001-9489-1710>), Mark Keller [aut] (ORCID: <https://orcid.org/0000-0003-3003-874X>), Artür Manukyan [aut] (ORCID: <https://orcid.org/0000-0002-0441-9517>), zarr-developers [cph]",
       "Maintainer": "David Blodgett <dblodgett@usgs.gov>",
-      "Repository": "CRAN"
+      "RemoteType": "repository",
+      "RemoteUrl": "https://github.com/zarr-developers/pizzarr",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "1e29ad3e3666a16c9af2b932c2aefb1e9dd5ee75"
     },
     "pkgbuild": {
       "Package": "pkgbuild",
