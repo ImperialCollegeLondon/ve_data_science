@@ -1,0 +1,30 @@
+title: master_variable_mapping_metadata
+generated_by: analysis/plant/output_data/validation/variable_mapping/master_variable_mapping.R
+generated_on: '2026-09-22'
+mappings:
+- mapping_path: realised_tissue_productivity_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: WoodyNPP_Stem
+      se_variable: SE_WoodyNPP_Stem
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
+      variable: stem_c_productivity_mean
+      sd_variable: stem_c_productivity_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: CanopyNPP_Leaf
+      se_variable: SE_CanopyNPP_Leaf
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
+      variable: foliage_c_productivity_mean
+      sd_variable: foliage_c_productivity_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: FineRootNPP
+      se_variable: SE_FineRootNPP
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
+      variable: root_c_productivity_mean
+      sd_variable: root_c_productivity_sd
