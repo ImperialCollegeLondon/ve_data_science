@@ -14,7 +14,7 @@
 #|
 #| input_files:
 #|   - name: 50-ha_soil_data.xlsx
-#|     path: data/primary/soil/nutrient
+#|     path: data/primary/soil/burslem_2025/
 #|     description: |
 #|       Danum Valley 50-Ha Plot Soil Nutrient Data between 2016 and 2018
 #|       https://zenodo.org/records/16005736
@@ -40,11 +40,11 @@ library(CBFM)
 # Data --------------------------------------------------------------------
 
 location <-
-  read_xlsx("data/primary/soil/nutrient/50-ha_soil_data.xlsx", sheet = 2)
+  read_xlsx("data/primary/soil/burslem_2025/50-ha_soil_data.xlsx", sheet = 2)
 
 soil <-
   read_xlsx(
-    "data/primary/soil/nutrient/50-ha_soil_data.xlsx",
+    "data/primary/soil/burslem_2025/50-ha_soil_data.xlsx",
     sheet = 3,
     skip = 10
   ) %>%
