@@ -1,0 +1,1863 @@
+title: master_scenarios_metadata
+generated_by: analysis/plant/input_data/scenarios/master_scenarios.R
+generated_on: '2026-09-10'
+scripts:
+- script_path: plant_cohort_data_maliau_2.R
+  title: plant_cohort_data_maliau_2
+  description: |
+    This script predicts basal area across a scenario grid using field plot
+    observations and LiDAR-derived canopy height. The predicted basal area
+    is then partitioned among plant functional type and DBH cohorts to
+    estimate the number of cohort stems in each grid cell.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: pft_cohort_data_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      Plot-level PFT cohort counts and densities for the 27 sampled Maliau
+      OG census plots.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: |
+      TOML configuration file containing grid and timing definitions for the
+      Maliau scenarios. It includes coordinate reference systems, spatial
+      extents, grid dimensions, cell-centre coordinates, cell resolution, and
+      core simulation timing settings for each scenario.
+  - name: pft_cohort_data_maliau_mean_per_ha.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      Mean PFT cohort stem density across all sampled Maliau OG census plots.
+  - name: Maliau_acd.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived above-canopy density raster used as an environmental
+      predictor.
+  - name: Maliau_chm.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy height model raster used to estimate canopy
+      height.
+  - name: Maliau_dtm.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived digital terrain model raster used as a spatial predictor.
+  - name: Maliau_pad_canopy_height.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy-height profile raster used as a canopy predictor.
+  - name: Maliau_pad_kurt.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy profile kurtosis raster used as a canopy predictor.
+  - name: Maliau_pad_mean.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived mean canopy profile raster used as a canopy predictor.
+  - name: Maliau_pad_n_layers.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy layer-count raster used as a canopy predictor.
+  - name: Maliau_pad_shannon.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy profile Shannon index raster used as a canopy
+      predictor.
+  - name: Maliau_pad_shape.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy profile shape raster used as a canopy predictor.
+  - name: Maliau_pad_skew.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy profile skewness raster used as a canopy predictor.
+  - name: Maliau_pad_std.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived canopy profile standard-deviation raster used as a
+      canopy predictor.
+  - name: Maliau_pai.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster used as a canopy predictor.
+  - name: Maliau_pai_02_10m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 2-10 m height layer.
+  - name: Maliau_pai_10_20m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 10-20 m height layer.
+  - name: Maliau_pai_20_30m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 20-30 m height layer.
+  - name: Maliau_pai_30_40m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 30-40 m height layer.
+  - name: Maliau_pai_40_50m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 40-50 m height layer.
+  - name: Maliau_pai_50_60m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 50-60 m height layer.
+  - name: Maliau_pai_60_70m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 60-70 m height layer.
+  - name: Maliau_pai_70_80m.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived plant area index raster for the 70-80 m height layer.
+  - name: Maliau_point_density.tif
+    path: data/primary/plant/lidar
+    description: LiDAR-derived point-density raster used as an environmental predictor.
+  output_files:
+  - name: cohort_data_10_cm_maliau_2.csv
+    path: data/scenarios/maliau/maliau_2/data
+    description: |
+      Spatially predicted PFT cohort distribution for individuals with DBH
+      greater than 10 cm.
+    variables:
+    - name: plant_cohorts_cell_id
+      type: integer
+      units: dimensionless
+      description: |
+        Identifier of the scenario grid cell.
+      references:
+      - citation: maliau_grid_definition.toml
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Cell identifiers are inherited from the scenario grid definition.
+    - name: plant_cohorts_pft
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type name.
+      references:
+      - citation: pft_cohort_data_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        PFT categories are inherited from the field-derived cohort data.
+    - name: plant_cohorts_dbh
+      type: numeric
+      units: m
+      description: |
+        Midpoint DBH of the 100 mm cohort class.
+      references:
+      - citation: pft_cohort_data_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Cohorts represent trees with DBH greater than 10 cm and retain the
+        source cohort-class midpoint.
+    - name: plant_cohorts_n
+      type: integer
+      units: stems cell-1
+      description: |
+        Predicted number of cohort stems in the grid cell.
+      references:
+      - citation: pft_cohort_data_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Maliau_chm.tif
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Jucker et al. (2018)
+        doi: https://doi.org/10.5194/bg-15-3811-2018
+        url: https://bg.copernicus.org/articles/15/3811/2018/
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Cohort abundance is spatially predicted from field plot data using
+        the TCH-only basal-area model. In the current
+        implementation, this model uses canopy height model-derived total
+        canopy height. 25 x 25 m aggregation pixels with no finite CHM
+        value are filled with the mean finite aggregated canopy height
+        before the model is fitted or applied, and predicted abundances
+        are rounded to whole stems. The pooled PFT/DBH basal-area
+        composition from the sampled plots is applied to every predicted
+        grid cell; plot-level variation in cohort composition is not
+        modelled separately.
+  - name: cohort_data_1_cm_maliau_2.csv
+    path: data/scenarios/maliau/maliau_2/data
+    description: |
+      Cohorts below the 10 cm census threshold are estimated from the
+      difference between modelled total basal area for stems at or above 1 cm
+      DBH and modelled basal area for stems above 10 cm DBH. The missing basal
+      area is converted to stem numbers using assumed 1–2 cm, 2–5 cm and
+      5–10 cm size-class fractions, then allocated across PFTs using cell-level
+      PFT abundance.
+    variables:
+    - name: plant_cohorts_cell_id
+      type: integer
+      units: dimensionless
+      description: |
+        Identifier of the scenario grid cell.
+      references:
+      - citation: maliau_grid_definition.toml
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Cell identifiers are inherited from the scenario grid definition.
+    - name: plant_cohorts_pft
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type name.
+      references:
+      - citation: pft_cohort_data_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        PFT categories are inherited from the field-derived cohort data;
+        estimated small-tree cohorts use the same PFT categories.
+    - name: plant_cohorts_dbh
+      type: numeric
+      units: m
+      description: |
+        Midpoint DBH of the 100 mm cohort class, including estimated
+        classes from 1 cm up to the census-derived classes.
+      references:
+      - citation: pft_cohort_data_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Census-derived DBH classes are retained and smaller classes are
+        estimated from the modelled basal-area residual.
+    - name: plant_cohorts_n
+      type: integer
+      units: stems cell-1
+      description: |
+        Predicted number of cohort stems in the grid cell.
+      references:
+      - citation: pft_cohort_data_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Maliau_chm.tif
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Jucker et al. (2018)
+        doi: https://doi.org/10.5194/bg-15-3811-2018
+        url: https://bg.copernicus.org/articles/15/3811/2018/
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Basal area for cohorts above 10 cm DBH is spatially predicted using
+        the TCH-only model and canopy-height-model-derived total canopy
+        height. 25 x 25 m aggregation pixels with no finite CHM value are
+        filled with the mean finite aggregated canopy height before the
+        model is fitted or applied. Jucker et al. (2018, Eq. S3) supplies
+        the correction used to estimate total basal area for stems at or
+        above 1 cm. The
+        difference between estimated total basal area and the basal area
+        above 10 cm is assigned to the missing 1-10 cm cohorts. These
+        cohorts are distributed across three DBH classes using reported
+        tree-number fractions and class midpoint basal areas, then
+        allocated among PFTs according to their existing cell-level
+        abundance. The pooled PFT/DBH basal-area composition from the
+        sampled plots is applied to every predicted grid cell; plot-level
+        variation in cohort composition is not modelled separately. Final
+        cohort abundances are rounded to whole stems.
+  package_dependencies:
+  - sf
+  - terra
+  - dplyr
+  - ggplot2
+  - RcppTOML
+  usage_notes: |
+    Run from this script's directory because input and output paths are
+    relative. The 10 cm output uses only census-derived cohorts above the
+    census minimum DBH. The 1 cm output adds estimated smaller cohorts using
+    the modelled basal-area residual and assumed small-tree distributions.
+    All LiDAR rasters in the input directory are loaded, but the current
+    TCH-only model uses only the canopy height model; other rasters are
+    available for alternative model fits.
+- script_path: plant_input_data_maliau_2.R
+  title: plant_input_data_maliau_2
+  description: |
+    This script prepares the NetCDF file containing plant_pft_propagules,
+    subcanopy_vegetation_biomass and subcanopy_seedbank_biomass for the
+    maliau_2 scenario.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: cohort_data_1_cm_maliau_2.csv
+    path: data/scenarios/maliau/maliau_2/data
+    description: |
+      Cohorts below the 10 cm census threshold are estimated from the
+      difference between modelled total basal area for stems at or above 1 cm
+      DBH and modelled basal area for stems above 10 cm DBH. The missing basal
+      area is converted to stem numbers using assumed 1–2 cm, 2–5 cm and
+      5–10 cm size-class fractions, then allocated across PFTs using cell-level
+      PFT abundance.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: |
+      TOML configuration file containing grid and timing definitions for the
+      Maliau scenarios, including the cell coordinates used here.
+  - name: t_model_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file listing T-model parameters by pft.
+  - name: subcanopy_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains the subcanopy parameters used as plant model
+      constants in the plant input data library workflow.
+  - name: dobert_subcanopy_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains the subcanopy vegetation and seedbank carbon mass
+      at plot level. The file is used for spatial predictions in the scenario
+      scripts.
+  - name: dobert_2019_plot_species_trait_data.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.5281/zenodo.2536270
+      Dobert et al. (2019) plot, species, trait, and location data used to
+      interpolate subcanopy vegetation biomass across the scenario grid.
+      The script reads the Locations, DoebertTF_SAFE_PlotData, and
+      DoebertTF_SAFE_PlotSpeciesMeasu sheets.
+  - name: Maliau LiDAR raster collection (*.tif)
+    path: data/primary/plant/lidar
+    description: |
+      LiDAR-derived raster layers loaded dynamically from this directory.
+      Each available raster is evaluated as a candidate predictor of
+      subcanopy vegetation biomass. For the current parameterisation,
+      Maliau_pad_mean.tif was selected as the predictor with the strongest
+      univariate fit; a different raster may be selected for another run.
+  output_files:
+  - name: plant_input_data_maliau_2.nc
+    path: data/scenarios/maliau/maliau_2/data
+    description: |
+      NetCDF file containing spatially distributed plant propagule and
+      subcanopy vegetation and seedbank carbon mass for the Maliau 2 scenario.
+      The file contains cell_id and pft dimensions; plant_pft_propagules is
+      stored over pft by cell_id, while the subcanopy variables are stored
+      over cell_id only.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      description: |
+        Zero-based identifier for each scenario grid cell.
+      references:
+      - citation: maliau_grid_definition.toml
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Cell identifiers are assigned by matching each grid-cell centre's
+        coordinates to the scenario grid definition. The numbering starts
+        at the bottom-left cell, then proceeds from left to right within
+        each row and from bottom to top across rows.
+    - name: pft
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type name.
+      references:
+      - citation: cohort_data_1_cm_maliau_2.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        PFT categories are inherited from the scenario cohort distribution
+        and define the pft dimension of the NetCDF file.
+    - name: plant_pft_propagules
+      type: integer
+      units: propagules cell-1
+      description: |
+        Number of plant propagules per PFT and scenario grid cell.
+      references:
+      - citation: t_model_maliau.csv
+        doi: ~
+        url: ~
+        origin: Virtual Ecosystem plant input data library
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: cohort_data_1_cm_maliau_2.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Total propagules per hectare from t_model_maliau.csv are scaled to
+        the scenario cell area. The resulting total is distributed among
+        PFTs according to each cell's relative cohort abundance from
+        cohort_data_1_cm_maliau_2.csv, and values are rounded to whole
+        propagules. This first-pass allocation assumes that relative PFT
+        cohort abundance is proportional to relative propagule abundance,
+        equivalent to a 1:1 tree-to-propagule relationship among PFTs. It
+        therefore does not account for PFT-specific fecundity, tree size,
+        size-dependent reproductive output, differences in size at
+        reproductive maturity, or episodic mast-fruiting events. Masting
+        may substantially change propagule production between years and
+        may be especially important for emergent PFTs. These effects may
+        cause propagule abundance to differ from standing tree abundance
+        but are not parameterised here.
+    - name: subcanopy_vegetation_biomass
+      type: numeric
+      units: kg C m-2
+      description: |
+        Spatially predicted subcanopy vegetation carbon mass per unit area.
+      references:
+      - citation: subcanopy_maliau.csv
+        doi: ~
+        url: ~
+        origin: Virtual Ecosystem plant input data library
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: dobert_subcanopy_maliau.csv
+        doi: ~
+        url: ~
+        origin: Virtual Ecosystem plant input data library
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: ~
+      - citation: dobert_2019_plot_species_trait_data.xlsx
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      - citation: Maliau_pad_mean.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_acd.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_chm.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_dtm.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pad_canopy_height.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pad_kurt.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pad_n_layers.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pad_shannon.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pad_shape.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pad_skew.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pad_std.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_02_10m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_10_20m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_20_30m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_30_40m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_40_50m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_50_60m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_60_70m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_pai_70_80m.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      - citation: Maliau_point_density.tif
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Observed plot-level biomass from the Dobert-derived input is joined
+        to values extracted from every available LiDAR raster. A separate
+        Gamma GLM with a log link is fitted for each candidate predictor,
+        and the predictor with the highest R-squared is selected. For the
+        current parameterisation, this is Maliau_pad_mean.tif. Pixels with
+        no finite value in the selected predictor raster are filled with
+        the mean finite value of that raster before extraction. That raster
+        is extracted at each grid-cell centre, the fitted model is used to
+        predict positive biomass, and the results are ordered by cell_id
+        before being written as one value for each cell. Any remaining
+        missing predictions are written as zero.
+        The selected predictor should be re-evaluated when the script is
+        reused with another calibration dataset or scenario.
+    - name: subcanopy_seedbank_biomass
+      type: numeric
+      units: kg C m-2
+      description: |
+        Spatially distributed subcanopy seedbank carbon mass per unit area.
+      references:
+      - citation: subcanopy_maliau.csv
+        doi: ~
+        url: ~
+        origin: Virtual Ecosystem plant input data library
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Seedbank biomass is calculated for each cell by applying the
+        vegetation-to-seedbank ratio from subcanopy_maliau.csv to the
+        spatially predicted vegetation biomass. The ratio is assumed to be
+        constant across the scenario grid.
+  package_dependencies:
+  - RNetCDF
+  - ncdf4
+  - RcppTOML
+  - readxl
+  - sf
+  - ggplot2
+  - terra
+  usage_notes: |
+    Run from this script's directory because input and output paths are
+    relative. The script currently targets the maliau_2 scenario and writes a
+    NetCDF file with cell and PFT dimensions. Propagules are distributed from
+    local cohort abundance, vegetation biomass is spatially predicted, and
+    seedbank biomass is derived from the vegetation-to-seedbank ratio.
+- script_path: plant_pft_definitions_maliau_2.R
+  title: plant_pft_definitions_maliau_2
+  description: |
+    Builds the plant functional type definition table for the Maliau 2
+    scenario by combining the T model parameters with stoichiometric and
+    reproductive allocation values.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: stoichiometry_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains PFT-level stoichiometric ratios and lignin
+      fractions for plant biomass pools, including sapwood, foliage,
+      senesced leaves, reproductive tissue, fruits, flowers, and fine roots.
+      Where PFT-specific measurements are unavailable, literature-derived
+      proxy values are used.
+  - name: t_model_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file listing T-model parameters by pft.
+  - name: reproduction_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains a summary of the ratios needed to calculate
+      reproductive tissue allocation, and to separate propagules from
+      non-propagules.
+  - name: subcanopy_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains the subcanopy parameters used as plant model
+      constants in the plant input data library workflow.
+  output_files:
+  - name: plant_pft_definitions_maliau_2.csv
+    path: data/scenarios/maliau/maliau_2/data
+    description: |
+      Plant functional type definition table for the Maliau 2 scenario.
+      This scenario-specific table is assembled from the canonical Maliau
+      library inputs in t_model_maliau.csv and stoichiometry_maliau.csv,
+      with the reproductive allocation value extracted from
+      reproduction_maliau.csv.
+    variables:
+    - name: pft_name
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type name.
+      references:
+      - citation: pfts_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Loaded from t_model_maliau.csv. Original assumption: PFT names are
+        inherited from pfts_maliau.csv and identify the plant functional
+        type associated with each output record.
+    - name: h_max
+      type: numeric
+      units: m
+      description: |
+        Asymptotic maximum tree height.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Estimated
+        by fitting an asymptotic height-diameter model to SAFE census trees within
+        each PFT, using 2011 data across all plots.'
+    - name: a_hd
+      type: numeric
+      units: dimensionless
+      description: |
+        Initial slope parameter of the height-diameter relationship.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Estimated
+        by fitting an asymptotic height-diameter model to SAFE census trees within
+        each PFT, using 2011 data across all plots.'
+    - name: ca_ratio
+      type: numeric
+      units: dimensionless
+      description: |
+        Initial ratio of crown area to stem cross-sectional area.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Estimated
+        by fitting crown projected area relationships for each PFT, using 2011 data
+        across all plots.'
+    - name: rho_s
+      type: numeric
+      units: kg C m-3
+      description: |
+        Sapwood density expressed as carbon mass per unit volume.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2014-2018
+      - citation: Inagawa et al. (2023)
+        doi: https://doi.org/10.5281/zenodo.8158811
+        url: https://zenodo.org/records/8158811
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: mixed dipterocarp lowland rainforest
+        site_condition: logged
+        date: 2014-2015
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Mean sapwood
+        density without bark converted to carbon density using mean sapwood carbon
+        content.'
+    - name: sla
+      type: numeric
+      units: mm2 mg-1 C
+      description: |
+        Specific leaf area expressed per unit carbon mass.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2014-2018
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Specific
+        leaf area is averaged by PFT from the functional-traits data and expressed
+        per unit carbon mass.'
+    - name: lai
+      type: numeric
+      units: dimensionless
+      description: |
+        Leaf area index.
+      references:
+      - citation: Pfeifer et al. (2016)
+        doi: https://doi.org/10.1016/j.rse.2016.01.014
+        url: https://www.sciencedirect.com/science/article/pii/S003442571630013X?via%3Dihub
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: primary and secondary
+        date: 2012-2013
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: A single
+        primary-forest value is applied uniformly across PFTs.'
+    - name: par_ext
+      type: numeric
+      units: dimensionless
+      description: |
+        Light extinction coefficient describing the attenuation of
+        photosynthetically active radiation through the canopy.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: The value
+        reported for rain forest is applied uniformly across PFTs.'
+    - name: tau_f
+      type: numeric
+      units: years
+      description: |
+        Leaf turnover time.
+      references:
+      - citation: Anderson et al. (1983)
+        doi: https://doi.org/10.2307/2259731
+        url: https://www.jstor.org/stable/2259731?origin=crossref
+        origin: Gunung Mulu National Park, Sarawak, Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: '1978'
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Derived as
+        the inverse of reported annual leaf turnover and applied uniformly across
+        pfts.'
+    - name: tau_rt
+      type: numeric
+      units: years
+      description: |
+        Turnover time of reproductive tissue.
+      references:
+      - citation: Anderson et al. (1983)
+        doi: https://doi.org/10.2307/2259731
+        url: https://www.jstor.org/stable/2259731?origin=crossref
+        origin: Gunung Mulu National Park, Sarawak, Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: '1978'
+      assumptions: |
+        Loaded from t_model_maliau.csv. Original assumption: Derived as the
+        inverse of the reported annual reproductive-organ turnover and
+        applied uniformly across PFTs using the same source and approach as
+        leaf turnover.
+    - name: tau_b
+      type: numeric
+      units: years
+      description: |
+        Branch turnover time.
+      references:
+      - citation: Anderson et al. (1983)
+        doi: https://doi.org/10.2307/2259731
+        url: https://www.jstor.org/stable/2259731?origin=crossref
+        origin: Gunung Mulu National Park, Sarawak, Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: '1978'
+      assumptions: |
+        Loaded from t_model_maliau.csv. Original assumption: Calculated from
+        Anderson et al. small wood (<2 cm diameter) and large wood (2-10 cm
+        diameter) input and standing crop values for dipterocarp forest. The
+        combined turnover rate is total branch input divided by total branch
+        standing crop, then inverted to turnover time and applied uniformly
+        across PFTs.
+    - name: tau_r
+      type: numeric
+      units: years
+      description: |
+        Fine root turnover time.
+      references:
+      - citation: Huaraca Huasco et al. (2021)
+        doi: https://doi.org/10.1111/gcb.15677
+        url: https://onlinelibrary.wiley.com/doi/10.1111/gcb.15677
+        origin: Maliau and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: primary
+        date: '2021'
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Calculated
+        as the mean root residence time across two Maliau plots and applied uniformly
+        across pfts.'
+    - name: resp_r
+      type: numeric
+      units: year-1
+      description: |
+        Fine root specific maintenance respiration rate.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: A daily literature
+        respiration value is multiplied by 365 to obtain an annual rate, which is
+        applied uniformly across PFTs.'
+    - name: resp_f
+      type: numeric
+      units: year-1
+      description: |
+        Leaf specific maintenance respiration rate.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: A daily literature
+        respiration value is multiplied by 365 to obtain an annual rate, which is
+        applied uniformly across PFTs.'
+    - name: resp_s
+      type: numeric
+      units: year-1
+      description: |
+        Wood specific maintenance respiration rate.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: A daily literature
+        respiration value is multiplied by 365 to obtain an annual rate, which is
+        applied uniformly across PFTs.'
+    - name: resp_rt
+      type: numeric
+      units: year-1
+      description: |
+        Maintenance respiration rate for reproductive tissue.
+      references:
+      - citation: Kinugasa et al. (2005)
+        doi: https://doi.org/10.1093/aob/mci152
+        url: https://academic.oup.com/aob/article-abstract/96/1/81/174607?redirectedFrom=fulltext
+        origin: laboratory settings
+        biome: temperate
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Production
+        of reproductive organs is assumed to be consistent throughout the year, and
+        the maintenance respiration value is applied uniformly across PFTs.'
+    - name: yld
+      type: numeric
+      units: dimensionless
+      description: |
+        Yield factor used in the T model.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Calculated
+        as 1 / (1 + r_g), using a growth respiration coefficient.'
+    - name: zeta
+      type: numeric
+      units: kg C m-2
+      description: |
+        Fine root carbon mass to foliage area ratio.
+      references:
+      - citation: Niiyama et al. (2010)
+        doi: http://dx.doi.org/10.1017/S0266467410000040
+        url: https://www.cambridge.org/core/journals/journal-of-tropical-ecology/article/abs/estimation-of-root-biomass-based-on-excavation-of-individual-root-systems-in-a-primary-dipterocarp-forest-in-pasoh-forest-reserve-peninsular-malaysia/523F092746792B1ABF3B18DEE483895F
+        origin: Pasoh Forest Reserve, Peninsular Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: 2004-2005
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2014-2018
+      - citation: Imai et al. (2010)
+        doi: https://doi.org/10.1017/S0266467410000350
+        url: https://www.cambridge.org/core/journals/journal-of-tropical-ecology/article/abs/distribution-of-phosphorus-in-an-abovetobelowground-profile-in-a-bornean-tropical-rain-forest/FCCE8AA3D75C97EA444F509BF8F3FF51
+        origin: Deramakot Forest Reserve, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: rain forest
+        site_condition: pristine
+        date: '2010'
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Derived from
+        Niiyama et al. (2010) fine-root and foliage masses, PFT-specific SLA from
+        the functional-traits data, and a mean fine-root carbon content of 45.2% from
+        Imai et al. (2010).'
+    - name: m
+      type: numeric
+      units: dimensionless
+      description: |
+        Scenario-specific plant model parameter m.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Assigned in this script as the Maliau 2 scenario value.
+    - name: no
+      type: numeric
+      units: dimensionless
+      description: |
+        Scenario-specific plant model parameter n.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Assigned in this script as the Maliau 2 scenario value.
+    - name: f_g
+      type: numeric
+      units: dimensionless
+      description: |
+        Scenario-specific plant model parameter f_g.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Assigned in this script as the Maliau 2 scenario value.
+    - name: root_symbiote_npp_fraction
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of net primary production allocated to root symbionts.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Assigned in this script as the Maliau 2 scenario value.
+    - name: fruit_seed_foliage_mass_fraction
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of foliage carbon allocated to reproductive tissue.
+      references:
+      - citation: Kitayama et al. (2015)
+        doi: https://doi.org/10.1111/1365-2745.12379
+        url: https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Extracted from the reproduction_maliau.csv summary using the Kitayama
+        dipterocarp non-mast value reported in the Aoyagi comparison.
+    - name: c_mass_fruit_flesh
+      type: numeric
+      units: g C
+      description: |
+        Carbon mass per mature fruit flesh after subtracting seed carbon mass.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Calculated from mature fruit dry mass and carbon percentage for
+        Dipterocarpus tempehes, after subtracting the estimated carbon mass of one
+        seed.'
+    - name: c_mass_fruit_seed
+      type: numeric
+      units: g C
+      description: |
+        Carbon mass per seed within a mature fruit.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      - citation: Nakagawa and Nakashizuka (2004)
+        doi: https://doi.org/10.1079/SSR2004181
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Derived using seed dry mass from Nakagawa and Nakashizuka with
+        fruit carbon concentration from Ichie as a proxy for seed carbon concentration,
+        assuming one seed per fruit.'
+    - name: seeds_per_fruit
+      type: numeric
+      units: dimensionless
+      description: |
+        Number of seeds per mature fruit.
+      references:
+      - citation: Nakagawa and Nakashizuka (2004)
+        doi: https://doi.org/10.1079/SSR2004181
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Assumed to be one seed per fruit for dipterocarps.'
+    - name: stem_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for sapwood / deadwood tissue.
+      references:
+      - citation: Inagawa et al. (2023)
+        doi: https://doi.org/10.5281/zenodo.8158811
+        url: https://zenodo.org/records/8158811
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Calculated from sapwood nutrient concentrations and averaged across
+        the limited species sample rather than by PFT.'
+    - name: foliage_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for foliage.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Calculated from leaf trait measurements and aggregated to PFT
+        using species-to-PFT matching, with genus-level matching where species-level
+        matching is unavailable.'
+    - name: foliage_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for foliage.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Calculated from leaf trait measurements and aggregated to PFT
+        using species-to-PFT matching, with genus-level matching where species-level
+        matching is unavailable.'
+    - name: root_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for fine root tissue.
+      references:
+      - citation: Imai et al. (2010)
+        doi: https://doi.org/10.1017/S0266467410000350
+        url: ~
+        origin: Sabah, Malaysia
+        biome: tropical
+        vegetation_type: mixed dipterocarp lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Used directly from fine-root stoichiometry values rather than
+        derived separately for turnover material.'
+    - name: root_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for fine root tissue.
+      references:
+      - citation: Imai et al. (2010)
+        doi: https://doi.org/10.1017/S0266467410000350
+        url: ~
+        origin: Sabah, Malaysia
+        biome: tropical
+        vegetation_type: mixed dipterocarp lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Used directly from fine-root stoichiometry values rather than
+        derived separately for turnover material.'
+    - name: foliage_turnover_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for senesced leaf turnover material.
+      references:
+      - citation: Han et al. (2013)
+        doi: https://doi.org/10.1371/journal.pone.0083366
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: evergreen broadleaf forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Derived from foliage C:N using a fixed nitrogen resorption efficiency
+        rather than direct senesced leaf measurements.'
+    - name: foliage_turnover_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for senesced leaf turnover material.
+      references:
+      - citation: Han et al. (2013)
+        doi: https://doi.org/10.1371/journal.pone.0083366
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: evergreen broadleaf forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Derived from foliage C:P using a fixed phosphorus resorption efficiency
+        rather than direct senesced leaf measurements.'
+    - name: fruit_seed_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for reproductive tissue turnover.
+      references:
+      - citation: Kitayama et al. (2015)
+        doi: https://doi.org/10.1111/1365-2745.12379
+        url: https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379
+        origin: Mount Kinabalu, Borneo
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Based on combined reproductive-organ litter fractions from selected
+        Kitayama sites, so flowers, fruits and seeds are not separated.'
+    - name: fruit_seed_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for reproductive tissue turnover.
+      references:
+      - citation: Kitayama et al. (2015)
+        doi: https://doi.org/10.1111/1365-2745.12379
+        url: https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379
+        origin: Mount Kinabalu, Borneo
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Based on combined reproductive-organ litter fractions from selected
+        Kitayama sites, so flowers, fruits and seeds are not separated.'
+    - name: stem_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for deadwood tissue.
+      references:
+      - citation: ~
+        doi: https://doi.org/10.5281/zenodo.8158811
+        url: https://zenodo.org/records/8158811
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Joined from stoichiometry_maliau.csv using the PFT name. Original
+        assumption: Calculated from sapwood nutrient concentrations and averaged across
+        the limited species sample rather than by PFT.'
+    notes: |
+      The remaining variables in this output are inherited from the canonical
+      Maliau library definitions in t_model_maliau.csv and
+      stoichiometry_maliau.csv; their full metadata are defined in those
+      source scripts.
+  package_dependencies: tidyverse
+  usage_notes: |
+    This script creates the Maliau 2 PFT definition table by joining T model
+    parameters with stoichiometric and reproductive allocation values.
+- script_path: plant_constants_maliau_2.R
+  title: plant_constants_maliau_2
+  description: |
+    Builds the plant constants table for the Maliau 2 scenario by combining
+    subcanopy constants with T-model, stoichiometric and reproductive values.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: stoichiometry_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains PFT-level stoichiometric ratios and lignin
+      fractions for plant biomass pools, including sapwood, foliage,
+      senesced leaves, reproductive tissue, fruits, flowers, and fine roots.
+      Where PFT-specific measurements are unavailable, literature-derived
+      proxy values are used.
+  - name: t_model_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file listing T-model parameters by pft.
+  - name: subcanopy_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains the subcanopy parameters used as plant model
+      constants in the plant input data library workflow.
+  output_files:
+  - name: plant_constants_maliau_2.csv
+    path: data/scenarios/maliau/maliau_2/data
+    description: |
+      Plant constants table for the Maliau 2 scenario.
+    variables:
+    - name: subcanopy_specific_leaf_area
+      type: numeric
+      units: m^2 kg^-1 C
+      description: |
+        Specific leaf area of subcanopy vegetation expressed per unit carbon mass.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Calculated
+        as the mean SLA across selected non-tree subcanopy growth forms, converted
+        from the source cm2 g-1 values (mislabelled as m2 kg-1 in the source file)
+        to m2 kg-1, and then converted to a carbon-mass basis using the same carbon
+        fraction as for biomass.'
+    - name: subcanopy_reproductive_allocation
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of aboveground subcanopy biomass allocated to reproductive tissue.
+      references:
+      - citation: Zhang et al. (2020)
+        doi: https://doi.org/10.1007/s11629-020-6253-6
+        url: https://link.springer.com/article/10.1007/s11629-020-6253-6
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Estimated
+        from literature biomass ratios rather than from direct measurements in the
+        SAFE or Maliau subcanopy.'
+    - name: subcanopy_respiration_fraction
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of gross primary productivity lost to respiration in subcanopy vegetation.
+      references:
+      - citation: Lötscher et al. (2004)
+        doi: https://doi.org/10.1111/j.1469-8137.2004.01170.x
+        url: https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Used directly
+        as a literature constant for subcanopy vegetation.'
+    - name: subcanopy_extinction_coef
+      type: numeric
+      units: dimensionless
+      description: |
+        Light extinction coefficient used for subcanopy vegetation.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: null.'
+    - name: subcanopy_yield
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon yield of subcanopy vegetation after growth respiration losses.
+      references:
+      - citation: Lötscher et al. (2004)
+        doi: https://doi.org/10.1111/j.1469-8137.2004.01170.x
+        url: https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Derived
+        as one minus the reported growth respiration fraction.'
+    - name: subcanopy_vegetation_turnover
+      type: numeric
+      units: year^-1
+      description: |
+        Annual turnover rate of subcanopy vegetation biomass.
+      references:
+      - citation: Singh (1992)
+        doi: https://doi.org/10.1007/BF00045551
+        url: https://link.springer.com/article/10.1007/BF00045551
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Singh and Singh (1991)
+        doi: https://doi.org/10.1093/oxfordjournals.aob.a088252
+        url: https://academic.oup.com/aob/article-abstract/68/3/263/214008?redirectedFrom=fulltext
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Calculated
+        as annual litterfall divided by standing herbaceous biomass from literature
+        rather than from the SAFE/Maliau subcanopy data.'
+    - name: subcanopy_vegetation_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio of subcanopy vegetation biomass.
+      references:
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Taken from
+        herb-layer elemental composition in primary forest as a proxy for subcanopy
+        vegetation.'
+    - name: subcanopy_vegetation_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio of subcanopy vegetation biomass.
+      references:
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Taken from
+        herb-layer elemental composition in primary forest as a proxy for subcanopy
+        vegetation.'
+    - name: subcanopy_vegetation_lignin
+      type: numeric
+      units: g lignin C g^-1 vegetation C
+      description: |
+        Fraction of subcanopy vegetation carbon mass present as lignin.
+      references:
+      - citation: Amatangelo and Vitousek (2009)
+        doi: https://doi.org/10.1111/j.1744-7429.2008.00470.x
+        url: https://onlinelibrary.wiley.com/doi/10.1111/j.1744-7429.2008.00470.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Derived
+        from monocot lignin content and converted to a carbon basis using literature
+        lignin and vegetation carbon fractions.'
+    - name: subcanopy_seedbank_turnover
+      type: numeric
+      units: year^-1
+      description: |
+        Annual turnover rate of the subcanopy seedbank.
+      references:
+      - citation: Dalling et al. (1998)
+        doi: https://doi.org/10.2307/176953
+        url: https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Derived
+        from the fraction of seeds not expected to remain viable after one year.'
+    - name: subcanopy_sprout_rate
+      type: numeric
+      units: year^-1
+      description: |
+        Annual sprouting rate from the viable subcanopy seedbank.
+      references:
+      - citation: Dalling et al. (1998)
+        doi: https://doi.org/10.2307/176953
+        url: https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Assumes
+        the viable seed fraction within one year represents the annual sprouting rate.'
+    - name: subcanopy_sprout_yield
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon yield associated with sprouting from the subcanopy seedbank.
+      references:
+      - citation: Lötscher et al. (2004)
+        doi: https://doi.org/10.1111/j.1469-8137.2004.01170.x
+        url: https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Set equal
+        to the general subcanopy yield, assuming the same growth respiration correction
+        applies to sprouting.'
+    - name: subcanopy_seedbank_c_n_ratio
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon-to-nitrogen ratio of seedbank material used for subcanopy inputs.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Imported
+        directly from the derived stoichiometry_maliau reproductive tissue turnover
+        field as a proxy because seedbank-specific data are lacking.'
+    - name: subcanopy_seedbank_c_p_ratio
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon-to-phosphorus ratio of seedbank material used for subcanopy inputs.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Imported
+        directly from the derived stoichiometry_maliau reproductive tissue turnover
+        field as a proxy because seedbank-specific data are lacking.'
+    - name: subcanopy_seedbank_lignin
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of seedbank carbon mass present as lignin.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from subcanopy_maliau.csv. Original assumption: Imported
+        directly from the derived stoichiometry_maliau reproductive tissue lignin
+        field as a proxy because seedbank-specific lignin data are lacking.'
+    - name: per_stem_annual_mortality_probability
+      type: numeric
+      units: dimensionless
+      description: |
+        Annual probability of mortality per stem.
+      references:
+      - citation: Bisschoff et al. (2005)
+        doi: https://doi.org/10.1016/j.foreco.2005.07.009
+        url: https://www.sciencedirect.com/science/article/pii/S0378112705004603?via%3Dihub
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp rain forest
+        site_condition: primary and secondary
+        date: 1995-2001
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Applied uniformly
+        across PFTs.'
+    - name: per_propagule_annual_recruitment_probability
+      type: numeric
+      units: dimensionless
+      description: |
+        Annual probability of recruitment per propagule.
+      references:
+      - citation: Howlett and Davidson (2003)
+        doi: https://doi.org/10.1016/S0378-1127(03)00161-0
+        url: https://www.sciencedirect.com/science/article/pii/S0378112703001610?via%3Dihub
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: logged
+        date: '1993'
+      - citation: Kennedy and Swaine (1992)
+        doi: https://doi.org/10.1098/rstb.1992.0027
+        url: https://royalsocietypublishing.org/rstb/article-abstract/335/1275/357/18258/Germination-and-growth-of-colonizing-species-in?redirectedFrom=fulltext
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland rain forest
+        site_condition: primary
+        date: '1989'
+      - citation: Kuusipalo et al. (1996)
+        doi: https://doi.org/10.1016/0378-1127(95)03654-7
+        url: https://www.sciencedirect.com/science/article/pii/0378112795036547?via%3Dihub
+        origin: Kintap, South Kalimantan, Indonesia
+        biome: tropical
+        vegetation_type: mixed dipterocarp rainforest
+        site_condition: unlogged and logged
+        date: '1996'
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Derived by
+        combining a literature seed establishment probability with an annualised seedling
+        survival correction.'
+    - name: root_exudates
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of NPP carbon allocated to root exudates.
+      references:
+      - citation: Aoki et al. (2013)
+        doi: https://doi.org/10.1007/s10021-012-9575-6
+        url: https://link.springer.com/article/10.1007/s10021-012-9575-6
+        origin: Mount Kinabalu, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland rainforest
+        site_condition: primary
+        date: '2012'
+      assumptions: 'Loaded from t_model_maliau.csv. Original assumption: Allocation
+        assumed to be constant across pfts.'
+    - name: dsr_to_ppfd
+      type: numeric
+      units: dimensionless
+      description: |
+        Conversion factor from daily solar radiation to PPFD.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Assigned in this script as the Maliau 2 scenario value.
+    - name: stem_lignin
+      type: numeric
+      units: g lignin C g^-1 stem C
+      description: |
+        Fraction of stem carbon mass present as lignin.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from stoichiometry_maliau.csv. Original assumption: Derived
+        by combining literature lignin fraction with mean sapwood carbon content from
+        the SAFE wood nutrient dataset.'
+    - name: senesced_leaf_lignin
+      type: numeric
+      units: g lignin C g^-1 senesced leaf C
+      description: |
+        Fraction of senesced leaf carbon mass present as lignin.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: 'Loaded from stoichiometry_maliau.csv for the emergent PFT. Original
+        assumption: Assumed equal to live foliage lignin because senesced leaf-specific
+        lignin data were not separately derived.'
+    - name: root_lignin
+      type: numeric
+      units: g lignin C g^-1 root C
+      description: |
+        Fraction of fine root carbon mass present as lignin.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: 'Loaded from stoichiometry_maliau.csv. Original assumption: Derived
+        from a global mean fine-root lignin fraction combined with fine-root carbon
+        content from Imai et al. rather than from site-specific lignin measurements.'
+  package_dependencies: tidyverse
+  usage_notes: |
+    This script creates the Maliau 2 plant constants table from the subcanopy
+    data-library output and adds selected T-model, stoichiometric, reproductive
+    and scenario-specific constants.

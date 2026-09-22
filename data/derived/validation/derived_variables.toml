@@ -81,3 +81,37 @@ name = "soil_n_pool_inorganic_per_area"
 description = "Total inorganic soil nitrogen per area"
 unit = "kg{N} m^-2"
 function = "get_soil_n_pool_inorganic_per_area"
+name = "stem_c_productivity"
+description = "Interval realised stem carbon productivity for each cell"
+unit = "Mg C ha-1 year-1"
+function = "calculate_ve_realised_tissue_productivity"
+
+[[variable]]
+name = "stem_c_productivity_mean"
+description = "Mean stem carbon productivity pooled across all cells and timesteps in the selected period. NA outside that period"
+unit = "Mg C ha-1 year-1"
+function = "calculate_ve_realised_tissue_productivity"
+
+[[variable]]
+name = "foliage_c_productivity"
+description = "Interval realised foliage carbon productivity for each cell"
+unit = "Mg C ha-1 year-1"
+function = "calculate_ve_realised_tissue_productivity"
+
+[[variable]]
+name = "foliage_c_productivity_mean"
+description = "Mean foliage carbon productivity pooled across all cells and timesteps in the selected period. NA outside that period"
+unit = "Mg C ha-1 year-1"
+function = "calculate_ve_realised_tissue_productivity"
+
+[[variable]]
+name = "root_c_productivity"
+description = "Interval realised root carbon productivity for each cell"
+unit = "Mg C ha-1 year-1"
+function = "calculate_ve_realised_tissue_productivity"
+
+[[variable]]
+name = "root_c_productivity_mean"
+description = "Mean root carbon productivity pooled across all cells and timesteps in the selected period. NA outside that period"
+unit = "Mg C ha-1 year-1"
+function = "calculate_ve_realised_tissue_productivity"
