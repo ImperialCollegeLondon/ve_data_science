@@ -615,6 +615,7 @@ get_soil_p_pool_labile_per_mass <- function(zarr_path, config) {
 #' @param output_variable Name for the calculated productivity column.
 #' @param cell_area_ha Area represented by each cell in hectares. This must be
 #'   supplied explicitly.
+#' @param update_interval_in_days The duration of each timestep in days.
 #' @param start_date Start of the period to pool the summary mean over.
 #'   Matched by month. If `NULL` (default), pooling effectively starts from
 #'   `time_index = 1` (the earliest timestep with a valid rate).
@@ -639,6 +640,7 @@ calculate_ve_realised_tissue_productivity <- function(
   input_variable,
   output_variable,
   cell_area_ha,
+  update_interval_in_days,
   start_date = NULL,
   end_date = NULL
 ) {
@@ -667,6 +669,17 @@ calculate_ve_realised_tissue_productivity <- function(
       cell_area_ha <= 0
   ) {
     cli::cli_abort("cell_area_ha must be one positive finite number.")
+  }
+
+  if (
+    !is.numeric(update_interval_in_days) ||
+      length(update_interval_in_days) != 1 ||
+      !is.finite(update_interval_in_days) ||
+      update_interval_in_days <= 0
+  ) {
+    cli::cli_abort(
+      "update_interval_in_days must be one positive finite number."
+    )
   }
 
   if (xor(is.null(start_date), is.null(end_date))) {
@@ -744,6 +757,12 @@ calculate_ve_realised_tissue_productivity <- function(
   # timestep, using plain sequential differences so each step can be
   # verified by inspection. The first timestep (time_index = 0) has no prior
   # state, so its rate is NA.
+
+  # Ensure the data are ordered and columns are numeric
+  cell_tissue_biomass$tissue_biomass_kg <- as.numeric(
+    cell_tissue_biomass$tissue_biomass_kg
+  )
+
   cell_data <- split(cell_tissue_biomass, cell_tissue_biomass$cell_id)
   cell_tissue_biomass <- lapply(cell_data, function(cell_data) {
     cell_data <- cell_data[order(cell_data$time), , drop = FALSE]
@@ -756,34 +775,47 @@ calculate_ve_realised_tissue_productivity <- function(
       NA,
       head(cell_data$time, -1)
     )
-    cell_data$interval_years <- c(NA, diff(cell_data$time)) / 365.25
-    biomass_change_kg <- c(NA, diff(cell_data$tissue_biomass_kg))
-    cell_data[[output_variable]] <-
-      biomass_change_kg /
-      1000 /
-      cell_data$interval_years /
-      cell_area_ha /
-      cell_data
+    interval_years <- as.numeric(update_interval_in_days / 365.25)
+    biomass_change_kg <- as.numeric(c(NA, diff(cell_data$tissue_biomass_kg)))
+    cell_data[[output_variable]] <- as.numeric(
+      biomass_change_kg / 1000 / interval_years / cell_area_ha
+    )
+
+    return(cell_data)
   })
   cell_tissue_biomass <- do.call(rbind, cell_tissue_biomass)
 
   # Pool the interval rate across all cells and timesteps within the
   # requested period, matched by month, into a single summary comparable to
   # the validation data's spatial and temporal extent.
+
+  # Ensure time columns are explicitly Date objects before formatting
+  cell_tissue_biomass$time <- as.Date(
+    cell_tissue_biomass$time,
+    origin = "1970-01-01"
+  )
+  cell_tissue_biomass$interval_start_time <- as.Date(
+    cell_tissue_biomass$interval_start_time,
+    origin = "1970-01-01"
+  )
+
+  combined_times <- unique(c(
+    cell_tissue_biomass$interval_start_time,
+    cell_tissue_biomass$time
+  ))
+
   available_months <- format(
-    unique(c(
-      cell_tissue_biomass$interval_start_time,
-      cell_tissue_biomass$time
-    )),
+    combined_times[!is.na(combined_times)],
     "%Y-%m"
   )
   available_months <- available_months[!is.na(available_months)]
+
   if (is.null(start_date)) {
     start_month <- min(available_months)
     end_month <- max(available_months)
   } else {
-    start_month <- format(start_date, "%Y-%m")
-    end_month <- format(end_date, "%Y-%m")
+    start_month <- format(as.Date(start_date), "%Y-%m")
+    end_month <- format(as.Date(end_date), "%Y-%m")
     if (
       !start_month %in% available_months || !end_month %in% available_months
     ) {
@@ -797,34 +829,49 @@ calculate_ve_realised_tissue_productivity <- function(
     !is.na(cell_tissue_biomass$interval_start_time) &
     format(cell_tissue_biomass$interval_start_time, "%Y-%m") >= start_month &
     format(cell_tissue_biomass$time, "%Y-%m") <= end_month
+
   if (!any(period_rows)) {
     cli::cli_abort("No output intervals fall within the requested period.")
   }
-  period_values <- cell_tissue_biomass[[output_variable]][period_rows]
+
+  period_values <- as.numeric(cell_tissue_biomass[[output_variable]][
+    period_rows
+  ])
 
   result <- cell_tissue_biomass[,
     c("cell_id", "time", "time_index", output_variable),
     drop = FALSE
   ]
 
+  # Force types
+  result$cell_id <- as.integer(result$cell_id)
+  result[[output_variable]] <- as.numeric(result[[output_variable]])
+
   # Mark the mean/sd as NA outside the requested period so it is clear which
   # timesteps were pooled to calculate them.
-  period_mean <- mean(period_values, na.rm = TRUE)
+  period_mean <- as.numeric(mean(period_values, na.rm = TRUE))
   period_sd <- if (sum(!is.na(period_values)) > 1) {
-    stats::sd(period_values, na.rm = TRUE)
+    as.numeric(stats::sd(period_values, na.rm = TRUE))
   } else {
     NA_real_
   }
-  result[[paste0(output_variable, "_mean")]] <- NA_real_
+
+  result[[paste0(output_variable, "_mean")]] <- as.numeric(NA_real_)
   result[[paste0(output_variable, "_mean")]][period_rows] <- period_mean
-  result[[paste0(output_variable, "_sd")]] <- NA_real_
+
+  result[[paste0(output_variable, "_sd")]] <- as.numeric(NA_real_)
   result[[paste0(output_variable, "_sd")]][period_rows] <- period_sd
-  result$selected_period <- NA_character_
-  result$selected_period[period_rows] <- paste(
+
+  result$selected_period <- as.character(NA_character_)
+  result$selected_period[period_rows] <- as.character(paste(
     start_month,
     end_month,
     sep = " to "
-  )
-  result$units <- output_units
-  result
+  ))
+  result$units <- as.character(output_units)
+
+  # Ensure it is a standard data frame and drop any attributes
+  result <- as.data.frame(result)
+
+  return(result)
 }

@@ -144,6 +144,8 @@
 #| package_dependencies:
 #|   - data.table
 #|   - yaml
+#|   - toml
+#|   - reticulate
 #|
 #| usage_notes: |
 #|   If no period dates are supplied, the mean/sd are pooled across the entire
@@ -158,10 +160,43 @@
 #|   always match the observed dataset's declared periods without manual syncing.
 #| ---
 
+library(data.table)
+library(yaml)
+library(toml)
+library(reticulate)
+
 source("../../../../../tools/R/R/get_ve_variables.R")
 
 plants_cohort_data_path <- "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
 observed_metadata_file <- "../metadata/master_observed_data_processing_metadata.yml"
+
+compiled_configuration_path <- "../../../../../data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
+compiled_configuration <- toml::read_toml(compiled_configuration_path)
+
+# Define simulation timestep duration (days) and cell area (ha) for use in
+# calculate_ve_realised_tissue_productivity function
+# Both are derived from compiled_configuration.toml
+cell_area_m2 <- compiled_configuration$core$grid$cell_area
+cell_area_ha <- cell_area_m2 / 10000
+
+# Load the update interval from the config
+update_interval <- compiled_configuration$core$timing$update_interval
+
+# Use the repository Python environment for pint.
+# required = TRUE : R must find and use that environment.
+# If it cannot, the script stops with an error instead of silently choosing
+# another Python installation.
+use_virtualenv("../../../../../.venv", required = TRUE)
+
+# Import pint and create a unit registry
+pint <- import("pint")
+ureg <- pint$UnitRegistry()
+
+# Use pint to convert to days and extract the magnitude
+# ureg(update_interval_str) creates a Quantity object
+# .to("days") converts it
+# .magnitude extracts the numeric value
+update_interval_in_days <- ureg(update_interval)$to("days")$magnitude
 
 # Read only the columns needed for the productivity calculations to reduce
 # memory pressure when this large scenario file is loaded into R. Using
@@ -222,7 +257,8 @@ standardised_stem_c_productivity <- calculate_ve_realised_tissue_productivity(
   plants_cohort_data = plants_cohort_data,
   input_variable = "stem_c_biomass",
   output_variable = "stem_c_productivity",
-  cell_area_ha = 1,
+  cell_area_ha = cell_area_ha,
+  update_interval_in_days = update_interval_in_days,
   start_date = stem_period$start_date,
   end_date = stem_period$end_date
 )
@@ -232,7 +268,8 @@ standardised_foliage_c_productivity <-
     plants_cohort_data = plants_cohort_data,
     input_variable = "foliage_c_biomass",
     output_variable = "foliage_c_productivity",
-    cell_area_ha = 1,
+    cell_area_ha = cell_area_ha,
+    update_interval_in_days = update_interval_in_days,
     start_date = foliage_period$start_date,
     end_date = foliage_period$end_date
   )
@@ -241,7 +278,8 @@ standardised_root_c_productivity <- calculate_ve_realised_tissue_productivity(
   plants_cohort_data = plants_cohort_data,
   input_variable = "root_c_biomass",
   output_variable = "root_c_productivity",
-  cell_area_ha = 1,
+  cell_area_ha = cell_area_ha,
+  update_interval_in_days = update_interval_in_days,
   start_date = root_period$start_date,
   end_date = root_period$end_date
 )
