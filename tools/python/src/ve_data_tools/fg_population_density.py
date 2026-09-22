@@ -1,52 +1,38 @@
-#' ---
-#' title: Calculate functional group population density over time
-#'
-#' description: |
-#'     Calculate the total number of individuals in each functional group at
-#'     every simulation time step and estimate population density over time.
-#'
-#'     Density can be calculated using either the total simulation area
-#'     (landscape density) or the combined unique territory area associated
-#'     with each functional group (territory density).
-#'
-#' VE_module: Animal
-#'
-#' author:
-#'   - name: Siti Nor Baizurah
-#'
-#' status: wip
-#'
-#' input_files:
-#'   - name: animal_cohort_data.csv
-#'     path: user-defined
-#'     description: |
-#'         Cohort-level output from a Virtual Ecosystem animal simulation.
-#'         The file must contain time_index, functional_group, and individuals.
-#'         Territory density additionally requires the territory column.
-#'
-#' output_files:
-#'   - name: functional group population density table
-#'     path: user-defined
-#'     description: |
-#'         A CSV file containing total individuals, area used, and population
-#'         density for each functional group at every simulation time step.
-#'
-#' package_dependencies:
-#'   - pandas
-#'   - matplotlib
-#'
-#' usage_notes: |
-#'     The user must provide the grid cell size and the number of grid cells
-#'     in the x and y directions for the simulation being analysed.
-#'
-#'     Population density can use either the total simulation area
-#'     ("landscape") or the combined unique territory area occupied by each
-#'     functional group ("territory"). Overlapping territory cells are counted
-#'     only once within each functional group and time step.
-#'
-#'     Density can be reported as individuals per square metre ("m2"),
-#'     hectare ("ha"), or square kilometre ("km2").
-#' ---
+"""title: Calculate functional group population density over time.
+
+description: |
+  Calculate functional group population density from Virtual Ecosystem
+  animal cohort output.
+
+virtual_ecosystem_module:
+  - Animal
+
+author:
+  - Siti Nor Baizurah
+
+status: wip
+
+input_files:
+  - name: animal_cohort_data.csv
+    path: user-defined
+    description: |
+      Cohort-level animal output containing time_index,
+      functional_group, and individuals.
+
+output_files:
+  - name: Functional group population density table
+    path: user-defined
+    description: |
+      Population density by functional group and timestep.
+
+package_dependencies:
+  - pandas
+  - matplotlib
+
+usage_notes: |
+  Load the cohort dataframe separately and pass it to the calculation
+  and plotting functions.
+"""
 
 import ast
 
@@ -393,43 +379,3 @@ def plot_fg_population_density(
         print(f"Plot saved to {output_path}")
 
     plt.show()
-
-
-def main() -> None:
-    """Run the functional group population density analysis."""
-    # Path to the cohort-level animal output CSV.
-    cohort_file = "tools/python/testing_data/animal_cohort_data_tool_test.csv"
-
-    # Grid settings for the simulation being analysed.
-    cell_size = 100
-    n_cells_x = 10
-    n_cells_y = 10
-
-    # Population density settings.
-    density_unit = "km2"
-    density_scope = "landscape"
-
-    # Output file names. Set to None to skip saving.
-    output_csv = "fg_population_density_output.csv"
-
-    cohort_df = pd.read_csv(cohort_file)
-
-    density_df = calculate_fg_population_density(
-        cohort_df=cohort_df,
-        cell_size=cell_size,
-        n_cells_x=n_cells_x,
-        n_cells_y=n_cells_y,
-        density_unit=density_unit,
-        density_scope=density_scope,
-        territory_column="territory",
-    )
-
-    print(density_df.head())
-
-    if output_csv is not None:
-        density_df.to_csv(output_csv, index=False)
-        print(f"Density table saved to {output_csv}")
-
-
-if __name__ == "__main__":
-    main()
