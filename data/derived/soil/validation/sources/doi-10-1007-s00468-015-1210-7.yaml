@@ -33,7 +33,7 @@ datasets:
     skip_rows: 0
     variables:
       inorganic_N:
-        var_canonical: var_ve_1
+        var_canonical: soil_n_pool_inorganic_per_area
         unit: g/m2
         description:
           Based on soil cores to a depth of 15 cm. Inorganic soil N equals the
