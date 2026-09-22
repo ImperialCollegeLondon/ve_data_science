@@ -29,3 +29,13 @@ source("renv/activate.R")
 Or run `renv::restore()`.
 
 Restart your R session afterwards.
+
+## Notes
+
+- The `pizzarr` package uses r-universe build. I have found that a force rebuild
+  is required to update it:
+
+```r
+renv::install("pizzarr", repos = c("https://zarr-developers.r-universe.dev"), rebuild = TRUE)
+renv::snapshot()
+```
