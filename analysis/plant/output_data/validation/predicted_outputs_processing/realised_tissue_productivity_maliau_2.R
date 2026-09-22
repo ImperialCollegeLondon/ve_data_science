@@ -182,7 +182,9 @@ cell_area_ha <- cell_area_m2 / 10000
 # Load the update interval from the config
 update_interval <- compiled_configuration$core$timing$update_interval
 
-# Use the repository Python environment for pint.
+# Use the repository Python environment for pint. This environment is managed by
+# uv and includes the repository's dev group, so this pulls the installed
+# virtual_ecosystem version rather than another Python environment.
 # required = TRUE : R must find and use that environment.
 # If it cannot, the script stops with an error instead of silently choosing
 # another Python installation.
