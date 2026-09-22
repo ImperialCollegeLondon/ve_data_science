@@ -1,6 +1,6 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-09-21'
+generated_on: '2026-09-22'
 scripts:
 - script_path: realised_tissue_productivity_maliau_2.R
   title: realised_tissue_productivity_maliau_2
@@ -139,6 +139,8 @@ scripts:
   package_dependencies:
   - data.table
   - yaml
+  - toml
+  - reticulate
   usage_notes: |
     If no period dates are supplied, the mean/sd are pooled across the entire
     simulation instead. Dates are matched by month.
