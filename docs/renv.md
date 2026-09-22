@@ -36,6 +36,10 @@ Restart your R session afterwards.
   is required to update it:
 
 ```r
-renv::install("pizzarr", repos = c("https://zarr-developers.r-universe.dev"), rebuild = TRUE)
+renv::install(
+  "pizzarr",
+  repos = c("https://zarr-developers.r-universe.dev"),
+  rebuild = TRUE
+)
 renv::snapshot()
 ```
