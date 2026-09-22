@@ -71,6 +71,16 @@ unit = "kg{P} kg^-1"
 function = "get_soil_p_pool_labile_per_mass"
 
 [[variable]]
+name = "soil_n_pool_inorganic_per_volume"
+description = "Total inorganic soil nitrogen per volume"
+unit = "kg{N} m^-3"
+function = "get_soil_n_pool_inorganic_per_volume"
+
+[[variable]]
+name = "soil_n_pool_inorganic_per_area"
+description = "Total inorganic soil nitrogen per area"
+unit = "kg{N} m^-2"
+function = "get_soil_n_pool_inorganic_per_area"
 name = "stem_c_productivity"
 description = "Interval realised stem carbon productivity for each cell"
 unit = "Mg C ha-1 year-1"
