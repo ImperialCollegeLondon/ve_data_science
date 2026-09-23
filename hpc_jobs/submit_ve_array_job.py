@@ -13,8 +13,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from hpc_jobs.parse_arrayJob_config import arrayJobSpec
-from hpc_jobs.parse_arrayJob_config import load_arrayJob_spec
+from hpc_jobs.parse_arrayJob_config import arrayJobSpec, load_arrayJob_spec
 from hpc_jobs.parse_resources_config import load_resources_spec
 
 
@@ -46,15 +45,17 @@ def parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
     )
     return parser.parse_args(arguments)
 
-def validate_configs_with_VEco(arrayJob_spec: arrayJobSpec, site_directory: Path) -> None:
+
+def validate_configs_with_VEco(arrayJob_spec: arrayJobSpec, site_dir: Path) -> None:
     """Use Virtual Ecosystem with validate_only=True to check all configurations.
 
     Args:
         arrayJob_spec: The loaded and validated array job specification.
-        site_directory: Resolved path to the site directory configs are relative to.
+        site_dir: Resolved path to the site directory configs are relative to.
 
     Raises:
         ValueError: If any subJob's Virtual Ecosystem configuration is invalid.
+
     """
     print("Loading Virtual Ecosystem...", flush=True)
 
@@ -64,7 +65,7 @@ def validate_configs_with_VEco(arrayJob_spec: arrayJobSpec, site_directory: Path
 
     for subJob_index, subJob in enumerate(arrayJob_spec.subJobs, start=1):
         subJob_config_paths = [
-            site_directory / path
+            site_dir / path
             for path in (*arrayJob_spec.common_config_paths, *subJob.config_paths)
         ]
         try:
@@ -76,8 +77,7 @@ def validate_configs_with_VEco(arrayJob_spec: arrayJobSpec, site_directory: Path
             )
         except ConfigurationError as error:
             raise ValueError(
-                f"Invalid Virtual Ecosystem config for subJob: {subJob_index} \n"
-                f"{error}"
+                f"Invalid Virtual Ecosystem config for subJob: {subJob_index} \n{error}"
             ) from error
         finally:
             LOGGER.disabled = False
@@ -114,11 +114,11 @@ def main() -> None:
         sys.exit(f"Invalid configuration:\n{error}")
 
     # Validate that all config paths exist relative to the site directory.
-    site_directory = arrayJob_spec.site_directory.resolve()
+    site_dir = arrayJob_spec.site_dir.resolve()
 
     # Optional to allow for running of arrays where not all configurations are valid.
     if not args.skip_ve_validation:
-        validate_configs_with_VEco(arrayJob_spec, site_directory)
+        validate_configs_with_VEco(arrayJob_spec, site_dir)
     else:
         print("Skipping Virtual Ecosystem configuration validation.")
 
@@ -143,20 +143,19 @@ def main() -> None:
     output_directory = args.output_directory.resolve()
     root_directory = Path(__file__).resolve().parent.parent
 
-   
     # Load the arrayJob_PBS_template.sh, and populate the variables.
-    template_path = Path(__file__).parent / "arrayJob_PBS_template.sh"  
-    template = template_path.read_text()  
-    pbs_script = template.format(  
-    n_subJobs=arrayJob_spec.n_subJobs,  
-    max_concurrent_jobs=resources_spec.max_concurrent_jobs,  
-    select=resources_spec.select,  
-    walltime=resources_spec.walltime,  
-    output_directory=output_directory,  
-    arrayJob_config=arrayJob_config,  
-    root_directory=root_directory,  
-    python_executable=sys.executable,  
-)  
+    template_path = Path(__file__).parent / "arrayJob_PBS_template.sh"
+    template = template_path.read_text()
+    pbs_script = template.format(
+        n_subJobs=arrayJob_spec.n_subJobs,
+        max_concurrent_jobs=resources_spec.max_concurrent_jobs,
+        select=resources_spec.select,
+        walltime=resources_spec.walltime,
+        output_directory=output_directory,
+        arrayJob_config=arrayJob_config,
+        root_directory=root_directory,
+        python_executable=sys.executable,
+    )
 
     # submit the array job
     process = subprocess.run(

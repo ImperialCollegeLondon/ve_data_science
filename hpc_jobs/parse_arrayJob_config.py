@@ -47,12 +47,13 @@ class arrayJobSpec:
 
     def get_subJob(self, array_index: int) -> SubJob:
         """Get the correct job for a PBS array index.
-        
+
         Args:
             array_index: The one-based PBS array index.
 
         Returns:
             The SubJob assigned to the PBS array index.
+
         """
 
         # Get the PBS array index from the map and return the corresponding subJob.

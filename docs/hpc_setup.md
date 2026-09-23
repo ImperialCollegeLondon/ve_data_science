@@ -202,7 +202,7 @@ Each array sub-job now produces a small, fixed set of output files (`pbs.log`,
 `ve.log`, `compiled_configuration.toml`, `model_data.nc`, and any per-model CSV
 outputs) because the Zarr store, which previously generated approximately 3,600 files
 per sub-job, is written to the compute node `$TMPDIR` space and deleted once the
-NetCDF conversion completes. It is never copied to shared storage. This reduces 
+NetCDF conversion completes. It is never copied to shared storage. This reduces
 the file-count pressure on HPC storage quotas for large array runs.
 
 Check your current usage with:
