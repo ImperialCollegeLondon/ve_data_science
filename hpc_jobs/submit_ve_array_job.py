@@ -143,41 +143,24 @@ def main() -> None:
     output_directory = args.output_directory.resolve()
     root_directory = Path(__file__).resolve().parent.parent
 
-    # Define the PBS script for the array job
-    pbs_script = f"""\
-#!/bin/bash
-set -euo pipefail
-
-JOB_OUTPUT_DIR="$RUN_OUTPUT_DIR/array_subJob_$PBS_ARRAY_INDEX"
-
-cd "$ROOT_DIRECTORY"
-
-{sys.executable} -m hpc_jobs.run_subJob \
-    "$ARRAY_JOB_CONFIG" "$PBS_ARRAY_INDEX" "$JOB_OUTPUT_DIR"
-"""
-
-    # define the qsub command with resource specifications and environment variables
-    qsub_command = [
-        "qsub",
-        "-J",
-        f"1-{arrayJob_spec.n_subJobs}%{resources_spec.max_concurrent_jobs}",
-        f"-lselect={resources_spec.select}",
-        f"-lwalltime={resources_spec.walltime}",
-        "-j",
-        "oe",
-        "-o",
-        str(output_directory / "array_subJob_^array_index^" / "pbs.log"),
-        "-v",
-        (
-            f"ARRAY_JOB_CONFIG={arrayJob_config},"
-            f"RUN_OUTPUT_DIR={output_directory},"
-            f"ROOT_DIRECTORY={root_directory}"
-        ),
-    ]
+   
+    # Load the arrayJob_PBS_template.sh, and populate the variables.
+    template_path = Path(__file__).parent / "arrayJob_PBS_template.sh"  
+    template = template_path.read_text()  
+    pbs_script = template.format(  
+    n_subJobs=arrayJob_spec.n_subJobs,  
+    max_concurrent_jobs=resources_spec.max_concurrent_jobs,  
+    select=resources_spec.select,  
+    walltime=resources_spec.walltime,  
+    output_directory=output_directory,  
+    arrayJob_config=arrayJob_config,  
+    root_directory=root_directory,  
+    python_executable=sys.executable,  
+)  
 
     # submit the array job
     process = subprocess.run(
-        qsub_command,
+        ["qsub"],
         input=pbs_script,
         capture_output=True,
         text=True,
