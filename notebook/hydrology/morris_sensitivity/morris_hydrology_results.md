@@ -29,27 +29,8 @@ jupyter:
 This notebook reports the results of one Morris screening run of the Virtual
 Ecosystem (VE) hydrology module. It reads only the files written by
 `analysis/abiotic/sensitivity/morris_analyse_hydrology.py`; it does not rerun the
-model or recompute any index.
-
-## How to use this notebook for a new run
-
-1. Sample and run the ensemble with `morris_sample.py`, then run the analysis for
-   the new `run_name` in the same uv environment as the model runs, for example:
-
-   ```text
-   uv run --group dev-pinned python \
-       analysis/abiotic/sensitivity/morris_analyse_hydrology.py \
-       --run-name <run_name> --workers 8
-   ```
-
-2. Edit **only the Run settings cell below**: the run name, the data folder,
-   the VE version the runs used (`dev-pinned` or `dev`) and the site.
-3. Save the notebook and run all cells.
-
-Everything else is read from the run's own outputs: the design, the base
-configuration, the grid, the soil layers, the responses, the sinks and all the
-numbers in the interpretation text. The other code cells are collapsed here and
-left out of the rendered copy, so nothing below the settings cell needs editing.
+model or recompute any index. The run, its design and its environment are listed in
+*Report metadata and environment* below.
 
 The notebook answers, in order:
 
@@ -71,7 +52,31 @@ example "strongly skewed" when the 95th percentile is more than five times the
 median). The rules flag what to look at; the wording should still be checked by
 hand before the results are reported.
 
-```python tags=["parameters"]
+<!-- #region tags=["remove-cell"] -->
+## How to use this notebook for a new run
+
+1. Sample and run the ensemble with `morris_sample.py`, then run the analysis for
+   the new `run_name` in the same uv environment as the model runs, for example:
+
+   ```text
+   uv run --group dev-pinned python \
+       analysis/abiotic/sensitivity/morris_analyse_hydrology.py \
+       --run-name <run_name> --workers 8
+   ```
+
+2. Edit **only the Run settings cell below**: the run name, the data folder,
+   the base configuration and site input data, the analyst, the uv group and VE
+   version and commit the runs used, and the site.
+3. Save the notebook and run all cells.
+
+Everything else is read from the run's own outputs: the design, the base
+configuration, the grid, the soil layers, the responses, the sinks and all the
+numbers in the interpretation text. The other code cells are collapsed here. The
+rendered copy starts with the report itself: this section, the settings and the
+setup are run but left out of it, so nothing below the settings cell needs editing.
+<!-- #endregion -->
+
+```python tags=["parameters", "remove-cell"]
 # =============================================================================
 # RUN SETTINGS: the only cell to edit for a new run
 # =============================================================================
@@ -80,20 +85,30 @@ hand before the results are reported.
 # by morris_analyse_hydrology.py. The rendered copy goes to ./<run_name>/.
 run_name = "hydrology_morris_001"
 
-# Module data folder (holds config/, out/ and analysis/): relative to the
+# Module data folder (holds config/, data/ and analysis/): relative to the
 # repository root, or an absolute path when the results live outside this
 # repository, e.g. r"C:\path\to\ve_data_science\data\sensitivity\hydrology".
 data_directory = "data/sensitivity/hydrology"
 
-# VE environment the ensemble and the analysis were run with. uv_group is the
-# dependency group in pyproject.toml: "dev-pinned" (VE pinned to a commit) or
-# "dev" (latest VE from GitHub). Record the VE version and commit the runs used;
-# the notebook compares them with the current pyproject.toml pin.
-ve_environment = {
-    "uv_group": "dev-pinned",
-    "ve_version": "0.2.1",
-    "ve_commit": "22689f01a2460953865244f2d79f162a32ff2003",
-}
+# Base configuration to report against, relative to data_directory. This is the
+# current static_hydro_configuration.toml (grid origin xoff = 496400,
+# yoff = 524100, matching maliau_2). Its [[core.data.variable]] file paths are
+# resolved relative to the configuration folder.
+base_config_file = "config/static_hydro_configuration.toml"
+
+# Site input data (elevation, climate, soil), relative to data_directory. Used
+# when a file named in the base configuration is not found at its own path.
+site_data_directory = "data"
+
+# Report author, shown in the report metadata.
+analyst = "Lelavathy"
+
+# VE the ensemble and the analysis were run with, recorded by hand: the uv
+# dependency group, and the VE version and commit that group pinned for the runs
+# (the dev-pinned commit). Update them when the runs use another environment.
+uv_group = "dev-pinned"
+run_ve_version = "0.2.1"
+run_ve_commit = "22689f01a2460953865244f2d79f162a32ff2003"
 
 # Site the base configuration should represent (from the site definition file).
 # Used to check that the model grid sits where the site is.
@@ -124,11 +139,12 @@ vertical_flow_min = 1e-3  # mm; below this soil vertical flow is "near zero"
 render_output = True  # False: run the notebook without writing ./<run_name>/
 ```
 
-```python tags=["remove-input"] jupyter={"source_hidden": true}
+```python tags=["remove-cell"] jupyter={"source_hidden": true}
 # Setup: paths, tables and display helpers. No edits needed.
 import calendar
 import json
 import re
+import sys
 import tomllib
 from importlib import metadata
 from io import BytesIO
@@ -136,6 +152,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from IPython.display import Image, Markdown, display
 from PIL import Image as PILImage
 
@@ -209,12 +226,12 @@ design_text = design.get("design settings (read from the job file)", "")
 match = re.search(r"trajectories\s*=\s*(\d+)", design_text)
 n_trajectories = int(match.group(1)) if match else None
 
-# Base configuration recorded for this run: grid, soil layers and static modules
-base_config_path = repo_root / design.get(
-    "base configuration", f"{data_directory}/config/static_hydro_configuration.toml"
-)
-if not base_config_path.exists():  # results copied from another checkout
-    base_config_path = module_root / "config" / base_config_path.name
+# Base configuration: the current file at <data_directory>/<base_config_file>.
+# The design record names the file the runs started from. If that file has been
+# edited since the runs (for example the grid origin), Sections 2.5 and 8.7 show
+# it by comparing the configuration grid with the grid in the run's output.
+recorded_base_config = design.get("base configuration", "not recorded")
+base_config_path = module_root / base_config_file
 base_config = {}
 if base_config_path.exists():
     with base_config_path.open("rb") as file:
@@ -228,6 +245,37 @@ soil_depths = [
 ]
 topsoil_mm = soil_depths[0] * 1000
 subsoil_mm = (soil_depths[-1] - soil_depths[0]) * 1000
+
+# Cell centres of the current base configuration grid
+config_nx, config_ny = int(grid.get("cell_nx", 0)), int(grid.get("cell_ny", 0))
+config_xoff = float(grid.get("xoff", np.nan))
+config_yoff = float(grid.get("yoff", np.nan))
+config_x = config_xoff + resolution * (np.arange(config_nx) + 0.5)
+config_y = config_yoff + resolution * (np.arange(config_ny) + 0.5)
+
+# Site input files named in the base configuration ([[core.data.variable]])
+site_data_root = module_root / site_data_directory
+
+
+def input_file(file_path: str) -> Path:
+    """Resolve a configuration data path: as written, else in site_data_root."""
+    path = Path(file_path)
+    if not path.is_absolute():
+        path = (base_config_path.parent / path).resolve()
+    if not path.exists():
+        path = site_data_root / Path(file_path).name
+    return path
+
+
+input_files: dict[Path, list[str]] = {}
+for variable in core.get("data", {}).get("variable", []):
+    input_files.setdefault(input_file(variable["file_path"]), []).append(
+        variable["var_name"]
+    )
+elevation_file = next(
+    (path for path, variables in input_files.items() if "elevation" in variables),
+    site_data_root / "elevation_maliau_10x10.nc",
+)
 
 
 # ---- display helpers -------------------------------------------------------
@@ -352,57 +400,29 @@ print(
 )
 ```
 
-## Environment and data provenance
 
-The uv environment, the site and the base configuration the runs used. The
-environment is taken from the settings cell and checked against
-`pyproject.toml`; the rest is read from the run's design record and its base
-configuration.
+<!-- #region  -->
+## Report metadata and environment
+
+The report, the Morris run and its uv environment in one place. The run facts come
+from the run's design record and analysis files. The VE version and commit of the
+runs are recorded in the notebook's run settings and compared with the packages
+installed in the kernel that rendered this report.
+The site is set in the notebook's run settings; the grid, soil layers and modules
+come from the current base configuration, whose input files are checked against
+its grid.
+<!-- #endregion -->
+
 
 ```python tags=["remove-input"] jupyter={"source_hidden": true}
-group = ve_environment["uv_group"]
-pinned_commit = ""
-pyproject_path = repo_root / "pyproject.toml"
-if pyproject_path.exists():
-    with pyproject_path.open("rb") as file:
-        dependency_groups = tomllib.load(file).get("dependency-groups", {})
-    for requirement in dependency_groups.get(group, []):
-        if "virtual-ecosystem" in requirement or "virtual_ecosystem" in requirement:
-            found = re.search(r"\.git@([0-9a-fA-F]+)", requirement)
-            pinned_commit = found.group(1) if found else "latest (no commit pin)"
-
-try:
-    installed = metadata.distribution("virtual_ecosystem")
-    installed_version = installed.version
-    direct_url = json.loads(installed.read_text("direct_url.json") or "{}")
-    installed_commit = direct_url.get("vcs_info", {}).get("commit_id", "")
-except metadata.PackageNotFoundError:
-    installed_version, installed_commit = "not installed in this kernel", ""
-
-recorded_commit = ve_environment["ve_commit"]
-show_table(
-    pd.DataFrame(
-        {
-            "item": [
-                "uv dependency group",
-                "install",
-                "Virtual Ecosystem used by the runs",
-                f"`{group}` pin in pyproject.toml now",
-                "Virtual Ecosystem in this kernel",
-                "SALib (sampling)",
-            ],
-            "value": [
-                f"`{group}`",
-                f"`uv sync --group {group}`",
-                f"`{ve_environment['ve_version']}`, commit `{recorded_commit}`",
-                f"`{pinned_commit or 'not found'}`",
-                f"`{installed_version}`"
-                + (f", commit `{installed_commit[:12]}`" if installed_commit else ""),
-                f"`{design.get('SALib version used for sampling', 'not recorded')}`",
-            ],
-        }
-    )
-)
+def installed(package: str) -> tuple[str, str]:
+    """Version of an installed package, and its git commit when recorded."""
+    try:
+        distribution = metadata.distribution(package)
+    except metadata.PackageNotFoundError:
+        return "not installed in this kernel", ""
+    direct_url = json.loads(distribution.read_text("direct_url.json") or "{}")
+    return distribution.version, direct_url.get("vcs_info", {}).get("commit_id", "")
 
 
 def same_commit(a: str, b: str) -> bool:
@@ -411,18 +431,125 @@ def same_commit(a: str, b: str) -> bool:
     return n >= 7 and a[:n].lower() == b[:n].lower()
 
 
-if (
-    group == "dev-pinned"
-    and pinned_commit
-    and not same_commit(recorded_commit, pinned_commit)
-):
-    say(
-        f"**Note:** the runs used VE commit `{recorded_commit[:12]}`, but "
-        f"`pyproject.toml` now pins `{pinned_commit}` for `{group}`. A rerun with "
-        "the current environment would use a different VE version; record the "
-        "commit of each run in the settings cell."
+# ---- report and run ----------------------------------------------------------
+job_file = repo_root / design.get("job file (the design)", "")
+if not job_file.is_file():
+    job_file = module_root / "config" / Path(job_file).name
+created = "not recorded"
+if job_file.is_file():
+    with job_file.open(encoding="utf-8") as file:
+        for line in file:
+            if line.startswith("# created:"):
+                created = line.split(":", 1)[1].strip()
+                break
+            if not line.startswith("#"):
+                break
+modules = {
+    name: section["static"]
+    for name, section in base_config.items()
+    if isinstance(section, dict) and "static" in section
+}
+display(Markdown("**Report and run**"))
+show_table(
+    pd.DataFrame(
+        {
+            "item": [
+                "analyst",
+                "date of report",
+                "Morris run",
+                "design created",
+                "analysis results",
+                "design (job file)",
+                "parameter file",
+                "base configuration of the runs (design record)",
+                "base configuration read by this report",
+                "design",
+                "responses",
+                "analysis period",
+                "dynamic modules",
+                "static modules",
+                "grid and soil layers",
+                "notebook",
+            ],
+            "value": [
+                analyst,
+                pd.Timestamp.today().strftime("%Y-%m-%d"),
+                f"`{run_name}`",
+                f"{created} (from the job file)",
+                f"`{shown(analysis_root)}`",
+                f"`{design.get('job file (the design)', 'not recorded')}`",
+                f"`{design.get('parameter file', 'not recorded')}`",
+                f"`{recorded_base_config}`",
+                f"`{shown(base_config_path)}`"
+                + ("" if base_config else " (**not found**)"),
+                f"{n_runs} runs, {len(parameter_ranges)} parameters, "
+                f"{design_text or 'settings not recorded'}, "
+                f"seed {design.get('seed', '?')}",
+                f"{len(primary_responses)} primary (`{primary_variable}`), "
+                f"{len(secondary_responses)} secondary",
+                f"{period}, after a {response_spec['spinup_months']}-month spin-up",
+                ", ".join(f"`{m}`" for m, st in modules.items() if st is False)
+                or "none",
+                ", ".join(f"`{m}`" for m, st in modules.items() if st is True)
+                or "none",
+                f"{grid.get('cell_nx', '?')} x {grid.get('cell_ny', '?')} cells of "
+                f"{resolution:.0f} m; soil layers {topsoil_mm:.0f} mm (topsoil) and "
+                f"{subsoil_mm:.0f} mm (subsoil)",
+                "`notebook/hydrology/morris_sensitivity/morris_hydrology_results.md`",
+            ],
+        }
     )
+)
+say(
+    "Only modules with `static = false` are updated through time; static modules "
+    "keep a fixed state, so the sensitivity reflects the dynamic module(s) alone."
+)
 
+# ---- environment -------------------------------------------------------------
+kernel_version, kernel_commit = installed("virtual_ecosystem")
+salib_version, _ = installed("SALib")
+
+display(Markdown("**Environment**"))
+show_table(
+    pd.DataFrame(
+        {
+            "item": [
+                "uv dependency group",
+                "install",
+                f"Virtual Ecosystem used by the runs (`{uv_group}`)",
+                "Virtual Ecosystem in this kernel",
+                "SALib used for sampling / in this kernel",
+                "Python in this kernel",
+            ],
+            "value": [
+                f"`{uv_group}`",
+                f"`uv sync --group {uv_group}`",
+                f"`{run_ve_version}`"
+                + (f", commit `{run_ve_commit}`" if run_ve_commit else ""),
+                f"`{kernel_version}`"
+                + (f", commit `{kernel_commit[:12]}`" if kernel_commit else ""),
+                f"`{design.get('SALib version used for sampling', 'not recorded')}` / "
+                f"`{salib_version}`",
+                f"`{sys.version.split()[0]}`",
+            ],
+        }
+    )
+)
+
+notes = []
+if not run_ve_commit:
+    notes.append(
+        "**Note:** no VE commit is recorded for the runs; set `run_ve_commit` in the "
+        "run settings."
+    )
+if kernel_commit and run_ve_commit and not same_commit(kernel_commit, run_ve_commit):
+    notes.append(
+        f"**Note:** this kernel has VE commit `{kernel_commit[:12]}`, not the "
+        f"`{run_ve_commit[:12]}` of the runs."
+    )
+say(*notes)
+
+# ---- site, grid and input data -----------------------------------------------
 say(
     f"**Data used: `{site['name']}` site**",
     "```toml\n"
@@ -434,28 +561,58 @@ say(
 )
 
 if base_config:
-    timing = core.get("timing", {})
     say(
-        f"**Base configuration:** `{shown(base_config_path)}`. "
-        f"Grid {grid.get('cell_nx', '?')} x {grid.get('cell_ny', '?')} cells of "
-        f"{resolution:.0f} m; simulation from {timing.get('start_date', '?')} for "
-        f"{timing.get('run_length', '?')}, step {timing.get('update_interval', '?')}; "
-        f"soil layers {topsoil_mm:.0f} mm (topsoil) and {subsoil_mm:.0f} mm "
-        f"(subsoil); {response_spec['spinup_months']}-month spin-up removed before "
-        "any statistic.",
-        "Only modules with `static = false` are updated through time; static "
-        "modules keep a fixed state, so the sensitivity reflects the dynamic "
-        "module(s) alone.",
-    )
-    show_table(
-        pd.DataFrame(
-            [
-                {"module": f"`{name}`", "static": str(section["static"]).lower()}
-                for name, section in base_config.items()
-                if isinstance(section, dict) and "static" in section
-            ]
+        f"**Grid:** {grid.get('cell_nx', '?')} x {grid.get('cell_ny', '?')} cells of "
+        f"{resolution:.0f} m, origin `xoff = {grid.get('xoff', '?')}`, "
+        f"`yoff = {grid.get('yoff', '?')}` "
+        + (
+            f"(matches the `{site['name']}` lower-left corner)."
+            if (grid.get("xoff"), grid.get("yoff")) == (site["ll_x"], site["ll_y"])
+            else f"(**does not match** `ll_x = {site['ll_x']}`, "
+            f"`ll_y = {site['ll_y']}`; see Section 2.5)."
         )
     )
+
+    def grid_extent(path: Path) -> tuple[str, str, str]:
+        """x and y centre ranges of a gridded input file, and whether they match."""
+        if not path.exists() or path.suffix != ".nc":
+            return "-", "-", "not checked"
+        with xr.open_dataset(path) as data:
+            if "x" not in data.coords or "y" not in data.coords:
+                return "-", "-", "no x/y coordinates"
+            x, y = np.sort(data["x"].values), np.sort(data["y"].values)
+        match = (
+            len(x) == config_nx
+            and len(y) == config_ny
+            and np.allclose(x, config_x)
+            and np.allclose(y, config_y)
+        )
+        return (
+            f"{x.min():.1f}-{x.max():.1f}",
+            f"{y.min():.1f}-{y.max():.1f}",
+            "yes" if match else "**no**",
+        )
+
+    say(
+        f"**Site input data** (from `{shown(site_data_root)}` when a configured path "
+        "is not found). A gridded file matches when its cell centres equal the "
+        f"configuration grid: x {config_x.min():.1f}-{config_x.max():.1f}, "
+        f"y {config_y.min():.1f}-{config_y.max():.1f}."
+    )
+    input_rows = []
+    for path, variables in input_files.items():
+        x_range, y_range, match = grid_extent(path)
+        input_rows.append(
+            {
+                "file": f"`{path.name}`",
+                "found": "yes" if path.exists() else "**no**",
+                "variables": len(variables),
+                "x centres": x_range,
+                "y centres": y_range,
+                "matches configuration grid": match,
+            }
+        )
+    show_table(pd.DataFrame(input_rows))
 else:
     say(f"*(base configuration not found: `{base_config_path}`)*")
 ```
@@ -536,6 +693,8 @@ show_table(
 )
 ```
 
+
+<!-- #region  -->
 ### Why discharge is primary and the rest secondary
 
 - **`river_discharge_rate` is the primary response.** It is the single
@@ -569,6 +728,8 @@ Three checks on the cached monthly series and long-term maps:
    long-term mean discharge, compared with its catchment size.
 3. **Which pathway carries the discharge?** The subsurface share of routed
    outlet runoff across runs, and its rank correlation with `discharge_mean`.
+<!-- #endregion -->
+
 
 ```python tags=["remove-input"] jupyter={"source_hidden": true}
 def field_series(name: str) -> np.ndarray:
@@ -747,7 +908,7 @@ if set(check_counts.index) == {"not checked (no record)"}:
 Indices describe the model as it behaves. If the model does not conserve water, the
 indices describe that behaviour rather than catchment hydrology. The table
 summarises the health diagnostics over all runs; the thresholds are set in the
-settings cell (`health_tolerance`, `vertical_flow_min`).
+notebook's run settings (`health_tolerance`, `vertical_flow_min`).
 
 ```python tags=["remove-input"] jupyter={"source_hidden": true}
 closure_failed = health["closure_percent_of_P"].abs() > health_tolerance
@@ -1155,9 +1316,11 @@ say(
 
 ### 2.5 Drainage network and grid location
 
-The sinks recovered from the model output by the analysis script, and the cell
-centres written by this run compared with the site definition in the settings
-cell (`ll` + half a cell to `ur` - half a cell).
+The sinks recovered from the model output by the analysis script. The cell centres
+written by this run are compared with the current base configuration, the elevation
+input it names and the site definition in the notebook's run settings (`ll` + half a
+cell to `ur` - half a cell). When the elevation input matches the current grid, the
+sinks VE would find on it are listed too.
 
 ```python tags=["remove-input"] jupyter={"source_hidden": true}
 sinks = drainage[drainage["is_sink"]].sort_values(
@@ -1176,40 +1339,170 @@ show_table(
 half = resolution / 2
 site_x = (site["ll_x"] + half, site["ur_x"] - half)
 site_y = (site["ll_y"] + half, site["ur_y"] - half)
+run_x = (drainage["x"].min(), drainage["x"].max())
+run_y = (drainage["y"].min(), drainage["y"].max())
+with xr.open_dataset(elevation_file) as elevation_data:
+    elevation_grid = elevation_data["elevation"].load()
 show_table(
     pd.DataFrame(
         {
-            "grid": ["this run (model output)", f"{site['name']} site definition"],
+            "grid": [
+                "this run (model output)",
+                "current base configuration",
+                f"elevation input (`{elevation_file.name}`)",
+                f"{site['name']} site definition",
+            ],
             "x centres": [
-                f"{drainage['x'].min():.1f}-{drainage['x'].max():.1f}",
+                f"{run_x[0]:.1f}-{run_x[1]:.1f}",
+                f"{config_x.min():.1f}-{config_x.max():.1f}",
+                f"{float(elevation_grid['x'].min()):.1f}-"
+                f"{float(elevation_grid['x'].max()):.1f}",
                 f"{site_x[0]:.1f}-{site_x[1]:.1f}",
             ],
             "y centres": [
-                f"{drainage['y'].min():.1f}-{drainage['y'].max():.1f}",
+                f"{run_y[0]:.1f}-{run_y[1]:.1f}",
+                f"{config_y.min():.1f}-{config_y.max():.1f}",
+                f"{float(elevation_grid['y'].min()):.1f}-"
+                f"{float(elevation_grid['y'].max()):.1f}",
                 f"{site_y[0]:.1f}-{site_y[1]:.1f}",
             ],
         }
     )
 )
 
+
+def offset(x0: float, y0: float) -> tuple[float, float]:
+    """Offset of a grid's first cell centre from the site's first cell centre."""
+    return x0 - site_x[0], y0 - site_y[0]
+
+
+def direction(dx: float, dy: float) -> str:
+    """'841 m west and 199 m north'."""
+    return (
+        f"{abs(dx):.0f} m {'east' if dx > 0 else 'west'} and "
+        f"{abs(dy):.0f} m {'north' if dy > 0 else 'south'}"
+    )
+
+
+shift_x, shift_y = offset(run_x[0], run_y[0])
+config_shift_x, config_shift_y = offset(config_x.min(), config_y.min())
+run_mismatch = max(abs(shift_x), abs(shift_y)) > half
+config_mismatch = max(abs(config_shift_x), abs(config_shift_y)) > half
+elevation_matches = (
+    elevation_grid.sizes.get("x") == config_nx
+    and elevation_grid.sizes.get("y") == config_ny
+    and np.allclose(np.sort(elevation_grid["x"].values), config_x)
+    and np.allclose(np.sort(elevation_grid["y"].values), config_y)
+)
+# The run predates the current configuration when its grid differs from it
+run_predates_config = run_mismatch and not config_mismatch
+grid_mismatch = run_mismatch or config_mismatch
+
+
+def ve_sinks(elevation: np.ndarray) -> dict[int, int]:
+    """Sinks of VE's drainage rule on a north-up (y, x) elevation array.
+
+    Follows hydrology.above_ground.calculate_drainage_map: each cell drains to
+    the neighbour within one cell width (itself included) with the largest
+    elevation drop; a cell that drains to itself is a sink. Returns each sink's
+    cell_id and the number of cells in its catchment (the sink included).
+    """
+    n_rows, n_cols = elevation.shape
+    flat = elevation.ravel()
+    downstream = []
+    for cell in range(flat.size):
+        row, col = divmod(cell, n_cols)
+        near = [cell] + [
+            r * n_cols + c
+            for r, c in ((row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1))
+            if 0 <= r < n_rows and 0 <= c < n_cols
+        ]
+        near = np.array(sorted(near))
+        downstream.append(int(near[np.argmax(flat[cell] - flat[near])]))
+
+    def outlet(cell: int) -> int:
+        while downstream[cell] != cell:
+            cell = downstream[cell]
+        return cell
+
+    catchments = pd.Series([outlet(cell) for cell in range(flat.size)])
+    return catchments.value_counts().to_dict()
+
+
+# VE cell_id order: rows from north to south, x increasing within a row
+elevation_north_up = (
+    elevation_grid.transpose("y", "x").sortby("y", ascending=False).values
+)
+expected_sinks = ve_sinks(elevation_north_up)
+if elevation_matches:
+    display(
+        Markdown(
+            f"**Sinks expected under the current base configuration** (VE's "
+            f"drainage rule applied to `{elevation_file.name}`)"
+        )
+    )
+    show_table(
+        pd.DataFrame(
+            {
+                "x": [f"{config_x[cell % config_nx]:.1f}" for cell in expected_sinks],
+                "y": [
+                    f"{config_y[::-1][cell // config_nx]:.1f}"
+                    for cell in expected_sinks
+                ],
+                "elevation (m)": [
+                    f"{elevation_north_up.ravel()[cell]:.1f}" for cell in expected_sinks
+                ],
+                "cells draining through": list(expected_sinks.values()),
+            }
+        )
+    )
+
 # ---- generated interpretation ----
-shift_x = drainage["x"].min() - site_x[0]
-shift_y = drainage["y"].min() - site_y[0]
-grid_mismatch = max(abs(shift_x), abs(shift_y)) > half
+if not run_mismatch:
+    grid_text = f"The model grid matches the `{site['name']}` site definition."
+elif run_predates_config:
+    grid_text = (
+        f"The cell centres written by this run are about {direction(shift_x, shift_y)} "
+        f"of the `{site['name']}` grid. The current base configuration "
+        f"(`xoff = {grid.get('xoff')}`, `yoff = {grid.get('yoff')}`) matches the "
+        f"site, so this run was made before the configuration was corrected, with "
+        f"a grid origin of about `xoff = {run_x[0] - half:.1f}`, "
+        f"`yoff = {run_y[0] - half:.1f}`. VE maps input data onto the grid by their "
+        "x/y coordinates, so the run read an elevation field for the shifted grid: "
+        "its maps, sinks and catchments describe a different landscape from "
+        f"`{site['name']}`. "
+        + (
+            f"Under the current configuration, `{elevation_file.name}` gives "
+            f"{plural(len(expected_sinks), 'sink')} draining "
+            f"{', '.join(map(str, expected_sinks.values()))} cells (table above), "
+            f"instead of the {len(sinks)} found in this run. "
+            if elevation_matches
+            else ""
+        )
+        + "The Morris indices are computed from outlet sums and domain means, and "
+        "local runoff is nearly uniform in space, so the rankings should carry "
+        "over; the sink shares and maps will not. Rerun the ensemble with the "
+        "current configuration to report the corrected grid."
+    )
+else:
+    grid_text = (
+        f"The cell centres written by this run are about {direction(shift_x, shift_y)} "
+        f"of the `{site['name']}` grid: they follow `xoff = {grid.get('xoff', '?')}`, "
+        f"`yoff = {grid.get('yoff', '?')}` in the base configuration rather than "
+        f"`ll_x = {site['ll_x']}`, `ll_y = {site['ll_y']}`. The Morris indices are "
+        "computed per cell and are not affected, but maps and sink positions are "
+        "labelled on the shifted grid."
+    )
 say(
     f"**Interpretation.** {plural(len(sinks), 'sink')} drain "
     f"{', '.join(map(str, sinks['n_cells_draining_through'].astype(int)))} of the "
-    f"{n_cells} cells, and all water leaves the site through them. "
+    f"{n_cells} cells in this run, and all water leaves the site through them. "
+    + grid_text
     + (
-        f"The cell centres written by this run are about {abs(shift_x):.0f} m "
-        f"{'east' if shift_x > 0 else 'west'} and {abs(shift_y):.0f} m "
-        f"{'north' if shift_y > 0 else 'south'} of the `{site['name']}` grid: they "
-        f"follow `xoff = {grid.get('xoff', '?')}`, `yoff = {grid.get('yoff', '?')}` "
-        f"in the base configuration rather than `ll_x = {site['ll_x']}`, "
-        f"`ll_y = {site['ll_y']}`. The Morris indices are computed per cell and are "
-        "not affected, but maps and sink positions are labelled on the shifted grid."
-        if grid_mismatch
-        else f"The model grid matches the `{site['name']}` site definition."
+        ""
+        if elevation_matches
+        else f" The elevation input `{elevation_file.name}` does not match the "
+        "current configuration grid, so VE would not load it."
     )
 )
 ```
@@ -1942,12 +2235,34 @@ else:
 
 # ---- 8.7 grid -------------------------------------------------------------------
 flags["grid"] = grid_mismatch
+flags["rerun_grid"] = run_predates_config
 say(f"### 8.7 Does the configuration grid match the {site['name']} site?")
-if flags["grid"]:
+if run_predates_config:
     say(
-        f"**Evidence.** The model output's cell centres are about {abs(shift_x):.0f} m "
-        f"{'east' if shift_x > 0 else 'west'} and {abs(shift_y):.0f} m "
-        f"{'north' if shift_y > 0 else 'south'} of the `{site['name']}` grid "
+        f"**Evidence.** The model output's cell centres are about "
+        f"{direction(shift_x, shift_y)} of the `{site['name']}` grid (Section 2.5). "
+        f"The current `{base_config_path.name}` now has `xoff = {grid.get('xoff')}`, "
+        f"`yoff = {grid.get('yoff')}`, which matches the site, and "
+        + (
+            f"`{elevation_file.name}` matches its grid."
+            if elevation_matches
+            else f"`{elevation_file.name}` does **not** match its grid."
+        ),
+        "**What it suggests.** The configuration has been corrected since this run. "
+        "Rerun the Morris ensemble from the current base configuration (a new "
+        "`run_name`) so that maps, sinks and outlet shares refer to the "
+        f"`{site['name']}` landscape"
+        + (
+            f"; the current grid has {plural(len(expected_sinks), 'sink')} instead "
+            f"of {len(sinks)}."
+            if elevation_matches
+            else "."
+        ),
+    )
+elif flags["grid"]:
+    say(
+        f"**Evidence.** The model output's cell centres are about "
+        f"{direction(shift_x, shift_y)} of the `{site['name']}` grid "
         "(Section 2.5), matching `xoff` / `yoff` in the base configuration.",
         f"**What it suggests.** Set `xoff = {site['ll_x']}` and "
         f"`yoff = {site['ll_y']}` in `{base_config_path.name}` before the next run "
@@ -1986,8 +2301,13 @@ steps = {
     "(Section 8.3), including the hydraulic conductivity units.",
     "discharge": "Check the conversion of routed runoff to `river_discharge_rate` "
     "(Section 8.4).",
-    "grid": f"Set `xoff = {site['ll_x']}`, `yoff = {site['ll_y']}` in the base "
-    f"configuration so the model grid matches `{site['name']}` (Section 8.7).",
+    "grid": (
+        "Rerun the Morris ensemble with the current base configuration, whose grid "
+        f"now matches `{site['name']}` (Section 8.7)."
+        if run_predates_config
+        else f"Set `xoff = {site['ll_x']}`, `yoff = {site['ll_y']}` in the base "
+        f"configuration so the model grid matches `{site['name']}` (Section 8.7)."
+    ),
     "steady": "Use a longer spin-up, or compute the responses once the stores have "
     "settled (Section 8.5).",
     "noise": "Add a few replicate runs (`replicates` in `morris_sample.py`) to "
@@ -2023,6 +2343,7 @@ say("\n".join(f"- {t}" for t in todo) if todo else "No checks were flagged.")
   being retained for the run; when they are not (Section 1), the design table and
   parameter ranges are the available provenance for the run.
 
+<!-- #region tags=["remove-cell"] -->
 ## Rendering this notebook
 
 This notebook follows `templates/Jupyter_notebook_tutorial`, with one change: the
@@ -2042,19 +2363,23 @@ The cell below does the rendering, so there is no separate export step. Save the
 notebook first, then run all cells. The cell runs the saved notebook again in a
 fresh kernel, with the saved settings, and writes the rendered Markdown and
 figures to `<run_name>/`, replacing any earlier rendered copy there. In the
-rendered copy, only the Run settings cell shows its code; the other cells show
+rendered copy starts with the report: cells tagged `remove-cell` (How to use,
+Run settings, setup and this section) are run but left out, the other cells show
 only their output, and the render cell is left out. Set `render_output = False`
 in the settings cell to run the notebook without rendering it.
 
 Rendering needs `nbconvert`. If the kernel running this notebook does not have it,
 the cell uses the repository environment (`.venv`, created by `uv sync`) instead,
-so it works whichever kernel is selected. The `.md` source is read with `jupytext`
-when available; otherwise the saved `.ipynb` is used.
+so it works whichever kernel is selected. It renders the most recently saved of the
+paired files: the `.md` source (read with `jupytext`) or, when it was saved later or
+`jupytext` is not available, the `.ipynb`. This way an edit saved only in the
+`.ipynb` is still rendered.
 
 Commit this source file and the run folder, not the `.ipynb` file. `show_figure`
 reduces figures larger than 450 kB so that the exported PNGs pass the
 `check-added-large-files` pre-commit hook, and the rendered Markdown has trailing
 spaces removed and markdownlint turned off, so it passes the other hooks.
+<!-- #endregion -->
 
 ```python tags=["remove-cell"] jupyter={"source_hidden": true}
 # --- render cell: exports this notebook; left out of the rendered copy ---
@@ -2080,20 +2405,27 @@ from traitlets.config import Config
 notebook_dir, notebook_stem, run_name = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
 output_dir = notebook_dir / run_name
 
-if importlib.util.find_spec("jupytext") is not None:
+# Render from the most recently saved copy: the .ipynb when it was edited after
+# the paired .md (for example when jupytext pairing did not update the .md).
+md_path = notebook_dir / f"{notebook_stem}.md"
+ipynb_path = notebook_dir / f"{notebook_stem}.ipynb"
+use_md = md_path.exists() and (
+    not ipynb_path.exists() or md_path.stat().st_mtime >= ipynb_path.stat().st_mtime
+)
+if use_md and importlib.util.find_spec("jupytext") is not None:
     import jupytext
 
-    notebook = jupytext.read(notebook_dir / f"{notebook_stem}.md")
+    notebook = jupytext.read(md_path)
 else:
     import nbformat
 
-    notebook = nbformat.read(notebook_dir / f"{notebook_stem}.ipynb", as_version=4)
+    notebook = nbformat.read(ipynb_path, as_version=4)
+print(f"Rendering from {md_path.name if use_md else ipynb_path.name}")
 
-# Drop the render cell (so it does not run itself) and clear old outputs.
+# Drop the render cell (so it does not run itself) and clear old outputs. Cells
+# tagged remove-cell (settings, setup) still run; they are dropped at export.
 notebook.cells = [
-    cell for cell in notebook.cells
-    if "remove-cell" not in cell.metadata.get("tags", [])
-    and not cell.source.startswith("# --- render cell")
+    cell for cell in notebook.cells if not cell.source.startswith("# --- render cell")
 ]
 for cell in notebook.cells:
     if cell.cell_type == "code":
@@ -2103,7 +2435,7 @@ ExecutePreprocessor(timeout=600).preprocess(
     notebook, {"metadata": {"path": str(notebook_dir)}}
 )
 
-# Hide the code of every cell tagged remove-input: only the settings cell shows code.
+# Drop cells tagged remove-cell and hide the code of cells tagged remove-input.
 config = Config()
 config.TagRemovePreprocessor.enabled = True
 config.TagRemovePreprocessor.remove_input_tags = {"remove-input"}

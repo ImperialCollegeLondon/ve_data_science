@@ -5,27 +5,8 @@
 This notebook reports the results of one Morris screening run of the Virtual
 Ecosystem (VE) hydrology module. It reads only the files written by
 `analysis/abiotic/sensitivity/morris_analyse_hydrology.py`; it does not rerun the
-model or recompute any index.
-
-## How to use this notebook for a new run
-
-1. Sample and run the ensemble with `morris_sample.py`, then run the analysis for
-   the new `run_name` in the same uv environment as the model runs, for example:
-
-   ```text
-   uv run --group dev-pinned python \
-       analysis/abiotic/sensitivity/morris_analyse_hydrology.py \
-       --run-name <run_name> --workers 8
-   ```
-
-2. Edit **only the Run settings cell below**: the run name, the data folder,
-   the VE version the runs used (`dev-pinned` or `dev`) and the site.
-3. Save the notebook and run all cells.
-
-Everything else is read from the run's own outputs: the design, the base
-configuration, the grid, the soil layers, the responses, the sinks and all the
-numbers in the interpretation text. The other code cells are collapsed here and
-left out of the rendered copy, so nothing below the settings cell needs editing.
+model or recompute any index. The run, its design and its environment are listed in
+*Report metadata and environment* below.
 
 The notebook answers, in order:
 
@@ -47,84 +28,62 @@ example "strongly skewed" when the 95th percentile is more than five times the
 median). The rules flag what to look at; the wording should still be checked by
 hand before the results are reported.
 
+## Report metadata and environment
 
-```python
-# =============================================================================
-# RUN SETTINGS: the only cell to edit for a new run
-# =============================================================================
-
-# Morris run to report: the folder <data_directory>/analysis/<run_name>/ written
-# by morris_analyse_hydrology.py. The rendered copy goes to ./<run_name>/.
-run_name = "hydrology_morris_001"
-
-# Module data folder (holds config/, out/ and analysis/): relative to the
-# repository root, or an absolute path when the results live outside this
-# repository, e.g. r"C:\path\to\ve_data_science\data\sensitivity\hydrology".
-data_directory = "data/sensitivity/hydrology"
-
-# VE environment the ensemble and the analysis were run with. uv_group is the
-# dependency group in pyproject.toml: "dev-pinned" (VE pinned to a commit) or
-# "dev" (latest VE from GitHub). Record the VE version and commit the runs used;
-# the notebook compares them with the current pyproject.toml pin.
-ve_environment = {
-    "uv_group": "dev-pinned",
-    "ve_version": "0.2.1",
-    "ve_commit": "22689f01a2460953865244f2d79f162a32ff2003",
-}
-
-# Site the base configuration should represent (from the site definition file).
-# Used to check that the model grid sits where the site is.
-site = {
-    "name": "maliau_2",
-    "epsg_code": 32650,
-    "ll_x": 496400,
-    "ll_y": 524100,
-    "ur_x": 497400,
-    "ur_y": 525100,
-}
-
-# Primary response variable (the analysis folder primary/<primary_variable>/).
-primary_variable = "river_discharge_rate"
-
-# Soil hydraulic parameters: checked in Section 8.3 for looking inert.
-soil_hydraulic_parameters = [
-    "saturated_hydraulic_conductivity",
-    "van_genuchten_nonlinearily_parameter",
-    "pore_connectivity_parameter",
-    "air_entry_potential_inverse",
-]
-
-# Report options (usually left as they are).
-top_n = 5  # parameters shown per response in the tables
-health_tolerance = 5.0  # |water balance closure| allowed, % of rainfall
-vertical_flow_min = 1e-3  # mm; below this soil vertical flow is "near zero"
-render_output = True  # False: run the notebook without writing ./<run_name>/
-```
-
-    Results: data\sensitivity\hydrology\analysis\hydrology_morris_001
-    300 runs, 14 parameters, 4 primary and 10 secondary responses, analysis period Jan 2012-Dec 2020
+The report, the Morris run and its uv environment in one place. The run facts come
+from the run's design record and analysis files. The VE version and commit of the
+runs are recorded in the notebook's run settings and compared with the packages
+installed in the kernel that rendered this report.
+The site is set in the notebook's run settings; the grid, soil layers and modules
+come from the current base configuration, whose input files are checked against
+its grid.
 
 
-## Environment and data provenance
+**Report and run**
 
-The uv environment, the site and the base configuration the runs used. The
-environment is taken from the settings cell and checked against
-`pyproject.toml`; the rest is read from the run's design record and its base
-configuration.
+
+
+| item | value |
+|---|---|
+| analyst | Lelavathy |
+| date of report | 2026-09-23 |
+| Morris run | `hydrology_morris_001` |
+| design created | 2026-09-22 22:43 (from the job file) |
+| analysis results | `data\sensitivity\hydrology\analysis\hydrology_morris_001` |
+| design (job file) | `data/sensitivity/hydrology/config/arrayJob_config_hydrology_morris_001.toml` |
+| parameter file | `data/sensitivity/hydrology/config/sensitivity_parameters.toml` |
+| base configuration of the runs (design record) | `data/sensitivity/hydrology/config/static_hydro_configuration.toml` |
+| base configuration read by this report | `data\sensitivity\hydrology\config\static_hydro_configuration.toml` |
+| design | 300 runs, 14 parameters, trajectories = 20, levels = 4, seed 2026 |
+| responses | 4 primary (`river_discharge_rate`), 10 secondary |
+| analysis period | Jan 2012-Dec 2020, after a 24-month spin-up |
+| dynamic modules | `hydrology` |
+| static modules | `abiotic_simple`, `animal`, `plants`, `litter`, `soil` |
+| grid and soil layers | 10 x 10 cells of 100 m; soil layers 250 mm (topsoil) and 750 mm (subsoil) |
+| notebook | `notebook/hydrology/morris_sensitivity/morris_hydrology_results.md` |
+
+
+
+Only modules with `static = false` are updated through time; static modules keep a fixed state, so the sensitivity reflects the dynamic module(s) alone.
+
+
+
+**Environment**
+
 
 
 | item | value |
 |---|---|
 | uv dependency group | `dev-pinned` |
 | install | `uv sync --group dev-pinned` |
-| Virtual Ecosystem used by the runs | `0.2.1`, commit `22689f01a2460953865244f2d79f162a32ff2003` |
-| `dev-pinned` pin in pyproject.toml now | `0f67349` |
+| Virtual Ecosystem used by the runs (`dev-pinned`) | `0.2.1`, commit `22689f01a2460953865244f2d79f162a32ff2003` |
 | Virtual Ecosystem in this kernel | `0.2.1` |
-| SALib (sampling) | `1.5.2` |
+| SALib used for sampling / in this kernel | `1.5.2` / `1.5.2` |
+| Python in this kernel | `3.14.3` |
 
 
 
-**Note:** the runs used VE commit `22689f01a246`, but `pyproject.toml` now pins `0f67349` for `dev-pinned`. A rerun with the current environment would use a different VE version; record the commit of each run in the settings cell.
+
 
 
 
@@ -141,20 +100,21 @@ ur_y = 525100
 
 
 
-**Base configuration:** `data\sensitivity\hydrology\config\static_hydro_configuration.toml`. Grid 10 x 10 cells of 100 m; simulation from 2010-01-01 for 11 years, step 1 month; soil layers 250 mm (topsoil) and 750 mm (subsoil); 24-month spin-up removed before any statistic.
-
-Only modules with `static = false` are updated through time; static modules keep a fixed state, so the sensitivity reflects the dynamic module(s) alone.
+**Grid:** 10 x 10 cells of 100 m, origin `xoff = 496400`, `yoff = 524100` (matches the `maliau_2` lower-left corner).
 
 
 
-| module | static |
-|---|---|
-| `abiotic_simple` | true |
-| `animal` | true |
-| `plants` | true |
-| `hydrology` | false |
-| `litter` | true |
-| `soil` | true |
+**Site input data** (from `data\sensitivity\hydrology\data` when a configured path is not found). A gridded file matches when its cell centres equal the configuration grid: x 496450.0-497350.0, y 524150.0-525050.0.
+
+
+
+| file | found | variables | x centres | y centres | matches configuration grid |
+|---|---|---|---|---|---|
+| `era5_maliau_10x10_2010_2020.nc` | yes | 10 | 496450.0-497350.0 | 524150.0-525050.0 | yes |
+| `elevation_maliau_10x10.nc` | yes | 1 | 496450.0-497350.0 | 524150.0-525050.0 | yes |
+| `soil_maliau.nc` | yes | 20 | 496450.0-497350.0 | 524150.0-525050.0 | yes |
+| `litter_maliau.nc` | yes | 8 | 496450.0-497350.0 | 524150.0-525050.0 | yes |
+| `plant_input_data_Maliau_10x10.nc` | yes | 3 | - | - | no x/y coordinates |
 
 
 ## Responses, outlets and primary vs secondary
@@ -186,7 +146,7 @@ that matrix exactly (`outlet = {"method": "ve_routing"}`, written to
 network.
 
 
-The grid has **4 sinks**, draining 55, 26, 11, 8 of the 100 cells. With `combine = "sum"`, each outlet series is the **sum over the 4 sinks**: the total outflow of the site. (`"largest"` would keep only the 55-cell catchment.)
+The grid has **2 sinks**, draining 80, 20 of the 100 cells. With `combine = "sum"`, each outlet series is the **sum over the 2 sinks**: the total outflow of the site. (`"largest"` would keep only the 80-cell catchment.)
 
 Each response is one statistic of that monthly series after the 24-month spin-up:
 
@@ -251,8 +211,8 @@ Three checks on the cached monthly series and long-term maps:
 
 | pathway | p05 | median | p95 | expected |
 |---|---|---|---|---|
-| surface | 1.04 | 1.04 | 1.04 | 1.04 |
-| subsurface | 1.03 | 1.04 | 1.05 | 1.04 |
+| surface | 1.02 | 1.02 | 1.02 | 1.02 |
+| subsurface | 1.01 | 1.02 | 1.03 | 1.02 |
 
 
 
@@ -262,10 +222,8 @@ Three checks on the cached monthly series and long-term maps:
 
 | sink (x, y) | cells draining through | share if runoff is uniform | median share over runs | 5-95% over runs |
 |---|---|---|---|---|
-| 495909.3, 525048.8 | 55 | 0.538 | 0.538 | 0.537-0.541 |
-| 496509.3, 525248.8 | 26 | 0.260 | 0.260 | 0.258-0.261 |
-| 495709.3, 524748.8 | 11 | 0.115 | 0.115 | 0.114-0.116 |
-| 496009.3, 525248.8 | 8 | 0.087 | 0.087 | 0.086-0.087 |
+| 497250.0, 524950.0 | 80 | 0.794 | 0.794 | 0.793-0.795 |
+| 496450.0, 524950.0 | 20 | 0.206 | 0.206 | 0.205-0.207 |
 
 
 
@@ -275,18 +233,18 @@ Three checks on the cached monthly series and long-term maps:
 
 | check | result |
 |---|---|
-| subsurface share of routed outlet runoff (p05 / median / p95) | 0.000 / 0.311 / 0.982 |
+| subsurface share of routed outlet runoff (p05 / median / p95) | 0.000 / 0.310 / 0.982 |
 | runs where the subsurface carries more than half | 134 of 300 |
 | Spearman: discharge_mean vs subsurface_runoff_routed_plus_local | 0.92 |
-| Spearman: discharge_mean vs surface_runoff_routed_plus_local | -0.32 |
+| Spearman: discharge_mean vs surface_runoff_routed_plus_local | -0.33 |
 
 
 
 **Interpretation.**
 
-- **The outlet definition is complete.** Routed runoff at the 4 sinks is about 1.04 (surface) and 1.04 (subsurface) times the local runoff of all 100 cells, against 1.04 expected from the sinks' double-counted own runoff. No water leaves the grid anywhere else, so the sink sum is the whole site outflow. The double count adds about 4% to every outlet value in every run, so it does not change the Morris rankings.
-- **Each sink's share of discharge is fixed by its catchment size.** The sinks carry 54%, 26%, 12%, 9% of site discharge, close to what catchment size alone predicts, and this hardly changes between runs. The parameters change how much water leaves the site, not which sink it leaves through, so summing the sinks loses no sensitivity information; using only the largest catchment would scale every outlet value by about 0.54.
-- **The subsurface pathway sets the discharge.** The subsurface share of outlet runoff has a median of 31% and is more than half in 134 of 300 runs. `discharge_mean` has a Spearman correlation of 0.92 with subsurface outlet runoff and -0.32 with surface outlet runoff. Parameters acting on that pathway are expected to dominate the primary responses (Sections 3 and 8.2).
+- **The outlet definition is complete.** Routed runoff at the 2 sinks is about 1.02 (surface) and 1.02 (subsurface) times the local runoff of all 100 cells, against 1.02 expected from the sinks' double-counted own runoff. No water leaves the grid anywhere else, so the sink sum is the whole site outflow. The double count adds about 2% to every outlet value in every run, so it does not change the Morris rankings.
+- **Each sink's share of discharge is fixed by its catchment size.** The sinks carry 79%, 21% of site discharge, close to what catchment size alone predicts, and this hardly changes between runs. The parameters change how much water leaves the site, not which sink it leaves through, so summing the sinks loses no sensitivity information; using only the largest catchment would scale every outlet value by about 0.79.
+- **The subsurface pathway sets the discharge.** The subsurface share of outlet runoff has a median of 31% and is more than half in 134 of 300 runs. `discharge_mean` has a Spearman correlation of 0.92 with subsurface outlet runoff and -0.33 with surface outlet runoff. Parameters acting on that pathway are expected to dominate the primary responses (Sections 3 and 8.2).
 
 
 ## 1. Can the results be trusted?
@@ -347,7 +305,7 @@ No `compiled_configuration.toml` records were retained for this run, so per-run 
 Indices describe the model as it behaves. If the model does not conserve water, the
 indices describe that behaviour rather than catchment hydrology. The table
 summarises the health diagnostics over all runs; the thresholds are set in the
-settings cell (`health_tolerance`, `vertical_flow_min`).
+notebook's run settings (`health_tolerance`, `vertical_flow_min`).
 
 
 | check | result |
@@ -355,10 +313,10 @@ settings cell (`health_tolerance`, `vertical_flow_min`).
 | water balance closes within +/-5% of rainfall | 16 of 300 runs |
 | lower groundwater store stays >= 0 | 76 of 300 runs |
 | mean soil vertical flow >= 0.001 mm | 0 of 300 runs |
-| mean soil vertical flow, mm (median over runs) | 2.5e-07 |
+| mean soil vertical flow, mm (median over runs) | 2.4e-07 |
 | total runoff / rainfall (median over runs) | 3.07 |
 | surface runoff / rainfall (median over runs) | 0.96 |
-| water balance closure, % of rainfall (min / median / max) | -10214.5 / -172.8 / 71.8 |
+| water balance closure, % of rainfall (min / median / max) | -10190.3 / -173.2 / 71.6 |
 
 
 
@@ -386,34 +344,34 @@ move a response; `cv` is the coefficient of variation across runs.
 
 | response | unit | p05 | median | p95 | cv | p95 / p05 | n_runs_negative | n_runs_zero |
 |---|---|---|---|---|---|---|---|---|
-| discharge_mean | m3 s-1 | 0.00258 | 0.00372 | 0.128 | 1.89 | 49.4 | 0 | 0 |
-| discharge_high_q90 | m3 s-1 | 0.00355 | 0.00663 | 0.148 | 1.7 | 41.7 | 0 | 0 |
-| discharge_low_q10 | m3 s-1 | 0.00158 | 0.00164 | 0.0847 | 2.16 | 53.8 | 0 | 0 |
-| discharge_dry_season | m3 s-1 | 0.00173 | 0.00322 | 0.13 | 1.93 | 75.2 | 0 | 0 |
-| surface_runoff_routed_plus_local | mm | 1.47e+04 | 2.03e+04 | 2.05e+04 | 0.0707 | 1.4 | 0 | 0 |
-| subsurface_runoff_routed_plus_local | mm | 4.04 | 8.44e+03 | 9.78e+05 | 2.15 | 2.42e+05 | 0 | 0 |
-| subsurface_flow | mm | 0.0378 | 0.277 | 2.23e+03 | 3.7 | 5.89e+04 | 0 | 0 |
-| baseflow | mm | 0 | 0.319 | 6.77e+03 | 2.61 | nan | 0 | 145 |
+| discharge_mean | m3 s-1 | 0.00254 | 0.00366 | 0.125 | 1.88 | 49.1 | 0 | 0 |
+| discharge_high_q90 | m3 s-1 | 0.00349 | 0.00654 | 0.145 | 1.69 | 41.6 | 0 | 0 |
+| discharge_low_q10 | m3 s-1 | 0.00155 | 0.00161 | 0.0831 | 2.16 | 53.7 | 0 | 0 |
+| discharge_dry_season | m3 s-1 | 0.0017 | 0.00316 | 0.128 | 1.93 | 75.3 | 0 | 0 |
+| surface_runoff_routed_plus_local | mm | 1.44e+04 | 1.99e+04 | 2.01e+04 | 0.0706 | 1.4 | 0 | 0 |
+| subsurface_runoff_routed_plus_local | mm | 3.97 | 8.36e+03 | 9.56e+05 | 2.15 | 2.41e+05 | 0 | 0 |
+| subsurface_flow | mm | 0.0379 | 0.278 | 2.24e+03 | 3.7 | 5.9e+04 | 0 | 0 |
+| baseflow | mm | 0 | 0.319 | 6.78e+03 | 2.6 | nan | 0 | 145 |
 | subsurface_stormflow | mm | 6.15e-33 | 5.62e-10 | 0.142 | 2.4 | nan | 0 | 156 |
-| bypass_flow | mm | 1.38 | 3.65 | 57.1 | 1.75 | 41.3 | 0 | 0 |
+| bypass_flow | mm | 1.39 | 3.65 | 57.2 | 1.75 | 41.3 | 0 | 0 |
 | soil_moisture_topsoil | mm | 99.9 | 149 | 175 | 0.202 | 1.75 | 0 | 0 |
 | soil_moisture_subsoil | mm | 75 | 150 | 188 | 0.285 | 2.5 | 0 | 0 |
-| groundwater_storage_layer_1 | mm | 0.0468 | 0.166 | 1.73e+03 | 3.21 | 3.7e+04 | 0 | 0 |
-| groundwater_storage_layer_2 | mm | -1.06e+04 | -3.07e+03 | 3.6e+03 | 1.26 | nan | 216 | 0 |
+| groundwater_storage_layer_1 | mm | 0.0468 | 0.166 | 1.74e+03 | 3.21 | 3.71e+04 | 0 | 0 |
+| groundwater_storage_layer_2 | mm | -1.06e+04 | -3.07e+03 | 3.59e+03 | 1.26 | nan | 216 | 0 |
 
 
 
 
-![png](./morris_hydrology_results_14_1.png)
+![png](./morris_hydrology_results_12_1.png)
 
 
 
 
 **Interpretation.**
 
-- **Discharge is strongly skewed.** The median run has a mean discharge of about 0.0037 m³ s⁻¹, the 95th percentile is about 0.13 m³ s⁻¹ (34 times larger) and the mean over runs (0.021 m³ s⁻¹) is 5.6 times the median. A minority of parameter sets produce far more outflow than the rest.
+- **Discharge is strongly skewed.** The median run has a mean discharge of about 0.0037 m³ s⁻¹, the 95th percentile is about 0.12 m³ s⁻¹ (34 times larger) and the mean over runs (0.02 m³ s⁻¹) is 5.6 times the median. A minority of parameter sets produce far more outflow than the rest.
 - **Surface runoff hardly depends on the parameters.** `surface_runoff_routed_plus_local` at the sinks has a coefficient of variation of 7% across runs.
-- **The subsurface carries the extremes.** `subsurface_runoff_routed_plus_local` at the sinks spans about 5 orders of magnitude (5-95% range about 4 to 978,116 mm), so the high-discharge runs are those with large subsurface and groundwater outflow.
+- **The subsurface carries the extremes.** `subsurface_runoff_routed_plus_local` at the sinks spans about 5 orders of magnitude (5-95% range about 4 to 956,230 mm), so the high-discharge runs are those with large subsurface and groundwater outflow.
 - **Some flows are switched off.** `baseflow` is exactly zero in 145 of 300 runs; `subsurface_stormflow` is exactly zero in 156 of 300 runs. Negligible (median below 1e-6 mm): `subsurface_stormflow`.
 - **`groundwater_storage_layer_2` is negative on average in 216 of 300 runs.**
 
@@ -450,31 +408,31 @@ counts as rising or falling when it drifts by more than 10% of its mean.
 
 | field | peak_month | low_month | seasonal range / mean | median drift / mean | n_runs_rising | n_runs_falling | share of run-months < 0 |
 |---|---|---|---|---|---|---|---|
-| river_discharge_rate | May | Feb | 0.321 | -0.154 | 24 | 245 | 0 |
-| surface_runoff_routed_plus_local | May | Feb | 0.594 | -0.132 | 23 | 245 | 0 |
-| subsurface_runoff_routed_plus_local | Jan | Dec | 0.956 | -0.913 | 81 | 197 | 0 |
-| surface_runoff | May | Feb | 0.595 | -0.132 | 23 | 245 | 0 |
-| subsurface_flow | Dec | Jan | 0.0742 | -0.919 | 101 | 199 | 0 |
+| river_discharge_rate | May | Feb | 0.325 | -0.156 | 24 | 247 | 0 |
+| surface_runoff_routed_plus_local | May | Feb | 0.594 | -0.135 | 23 | 245 | 0 |
+| subsurface_runoff_routed_plus_local | Jan | Dec | 0.926 | -0.909 | 81 | 197 | 0 |
+| surface_runoff | May | Feb | 0.594 | -0.135 | 23 | 245 | 0 |
+| subsurface_flow | Dec | Jan | 0.0799 | -0.915 | 101 | 199 | 0 |
 | baseflow | Jan | Mar | 9.22 | -1.22 | 32 | 101 | 0 |
-| subsurface_stormflow | Jan | Sep | nan | -3.39 | 0 | 86 | 0 |
-| bypass_flow | Jan | Dec | 0.15 | -0.905 | 126 | 174 | 0 |
-| soil_moisture_topsoil | Dec | Jan | 0.000727 | 0.00151 | 0 | 0 | 0 |
-| soil_moisture_subsoil | Jan | Jan | 0 | -3.66e-16 | 0 | 43 | 0 |
-| groundwater_storage_layer_1 | Jan | Dec | 0.156 | -0.904 | 101 | 199 | 0 |
+| subsurface_stormflow | Jan | Oct | nan | -3.38 | 0 | 86 | 0 |
+| bypass_flow | Jan | Dec | 0.152 | -0.903 | 126 | 174 | 0 |
+| soil_moisture_topsoil | Dec | Jan | 0.000736 | 0.00151 | 0 | 0 | 0 |
+| soil_moisture_subsoil | Jan | Jan | 0 | -3.98e-16 | 0 | 43 | 0 |
+| groundwater_storage_layer_1 | Jan | Dec | 0.171 | -0.883 | 101 | 199 | 0 |
 | groundwater_storage_layer_2 | Jan | Dec | 0.244 | -1.43 | 32 | 246 | 0.691 |
 
 
 
 
-![png](./morris_hydrology_results_18_1.png)
+![png](./morris_hydrology_results_16_1.png)
 
 
 
 
 **Interpretation.**
 
-- **Discharge has a modest seasonal cycle.** It peaks in May and is lowest in Feb, with a seasonal range of 32% of its mean.
-- **Not everything is at steady state.** More than half of the runs drift by over 10% of their mean for `river_discharge_rate` (245 falling, 24 rising, median change -15%); `surface_runoff_routed_plus_local` (245 falling, 23 rising, median change -13%); `subsurface_runoff_routed_plus_local` (197 falling, 81 rising, median change -91%); `surface_runoff` (245 falling, 23 rising, median change -13%); `subsurface_flow` (199 falling, 101 rising, median change -92%); `bypass_flow` (174 falling, 126 rising, median change -91%); `groundwater_storage_layer_1` (199 falling, 101 rising, median change -90%); `groundwater_storage_layer_2` (246 falling, 32 rising, median change -143%).
+- **Discharge has a modest seasonal cycle.** It peaks in May and is lowest in Feb, with a seasonal range of 33% of its mean.
+- **Not everything is at steady state.** More than half of the runs drift by over 10% of their mean for `river_discharge_rate` (247 falling, 24 rising, median change -16%); `surface_runoff_routed_plus_local` (245 falling, 23 rising, median change -13%); `subsurface_runoff_routed_plus_local` (197 falling, 81 rising, median change -91%); `surface_runoff` (245 falling, 23 rising, median change -13%); `subsurface_flow` (199 falling, 101 rising, median change -92%); `bypass_flow` (174 falling, 126 rising, median change -90%); `groundwater_storage_layer_1` (199 falling, 101 rising, median change -88%); `groundwater_storage_layer_2` (246 falling, 32 rising, median change -143%).
 - Negative values: `groundwater_storage_layer_2` is below zero in 69% of all run-months.
 - **Flat fields** (no seasonal cycle, no drift): `soil_moisture_topsoil` and `soil_moisture_subsoil`.
 - **The 24-month spin-up is too short.** The stores are still changing through the analysis period. The Morris responses are means and percentiles over a period with a trend, so they mix the parameters' effect on the level of a flow with their effect on how fast the stores drain.
@@ -489,54 +447,67 @@ cell.
 
 | field | rule | cell_min | cell_max | spatial cv | largest at a sink | sink / mean cell |
 |---|---|---|---|---|---|---|
-| river_discharge_rate | outlet | 3.54e-05 | 0.002 | 1.48 | True | 4.79 |
-| surface_runoff_routed_plus_local | outlet | 195 | 1.09e+04 | 1.48 | True | 4.79 |
-| subsurface_runoff_routed_plus_local | outlet | 80 | 4.54e+03 | 1.47 | True | 4.76 |
+| river_discharge_rate | outlet | 3.57e-05 | 0.0029 | 1.5 | True | 6.87 |
+| surface_runoff_routed_plus_local | outlet | 195 | 1.58e+04 | 1.5 | True | 6.87 |
+| subsurface_runoff_routed_plus_local | outlet | 81.5 | 6.63e+03 | 1.49 | True | 6.82 |
 | surface_runoff | mean | 195 | 196 | 0.00106 |  |  |
-| subsurface_flow | mean | 0.273 | 0.286 | 0.00838 |  |  |
-| baseflow | mean | 0.177 | 0.319 | 0.0722 |  |  |
+| subsurface_flow | mean | 0.276 | 0.286 | 0.00776 |  |  |
+| baseflow | mean | 0.222 | 0.319 | 0.0685 |  |  |
 | subsurface_stormflow | mean | 5.62e-10 | 5.62e-10 | nan |  |  |
-| bypass_flow | mean | 3.47 | 3.59 | 0.00713 |  |  |
-| soil_moisture_topsoil | mean | 149 | 149 | 2.95e-05 |  |  |
+| bypass_flow | mean | 3.48 | 3.61 | 0.0071 |  |  |
+| soil_moisture_topsoil | mean | 149 | 149 | 2.51e-05 |  |  |
 | soil_moisture_subsoil | mean | 150 | 150 | 0 |  |  |
-| groundwater_storage_layer_1 | mean | 0.142 | 0.165 | 0.0311 |  |  |
-| groundwater_storage_layer_2 | mean | -3.12e+03 | -2.99e+03 | 0.00873 |  |  |
+| groundwater_storage_layer_1 | mean | 0.142 | 0.167 | 0.0353 |  |  |
+| groundwater_storage_layer_2 | mean | -3.12e+03 | -2.99e+03 | 0.00864 |  |  |
 
 
 
 
-![png](./morris_hydrology_results_20_1.png)
+![png](./morris_hydrology_results_18_1.png)
 
 
 
 
-**Interpretation.** Most local fluxes and stores are almost the same in every cell: `surface_runoff`, `subsurface_flow`, `subsurface_stormflow`, `bypass_flow`, `soil_moisture_topsoil`, `soil_moisture_subsoil` and `groundwater_storage_layer_2` vary by less than 1% across the grid. `groundwater_storage_layer_2` is negative in 100 of 100 cells of the median map. The routed fields are largest at a sink, where they average about 4.8 times the mean cell, because upstream runoff accumulates along the drainage paths. The spatial patterns in the Morris maps (Section 5) are therefore patterns of the drainage network, not of local differences in hydrology.
+**Interpretation.** Most local fluxes and stores are almost the same in every cell: `surface_runoff`, `subsurface_flow`, `subsurface_stormflow`, `bypass_flow`, `soil_moisture_topsoil`, `soil_moisture_subsoil` and `groundwater_storage_layer_2` vary by less than 1% across the grid. `groundwater_storage_layer_2` is negative in 100 of 100 cells of the median map. The routed fields are largest at a sink, where they average about 6.9 times the mean cell, because upstream runoff accumulates along the drainage paths. The spatial patterns in the Morris maps (Section 5) are therefore patterns of the drainage network, not of local differences in hydrology.
 
 
 ### 2.5 Drainage network and grid location
 
-The sinks recovered from the model output by the analysis script, and the cell
-centres written by this run compared with the site definition in the settings
-cell (`ll` + half a cell to `ur` - half a cell).
+The sinks recovered from the model output by the analysis script. The cell centres
+written by this run are compared with the current base configuration, the elevation
+input it names and the site definition in the notebook's run settings (`ll` + half a
+cell to `ur` - half a cell). When the elevation input matches the current grid, the
+sinks VE would find on it are listed too.
 
 
 | x | y | cells draining through |
 |---|---|---|
-| 495909.3 | 525048.8 | 55 |
-| 496509.3 | 525248.8 | 26 |
-| 495709.3 | 524748.8 | 11 |
-| 496009.3 | 525248.8 | 8 |
+| 497250.0 | 524950.0 | 80 |
+| 496450.0 | 524950.0 | 20 |
 
 
 
 | grid | x centres | y centres |
 |---|---|---|
-| this run (model output) | 495609.3-496509.3 | 524348.8-525248.8 |
+| this run (model output) | 496450.0-497350.0 | 524150.0-525050.0 |
+| current base configuration | 496450.0-497350.0 | 524150.0-525050.0 |
+| elevation input (`elevation_maliau_10x10.nc`) | 496450.0-497350.0 | 524150.0-525050.0 |
 | maliau_2 site definition | 496450.0-497350.0 | 524150.0-525050.0 |
 
 
 
-**Interpretation.** 4 sinks drain 55, 26, 11, 8 of the 100 cells, and all water leaves the site through them. The cell centres written by this run are about 841 m west and 199 m north of the `maliau_2` grid: they follow `xoff = 495559.3`, `yoff = 524298.8` in the base configuration rather than `ll_x = 496400`, `ll_y = 524100`. The Morris indices are computed per cell and are not affected, but maps and sink positions are labelled on the shifted grid.
+**Sinks expected under the current base configuration** (VE's drainage rule applied to `elevation_maliau_10x10.nc`)
+
+
+
+| x | y | elevation (m) | cells draining through |
+|---|---|---|---|
+| 497250.0 | 524950.0 | 211.6 | 80 |
+| 496450.0 | 524950.0 | 241.5 | 20 |
+
+
+
+**Interpretation.** 2 sinks drain 80, 20 of the 100 cells in this run, and all water leaves the site through them. The model grid matches the `maliau_2` site definition.
 
 
 ### 2.6 Discharge compared with the runoff reaching the sinks
@@ -570,7 +541,7 @@ bar is not. Whiskers are 95% bootstrap confidence intervals.
 
 
 
-![png](./morris_hydrology_results_26_0.png)
+![png](./morris_hydrology_results_24_0.png)
 
 
 
@@ -586,11 +557,11 @@ from those whose effect depends on the other parameters (above the line).
 
 | rank | parameter | mu_star | mu_star_conf | mu | sigma_over_mu_star |
 |---|---|---|---|---|---|
-| 1 | groundwater_loss | 0.0728 | 0.0504 | -0.0728 | 1.6 |
-| 2 | soil_moisture_saturation | 0.0445 | 0.0323 | 0.0445 | 1.68 |
-| 3 | groundwater_capacity | 0.0361 | 0.022 | 0.0361 | 1.42 |
-| 4 | reservoir_const_lower_groundwater | 0.0259 | 0.0231 | -0.0259 | 2.17 |
-| 5 | bypass_flow_coefficient | 0.0217 | 0.0161 | -0.0217 | 1.76 |
+| 1 | groundwater_loss | 0.0714 | 0.0494 | -0.0714 | 1.59 |
+| 2 | soil_moisture_saturation | 0.0437 | 0.0317 | 0.0437 | 1.68 |
+| 3 | groundwater_capacity | 0.0353 | 0.0214 | 0.0353 | 1.42 |
+| 4 | reservoir_const_lower_groundwater | 0.0254 | 0.0226 | -0.0254 | 2.17 |
+| 5 | bypass_flow_coefficient | 0.0213 | 0.0157 | -0.0213 | 1.76 |
 
 
 
@@ -600,11 +571,11 @@ from those whose effect depends on the other parameters (above the line).
 
 | rank | parameter | mu_star | mu_star_conf | mu | sigma_over_mu_star |
 |---|---|---|---|---|---|
-| 1 | groundwater_loss | 0.0803 | 0.0527 | -0.0803 | 1.51 |
-| 2 | soil_moisture_saturation | 0.056 | 0.0372 | 0.0559 | 1.53 |
-| 3 | groundwater_capacity | 0.0496 | 0.0263 | 0.0496 | 1.23 |
-| 4 | reservoir_const_lower_groundwater | 0.0372 | 0.0291 | -0.0372 | 1.9 |
-| 5 | bypass_flow_coefficient | 0.026 | 0.0182 | -0.026 | 1.68 |
+| 1 | groundwater_loss | 0.079 | 0.0517 | -0.079 | 1.51 |
+| 2 | soil_moisture_saturation | 0.0549 | 0.0365 | 0.0549 | 1.53 |
+| 3 | groundwater_capacity | 0.0486 | 0.0258 | 0.0486 | 1.24 |
+| 4 | reservoir_const_lower_groundwater | 0.0364 | 0.0285 | -0.0364 | 1.9 |
+| 5 | bypass_flow_coefficient | 0.0255 | 0.0178 | -0.0255 | 1.68 |
 
 
 
@@ -614,11 +585,11 @@ from those whose effect depends on the other parameters (above the line).
 
 | rank | parameter | mu_star | mu_star_conf | mu | sigma_over_mu_star |
 |---|---|---|---|---|---|
-| 1 | groundwater_loss | 0.0622 | 0.0434 | -0.0622 | 1.61 |
-| 2 | soil_moisture_saturation | 0.0312 | 0.0241 | 0.0312 | 1.81 |
-| 3 | groundwater_capacity | 0.0251 | 0.0209 | 0.0251 | 1.99 |
-| 4 | reservoir_const_lower_groundwater | 0.019 | 0.0212 | -0.019 | 2.67 |
-| 5 | reservoir_const_upper_groundwater | 0.0165 | 0.0201 | -0.0165 | 2.83 |
+| 1 | groundwater_loss | 0.0609 | 0.0424 | -0.0609 | 1.6 |
+| 2 | soil_moisture_saturation | 0.0307 | 0.0238 | 0.0307 | 1.81 |
+| 3 | groundwater_capacity | 0.0243 | 0.0203 | 0.0243 | 1.99 |
+| 4 | reservoir_const_lower_groundwater | 0.0187 | 0.0208 | -0.0186 | 2.67 |
+| 5 | reservoir_const_upper_groundwater | 0.0164 | 0.0199 | -0.0164 | 2.84 |
 
 
 
@@ -628,23 +599,23 @@ from those whose effect depends on the other parameters (above the line).
 
 | rank | parameter | mu_star | mu_star_conf | mu | sigma_over_mu_star |
 |---|---|---|---|---|---|
-| 1 | groundwater_loss | 0.0724 | 0.0499 | -0.0724 | 1.59 |
-| 2 | soil_moisture_saturation | 0.0444 | 0.0321 | 0.0443 | 1.68 |
-| 3 | groundwater_capacity | 0.0373 | 0.0221 | 0.0373 | 1.38 |
-| 4 | reservoir_const_lower_groundwater | 0.0264 | 0.023 | -0.0264 | 2.12 |
-| 5 | bypass_flow_coefficient | 0.0215 | 0.0159 | -0.0215 | 1.76 |
+| 1 | groundwater_loss | 0.071 | 0.0489 | -0.071 | 1.59 |
+| 2 | soil_moisture_saturation | 0.0436 | 0.0315 | 0.0435 | 1.68 |
+| 3 | groundwater_capacity | 0.0364 | 0.0216 | 0.0364 | 1.38 |
+| 4 | reservoir_const_lower_groundwater | 0.0259 | 0.0225 | -0.0259 | 2.12 |
+| 5 | bypass_flow_coefficient | 0.0211 | 0.0156 | -0.0211 | 1.76 |
 
 
 
 
-![png](./morris_hydrology_results_28_8.png)
+![png](./morris_hydrology_results_26_8.png)
 
 
 
 
 **Interpretation.** `groundwater_loss` ranks first for all 4 discharge responses. Its negative mu means that a larger `groundwater_loss` gives less discharge.
 
-All 4 statistics share the same top three (`groundwater_loss`, `soil_moisture_saturation` and `groundwater_capacity`; mu negative, positive, positive), and the rank correlation of mu\* between any two of them is at least 0.93. They therefore carry largely the same information about the model: high flows, low flows and dry-season flows are not controlled by different processes (Section 8.6).
+All 4 statistics share the same top three (`groundwater_loss`, `soil_moisture_saturation` and `groundwater_capacity`; mu negative, positive, positive), and the rank correlation of mu\* between any two of them is at least 0.95. They therefore carry largely the same information about the model: high flows, low flows and dry-season flows are not controlled by different processes (Section 8.6).
 
 Every top-5 parameter has sigma/mu\* above 1.2, and the 95% confidence interval on mu\* is typically 72% of mu\*. The effects are strongly non-linear or depend on the other parameters, so the Morris order is a screening result only; Sobol is needed to measure the interactions.
 
@@ -679,12 +650,12 @@ trajectories would be needed to settle that parameter's place.
 
 | parameter | discharge_mean | discharge_high_q90 | discharge_low_q10 | discharge_dry_season |
 |---|---|---|---|---|
-| bypass_flow_coefficient | 0.64 | 0.44 | 0.66 | 0.6 |
+| bypass_flow_coefficient | 0.64 | 0.43 | 0.66 | 0.59 |
 | groundwater_capacity | 1 | 1 | 0.92 | 0.98 |
 | groundwater_loss | 1 | 1 | 1 | 1 |
 | max_percolation_rate_uzlz | 0 | 0.34 | 0 | 0.26 |
 | reservoir_const_lower_groundwater | 0.66 | 0.8 | 0.66 | 0.7 |
-| reservoir_const_upper_groundwater | 0.48 | 0.42 | 0.6 | 0.49 |
+| reservoir_const_upper_groundwater | 0.49 | 0.43 | 0.6 | 0.5 |
 | soil_moisture_saturation | 0.99 | 1 | 0.96 | 0.96 |
 
 
@@ -702,7 +673,7 @@ largest at the sinks and along their drainage paths.
 
 
 
-![png](./morris_hydrology_results_32_0.png)
+![png](./morris_hydrology_results_30_0.png)
 
 
 
@@ -712,7 +683,7 @@ The parameter with the largest mu\* in each cell:
 
 
 
-![png](./morris_hydrology_results_32_2.png)
+![png](./morris_hydrology_results_30_2.png)
 
 
 
@@ -723,7 +694,7 @@ parameter. Seasonal bands show parameters that matter in wet or dry months only.
 
 
 
-![png](./morris_hydrology_results_34_0.png)
+![png](./morris_hydrology_results_32_0.png)
 
 
 
@@ -745,13 +716,13 @@ scaled to its most influential parameter.
 
 
 
-![png](./morris_hydrology_results_36_0.png)
+![png](./morris_hydrology_results_34_0.png)
 
 
 
 
 
-![png](./morris_hydrology_results_36_1.png)
+![png](./morris_hydrology_results_34_1.png)
 
 
 
@@ -790,20 +761,20 @@ response, or for at least two secondary responses.
 
 | parameter | n_primary_influential | n_secondary_influential | max_mu_star_rel_primary | mean_sigma_over_mu_star_primary | sobol_candidate | reason |
 |---|---|---|---|---|---|---|
-| groundwater_loss | 4 | 3 | 1 | 1.58 | True | influential for a primary response |
-| soil_moisture_saturation | 4 | 9 | 0.697 | 1.68 | True | influential for a primary response |
-| groundwater_capacity | 4 | 5 | 0.617 | 1.51 | True | influential for a primary response |
-| reservoir_const_lower_groundwater | 4 | 2 | 0.463 | 2.22 | True | influential for a primary response |
+| groundwater_loss | 4 | 3 | 1 | 1.57 | True | influential for a primary response |
+| soil_moisture_saturation | 4 | 9 | 0.695 | 1.68 | True | influential for a primary response |
+| groundwater_capacity | 4 | 5 | 0.615 | 1.51 | True | influential for a primary response |
+| reservoir_const_lower_groundwater | 4 | 2 | 0.461 | 2.22 | True | influential for a primary response |
 | bypass_flow_coefficient | 4 | 7 | 0.323 | 1.88 | True | influential for a primary response |
-| reservoir_const_upper_groundwater | 4 | 2 | 0.31 | 2.75 | True | influential for a primary response |
-| max_percolation_rate_uzlz | 4 | 3 | 0.271 | 2.86 | True | influential for a primary response |
-| soil_moisture_residual | 0 | 2 | 0.00156 | 2.28 | True | influential for >= 2 secondary responses |
-| saturation_exponent | 0 | 1 | 0.00449 | 2.66 | False | screened out |
-| van_genuchten_nonlinearily_parameter | 0 | 0 | 0.00197 | 3.28 | False | screened out |
-| pore_connectivity_parameter | 0 | 0 | 0.00159 | 2.24 | False | screened out |
-| stormflow_coefficient | 0 | 1 | 0.00139 | 1.71 | False | screened out |
-| saturated_hydraulic_conductivity | 0 | 0 | 0.00139 | 2.19 | False | screened out |
-| air_entry_potential_inverse | 0 | 0 | 0.000435 | 1.86 | False | screened out |
+| reservoir_const_upper_groundwater | 4 | 2 | 0.311 | 2.76 | True | influential for a primary response |
+| max_percolation_rate_uzlz | 4 | 3 | 0.27 | 2.85 | True | influential for a primary response |
+| soil_moisture_residual | 0 | 2 | 0.00276 | 2.86 | True | influential for >= 2 secondary responses |
+| saturation_exponent | 0 | 1 | 0.00199 | 3.16 | False | screened out |
+| pore_connectivity_parameter | 0 | 0 | 0.0019 | 2.83 | False | screened out |
+| van_genuchten_nonlinearily_parameter | 0 | 0 | 0.00147 | 2.14 | False | screened out |
+| saturated_hydraulic_conductivity | 0 | 0 | 0.00128 | 1.86 | False | screened out |
+| stormflow_coefficient | 0 | 1 | 0.000862 | 1.79 | False | screened out |
+| air_entry_potential_inverse | 0 | 0 | 0.000349 | 1.84 | False | screened out |
 
 
     8 Sobol candidates:
@@ -843,7 +814,7 @@ being treated as definitive.
 
 | statistic | total runoff / rainfall |
 |---|---|
-| min | 0.991 |
+| min | 0.992 |
 | median | 3.07 |
 | max | 103 |
 
@@ -887,19 +858,19 @@ being treated as definitive.
 **Evidence.**
 
 - The topsoil holds 97%-100% of its saturated capacity, and the subsoil sits at its residual water content in 250 of 300 runs, with no seasonal cycle (Sections 2.2 and 2.3).
-- Mean soil vertical flow is below 0.001 mm in 300 of 300 runs, with a median of about 2.5e-07 mm (Section 1).
+- Mean soil vertical flow is below 0.001 mm in 300 of 300 runs, with a median of about 2.4e-07 mm (Section 1).
 - The 4 soil hydraulic parameters have a largest relative mu\* below 0.01 for every one of the 14 responses (table below).
 
-**What it suggests.** Water hardly moves between the soil layers or into groundwater, so the soil is a full bucket on top of an empty one. Rain that reaches the full topsoil runs off at the surface, and groundwater can be recharged mainly by bypass flow. The soil hydraulic parameters are screened out because the process they control is inactive, not necessarily because it is unimportant. The sampled saturated hydraulic conductivities correspond to about 520 to 69,120 mm per day (if in m s⁻¹); a mean vertical flux of 2.5e-07 mm is many orders of magnitude smaller, which suggests a unit or scaling problem rather than a physical result.
+**What it suggests.** Water hardly moves between the soil layers or into groundwater, so the soil is a full bucket on top of an empty one. Rain that reaches the full topsoil runs off at the surface, and groundwater can be recharged mainly by bypass flow. The soil hydraulic parameters are screened out because the process they control is inactive, not necessarily because it is unimportant. The sampled saturated hydraulic conductivities correspond to about 520 to 69,120 mm per day (if in m s⁻¹); a mean vertical flux of 2.4e-07 mm is many orders of magnitude smaller, which suggests a unit or scaling problem rather than a physical result.
 
 
 
 | parameter | largest mu*_rel, any response | sobol_candidate |
 |---|---|---|
-| van_genuchten_nonlinearily_parameter | 0.00623 | False |
-| pore_connectivity_parameter | 0.00644 | False |
-| saturated_hydraulic_conductivity | 0.00639 | False |
-| air_entry_potential_inverse | 0.00698 | False |
+| pore_connectivity_parameter | 0.00576 | False |
+| van_genuchten_nonlinearily_parameter | 0.00591 | False |
+| saturated_hydraulic_conductivity | 0.00804 | False |
+| air_entry_potential_inverse | 0.00469 | False |
 
 
 
@@ -917,7 +888,7 @@ being treated as definitive.
 
 
 
-**Evidence.** Discharge falls over Jan 2012-Dec 2020 in 245 of 300 runs. 8 of 12 fields drift by more than 10% in more than half of the runs (median change -143% to -13%), despite the 24-month spin-up (Section 2.3).
+**Evidence.** Discharge falls over Jan 2012-Dec 2020 in 247 of 300 runs. 8 of 12 fields drift by more than 10% in more than half of the runs (median change -143% to -13%), despite the 24-month spin-up (Section 2.3).
 
 **What it suggests.** The stores are still draining (or filling) from their initial state throughout the analysis period. Mean and percentile responses then depend on how much initial water is left to drain. A longer spin-up, or responses computed only once the stores have settled, would separate the parameters' effect on the flow regime from their effect on the initial drainage.
 
@@ -927,7 +898,7 @@ being treated as definitive.
 
 
 
-**Evidence.** The 4 discharge responses rank the parameters in almost the same order (rank correlation ≥ 0.93), with the same top three (Sections 3 and 4). Local fluxes and stores are nearly identical in every cell, and only the routed fields vary in space, following the drainage paths to the 4 sinks (Sections 2.4 and 2.5).
+**Evidence.** The 4 discharge responses rank the parameters in almost the same order (rank correlation ≥ 0.95), with the same top three (Sections 3 and 4). Local fluxes and stores are nearly identical in every cell, and only the routed fields vary in space, following the drainage paths to the 2 sinks (Sections 2.4 and 2.5).
 
 **What it suggests.** In a real catchment, high flows are usually driven by fast surface and stormflow processes and low flows by slow groundwater drainage. Here the same parameters control all flow levels, which points to discharge being the same-step sum of upstream runoff, with no routing delay or channel storage. With spatially uniform local hydrology, the Morris maps show where water accumulates, not where processes differ. All outflow leaves through internal sinks, so the site outlet is defined by the lowest cells of the grid rather than by a river leaving the domain; whether the sink cells are handled correctly should be checked.
 
@@ -937,9 +908,7 @@ being treated as definitive.
 
 
 
-**Evidence.** The model output's cell centres are about 841 m west and 199 m north of the `maliau_2` grid (Section 2.5), matching `xoff` / `yoff` in the base configuration.
-
-**What it suggests.** Set `xoff = 496400` and `yoff = 524100` in `static_hydro_configuration.toml` before the next run so that the model grid matches the `maliau_2` site definition.
+**Not flagged:** the model grid matches the site definition.
 
 
 
@@ -959,7 +928,6 @@ Generated from the checks flagged above.
 - Raise the negative groundwater storage (Section 8.2) with the VE developers.
 - Raise the pinned soil moisture and near-zero vertical flow (Section 8.3), including the hydraulic conductivity units.
 - Check the conversion of routed runoff to `river_discharge_rate` (Section 8.4).
-- Set `xoff = 496400`, `yoff = 524100` in the base configuration so the model grid matches `maliau_2` (Section 8.7).
 - Use a longer spin-up, or compute the responses once the stores have settled (Section 8.5).
 - Add a few replicate runs (`replicates` in `morris_sample.py`) to estimate the noise floor (Section 8.8).
 - Once these are resolved, repeat the Morris screening before running Sobol. The influential set, and especially the role of any parameter whose process is switched off, is likely to change.
@@ -980,36 +948,3 @@ Generated from the checks flagged above.
 - Per-run design cross-checking depends on `compiled_configuration.toml` records
   being retained for the run; when they are not (Section 1), the design table and
   parameter ranges are the available provenance for the run.
-
-## Rendering this notebook
-
-This notebook follows `templates/Jupyter_notebook_tutorial`, with one change: the
-rendered output goes into a folder named after `run_name` rather than a single
-`rendered/` folder, so each Morris run keeps its own rendered copy:
-
-```text
-notebook/hydrology/morris_sensitivity/
-├── morris_hydrology_results.md        # Markdown source (commit)
-├── morris_hydrology_results.ipynb     # paired notebook (do not commit)
-└── <run_name>/                        # rendered output for run_name (commit)
-    ├── morris_hydrology_results.md
-    └── morris_hydrology_results_*.png
-```
-
-The cell below does the rendering, so there is no separate export step. Save the
-notebook first, then run all cells. The cell runs the saved notebook again in a
-fresh kernel, with the saved settings, and writes the rendered Markdown and
-figures to `<run_name>/`, replacing any earlier rendered copy there. In the
-rendered copy, only the Run settings cell shows its code; the other cells show
-only their output, and the render cell is left out. Set `render_output = False`
-in the settings cell to run the notebook without rendering it.
-
-Rendering needs `nbconvert`. If the kernel running this notebook does not have it,
-the cell uses the repository environment (`.venv`, created by `uv sync`) instead,
-so it works whichever kernel is selected. The `.md` source is read with `jupytext`
-when available; otherwise the saved `.ipynb` is used.
-
-Commit this source file and the run folder, not the `.ipynb` file. `show_figure`
-reduces figures larger than 450 kB so that the exported PNGs pass the
-`check-added-large-files` pre-commit hook, and the rendered Markdown has trailing
-spaces removed and markdownlint turned off, so it passes the other hooks.
