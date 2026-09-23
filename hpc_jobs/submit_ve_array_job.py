@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from hpc_jobs.parse_arrayJob_config import arrayJobSpec
 from hpc_jobs.parse_arrayJob_config import load_arrayJob_spec
 from hpc_jobs.parse_resources_config import load_resources_spec
 
@@ -44,6 +45,43 @@ def parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
         help="Skip validation of individual Virtual Ecosystem configurations.",
     )
     return parser.parse_args(arguments)
+
+def validate_configs_with_VEco(arrayJob_spec: arrayJobSpec, site_directory: Path) -> None:
+    """Use Virtual Ecosystem with validate_only=True to check all configurations.
+
+    Args:
+        arrayJob_spec: The loaded and validated array job specification.
+        site_directory: Resolved path to the site directory configs are relative to.
+
+    Raises:
+        ValueError: If any subJob's Virtual Ecosystem configuration is invalid.
+    """
+    print("Loading Virtual Ecosystem...", flush=True)
+
+    from virtual_ecosystem.core.exceptions import ConfigurationError
+    from virtual_ecosystem.core.logger import LOGGER
+    from virtual_ecosystem.main import ve_run
+
+    for subJob_index, subJob in enumerate(arrayJob_spec.subJobs, start=1):
+        subJob_config_paths = [
+            site_directory / path
+            for path in (*arrayJob_spec.common_config_paths, *subJob.config_paths)
+        ]
+        try:
+            LOGGER.disabled = True
+            ve_run(
+                cfg_paths=subJob_config_paths,
+                cli_config=subJob.cli_config,
+                validate_only=True,
+            )
+        except ConfigurationError as error:
+            raise ValueError(
+                f"Invalid Virtual Ecosystem config for subJob: {subJob_index} \n"
+                f"{error}"
+            ) from error
+        finally:
+            LOGGER.disabled = False
+    print("Virtual Ecosystem configurations validated.")
 
 
 def main() -> None:
@@ -80,32 +118,7 @@ def main() -> None:
 
     # Optional to allow for running of arrays where not all configurations are valid.
     if not args.skip_ve_validation:
-        print("Loading Virtual Ecosystem...", flush=True)
-
-        from virtual_ecosystem.core.exceptions import ConfigurationError
-        from virtual_ecosystem.core.logger import LOGGER
-        from virtual_ecosystem.main import ve_run
-
-        for subJob_index, subJob in enumerate(arrayJob_spec.subJobs, start=1):
-            subJob_config_paths = [
-                site_directory / path
-                for path in (*arrayJob_spec.common_config_paths, *subJob.config_paths)
-            ]
-            try:
-                LOGGER.disabled = True
-                ve_run(
-                    cfg_paths=subJob_config_paths,
-                    cli_config=subJob.cli_config,
-                    validate_only=True,
-                )
-            except ConfigurationError as error:
-                raise ValueError(
-                    f"Invalid Virtual Ecosystem config for subJob: {subJob_index} \n"
-                    f"{error}"
-                ) from error
-            finally:
-                LOGGER.disabled = False
-        print("Virtual Ecosystem configurations validated.")
+        validate_configs_with_VEco(arrayJob_spec, site_directory)
     else:
         print("Skipping Virtual Ecosystem configuration validation.")
 
