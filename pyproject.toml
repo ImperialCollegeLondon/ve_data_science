@@ -52,8 +52,7 @@ dev-pinned = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/
 
 # a version of virtual ecosystem which works with the example data
 # Use for the HPC docuementation
-hpc-pinned = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@929c6cb",
-              "pyrealm==2.0.0",]
+hpc-pinned = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@059c55975ce98111bd37ceb025f3eb4f4eb230d2"]
 
 [tool.ruff]
 line-length = 88
