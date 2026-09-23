@@ -190,238 +190,287 @@ been reduced (van Griensven et al., 2006; Wang & Solomatine, 2019; Zhan et al.,
 
 ## Python Sensitivity Analysis Workflow
 
-The current Python workflow implements **global sensitivity analysis for the
-Virtual Ecosystem hydrology module**. However, the workflow has been designed
-to be modular and reusable, allowing the same pipeline to be adapted for other
-Virtual Ecosystem modules (e.g. abiotic, soil, plant, animal and litter) by
-providing the appropriate parameter definitions and base configuration files.
+The current sensitivity-analysis workflow in this repository is set up for the
+hydrology module, using a Morris screening pipeline and the associated HPC
+execution pattern to produce reproducible sensitivity outputs for a real
+hydrology case study.
 
-The implemented workflow currently
-covers parameter definition, sample generation, and creation of HPC job
-configurations required to execute batch
-simulations runs.
+The overall design is modular and can be replicated for other VE modules by
+changing the parameter bounds, base configuration, and response specification.
+The hydrology example is the active implementation, stored under
+`data/sensitivity/hydrology/` and driven by scripts in
+`analysis/abiotic/sensitivity/`.
 
-The workflow consists of the following stages.
+The completed workflow is:
 
 ```text
-Define parameter ranges
+Define parameter bounds
     │
     ▼
-Load parameter definitions
+Generate Morris or Sobol design
     │
     ▼
-Generate parameter samples
-(Morris / Sobol)
+Write array job configuration
     │
     ▼
-Generate HPC job configuration
-(job_config.toml)
+Submit HPC array jobs
     │
     ▼
-Submit HPC batch jobs
+Run VE sub-jobs and write model_data.nc
     │
     ▼
-Run batch HPC simulations
+Validate runs and design consistency
     │
     ▼
-Future work
-(Output extraction, sensitivity analysis and reporting)
+Extract hydrological responses
+    │
+    ▼
+Compute Morris or Sobol indices
+    │
+    ▼
+Rank parameters and write summary tables/figures
 ```
 
 ---
 
-## Step 1. Define parameter ranges
+## Step 1. Define the hydrology parameter space
 
-Parameter names and sampling bounds are defined in
-
-`sensitivity_parameters.toml`
-
-Each parameter is identified using its full Virtual Ecosystem configuration
-key (for example,
-
-`hydrology.constants.groundwater_capacity`)
-
-together with lower and upper sampling bounds.
-
-### Step 1 Files
+The parameter bounds are stored in
 
 ```text
 data/sensitivity/hydrology/config/sensitivity_parameters.toml
 ```
 
-### Step 1 Purpose
+This file defines the parameter groups and the lower/upper bounds used for
+sampling. In the hydrology case, the relevant parameters include soil moisture
+thresholds, hydraulic properties, groundwater storage parameters, and runoff
+coefficients such as `groundwater_capacity`, `stormflow_coefficient`, and
+`reservoir_const_lower_groundwater`.
 
-The parameter definition file specifies:
-
-- parameter groups (e.g. hydrology, soil, abiotic);
-- Virtual Ecosystem configuration keys;
-- lower and upper sampling bounds.
-
-Adding a new module simply requires defining a new parameter group within
-`sensitivity_parameters.toml`.
-
----
-
-## Step 2. Load parameter definitions
-
-The helper function
-
-```python
-load_problem(...)
-```
-
-reads the selected parameter groups and constructs a SALib-compatible problem
-definition containing:
-
-- parameter names;
-- sampling bounds;
-- number of variables.
-
-### Step 2 Tool
-
-```text
-tools/python/abiotic/sensitivity_tools.py
-```
-
-### Step 2 Output
-
-```python
-problem = {
-    "num_vars": ...,
-    "names": ...,
-    "bounds": ...
-}
-```
-
-This problem dictionary is then passed directly to SALib sampling routines.
+The parameter file is the authoritative definition of the sampled uncertainty
+space. Any change to the model parameter ranges must be reflected here before
+re-generating the design.
 
 ---
 
-## Step 3: Generate parameter samples
+## Step 2. Generate the Morris or Sobol design
 
-Parameter samples are generated using either
-
-```python
-generate_morris_samples(...)
-```
-
-or
-
-```python
-generate_sobol_samples(...)
-```
-
-implemented using the SALib Python package (Herman & Usher, 2017; Iwanaga et al., 2022).
-
-### Step 3 Tool
+The sample-generation step is driven by the analysis scripts in
 
 ```text
-tools/python/abiotic/sensitivity_tools.py
+analysis/abiotic/sensitivity/
 ```
 
-### Step 3 Driver scripts
+For the hydrology example, the usual pattern is:
 
 ```text
-analysis/abiotic/sensitivity/morris_sample.py
-
-analysis/abiotic/sensitivity/sobol_sample.py
+morris_sample.py
+sobol_sample.py
 ```
 
-### Step 3 Output
+These scripts use SALib to construct the parameter design for the selected
+method and write a VE array-job configuration containing one sampled parameter
+set per sub-job. The generated configuration file is stored under
+`data/sensitivity/hydrology/config/` with names such as:
 
-The generated sample matrix contains one parameter combination per simulation.
+```text
+arrayJob_config_hydrology_morris_001.toml
+arrayJob_config_hydrology_sobol_001.toml
+```
+
+The generated job file stores the design in a reproducible form. The analysis
+step later reconstructs the design from this file and verifies that the model
+runs match the intended parameter combinations.
 
 ---
 
-## Step 4. Generate HPC job configuration
+## Step 3. Build the HPC array job
 
-The sampled parameter combinations are converted into a Virtual Ecosystem
-`job_config.toml` file using
-
-```python
-generate_job_config(...)
-```
-
-Each sampled parameter set becomes one independent Virtual Ecosystem
-simulation.
-
-### Step 4 Tool
+The real HPC pipeline is implemented in
 
 ```text
-tools/python/abiotic/job_config_tools.py
+ve_data_science/hpc_jobs/
 ```
 
-### Step 4 Input files
-
-The base configuration provides the default Virtual Ecosystem model settings.
-Only the sampled parameters are overridden for each simulation.
+with the key runtime files:
 
 ```text
-data/sensitivity/hydrology/config/hydrology_base_config.toml
+submit_ve_array_job.py
+run_subJob.py
+parse_arrayJob_config.py
+parse_resources_config.py
+run_analyse_morris.pbs
 ```
 
-### Step 4 Output
+The submission workflow works as follows:
 
-```text
-data/sensitivity/hydrology/config/job_config_sobol.toml
+1. `submit_ve_array_job.py` loads the array-job TOML and the PBS resource TOML.
+2. It validates the VE configuration for each sub-job.
+3. It creates the output directory and one sub-job directory per array task.
+4. It submits a PBS array job using `qsub`.
+5. Each sub-job runs `run_subJob.py`, which executes the VE model and converts
+   the temporary Zarr output to NetCDF as `model_data.nc`.
 
-or
+For this repository, the array-job submission scripts are stored in the shared
+HPC folder at `ve_data_science/hpc_jobs`, and the hydrology example uses the
+same pattern with a module-specific configuration and output directory.
 
-data/sensitivity/hydrology/config/job_config_morris.toml
-```
-
-These job configuration files define the sensitivity analysis simulations and
-are intended to be used by the Virtual Ecosystem HPC batch workflow to execute
-ensembles of model runs. Each `[[jobs]]` entry represents a single simulation
-with a unique set of sampled parameter values.
+This is the main operational HPC pipeline used to run the full hydrology
+sensitivity ensemble.
 
 ---
 
-## Step 5: Execute Virtual Ecosystem simulations *(planned)*
+## Step 4. Execute the hydrology example on HPC
 
-This stage is **currently under development** and has **not yet been
-implemented**. Once the sensitivity sampling workflow is complete, the
-generated `job_config.toml` files will be submitted through the
-Virtual Ecosystem HPC batch workflow to execute the sensitivity analysis
-experiments.
+A practical hydrology example is shown below.
 
-```text
-job_config.toml
-        │
-        ▼
-PBS job array
-        │
-        ▼
-Multiple Virtual Ecosystem simulations
+```bash
+cd /rds/general/user/lsamikan/home/ve_data_science
+source .venv/bin/activate
+export PYTHONPATH="$PWD/data/sensitivity/hydrology:$PYTHONPATH"
+H=data/sensitivity/hydrology
+RES=$H/config/pbs_resources_config.toml
 ```
 
-Each `[[jobs]]` entry represents one simulation with a unique parameter set.
+### Morris run
+
+```bash
+uv run --group dev-pinned python analysis/abiotic/sensitivity/morris_sample.py
+uv run --group dev-pinned python -m hpc_jobs.submit_ve_array_job \
+    $H/config/arrayJob_config_hydrology_morris_001.toml "$RES" \
+    $H/out/hydrology_morris_001
+```
+
+This creates the Morris design and runs the ensemble through the HPC array job.
+Each sub-job writes a `model_data.nc` file under the corresponding
+`out/hydrology_morris_001/array_subJob_<n>/` directory.
+
+### Morris analysis
+
+Once the runs are complete, the screening analysis is performed using:
+
+```bash
+uv run --group dev-pinned python \
+    analysis/abiotic/sensitivity/morris_analyse_hydrology.py \
+    --run-name hydrology_morris_001 --workers 4
+```
+
+This script performs the completed Morris post-processing pipeline:
+
+- validates the Morris design against the sampled bounds;
+- checks that each completed run matches its intended design row;
+- reads and validates the model outputs from `model_data.nc`;
+- extracts the hydrology responses (including discharge and other VE outputs);
+- removes the spin-up period;
+- computes the Morris elementary effects (`μ`, `μ*`, `σ`);
+- writes summary tables, figures, response caches and screening decisions.
+
+After `morris_analyse_hydrology.py` has generated the Morris outputs, the
+post-processing results are written to the analysis directory, for example:
+
+```text
+data/sensitivity/hydrology/analysis/hydrology_morris_001/
+```
+
+The final report for the hydrology Morris analysis is then produced in the
+notebook/ directory:
+
+```text
+notebook/hydrology/morris_sensitivity/
+```
+
+This is where the researcher inspects the screening ranking, checks the model
+health diagnostics, and decides which parameters should move forward to Sobol
+analysis.
 
 ---
 
-## Step 6: Post-processing sensitivity analysis *(planned)*
+## Step 5. Complete the analysis pipeline for hydrology
 
-This stage has **not yet been implemented** and represents the next phase of
-the sensitivity analysis pipeline.
+The completed hydrology Morris analysis script is:
 
-Following successful execution of the HPC simulations, a post-processing
-workflow will be developed to:
+```text
+analysis/abiotic/sensitivity/morris_analyse_hydrology.py
+```
 
-- extract Virtual Ecosystem model outputs;
-- aggregate model outputs across simulations;
-- compute Morris elementary effects (μ, μ*, σ);
-- compute Sobol sensitivity indices (S₁, ST and S₂);
-- rank influential parameters;
-- identify parameter interactions;
-- generate figures, tables and summary reports.
+This script is the core of the completed pipeline. It is not just a placeholder:
+it reads the array-job specification, reconstructs the Morris design, checks the
+completed ensemble, and calculates the Morris statistics needed to identify the
+most influential hydrology parameters.
 
-The completed workflow will support interpretation of sensitivity results and
-provide a basis for selecting parameters for subsequent calibration and
-validation.
+Key functionality includes:
 
-The planned implementation will make use of the SALib analysis routines
-(`SALib.analyze.morris` and `SALib.analyze.sobol`) (Herman & Usher, 2017;
-Iwanaga et al., 2022).
+- reconstructing the SALib Morris trajectories from the saved job file;
+- confirming that the completed runs used the intended parameter values;
+- reading the hydrology model outputs from each NetCDF file;
+- applying the hydrological response specification used by the analysis;
+- computing scalar, field-wise and monthly Morris sensitivity measures;
+- generating tables and plots for parameter ranking and screening.
+
+The hydrology pipeline is therefore complete as a screening workflow: it takes
+run outputs from the HPC ensemble, processes them, and produces a defensible
+set of influential parameters for the next stage.
+
+---
+
+## Step 6. Sobol stage after Morris screening
+
+After reviewing the Morris results, the next stage is a targeted Sobol analysis.
+The same general HPC pattern is followed:
+
+```bash
+uv run --group dev-pinned python analysis/abiotic/sensitivity/sobol_sample.py
+uv run --group dev-pinned python -m hpc_jobs.submit_ve_array_job \
+    $H/config/arrayJob_config_hydrology_sobol_001.toml "$RES" \
+    $H/out/hydrology_sobol_001
+```
+
+The Sobol analysis script then uses the same hydrology response specification to
+compute first-order and total-order sensitivity indices, together with
+convergence and uncertainty diagnostics.
+
+This staged design is the recommended strategy in VE hydrology:
+
+```text
+Morris screening
+    │
+    ▼
+Select important parameters
+    │
+    ▼
+Sobol analysis (future implementation)
+    │
+    ▼
+Calibration and validation
+```
+
+> Note: the completed, implemented workflow in this repository is the Morris
+> screening pipeline with the HPC run and post-processing stages. The Sobol
+> pipeline is planned as a future extension and is not yet part of the current
+> hydrology implementation.
+
+This reduces the computational burden of full variance decomposition while still
+providing the detailed ranking information needed for later model refinement.
+
+---
+
+## Hydrology example summary
+
+The hydrology example demonstrates the full implemented workflow:
+
+- define the uncertain parameter ranges in
+  `data/sensitivity/hydrology/config/sensitivity_parameters.toml`;
+- generate an ensemble design with SALib;
+- write a VE array-job configuration for HPC submission;
+- run the ensemble through `submit_ve_array_job.py` and `run_subJob.py`;
+- validate the design and run outputs using the analysis script;
+- compute Morris sensitivity statistics and rank parameters;
+- select a reduced parameter set for Sobol analysis;
+- use the same overall pipeline to continue with detailed variance-based
+  analysis.
+
+For the hydrology module, this represents the completed sensitivity-analysis
+pipeline in the current repository, rather than a future planned workflow.
 
 ---
 
