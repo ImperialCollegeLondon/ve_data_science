@@ -4,11 +4,11 @@ format: html
 ---
 
 This report source is retired. It used the legacy aggregate screening file at
-`data/derived/soil/validation/config/sources.yaml` and the superseded screening
+`data/derived/soil/validation/sources.yaml` and the superseded screening
 contract.
 
 Current screening records use one YAML file per DOI under
-`data/derived/soil/validation/config/sources/`. Use `screen_dataset()` and the
+`data/derived/soil/validation/sources/`. Use `screen_dataset()` and the
 workflow documented in `docs/validation_database.md`.
 
 Do not render this file. The locally existing HTML is retained only as a historical

@@ -18,6 +18,7 @@
 #|
 #| author:
 #|   - Hao Ran Lai
+#|   - Nicholas Wei Cheng Tan
 #|
 #| status: final
 #|
@@ -160,11 +161,42 @@ normalise_doi_metadata <- function(metadata, retrieved_at = Sys.time()) {
 
   authors <- metadata$author
   if (is.data.frame(authors) && nrow(authors) > 0L) {
-    authors <- authors |>
-      dplyr::transmute(
-        author = stringr::str_c(.data$family, .data$given, sep = ", ")
-      ) |>
-      dplyr::pull(.data$author)
+    family <- if ("family" %in% names(authors)) {
+      authors$family
+    } else {
+      rep(NA_character_, nrow(authors))
+    }
+    given <- if ("given" %in% names(authors)) {
+      authors$given
+    } else {
+      rep(NA_character_, nrow(authors))
+    }
+    literal <- if ("literal" %in% names(authors)) {
+      authors$literal
+    } else {
+      rep(NA_character_, nrow(authors))
+    }
+
+    authors <- purrr::pmap_chr(
+      list(family = family, given = given, literal = literal),
+      \(family, given, literal) {
+        name_parts <- c(family, given)
+        name_parts <- name_parts[!is.na(name_parts) & nzchar(name_parts)]
+
+        if (length(name_parts) > 0L) {
+          stringr::str_c(name_parts, collapse = ", ")
+        } else if (!is.na(literal) && nzchar(literal)) {
+          literal
+        } else {
+          NA_character_
+        }
+      }
+    )
+    authors <- authors[!is.na(authors) & nzchar(authors)]
+
+    if (length(authors) == 0L) {
+      authors <- NULL
+    }
   } else {
     authors <- NULL
   }
@@ -299,16 +331,13 @@ new_screening_record <- function(
 #' Read all dataset screening records
 #'
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently hardcoded to the soil module; to relax this later.
 #'
 #' @returns A named list of screening records. Names are the source filenames
 #'   without their `.yaml` extension.
 #'
 #' @export
 
-list_screening_records <- function(
-  sources_dir = "data/derived/soil/validation/config/sources"
-) {
+list_screening_records <- function(sources_dir) {
   if (!dir.exists(sources_dir)) {
     return(list())
   }
@@ -359,7 +388,7 @@ list_screening_records <- function(
 
 find_screening_record <- function(
   doi,
-  sources_dir = "data/derived/soil/validation/config/sources"
+  sources_dir
 ) {
   doi <- normalise_doi(doi)
   records <- list_screening_records(sources_dir)
@@ -394,7 +423,6 @@ find_screening_record <- function(
 #'
 #' @param record A screening record created by [new_screening_record()].
 #' @param sources_dir Directory in which to create the YAML file.
-#'   Currently hardcoded to the soil module; to relax this later.
 #'
 #' @returns The path of the new YAML file.
 #'
@@ -402,7 +430,7 @@ find_screening_record <- function(
 
 write_screening_record <- function(
   record,
-  sources_dir = "data/derived/soil/validation/config/sources"
+  sources_dir
 ) {
   if (!is.list(record) || is.null(record$doi) || is.null(record$record_id)) {
     cli::cli_abort(
@@ -466,7 +494,6 @@ write_screening_record <- function(
 #' decision and rationale, and writes one YAML record per dataset.
 #'
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently defaults to the soil module; to be relaxed later.
 #' @param .metadata_fetcher Function used to retrieve normalised DOI metadata.
 #'   This supports network-independent tests and normally should not be changed.
 #' @param .readline Function used to collect free-text console input. This
@@ -481,10 +508,14 @@ write_screening_record <- function(
 #' @examples
 #' box::use(tools/R/R/valdb)
 #' box::help(valdb$screen_dataset)  # if you need a conventional R help page
-#' valdb$screen_dataset()
+#' module_name <- "soil"
+#' sources_dir <- here::here(
+#'   "data", "derived", module_name, "validation", "sources"
+#' )
+#' valdb$screen_dataset(sources_dir = sources_dir)
 
 screen_dataset <- function(
-  sources_dir = "data/derived/soil/validation/config/sources",
+  sources_dir,
   .metadata_fetcher = fetch_doi_metadata,
   .readline = readline,
   .select = utils::select.list
@@ -572,7 +603,7 @@ screen_dataset <- function(
 new_schema_template <- function() {
   list(
     source_id = "author_year",
-    data_file = "data/primary/soil/author_year/*.csv",
+    data_file = "data/primary/<module>/author_year/*.csv",
     skip_rows = 0L,
     variables = list(
       var_original_1 = list(
@@ -582,18 +613,18 @@ new_schema_template <- function() {
       )
     ),
     dedup_key = c("sample_id", "date", "site_id"),
-    # Coordinates specification with precedence: (1) blanket, (2) data columns,
-    # (3) external file. Check in order above; first non-null case applies.
+    # Coordinates specification. Keep this field order stable for YAML templates:
+    # file mapping first, then optional in-data columns, then blanket coordinates.
     coordinates = list(
+      from_file = NULL,
+      match_data_column = NULL,
+      match_location_column = NULL,
+      latitude_column = NULL,
+      longitude_column = NULL,
       same_for_all_rows = list(
         latitude = NULL,
         longitude = NULL
-      ),
-      latitude_column = NULL,
-      longitude_column = NULL,
-      from_file = NULL,
-      match_data_column = NULL,
-      match_location_column = NULL
+      )
     ),
     temporal = list(
       date_column = NULL,
@@ -1076,7 +1107,6 @@ add_observation_id <- function(data, source) {
 #'
 #' @param doi A DOI accepted by [normalise_doi()].
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently defaults to the soil module; to be relaxed later.
 #'
 #' @returns The path of the updated YAML file.
 #'
@@ -1084,7 +1114,7 @@ add_observation_id <- function(data, source) {
 
 initialise_source_schema <- function(
   doi,
-  sources_dir = "data/derived/soil/validation/config/sources"
+  sources_dir
 ) {
   doi <- normalise_doi(doi)
   record <- find_screening_record(doi, sources_dir)
@@ -1163,7 +1193,6 @@ initialise_source_schema <- function(
 #'
 #' @param doi A DOI accepted by [normalise_doi()].
 #' @param sources_dir Directory containing one YAML file per screened dataset.
-#'   Currently defaults to the soil module; to be relaxed later.
 #' @param .editor Function used to open the YAML file. This supports tests and
 #'   normally should not be changed.
 #'
@@ -1172,11 +1201,15 @@ initialise_source_schema <- function(
 #' @export
 #' @examples
 #' box::use(tools/R/R/valdb)
-#' valdb$add_schema("10.5281/zenodo.8158810")
+#' module_name <- "soil"
+#' sources_dir <- here::here(
+#'   "data", "derived", module_name, "validation", "sources"
+#' )
+#' valdb$add_schema("10.5281/zenodo.8158810", sources_dir = sources_dir)
 
 add_schema <- function(
   doi,
-  sources_dir = "data/derived/soil/validation/config/sources",
+  sources_dir,
   .editor = utils::file.edit
 ) {
   doi <- normalise_doi(doi)
@@ -1192,7 +1225,7 @@ add_schema <- function(
 #' Build or rebuild the validation database based on the YAML configs of source
 #' datasets.
 #'
-#' @param config_dir Path containing validation database configuration.
+#' @param variables_derived Path to local derived-variable metadata.
 #' @param sources_dir Directory containing one YAML record per screened dataset.
 #' @param db_path Output path for the harmonised database.
 #'
@@ -1203,12 +1236,28 @@ add_schema <- function(
 #' @export
 #' @examples
 #' box::use(tools/R/R/valdb)
-#' valdb$build_validation_database()
+#' module_name <- "soil"
+#' validation_root <- here::here(
+#'   "data", "derived", module_name, "validation"
+#' )
+#' variables_derived <- here::here(
+#'   "data", "derived", "validation", "derived_variables.toml"
+#' )
+#' valdb$build_validation_database(
+#'   variables_derived = variables_derived,
+#'   sources_dir = file.path(validation_root, "sources"),
+#'   db_path = file.path(validation_root, "database")
+#' )
 
 build_validation_database <- function(
-  config_dir = "data/derived/soil/validation/config",
-  sources_dir = file.path(config_dir, "sources"),
-  db_path = "data/derived/soil/validation/database"
+  variables_derived = file.path(
+    "data",
+    "derived",
+    "validation",
+    "derived_variables.toml"
+  ),
+  sources_dir,
+  db_path
 ) {
   # Ingest datasets --------------------------------------------------------
 
@@ -1218,7 +1267,9 @@ build_validation_database <- function(
   # Configs ----------------------------------------------------------------
 
   # Load canonical units only after local source preflight succeeds.
-  canonical_units <- build_canonical_units_table()
+  canonical_units <- build_canonical_units_table(
+    variables_derived = variables_derived
+  )
 
   # Harmonise each dataset ------------------------------------------------
   data_harmonised <-
@@ -1629,7 +1680,7 @@ add_coordinates <- function(dat, src) {
   # both sources for datasets with composite location identifiers.
   if (!is.null(key_data)) {
     gazetteer_data <- sf::st_read(
-      "data/primary/site/gazetteer.geojson",
+      here::here("data/primary/site/gazetteer.geojson"),
       quiet = TRUE
     ) |>
       sf::st_drop_geometry() |>
@@ -2196,9 +2247,8 @@ drop_blanks <- function(x) {
 #'
 #' @param variables_ve Path or URL to the virtual_ecosystem's data variable TOML
 #'   table.
-#' @param variables_derived Path to the custom derived variable TOML table.
-#'   Currently it defaults to the soil module. Use `NULL` to omit derived
-#'   variables.
+#' @param variables_derived Path to the custom derived variable TOML table, or
+#'   `NULL` to omit derived variables.
 #' @param downloader A function compatible with [utils::download.file()]. It is
 #'   injectable so tests can supply canonical metadata without network access.
 #'
@@ -2206,7 +2256,7 @@ drop_blanks <- function(x) {
 
 build_data_variables_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  variables_derived,
   downloader = utils::download.file
 ) {
   ve_path <- retrieve_variables_table(variables_ve, downloader)
@@ -2259,7 +2309,7 @@ retrieve_variables_table <- function(
 
 build_canonical_units_table <- function(
   variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
-  variables_derived = "data/derived/soil/validation/config/derived_variables.toml",
+  variables_derived,
   downloader = utils::download.file
 ) {
   build_data_variables_table(
@@ -2504,12 +2554,21 @@ join_ve_outputs_per_row <- function(
 #'
 #' @examples
 #' \dontrun{
-#' db <- arrow::open_dataset("data/derived/soil/validation/database") |>
+#' module_name <- "soil"
+#' scenario_group <- "maliau"
+#' scenario_name <- "maliau_2"
+#' validation_root <- here::here(
+#'   "data", "derived", module_name, "validation"
+#' )
+#' scenario_root <- here::here(
+#'   "data", "scenarios", scenario_group, scenario_name, "out"
+#' )
+#' db <- arrow::open_dataset(file.path(validation_root, "database")) |>
 #'   dplyr::collect()
 #' join_ve_outputs(
 #'   validation_database = db,
-#'   zarr_path = "data/scenarios/maliau/maliau_2/out/model_data.zarr",
-#'   config_path = "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
+#'   zarr_path = file.path(scenario_root, "model_data.zarr"),
+#'   config_path = file.path(scenario_root, "compiled_configuration.toml")
 #' )
 #' }
 
