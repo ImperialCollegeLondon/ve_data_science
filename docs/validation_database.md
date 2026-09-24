@@ -67,6 +67,17 @@ After `source()`, call them as `function_name()`. If you call
 
 ## Workflow overview
 
+The overall flow is:
+
+```mermaid
+flowchart TD
+  A[Screen dataset] --> B[Add schema template]
+  B --> C[Download and convert source data to CSV]
+  C --> D[Complete schema fields]
+  D --> E[Build validation database]
+  E --> F[Join VE outputs]
+```
+
 1. Screen each candidate dataset and save one YAML record per DOI.
 2. Initialise schema fields for a dataset with a `proceed` decision.
 3. Download the source dataset and convert it to CSV.
@@ -236,8 +247,22 @@ database. It does not make a complete schema a draft.
 
 #### Coordinate sources and precedence
 
-The builder fills coordinates in this order. Each method sets a
-`coordinate_source` field that shows the source used:
+The builder fills coordinates in this order:
+
+```mermaid
+flowchart TD
+  A[Need coordinates for a row] --> B{same_for_all_rows set?}
+  B -- Yes --> C[Use blanket coordinates\ncoordinate_source: same_for_all_rows]
+  B -- No --> D{latitude_column and\nlongitude_column set?}
+  D -- Yes --> E[Read from data_file\ncoordinate_source: data_columns]
+  D -- No --> F{locations file configured\nor locations.csv present?}
+  F -- Yes --> G[Match rows and read coordinates\ncoordinate_source: locations_file]
+  F -- No --> H{Gazetteer match available?}
+  H -- Yes --> I[Use gazetteer centroid\ncoordinate_source: gazetteer_second_pass]
+  H -- No --> J[Leave coordinates missing\ncoordinate_source: missing]
+```
+
+Each method sets a `coordinate_source` field that shows the source used:
 
 1. **Blanket coordinates** (`same_for_all_rows`): Use when one location applies
    to the entire dataset. Set both `same_for_all_rows.latitude` and
@@ -379,6 +404,16 @@ file, computes extra variables from the raw VE outputs, and returns them in the
 same named-list shape as the direct VE variables.
 
 The dependency chain is:
+
+```mermaid
+flowchart LR
+  A[join_ve_outputs] --> B[get_ve_variables.R]
+  B --> C[get_derived_variables]
+  C --> D[data/derived/validation/derived_variables.toml]
+  D --> E[Derived-variable registry]
+  C --> F[Derived arrays]
+  F --> A
+```
 
 1. `join_ve_outputs()` calls `get_ve_variables.R`.
 2. `get_ve_variables.R` calls `get_derived_variables()`.
