@@ -23,7 +23,7 @@ jupyter:
     pygments_lexer: ipython3
     version: 3.12.8
 ---
-## Working with `.md` Reports in Interactive Notebooks
+# Working with `.md` Reports in Interactive Notebooks
 
 This tutorial is provided in plain Markdown (`.md`) to remain **software-neutral**,
 lightweight, and version-control friendly. You can work with this file interactively
