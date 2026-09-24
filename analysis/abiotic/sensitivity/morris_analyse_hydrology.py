@@ -416,7 +416,7 @@ random_seed = 2026  # bootstrap seed (the design seed is in the job-file header)
 
 
 def model_health_table(paths: list) -> pd.DataFrame | None:
-    """Water balance and state diagnostics of every run over the full run.
+    """Water balance and state diagnostics of every run over the full ensemble.
 
     closure = P - (surface + subsurface + baseflow + stormflow + ET
                    + groundwater_loss) - change in soil and groundwater stores
