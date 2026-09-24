@@ -208,7 +208,7 @@ Assumptions and expectations:
 
 - Input files are CSV (`readr::read_csv()` is used internally).
 - Known `var_canonical` names are resolved against the latest VE
-  `data_variables.toml` from the `develop` branch and
+  `data_variables.toml` from the `develop` branch and, when supplied,
   `data/derived/validation/derived_variables.toml`.
 - Source and canonical units are interpreted and converted directly with the
   `units` package. Malformed or dimensionally incompatible units are errors.
@@ -231,15 +231,16 @@ source was used:
 1. **Blanket coordinates** (`same_for_all_rows`): Use when one location applies
    to the entire dataset. Set both `same_for_all_rows.latitude` and
    `same_for_all_rows.longitude` to scalar values in WGS84 decimal degrees.
-   Rows filled this way have `coordinate_source: blanket_coordinates`.
+   Rows filled this way have `coordinate_source: same_for_all_rows`.
 
 2. **Data-column coordinates** (`latitude_column`, `longitude_column`): Use when
    the source CSV contains separate latitude and longitude columns. Set both
    `latitude_column` and `longitude_column` to the original column names.
    The builder reads these columns directly from `data_file`, converts them to
    numeric WGS84 decimal degrees, and flags rows as
-   `coordinate_source: data_columns`. If either column name is missing or
-   contains only `NULL` values, this method is skipped.
+   `coordinate_source: data_columns`. Missing coordinate values are retained
+   and marked as `missing`. If one or both coordinate columns are not
+   configured, the builder falls back to the locations-file workflow.
 
 3. **External locations file** (`from_file`, `match_data_column`,
    `match_location_column`, `latitude_column`, `longitude_column`): Use when
@@ -259,7 +260,8 @@ source was used:
    flagged as `coordinate_source: gazetteer_second_pass`.
 
 All coordinate values must be WGS84 decimal degrees. Rows with invalid
-coordinates (non-numeric, out-of-range, or both missing) are flagged as
+coordinates are not silently accepted: non-numeric or out-of-range values abort
+the build, while rows with missing coordinates are flagged as
 `coordinate_source: missing`.
 
 Temporal metadata can come from one `date_column`, from paired `start_column`
@@ -308,6 +310,8 @@ coordinates:
 The builder looks for `locations.csv` beside `data_file`. It matches
 `plot.code` from the data against `Location name` in the locations file, and
 reads coordinates from the locations file's `Latitude` and `Longitude` columns.
+If the locations file has missing coordinates for some matches, those rows are
+kept and marked as `missing`.
 
 #### Example: External locations file (custom path)
 
@@ -321,7 +325,8 @@ coordinates:
 ```
 
 The builder reads coordinates from the specified `from_file` path, matching
-and column names as configured.
+column names as configured. If the locations file contains duplicated keys, the
+build aborts rather than inflating the number of observations.
 
 #### Temporal metadata
 
@@ -369,11 +374,11 @@ valdb$build_validation_database(
 
 Build behaviour:
 
-- Downloads current canonical variable metadata from the VE `develop` branch
-  and combines it with local derived-variable metadata
+- Loads current canonical variable metadata from the VE `develop` branch and
+  combines it with local derived-variable metadata when a derived table is
+  supplied
 - Converts known variables directly between compatible units with `units`
-- Reads per-DOI records in filename order from
-  `data/derived/soil/validation/sources/*.yaml`
+- Reads per-DOI records from `sources_dir` in sorted filename order
 - Flattens each record to one build source per dataset entry under `datasets`
 - Ignores screening-only records
 - Warns about dataset entries that still contain mandatory placeholders and
@@ -406,7 +411,7 @@ Supply its `zarr_path`, `config_path`, `db_path`, or `combined_db_path`
 arguments when files are stored outside that layout.
 
 `join_ve_outputs()` takes the validation database and VE scenario outputs (from
-a Zarr store), then join the spatiotemporally aggregated VE outputs for each
+a Zarr store), then joins the spatiotemporally aggregated VE outputs for each
 row. It reads direct and derived VE variables, classifies each observation by
 spatial/temporal overlap with the scenario bounds, and then returns three added
 columns: the lower quantile `value_VE_q05`, median `value_VE_q50`, and the upper
