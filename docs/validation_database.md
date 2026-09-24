@@ -402,23 +402,36 @@ unit = "kg{N} m^-3"
 function = "get_total_soil_n_per_volume"
 ```
 
-To add a new derived variable for `valdb`, do both of the following:
+For example, suppose you want to add a new derived variable named
+`soil_n_pool_urea_per_mass`. The end-to-end change would look like this:
 
-- add a new `[[variable]]` block to
-  [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
-- add the matching R function to
-  [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R)
+1. Add a new `[[variable]]` block to
+   [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml):
+
+   ```toml
+   [[variable]]
+   name = "soil_n_pool_urea_per_mass"
+   description = "Mass-basis soil urea nitrogen pool"
+   unit = "kg{N} kg^-1"
+   function = "get_soil_n_pool_urea_per_mass"
+   ```
+
+2. Add the matching R function to
+   [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). The function
+   should read the raw VE inputs it needs, compute one array, and return it with
+   the expected VE dimensions.
 
 Use the exact same `name` in both places, and make `function` point to a
 function that returns one array with the expected VE dimensions. If the new
 variable needs configuration values from the VE TOML file, pass them through the
 helper function that computes it.
 
-After adding the new entry, update any tests that check the derived-variable
-registry or the expected names returned by `get_derived_variables()`. The tests
-in
-[tools/R/tests/testthat/test-get_derived_variables.R](tools/R/tests/testthat/test-get_derived_variables.R)
-show the current contract.
+Update [build_validation_database()](tools/R/R/valdb.R) when the new derived
+variable should be accepted as a canonical name in the validation schemas.
+Update `join_ve_outputs()` when the new variable must be computed from VE output
+files during scenario joins. In practice, the TOML registry and the R helper in
+`get_ve_variables.R` are what `join_ve_outputs()` uses; the build step only uses
+the derived-variable table to recognise and validate schema names.
 
 ## 6) Build the validation database
 
