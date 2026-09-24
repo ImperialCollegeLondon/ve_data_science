@@ -23,6 +23,25 @@ jupyter:
     pygments_lexer: ipython3
     version: 3.12.8
 ---
+## Working with `.md` Reports in Interactive Notebooks
+
+This tutorial is provided in plain Markdown (`.md`) to remain **software-neutral**, lightweight, and version-control friendly. You can work with this file interactively using your preferred environment:
+
+### 1. JupyterLab / Jupyter Notebook (via Jupytext)
+[Jupytext](https://jupytext.readthedocs.io/) allows Jupyter to open and run Markdown files directly as interactive notebooks.
+* **Install:** `pip install jupytext`
+* **Open:** In JupyterLab, right-click `Tutorial.md` -> **Open With** -> **Notebook**.
+
+### 2. Quarto
+[Quarto](https://quarto.org/) is a scientific publishing system that seamlessly executes Markdown files containing code.
+* **Install:** Download the CLI from [quarto.org](https://quarto.org/).
+* **Convert/Render:** Run `quarto render Tutorial.md --to ipynb` to generate a standard notebook, or `quarto render Tutorial.md` to produce HTML/PDF reports.
+
+### Formatting Standards for Code Blocks
+To ensure code blocks parse cleanly in Jupytext, Quarto, and standard Markdown viewers:
+* Always specify the language tag explicitly in triple backticks (e.g., `python` after ```).
+* Keep Markdown text outside of code blocks so cell splits parse correctly.
+
 
 # Notebook Workflows
 
