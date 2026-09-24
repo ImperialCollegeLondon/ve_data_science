@@ -96,11 +96,15 @@ from ve_data_tools.sensitivity_tools import (
 def morris_delta(num_levels: int) -> float:
     """Calculate the Morris step on the unit hypercube.
 
+    With p = ``num_levels``, each parameter is sampled on p evenly spaced
+    levels in [0, 1] and every elementary effect moves one parameter by the
+    step p / (2 (p - 1)) (Morris, 1991); for p = 4 the step is 2/3.
+
     Args:
-        num_levels: Number of levels in the Morris sampling design.
+        num_levels: Number of levels p in the Morris sampling design.
 
     Returns:
-        The step size $p / (2 (p - 1))$.
+        The step size p / (2 (p - 1)), where p = ``num_levels``.
 
     """
     return num_levels / (2.0 * (num_levels - 1))
