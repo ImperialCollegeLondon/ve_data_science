@@ -456,21 +456,21 @@ providing the detailed ranking information needed for later model refinement.
 
 ## Hydrology example summary
 
-The hydrology example demonstrates the full implemented workflow:
+The hydrology example demonstrates the implemented Morris screening workflow:
 
 - define the uncertain parameter ranges in
   `data/sensitivity/hydrology/config/sensitivity_parameters.toml`;
-- generate an ensemble design with SALib;
+- generate a Morris ensemble design with SALib;
 - write a VE array-job configuration for HPC submission;
 - run the ensemble through `submit_ve_array_job.py` and `run_subJob.py`;
 - validate the design and run outputs using the analysis script;
 - compute Morris sensitivity statistics and rank parameters;
-- select a reduced parameter set for Sobol analysis;
-- use the same overall pipeline to continue with detailed variance-based
-  analysis.
+- select a reduced parameter set as candidates for Sobol analysis.
 
-For the hydrology module, this represents the completed sensitivity-analysis
-pipeline in the current repository, rather than a future planned workflow.
+For the hydrology module, the Morris screening stage is complete and
+implemented in the current repository. The Sobol stage, which would use the
+same pipeline for the variance-based analysis of the reduced parameter set, is
+planned as a future extension and is not yet implemented.
 
 ---
 

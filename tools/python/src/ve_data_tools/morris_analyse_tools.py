@@ -79,15 +79,17 @@ import pandas as pd
 from ve_data_tools.sensitivity_tools import (
     _format_map_axis,
     _map_extent,
-    draw_sinks,
+    default_outlet_label,
+    draw_outlets,
     other_colour,
+    outlet_legend_handle,
+    outlet_text,
     parameter_styles,
     plot_heatmap,
     plot_maps,
     pyplot,
     salib_problem,
     save_figure,
-    sink_legend_handle,
 )
 
 
@@ -600,6 +602,7 @@ def plot_field_maps(
         title=f"Morris mu* per grid cell: long-term mean {field}",
         colour_label="mu* / largest mu* in these maps",
         marker_xy=data["outlet_xy"],
+        marker_label=outlet_text(data)[0],
         path=path,
     )
 
@@ -632,12 +635,14 @@ def plot_dominant_map(
     *,
     title: str,
     marker_xy=None,
+    marker_label: str = default_outlet_label,
     styles: dict | None = None,
 ) -> None:
     """Categorical x/y map of the dominant parameter for one field.
 
     Each parameter has its colour (and hatch, so the categories stay distinct
-    without colour); stars mark the VE sinks and are explained in the legend.
+    without colour); stars mark the outlet cells and are explained in the
+    legend (``marker_label``).
     """
     from matplotlib.patches import Patch
 
@@ -678,7 +683,7 @@ def plot_dominant_map(
     ax.set_xlim(extent[0], extent[1])
     ax.set_ylim(extent[2], extent[3])
     ax.set_aspect("equal")
-    drawn = draw_sinks(ax, marker_xy)
+    drawn = draw_outlets(ax, marker_xy)
     _format_map_axis(ax, left=True, bottom=True)
     ax.set_title(title, fontsize=12)
     counts = frame["dominant_parameter"].value_counts()
@@ -702,7 +707,7 @@ def plot_dominant_map(
     )
     if drawn:
         fig.legend(
-            handles=[sink_legend_handle()],
+            handles=[outlet_legend_handle(marker_label)],
             loc="outside lower center",
             fontsize=9,
             frameon=False,
@@ -781,8 +786,7 @@ figures/
   05_monthly_sensitivity.png     relative mu* per month
   06_scatter_top_parameters.png  response against the top parameters
 
-Stars on the maps are the VE sinks: the lowest cell of each catchment, where all
-upstream water is routed and leaves the grid (site discharge = sum over sinks).
+Stars on the maps mark the outlet cells: {outlet_label}
 Parameters shown in the maps are the highest-ranked for this field; this is a
 visual choice, not the Sobol selection (see ../../tables/morris_screening_decision.csv).
 """
@@ -807,6 +811,7 @@ def write_field_outputs(
     n_top: int = 4,
 ) -> None:
     """Tables and figures of one field in <root>/<group>/<field>/."""
+    outlet_label, outlet_series = outlet_text(data)
     folder = Path(root) / group / field
     tables, figures = folder / "tables", folder / "figures"
     tables.mkdir(parents=True, exist_ok=True)
@@ -857,13 +862,14 @@ def write_field_outputs(
         figures / "04_dominant_parameter_map.png",
         title=f"Dominant parameter (largest mu*) per cell: long-term mean {field}",
         marker_xy=data["outlet_xy"],
+        marker_label=outlet_label,
         styles=styles,
     )
     plot_monthly_heatmap(
         monthly,
         field,
         figures / "05_monthly_sensitivity.png",
-        series="outflow, sum over sinks" if series_rule == "outlet" else "domain mean",
+        series=outlet_series if series_rule == "outlet" else "domain mean",
     )
     if len(own):
         first = field_responses[0]
@@ -882,8 +888,9 @@ def write_field_outputs(
             field=field,
             group=group,
             responses=", ".join(field_responses) or "none (maps and months only)",
-            series="outflow (sum over sinks)" if series_rule == "outlet" else "mean",
+            series=outlet_series if series_rule == "outlet" else "mean",
             n_top=n_top,
+            outlet_label=outlet_label,
         ),
         encoding="utf-8",
     )

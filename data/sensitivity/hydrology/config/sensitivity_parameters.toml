@@ -18,6 +18,11 @@
 #   conceptual/model parameter rather than a directly measurable field
 #   property, the range is deliberately treated as a plausible uncertainty
 #   range around the VE default rather than as a measured tropical range.
+#
+#   The VE default of each constant, with its description, units and the
+#   data sets or studies it is taken from, is in the VE hydrology model
+#   configuration (HydrologyConstants):
+#   https://github.com/ImperialCollegeLondon/virtual_ecosystem/blob/develop/virtual_ecosystem/models/hydrology/model_config.py
 ###############################################################################
 
 [hydrology]

@@ -52,6 +52,19 @@ input_files:
     description: |
             NetCDF output written by hpc_jobs/run_subJob.py for each completed
             array sub-job.
+  - name: era5_maliau_10x10_2010_2020.nc
+    path: data/sensitivity/hydrology/data/era5_maliau_10x10_2010_2020.nc
+    description: |
+            Climate forcing used by every VE run (climate_file). Its monthly
+            precipitation sets the dry-season months and is the gross rainfall
+            in the water-balance check, because VE does not write precipitation
+            to model_data.nc.
+  - name: elevation_maliau_10x10.nc
+    path: data/sensitivity/hydrology/data/elevation_maliau_10x10.nc
+    description: |
+            Elevation input of the VE runs (elevation_file). VE's own drainage
+            functions are applied to it to find the drainage sinks, the outlet
+            cells of the site.
 
 output_files:
   - name: Morris analysis folder
@@ -62,17 +75,18 @@ output_files:
             space and through time), Morris indices and screening decisions,
             ranking and spatial or monthly sensitivity results, figures, and a
             written summary. It also stores cached responses and the response
-            specification used by the Sobol analysis; the hydrology results
+            specification for the Sobol analysis; the hydrology results
             notebook reads its tables and figures.
 
 imported_files:
     - name: sensitivity_tools.py
-        path: tools/python/src/ve_data_tools/sensitivity_tools.py
-    description: |
+      path: tools/python/src/ve_data_tools/sensitivity_tools.py
+      description: |
             Provides load_design and design_tables to reconstruct and validate the
             Morris design, find_run_outputs and verify_run_parameters to check the
-            completed ensemble, and response functions to read model output, recover
-            VE drainage sinks, cache responses, and save the response specification.
+            completed ensemble, and module-independent response functions to read
+            model output, sum fields over given outlet cells, cache responses, and
+            save the response specification.
     - name: morris_analyse_tools.py
         path: tools/python/src/ve_data_tools/morris_analyse_tools.py
         description: |
@@ -88,6 +102,7 @@ package_dependencies:
   - matplotlib
   - SALib
   - pyprojroot
+  - virtual_ecosystem
 
 usage_notes: |
   1. Set run_name and the user settings below to match the completed ensemble.
@@ -95,7 +110,7 @@ usage_notes: |
      analysis_directory are derived from this name.
 
   2. Check response_spec before analysis. It defines the spin-up period, model
-     fields, outlet rule, and scalar responses. The Sobol analysis imports this
+     fields, outlet rule, and scalar responses. The Sobol analysis will import this
      specification, map_field, health_tolerance, and the hydrology health
      functions so both stages analyse the same responses.
 
@@ -171,6 +186,7 @@ in the SALib documentation: https://salib.readthedocs.io/en/latest
 """  # noqa: D400, D212, D205, D415
 
 import argparse
+import calendar
 import sys
 import tomllib
 from pathlib import Path
@@ -198,7 +214,6 @@ from ve_data_tools.morris_analyse_tools import (  # noqa: E402
 from ve_data_tools.sensitivity_tools import (  # noqa: E402
     categorical_colours,
     design_tables,
-    drainage_table,
     find_run_outputs,
     load_design,
     load_responses,
@@ -207,7 +222,6 @@ from ve_data_tools.sensitivity_tools import (  # noqa: E402
     save_figure,
     save_response_spec,
     to_model_space,
-    ve_routing_from_output,
     verify_run_parameters,
 )
 
@@ -241,9 +255,36 @@ n_workers = 4
 # --use-cache reuses data/responses.npz, model outputs are not read and this
 # setting has no effect.
 
-# What is analysed. sobol_analyse_hydrology.py imports this block, so
-# both stages always use the same responses (also saved to
-# data/response_spec.json and compared by the Sobol analysis).
+# Site inputs used by the VE runs (the same files for every run).
+# climate_file: its precipitation gives the dry-season months and the gross
+# rainfall of the water-balance check. elevation_file: VE's drainage functions
+# are applied to it to find the drainage sinks (the outlet cells).
+climate_file = module_directory / "data" / "era5_maliau_10x10_2010_2020.nc"
+elevation_file = module_directory / "data" / "elevation_maliau_10x10.nc"
+
+# Outlet cells for the "outlet" fields: "sum" = all VE drainage sinks (total
+# outflow of the site); "largest" = the sink with the largest catchment only.
+outlet_combine = "sum"
+
+# How the dry-season months (1 = Jan ... 12 = Dec) are chosen, using the mean
+# monthly domain rainfall of climate_file after spin-up:
+#   "relative": months below dry_season_fraction x the mean monthly rainfall.
+#               Picks the drier-than-usual months at any site, whether it is
+#               wet all year or strongly seasonal (Maliau ERA5: Feb and Mar,
+#               ~147 and ~169 mm against a mean of ~228 mm).
+#   "absolute": months below dry_season_mm (e.g. 100 mm, roughly the monthly
+#               ET of a tropical forest). A wet site such as Maliau has no
+#               month below 100 mm, so this finds none there.
+#   "manual":   the months listed in dry_season_months, as given.
+# If no month passes the threshold, the script stops with an error saying the
+# driest month's rainfall, so the threshold can be adjusted.
+dry_season_method = "relative"
+dry_season_fraction = 0.75
+dry_season_mm = 100.0
+dry_season_months = [2, 3]  # used only when dry_season_method = "manual"
+
+# What is analysed. The Sobol analysis will import this block, so both stages
+# use the same responses (also saved to data/response_spec.json for comparison).
 response_spec = {
     "simulation_start": "2010-01",  # core.timing.start_date
     "n_months": 132,  # core.timing.run_length / update_interval
@@ -290,13 +331,12 @@ response_spec = {
         "groundwater_storage_layer_1": "mean",
         "groundwater_storage_layer_2": "mean",
     },
-    # Outlets = VE's sinks, recovered exactly from the routed and local runoff
-    # of the first run (no elevation file needed).e.g., hydrology_morris_001
-    # has four sinks draining 55, 26, 11 and 8 of the 100 cells.
-    # combine "sum" = whole-site outflow; "largest" = main catchment only.
-    # Alternatives: {"method": "ve_sinks", "elevation_file": "<repo path>"}
-    # or {"method": "xy", "x": ..., "y": ...} for one chosen cell.
-    "outlet": {"method": "ve_routing", "combine": "sum"},
+    # Outlets = VE's drainage sinks, found below with VE's own
+    # calculate_drainage_map on elevation_file and set here as
+    # {"method": "cells", "xy": [...]}; see hydrology_outlet(). For the Maliau
+    # 10 x 10 grid there are two sinks, draining 80 and 20 of the 100 cells.
+    # Alternative: {"method": "xy", "x": ..., "y": ...} for one chosen cell.
+    "outlet": None,
     #  River discharge rate is the primary response because it is the integrated,
     #  catchment-scale hydrological outcome used to assess the model. The
     #  remaining runoff pathways, water stores and local fluxes are secondary
@@ -322,13 +362,12 @@ response_spec = {
             "statistic": "q10",
             "group": "primary",
         },
-        # Feb-Mar are the driest months in the Maliau ERA5 input (~150-180 mm).
         {
             "name": "discharge_dry_season",
             "variable": "river_discharge_rate",
             "statistic": "mean",
             "group": "primary",
-            "months": [2, 3],
+            "months": "dry_season",  # replaced by the months found below
         },
         {
             "name": "surface_runoff_outlet",
@@ -393,7 +432,237 @@ response_spec = {
     ],
 }
 
-# Field whose maps the Sobol analysis draws (it imports this setting). The Morris
+
+def climate_rainfall(path: Path, spec: dict) -> pd.Series:
+    """Domain-mean monthly precipitation (mm) of the climate input over the run.
+
+    The series covers the spec's simulation period (simulation_start, n_months,
+    spin-up included) and is indexed by month. The climate grid must match
+    spec["grid_shape"].
+    """
+    import xarray as xr
+
+    with xr.open_dataset(path) as ds:
+        rain = ds["precipitation"]
+        shape = spec.get("grid_shape")
+        if shape is not None and (rain.sizes["y"], rain.sizes["x"]) != tuple(shape):
+            raise ValueError(f"{path.name} grid does not match grid_shape {shape}")
+        if "valid_time" in ds.coords:
+            dates = pd.to_datetime(ds["valid_time"].values).to_period("M")
+        else:
+            dates = pd.period_range(
+                spec["simulation_start"], periods=rain.sizes["time_index"], freq="M"
+            )
+        series = pd.Series(rain.mean(("x", "y")).values, index=dates)
+    period = pd.period_range(
+        spec["simulation_start"], periods=spec["n_months"], freq="M"
+    )
+    missing = period.difference(series.index)
+    if len(missing):
+        raise ValueError(f"{path.name} has no precipitation for {list(missing)}")
+    return series.loc[period]
+
+
+def dry_months(
+    rainfall: pd.Series,
+    spinup_months: int,
+    method: str,
+    fraction: float,
+    threshold_mm: float,
+    months: list[int],
+) -> list[int]:
+    """Dry-season calendar months from the rainfall after spin-up.
+
+    method "relative": mean monthly rainfall < fraction x mean of all months;
+    "absolute": < threshold_mm; "manual": the given months. Raises an error
+    when no month qualifies, since the dry-season response would be empty.
+    """
+    if method == "manual":
+        if not months or not set(months) <= set(range(1, 13)):
+            raise ValueError(f"dry_season_months must be months 1-12, got {months}")
+        return sorted(int(m) for m in months)
+    rainfall = rainfall.iloc[int(spinup_months) :]
+    climatology = rainfall.groupby(rainfall.index.month).mean()
+    if method == "relative":
+        limit = fraction * climatology.mean()
+        rule = f"{fraction:g} x the mean monthly rainfall ({limit:.0f} mm)"
+    elif method == "absolute":
+        limit = threshold_mm
+        rule = f"{limit:g} mm"
+    else:
+        raise ValueError(
+            f"dry_season_method must be relative, absolute or manual, got {method!r}"
+        )
+    selected = sorted(int(m) for m in climatology[climatology < limit].index)
+    if not selected:
+        raise ValueError(
+            f"No month has mean rainfall below {rule}; the driest month is "
+            f"{calendar.month_abbr[int(climatology.idxmin())]} with "
+            f"{climatology.min():.0f} mm. Raise the threshold, use another "
+            "dry_season_method, or set dry_season_months with method manual."
+        )
+    return selected
+
+
+# Gross rainfall of the run and the dry-season months found from it. Resolved
+# here so that the Sobol analysis, which will import response_spec, uses the
+# same months.
+run_rainfall = climate_rainfall(climate_file, response_spec)
+dry_season_months = dry_months(
+    run_rainfall,
+    response_spec["spinup_months"],
+    dry_season_method,
+    dry_season_fraction,
+    dry_season_mm,
+    dry_season_months,
+)
+print(f"Dry-season months ({dry_season_method}): {dry_season_months}")
+for _response in response_spec["responses"]:
+    if _response.get("months") == "dry_season":
+        _response["months"] = dry_season_months
+
+# -----------------------------------------------------------------------------
+# Hydrology drainage network and outlets (module-specific; also for the Sobol
+# analysis)
+# -----------------------------------------------------------------------------
+
+
+def ve_drainage_network(path: Path) -> dict:
+    """Drainage network of the VE hydrology model for an elevation input.
+
+    Uses VE's own functions (virtual_ecosystem.models.hydrology.above_ground):
+    calculate_drainage_map gives every cell's upstream cells and
+    find_lowest_neighbour the cell each one drains to. A cell that drains to
+    itself is a sink: all water routed to it stays there, so the sinks are the
+    outlets of the site. VE numbers the cells row by row from the north-west
+    corner, so the elevation is passed north-up (y descending, x ascending).
+
+    Returns x, y (north-up), ``downstream`` (cell each cell drains to),
+    ``n_upstream`` (cells draining through each cell, including itself,
+    shape (ny, nx)), ``upstream`` (VE's upstream lists) and ``sinks``
+    [(row, col, n_cells)], largest catchment first.
+    """
+    import xarray as xr
+    from virtual_ecosystem.core.grid import Grid
+    from virtual_ecosystem.models.hydrology.above_ground import (
+        calculate_drainage_map,
+        find_lowest_neighbour,
+    )
+
+    with xr.open_dataset(path) as ds:
+        elevation = (
+            ds["elevation"]
+            .squeeze(drop=True)
+            .transpose("y", "x")
+            .sortby("y", ascending=False)
+            .sortby("x")
+        )
+        x = np.asarray(elevation["x"].values, dtype=float)
+        y = np.asarray(elevation["y"].values, dtype=float)
+        z = np.asarray(elevation.values, dtype=float).ravel()
+    ny, nx = len(y), len(x)
+    spacing = float(np.min(np.diff(x)))
+    grid = Grid("square", cell_area=spacing**2, cell_nx=nx, cell_ny=ny)
+    upstream = calculate_drainage_map(grid, z)  # also sets grid.neighbours
+    downstream = np.asarray(find_lowest_neighbour(grid.neighbours, z), dtype=int)
+    n_upstream = np.array([len(set(upstream[c]) | {c}) for c in range(nx * ny)])
+    sinks = sorted(
+        (
+            (int(c // nx), int(c % nx), int(n_upstream[c]))
+            for c in np.flatnonzero(downstream == np.arange(nx * ny))
+        ),
+        key=lambda sink: -sink[2],
+    )
+    return {
+        "x": x,
+        "y": y,
+        "downstream": downstream,
+        "n_upstream": n_upstream.reshape(ny, nx),
+        "upstream": upstream,
+        "sinks": sinks,
+    }
+
+
+def drainage_table(network: dict) -> pd.DataFrame:
+    """One row per cell: where it drains to, cells upstream, sink flag."""
+    x, y, down = network["x"], network["y"], network["downstream"]
+    nx = len(x)
+    rows, cols = np.divmod(np.arange(len(down)), nx)
+    down_rows, down_cols = np.divmod(down, nx)
+    return pd.DataFrame(
+        {
+            "x": x[cols],
+            "y": y[rows],
+            "drains_to_x": x[down_cols],
+            "drains_to_y": y[down_rows],
+            "n_cells_draining_through": network["n_upstream"].ravel(),
+            "is_sink": down == np.arange(len(down)),
+        }
+    )
+
+
+def hydrology_outlet(network: dict, combine: str) -> dict:
+    """Outlet rule for the shared tools: the VE sinks as {"method": "cells"}."""
+    if combine not in ("sum", "largest"):
+        raise ValueError(f"outlet_combine must be 'sum' or 'largest', got {combine!r}")
+    sinks = network["sinks"][:1] if combine == "largest" else network["sinks"]
+    return {
+        "method": "cells",
+        "xy": [[float(network["x"][c]), float(network["y"][r])] for r, c, _ in sinks],
+        "combine": combine,
+        "label": (
+            "VE sink (outlet cell): lowest cell of its catchment; all upstream "
+            "water is routed here and leaves the grid.\nSite discharge = sum "
+            "over the sinks."
+        ),
+        "series": "outflow, sum over sinks",
+    }
+
+
+def check_drainage(network: dict, path: Path) -> float | None:
+    """Check the network against one run's routed surface runoff.
+
+    VE routes instantaneously: routed runoff of a cell = its local runoff plus
+    that of every cell in its upstream list. Returns the largest difference
+    relative to the largest routed value (about 1e-12 when they agree), or None
+    when the output lacks the variables.
+    """
+    import xarray as xr
+
+    names = ("surface_runoff", "surface_runoff_routed_plus_local")
+    with xr.open_dataset(path) as ds:
+        if not all(name in ds for name in names):
+            return None
+        local, routed = (
+            np.asarray(
+                ds[name]
+                .transpose("time_index", "y", "x")
+                .sortby("y", ascending=False)
+                .sortby("x")
+                .values,
+                dtype=float,
+            ).reshape(ds.sizes["time_index"], -1)
+            for name in names
+        )
+    local = np.nan_to_num(local)
+    upstream = network["upstream"]
+    predicted = np.stack(
+        [
+            local[:, c] + local[:, upstream[c]].sum(axis=1)
+            for c in range(local.shape[1])
+        ],
+        axis=1,
+    )
+    scale = np.nanmax(np.abs(routed)) or 1.0
+    return float(np.nanmax(np.abs(predicted - routed)) / scale)
+
+
+# The drainage network and the outlet cells. Resolved here so that
+# the Sobol analysis, which will import response_spec, uses the same cells.
+drainage = ve_drainage_network(elevation_file)
+response_spec["outlet"] = hydrology_outlet(drainage, outlet_combine)
+
+# Field whose maps the Sobol analysis will draw (imported from here). The Morris
 # analysis writes maps, monthly and dominant-parameter figures for every field
 # in response_spec["fields"], in primary/<field>/ and secondary/<field>/.
 map_field = "river_discharge_rate"
@@ -411,15 +680,22 @@ health_tolerance = 5.0  # |water balance closure| allowed, % of rainfall
 random_seed = 2026  # bootstrap seed (the design seed is in the job-file header)
 
 # -----------------------------------------------------------------------------
-# Hydrology model health (module-specific; also used by the Sobol analysis)
+# Hydrology model health (module-specific; also for the Sobol analysis)
 # -----------------------------------------------------------------------------
 
 
-def model_health_table(paths: list) -> pd.DataFrame | None:
-    """Water balance and state diagnostics of every run over the full run.
+def model_health_table(
+    paths: list, rainfall: pd.Series | None = None
+) -> pd.DataFrame | None:
+    """Water balance and state diagnostics of every run over the full ensemble.
 
     closure = P - (surface + subsurface + baseflow + stormflow + ET
                    + groundwater_loss) - change in soil and groundwater stores
+    P is gross rainfall from climate_file (VE does not write precipitation to
+    model_data.nc) and ET = soil evaporation + transpiration + canopy
+    evaporation. VE sets precipitation_surface = precipitation - canopy
+    evaporation, so canopy_step_residual_mm = P - (precipitation_surface +
+    canopy evaporation) shows water gained or lost in VE's canopy step.
     groundwater_loss is removed at every daily step in VE (30 days/month) and is
     read from compiled_configuration.toml. Also reported: minimum lower
     groundwater store, share of months with topsoil at saturation and subsoil
@@ -427,6 +703,7 @@ def model_health_table(paths: list) -> pd.DataFrame | None:
     """
     import xarray as xr
 
+    rainfall = run_rainfall if rainfall is None else rainfall
     required = {
         "precipitation_surface",
         "surface_runoff",
@@ -435,6 +712,7 @@ def model_health_table(paths: list) -> pd.DataFrame | None:
         "subsurface_stormflow",
         "soil_evaporation",
         "transpiration",
+        "canopy_evaporation",
         "soil_moisture",
         "groundwater_storage",
         "vertical_flow",
@@ -447,7 +725,20 @@ def model_health_table(paths: list) -> pd.DataFrame | None:
                 print(f"   Note: model health skipped, missing {sorted(missing)}")
                 return None
             total = lambda v: float(ds[v].mean(("x", "y")).sum())  # noqa: E731
-            precipitation = total("precipitation_surface")
+            n_months = ds.sizes["time_index"]
+            if n_months != len(rainfall):
+                raise ValueError(
+                    f"{path} has {n_months} months, climate rainfall {len(rainfall)}"
+                )
+            precipitation = float(rainfall.sum())
+            surface_rain = total("precipitation_surface")
+            soil_evaporation = total("soil_evaporation")
+            transpiration = float(
+                ds["transpiration"].sum("layers").mean(("x", "y")).sum()
+            )
+            canopy = float(
+                ds["canopy_evaporation"].sum("layers").mean(("x", "y")).sum()
+            )
             surface = total("surface_runoff")
             runoff = sum(
                 total(v)
@@ -458,9 +749,7 @@ def model_health_table(paths: list) -> pd.DataFrame | None:
                     "subsurface_stormflow",
                 )
             )
-            et = total("soil_evaporation") + float(
-                ds["transpiration"].sum("layers").mean(("x", "y")).sum()
-            )
+            et = soil_evaporation + transpiration + canopy
             soil_layers = ds["layer_roles"].isin(["topsoil", "subsoil"])
             soil = ds["soil_moisture"].sel(layers=soil_layers)
             soil_total = soil.sum("layers").mean(("x", "y")).values
@@ -476,15 +765,21 @@ def model_health_table(paths: list) -> pd.DataFrame | None:
             lower_min = float(
                 ds["groundwater_storage"].isel(groundwater_layers=1).min()
             )
-            n_months = ds.sizes["time_index"]
         loss, saturation, residual = np.nan, np.nan, np.nan
+        topsoil_mm, subsoil_mm = np.nan, np.nan
         config = Path(path).parent / "compiled_configuration.toml"
         if config.exists():
             with config.open("rb") as handle:
-                constants = tomllib.load(handle)["hydrology"]["constants"]
+                compiled = tomllib.load(handle)
+            constants = compiled["hydrology"]["constants"]
             loss = constants["groundwater_loss"] * 30 * n_months
             saturation = constants["soil_moisture_saturation"]
             residual = constants["soil_moisture_residual"]
+            # core.layers.soil_layers: depth of each soil layer's base (m,
+            # negative), e.g. [-0.25, -1.0] -> 250 mm topsoil, 750 mm subsoil
+            depths = np.abs(compiled["core"]["layers"]["soil_layers"])
+            thickness_mm = np.diff(np.concatenate(([0.0], depths))) * 1000
+            topsoil_mm, subsoil_mm = thickness_mm[0], thickness_mm[1]
         storage_change = (soil_total[-1] - soil_total[0]) + (
             groundwater[-1] - groundwater[0]
         )
@@ -495,18 +790,25 @@ def model_health_table(paths: list) -> pd.DataFrame | None:
                 "precipitation_mm": precipitation,
                 "runoff_mm": runoff,
                 "evapotranspiration_mm": et,
+                "soil_evaporation_mm": soil_evaporation,
+                "transpiration_mm": transpiration,
+                "canopy_evaporation_mm": canopy,
+                "canopy_step_residual_mm": precipitation - surface_rain - canopy,
                 "groundwater_loss_mm": loss,
                 "storage_change_mm": storage_change,
                 "closure_percent_of_P": 100 * closure / precipitation,
                 "runoff_over_precipitation": runoff / precipitation,
                 "surface_runoff_share_of_P": surface / precipitation,
                 "min_lower_groundwater_mm": lower_min,
-                # topsoil 250 mm and subsoil 750 mm (core.layers.soil_layers)
                 "months_topsoil_saturated": float(
-                    np.mean(np.nanmean(top, axis=(1, 2)) >= 0.99 * 250 * saturation)
+                    np.mean(
+                        np.nanmean(top, axis=(1, 2)) >= 0.99 * topsoil_mm * saturation
+                    )
                 ),
                 "months_subsoil_at_residual": float(
-                    np.mean(np.nanmean(sub, axis=(1, 2)) <= 1.01 * 750 * residual)
+                    np.mean(
+                        np.nanmean(sub, axis=(1, 2)) <= 1.01 * subsoil_mm * residual
+                    )
                 ),
                 "mean_soil_vertical_flow_mm": vertical,
             }
@@ -705,6 +1007,8 @@ def output_temporal_summary(data: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
         field = str(field)
         series = data["series"][:, index]  # (runs, months)
         run_mean = series.mean(axis=1)
+        # Calendar months from pandas run 1 (Jan) to 12 (Dec), not 0-11, so
+        # range(1, 13); column 0 of climatology is Jan, matching month_names.
         climatology = np.stack(
             [series[:, months == m].mean(axis=1) for m in range(1, 13)], axis=1
         )  # (runs, 12)
@@ -926,7 +1230,14 @@ def output_findings(
 def write_output_summaries(
     problem: dict, samples, data: dict, spec: dict, tables: Path, figures: Path
 ) -> dict[str, pd.DataFrame]:
-    """Write the run, spatial and temporal summaries of the output variables."""
+    """Write the run, spatial and temporal summaries of the output variables.
+
+    problem is the SALib problem definition returned by load_design: a dict
+    with the sampled parameter "names", their sampling "bounds" and
+    "num_vars". Together with samples (the design rows) it is used to list the
+    constants each run used, in model units, next to its responses in
+    output_responses_by_run.csv.
+    """
     responses = output_summary_by_response(data, spec)
     spatial, by_cell = output_spatial_summary(data, spec)
     temporal, climatology = output_temporal_summary(data)
@@ -1040,16 +1351,27 @@ def main() -> None:
     save_response_spec(
         response_spec, analysis_directory / "data" / "response_spec.json"
     )
-    if paths and response_spec["outlet"]["method"] == "ve_routing":
-        network = ve_routing_from_output(paths[0])
-        drainage_table(network).to_csv(
-            analysis_directory / "data" / "drainage_network.csv", index=False
+    drainage_table(drainage).to_csv(
+        analysis_directory / "data" / "drainage_network.csv", index=False
+    )
+    for row, col, n_cells in drainage["sinks"]:
+        print(
+            f"   sink x={drainage['x'][col]:.1f}, y={drainage['y'][row]:.1f}: "
+            f"{n_cells} of {drainage['n_upstream'].size} cells"
         )
-        for row, col, n_cells in sorted(network["sinks"], key=lambda s: -s[2]):
+    if paths:
+        mismatch = check_drainage(drainage, paths[0])
+        if mismatch is None:
+            print("   Note: drainage not checked (no routed runoff in the output).")
+        elif mismatch > 1e-6:
             print(
-                f"   sink x={network['x'][col]:.1f}, y={network['y'][row]:.1f}: "
-                f"{n_cells} of {network['n_upstream'].size} cells"
+                f"   Warning: VE drainage network from {elevation_file.name} does "
+                f"not reproduce the routed runoff of the first run (difference "
+                f"{mismatch:.1e} of the largest value). Check that the elevation "
+                "file and the VE version are the ones the runs used."
             )
+        else:
+            print("   Drainage network reproduces the routed runoff of the runs.")
 
     print("   Output variables: run, spatial and temporal summaries")
     outputs = write_output_summaries(

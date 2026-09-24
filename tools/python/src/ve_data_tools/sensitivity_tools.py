@@ -355,6 +355,9 @@ def write_job_config(
         f"# Sensitivity design written by {method}_sample.py. Do not edit:",
         "# change the script settings and regenerate. Sub-job i = PBS array",
         "# index i = design row i (SALib order).",
+        "# common_config_paths and site_directory below are absolute paths on the",
+        "# machine that ran the sampling script. VE runs on the HPC, so generate",
+        "# this file on the HPC (from the repository root there).",
         f"# method: {method}",
         f"# run_name: {run_name}",
         f"# created: {pd.Timestamp.now():%Y-%m-%d %H:%M}",
@@ -720,16 +723,18 @@ def design_tables(problem: dict, provenance: dict) -> tuple[pd.DataFrame, pd.Dat
 #                              "role": "topsoil" | "position": 0,
 #                              "reduce": "mean" (if several layers match)}}
 #   fields           : {name: "mean" | "outlet"}  how each field becomes a
-#                      monthly series (domain mean, or value at the outlet)
-#   outlet           : None, or how the outlet cell(s) are found:
-#                      {"method": "ve_routing", "combine": "sum" | "largest"}
-#                       (recommended: sinks recovered from VE's own routed
-#                       output of the first run, see ve_routing_from_output)
-#                      {"method": "ve_sinks", "elevation_file": path,
-#                       "combine": "sum" | "largest"}  (VE's drainage rule
-#                       re-implemented on the elevation input)
+#                      monthly series (domain mean, or sum over the outlet
+#                      cells)
+#   outlet           : None, or how the outlet cell(s) are chosen:
+#                      {"method": "cells", "xy": [[x, y], ...]}  cells given
+#                       by the analysis script (e.g. found with a module's own
+#                       rule, such as the hydrology drainage sinks)
 #                      {"method": "max_mean", "variable": name}
 #                      {"method": "xy", "x": value, "y": value}
+#                      Optional keys used only for labels: "label" (legend
+#                      text for the outlet markers on maps) and "series"
+#                      (short name of the outlet series, e.g. in titles).
+#                      Other keys are recorded but not used by these tools.
 #   responses        : [{"name", "variable", "statistic", "group",
 #                        optional "months": [..], "years": [..]}]
 #                      statistic: mean | sum | q10 | q90 | min | max | std
@@ -939,211 +944,31 @@ _statistics = {
 }
 
 
-def ve_drainage_network(elevation_file: str | Path, variable: str = "elevation"):
-    """Reproduce the VE hydrology drainage network from the elevation input.
-
-    Same rule as virtual_ecosystem.models.hydrology.above_ground:
-    ``calculate_drainage_map`` / ``find_lowest_neighbour``. Neighbours are cell
-    centres within sqrt(cell_area) of a cell, including the cell itself
-    (``grid.set_neighbours(distance=...)``), and each cell drains to the
-    neighbour with the largest drop ``argmax(elev[cell] - elev[neighbours])``.
-
-    Consequences for the analysis:
-      - There is no boundary outflow. A cell that is lower than all its four
-        edge neighbours "drains to itself" (drop 0 is the largest): it is a
-        sink, and all water routed to it stays there. Sinks are the outlets.
-      - The grid can have several sinks, each with its own catchment.
-      - A sink appears in its own upstream list, so VE counts the sink's own
-        local runoff twice in the routed value (a VE detail; about 1 cell in
-        the catchment, so it hardly affects sensitivity rankings).
-      - Flow is instantaneous (no time delay): monthly routed values at a sink
-        are the sum of that month's local generation in its catchment.
-
-    Returns a dict with x, y (y descending, north-up), ``downstream`` (flat
-    index each cell drains to), ``n_upstream`` (cells draining through each
-    cell, including itself, shape (ny, nx)) and ``sinks`` [(row, col, n_cells)].
-    """
-    import xarray as xr
-
-    with xr.open_dataset(elevation_file) as dataset:
-        elevation = (
-            dataset[variable]
-            .squeeze(drop=True)
-            .transpose("y", "x")
-            .sortby("y", ascending=False)
-            .sortby("x")
-        )
-        z = np.asarray(elevation.values, dtype=float)
-        x = np.asarray(elevation["x"].values, dtype=float)
-        y = np.asarray(elevation["y"].values, dtype=float)
-    ny, nx = z.shape
-    spacing = float(np.min(np.diff(x))) if nx > 1 else float(abs(np.diff(y)).min())
-    rows, cols = np.divmod(np.arange(ny * nx), nx)  # VE cell_id = row * nx + col
-    flat = z.ravel()
-
-    downstream = np.empty(ny * nx, dtype=int)
-    for cell in range(ny * nx):
-        distance = np.hypot(
-            (rows - rows[cell]) * spacing, (cols - cols[cell]) * spacing
-        )
-        neighbours = np.flatnonzero(distance <= spacing * (1 + 1e-9))  # includes self
-        downstream[cell] = neighbours[np.argmax(flat[cell] - flat[neighbours])]
-
-    n_upstream = np.ones(ny * nx, dtype=int)  # the cell itself
-    for cell in range(ny * nx):
-        current, seen = cell, {cell}
-        while downstream[current] != current and downstream[current] not in seen:
-            current = downstream[current]
-            seen.add(current)
-            n_upstream[current] += 1
-
-    sinks = [
-        (int(rows[c]), int(cols[c]), int(n_upstream[c]))
-        for c in np.flatnonzero(downstream == np.arange(ny * nx))
-    ]
-    return {
-        "x": x,
-        "y": y,
-        "downstream": downstream,
-        "n_upstream": n_upstream.reshape(ny, nx),
-        "sinks": sinks,
-    }
-
-
-def ve_routing_from_output(path: str | Path) -> dict:
-    """Recover the drainage network VE actually used, from one model output.
-
-    VE routes instantaneously (above_ground.route_horizontal_flow): for every
-    cell i and month t
-
-        routed_i(t) = sum_j U_ij * local_j(t)
-
-    with U_ij = 1 if j is upstream of i or j = i (2 for a sink, which VE
-    lists in its own upstream set). Solving this with non-negative least
-    squares for surface and subsurface runoff gives U exactly (residual ~1e-16
-    on VE output), so no elevation file or re-implementation is needed.
-
-    Local runoff = surface_runoff (surface) and subsurface_flow + baseflow +
-    subsurface_stormflow (subsurface), as passed to the routing in VE.
-
-    Returns the same dict as ve_drainage_network: x, y (north-up),
-    n_upstream (ny, nx), sinks [(row, col, n_cells)], plus ``upstream``
-    (boolean matrix, cell i receives from cell j).
-    """
-    import xarray as xr
-    from scipy.optimize import nnls
-
-    with xr.open_dataset(path) as ds:
-
-        def grid(name):
-            da = ds[name].transpose("time_index", "y", "x")
-            return da.sortby("y", ascending=False).sortby("x")
-
-        first = grid("surface_runoff")
-        x = np.asarray(first["x"].values, dtype=float)
-        y = np.asarray(first["y"].values, dtype=float)
-        n_time, ny, nx = first.shape
-
-        def flat(da):
-            return np.nan_to_num(np.asarray(da.values, float)).reshape(n_time, -1)
-
-        local = np.vstack(
-            [
-                flat(first),
-                flat(grid("subsurface_flow"))
-                + flat(grid("baseflow"))
-                + flat(grid("subsurface_stormflow")),
-            ]
-        )
-        routed = np.vstack(
-            [
-                flat(grid("surface_runoff_routed_plus_local")),
-                flat(grid("subsurface_runoff_routed_plus_local")),
-            ]
-        )
-
-    n = ny * nx
-    weights = np.zeros((n, n))
-    worst = 0.0
-    for i in range(n):
-        w, residual = nnls(local, routed[:, i])
-        weights[i] = w
-        worst = max(worst, residual / (np.linalg.norm(routed[:, i]) or 1.0))
-    rounded = np.round(weights)
-    if worst > 1e-6 or np.abs(weights - rounded).max() > 1e-3:
-        raise ValueError(
-            f"Could not recover VE routing from {path} (residual {worst:.2e}); "
-            "use the 've_sinks' or 'xy' outlet method instead."
-        )
-    upstream = rounded > 0
-    sink = np.diag(rounded) >= 2  # VE counts a sink's own runoff twice
-    receives = upstream.copy()
-    np.fill_diagonal(receives, False)
-    terminal = ~receives.any(axis=0)  # not upstream of any other cell
-    n_upstream = upstream.sum(axis=1)
-    rows, cols = np.divmod(np.arange(n), nx)
-    sinks = [
-        (int(rows[c]), int(cols[c]), int(n_upstream[c]))
-        for c in np.flatnonzero(terminal)
-    ]
-    downstream = np.arange(n)
-    for j in range(n):  # nearest downstream cell = receiver with fewest upstream
-        receivers = np.flatnonzero(receives[:, j])
-        if len(receivers):
-            downstream[j] = receivers[np.argmin(n_upstream[receivers])]
-    return {
-        "x": x,
-        "y": y,
-        "downstream": downstream,
-        "n_upstream": n_upstream.reshape(ny, nx),
-        "sinks": sinks,
-        "upstream": upstream,
-        "sink_flag": sink,
-    }
-
-
-def drainage_table(network: dict) -> pd.DataFrame:
-    """One row per cell: where it drains to, cells upstream, sink flag."""
-    x, y, down = network["x"], network["y"], network["downstream"]
-    nx = len(x)
-    rows, cols = np.divmod(np.arange(len(down)), nx)
-    down_rows, down_cols = np.divmod(down, nx)
-    return pd.DataFrame(
-        {
-            "x": x[cols],
-            "y": y[rows],
-            "drains_to_x": x[down_cols],
-            "drains_to_y": y[down_rows],
-            "n_cells_draining_through": network["n_upstream"].ravel(),
-            "is_sink": down == np.arange(len(down)),
-        }
-    )
-
-
 def _outlet_cells(
-    outlet: dict, fields: dict, x: np.ndarray, y: np.ndarray, root: Path | None = None
+    outlet: dict, fields: dict, x: np.ndarray, y: np.ndarray
 ) -> list[tuple[int, int]]:
     """Outlet cell(s) as (row, col) on the north-up grid."""
     method = outlet["method"]
-    if method == "ve_routing":
-        network = ve_routing_from_output(outlet["_first_output"])
-        sinks = sorted(network["sinks"], key=lambda s: -s[2])
-        if outlet.get("combine", "sum") == "largest":
-            sinks = sinks[:1]
-        return [(r, c) for r, c, _ in sinks]
-    if method == "ve_sinks":
-        path = Path(outlet["elevation_file"])
-        if not path.is_absolute() and root is not None:
-            path = Path(root) / path
-        network = ve_drainage_network(path, outlet.get("variable", "elevation"))
-        if not (np.allclose(network["x"], x) and np.allclose(network["y"], y)):
-            raise ValueError(
-                f"Elevation grid in {path} does not match the model output x/y grid"
-            )
-        sinks = sorted(network["sinks"], key=lambda s: -s[2])
-        if outlet.get("combine", "sum") == "largest":
-            sinks = sinks[:1]
-        return [(r, c) for r, c, _ in sinks]
+    if method == "cells":
+        cells = []
+        spacing = min(
+            np.min(np.abs(np.diff(x))) if len(x) > 1 else np.inf,
+            np.min(np.abs(np.diff(y))) if len(y) > 1 else np.inf,
+        )
+        for x_cell, y_cell in outlet["xy"]:
+            row = int(np.argmin(np.abs(y - float(y_cell))))
+            col = int(np.argmin(np.abs(x - float(x_cell))))
+            if max(abs(y[row] - float(y_cell)), abs(x[col] - float(x_cell))) > (
+                spacing / 2
+            ):
+                raise ValueError(
+                    f"Outlet cell ({x_cell}, {y_cell}) is not a cell centre of the "
+                    "model output grid"
+                )
+            cells.append((row, col))
+        if not cells:
+            raise ValueError("Outlet method 'cells' was given no cells")
+        return cells
     if method == "max_mean":
         grid = fields[outlet["variable"]].mean(axis=0)
         return [tuple(int(i) for i in np.unravel_index(np.argmax(grid), grid.shape))]
@@ -1205,9 +1030,10 @@ def extract_responses(
 ) -> dict:
     """Reduce every run to scalar responses, long-term-mean maps and series.
 
-    "outlet" fields are summed over the outlet cells (all VE sinks with
-    combine="sum" = total outflow of the site); "mean" fields are averaged over
-    all cells. The outlet is fixed from the first run and reused for all runs.
+    "outlet" fields are summed over the outlet cells given by spec["outlet"];
+    "mean" fields are averaged over all cells. The outlet cells are fixed from
+    the first run and reused for all runs. ``root`` is kept for compatibility
+    with existing callers and is not used.
     n_workers > 1 reads runs in parallel processes (useful for 4608 runs).
     """
     field_names = list(spec["fields"])
@@ -1226,9 +1052,7 @@ def extract_responses(
     outlet = None
     if spec.get("outlet"):
         fields, x, y = read_fields(paths[0], spec)
-        outlet = _outlet_cells(
-            {**spec["outlet"], "_first_output": paths[0]}, fields, x, y, root
-        )
+        outlet = _outlet_cells(spec["outlet"], fields, x, y)
 
     n_runs = len(paths)
     results = [None] * n_runs
@@ -1266,6 +1090,12 @@ def extract_responses(
             np.array([[x[c], y[r]] for r, c in outlet])
             if outlet
             else np.full((1, 2), np.nan)
+        ),
+        "outlet_label": np.array(
+            (spec.get("outlet") or {}).get("label", default_outlet_label), dtype=str
+        ),
+        "outlet_series": np.array(
+            (spec.get("outlet") or {}).get("series", default_outlet_series), dtype=str
         ),
     }
     Path(cache_file).parent.mkdir(parents=True, exist_ok=True)
@@ -1357,11 +1187,23 @@ marker_shapes = ["o", "s", "^", "D", "v", "P", "X", "h"]
 hatch_patterns = ["", "//", "\\\\", "xx", "..", "++", "oo", "--"]
 sequential_cmap = "Blues"
 
-# Legend text for the outlet markers on every map.
-sink_label = (
-    "VE sink (outlet cell): lowest cell of its catchment; all upstream water is "
-    "routed here and leaves the grid.\nSite discharge = sum over the sinks."
+# Default legend text and series name for the outlet cells. An analysis script
+# can replace them with "label" and "series" in its response_spec["outlet"].
+default_outlet_label = (
+    "Outlet cell: fields with the 'outlet' rule are summed over these cells."
 )
+default_outlet_series = "sum over the outlet cells"
+
+
+def outlet_text(data: dict) -> tuple[str, str]:
+    """(legend label, series name) of the outlet cells recorded in ``data``.
+
+    Falls back to the defaults for response caches written before these were
+    recorded.
+    """
+    label = data.get("outlet_label", default_outlet_label)
+    series = data.get("outlet_series", default_outlet_series)
+    return str(np.asarray(label)), str(np.asarray(series))
 
 
 def parameter_styles(ordered_names: list[str], n_colours: int = 8) -> dict:
@@ -1406,7 +1248,7 @@ def _format_map_axis(ax, *, left: bool, bottom: bool) -> None:
         ax.set_ylabel("y (m)")
 
 
-def draw_sinks(ax, marker_xy) -> bool:
+def draw_outlets(ax, marker_xy) -> bool:
     """White stars with black edge (visible on any fill); True if any drawn."""
     drawn = False
     if marker_xy is None:
@@ -1427,8 +1269,8 @@ def draw_sinks(ax, marker_xy) -> bool:
     return drawn
 
 
-def sink_legend_handle():
-    """Legend entry explaining the star."""
+def outlet_legend_handle(label: str = default_outlet_label):
+    """Legend entry explaining the star that marks an outlet cell."""
     from matplotlib.lines import Line2D
 
     return Line2D(
@@ -1439,7 +1281,7 @@ def sink_legend_handle():
         markerfacecolor="white",
         markeredgecolor="black",
         linestyle="none",
-        label=sink_label,
+        label=label,
     )
 
 
@@ -1452,13 +1294,14 @@ def plot_maps(
     colour_label: str,
     path: Path,
     marker_xy: np.ndarray | None = None,
+    marker_label: str = default_outlet_label,
     vmax: float | None = 1.0,
     ncols: int = 2,
 ) -> None:
     """North-up x/y maps, one per entry of ``grids`` (each (ny, nx)).
 
     Laid out in ``ncols`` columns (2 x 2 for four maps) with one shared colour
-    bar and a legend below explaining the sink stars.
+    bar and a legend below explaining the outlet stars (``marker_label``).
     """
     plt = pyplot()
     n = len(grids)
@@ -1484,7 +1327,7 @@ def plot_maps(
             cmap=sequential_cmap,
             interpolation="nearest",
         )
-        drawn |= draw_sinks(ax, marker_xy)
+        drawn |= draw_outlets(ax, marker_xy)
         ax.set_title(label, fontsize=11)
         row, col = divmod(index, ncols)
         _format_map_axis(
@@ -1496,7 +1339,7 @@ def plot_maps(
     fig.suptitle(title, fontsize=13)
     if drawn:
         fig.legend(
-            handles=[sink_legend_handle()],
+            handles=[outlet_legend_handle(marker_label)],
             loc="outside lower center",
             fontsize=9,
             frameon=False,

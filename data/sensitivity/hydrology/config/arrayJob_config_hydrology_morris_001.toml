@@ -1,6 +1,9 @@
 # Sensitivity design written by morris_sample.py. Do not edit:
 # change the script settings and regenerate. Sub-job i = PBS array
 # index i = design row i (SALib order).
+# common_config_paths and site_directory below are absolute paths on the
+# machine that ran the sampling script. VE runs on the HPC, so generate
+# this file on the HPC (from the repository root there).
 # method: morris
 # run_name: hydrology_morris_001
 # created: 2026-09-23 12:27
@@ -14,9 +17,9 @@
 # salib_version: 1.5.2
 
 common_config_paths = [
-    "C:\\Users\\User\\OneDrive\\Desktop\\ve_git\\ve_data_science\\data\\sensitivity\\hydrology\\config\\static_hydro_configuration.toml",
+    "/rds/general/user/lsamikan/home/ve_data_science/data/sensitivity/hydrology/config/static_hydro_configuration.toml",
 ]
-site_directory = "C:\\Users\\User\\OneDrive\\Desktop\\ve_git\\ve_data_science\\data\\sensitivity\\hydrology\\data"
+site_directory = "/rds/general/user/lsamikan/home/ve_data_science/data/sensitivity/hydrology/data"
 
 [[subJobs]]
 config_paths = []
