@@ -1,47 +1,43 @@
-# Building a validation database for soil and litter
+# Building a schema-based validation database
 
 This workflow uses YAML metadata to read source datasets, harmonise them,
 convert units, and combine them into one Parquet validation database.
 
-## Overview
+## Workflow overview
 
-The page is long because it lists all supported options. The actual workflow is
-simple:
+The overall flow is:
 
-- Screen datasets
-- add one schema record per accepted dataset
-- complete a few fields
-- build the database.
-
-## Configure repository paths
-
-Run commands from the repository root. Set the module name explicitly. Then
-derive the standard paths once and reuse them in the workflow.
-
-```r
-module_name <- "soil"
-
-validation_root <- here::here(
-  "data", "derived", module_name, "validation"
-)
-variables_derived <- here::here(
-  "data", "derived", "validation", "derived_variables.toml"
-)
-sources_dir <- file.path(validation_root, "sources")
-db_path <- file.path(validation_root, "database")
+```mermaid
+flowchart TD
+  A[Screen dataset] --> B[Add schema template]
+  B --> C[Download and convert source data to CSV]
+  C --> D[Complete schema fields]
+  D --> E[Build validation database]
+  E --> F[Join VE outputs]
 ```
 
-The resulting repository layout is:
+1. Screen each candidate dataset and save one YAML record per DOI.
+2. Initialise schema fields for a dataset with a `proceed` decision.
+3. Download the source dataset and convert it to CSV.
+4. Complete the schema by hand. Add the file path, variable mapping,
+   units, and keys.
+5. Build the harmonised validation database.
+6. Combine the validation database with VE outputs.
+
+## Folder structure and path conventions
+
+Run commands from the repository root. The workflow expects these folders to
+already exist; the functions below do not create them.
 
 ```text
 data/primary/<module>/<author>_<year>/
-└── <data sheet>.csv            # source data, converted manually
+└── <data sheet>.csv           # source data, converted manually or preprocessed
 data/derived/<module>/validation/
-├── sources/                    # one screening/schema YAML file per DOI
-└── database/                   # output Parquet dataset
+├── sources/                   # one screening/schema YAML file per DOI
+└── database/                  # output Parquet dataset
 data/derived/validation/
-└── derived_variables.toml      # non-VE canonical variables (optional)
-tools/R/R/valdb.R               # workflow functions
+└── derived_variables.toml     # non-VE canonical variables (optional)
+tools/R/R/valdb.R              # workflow functions
 ```
 
 ## How to load the functions
@@ -65,27 +61,6 @@ After `source()`, call them as `function_name()`. If you call
 `join_ve_outputs()` after `source()`, also source
 `tools/R/R/get_ve_variables.R` so VE variable readers are available.
 
-## Workflow overview
-
-The overall flow is:
-
-```mermaid
-flowchart TD
-  A[Screen dataset] --> B[Add schema template]
-  B --> C[Download and convert source data to CSV]
-  C --> D[Complete schema fields]
-  D --> E[Build validation database]
-  E --> F[Join VE outputs]
-```
-
-1. Screen each candidate dataset and save one YAML record per DOI.
-2. Initialise schema fields for a dataset with a `proceed` decision.
-3. Download the source dataset and convert it to CSV.
-4. Complete the schema by hand. Add the file path, variable mapping,
-   units, and keys.
-5. Build the harmonised validation database.
-6. Combine the validation database with VE outputs.
-
 ## 1) Data screening
 
 Use `screen_dataset()` to get DOI metadata and record whether a dataset should
@@ -93,6 +68,20 @@ proceed, be excluded, or be deferred.
 
 ```r
 box::use(tools/R/R/valdb)
+
+# setup path names
+module_name <- "soil"
+
+validation_root <- here::here(
+  "data", "derived", module_name, "validation"
+)
+variables_derived <- here::here(
+  "data", "derived", "validation", "derived_variables.toml"
+)
+sources_dir <- file.path(validation_root, "sources")
+db_path <- file.path(validation_root, "database")
+
+# run the screening function
 valdb$screen_dataset(sources_dir = sources_dir)
 ```
 
