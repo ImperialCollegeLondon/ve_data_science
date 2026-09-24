@@ -58,7 +58,7 @@ imported_files:
   - name: sensitivity_tools.py
     path: tools/python/src/ve_data_tools/sensitivity_tools.py
     description: |
-      Shared utilities for the revised Morris and Sobol workflows. This script
+      Shared utilities for the Morris and Sobol workflows. This script
       uses load_problem to read selected bounds, check_defaults_within_bounds
       to compare base values with them, generate_morris_samples to create SALib
       trajectories, and write_job_config to produce the array-job file and its
