@@ -684,9 +684,13 @@ random_seed = 2026  # bootstrap seed (the design seed is in the job-file header)
 # -----------------------------------------------------------------------------
 
 
+<<<<<<< HEAD
 def model_health_table(
     paths: list, rainfall: pd.Series | None = None
 ) -> pd.DataFrame | None:
+=======
+def model_health_table(paths: list) -> pd.DataFrame | None:
+>>>>>>> 846836e80001db9996eeac58eea6e83747af2ebd
     """Water balance and state diagnostics of every run over the full ensemble.
 
     closure = P - (surface + subsurface + baseflow + stormflow + ET
