@@ -5,31 +5,17 @@ convert units, and combine them into one Parquet validation database.
 
 ## Workflow overview
 
-The overall flow is:
-
 ```mermaid
 flowchart TD
-  A[Screen dataset] --> B[Add schema template]
-  B --> C[Download and convert source data to CSV]
-  C --> D[Complete schema and variable mappings]
+  A[Screen dataset and save one DOI YAML record] --> B[Add schema template for a proceed record]
+  B --> C[Download source data and convert it to CSV]
+  C --> D[Complete schema: file path, variable mapping, units, keys, and spatial or temporal metadata]
   D --> E{Any VE-originated canonical variables that need a derived computation?}
-  E -- No --> F[Build validation database]
+  E -- No --> F[Build the harmonised validation database]
   E -- Yes --> G[Register the canonical variable and add its compute function]
   G --> F
   F --> H[Join VE outputs]
 ```
-
-1. Screen each candidate dataset and save one YAML record per DOI.
-2. Initialise schema fields for a dataset with a `proceed` decision.
-3. Download the source dataset and convert it to CSV.
-4. Complete the schema by hand. Add the file path, variable mapping,
-   units, keys, and any required spatial or temporal metadata.
-5. If a source variable maps to a VE-originated canonical variable that is not
-   stored directly in VE outputs, add that canonical variable to the local
-   derived-variable registry and implement its compute function before relying
-   on VE joins.
-6. Build the harmonised validation database.
-7. Combine the validation database with VE outputs.
 
 ## Folder structure and path conventions
 
@@ -43,11 +29,11 @@ data/derived/<module>/validation/
 ├── sources/                   # one screening/schema YAML file per DOI
 └── database/                  # output Parquet dataset
 data/derived/validation/
-└── derived_variables.toml     # non-VE canonical variables (optional)
+└── derived_variables.toml     # VE-originated canonical variables with local compute functions (optional)
 tools/R/R/valdb.R              # workflow functions
 ```
 
-## How to load the functions
+## How to load the key functions
 
 These functions work with both `box::use()` and `source()`.
 
@@ -78,7 +64,6 @@ box::use(tools/R/R/valdb)
 
 # setup path names
 module_name <- "soil"
-
 validation_root <- here::here(
   "data", "derived", module_name, "validation"
 )
@@ -115,7 +100,10 @@ doi-10-5281-zenodo-2024580.yaml
 Existing DOI records are not overwritten. To amend a screening decision,
 delete its per-DOI YAML file and screen the dataset again.
 
-## 2) Add a schema template for one `proceed` DOI record
+## 2) Add a schema template for a `proceed` DOI record
+
+Use `add_schema()` only for a DOI record with
+`screening.decision: proceed`.
 
 `add_schema()` finds a screening record by DOI and adds one nested dataset
 template under `datasets:` for the current build step.
@@ -127,30 +115,15 @@ valdb$add_schema(
 )
 ```
 
-The DOI may use upper-case characters, a `doi:` prefix, or a DOI resolver URL.
-The code normalises it before lookup. The record must already exist, have
-`screening.decision: proceed`, and not contain a schema. If these conditions
-pass, the template is written safely and only the target per-DOI YAML file opens
-for manual editing. Existing schemas are not overwritten.
+The DOI can use upper-case characters, a `doi:` prefix, or a DOI resolver URL.
+The code normalises it before lookup. The record must already exist. The record
+must have `screening.decision: proceed`. The record must not already contain a
+schema. If these conditions pass, the template is written safely. Then only the
+target per-DOI YAML file opens for manual editing. Existing schemas are not
+overwritten.
 
 The initial template always uses the nested `datasets` layout, even when the
 DOI record currently contains only one dataset.
-
-A minimal local dashboard provides the same workflow for all `proceed`
-records. Launch it from the repository root:
-
-```r
-Sys.setenv(VE_MODULE = "soil")
-shiny::runApp("analysis/soil/validation/schema_dashboard")
-```
-
-The dashboard reads the YAML records directly. It shows one row per dataset for
-`proceed` records. It loads the selected per-DOI YAML file into a browser
-editor. It calls `initialise_source_schema()` only when a schema does not exist.
-Untouched or partially completed dataset entries remain visible as `Draft`.
-Saving validates the YAML and record identity before replacing the file system
-record. The record can also open in the desktop editor. The dashboard does not
-maintain a separate database.
 
 ## 3) Download the dataset and convert it to CSV
 
@@ -183,7 +156,7 @@ that canonical variable in
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
 and implement its reader in
 [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). See
-[Derived-variable registry for VE joins](#5-derived-variable-registry-for-ve-joins).
+[Registry for VE-originated canonical variables with derived computation](#5-registry-for-ve-originated-canonical-variables-with-derived-computation).
 
 For each dataset entry under `datasets:`, complete:
 
@@ -403,13 +376,14 @@ temporal:
 Use either per-row settings or `same_for_all_rows` within each block. Remove
 unused entries when the schema is complete.
 
-## 5) Derived-variable registry for VE joins
+## 5) Registry for VE-originated canonical variables with derived computation
 
 `valdb` depends on `get_ve_variables.R` when it joins VE outputs to the
 validation database. That file provides `get_data_variables()` and
 `get_derived_variables()`. The second function reads the VE configuration TOML
-file, computes extra variables from the raw VE outputs, and returns them in the
-same named-list shape as the direct VE variables.
+file, computes VE-originated canonical variables that are not stored directly in
+VE outputs, and returns them in the same named-list shape as the direct VE
+variables.
 
 The dependency chain is:
 
@@ -418,22 +392,17 @@ flowchart LR
   A[join_ve_outputs] --> B[get_ve_variables.R]
   B --> C[get_derived_variables]
   C --> D[data/derived/validation/derived_variables.toml]
-  D --> E[Derived-variable registry]
-  C --> F[Derived arrays]
+  D --> E[Local registry of canonical names and compute functions]
+  C --> F[Computed canonical-variable arrays]
   F --> A
 ```
-
-1. `join_ve_outputs()` calls `get_ve_variables.R`.
-2. `get_ve_variables.R` calls `get_derived_variables()`.
-3. `get_derived_variables()` reads
-   `data/derived/validation/derived_variables.toml`.
 
 The shared TOML file is the local registry for VE-originated canonical
 variables that are computed from VE outputs rather than stored directly in them.
 Each entry links one canonical variable name to the R function that computes it.
-When `join_ve_outputs()` sees one of those names, it can request the derived
-value instead of only looking for a variable stored directly in the VE output
-files.
+When `join_ve_outputs()` sees one of those names, it can request the computed
+canonical value instead of only looking for a variable stored directly in the VE
+output files.
 
 The current file lives at
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
@@ -494,8 +463,8 @@ valdb$build_validation_database(
 Build behaviour
 
 - Loads current canonical variable metadata from the VE `develop` branch.
-- Combines it with local derived-variable metadata when a derived table is
-  supplied.
+- Combines it with local metadata for VE-originated canonical variables that
+  use a derived computation path when that table is supplied.
 - Converts known variables between compatible units with `units`.
 - Reads per-DOI records from `sources_dir` in sorted filename order.
 - Flattens each record to one build source per dataset entry under `datasets`.
@@ -529,12 +498,13 @@ The wrapper derives standard repository paths from the module and scenario.
 Supply `zarr_path`, `config_path`, `db_path`, or `combined_db_path` when files
 are stored outside that layout.
 
-`join_ve_outputs()` takes the validation database and VE scenario outputs from
-a Zarr store. It joins the spatiotemporally aggregated VE outputs for each row.
-It reads direct and derived VE variables. It classifies each observation by
-spatial and temporal overlap with the scenario bounds. It returns three added
-columns: the lower quantile `value_VE_q05`, the median `value_VE_q50`, and the
-upper quantile `value_VE_q95`.
+`join_ve_outputs()` takes the validation database and VE scenario outputs from a
+Zarr store. It joins the spatiotemporally aggregated VE outputs for each row. It
+reads VE variables that are stored directly in the outputs and VE-originated
+canonical variables that are computed from those outputs. It classifies each
+observation by spatial and temporal overlap with the scenario bounds. It returns
+three added columns: the lower quantile `value_VE_q05`, the median
+`value_VE_q50`, and the upper quantile `value_VE_q95`.
 
 Current implementation supports
 
@@ -553,9 +523,9 @@ historical snapshot. Do not treat it as current workflow output.
 
 ## Ongoing metadata curation
 
-When new derived variables are needed, edit
-`data/derived/validation/derived_variables.toml`. Source schemas should use unit
-strings that the `units` package understands.
+When new VE-originated canonical variables need a local derived computation
+path, edit `data/derived/validation/derived_variables.toml`. Source schemas
+should use unit strings that the `units` package understands.
 
 ## Notes for users
 
