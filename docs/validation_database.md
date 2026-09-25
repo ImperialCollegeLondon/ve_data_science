@@ -118,9 +118,8 @@ valdb$add_schema(
 The DOI can use upper-case characters, a `doi:` prefix, or a DOI resolver URL.
 The code normalises it before lookup. The record must already exist. The record
 must have `screening.decision: proceed`. The record must not already contain a
-schema. If these conditions pass, the template is written safely. Then only the
-target per-DOI YAML file opens for manual editing. Existing schemas are not
-overwritten.
+schema. If these conditions pass, the template is added safely. Then only the
+target per-DOI YAML file opens for manual editing.
 
 The initial template always uses the nested `datasets` layout, even when the
 DOI record currently contains only one dataset.
@@ -133,9 +132,7 @@ convention. If names conflict, name the next folder `author_year_2`. Continue in
 that pattern.
 
 Use CSV files. If the published dataset is in another format, such as Excel or
-zip, manually convert the required data sheet into a CSV file. The workflow does
-not support multiple file formats because manual conversion is still a small
-cost.
+zip, manually convert or pre-process the required data sheet into a CSV file.
 
 Keep any location or coordinate files that come with the source dataset. For
 the default spatial workflow, export the source location table as
@@ -147,12 +144,14 @@ The template is an editable scaffold, not a build-ready configuration. Replace
 every placeholder with values from the source dataset. Remove unused example
 entries. Add one `variables` entry for each source column to include.
 
-This step also determines how later VE joins will behave. If
-`variables.<source_column>.var_canonical` points to a standard VE canonical
-variable, the join can use the existing VE variable metadata. If it points to a
-canonical variable that is available only through local derived-variable
-support, the schema alone is not enough. You must also add a registry entry for
-that canonical variable in
+This step also determines how later VE joins will behave. For each entry under
+`variables`, check the value of `var_canonical`. If a source column maps to a
+standard VE canonical variable, the join can use the existing VE variable
+metadata.
+
+If a source column maps to a canonical variable that is available
+only through local derived-variable support, the schema alone is not enough.
+You must also add a registry entry for that canonical variable in
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
 and implement its reader in
 [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). See
@@ -201,6 +200,13 @@ datasets:
     dedup_key:
       - plot.code
 ```
+
+`dedup_key` is a YAML list of source column names. It can contain one column
+name or several column names. Together, those columns identify one observation.
+Use a single column when one field is already unique after import. Use several
+columns when uniqueness depends on a combination (such as site, sample, and
+date). The builder uses this key when it checks for duplicate rows within a
+dataset.
 
 To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still uses one flat source
