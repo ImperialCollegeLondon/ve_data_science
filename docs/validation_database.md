@@ -11,18 +11,25 @@ The overall flow is:
 flowchart TD
   A[Screen dataset] --> B[Add schema template]
   B --> C[Download and convert source data to CSV]
-  C --> D[Complete schema fields]
-  D --> E[Build validation database]
-  E --> F[Join VE outputs]
+  C --> D[Complete schema and variable mappings]
+  D --> E{Any VE-originated canonical variables that need a derived computation?}
+  E -- No --> F[Build validation database]
+  E -- Yes --> G[Register the canonical variable and add its compute function]
+  G --> F
+  F --> H[Join VE outputs]
 ```
 
 1. Screen each candidate dataset and save one YAML record per DOI.
 2. Initialise schema fields for a dataset with a `proceed` decision.
 3. Download the source dataset and convert it to CSV.
 4. Complete the schema by hand. Add the file path, variable mapping,
-   units, and keys.
-5. Build the harmonised validation database.
-6. Combine the validation database with VE outputs.
+   units, keys, and any required spatial or temporal metadata.
+5. If a source variable maps to a VE-originated canonical variable that is not
+   stored directly in VE outputs, add that canonical variable to the local
+   derived-variable registry and implement its compute function before relying
+   on VE joins.
+6. Build the harmonised validation database.
+7. Combine the validation database with VE outputs.
 
 ## Folder structure and path conventions
 
@@ -99,7 +106,7 @@ Notes are required for `defer` decisions and when the selected reason is
 (`rcrossref::cr_cn()`).
 
 Each successful screening creates one file under `sources_dir`. The filename is
-a stable ID derived from the normalised DOI, for example:
+a stable ID automatically derived from the DOI, for example:
 
 ```text
 doi-10-5281-zenodo-2024580.yaml
@@ -167,6 +174,17 @@ The template is an editable scaffold, not a build-ready configuration. Replace
 every placeholder with values from the source dataset. Remove unused example
 entries. Add one `variables` entry for each source column to include.
 
+This step also determines how later VE joins will behave. If
+`variables.<source_column>.var_canonical` points to a standard VE canonical
+variable, the join can use the existing VE variable metadata. If it points to a
+canonical variable that is available only through local derived-variable
+support, the schema alone is not enough. You must also add a registry entry for
+that canonical variable in
+[data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
+and implement its reader in
+[tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). See
+[Derived-variable registry for VE joins](#5-derived-variable-registry-for-ve-joins).
+
 For each dataset entry under `datasets:`, complete:
 
 - `source_id` (e.g. `dobert_2019`)
@@ -219,7 +237,8 @@ Assumptions and expectations
 
 - Input files are CSV (`readr::read_csv()` is used internally).
 - Known `var_canonical` names resolve against the latest VE
-  `data_variables.toml` from the `develop` branch and, when supplied,
+  canonical-variable metadata in `data_variables.toml` from the `develop`
+  branch and, when supplied, the local derived-variable registry in
   `data/derived/validation/derived_variables.toml`.
 - Source and canonical units are interpreted and converted with the `units`
   package. Malformed or dimensionally incompatible units are errors.
@@ -384,7 +403,7 @@ temporal:
 Use either per-row settings or `same_for_all_rows` within each block. Remove
 unused entries when the schema is complete.
 
-## 5) Derived-variable metadata for VE joins
+## 5) Derived-variable registry for VE joins
 
 `valdb` depends on `get_ve_variables.R` when it joins VE outputs to the
 validation database. That file provides `get_data_variables()` and
@@ -409,10 +428,12 @@ flowchart LR
 3. `get_derived_variables()` reads
    `data/derived/validation/derived_variables.toml`.
 
-The shared TOML file is the local registry for non-VE canonical variables. Each
-entry links one canonical variable name to the R function that computes it. When
-`join_ve_outputs()` sees one of those names, it can request the derived value
-instead of only looking for a variable stored directly in the VE output files.
+The shared TOML file is the local registry for VE-originated canonical
+variables that are computed from VE outputs rather than stored directly in them.
+Each entry links one canonical variable name to the R function that computes it.
+When `join_ve_outputs()` sees one of those names, it can request the derived
+value instead of only looking for a variable stored directly in the VE output
+files.
 
 The current file lives at
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
@@ -426,8 +447,9 @@ unit = "kg{N} m^-3"
 function = "get_total_soil_n_per_volume"
 ```
 
-For example, suppose you want to add a new derived variable named
-`soil_n_pool_urea_per_mass`. The end-to-end change would look like this:
+For example, suppose you want to add a new VE-originated canonical variable
+named `soil_n_pool_urea_per_mass`, where the VE value must be derived from other
+VE outputs. The end-to-end change would look like this:
 
 1. Add a new `[[variable]]` block to
    [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml):
@@ -450,12 +472,12 @@ function that returns one array with the expected VE dimensions. If the new
 variable needs configuration values from the VE TOML file, pass them through the
 helper function that computes it.
 
-Update [build_validation_database()](tools/R/R/valdb.R) when the new derived
-variable should be accepted as a canonical name in the validation schemas.
-Update `join_ve_outputs()` when the new variable must be computed from VE output
-files during scenario joins. In practice, the TOML registry and the R helper in
+Update [build_validation_database()](tools/R/R/valdb.R) when the new canonical
+variable should be accepted in validation schemas. Update `join_ve_outputs()`
+when that canonical variable must be computed from VE output files during
+scenario joins. In practice, the TOML registry and the R helper in
 `get_ve_variables.R` are what `join_ve_outputs()` uses; the build step only uses
-the derived-variable table to recognise and validate schema names.
+the derived-variable table to recognise and validate canonical names.
 
 ## 6) Build the validation database
 
