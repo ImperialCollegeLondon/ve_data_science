@@ -220,7 +220,8 @@ Assumptions and expectations
   branch and, when supplied, the local derived-variable registry in
   `data/derived/validation/derived_variables.toml`.
 - Source and canonical units are interpreted and converted with the `units`
-  package. Malformed or dimensionally incompatible units are errors.
+  package. Source schemas should use unit strings that the `units` package
+  understands. Malformed or dimensionally incompatible units are errors.
 - Unknown canonical names produce a warning. Their observations and original
   units stay in the database. Canonical values and units are recorded as
   missing.
@@ -519,19 +520,6 @@ Current implementation supports
   (`spatial_outside_temporal_within`)
 
 Other spatiotemporal classes return `NA` quantiles with a warning.
-
-## Legacy screening records
-
-The report source at
-`analysis/soil/validation/safe_database_screen/dataset_screening.qmd` has been
-retired. It reads the legacy aggregate format. Its generated HTML is a
-historical snapshot. Do not treat it as current workflow output.
-
-## Ongoing metadata curation
-
-When new VE-originated canonical variables need a local derived computation
-path, edit `data/derived/validation/derived_variables.toml`. Source schemas
-should use unit strings that the `units` package understands.
 
 ## Notes for users
 
