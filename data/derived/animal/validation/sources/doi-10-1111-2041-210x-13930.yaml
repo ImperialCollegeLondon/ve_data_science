@@ -1,0 +1,49 @@
+schema_version: 1
+record_id: doi-10-1111-2041-210x-13930
+doi: 10.1111/2041-210x.13930
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Dataset is built upon a subset of 2011-13  data from combined dataset for
+    the safe combined camera trap (insert zenodo link)
+  screened_at: '2026-09-17T04:18:57Z'
+metadata:
+  title: Estimating animal density for a community of species using information obtained
+    only from camera‐traps
+  authors:
+  - Wearn, Oliver R.
+  - Bell, Thomas E. M.
+  - Bolitho, Adam
+  - Durrant, James
+  - Haysom, Jessica K.
+  - Nijhawan, Sahil
+  - Thorley, Jack
+  - Rowcliffe, J. Marcus
+  year: 2022
+  journal: Methods in Ecology and Evolution
+  publisher: Wiley
+  url: http://dx.doi.org/10.1111/2041-210x.13930
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-17T04:13:52Z'
+datasets:
+- source_id: Wearn_2022
+  data_file: data/primary/animal/Wearn_2022/Wearn_et_al_2022_Density.csv
+  skip_rows: 6
+  variables:
+    "Density (km-2)":
+      var_canonical: population_density
+      unit: km^-2
+      description: Population density of the animal species per square kilometer.
+  dedup_key: Species
+  coordinates:
+    same_for_all_rows:
+      latitude: 116.957115
+      longitude: 4.7744711
+      note: Placeholder. Georeferenced location for centre of OG plots.
+  temporal:
+    same_for_all_rows:
+      start: 2011-05-01
+      end: 2013-12-01
+      precision: month
+      note: Sampling period reported by Wearn et al. (2022)
