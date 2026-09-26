@@ -28,8 +28,8 @@ metadata:
   retrieved_at: '2026-09-17T04:13:52Z'
 datasets:
 - source_id: Wearn_2022
-  data_file: data/primary/animal/Wearn_22/*.csv
-  skip_rows: 5
+  data_file: data/primary/animal/Wearn_2022/Wearn_et_al_2022_Density.csv
+  skip_rows: 6
   variables:
     "Density (km-2)":
       var_canonical: population_density
