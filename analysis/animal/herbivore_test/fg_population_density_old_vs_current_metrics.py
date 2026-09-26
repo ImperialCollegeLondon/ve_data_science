@@ -1,5 +1,4 @@
-"""
----
+"""---
 title: Compare old and current herbivore outputs
 
 description: |
@@ -70,7 +69,6 @@ from ve_data_tools.fg_population_density import (
     check_required_columns,
 )
 
-
 REQUIRED_COLUMNS = {
     "cohort_id",
     "time",
@@ -133,20 +131,13 @@ def calculate_metrics(
 
     mass = cohort_df.copy()
     mass["individual_body_mass"] = (
-        mass["mass_carbon"]
-        + mass["mass_nitrogen"]
-        + mass["mass_phosphorus"]
+        mass["mass_carbon"] + mass["mass_nitrogen"] + mass["mass_phosphorus"]
     )
-    mass["population_body_mass"] = (
-        mass["individual_body_mass"] * mass["individuals"]
-    )
+    mass["population_body_mass"] = mass["individual_body_mass"] * mass["individuals"]
 
-    mass = (
-        mass.groupby(["time_index", "functional_group"], as_index=False)
-        .agg(
-            total_individuals=("individuals", "sum"),
-            total_population_body_mass=("population_body_mass", "sum"),
-        )
+    mass = mass.groupby(["time_index", "functional_group"], as_index=False).agg(
+        total_individuals=("individuals", "sum"),
+        total_population_body_mass=("population_body_mass", "sum"),
     )
     mass["mean_individual_body_mass"] = (
         mass["total_population_body_mass"] / mass["total_individuals"]
@@ -156,19 +147,16 @@ def calculate_metrics(
     if times.duplicated("time_index").any():
         raise ValueError("A time index maps to more than one simulation date.")
 
-    result = (
-        density.merge(
-            mass[
-                [
-                    "time_index",
-                    "functional_group",
-                    "mean_individual_body_mass",
-                ]
-            ],
-            on=["time_index", "functional_group"],
-        )
-        .merge(times, on="time_index")
-    )
+    result = density.merge(
+        mass[
+            [
+                "time_index",
+                "functional_group",
+                "mean_individual_body_mass",
+            ]
+        ],
+        on=["time_index", "functional_group"],
+    ).merge(times, on="time_index")
     result["test"] = test
     result["version"] = version
 
@@ -239,12 +227,10 @@ def build_old_current_summary(
         current_end = current.loc[current["time"] == shared_end].iloc[0]
 
         old_init = initialisation.loc[
-            (initialisation["test"] == test)
-            & (initialisation["version"] == "old")
+            (initialisation["test"] == test) & (initialisation["version"] == "old")
         ].iloc[0]
         current_init = initialisation.loc[
-            (initialisation["test"] == test)
-            & (initialisation["version"] == "current")
+            (initialisation["test"] == test) & (initialisation["version"] == "current")
         ].iloc[0]
 
         rows.append(
@@ -260,12 +246,8 @@ def build_old_current_summary(
                     current_end["population_density"],
                 ),
                 "old_initial_body_mass": old_init["mean_individual_body_mass"],
-                "current_initial_body_mass": current_init[
-                    "mean_individual_body_mass"
-                ],
-                "old_body_mass_at_shared_end": old_end[
-                    "mean_individual_body_mass"
-                ],
+                "current_initial_body_mass": current_init["mean_individual_body_mass"],
+                "old_body_mass_at_shared_end": old_end["mean_individual_body_mass"],
                 "current_body_mass_at_shared_end": current_end[
                     "mean_individual_body_mass"
                 ],
@@ -284,10 +266,7 @@ def build_old_current_summary(
 def build_slow_fast_summary(trajectories: pd.DataFrame) -> pd.DataFrame:
     """Compare slow- and fast-growing cases over one common time period."""
     common_dates = set.intersection(
-        *[
-            set(group["time"])
-            for _, group in trajectories.groupby(["test", "version"])
-        ]
+        *[set(group["time"]) for _, group in trajectories.groupby(["test", "version"])]
     )
     if not common_dates:
         raise ValueError("No simulation dates are shared by all four runs.")
@@ -322,11 +301,7 @@ def build_slow_fast_summary(trajectories: pd.DataFrame) -> pd.DataFrame:
             }
         )
 
-    return (
-        pd.DataFrame(rows)
-        .sort_values(["version", "test"])
-        .reset_index(drop=True)
-    )
+    return pd.DataFrame(rows).sort_values(["version", "test"]).reset_index(drop=True)
 
 
 def plot_comparison(test_data: pd.DataFrame, output_path: Path) -> None:
