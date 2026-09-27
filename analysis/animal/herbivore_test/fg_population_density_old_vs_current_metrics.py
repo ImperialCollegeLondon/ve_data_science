@@ -346,9 +346,7 @@ def plot_comparison(test_data: pd.DataFrame, output_path: Path) -> None:
 
 def main() -> None:
     """Run the Task 1 herbivore comparison."""
-    data_dir = Path(
-        r"C:\Projects\ve_simulation_user\scenarios\maliau_2_globus\3 herbivore test\output"
-    )
+    data_dir = Path("path/to/herbivore_test")
     output_dir = data_dir / "old_current_comparison"
 
     cohort_files = {
