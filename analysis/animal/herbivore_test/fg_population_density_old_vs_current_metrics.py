@@ -149,16 +149,16 @@ def calculate_metrics(
         raise ValueError("A time index maps to more than one simulation date.")
 
     result = density.merge(
-    mass[
-        [
-            "time_index",
-            "functional_group",
-            "mean_individual_body_mass",
-            "n_cohorts",
-        ]
-    ],
-    on=["time_index", "functional_group"],
-).merge(times, on="time_index")
+        mass[
+            [
+                "time_index",
+                "functional_group",
+                "mean_individual_body_mass",
+                "n_cohorts",
+            ]
+        ],
+        on=["time_index", "functional_group"],
+    ).merge(times, on="time_index")
     result["test"] = test
     result["version"] = version
 
