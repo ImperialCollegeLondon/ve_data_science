@@ -193,9 +193,7 @@ def calculate_fg_population_density(
             functional_group, and individuals.
         cell_size: Length of one side of a square grid cell in metres.
         n_cells_x: Number of grid cells in the x direction.
-        n_cells_y: Number of grid cells in the y direction.
-        complexity_level: Functional-group definition level used to generate the
-            cohort input (for example 1, 2, or 3).
+        n_cells_y: Number of grid cells in the y direction
         density_unit: Unit used to report population density. Accepted values
             are "m2", "ha", and "km2".
         density_scope: Area used to calculate population density. Accepted
@@ -210,6 +208,8 @@ def calculate_fg_population_density(
         ValueError: If required columns are missing or settings are invalid.
 
     """
+    #TODO: Add validation output naming for complexity level to facilitate species-FG mapping
+
     if density_scope not in {"landscape", "territory"}:
         raise ValueError("density_scope must be either 'landscape' or 'territory'.")
 
@@ -244,9 +244,6 @@ def calculate_fg_population_density(
 
     if n_cells_y <= 0:
         raise ValueError("n_cells_y must be greater than zero.")
-    if complexity_level <= 0:
-raise ValueError("complexity_level must be 1 to 5.")
-
 
     if cohort_df["individuals"].isna().any():
         raise ValueError("The individuals column contains missing values.")
