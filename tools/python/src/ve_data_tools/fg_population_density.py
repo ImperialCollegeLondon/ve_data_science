@@ -193,6 +193,8 @@ def calculate_fg_population_density(
         cell_size: Length of one side of a square grid cell in metres.
         n_cells_x: Number of grid cells in the x direction.
         n_cells_y: Number of grid cells in the y direction.
+        complexity_level: Functional-group definition level used to generate the
+            cohort input (for example 1, 2, or 3).
         density_unit: Unit used to report population density. Accepted values
             are "m2", "ha", and "km2".
         density_scope: Area used to calculate population density. Accepted
