@@ -175,7 +175,8 @@ def calculate_fg_population_density(
     cohort_df: pd.DataFrame,
     cell_size: float,
     n_cells_x: int,
-        density_unit: Unit used to report population density. Accepted values
+    n_cells_x: int,
+       density_unit: Unit used to report population density. Accepted values
     density_unit: str = "km2",
     density_scope: str = "landscape",
     territory_column: str = "territory",
