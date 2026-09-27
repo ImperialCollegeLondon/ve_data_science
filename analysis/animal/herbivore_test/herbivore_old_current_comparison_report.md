@@ -1,8 +1,8 @@
 # Herbivore old vs current output comparison
 
-This notebook compares Level 1 herbivore test outputs for **Elephant** (slow-growing reference) and **Kancil** (faster-growing case). The original idea of using "fast vs slow" growing herbivores was testing whether replacing FG input with smaller, faster-growing herbivore such as Kancil. would change the population density trajectory, and perhaps improve persistence. This is especially true as when the simulation ended quickly, FG that requires more time to grow/changes in body mass will be tricky to interpret. The comparison focuses on population density / abundance, mean individual body mass, maturity and reproduction, and how the current outputs differ from the older runs. 
+This notebook compares Level 1 herbivore test outputs for **Elephant** (slow-growing reference) and **Kancil** (faster-growing case). The original idea of using "fast vs slow" growing herbivores was testing whether replacing FG input with smaller, faster-growing herbivore such as Kancil. would change the population density trajectory, and perhaps improve persistence. This is especially true as when the simulation ended quickly, FG that requires more time to grow/changes in body mass will be tricky to interpret. The comparison focuses on population density / abundance, mean individual body mass, maturity and reproduction, and how the current outputs differ from the older runs.
 
-> **Important:** the old and current runs differ in Virtual Ecosystem version and configuration as well as recent animal-module changes. 
+> **Important:** the old and current runs differ in Virtual Ecosystem version and configuration as well as recent animal-module changes.
 ## Test setup
 
 - **Virtual Ecosystem version:** 0.2.1
@@ -261,7 +261,7 @@ The number of cohorts also changes quite differently between the runs.
 - Old Kancil: the number of cohorts drops from 100 to 17.
 - Current Elephant: the number of cohorts drops from 10 to 1.
 - Old Elephant: 9 of the 10 cohorts are still present at the end.
-For current Kancil, the number of individuals declines while all 100 cohort IDs remain present. In the old Kancil run, both the number of individuals and the number of cohorts decline. Elephant shows a different pattern, with much more cohort loss in the current run. 
+For current Kancil, the number of individuals declines while all 100 cohort IDs remain present. In the old Kancil run, both the number of individuals and the number of cohorts decline. Elephant shows a different pattern, with much more cohort loss in the current run.
 
 In the exported data, the rows that are still present are all marked is_alive = True. Cohorts that disappear later seem to simply drop out of the output, rather than staying in the file with is_alive = False.
 
@@ -272,6 +272,4 @@ In the exported data, the rows that are still present are all marked is_alive = 
 2. Kancil shows the biggest change. The old run grows very quickly, reaches maturity early, and almost completely collapses within about 14 months. The current run grows and declines much more slowly, and never reaches maturity.
 3. The current runs still decline over time. Elephant drops from 52 to 1 individual, while Kancil drops from 94,375 to 525.
 4. There is no reproduction in any run judging from the empty columns of reproductive C,N,P. So the density decline likely reflects loss of the original population, with no recruitment to replace it.
-5. The true starting point matters. The exporter has two states at time_index = 0, so the age-0 record should be used as the real starting value. The current script handles this in order to avoid double-counting during initialisation. 
-
-
+5. The true starting point matters. The exporter has two states at time_index = 0, so the age-0 record should be used as the real starting value. The current script handles this in order to avoid double-counting during initialisation.
