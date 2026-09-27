@@ -175,8 +175,7 @@ def calculate_fg_population_density(
     cohort_df: pd.DataFrame,
     cell_size: float,
     n_cells_x: int,
-    n_cells_x: int,
-       density_unit: Unit used to report population density. Accepted values
+    n_cells_y: int,
     density_unit: str = "km2",
     density_scope: str = "landscape",
     territory_column: str = "territory",
@@ -208,7 +207,8 @@ def calculate_fg_population_density(
         ValueError: If required columns are missing or settings are invalid.
 
     """
-    #TODO: Add validation output naming for complexity level to facilitate species-FG mapping
+    # TODO: Add validation output naming once the species-to-FG mapping
+    # and the need for complexity_level are agreed.
 
     if density_scope not in {"landscape", "territory"}:
         raise ValueError("density_scope must be either 'landscape' or 'territory'.")
@@ -230,7 +230,7 @@ def calculate_fg_population_density(
     if cohort_df.empty:
         raise ValueError("Input dataframe is empty.")
 
-    if cohort_df[grouping_columns].isna().any().any():
+    if cohort_df[["time_index", "functional_group"]].isna().any().any():
         raise ValueError(
             "The time_index and functional_group columns must not contain "
             "missing values."
