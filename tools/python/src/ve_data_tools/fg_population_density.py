@@ -243,6 +243,9 @@ def calculate_fg_population_density(
 
     if n_cells_y <= 0:
         raise ValueError("n_cells_y must be greater than zero.")
+    if complexity_level <= 0:
+raise ValueError("complexity_level must be 1 to 5.")
+
 
     if cohort_df["individuals"].isna().any():
         raise ValueError("The individuals column contains missing values.")
