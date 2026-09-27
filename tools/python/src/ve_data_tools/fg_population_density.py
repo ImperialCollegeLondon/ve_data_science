@@ -229,6 +229,12 @@ def calculate_fg_population_density(
     if cohort_df.empty:
         raise ValueError("Input dataframe is empty.")
 
+    if cohort_df[grouping_columns].isna().any().any():
+        raise ValueError(
+            "The time_index and functional_group columns must not contain "
+            "missing values."
+        )
+
     if cell_size <= 0:
         raise ValueError("cell_size must be greater than zero.")
 
