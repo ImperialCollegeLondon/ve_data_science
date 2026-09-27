@@ -1,0 +1,2197 @@
+title: master_data_library_metadata
+generated_by: analysis/plant/input_data/data_library/master_data_library.R
+generated_on: '2026-09-10'
+scripts:
+- script_path: pfts_maliau.R
+  title: pfts_maliau
+  description: |
+    This script assigns plant functional types (pfts) to taxa in the SAFE
+    tree census dataset and exports a curated lookup table for downstream
+    plant-input workflows.
+
+    Classification is applied in two stages. First, broad genus-level rules
+    define initial pft assignments. Second, species-level rules add or
+    override assignments for taxa that require finer resolution from
+    literature sources.
+
+    The final output is a CSV file containing pft_name plus taxonomic fields
+    (taxa_name, taxa_level, species, genus and family).
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: tree_census_11_20.xlsx
+    path: data/primary/plant/tree_census
+    description: |
+      https://doi.org/10.5281/zenodo.14882506
+      Tree census data from the SAFE Project 2011–2020.
+      Data includes measurements of DBH and estimates of tree height for
+      all stems, fruiting and flowering estimates, estimates of epiphyte
+      and liana cover, and taxonomic IDs.
+  output_files:
+  - name: pfts_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file containing the plant functional type classification for taxa
+      in the tree census. The file contains pft_name, taxa_name, taxa_level,
+      species, genus and family columns linking each taxon to its assigned
+      plant functional type (PFT).
+    variables:
+    - name: pft_name
+      type: character
+      units: dimensionless
+      description: |
+        The name of the plant functional type (pft) a species is assigned to.
+      references:
+      - citation: Kohler and Huth (1998)
+        doi: https://doi.org/10.1016/S0304-3800(98)00066-0
+        url: https://www.sciencedirect.com/science/article/pii/S0304380098000660?via%3Dihub
+        origin: Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp rainforest
+        site_condition: ~
+        date: ~
+      - citation: Phillips et al. (2002)
+        doi: https://doi.org/10.1016/S0378-1127(00)00666-6
+        url: https://www.sciencedirect.com/science/article/pii/S0378112700006666?via%3Dihub
+        origin: STREK Project, East Kalimantan, Indonesia
+        biome: tropical
+        vegetation_type: mixed tropical forest
+        site_condition: primary and logged-over
+        date: ~
+      - citation: Okuda et al. (2003)
+        doi: https://doi.org/10.1016/S0378-1127(02)00137-8
+        url: https://www.sciencedirect.com/science/article/pii/S0378112702001378?casa_token=Zs7KS5tPN2MAAAAA:JyhnmBtoW3tAeRaimVFxTxPcmyQSlL7Z5iKMRqrm1K2ZD6h1xAw8wYhvgO1841kJ_J7bkeJtwik
+        origin: Pasoh Forest Reserve, Kuala Lumpur, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: old-growth
+        date: ~
+      - citation: Bischoff et al. (2005)
+        doi: https://doi.org/10.1016/j.foreco.2005.07.009
+        url: https://www.sciencedirect.com/science/article/pii/S0378112705004603?casa_token=SSJY4togabQAAAAA:ZnMQwQkwl-yNGTABN3aVlYNBOGITV71CRJhM9H4r7OPD2RrURUW1vrF7IGGAGZY9j_jxqUk71bc
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp rain forest
+        site_condition: primary and secondary
+        date: ~
+      - citation: Manokaran et al. (1987)
+        doi: https://doi.org/10.1017/S0266467400002303
+        url: https://www.cambridge.org/core/journals/journal-of-tropical-ecology/article/abs/recruitment-growth-and-mortality-of-tree-species-in-a-lowland-dipterocarp-forest-in-peninsular-malaysia/5A808ECED3B05794757E73F09E54232F#article
+        origin: Sungei Menyala Forest Reserve, Peninsular Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: unlogged primary and regenerated
+        date: ~
+      - citation: Lee et al. (2002)
+        doi: ~
+        url: https://www.jstor.org/stable/43594474
+        origin: Lambir Hills National Park, Sarawak, Malaysia
+        biome: tropical
+        vegetation_type: lowland mixed dipterocarp forest
+        site_condition: primary
+        date: ~
+      - citation: Burghouts et al. (1994)
+        doi: https://doi.org/10.1017/S0266467400007677
+        url: https://www.cambridge.org/core/journals/journal-of-tropical-ecology/article/abs/effects-of-tree-species-heterogeneity-on-leaf-fall-in-primary-and-logged-dipterocarp-forest-in-the-ulu-segama-forest-reserve-sabah-malaysia/3A615C73D4BBF3A1CA91E33FD5D4AEB0
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: primary and selectively logged
+        date: ~
+      assumptions: ~
+    - name: taxa_name
+      type: character
+      units: dimensionless
+      description: |
+        Taxonomic info to finest resolution available.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: taxa_level
+      type: character
+      units: dimensionless
+      description: |
+        Taxonomic level identified to.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: species
+      type: character
+      units: dimensionless
+      description: |
+        Species level ID.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: genus
+      type: character
+      units: dimensionless
+      description: |
+        Genus level ID.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: family
+      type: character
+      units: dimensionless
+      description: |
+        Family level ID.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+  package_dependencies: readxl
+  usage_notes: |
+    The pft species classification represents both old-growth and (selectively)
+    logged plots.
+- script_path: t_model_maliau.R
+  title: t_model_maliau
+  description: |
+    This script calculates PFT-level values for the Virtual Ecosystem plant
+    T model using tree census and functional-trait data from Maliau and the
+    SAFE Project. Taxa are linked to their PFT using the pfts_maliau output,
+    and PFT-specific height-diameter and crown-area relationships are fitted
+    from the 2011 census data.
+
+    The output combines fitted parameters with trait-derived and literature-
+    based plant parameters, including wood density, specific leaf area,
+    turnover, respiration, root allocation, mortality, recruitment, and
+    propagule supply values.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: tree_census_11_20.xlsx
+    path: data/primary/plant/tree_census
+    description: |
+      https://doi.org/10.5281/zenodo.14882506
+      Tree census data from the SAFE Project 2011–2020.
+      Data includes measurements of DBH and estimates of tree height for
+      all stems, fruiting and flowering estimates, estimates of epiphyte
+      and liana cover, and taxonomic IDs.
+  - name: pfts_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file containing the plant functional type classification for taxa
+      in the tree census. The file contains pft_name, taxa_name, taxa_level,
+      species, genus and family columns linking each taxon to its assigned
+      plant functional type (PFT).
+  - name: inagawa_nutrients_wood_density.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.5281/zenodo.8158811
+      Nutrients and wood density in coarse root, trunk and branches in
+      Bornean tree species.
+  - name: both_tree_functional_traits.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.5281/zenodo.3247631
+      Functional traits of tree species in old-growth and selectively
+      logged forest.
+  output_files:
+  - name: t_model_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file listing T-model parameters by pft.
+    variables:
+    - name: pft_name
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type name.
+      references:
+      - citation: pfts_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        PFT names are inherited from pfts_maliau.csv and identify the plant
+        functional type associated with each output record.
+    - name: h_max
+      type: numeric
+      units: m
+      description: |
+        Asymptotic maximum tree height.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Estimated by fitting an asymptotic height-diameter model to SAFE
+        census trees within each PFT, using 2011 data across all plots.
+    - name: a_hd
+      type: numeric
+      units: dimensionless
+      description: |
+        Initial slope parameter of the height–diameter relationship.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Estimated by fitting an asymptotic height-diameter model to SAFE
+        census trees within each PFT, using 2011 data across all plots.
+    - name: ca_ratio
+      type: numeric
+      units: dimensionless
+      description: |
+        Initial ratio of crown area to stem cross-sectional area.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Estimated by fitting crown projected area relationships for each
+        PFT, using 2011 data across all plots.
+    - name: rho_s
+      type: numeric
+      units: kg C m-3
+      description: |
+        Sapwood density expressed as carbon mass per unit volume.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2014-2018
+      - citation: Inagawa et al. (2023)
+        doi: https://doi.org/10.5281/zenodo.8158811
+        url: https://zenodo.org/records/8158811
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: mixed dipterocarp lowland rainforest
+        site_condition: logged
+        date: 2014-2015
+      assumptions: Mean sapwood density without bark converted to carbon density using
+        mean sapwood carbon content.
+    - name: sla
+      type: numeric
+      units: mm2 mg-1 C
+      description: |
+        Specific leaf area expressed per unit carbon mass.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2014-2018
+      assumptions: Specific leaf area is averaged by PFT from the functional-traits
+        data and expressed per unit carbon mass.
+    - name: lai
+      type: numeric
+      units: dimensionless
+      description: |
+        Leaf area index.
+      references:
+      - citation: Pfeifer et al. (2016)
+        doi: https://doi.org/10.1016/j.rse.2016.01.014
+        url: https://www.sciencedirect.com/science/article/pii/S003442571630013X?via%3Dihub
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: primary and secondary
+        date: 2012-2013
+      assumptions: A single primary-forest value is applied uniformly across PFTs.
+    - name: par_ext
+      type: numeric
+      units: dimensionless
+      description: |
+        Light extinction coefficient describing the attenuation of
+        photosynthetically active radiation through the canopy.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest
+        site_condition: ~
+        date: ~
+      assumptions: The value reported for rain forest is applied uniformly across
+        PFTs.
+    - name: tau_f
+      type: numeric
+      units: years
+      description: |
+        Leaf turnover time.
+      references:
+      - citation: Anderson et al. (1983)
+        doi: https://doi.org/10.2307/2259731
+        url: https://www.jstor.org/stable/2259731?origin=crossref
+        origin: Gunung Mulu National Park, Sarawak, Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: '1978'
+      assumptions: Derived as the inverse of reported annual leaf turnover and applied
+        uniformly across pfts.
+    - name: tau_rt
+      type: numeric
+      units: years
+      description: |
+        Turnover time of reproductive tissue.
+      references:
+      - citation: Anderson et al. (1983)
+        doi: https://doi.org/10.2307/2259731
+        url: https://www.jstor.org/stable/2259731?origin=crossref
+        origin: Gunung Mulu National Park, Sarawak, Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: '1978'
+      assumptions: |
+        Derived as the inverse of the reported annual reproductive-organ
+        turnover and applied uniformly across PFTs using the same source
+        and approach as leaf turnover.
+    - name: tau_b
+      type: numeric
+      units: years
+      description: |
+        Branch turnover time.
+      references:
+      - citation: Anderson et al. (1983)
+        doi: https://doi.org/10.2307/2259731
+        url: https://www.jstor.org/stable/2259731?origin=crossref
+        origin: Gunung Mulu National Park, Sarawak, Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: '1978'
+      assumptions: |
+        Calculated from Anderson et al. small wood (<2 cm diameter) and
+        large wood (2-10 cm diameter) input and standing crop values for
+        dipterocarp forest. The combined turnover rate is total branch input
+        divided by total branch standing crop, then inverted to turnover
+        time and applied uniformly across PFTs.
+    - name: tau_r
+      type: numeric
+      units: years
+      description: |
+        Fine root turnover time.
+      references:
+      - citation: Huaraca Huasco et al. (2021)
+        doi: https://doi.org/10.1111/gcb.15677
+        url: https://onlinelibrary.wiley.com/doi/10.1111/gcb.15677
+        origin: Maliau and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: primary
+        date: '2021'
+      assumptions: Calculated as the mean root residence time across two Maliau plots
+        and applied uniformly across pfts.
+    - name: resp_r
+      type: numeric
+      units: year-1
+      description: |
+        Fine root specific maintenance respiration rate.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: A daily literature respiration value is multiplied by 365 to obtain
+        an annual rate, which is applied uniformly across PFTs.
+    - name: resp_f
+      type: numeric
+      units: year-1
+      description: |
+        Leaf specific maintenance respiration rate.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: A daily literature respiration value is multiplied by 365 to obtain
+        an annual rate, which is applied uniformly across PFTs.
+    - name: resp_s
+      type: numeric
+      units: year-1
+      description: |
+        Wood specific maintenance respiration rate.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: A daily literature respiration value is multiplied by 365 to obtain
+        an annual rate, which is applied uniformly across PFTs.
+    - name: resp_rt
+      type: numeric
+      units: year-1
+      description: |
+        Maintenance respiration rate for reproductive tissue.
+      references:
+      - citation: Kinugasa et al. (2005)
+        doi: https://doi.org/10.1093/aob/mci152
+        url: https://academic.oup.com/aob/article-abstract/96/1/81/174607?redirectedFrom=fulltext
+        origin: laboratory settings
+        biome: temperate
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Production of reproductive organs is assumed to be consistent throughout
+        the year, and the maintenance respiration value is applied uniformly across
+        PFTs.
+    - name: yld
+      type: numeric
+      units: dimensionless
+      description: |
+        Yield factor used in the T model.
+      references:
+      - citation: Yan and Zhao (2007)
+        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
+        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: rain forest tree
+        site_condition: ~
+        date: ~
+      assumptions: Calculated as 1 / (1 + r_g), using a growth respiration coefficient.
+    - name: zeta
+      type: numeric
+      units: kg C m-2
+      description: |
+        Fine root carbon mass to foliage area ratio.
+      references:
+      - citation: Niiyama et al. (2010)
+        doi: http://dx.doi.org/10.1017/S0266467410000040
+        url: https://www.cambridge.org/core/journals/journal-of-tropical-ecology/article/abs/estimation-of-root-biomass-based-on-excavation-of-individual-root-systems-in-a-primary-dipterocarp-forest-in-pasoh-forest-reserve-peninsular-malaysia/523F092746792B1ABF3B18DEE483895F
+        origin: Pasoh Forest Reserve, Peninsular Malaysia
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: primary
+        date: 2004-2005
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2014-2018
+      - citation: Imai et al. (2010)
+        doi: https://doi.org/10.1017/S0266467410000350
+        url: https://www.cambridge.org/core/journals/journal-of-tropical-ecology/article/abs/distribution-of-phosphorus-in-an-abovetobelowground-profile-in-a-bornean-tropical-rain-forest/FCCE8AA3D75C97EA444F509BF8F3FF51
+        origin: Deramakot Forest Reserve, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: rain forest
+        site_condition: pristine
+        date: '2010'
+      assumptions: Derived from Niiyama et al. (2010) fine-root and foliage masses,
+        PFT-specific SLA from the functional-traits data, and a mean fine-root carbon
+        content of 45.2% from Imai et al. (2010).
+    - name: root_exudates
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of NPP carbon allocated to root exudates.
+      references:
+      - citation: Aoki et al. (2013)
+        doi: https://doi.org/10.1007/s10021-012-9575-6
+        url: https://link.springer.com/article/10.1007/s10021-012-9575-6
+        origin: Mount Kinabalu, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland rainforest
+        site_condition: primary
+        date: '2012'
+      assumptions: A fixed value is applied uniformly across PFTs.
+    - name: per_stem_annual_mortality_probability
+      type: numeric
+      units: dimensionless
+      description: |
+        Annual probability of mortality per stem.
+      references:
+      - citation: Bisschoff et al. (2005)
+        doi: https://doi.org/10.1016/j.foreco.2005.07.009
+        url: https://www.sciencedirect.com/science/article/pii/S0378112705004603?via%3Dihub
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp rain forest
+        site_condition: primary and secondary
+        date: 1995-2001
+      assumptions: A fixed value is applied uniformly across PFTs.
+    - name: per_propagule_annual_recruitment_probability
+      type: numeric
+      units: dimensionless
+      description: |
+        Annual probability of recruitment per propagule.
+      references:
+      - citation: Howlett and Davidson (2003)
+        doi: https://doi.org/10.1016/S0378-1127(03)00161-0
+        url: https://www.sciencedirect.com/science/article/pii/S0378112703001610?via%3Dihub
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: logged
+        date: '1993'
+      - citation: Kennedy and Swaine (1992)
+        doi: https://doi.org/10.1098/rstb.1992.0027
+        url: https://royalsocietypublishing.org/rstb/article-abstract/335/1275/357/18258/Germination-and-growth-of-colonizing-species-in?redirectedFrom=fulltext
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland rain forest
+        site_condition: primary
+        date: '1989'
+      - citation: Kuusipalo et al. (1996)
+        doi: https://doi.org/10.1016/0378-1127(95)03654-7
+        url: https://www.sciencedirect.com/science/article/pii/0378112795036547?via%3Dihub
+        origin: Kintap, South Kalimantan, Indonesia
+        biome: tropical
+        vegetation_type: mixed dipterocarp rainforest
+        site_condition: unlogged and logged
+        date: '1996'
+      assumptions: The value combines the literature seed establishment probability
+        with an annualised seedling survival correction based on Kuusipalo et al.
+        (1996).
+    - name: propagules_per_ha
+      type: numeric
+      units: propagules ha-1
+      description: |
+        Minimum estimated propagule abundance in the seedbank per hectare.
+      references:
+      - citation: Kuusipalo et al. (1996)
+        doi: https://doi.org/10.1016/0378-1127(95)03654-7
+        url: https://www.sciencedirect.com/science/article/pii/0378112795036547?via%3Dihub
+        origin: Kintap, South Kalimantan, Indonesia
+        biome: tropical
+        vegetation_type: mixed dipterocarp rainforest
+        site_condition: unlogged and logged
+        date: '1996'
+      - citation: Kennedy and Swaine (1992)
+        doi: https://doi.org/10.1098/rstb.1992.0027
+        url: https://royalsocietypublishing.org/rstb/article-abstract/335/1275/357/18258/Germination-and-growth-of-colonizing-species-in?redirectedFrom=fulltext
+        origin: Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland rain forest
+        site_condition: primary
+        date: '1989'
+      assumptions: |
+        This is a minimum estimate calculated from observed recruitment,
+        annualised seedling survival, and germination probability. It is
+        applied as a total propagule supply across PFTs and scaled per
+        hectare.
+  package_dependencies:
+  - readxl
+  - dplyr
+  - ggplot2
+  - stringr
+  usage_notes: |
+    Run from this script's directory because input and output paths are
+    relative. The script uses the 2011 census measurements available in the
+    SAFE Project tree census and combines them with trait and literature data.
+    Several parameters are applied uniformly across PFTs where the available
+    data do not support PFT-specific estimates. The output is a data-library
+    input for downstream plant model configuration.
+- script_path: pfts_maximum_height_maliau.R
+  title: pfts_maximum_height_maliau
+  description: |
+    This script assigns plant functional types (pfts) to the remaining taxa
+    in the SAFE tree census dataset that were not assigned a PFT in
+    pfts_maliau. These remaining taxa are classified based on their maximum
+    height relative to the pft maximum height.
+    The output of this script combines the base pft classification with the
+    additional maximum-height-based assignments.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: tree_census_11_20.xlsx
+    path: data/primary/plant/tree_census
+    description: |
+      https://doi.org/10.5281/zenodo.14882506
+      Tree census data from the SAFE Project 2011–2020.
+      Data includes measurements of DBH and estimates of tree height for
+      all stems, fruiting and flowering estimates, estimates of epiphyte
+      and liana cover, and taxonomic IDs.
+  - name: pfts_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file containing the plant functional type classification for taxa
+      in the tree census. The file contains pft_name, taxa_name, taxa_level,
+      species, genus and family columns linking each taxon to its assigned
+      plant functional type (PFT).
+  - name: t_model_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file listing T-model parameters by pft.
+  output_files:
+  - name: pfts_maximum_height_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file containing an updated list of taxa and their respective
+      pft. It contains both the base pft classification from pfts_maliau and
+      additional assignments for previously unclassified taxa based on their
+      maximum height relative to pft maximum height thresholds. Taxon maximum
+      height is also included in the output file.
+    variables:
+    - name: pft_name_h_max_taxa
+      type: character
+      units: dimensionless
+      description: |
+        The name of the plant functional type (pft) a species is assigned to.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Remaining taxa are assigned a pft based on pft maximum height,
+        using 2011 data across all plots.
+    - name: pft_name
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type name.
+      references:
+      - citation: pfts_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        PFT names are inherited from pfts_maliau.csv and identify the plant
+        functional type associated with each output record.
+    - name: taxa_name
+      type: character
+      units: dimensionless
+      description: |
+        Taxonomic info to finest resolution available.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: taxa_level
+      type: character
+      units: dimensionless
+      description: |
+        Taxonomic level identified to.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: species
+      type: character
+      units: dimensionless
+      description: |
+        Species level ID.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: genus
+      type: character
+      units: dimensionless
+      description: |
+        Genus level ID.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: family
+      type: character
+      units: dimensionless
+      description: |
+        Family level ID.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: ~
+    - name: h_max_taxa
+      type: numeric
+      units: m
+      description: |
+        Estimated maximum height for each taxa.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Maximum height is taken as the tallest observed individual per
+        taxa, using 2011 data across all plots.
+  package_dependencies:
+  - readxl
+  - dplyr
+  - ggplot2
+  - tidyr
+  usage_notes: |
+    This script is intended to run after pfts_maliau and t_model_maliau have
+    generated the base pft classification and T model parameters.
+- script_path: stoichiometry_maliau.R
+  title: stoichiometry_maliau
+  description: |
+    This script focuses on collecting stoichiometric ratios and lignin content
+    for each of the biomass pools in the plant model: leaves, sapwood, roots
+    and reproductive tissue, which consists of propagules (fruits/seeds) and
+    non-propagules (flowers).
+    The script works with multiple datasets and calculates the ratios at PFT
+    level where possible. Species are linked to their PFT using the output of
+    the PFT classification script in the plant input data library workflow.
+    If PFT-specific values are not available, values for tropical rain forests
+    in Sabah are used.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: pfts_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file containing the plant functional type classification for taxa
+      in the tree census. The file contains pft_name, taxa_name, taxa_level,
+      species, genus and family columns linking each taxon to its assigned
+      plant functional type (PFT).
+  - name: inagawa_nutrients_wood_density.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.5281/zenodo.8158811
+      Nutrients and wood density in coarse root, trunk and branches in
+      Bornean tree species.
+  - name: both_tree_functional_traits.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.5281/zenodo.3247631
+      Functional traits of tree species in old-growth and selectively
+      logged forest.
+  - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.1111/1365-2745.12379
+      Element concentrations of litter fractions.
+  output_files:
+  - name: stoichiometry_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains PFT-level stoichiometric ratios and lignin
+      fractions for plant biomass pools, including sapwood, foliage,
+      senesced leaves, reproductive tissue, fruits, flowers, and fine roots.
+      Where PFT-specific measurements are unavailable, literature-derived
+      proxy values are used.
+    variables:
+    - name: pft_name
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type name.
+      references:
+      - citation: pfts_maliau.csv
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        PFT names are inherited from pfts_maliau.csv and identify the plant
+        functional type associated with each output record.
+    - name: stem_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for stem tissue.
+      references:
+      - citation: Inagawa et al. (2023)
+        doi: https://doi.org/10.5281/zenodo.8158811
+        url: https://zenodo.org/records/8158811
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Calculated from sapwood nutrient concentrations and averaged across
+        the limited species sample rather than by PFT.
+    - name: stem_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for stem tissue.
+      references:
+      - citation: Inagawa et al. (2023)
+        doi: https://doi.org/10.5281/zenodo.8158811
+        url: https://zenodo.org/records/8158811
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Calculated from sapwood nutrient concentrations and averaged across
+        the limited species sample rather than by PFT.
+    - name: stem_lignin
+      type: numeric
+      units: g lignin C g^-1 stem C
+      description: |
+        Fraction of stem carbon mass present as lignin.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: deciduous broadleaf forest
+        site_condition: ~
+        date: ~
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Derived by combining literature lignin fraction with mean sapwood
+        carbon content from the SAFE wood nutrient dataset.
+    - name: foliage_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for foliage.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Calculated from leaf trait measurements and aggregated to PFT using
+        species-to-PFT matching, with genus-level matching where species-level matching
+        is unavailable.
+    - name: foliage_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for foliage.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Calculated from leaf trait measurements and aggregated to PFT using
+        species-to-PFT matching, with genus-level matching where species-level matching
+        is unavailable.
+    - name: leaf_lignin
+      type: numeric
+      units: g lignin C g^-1 leaf C
+      description: |
+        Fraction of leaf carbon mass present as lignin.
+      references:
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project and Danum Valley Conservation Area, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2014-2018
+      assumptions: |
+        Leaf lignin measurements are taken from the functional-traits
+        dataset and converted from a dry-mass basis to a carbon-mass basis
+        using the lignin carbon-content value reported by Muddasar et al.
+        (2024).
+    - name: foliage_turnover_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for senesced leaf turnover material.
+      references:
+      - citation: Han et al. (2013)
+        doi: https://doi.org/10.1371/journal.pone.0083366
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: evergreen broadleaf forest
+        site_condition: ~
+        date: ~
+      assumptions: Derived from foliage C:N using a fixed nitrogen resorption efficiency
+        rather than direct senesced leaf measurements.
+    - name: foliage_turnover_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for senesced leaf turnover material.
+      references:
+      - citation: Han et al. (2013)
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: evergreen broadleaf forest
+        site_condition: ~
+        date: ~
+      assumptions: Derived from foliage C:P using a fixed phosphorus resorption efficiency
+        rather than direct senesced leaf measurements.
+    - name: senesced_leaf_lignin
+      type: numeric
+      units: g lignin C g^-1 senesced leaf C
+      description: |
+        Fraction of senesced leaf carbon mass present as lignin.
+      references:
+      - citation: Both et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.3247631
+        url: https://zenodo.org/records/3247631
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2020
+      assumptions: Assumed equal to live foliage lignin because senesced leaf-specific
+        lignin data were not separately derived.
+    - name: reproductive_organ_CN
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for reproductive organs.
+      references:
+      - citation: Kitayama et al. (2015)
+        doi: https://doi.org/10.1111/1365-2745.12379
+        url: https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379
+        origin: Mount Kinabalu, Borneo
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Based on combined reproductive-organ litter fractions from selected
+        Kitayama sites, so flowers, fruits and seeds are not separated.
+    - name: reproductive_organ_CP
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for reproductive organs.
+      references:
+      - citation: Kitayama et al. (2015)
+        doi: https://doi.org/10.1111/1365-2745.12379
+        url: https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2745.12379
+        origin: Mount Kinabalu, Borneo
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Based on combined reproductive-organ litter fractions from selected
+        Kitayama sites, so flowers, fruits and seeds are not separated.
+    - name: fruit_seed_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for reproductive tissue turnover.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Derived from mature fruit values for Dipterocarpus tempehes and
+        used as a proxy for propagule tissue.
+    - name: fruit_seed_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for reproductive tissue turnover.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Derived from mature fruit values for Dipterocarpus tempehes and
+        used as a proxy for propagule tissue.
+    - name: c_mass_fruit_flesh
+      type: numeric
+      units: g C
+      description: |
+        Carbon mass per mature fruit flesh after subtracting seed carbon mass.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Calculated from mature fruit dry mass and carbon percentage for
+        Dipterocarpus tempehes, after subtracting the estimated carbon mass of one
+        seed.
+    - name: c_mass_fruit_seed
+      type: numeric
+      units: g C
+      description: |
+        Carbon mass per seed within a mature fruit.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      - citation: Nakagawa and Nakashizuka (2004)
+        doi: https://doi.org/10.1079/SSR2004181
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Derived using seed dry mass from Nakagawa and Nakashizuka with
+        fruit carbon concentration from Ichie as a proxy for seed carbon concentration,
+        assuming one seed per fruit.
+    - name: seeds_per_fruit
+      type: numeric
+      units: dimensionless
+      description: |
+        Number of seeds per mature fruit.
+      references:
+      - citation: Nakagawa and Nakashizuka (2004)
+        doi: https://doi.org/10.1079/SSR2004181
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Assumed to be one seed per fruit for dipterocarps.
+    - name: plant_reproductive_tissue_lignin
+      type: numeric
+      units: g lignin C g^-1 reproductive tissue C
+      description: |
+        Fraction of reproductive tissue carbon mass present as lignin.
+      references:
+      - citation: Nakagawa and Nakashizuka (2004)
+        doi: https://doi.org/10.1079/SSR2004181
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Estimated from seed lignin and carbon content, so it serves as
+        a propagule-based proxy for broader reproductive tissue lignin.
+    - name: flower_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for flower tissue.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Calculated as the mean across several flower developmental stages
+        for Dipterocarpus tempehes.
+    - name: flower_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for flower tissue.
+      references:
+      - citation: Ichie et al. (2005)
+        doi: https://doi.org/10.1017/S0266467404002214
+        url: ~
+        origin: ~
+        biome: tropical
+        vegetation_type: dipterocarp forest
+        site_condition: ~
+        date: ~
+      assumptions: Calculated as the mean across several flower developmental stages
+        for Dipterocarpus tempehes.
+    - name: root_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio for fine root tissue.
+      references:
+      - citation: Imai et al. (2010)
+        doi: https://doi.org/10.1017/S0266467410000350
+        url: ~
+        origin: Sabah, Malaysia
+        biome: tropical
+        vegetation_type: mixed dipterocarp lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: Used directly from fine-root stoichiometry values rather than derived
+        separately for turnover material.
+    - name: root_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio for fine root tissue.
+      references:
+      - citation: Imai et al. (2010)
+        doi: https://doi.org/10.1017/S0266467410000350
+        url: ~
+        origin: Sabah, Malaysia
+        biome: tropical
+        vegetation_type: mixed dipterocarp lowland tropical rain forest
+        site_condition: ~
+        date: ~
+      assumptions: Used directly from fine-root stoichiometry values rather than derived
+        separately for turnover material.
+    - name: root_lignin
+      type: numeric
+      units: g lignin C g^-1 root C
+      description: |
+        Fraction of fine root carbon mass present as lignin.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Derived from a global mean fine-root lignin fraction combined with
+        fine-root carbon content from Imai et al. rather than from site-specific lignin
+        measurements.
+  package_dependencies:
+  - readxl
+  - dplyr
+  - ggplot2
+  - stringr
+  usage_notes: |
+    Run from this script's directory because input and output paths are
+    relative. The output contains PFT-level stoichiometric ratios and lignin
+    parameters derived from multiple datasets. Where PFT-specific observations
+    are unavailable, literature values or proxy relationships are used.
+- script_path: subcanopy_maliau.R
+  title: subcanopy_maliau
+  description: |
+    This script derives subcanopy vegetation and seedbank parameters for
+    Maliau. It combines plot-level and species-level measurements from the
+    SAFE Project with literature-based stoichiometric and turnover proxies.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: dobert_2019_plot_species_trait_data.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.5281/zenodo.2536270
+      Plot, species and trait data for subcanopy vegetation measured across
+      Maliau and the SAFE project.
+  - name: stoichiometry_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains PFT-level stoichiometric ratios and lignin
+      fractions for plant biomass pools, including sapwood, foliage,
+      senesced leaves, reproductive tissue, fruits, flowers, and fine roots.
+      Where PFT-specific measurements are unavailable, literature-derived
+      proxy values are used.
+  output_files:
+  - name: subcanopy_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains the subcanopy parameters used as plant model
+      constants in the plant input data library workflow.
+    variables:
+    - name: subcanopy_vegetation_biomass
+      type: numeric
+      units: kg C m^-2
+      description: |
+        Mean standing subcanopy vegetation carbon mass per unit ground area.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Derived from old-growth SAFE subcanopy dry biomass and converted to
+        carbon mass using a herb-layer carbon fraction from Wu et al. Total
+        dry weight is used because the model allocates subcanopy carbon to
+        leafy biomass; using leaf dry weight only would better match predicted
+        leaf area but would underestimate total subcanopy carbon.
+    - name: subcanopy_seedbank_biomass
+      type: numeric
+      units: kg C m^-2
+      description: |
+        Estimated seedbank carbon mass per unit ground area.
+      references:
+      - citation: Dalling et al. (1998)
+        doi: https://doi.org/10.2307/176953
+        url: https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Zhang et al. (2020)
+        doi: https://doi.org/10.1007/s11629-020-6253-6
+        url: https://link.springer.com/article/10.1007/s11629-020-6253-6
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Derived indirectly as 23% of estimated reproductive allocation
+        from subcanopy vegetation biomass rather than measured seedbank carbon mass.
+    - name: subcanopy_specific_leaf_area
+      type: numeric
+      units: m^2 kg^-1 C
+      description: |
+        Specific leaf area of subcanopy vegetation expressed per unit carbon mass.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Calculated as the mean SLA across selected non-tree subcanopy growth
+        forms, converted from the source cm2 g-1 values (mislabelled as m2 kg-1 in
+        the source file) to m2 kg-1, and then converted to a carbon-mass basis using
+        the same carbon fraction as for biomass.
+    - name: subcanopy_reproductive_allocation
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of aboveground subcanopy biomass allocated to reproductive tissue.
+      references:
+      - citation: Zhang et al. (2020)
+        doi: https://doi.org/10.1007/s11629-020-6253-6
+        url: https://link.springer.com/article/10.1007/s11629-020-6253-6
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Estimated from literature biomass ratios rather than from direct
+        measurements in the SAFE or Maliau subcanopy.
+    - name: subcanopy_respiration_fraction
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of gross primary productivity lost to respiration in subcanopy vegetation.
+      references:
+      - citation: Lötscher et al. (2004)
+        doi: https://doi.org/10.1111/j.1469-8137.2004.01170.x
+        url: https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Used directly as a literature constant for subcanopy vegetation.
+    - name: subcanopy_extinction_coef
+      type: numeric
+      units: dimensionless
+      description: |
+        Light extinction coefficient used for subcanopy vegetation.
+      references:
+      - citation: White et al. (2000)
+        doi: https://doi.org/10.1175/1087-3562(2000)004%3C0003:PASAOT%3E2.0.CO;2
+        url: https://journals.ametsoc.org/view/journals/eint/4/3/1087-3562_2000_004_0003_pasaot_2.0.co_2.xml
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: ~
+    - name: subcanopy_yield
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon yield of subcanopy vegetation after growth respiration losses.
+      references:
+      - citation: Lötscher et al. (2004)
+        doi: https://doi.org/10.1111/j.1469-8137.2004.01170.x
+        url: https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Derived as one minus the reported growth respiration fraction.
+    - name: subcanopy_vegetation_turnover
+      type: numeric
+      units: year^-1
+      description: |
+        Annual turnover rate of subcanopy vegetation biomass.
+      references:
+      - citation: Singh (1992)
+        doi: https://doi.org/10.1007/BF00045551
+        url: https://link.springer.com/article/10.1007/BF00045551
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Singh and Singh (1991)
+        doi: https://doi.org/10.1093/oxfordjournals.aob.a088252
+        url: https://academic.oup.com/aob/article-abstract/68/3/263/214008?redirectedFrom=fulltext
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Calculated as annual litterfall divided by standing herbaceous
+        biomass from literature rather than from the SAFE/Maliau subcanopy data.
+    - name: subcanopy_vegetation_c_n_ratio
+      type: numeric
+      units: g C g^-1 N
+      description: |
+        Carbon-to-nitrogen ratio of subcanopy vegetation biomass.
+      references:
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Taken from herb-layer elemental composition in primary forest as
+        a proxy for subcanopy vegetation.
+    - name: subcanopy_vegetation_c_p_ratio
+      type: numeric
+      units: g C g^-1 P
+      description: |
+        Carbon-to-phosphorus ratio of subcanopy vegetation biomass.
+      references:
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Taken from herb-layer elemental composition in primary forest as
+        a proxy for subcanopy vegetation.
+    - name: subcanopy_vegetation_lignin
+      type: numeric
+      units: g lignin C g^-1 vegetation C
+      description: |
+        Fraction of subcanopy vegetation carbon mass present as lignin.
+      references:
+      - citation: Amatangelo and Vitousek (2009)
+        doi: https://doi.org/10.1111/j.1744-7429.2008.00470.x
+        url: https://onlinelibrary.wiley.com/doi/10.1111/j.1744-7429.2008.00470.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Muddasar et al. (2024)
+        doi: https://doi.org/10.1016/j.mtsust.2024.100990
+        url: https://www.sciencedirect.com/science/article/pii/S2589234724003269?via%3Dihub
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      - citation: Wu et al. (2022)
+        doi: https://doi.org/10.3390/su142416517
+        url: https://www.mdpi.com/2071-1050/14/24/16517
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Derived from monocot lignin content and converted to a carbon basis
+        using literature lignin and vegetation carbon fractions.
+    - name: subcanopy_seedbank_turnover
+      type: numeric
+      units: year^-1
+      description: |
+        Annual turnover rate of the subcanopy seedbank.
+      references:
+      - citation: Dalling et al. (1998)
+        doi: https://doi.org/10.2307/176953
+        url: https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Derived from the fraction of seeds not expected to remain viable
+        after one year.
+    - name: subcanopy_sprout_rate
+      type: numeric
+      units: year^-1
+      description: |
+        Annual sprouting rate from the viable subcanopy seedbank.
+      references:
+      - citation: Dalling et al. (1998)
+        doi: https://doi.org/10.2307/176953
+        url: https://esajournals.onlinelibrary.wiley.com/doi/10.1890/0012-9658(1998)079%5B0564:DPASBD%5D2.0.CO;2
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Assumes the viable seed fraction within one year represents the
+        annual sprouting rate.
+    - name: subcanopy_sprout_yield
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon yield associated with sprouting from the subcanopy seedbank.
+      references:
+      - citation: Lötscher et al. (2004)
+        doi: https://doi.org/10.1111/j.1469-8137.2004.01170.x
+        url: https://nph.onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.2004.01170.x
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Set equal to the general subcanopy yield, assuming the same growth
+        respiration correction applies to sprouting.
+    - name: subcanopy_seedbank_c_n_ratio
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon-to-nitrogen ratio of seedbank material used for subcanopy inputs.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Imported directly from the derived stoichiometry_maliau reproductive
+        tissue turnover field as a proxy because seedbank-specific data are lacking.
+    - name: subcanopy_seedbank_c_p_ratio
+      type: numeric
+      units: dimensionless
+      description: |
+        Carbon-to-phosphorus ratio of seedbank material used for subcanopy inputs.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Imported directly from the derived stoichiometry_maliau reproductive
+        tissue turnover field as a proxy because seedbank-specific data are lacking.
+    - name: subcanopy_seedbank_lignin
+      type: numeric
+      units: dimensionless
+      description: |
+        Fraction of seedbank carbon mass present as lignin.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Imported directly from the derived stoichiometry_maliau reproductive
+        tissue lignin field as a proxy because seedbank-specific lignin data are lacking.
+  - name: dobert_subcanopy_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains the subcanopy vegetation and seedbank carbon mass
+      at plot level. The file is used for spatial predictions in the scenario
+      scripts.
+    variables:
+    - name: plot_code
+      type: character
+      units: dimensionless
+      description: |
+        Identifier for the SAFE Project sampling plot.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      assumptions: ~
+    - name: subcanopy_vegetation_carbon_mass_mean
+      type: numeric
+      units: kg C m^-2
+      description: |
+        Standing subcanopy vegetation carbon mass per unit ground area.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      assumptions: |
+        Derived from old-growth SAFE subcanopy dry biomass and converted to
+        carbon mass using a herb-layer carbon fraction from Wu et al. Total
+        dry weight is used because the model allocates subcanopy carbon to
+        leafy biomass; using leaf dry weight only would better match predicted
+        leaf area but would underestimate total subcanopy carbon.
+    - name: subcanopy_seedbank_carbon_mass_mean
+      type: numeric
+      units: kg C m^-2
+      description: |
+        Standing subcanopy seedbank carbon mass per unit ground area.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      assumptions: |
+        Derived from the mean total-dry-weight vegetation carbon mass using
+        a reproductive allocation and seedbank fraction.
+    - name: subcanopy_vegetation_carbon_mass_plot
+      type: numeric
+      units: kg C m^-2
+      description: |
+        Standing subcanopy vegetation carbon mass per unit ground area at
+        plot level.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      assumptions: |
+        Derived from old-growth SAFE subcanopy dry biomass and converted to
+        carbon mass using a herb-layer carbon fraction from Wu et al. Total
+        dry weight is used because the model allocates subcanopy carbon to
+        leafy biomass; using leaf dry weight only would better match predicted
+        leaf area but would underestimate total subcanopy carbon.
+    - name: subcanopy_seedbank_carbon_mass_plot
+      type: numeric
+      units: kg C m^-2
+      description: |
+        Standing subcanopy seedbank carbon mass per unit ground area at
+        plot level.
+      references:
+      - citation: Dobert et al. (2019)
+        doi: https://doi.org/10.5281/zenodo.2536270
+        url: https://zenodo.org/records/2536270
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth and selectively logged
+        date: 2011-2014
+      assumptions: |
+        Derived from the plot-level total-dry-weight vegetation carbon mass
+        using a reproductive allocation and seedbank fraction.
+  package_dependencies: readxl
+  usage_notes: |
+    Run from this script's directory because input and output paths are
+    relative. The script uses selected non-tree growth forms from the SAFE
+    Project to estimate subcanopy biomass and applies literature-derived
+    proxies where direct subcanopy measurements are unavailable.
+- script_path: reproduction_maliau.R
+  title: reproduction_maliau
+  description: |
+    This script calculates the ratios needed to derive reproductive tissue
+    carbon mass from foliage carbon mass. It also calculates the ratios used
+    to separate reproductive tissue carbon mass into propagule
+    (fruits/seeds) and non-propagule (flowers) carbon mass.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: SAFE_CarbonBalanceComponents.xlsx
+    path: data/primary/plant/carbon_balance_components
+    description: |
+      https://doi.org/10.5281/zenodo.7307449
+      Measured components of total carbon budget at the SAFE project.
+      Values with standard errors for each 1-ha carbon plots for 11 plots
+      investigated across a logging gradient from unlogged old-growth to
+      heavily logged.
+  - name: both_tree_functional_traits.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.5281/zenodo.3247631
+      Functional traits of tree species in old-growth and selectively
+      logged forest.
+  - name: kitayama_2015_element_concentrations_of_litter_fractions.xlsx
+    path: data/primary/plant/traits_data
+    description: |
+      https://doi.org/10.1111/1365-2745.12379
+      Element concentrations of litter fractions.
+  output_files:
+  - name: reproduction_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      This CSV file contains a summary of the ratios needed to calculate
+      reproductive tissue allocation, and to separate propagules from
+      non-propagules.
+    variables:
+    - name: variable
+      type: character
+      units: dimensionless
+      description: |
+        Name of the reproductive allocation or propagule-related variable
+        summarised in the row.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: The variable name identifies the quantity represented by the value
+        column; the applicable source is recorded in the source column.
+    - name: approach
+      type: character
+      units: dimensionless
+      description: |
+        Identifier for the calculation approach used to derive the value.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Approach identifiers are retained so alternative calculation methods
+        can be distinguished in downstream selection.
+    - name: source
+      type: character
+      units: dimensionless
+      description: |
+        Short identifier for the primary data source used for the row.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Source identifiers refer to the input datasets or literature sources
+        used by the corresponding approach.
+    - name: value
+      type: character
+      units: dimensionless
+      description: |
+        Calculated ratio, fraction, or carbon-mass value for the variable
+        and approach identified in the row.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Values are stored as character data in the summary table because
+        the output combines numeric results with source-specific records and missing
+        values.
+    - name: notes
+      type: character
+      units: dimensionless
+      description: |
+        Contextual notes describing the dataset, site condition, tissue
+        type, or calculation associated with the row.
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: Notes provide row-level context and are not intended to be interpreted
+        as a single common assumption for the complete output.
+  package_dependencies:
+  - readxl
+  - dplyr
+  - ggplot2
+  usage_notes: |
+    Run from this script's directory because input and output paths are
+    relative. The output deliberately retains multiple approaches and sources
+    for reproductive allocation and propagule separation; downstream workflows
+    should select the appropriate row using the variable, approach, and source
+    columns.
+- script_path: pft_cohort_data_maliau.R
+  title: pft_cohort_data_maliau
+  description: |
+    Creates plot-level and regional mean plant functional type (PFT) cohort
+    distributions from the 2011 SAFE Project Old Growth (OG1, OG2, and OG3)
+    tree census plots at Maliau. Tree stems are assigned to PFTs, grouped into
+    100 mm DBH classes, and converted to cohort densities for use as source
+    data in Virtual Ecosystem plant initialisation workflows.
+
+    The plot-level output retains census-plot coordinates for downstream
+    spatial prediction scripts. The regional output is the mean density across
+    the sampled OG plots and is expressed in stems per hectare.
+  virtual_ecosystem_module: Plants
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: tree_census_11_20.xlsx
+    path: data/primary/plant/tree_census
+    description: |
+      https://doi.org/10.5281/zenodo.14882506
+      Tree census data from the SAFE Project 2011–2020.
+      Data includes measurements of DBH and estimates of tree height for
+      all stems, fruiting and flowering estimates, estimates of epiphyte
+      and liana cover, and taxonomic IDs.
+  - name: pfts_maximum_height_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file containing an updated list of taxa and their respective
+      pft. It contains both the base pft classification from pfts_maliau and
+      additional assignments for previously unclassified taxa based on their
+      maximum height relative to pft maximum height thresholds. Taxon maximum
+      height is also included in the output file.
+  - name: t_model_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      A CSV file listing T-model parameters by pft.
+  - name: safe_plot_coordinates.geojson
+    path: data/primary/plant/safe_plot_coordinates
+    description: |
+      SAFE Project sampling-plot coordinates. The script uses the point
+      records matching the census plot IDs to add WGS84 and UTM zone 50N
+      coordinates to the plot-level output.
+  output_files:
+  - name: pft_cohort_data_maliau.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      Plot-level PFT cohort counts and densities for the 27 sampled Maliau
+      OG census plots.
+    variables:
+    - name: plot_id
+      type: character
+      units: dimensionless
+      description: |
+        SAFE Project census plot identifier.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: |
+        The plot identifier is retained from the source census data and is
+        used to join each census plot to its SAFE coordinate record.
+    - name: block
+      type: character
+      units: dimensionless
+      description: |
+        Old Growth census block identifier.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: ~
+    - name: plot
+      type: character
+      units: dimensionless
+      description: |
+        Plot identifier within the census block.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: ~
+    - name: lon_wgs84
+      type: numeric
+      units: degrees_east
+      description: |
+        Census plot longitude in WGS84.
+      references:
+      - citation: safe_plot_coordinates.geojson
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: ~
+      assumptions: |
+        Coordinates are extracted from the GeoJSON point geometry and are
+        interpreted as longitude in EPSG:4326.
+    - name: lat_wgs84
+      type: numeric
+      units: degrees_north
+      description: |
+        Census plot latitude in WGS84.
+      references:
+      - citation: safe_plot_coordinates.geojson
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: ~
+      assumptions: |
+        Coordinates are extracted from the GeoJSON point geometry and are
+        interpreted as latitude in EPSG:4326.
+    - name: x_utm32650
+      type: numeric
+      units: m
+      description: |
+        Census plot easting in UTM zone 50N (EPSG:32650).
+      references:
+      - citation: safe_plot_coordinates.geojson
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: ~
+      assumptions: |
+        WGS84 coordinates are transformed to UTM zone 50N using EPSG:32650.
+    - name: y_utm32650
+      type: numeric
+      units: m
+      description: |
+        Census plot northing in UTM zone 50N (EPSG:32650).
+      references:
+      - citation: safe_plot_coordinates.geojson
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: ~
+      assumptions: |
+        WGS84 coordinates are transformed to UTM zone 50N using EPSG:32650.
+    - name: plant_cohorts_pft
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type assigned to the cohort.
+      references:
+      - citation: pfts_maximum_height_maliau.csv
+        doi: ~
+        url: ~
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: ~
+      assumptions: |
+        PFTs are taken from the taxonomic lookup where available; remaining
+        records are assigned from measured height and PFT height thresholds.
+    - name: plant_cohorts_dbh
+      type: numeric
+      units: m
+      description: |
+        Midpoint diameter at breast height of the 100 mm cohort class.
+      references:
+      - citation: SAFE Project, Sabah, Malaysia
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: |
+        DBH values are grouped into 100 mm classes and represented by the
+        midpoint of each class; trees without DBH or with DBH at or below
+        10 cm are excluded.
+    - name: plant_cohorts_n
+      type: integer
+      units: stems
+      description: |
+        Number of recorded cohort stems in the 25 by 25 m census plot.
+      references:
+      - citation: SAFE Project, Sabah, Malaysia
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: |
+        Counts represent retained living cohort tree stems after filtering to
+        the 2011 OG1, OG2, and OG3 census records.
+    - name: plant_cohorts_n_per_ha
+      type: numeric
+      units: stems ha-1
+      description: |
+        Cohort stem density, scaled from the census plot to one hectare.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: |
+        Counts represent retained living cohort tree stems after filtering to
+        the 2011 OG1, OG2, and OG3 census records, scaled to one hectare.
+  - name: pft_cohort_data_maliau_mean_per_ha.csv
+    path: data/derived/plant/input_data/data_library
+    description: |
+      Mean PFT cohort stem density across all sampled Maliau OG census plots.
+    variables:
+    - name: plant_cohorts_n
+      type: numeric
+      units: stems ha-1
+      description: |
+        Mean stem density for each PFT and DBH cohort across the sampled
+        OG plots.
+      references:
+      - citation: SAFE Project, Sabah, Malaysia
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: |
+        The sampled 25 by 25 m plots represent the Maliau old-growth forest
+        community. Mean cohort densities are calculated from retained living
+        cohort tree stems after filtering to the 2011 OG1, OG2, and OG3
+        census records and are scaled using the total sampled area.
+    - name: plant_cohorts_pft
+      type: character
+      units: dimensionless
+      description: |
+        Plant functional type assigned to the cohort.
+      references:
+      - citation: pfts_maximum_height_maliau.csv
+        doi: ~
+        url: ~
+        origin: Virtual Ecosystem plant input data library
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: ~
+      assumptions: |
+        PFT assignments follow the taxonomic lookup and height-based
+        fallback classification used for the plot-level output.
+    - name: plant_cohorts_dbh
+      type: numeric
+      units: m
+      description: |
+        Midpoint diameter at breast height of the 100 mm cohort class.
+      references:
+      - citation: Svátek et al. (2025)
+        doi: https://doi.org/10.5281/zenodo.14882506
+        url: https://zenodo.org/records/14882506
+        origin: SAFE Project, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland tropical rain forest
+        site_condition: old-growth forest
+        date: '2011'
+      assumptions: |
+        DBH cohort values are represented by class midpoints, and the
+        27 sampled 25 by 25 m plots represent the Maliau old-growth forest
+        community. Cohort densities are calculated from individual stems,
+        and trees without DBH or with DBH at or below 10 cm are excluded.
+  package_dependencies:
+  - readxl
+  - dplyr
+  - sf
+  - ggplot2
+  - gstat
+  usage_notes: |
+    Run from this script's directory because input and output paths are
+    relative. The script currently uses 2011, the earliest census year, and
+    includes only tree records in the OG1, OG2, and OG3 blocks. It writes
+    library inputs only; scenario-specific spatial prediction should be
+    performed by a separate script.

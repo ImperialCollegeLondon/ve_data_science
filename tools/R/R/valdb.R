@@ -161,11 +161,42 @@ normalise_doi_metadata <- function(metadata, retrieved_at = Sys.time()) {
 
   authors <- metadata$author
   if (is.data.frame(authors) && nrow(authors) > 0L) {
-    authors <- authors |>
-      dplyr::transmute(
-        author = stringr::str_c(.data$family, .data$given, sep = ", ")
-      ) |>
-      dplyr::pull(.data$author)
+    family <- if ("family" %in% names(authors)) {
+      authors$family
+    } else {
+      rep(NA_character_, nrow(authors))
+    }
+    given <- if ("given" %in% names(authors)) {
+      authors$given
+    } else {
+      rep(NA_character_, nrow(authors))
+    }
+    literal <- if ("literal" %in% names(authors)) {
+      authors$literal
+    } else {
+      rep(NA_character_, nrow(authors))
+    }
+
+    authors <- purrr::pmap_chr(
+      list(family = family, given = given, literal = literal),
+      \(family, given, literal) {
+        name_parts <- c(family, given)
+        name_parts <- name_parts[!is.na(name_parts) & nzchar(name_parts)]
+
+        if (length(name_parts) > 0L) {
+          stringr::str_c(name_parts, collapse = ", ")
+        } else if (!is.na(literal) && nzchar(literal)) {
+          literal
+        } else {
+          NA_character_
+        }
+      }
+    )
+    authors <- authors[!is.na(authors) & nzchar(authors)]
+
+    if (length(authors) == 0L) {
+      authors <- NULL
+    }
   } else {
     authors <- NULL
   }

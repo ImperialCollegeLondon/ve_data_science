@@ -1,0 +1,24 @@
+schema_version: 1
+record_id: doi-10-3897-bdj-5-e21947
+doi: 10.3897/bdj.5.e21947
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Does not contain soil or litter data.
+  screened_at: '2026-09-18T01:55:05Z'
+metadata:
+  title: 'Three new minute leaf litter beetles discovered by citizen scientists in
+    Maliau Basin, Malaysian Borneo (Coleoptera: Leiodidae, Chrysomelidae)'
+  authors:
+  - Schilthuizen, Menno
+  - Seip, Lilian
+  - Otani, Sean
+  - Suhaimi, Jadda
+  - Njunjić, Iva
+  year: 2017
+  journal: Biodiversity Data Journal
+  publisher: Pensoft Publishers
+  url: http://dx.doi.org/10.3897/bdj.5.e21947
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T01:54:50Z'
