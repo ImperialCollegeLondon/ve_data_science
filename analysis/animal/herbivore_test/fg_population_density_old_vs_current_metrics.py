@@ -136,9 +136,10 @@ def calculate_metrics(
     mass["population_body_mass"] = mass["individual_body_mass"] * mass["individuals"]
 
     mass = mass.groupby(["time_index", "functional_group"], as_index=False).agg(
-        total_individuals=("individuals", "sum"),
-        total_population_body_mass=("population_body_mass", "sum"),
-    )
+    total_individuals=("individuals", "sum"),
+    total_population_body_mass=("population_body_mass", "sum"),
+    n_cohorts=("cohort_id", "nunique"),
+)
     mass["mean_individual_body_mass"] = (
         mass["total_population_body_mass"] / mass["total_individuals"]
     )
@@ -170,6 +171,7 @@ def calculate_metrics(
             "total_individuals",
             "population_density",
             "mean_individual_body_mass",
+            "n_cohorts",
         ]
     ]
 
@@ -303,7 +305,16 @@ def build_slow_fast_summary(trajectories: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(rows).sort_values(["version", "test"]).reset_index(drop=True)
 
-
+def build_cohort_summary(trajectories: pd.DataFrame) -> pd.DataFrame:
+    """Summarise cohort counts at the start and end of each run."""
+    return (
+        trajectories.sort_values("time_index")
+        .groupby(["test", "version"], as_index=False)
+        .agg(
+            initial_cohorts=("n_cohorts", "first"),
+            final_cohorts=("n_cohorts", "last"),
+        )
+    )
 def plot_comparison(test_data: pd.DataFrame, output_path: Path) -> None:
     """Plot old and current density and body-mass trajectories."""
     old = test_data.loc[test_data["version"] == "old"]
@@ -381,6 +392,7 @@ def main() -> None:
             initialisation,
         ),
         "herbivore_slow_fast_summary.csv": build_slow_fast_summary(trajectories),
+        "herbivore_cohort_summary.csv": build_cohort_summary(trajectories),
     }
 
     for filename, dataframe in outputs.items():
