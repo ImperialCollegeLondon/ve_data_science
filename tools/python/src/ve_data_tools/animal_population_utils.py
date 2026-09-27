@@ -1,5 +1,4 @@
-"""
----
+"""---
 
 title: Animal Population Utilities.
 
@@ -12,7 +11,7 @@ virtual_ecosystem_module:
   - Animal
 
 author:
-  - Siti Nor Baizurah 
+  - Siti Nor Baizurah
 
 status: wip
 
@@ -43,13 +42,13 @@ def check_required_columns(
 
     Raises:
         ValueError: If any required columns are missing.
+
     """
     missing_columns = required_columns - set(dataframe.columns)
     if missing_columns:
         missing_text = ", ".join(sorted(missing_columns))
         raise ValueError(
-            "Input dataframe is missing the following required columns: "
-            f"{missing_text}"
+            f"Input dataframe is missing the following required columns: {missing_text}"
         )
 
 
@@ -64,6 +63,7 @@ def get_area_conversion(density_unit: str) -> float:
 
     Raises:
         ValueError: If the density unit is unsupported.
+
     """
     area_conversions = {
         "m2": 1.0,
@@ -71,9 +71,7 @@ def get_area_conversion(density_unit: str) -> float:
         "km2": 1_000_000.0,
     }
     if density_unit not in area_conversions:
-        raise ValueError(
-            "density_unit must be one of: 'm2', 'ha', or 'km2'."
-        )
+        raise ValueError("density_unit must be one of: 'm2', 'ha', or 'km2'.")
     return area_conversions[density_unit]
 
 
@@ -88,6 +86,7 @@ def get_unit_label(density_unit: str) -> str:
 
     Raises:
         ValueError: If the density unit is unsupported.
+
     """
     unit_labels = {
         "m2": "m²",
@@ -95,9 +94,7 @@ def get_unit_label(density_unit: str) -> str:
         "km2": "km²",
     }
     if density_unit not in unit_labels:
-        raise ValueError(
-            "density_unit must be one of: 'm2', 'ha', or 'km2'."
-        )
+        raise ValueError("density_unit must be one of: 'm2', 'ha', or 'km2'.")
     return unit_labels[density_unit]
 
 
@@ -118,6 +115,7 @@ def check_grid_dimensions(
     Raises:
         ValueError: If the observed number of unique cells exceeds the
             expected grid size.
+
     """
     if grid_cell_column not in cohort_df.columns:
         return
@@ -149,6 +147,7 @@ def parse_territory_cells(
     Raises:
         ValueError: If the supplied string cannot be interpreted as a list.
         TypeError: If the value is neither a string nor a list.
+
     """
     if isinstance(territory_value, str):
         try:
@@ -160,8 +159,6 @@ def parse_territory_cells(
             ) from error
 
     if not isinstance(territory_value, list):
-        raise TypeError(
-            "Territory values must be lists of grid-cell identifiers."
-        )
+        raise TypeError("Territory values must be lists of grid-cell identifiers.")
 
     return set(territory_value)
