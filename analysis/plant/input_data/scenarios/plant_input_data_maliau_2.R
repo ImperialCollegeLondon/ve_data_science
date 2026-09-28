@@ -3,7 +3,7 @@
 #|
 #| description: |
 #|     This script prepares the NetCDF file containing plant_pft_propagules,
-#|     subcanopy_vegetation_biomass and subcanopy_seedbank_biomass for the
+#|     subcanopy_vegetation_cnp and subcanopy_seedbank_cnp for the
 #|     maliau_2 scenario.
 #|
 #| virtual_ecosystem_module:
@@ -66,10 +66,12 @@
 #|     path: data/scenarios/maliau/maliau_2/data
 #|     description: |
 #|       NetCDF file containing spatially distributed plant propagule and
-#|       subcanopy vegetation and seedbank carbon mass for the Maliau 2 scenario.
-#|       The file contains cell_id and pft dimensions; plant_pft_propagules is
+#|       subcanopy vegetation and seedbank C, N and P mass for the Maliau 2 scenario.
+#|       The values for N and P mass are currently set to NA, as the VE populates
+#|       these based on the subcanopy stoichiometric ratios provided.
+#|       The file contains cell_id, pft and element dimensions; plant_pft_propagules is
 #|       stored over pft by cell_id, while the subcanopy variables are stored
-#|       over cell_id only.
+#|       over element by cell_id.
 #|     variables:
 #|       - name: cell_id
 #|         type: integer
@@ -107,6 +109,22 @@
 #|         assumptions: |
 #|           PFT categories are inherited from the scenario cohort distribution
 #|           and define the pft dimension of the NetCDF file.
+#|       - name: element
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Element name (C, N, or P).
+#|         references:
+#|           - citation: null
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: |
+#|           Values are provided for C only, with N and P set to NA.
 #|       - name: plant_pft_propagules
 #|         type: integer
 #|         units: propagules cell-1
@@ -144,11 +162,13 @@
 #|           may be especially important for emergent PFTs. These effects may
 #|           cause propagule abundance to differ from standing tree abundance
 #|           but are not parameterised here.
-#|       - name: subcanopy_vegetation_biomass
+#|       - name: subcanopy_vegetation_cnp
 #|         type: numeric
-#|         units: kg C m-2
+#|         units: kg m-2
 #|         description: |
 #|           Spatially predicted subcanopy vegetation carbon mass per unit area.
+#|           Values for N and P are set to NA, as they are populated by VE based on
+#|           the subcanopy stoichiometric ratios provided.
 #|         references:
 #|           - citation: "subcanopy_maliau.csv"
 #|             doi: null
@@ -343,7 +363,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: |
-#|           Observed plot-level biomass from the Dobert-derived input is joined
+#|           Observed plot-level carbon mass from the Dobert-derived input is joined
 #|           to values extracted from every available LiDAR raster. A separate
 #|           Gamma GLM with a log link is fitted for each candidate predictor,
 #|           and the predictor with the highest R-squared is selected. For the
@@ -356,11 +376,13 @@
 #|           missing predictions are written as zero.
 #|           The selected predictor should be re-evaluated when the script is
 #|           reused with another calibration dataset or scenario.
-#|       - name: subcanopy_seedbank_biomass
+#|       - name: subcanopy_seedbank_cnp
 #|         type: numeric
-#|         units: kg C m-2
+#|         units: kg m-2
 #|         description: |
 #|           Spatially distributed subcanopy seedbank carbon mass per unit area.
+#|           Values for N and P are set to NA, as they are populated by VE based on
+#|           the subcanopy stoichiometric ratios provided.
 #|         references:
 #|           - citation: "subcanopy_maliau.csv"
 #|             doi: null
@@ -371,9 +393,9 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: |
-#|           Seedbank biomass is calculated for each cell by applying the
+#|           Seedbank carbon mass is calculated for each cell by applying the
 #|           vegetation-to-seedbank ratio from subcanopy_maliau.csv to the
-#|           spatially predicted vegetation biomass. The ratio is assumed to be
+#|           spatially predicted vegetation carbon mass. The ratio is assumed to be
 #|           constant across the scenario grid.
 #|
 #| package_dependencies:
@@ -388,9 +410,9 @@
 #| usage_notes: |
 #|   Run from this script's directory because input and output paths are
 #|   relative. The script currently targets the maliau_2 scenario and writes a
-#|   NetCDF file with cell and PFT dimensions. Propagules are distributed from
-#|   local cohort abundance, vegetation biomass is spatially predicted, and
-#|   seedbank biomass is derived from the vegetation-to-seedbank ratio.
+#|   NetCDF file with cell, pft and element dimensions. Propagules are distributed from
+#|   local cohort abundance, vegetation carbon mass is spatially predicted, and
+#|   seedbank carbon mass is derived from the vegetation-to-seedbank ratio.
 #| ---
 
 # Load packages
@@ -402,9 +424,6 @@ library(readxl)
 library(sf)
 library(ggplot2)
 library(terra)
-
-
-# Approach explained:
 
 ####################
 
@@ -451,9 +470,9 @@ n_cells <- site_def$cell_nx * site_def$cell_ny
 # Obtain variable axes
 # (see plant data under https://virtual-ecosystem.readthedocs.io/en/latest/using_the_ve/example_data.html#data-files)
 
-# -plant_pft_propagules: cell_id and pft
-# -subcanopy_vegetation_biomass: cel_id
-# -subcanopy_seedbank_biomass: cell_id
+# -plant_pft_propagules: pft by cell_id
+# -subcanopy_vegetation_cnp: element by cell_id
+# -subcanopy_seedbank_cnp: element by cell_id
 
 # Define the dimensions for these axes
 
@@ -464,6 +483,9 @@ cell_id_index <- 0:(n_cells - 1)
 n_pft <- length(unique(cohort_distribution$plant_cohorts_pft))
 print(unique(cohort_distribution$plant_cohorts_pft))
 pft_index <- unique(cohort_distribution$plant_cohorts_pft)
+
+# element
+element_index <- c("C", "N", "P")
 
 ####################
 
@@ -742,7 +764,7 @@ for (layer_name in names(lidar_layers)) {
 ###############################################################################
 
 # Subset dobert_2019_plot_data to only include OG plots with subcanopy vegetation
-# and seedbank mass values
+# and seedbank carbon mass values
 
 dobert_2019_plot_data <- dobert_2019_plot_data[
   !is.na(dobert_2019_plot_data$subcanopy_vegetation_carbon_mass_plot),
@@ -750,18 +772,18 @@ dobert_2019_plot_data <- dobert_2019_plot_data[
 
 #####
 
-# Set up model to spatially predict the subcanopy vegetation biomass
+# Set up model to spatially predict the subcanopy vegetation carbon mass
 #
 # This section follows a simple calibration workflow: use observed subcanopy
-# biomass at plot locations, compare candidate LiDAR predictors, select the
+# carbon mass at plot locations, compare candidate LiDAR predictors, select the
 # strongest predictor, validate the fitted relationship, and then apply the model
 # across the Maliau grid.
 
 # Step 1: build the calibration dataset
 #
-# We need a training dataset linking observed subcanopy biomass to spatial
+# We need a training dataset linking observed subcanopy carbon mass to spatial
 # predictor variables. The field plots are the observed data, while the LiDAR
-# rasters provide the spatial covariates we want to use to predict biomass across
+# rasters provide the spatial covariates we want to use to predict carbon mass across
 # the landscape.
 #
 # Create a terra SpatVector from the plot coordinates so the LiDAR rasters can be
@@ -787,7 +809,7 @@ plot_lidar_extracted <- do.call(
   })
 )
 
-# Combine the response variable (measured biomass) with all candidate predictors.
+# Combine the response variable (measured carbon mass) with all candidate predictors.
 # Each row corresponds to one plot and each column is a covariate used in the
 # regression.
 model_data <- cbind(
@@ -938,9 +960,9 @@ print(head(validation_df))
 plot(
   validation_df$observed,
   validation_df$predicted,
-  xlab = "Observed biomass",
-  ylab = "Predicted biomass",
-  main = "Observed vs predicted subcanopy vegetation biomass",
+  xlab = "Observed carbon mass",
+  ylab = "Predicted carbon mass",
+  main = "Observed vs predicted subcanopy vegetation carbon mass",
   pch = 16,
   col = "forestgreen"
 )
@@ -1006,17 +1028,17 @@ preds <- predict(
 )
 
 # Save the predicted mean for each cell.
-prediction_grid$predicted_biomass <- as.numeric(preds)
+prediction_grid$predicted_c_mass <- as.numeric(preds)
 
 # Step 6: post-process predictions for ecological realism
 #
-# The Gamma log-link model produces positive biomass predictions. Any remaining
+# The Gamma log-link model produces positive C mass predictions. Any remaining
 # missing predictions are treated as zero so that missing values do not enter
 # the input file.
-prediction_grid$predicted_biomass_for_export <- ifelse(
-  is.na(prediction_grid$predicted_biomass),
+prediction_grid$predicted_c_mass_for_export <- ifelse(
+  is.na(prediction_grid$predicted_c_mass),
   0,
-  prediction_grid$predicted_biomass
+  prediction_grid$predicted_c_mass
 )
 
 # Print a quick summary of the resulting spatial predictions to confirm that the
@@ -1024,17 +1046,17 @@ prediction_grid$predicted_biomass_for_export <- ifelse(
 cat(sprintf(
   "Total cells: %d | Valid predictions: %d | Missing values: %d\n\n",
   nrow(prediction_grid),
-  sum(!is.na(prediction_grid$predicted_biomass)),
-  sum(is.na(prediction_grid$predicted_biomass))
+  sum(!is.na(prediction_grid$predicted_c_mass)),
+  sum(is.na(prediction_grid$predicted_c_mass))
 ))
 
 print(summary(prediction_grid[, c(
-  "predicted_biomass_for_export"
+  "predicted_c_mass_for_export"
 )]))
 head(prediction_grid)
 
 # For the final NetCDF export, use the spatial prediction with missing values
-# replaced by zero as the cell-wise subcanopy vegetation biomass estimate. The
+# replaced by zero as the cell-wise subcanopy vegetation c mass estimate. The
 # seedbank biomass can be derived from this in a separate, explicit step if
 # required.
 
@@ -1085,31 +1107,31 @@ ggplot(prediction_grid, aes(x = x_utm32650, y = y_utm32650)) +
 prediction_grid <- prediction_grid[order(prediction_grid$cell_id), ]
 
 # NetCDF stores one vegetation biomass value per cell_id.
-subcanopy_vegetation_biomass <-
-  prediction_grid$predicted_biomass_for_export
+subcanopy_vegetation_c <-
+  prediction_grid$predicted_c_mass_for_export
 
 stopifnot(
   length(prediction_grid$cell_id) == length(cell_id_index),
   identical(prediction_grid$cell_id, cell_id_index),
-  length(subcanopy_vegetation_biomass) == length(cell_id_index)
+  length(subcanopy_vegetation_c) == length(cell_id_index)
 )
 
 #####
 
-# Step 9: Prepare subcanopy_seedbank_biomass
+# Step 9: Prepare subcanopy_seedbank_c
 
 # In Step 8, the clipped prediction for each grid cell was copied into the
-# `subcanopy_vegetation_biomass` vector in `cell_id` order. The corresponding
+# `subcanopy_vegetation_c` vector in `cell_id` order. The corresponding
 # seedbank value for each cell is obtained by applying the vegetation-to-seedbank
 # ratio from the output of `subcanopy_maliau.R`.
 #
 # In `subcanopy_maliau.R`, the relationship is calculated as:
-# seedbank biomass = vegetation biomass * reproductive allocation * 0.23.
+# seedbank carbon mass = vegetation carbon mass * reproductive allocation * 0.23.
 # The resulting vegetation and seedbank values are written to
 # `subcanopy_maliau.csv`. Their ratio therefore represents the same calculation:
-# seedbank biomass / vegetation biomass = reproductive allocation * 0.23.
+# seedbank carbon mass / vegetation carbon mass = reproductive allocation * 0.23.
 #
-# The spatial model predicts vegetation biomass rather than seedbank biomass.
+# The spatial model predicts vegetation carbon mass rather than seedbank carbon mass.
 # Applying this output-derived ratio to each predicted vegetation value transfers
 # the `subcanopy_maliau.R` logic to every grid cell without repeating its
 # scientific assumptions here. Those assumptions and references remain documented
@@ -1117,17 +1139,36 @@ stopifnot(
 
 seedbank_to_vegetation_ratio <-
   unique(
-    subcanopy_maliau$subcanopy_seedbank_biomass /
-      subcanopy_maliau$subcanopy_vegetation_biomass
+    subcanopy_maliau$subcanopy_seedbank_c /
+      subcanopy_maliau$subcanopy_vegetation_c
   )
-subcanopy_seedbank_biomass <-
-  subcanopy_vegetation_biomass * seedbank_to_vegetation_ratio
+subcanopy_seedbank_c <-
+  subcanopy_vegetation_c * seedbank_to_vegetation_ratio
 
 stopifnot(
   length(seedbank_to_vegetation_ratio) == 1,
   is.finite(seedbank_to_vegetation_ratio),
-  length(subcanopy_seedbank_biomass) == length(cell_id_index)
+  length(subcanopy_seedbank_c) == length(cell_id_index)
 )
+
+################################################################################
+
+# In the script above we only calculated the values for carbon mass (C).
+# Below we create the element matrices for carbon (C), nitrogen (N), and phosphorus (P).
+# The C value is taken from above, while the N and P values are set to "np.nan"
+# so that the VE derives them based on the ideal ratio of the subcanopy vegetation stoichiometry.
+
+# Note that we could also define the N and P values here by using the stoichiometric
+# ratios for the subcanopy, as the VE accepts both options. For now, though, we use
+# the np.nan approach.
+
+# Prepare element matrices (3 rows: C, N, P; N columns: cell_id)
+# NetCDF RNetCDF/ncdf4 will automatically handle NA/NaN assignment correctly
+veg_matrix <- matrix(NA, nrow = 3, ncol = length(subcanopy_vegetation_c))
+veg_matrix[1, ] <- subcanopy_vegetation_c
+
+seed_matrix <- matrix(NA, nrow = 3, ncol = length(subcanopy_seedbank_c))
+seed_matrix[1, ] <- subcanopy_seedbank_c
 
 ################################################################################
 
@@ -1141,22 +1182,25 @@ nc <-
 # Define dimensions
 dim.def.nc(nc, "cell_id", length(cell_id_index))
 dim.def.nc(nc, "pft", length(pft_index))
+dim.def.nc(nc, "element", length(element_index))
 
 # Define variables (integer = NC_UINT, numeric = NC_FLOAT, character = NC_STRING)
 # The arguments are: nc file name in R, data type, dimension names
 # Note that the order of dimensions is "flipped"
 var.def.nc(nc, "plant_pft_propagules", "NC_INT", c("pft", "cell_id"))
-var.def.nc(nc, "subcanopy_vegetation_biomass", "NC_FLOAT", "cell_id")
-var.def.nc(nc, "subcanopy_seedbank_biomass", "NC_FLOAT", "cell_id")
+var.def.nc(nc, "subcanopy_vegetation_cnp", "NC_FLOAT", c("element", "cell_id"))
+var.def.nc(nc, "subcanopy_seedbank_cnp", "NC_FLOAT", c("element", "cell_id"))
 var.def.nc(nc, "cell_id", "NC_INT", "cell_id")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
+var.def.nc(nc, "element", "NC_STRING", "element")
 
 # Write the data to variables
 var.put.nc(nc, "plant_pft_propagules", plant_pft_propagules)
-var.put.nc(nc, "subcanopy_vegetation_biomass", subcanopy_vegetation_biomass)
-var.put.nc(nc, "subcanopy_seedbank_biomass", subcanopy_seedbank_biomass)
+var.put.nc(nc, "subcanopy_vegetation_cnp", veg_matrix)
+var.put.nc(nc, "subcanopy_seedbank_cnp", seed_matrix)
 var.put.nc(nc, "cell_id", cell_id_index)
 var.put.nc(nc, "pft", pft_index)
+var.put.nc(nc, "element", element_index)
 
 # Sync data to file and close.
 sync.nc(nc)
@@ -1171,11 +1215,12 @@ plant_input_data_maliau_2 <-
 
 names(plant_input_data_maliau_2$var)
 ncvar_get(plant_input_data_maliau_2, "plant_pft_propagules")
-ncvar_get(plant_input_data_maliau_2, "subcanopy_vegetation_biomass")
-ncvar_get(plant_input_data_maliau_2, "subcanopy_seedbank_biomass")
+ncvar_get(plant_input_data_maliau_2, "subcanopy_vegetation_cnp")
+ncvar_get(plant_input_data_maliau_2, "subcanopy_seedbank_cnp")
 
 ncvar_get(plant_input_data_maliau_2, "cell_id")
 ncvar_get(plant_input_data_maliau_2, "pft")
+ncvar_get(plant_input_data_maliau_2, "element")
 
 # Close
 nc_close(plant_input_data_maliau_2)
