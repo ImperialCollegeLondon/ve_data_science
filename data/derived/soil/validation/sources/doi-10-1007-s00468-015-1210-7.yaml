@@ -4,21 +4,53 @@ doi: 10.1007/s00468-015-1210-7
 screening:
   decision: proceed
   reason: relevant_validation_data
-  notes: Contains soil inorganic nitrogen and fine-root biomass. N can be directly
-    ingested, but fine-root biomass does not contain C content.
-  screened_at: '2026-09-18T02:03:42Z'
+  notes:
+    Contains soil inorganic nitrogen and fine-root biomass. N can be directly
+    ingested, but fine-root biomass does not contain C content. Contains
+    standard deviation of inorganic N; we haven't really thought about
+    validating variance yet, but worth revisiting.
+  screened_at: "2026-09-18T02:03:42Z"
 metadata:
-  title: Variation in the aboveground stand structure and fine-root biomass of Bornean
-    heath (kerangas) forests in relation to altitude and soil nitrogen availability
+  title:
+    Variation in the aboveground stand structure and fine-root biomass of
+    Bornean heath (kerangas) forests in relation to altitude and soil nitrogen
+    availability
   authors:
-  - Miyamoto, Kazuki
-  - Wagai, Rota
-  - Aiba, Shin-ichiro
-  - Nilus, Reuben
+    - Miyamoto, Kazuki
+    - Wagai, Rota
+    - Aiba, Shin-ichiro
+    - Nilus, Reuben
   year: 2015
   journal: Trees
   publisher: Springer Science and Business Media LLC
   url: http://dx.doi.org/10.1007/s00468-015-1210-7
   keywords: ~
   provider: doi_content_search
-  retrieved_at: '2026-09-18T02:02:39Z'
+  retrieved_at: "2026-09-18T02:02:39Z"
+datasets:
+  - source_id: miyamoto_2015
+    data_file: data/primary/soil/miyamoto_2015/data.csv
+    skip_rows: 0
+    variables:
+      inorganic_N:
+        var_canonical: soil_n_pool_inorganic_per_area
+        unit: g/m2
+        description:
+          Based on soil cores to a depth of 15 cm. Inorganic soil N equals the
+          sum of the nitrate and ammonium contents.
+    dedup_key:
+      - plot
+    coordinates:
+      latitude_column: lat
+      longitude_column: lon
+    temporal:
+      format: "%d/%m/%Y"
+      timezone: Asia/Kuching
+      same_for_all_rows:
+        start: 1/6/2014
+        precision: month
+        note:
+          The article stated that soil sampling for all plots were completed
+          within 10 days in June 2014, but did not state the start date. I set
+          it to 1/6/2014 and used month as the temporal grain, it won't matter
+          for the Maliau simulation timestep.

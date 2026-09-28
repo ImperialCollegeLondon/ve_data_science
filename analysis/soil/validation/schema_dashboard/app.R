@@ -30,7 +30,6 @@ sources_dir <- here::here(
   "derived",
   module_name,
   "validation",
-  "config",
   "sources"
 )
 sources_dir_override <- Sys.getenv("VE_SOURCES_DIR", unset = "")
