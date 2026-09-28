@@ -2,6 +2,28 @@
 
 # Morris screening of VE hydrology: main results
 
+## Summary
+
+
+
+**What this run is.** Morris screening run `hydrology_morris_001` for the maliau_2 site (Jan 2012-Dec 2020). All 300 model runs finished and were analysed (14 parameters tested, 20 trajectories).
+
+**Main result.** Discharge is most sensitive to `groundwater_loss`, then `soil_moisture_saturation` and `groundwater_capacity`. The order is the same for mean, high, low and dry-season flow and does not change when the analysis is resampled. 8 of the 14 parameters are kept for the Sobol analysis.
+
+**Problems found** (details in Section 8):
+
+- The model does not conserve water: in 284 of 300 runs the water balance does not close, and in the median run more water leaves the site than falls as rain (error of -173% of rainfall).
+- The lower groundwater store drops below zero in 224 of 300 runs, which is not physically possible.
+- Water hardly moves through the soil: the soil layers stay stuck at full or nearly dry.
+- Reported discharge is about 29 times too small, probably a unit-conversion error.
+- The model has not settled after the 24-month spin-up: the water stores are still draining or filling.
+- There are no repeated runs, so the effect of random daily rainfall on the results is unknown.
+
+**Can these rankings be used yet?** No. The model has bugs, so some parameters rank high because they affect the bugs, not real water flow in the maliau_2 scenario. Fix the problems in Section 8.9, rerun Morris, and then run Sobol.
+
+
+## About this report
+
 This notebook reports the results of one Morris screening run of the Virtual
 Ecosystem (VE) hydrology module. It reads only the files written by
 `analysis/abiotic/sensitivity/morris_analyse_hydrology.py`; it does not rerun the
