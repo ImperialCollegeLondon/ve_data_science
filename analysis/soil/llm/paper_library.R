@@ -3,14 +3,15 @@
 #|
 #| description: |
 #|   Reads a manually exported OpenAlex CSV for the soil literature search,
-#|   normalises and deduplicates DOIs, and looks up direct PDF links with
-#|   Unpaywall.
+#|   normalises and deduplicates DOIs, and looks up preferred full-text URLs
+#|   with Unpaywall.
 #|
 #|   The script writes a cached DOI lookup table to
-#|   `data/derived/soil/llm/unpaywall_lookup_results.csv` and then prepares the
-#|   downloader input under `data/derived/soil/llm/full_text/openalex_results/`.
-#|   If the cached Unpaywall lookup already exists, it is reused instead of
-#|   repeating the API calls.
+#|   `data/derived/soil/llm/unpaywall_lookup_results.csv` and then prepares a
+#|   publisher-aware retrieval table under
+#|   `data/derived/soil/llm/full_text/openalex_results/`. If the cached
+#|   Unpaywall lookup already exists, it is reused instead of repeating the API
+#|   calls.
 #|
 #| VE_module: Soil
 #|
@@ -29,12 +30,13 @@
 #|   - name: unpaywall_lookup_results.csv
 #|     path: data/derived/soil/llm/
 #|     description: |
-#|       Cached DOI-level lookup results from Unpaywall, including only the
-#|       DOI and direct PDF URL.
+#|       Cached DOI-level lookup results from Unpaywall, including the DOI and
+#|       preferred full-text URL used for route classification.
 #|   - name: full_text_openalex_results.csv
 #|     path: data/derived/soil/llm/full_text/openalex_results/
 #|     description: |
-#|       Downloader input with one row per DOI that has a usable PDF URL.
+#|       Retrieval table with one row per DOI, including host classification,
+#|       publisher group, and retrieval method.
 #|
 #| package_dependencies:
 #|   - tidyverse
@@ -44,7 +46,9 @@
 #| usage_notes: |
 #|   Re-run the Unpaywall step by deleting
 #|   `data/derived/soil/llm/unpaywall_lookup_results.csv` or changing the cache
-#|   logic below.
+#|   logic below. The resulting retrieval table is intended to drive different
+#|   downstream paths for generic direct download, repository download, and
+#|   publisher-specific TDM APIs.
 #| ---
 
 library(tidyverse)
@@ -62,46 +66,6 @@ papers <- read_csv(
   show_col_types = FALSE
 )
 
-make_record_id <- function(doi) {
-  doi |>
-    str_to_lower() |>
-    str_replace_all("[^a-z0-9]+", "_") |>
-    str_remove("^_+") |>
-    str_remove("_+$")
-}
-
-extract_pdf_url <- function(result) {
-  if (
-    is.null(result$best_oa_location) || length(result$best_oa_location) == 0
-  ) {
-    return(NA_character_)
-  }
-
-  url <- result$best_oa_location[[1]]$url_for_pdf
-  if (is.null(url) || length(url) == 0 || is.na(url) || url == "") {
-    return(NA_character_)
-  }
-
-  as.character(url)
-}
-
-fetch_pdf_url <- function(doi, email) {
-  tryCatch(
-    {
-      result <- oadoi_fetch(dois = doi, email = email, .progress = "none")
-      tibble(
-        doi = doi,
-        preferred_full_text_url = extract_pdf_url(result)
-      )
-    },
-    error = function(e) {
-      tibble(
-        doi = doi,
-        preferred_full_text_url = NA_character_
-      )
-    }
-  )
-}
 
 # Restrict to OpenAlex rows that already indicate OA availability, then
 # normalise DOI URLs down to bare DOI strings for the Unpaywall lookup.
@@ -123,11 +87,47 @@ if (file.exists(lookup_results_path)) {
 } else {
   lookup_results <- doi_input |>
     pull(doi) |>
-    purrr::map_dfr(fetch_pdf_url, email = "hrlai.ecology@gmail.com")
+    purrr::map_dfr(
+      \(doi) {
+        preferred_full_text_url <- tryCatch(
+          {
+            result <- oadoi_fetch(
+              dois = doi,
+              email = "hrlai.ecology@gmail.com",
+              .progress = "none"
+            )
+
+            # Keep only direct PDF targets for the downloader.
+            if (
+              is.null(result$best_oa_location) ||
+                length(result$best_oa_location) == 0
+            ) {
+              NA_character_
+            } else {
+              url <- result$best_oa_location[[1]]$url_for_pdf
+
+              if (is.null(url) || length(url) == 0 || is.na(url) || url == "") {
+                NA_character_
+              } else {
+                as.character(url)
+              }
+            }
+          },
+          # Treat lookup failures as missing URLs so the batch can complete.
+          error = \(e) NA_character_
+        )
+
+        tibble(
+          doi = doi,
+          preferred_full_text_url = preferred_full_text_url
+        )
+      }
+    )
 
   write_csv(lookup_results, lookup_results_path)
 }
 
+# Standardise empty strings to missing values before classifying routes.
 lookup_results <- lookup_results |>
   mutate(
     preferred_full_text_url = if_else(
@@ -142,18 +142,60 @@ openalex_results_dir <- file.path(full_text_root, "openalex_results")
 
 dir.create(openalex_results_dir, recursive = TRUE, showWarnings = FALSE)
 
-# Keep only rows with a direct PDF target.
 full_text_openalex_results <- lookup_results |>
   filter(!is.na(preferred_full_text_url)) |>
   mutate(
-    record_id = make_record_id(doi),
-    source_type = "pdf"
+    host = str_to_lower(str_match(
+      preferred_full_text_url,
+      "^https?://([^/]+)"
+    )[, 2]),
+    publisher_group = case_when(
+      str_detect(host, "(^|\\.)wiley\\.com$") ~ "wiley",
+      str_detect(host, "(^|\\.)sciencedirect\\.com$") |
+        str_detect(host, "(^|\\.)elsevier\\.com$") |
+        str_detect(host, "(^|\\.)els-cdn\\.com$") ~ "elsevier",
+      str_detect(host, "(^|\\.)link\\.springer\\.com$") ~ "springer",
+      str_detect(host, "(^|\\.)nature\\.com$") |
+        str_detect(host, "(^|\\.)springernature\\.com$") |
+        str_detect(host, "(^|\\.)biomedcentral\\.com$") |
+        str_detect(host, "(^|\\.)springeropen\\.com$") ~ "springer_nature",
+      str_detect(host, "pmc\\.ncbi\\.nlm\\.nih\\.gov$") |
+        str_detect(host, "(^|\\.)europepmc\\.org$") |
+        str_detect(host, "(^|\\.)zenodo\\.org$") |
+        str_detect(host, "(^|\\.)osf\\.io$") |
+        str_detect(host, "(^|\\.)figshare\\.com$") |
+        str_detect(host, "(^|\\.)handle\\.net$") |
+        str_detect(host, "(^|\\.)osti\\.gov$") |
+        str_detect(host, "(^|\\.)escholarship\\.org$") |
+        str_detect(host, "(^|\\.)hal\\.science$") |
+        str_detect(host, "repository") ~ "repository",
+      is.na(host) ~ "unknown",
+      TRUE ~ "other_direct"
+    ),
+    retrieval_method = case_when(
+      publisher_group == "wiley" ~ "wiley_tdm_api",
+      publisher_group == "elsevier" ~ "elsevier_tdm_api",
+      publisher_group %in% c("springer", "springer_nature") ~
+        "springer_tdm_review",
+      publisher_group == "repository" ~ "repository_direct",
+      TRUE ~ "generic_direct"
+    ),
+    source_type = "pdf",
+    # Build a filesystem-safe ID from the DOI for downstream filenames.
+    record_id = doi |>
+      str_to_lower() |>
+      str_replace_all("[^a-z0-9]+", "_") |>
+      str_remove("^_+") |>
+      str_remove("_+$")
   ) |>
   select(
     record_id,
     doi,
     source_type,
-    preferred_full_text_url
+    preferred_full_text_url,
+    host,
+    publisher_group,
+    retrieval_method
   ) |>
   arrange(doi)
 

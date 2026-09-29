@@ -3,14 +3,17 @@
 #|
 #| description: |
 #|   Reads a prepared OpenAlex results CSV, downloads the corresponding
-#|   open-access full text, and converts it to Markdown. PDF sources are
-#|   converted with `pymupdf4llm` and HTML landing pages are converted with
-#|   `trafilatura`, both called directly from R through `reticulate`.
+#|   full text for rows assigned to direct-download retrieval methods, and
+#|   converts it to Markdown. PDF sources are converted with `pymupdf4llm`
+#|   and HTML landing pages are converted with `trafilatura`, both called
+#|   directly from R through `reticulate`.
 #|
 #|   The script writes raw source files under
 #|   `data/derived/soil/llm/full_text/raw/` and Markdown outputs under
-#|   `data/derived/soil/llm/full_text/markdown/`. It also writes a timestamped
-#|   run log to `data/derived/soil/llm/full_text/logs/`.
+#|   `data/derived/soil/llm/full_text/markdown/`. Rows assigned to
+#|   publisher-specific API methods are skipped here and reserved for separate
+#|   API-aware download scripts. It also writes a timestamped run log to
+#|   `data/derived/soil/llm/full_text/logs/`.
 #|
 #| VE_module: Soil
 #|
@@ -52,9 +55,8 @@
 #|   `python_config`.
 #|
 #|   The script uses `reticulate::py_require()` to declare Python dependencies
-#|   and defaults to `RETICULATE_PYTHON = "managed"` only if the user has not
-#|   already supplied a stronger hint such as `RETICULATE_PYTHON`,
-#|   `RETICULATE_PYTHON_ENV`, or an activated `VIRTUAL_ENV`.
+#|   and sets `RETICULATE_PYTHON = "managed"` for the session before importing
+#|   the Python modules.
 #| ---
 
 library(tidyverse)
@@ -78,8 +80,7 @@ python_config <- py_config()
 openalex_results_path <- here::here(
   "data/derived/soil/llm/full_text/openalex_results/full_text_openalex_results.csv"
 )
-limit <- 10
-overwrite <- FALSE
+overwrite <- TRUE
 pause_seconds <- 0.5
 
 # Setup -------------------------------------------------------------------
@@ -114,13 +115,55 @@ clean_yaml_value <- function(value) {
     str_replace_all('"', "'")
 }
 
+response_error_details <- function(response) {
+  details <- character()
+
+  content_type <- resp_header(response, "content-type")
+  if (
+    !is.null(content_type) && length(content_type) > 0 && !is.na(content_type)
+  ) {
+    details <- c(details, paste("Content type:", content_type))
+  }
+
+  mitigation <- resp_header(response, "cf-mitigated")
+  if (identical(mitigation, "challenge")) {
+    details <- c(
+      details,
+      "Cloudflare challenge page returned instead of full text."
+    )
+  }
+
+  body_text <- tryCatch(
+    resp_body_string(response),
+    error = function(e) ""
+  )
+
+  if (nzchar(body_text)) {
+    html_title <- str_match(body_text, "<title>([^<]+)</title>")[, 2]
+
+    if (!is.na(html_title) && nzchar(html_title)) {
+      details <- c(details, paste("HTML title:", html_title))
+    }
+
+    if (
+      str_detect(body_text, fixed("Enable JavaScript and cookies to continue"))
+    ) {
+      details <- c(
+        details,
+        "Page requires JavaScript and cookies, so it is not directly downloadable by this script."
+      )
+    }
+  }
+
+  details
+}
+
 # OpenAlex results --------------------------------------------------------
 
 openalex_results <- read_csv(openalex_results_path, show_col_types = FALSE)
 
-if (!is.null(limit)) {
-  openalex_results <- openalex_results |> slice_head(n = limit)
-}
+openalex_results <- openalex_results |>
+  filter(retrieval_method == "generic_direct")
 
 if (nrow(openalex_results) == 0) {
   stop("OpenAlex results file is empty; nothing to do.", call. = FALSE)
@@ -136,12 +179,42 @@ for (i in seq_len(nrow(openalex_results))) {
   doi <- row$doi[[1]]
   requested_url <- row$preferred_full_text_url[[1]]
   source_type <- row$source_type[[1]]
+  retrieval_method <- row$retrieval_method[[1]]
 
   markdown_path <- file.path(
     markdown_root,
     if (source_type == "pdf") "pdf" else "html",
     paste0(record_id, ".md")
   )
+
+  if (!retrieval_method %in% c("generic_direct", "repository_direct")) {
+    results[[i]] <- tibble(
+      record_id = record_id,
+      doi = doi,
+      source_type = source_type,
+      requested_url = requested_url,
+      final_url = NA_character_,
+      detected_format = NA_character_,
+      status = "skipped_requires_publisher_api",
+      http_status = NA_integer_,
+      raw_path = NA_character_,
+      markdown_path = NA_character_,
+      error = paste(
+        "Retrieval method",
+        shQuote(retrieval_method),
+        "is reserved for a publisher-specific API workflow."
+      )
+    )
+
+    message(sprintf(
+      "[%s/%s] %s: skipped_requires_publisher_api",
+      i,
+      nrow(openalex_results),
+      record_id
+    ))
+    Sys.sleep(pause_seconds)
+    next
+  }
 
   if (file.exists(markdown_path) && !overwrite) {
     results[[i]] <- tibble(
@@ -177,6 +250,7 @@ for (i in seq_len(nrow(openalex_results))) {
             "(open-access retrieval for local text conversion)"
           )
         ) |>
+        req_error(body = response_error_details) |>
         req_retry(max_tries = 3) |>
         req_timeout(60) |>
         req_perform()
@@ -285,6 +359,20 @@ for (i in seq_len(nrow(openalex_results))) {
       )
     },
     error = function(e) {
+      response <- tryCatch(last_response(), error = function(...) NULL)
+      final_url <- NA_character_
+      http_status <- NA_integer_
+
+      if (!is.null(response)) {
+        final_url <- tryCatch(
+          as.character(response$url),
+          error = function(...) NA_character_
+        )
+        http_status <- tryCatch(resp_status(response), error = function(...) {
+          NA_integer_
+        })
+      }
+
       tibble(
         record_id = if (is.null(record_id) || is.na(record_id)) {
           paste0("row_", i)
@@ -302,10 +390,10 @@ for (i in seq_len(nrow(openalex_results))) {
         } else {
           requested_url
         },
-        final_url = NA_character_,
+        final_url = final_url,
         detected_format = NA_character_,
         status = "failed",
-        http_status = NA_integer_,
+        http_status = http_status,
         raw_path = NA_character_,
         markdown_path = NA_character_,
         error = conditionMessage(e)
@@ -336,7 +424,10 @@ download_summary <- results_tbl |>
     n_rows = n(),
     n_success = sum(status == "success"),
     n_failed = sum(status == "failed"),
-    n_skipped_existing = sum(status == "skipped_existing")
+    n_skipped_existing = sum(status == "skipped_existing"),
+    n_skipped_requires_publisher_api = sum(
+      status == "skipped_requires_publisher_api"
+    )
   )
 
 download_summary
