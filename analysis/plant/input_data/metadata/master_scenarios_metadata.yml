@@ -1,6 +1,6 @@
 title: master_scenarios_metadata
 generated_by: analysis/plant/input_data/scenarios/master_scenarios.R
-generated_on: '2026-09-28'
+generated_on: '2026-09-29'
 scripts:
 - script_path: plant_cohort_data_maliau_2.R
   title: plant_cohort_data_maliau_2
@@ -379,14 +379,14 @@ scripts:
       The values for N and P mass are currently set to NA, as the VE populates
       these based on the subcanopy stoichiometric ratios provided.
       The file contains cell_id, pft and element dimensions; plant_pft_propagules is
-      stored over pft by cell_id, while the subcanopy variables are stored
-      over element by cell_id.
+      stored over pft by x and y, while the subcanopy variables are stored
+      over element by x and y.
     variables:
-    - name: cell_id
-      type: integer
-      units: dimensionless
+    - name: x
+      type: numeric
+      units: m
       description: |
-        Zero-based identifier for each scenario grid cell.
+        Easting coordinate representing the centre of each grid cell.
       references:
       - citation: maliau_grid_definition.toml
         doi: ~
@@ -397,10 +397,23 @@ scripts:
         site_condition: ~
         date: ~
       assumptions: |
-        Cell identifiers are assigned by matching each grid-cell centre's
-        coordinates to the scenario grid definition. The numbering starts
-        at the bottom-left cell, then proceeds from left to right within
-        each row and from bottom to top across rows.
+        epsg_code = 32650
+    - name: yes
+      type: numeric
+      units: m
+      description: |
+        Northing coordinate representing the centre of each grid cell.
+      references:
+      - citation: maliau_grid_definition.toml
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        epsg_code = 32650
     - name: pft
       type: character
       units: dimensionless
@@ -466,7 +479,7 @@ scripts:
         equivalent to a 1:1 tree-to-propagule relationship among PFTs. It
         therefore does not account for PFT-specific fecundity, tree size,
         size-dependent reproductive output, differences in size at
-        reproductive maturity, or episodic mast-fruiting events. Masting
+        reproductive maturity, or episodic masting-fruiting events. Masting
         may substantially change propagule production between years and
         may be especially important for emergent PFTs. These effects may
         cause propagule abundance to differ from standing tree abundance
