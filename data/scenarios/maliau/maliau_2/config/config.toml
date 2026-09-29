@@ -82,9 +82,9 @@ pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv"
 
 # Plant community data export settings
 [plants.community_data_export]
-cohort_attributes = ["ALL"]
-community_canopy_attributes = ["ALL"]
-stem_canopy_attributes = ["ALL"]
+cohort_attributes = "ALL"
+community_canopy_attributes = "ALL"
+stem_canopy_attributes = "ALL"
 
 # Plants array variables
 [[core.data.variable]]
