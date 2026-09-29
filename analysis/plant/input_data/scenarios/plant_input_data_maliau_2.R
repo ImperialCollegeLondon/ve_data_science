@@ -1133,11 +1133,23 @@ ggplot(prediction_grid, aes(x = x_utm32650, y = y_utm32650)) +
 
 #####
 
-# Step 8: Prepare subcanopy_seedbank_c matrix (2D: x by y)
+# Step 9: Prepare subcanopy_seedbank_c matrix (2D: x by y)
 
-# In Step 8, the corresponding seedbank value for each cell is obtained
+# The corresponding seedbank value for each cell is obtained
 # by applying the vegetation-to-seedbank ratio from the output of `subcanopy_maliau.R`
 # to the subcanopy_vegetation_matrix_2d.
+
+# In `subcanopy_maliau.R`, the relationship is calculated as:
+# seedbank carbon mass = vegetation carbon mass * reproductive allocation * 0.23.
+# The resulting vegetation and seedbank values are written to
+# `subcanopy_maliau.csv`. Their ratio therefore represents the same calculation:
+# seedbank carbon mass / vegetation carbon mass = reproductive allocation * 0.23.
+
+# The spatial model predicts vegetation carbon mass rather than seedbank carbon mass.
+# Applying this output-derived ratio to each predicted vegetation value transfers
+# the `subcanopy_maliau.R` logic to every grid cell without repeating its
+# scientific assumptions here. Those assumptions and references remain documented
+# in `subcanopy_maliau.R`.
 
 seedbank_to_vegetation_ratio <-
   unique(
