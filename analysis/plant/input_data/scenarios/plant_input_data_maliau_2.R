@@ -70,14 +70,14 @@
 #|       The values for N and P mass are currently set to NA, as the VE populates
 #|       these based on the subcanopy stoichiometric ratios provided.
 #|       The file contains cell_id, pft and element dimensions; plant_pft_propagules is
-#|       stored over pft by cell_id, while the subcanopy variables are stored
-#|       over element by cell_id.
+#|       stored over pft by x and y, while the subcanopy variables are stored
+#|       over element by x and y.
 #|     variables:
-#|       - name: cell_id
-#|         type: integer
-#|         units: dimensionless
+#|       - name: x
+#|         type: numeric
+#|         units: m
 #|         description: |
-#|           Zero-based identifier for each scenario grid cell.
+#|           Easting coordinate representing the centre of each grid cell.
 #|         references:
 #|           - citation: "maliau_grid_definition.toml"
 #|             doi: null
@@ -88,10 +88,23 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: |
-#|           Cell identifiers are assigned by matching each grid-cell centre's
-#|           coordinates to the scenario grid definition. The numbering starts
-#|           at the bottom-left cell, then proceeds from left to right within
-#|           each row and from bottom to top across rows.
+#|           epsg_code = 32650
+#|       - name: y
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Northing coordinate representing the centre of each grid cell.
+#|         references:
+#|           - citation: "maliau_grid_definition.toml"
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: |
+#|           epsg_code = 32650
 #|       - name: pft
 #|         type: character
 #|         units: dimensionless
@@ -157,7 +170,7 @@
 #|           equivalent to a 1:1 tree-to-propagule relationship among PFTs. It
 #|           therefore does not account for PFT-specific fecundity, tree size,
 #|           size-dependent reproductive output, differences in size at
-#|           reproductive maturity, or episodic mast-fruiting events. Masting
+#|           reproductive maturity, or episodic masting-fruiting events. Masting
 #|           may substantially change propagule production between years and
 #|           may be especially important for emergent PFTs. These effects may
 #|           cause propagule abundance to differ from standing tree abundance
@@ -450,12 +463,8 @@ site_def <- site_definition$Scenario[[site]]
 cell_x_centres <- site_def$cell_x_centres
 cell_y_centres <- site_def$cell_y_centres
 
-# Safely calculate cell length
-cell_length <- if (length(cell_x_centres) > 1) {
-  cell_x_centres[2] - cell_x_centres[1]
-} else {
-  NA
-}
+cell_length <- site_def$res # square cell length in m
+cell_area <- cell_length * cell_length # cell area in m2
 
 grid_cells <- expand.grid(
   x = cell_x_centres,
@@ -470,18 +479,18 @@ n_cells <- site_def$cell_nx * site_def$cell_ny
 # Obtain variable axes
 # (see plant data under https://virtual-ecosystem.readthedocs.io/en/latest/using_the_ve/example_data.html#data-files)
 
-# -plant_pft_propagules: pft by cell_id
-# -subcanopy_vegetation_cnp: element by cell_id
-# -subcanopy_seedbank_cnp: element by cell_id
+# -plant_pft_propagules: pft by x by y
+# -subcanopy_vegetation_cnp: element by x by y
+# -subcanopy_seedbank_cnp: element by x by y
 
 # Define the dimensions for these axes
 
-# cell_id
-cell_id_index <- 0:(n_cells - 1)
+# x and y
+n_x <- length(cell_x_centres)
+n_y <- length(cell_y_centres)
 
 # pft
 n_pft <- length(unique(cohort_distribution$plant_cohorts_pft))
-print(unique(cohort_distribution$plant_cohorts_pft))
 pft_index <- unique(cohort_distribution$plant_cohorts_pft)
 
 # element
@@ -492,7 +501,7 @@ element_index <- c("C", "N", "P")
 # Generate the data for the desired variables, taking the axes into account,
 # also check variable type (i.e., numeric / integer)
 
-# plant_pft_propagules: matrix of cell_id by pft (so 4 by 100)
+# plant_pft_propagules: 3D array of pft by x by y (n_pft x n_x x n_y)
 
 # Approach: use the base propagules calculation from t_model_maliau, which is
 # the total propagules per hectare across all pfts.
@@ -522,9 +531,11 @@ element_index <- c("C", "N", "P")
 # Then scale this according to the cell area used (here 10000 m2)
 
 # First set up the empty structure, we will then add the propagules per PFT
-
-plant_pft_propagules <-
-  matrix(as.integer(0), nrow = length(pft_index), ncol = length(cell_id_index))
+plant_pft_propagules <- array(
+  as.integer(0),
+  dim = c(n_pft, n_x, n_y),
+  dimnames = list(pft = pft_index, x = cell_x_centres, y = cell_y_centres)
+)
 
 # take the total number of propagules per hectare from t_model_maliau (the
 # column called propagules_per_ha), then calculate the fraction of total stem
@@ -533,31 +544,51 @@ plant_pft_propagules <-
 
 propagules_per_ha <- unique(t_model_maliau$propagules_per_ha)
 
-cell_area_ha <- (cell_length^2) / 10000
+cell_area_ha <- cell_area / 10000
 propagules_per_cell <- propagules_per_ha * cell_area_ha
 
-# Sum stem counts per cell and pft; default = 0 fills missing combinations
-# so the resulting matrix aligns directly with plant_pft_propagules
-# (rows = pft, columns = cell_id)
+# Calculate row and column indices (0-based)
+# Since cell_id is already 0-based, no need to subtract 1
+col_idx <- cohort_distribution$plant_cohorts_cell_id %% site_def$cell_nx
+row_idx <- cohort_distribution$plant_cohorts_cell_id %/% site_def$cell_nx
+
+# Map to coordinates using the provided centre arrays
+cohort_distribution$x <- site_def$cell_x_centres[col_idx + 1] # +1 because R is 1-indexed
+cohort_distribution$y <- site_def$cell_y_centres[row_idx + 1] # +1 because R is 1-indexed
+
+# Sum stem counts per pft, x, and y; default = 0 fills missing combinations
+# so the resulting array aligns directly with plant_pft_propagules
+# (dimensions: pft by x by y)
 pft_abundance <- tapply(
   cohort_distribution$plant_cohorts_n,
   list(
     factor(cohort_distribution$plant_cohorts_pft, levels = pft_index),
-    factor(cohort_distribution$plant_cohorts_cell_id, levels = cell_id_index)
+    factor(cohort_distribution$x, levels = cell_x_centres),
+    factor(cohort_distribution$y, levels = cell_y_centres)
   ),
   sum,
   default = 0
 )
 
-cell_totals <- colSums(pft_abundance)
+# Ensure it's explicitly structured as an array with correct dimensions and names
+pft_abundance <- array(
+  pft_abundance,
+  dim = c(n_pft, n_x, n_y),
+  dimnames = list(pft = pft_index, x = cell_x_centres, y = cell_y_centres)
+)
+
+# Calculate totals across PFTs for each (x, y) coordinate
+cell_totals <- apply(pft_abundance, c(2, 3), sum)
 
 # Divide each cell's stem counts by that cell's total, giving each pft's
 # share of stems in that cell. Cells with no stems are left at 0 (instead of
 # 0 / 0) so they get 0 propagules.
 pft_proportions <- pft_abundance
-for (cell in seq_len(ncol(pft_abundance))) {
-  if (cell_totals[cell] > 0) {
-    pft_proportions[, cell] <- pft_abundance[, cell] / cell_totals[cell]
+for (i in seq_len(n_x)) {
+  for (j in seq_len(n_y)) {
+    if (cell_totals[i, j] > 0) {
+      pft_proportions[, i, j] <- pft_abundance[, i, j] / cell_totals[i, j]
+    }
   }
 }
 
@@ -1062,20 +1093,21 @@ head(prediction_grid)
 
 #####
 
-# Step 7: Add cell_id to each set of spatial coordinates in prediction_grid
+# Step 7: Map predictions directly into an x by y grid format (replacing cell_id logic)
 
-cell_id_origin <- "bottom-left"
+# Add explicit row/column indexing for x and y to align with n_x and n_y dimensions
+prediction_grid$x_idx <- match(prediction_grid$x_utm32650, cell_x_centres)
+prediction_grid$y_idx <- match(prediction_grid$y_utm32650, cell_y_centres)
 
-grid_order <- order(
-  if (cell_id_origin == "top-left") {
-    -prediction_grid$y_utm32650
-  } else {
-    prediction_grid$y_utm32650
-  },
-  prediction_grid$x_utm32650
-)
-prediction_grid$cell_id <- NA_integer_
-prediction_grid$cell_id[grid_order] <- seq_len(nrow(prediction_grid)) - 1L
+# Create 2D matrices (n_x by n_y) for vegetation C mass based on spatial coordinates
+subcanopy_vegetation_matrix_2d <- matrix(0.0, nrow = n_x, ncol = n_y)
+for (i in seq_len(nrow(prediction_grid))) {
+  subcanopy_vegetation_matrix_2d[
+    prediction_grid$x_idx[i],
+    prediction_grid$y_idx[i]
+  ] <-
+    prediction_grid$predicted_c_mass_for_export[i]
+}
 
 ggplot(prediction_grid, aes(x = x_utm32650, y = y_utm32650)) +
   geom_tile(
@@ -1084,7 +1116,7 @@ ggplot(prediction_grid, aes(x = x_utm32650, y = y_utm32650)) +
     fill = "white",
     colour = "black"
   ) +
-  geom_text(aes(label = cell_id), size = 3) +
+  geom_text(aes(label = predicted_c_mass_for_export), size = 2) +
   coord_fixed(
     xlim = range(prediction_grid$x_utm32650) +
       c(-cell_length / 2, cell_length / 2),
@@ -1093,7 +1125,7 @@ ggplot(prediction_grid, aes(x = x_utm32650, y = y_utm32650)) +
     expand = FALSE
   ) +
   labs(
-    title = "Maliau 2 prediction grid cell IDs",
+    title = "Maliau 2 prediction grid vegetation C mass",
     x = "Easting (UTM 32650)",
     y = "Northing (UTM 32650)"
   ) +
@@ -1101,74 +1133,55 @@ ggplot(prediction_grid, aes(x = x_utm32650, y = y_utm32650)) +
 
 #####
 
-# Step 8: Convert prediction grid into NetCDF-ready vectors with the correct
-# cell_id ordering and dimensions
+# Step 8: Prepare subcanopy_seedbank_c matrix (2D: x by y)
 
-prediction_grid <- prediction_grid[order(prediction_grid$cell_id), ]
-
-# NetCDF stores one vegetation biomass value per cell_id.
-subcanopy_vegetation_c <-
-  prediction_grid$predicted_c_mass_for_export
-
-stopifnot(
-  length(prediction_grid$cell_id) == length(cell_id_index),
-  identical(prediction_grid$cell_id, cell_id_index),
-  length(subcanopy_vegetation_c) == length(cell_id_index)
-)
-
-#####
-
-# Step 9: Prepare subcanopy_seedbank_c
-
-# In Step 8, the clipped prediction for each grid cell was copied into the
-# `subcanopy_vegetation_c` vector in `cell_id` order. The corresponding
-# seedbank value for each cell is obtained by applying the vegetation-to-seedbank
-# ratio from the output of `subcanopy_maliau.R`.
-#
-# In `subcanopy_maliau.R`, the relationship is calculated as:
-# seedbank carbon mass = vegetation carbon mass * reproductive allocation * 0.23.
-# The resulting vegetation and seedbank values are written to
-# `subcanopy_maliau.csv`. Their ratio therefore represents the same calculation:
-# seedbank carbon mass / vegetation carbon mass = reproductive allocation * 0.23.
-#
-# The spatial model predicts vegetation carbon mass rather than seedbank carbon mass.
-# Applying this output-derived ratio to each predicted vegetation value transfers
-# the `subcanopy_maliau.R` logic to every grid cell without repeating its
-# scientific assumptions here. Those assumptions and references remain documented
-# in `subcanopy_maliau.R`.
+# In Step 8, the corresponding seedbank value for each cell is obtained
+# by applying the vegetation-to-seedbank ratio from the output of `subcanopy_maliau.R`
+# to the subcanopy_vegetation_matrix_2d.
 
 seedbank_to_vegetation_ratio <-
   unique(
     subcanopy_maliau$subcanopy_seedbank_c /
       subcanopy_maliau$subcanopy_vegetation_c
   )
-subcanopy_seedbank_c <-
-  subcanopy_vegetation_c * seedbank_to_vegetation_ratio
+
+subcanopy_seedbank_matrix_2d <- subcanopy_vegetation_matrix_2d *
+  seedbank_to_vegetation_ratio
 
 stopifnot(
   length(seedbank_to_vegetation_ratio) == 1,
   is.finite(seedbank_to_vegetation_ratio),
-  length(subcanopy_seedbank_c) == length(cell_id_index)
+  all(dim(subcanopy_seedbank_matrix_2d) == c(n_x, n_y))
 )
 
 ################################################################################
 
 # In the script above we only calculated the values for carbon mass (C).
-# Below we create the element matrices for carbon (C), nitrogen (N), and phosphorus (P).
-# The C value is taken from above, while the N and P values are set to "np.nan"
-# so that the VE derives them based on the ideal ratio of the subcanopy vegetation stoichiometry.
+# Below we create the 3D element arrays for carbon (C), nitrogen (N), and phosphorus (P).
+# Dimensions: element by x by y (3 x n_x x n_y)
+# The C value is taken from above, while the N and P values are set to NA/NaN.
 
-# Note that we could also define the N and P values here by using the stoichiometric
-# ratios for the subcanopy, as the VE accepts both options. For now, though, we use
-# the np.nan approach.
+veg_matrix <- array(
+  NA,
+  dim = c(length(element_index), n_x, n_y),
+  dimnames = list(
+    element = element_index,
+    x = cell_x_centres,
+    y = cell_y_centres
+  )
+)
+veg_matrix[1, , ] <- subcanopy_vegetation_matrix_2d
 
-# Prepare element matrices (3 rows: C, N, P; N columns: cell_id)
-# NetCDF RNetCDF/ncdf4 will automatically handle NA/NaN assignment correctly
-veg_matrix <- matrix(NA, nrow = 3, ncol = length(subcanopy_vegetation_c))
-veg_matrix[1, ] <- subcanopy_vegetation_c
-
-seed_matrix <- matrix(NA, nrow = 3, ncol = length(subcanopy_seedbank_c))
-seed_matrix[1, ] <- subcanopy_seedbank_c
+seed_matrix <- array(
+  NA,
+  dim = c(length(element_index), n_x, n_y),
+  dimnames = list(
+    element = element_index,
+    x = cell_x_centres,
+    y = cell_y_centres
+  )
+)
+seed_matrix[1, , ] <- subcanopy_seedbank_matrix_2d
 
 ################################################################################
 
@@ -1179,18 +1192,18 @@ nc <-
     format = "netcdf4"
   )
 
-# Define dimensions
-dim.def.nc(nc, "cell_id", length(cell_id_index))
+# Define dimensions (replacing cell_id with x and y)
+dim.def.nc(nc, "x", length(cell_x_centres))
+dim.def.nc(nc, "y", length(cell_y_centres))
 dim.def.nc(nc, "pft", length(pft_index))
 dim.def.nc(nc, "element", length(element_index))
 
-# Define variables (integer = NC_UINT, numeric = NC_FLOAT, character = NC_STRING)
-# The arguments are: nc file name in R, data type, dimension names
-# Note that the order of dimensions is "flipped"
-var.def.nc(nc, "plant_pft_propagules", "NC_INT", c("pft", "cell_id"))
-var.def.nc(nc, "subcanopy_vegetation_cnp", "NC_FLOAT", c("element", "cell_id"))
-var.def.nc(nc, "subcanopy_seedbank_cnp", "NC_FLOAT", c("element", "cell_id"))
-var.def.nc(nc, "cell_id", "NC_INT", "cell_id")
+# Define variables using x and y spatial dimensions
+var.def.nc(nc, "plant_pft_propagules", "NC_INT", c("pft", "x", "y"))
+var.def.nc(nc, "subcanopy_vegetation_cnp", "NC_FLOAT", c("element", "x", "y"))
+var.def.nc(nc, "subcanopy_seedbank_cnp", "NC_FLOAT", c("element", "x", "y"))
+var.def.nc(nc, "x", "NC_DOUBLE", "x")
+var.def.nc(nc, "y", "NC_DOUBLE", "y")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
 var.def.nc(nc, "element", "NC_STRING", "element")
 
@@ -1198,7 +1211,8 @@ var.def.nc(nc, "element", "NC_STRING", "element")
 var.put.nc(nc, "plant_pft_propagules", plant_pft_propagules)
 var.put.nc(nc, "subcanopy_vegetation_cnp", veg_matrix)
 var.put.nc(nc, "subcanopy_seedbank_cnp", seed_matrix)
-var.put.nc(nc, "cell_id", cell_id_index)
+var.put.nc(nc, "x", cell_x_centres)
+var.put.nc(nc, "y", cell_y_centres)
 var.put.nc(nc, "pft", pft_index)
 var.put.nc(nc, "element", element_index)
 
@@ -1218,7 +1232,8 @@ ncvar_get(plant_input_data_maliau_2, "plant_pft_propagules")
 ncvar_get(plant_input_data_maliau_2, "subcanopy_vegetation_cnp")
 ncvar_get(plant_input_data_maliau_2, "subcanopy_seedbank_cnp")
 
-ncvar_get(plant_input_data_maliau_2, "cell_id")
+ncvar_get(plant_input_data_maliau_2, "x")
+ncvar_get(plant_input_data_maliau_2, "y")
 ncvar_get(plant_input_data_maliau_2, "pft")
 ncvar_get(plant_input_data_maliau_2, "element")
 
