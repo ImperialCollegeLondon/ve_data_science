@@ -1,8 +1,8 @@
 """---
-title: Compare old and current herbivore outputs
+title: Compare old and VE 0.2.2 herbivore outputs
 
 description: |
-  Compare old and current Virtual Ecosystem animal-module outputs for two
+ Analysis script to Compare old and VE 0.2.2 Virtual Ecosystem animal-module outputs for two
   representative herbivore tests used in Maliau Level 1: Elephant as a
   slow-growing reference and Kancil as a faster-growing case.
 
@@ -15,28 +15,30 @@ virtual_ecosystem_module:
 author:
   - name: Siti Nor Baizurah
 
-status: wip
+status: final
 
 input_files:
-  - name: animal_cohort_data_elephant_old.csv
+  - name: animal_cohort_data_elephant_0.2.1.csv
     path: user-defined
-  - name: animal_cohort_data_elephant_current.csv
+  - name: animal_cohort_data_elephant_0.2.2.csv
     path: user-defined
-  - name: animal_cohort_data_kancil_old.csv
+  - name: animal_cohort_data_kancil_0.2.1.csv
     path: user-defined
-  - name: animal_cohort_data_kancil_current.csv
+  - name: animal_cohort_data_kancil_0.2.2.csv
     path: user-defined
 
 output_files:
-  - name: herbivore_old_current_trajectories.csv
+  - name: herbivore_0.2.1_vs_0.2.2_trajectories.csv
     path: user-defined
-  - name: herbivore_old_current_summary.csv
+  - name: herbivore_0.2.1_vs_0.2.2_summary.csv
     path: user-defined
   - name: herbivore_slow_fast_summary.csv
     path: user-defined
-  - name: elephant_old_current_comparison.png
+  - name: herbivore_cohort_summary.csv
     path: user-defined
-  - name: kancil_old_current_comparison.png
+  - name: elephant_0.2.1_vs_0.2.2_comparison.png
+    path: user-defined
+  - name: kancil_0.2.1_vs_0.2.2_comparison.png
     path: user-defined
 
 package_dependencies:
@@ -52,7 +54,7 @@ usage_notes: |
   Population density is calculated using
   ve_data_tools.fg_population_density.
 
-  Old and current runs are compared over their shared time period. Elephant
+  VE 0.2.1 and 0.2.2 runs are compared over their shared time period. Elephant
   and Kancil are also compared over the time period shared by all four runs.
 
   The runs differ in VE version and configuration, so the comparison does not
@@ -211,12 +213,12 @@ def build_old_current_summary(
     trajectories: pd.DataFrame,
     initialisation: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Summarise old-versus-current changes for each herbivore test."""
+    """Summarise 0.2.1-versus-0.2.2 changes for each herbivore test."""
     rows = []
 
     for test, data in trajectories.groupby("test"):
-        old = data.loc[data["version"] == "old"]
-        current = data.loc[data["version"] == "current"]
+        old = data.loc[data["version"] == "0.2.1"]
+        current = data.loc[data["version"] == "0.2.2"]
 
         if old.empty or current.empty:
             raise ValueError(f"{test} requires both old and current outputs.")
@@ -230,10 +232,10 @@ def build_old_current_summary(
         current_end = current.loc[current["time"] == shared_end].iloc[0]
 
         old_init = initialisation.loc[
-            (initialisation["test"] == test) & (initialisation["version"] == "old")
+            (initialisation["test"] == test) & (initialisation["version"] == "0.2.1")
         ].iloc[0]
         current_init = initialisation.loc[
-            (initialisation["test"] == test) & (initialisation["version"] == "current")
+            (initialisation["test"] == test) & (initialisation["version"] == "0.2.2")
         ].iloc[0]
 
         rows.append(
@@ -321,8 +323,8 @@ def build_cohort_summary(trajectories: pd.DataFrame) -> pd.DataFrame:
 
 def plot_comparison(test_data: pd.DataFrame, output_path: Path) -> None:
     """Plot old and current density and body-mass trajectories."""
-    old = test_data.loc[test_data["version"] == "old"]
-    current = test_data.loc[test_data["version"] == "current"]
+    old = test_data.loc[test_data["version"] == "0.2.1"]
+    current = test_data.loc[test_data["version"] == "0.2.2"]
     shared_dates = set(old["time"]) & set(current["time"])
     shared = test_data.loc[test_data["time"].isin(shared_dates)].copy()
 
@@ -353,24 +355,34 @@ def plot_comparison(test_data: pd.DataFrame, output_path: Path) -> None:
     axes[1].set_ylabel("Mean individual body mass")
     axes[1].set_title("Body mass")
     axes[1].legend(title="Output")
-    figure.suptitle(f"{label}: old vs current output")
+    figure.suptitle(f"{label}: old vs VE 0.2.2 output")
     figure.tight_layout()
     figure.savefig(output_path, dpi=150)
     plt.close(figure)
 
+def main(data_dir: Path) -> None:
+    """Run the VE 0.2.1 versus 0.2.2 herbivore comparison."""
 
-def main() -> None:
-    """Run the Task 1 herbivore comparison."""
-    data_dir = Path("path/to/herbivore_test")
-    output_dir = data_dir / "old_current_comparison"
+    output_dir = data_dir / "0.2.1_vs_0.2.2_comparison"
 
     cohort_files = {
-        ("elephant", "old"): data_dir / "animal_cohort_data_elephant_old.csv",
-        ("elephant", "current"): data_dir / "animal_cohort_data_elephant_new.csv",
-        ("kancil", "old"): data_dir / "animal_cohort_data_kancil_old.csv",
-        ("kancil", "current"): data_dir / "animal_cohort_data_kancil_new.csv",
+        ("elephant", "0.2.1"): data_dir / "animal_cohort_data_elephant_0.2.1.csv",
+        ("elephant", "0.2.2"): data_dir / "animal_cohort_data_elephant_0.2.2.csv",
+        ("kancil", "0.2.1"): data_dir / "animal_cohort_data_kancil_0.2.1.csv",
+        ("kancil", "0.2.2"): data_dir / "animal_cohort_data_kancil_0.2.2.csv",
     }
+
     grid = {"cell_size": 100, "n_cells_x": 10, "n_cells_y": 10}
+
+    missing = [str(path) for path in cohort_files.values() if not path.exists()]
+    if missing:
+        missing_text = "\n".join(f"  - {path}" for path in missing)
+        raise FileNotFoundError(
+            "The following cohort files were not found:\n"
+            f"{missing_text}\n\n"
+            "The four cohort CSV files were not found. "
+            "Download them from Globus and set data_dir to the local download folder."
+        )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     initial_tables = []
@@ -390,8 +402,8 @@ def main() -> None:
     trajectories = pd.concat(trajectory_tables, ignore_index=True)
 
     outputs = {
-        "herbivore_old_current_trajectories.csv": trajectories,
-        "herbivore_old_current_summary.csv": build_old_current_summary(
+        "herbivore_0.2.1_vs_0.2.2_trajectories.csv": trajectories,
+        "herbivore_0.2.1_vs_0.2.2_summary.csv": build_old_current_summary(
             trajectories,
             initialisation,
         ),
@@ -405,9 +417,22 @@ def main() -> None:
     for test, data in trajectories.groupby("test"):
         plot_comparison(
             data,
-            output_dir / f"{test}_old_current_comparison.png",
+            output_dir / f"{test}_0.2.1_vs_0.2.2_comparison.png",
         )
 
+    print(f"Comparison complete. Outputs saved to:\n{output_dir}")
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Compare VE 0.2.1 and 0.2.2 herbivore outputs."
+    )
+    parser.add_argument(
+        "data_dir",
+        type=Path,
+        help="Directory containing the four animal cohort CSV files.",
+    )
+    args = parser.parse_args()
+
+    main(args.data_dir)
