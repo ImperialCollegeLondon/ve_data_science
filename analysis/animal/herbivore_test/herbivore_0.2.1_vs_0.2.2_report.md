@@ -2,7 +2,7 @@
 
 This notebook summarises the main patterns from the Level 1 herbivore test outputs for **Elephant** (slow-growing reference) and **Kancil** (faster-growing case). Currently, in our level 1 Maliau, we only have one herbivore, and default one was elephant. For simple testing, however, the choice of herbivore can affect how clearly model behaviour is observed over a relatively short simulation.
 
-For this reason, both slow- and fast-growing herbivore cases were tested. A slow-growing case such as Elephant may show little change within a short run, whereas Kancil provides a faster-growing comparison where changes in body mass and population dynamics should become visible sooner. The intention was not to compare species biologically, but more to test behaviour and impact of using different input FG. 
+For this reason, both slow- and fast-growing herbivore cases were tested. A slow-growing case such as Elephant may show little change within a short run, whereas Kancil provides a faster-growing comparison where changes in body mass and population dynamics should become visible sooner. The intention was not to compare species biologically, but more to test behaviour and impact of using different input FG.
 
 Comparison of Virtual Ecosystem animal-module output for two representative herbivore tests used in Maliau Level 1:
 
@@ -73,10 +73,10 @@ coverage
 [4 rows x 7 columns]
 ```
 
-The Elephant 0.2.2 run is 9 months shorter than 0.2.1. Both Elephant runs end with a single cohort, but Kancil keeps essentially all 100 cohorts. Longer here just means that simulation ran longer before it ended, not that necessarily means Kancil lived longer than Elephants. 
+The Elephant 0.2.2 run is 9 months shorter than 0.2.1. Both Elephant runs end with a single cohort, but Kancil keeps essentially all 100 cohorts. Longer here just means that simulation ran longer before it ended, not that necessarily means Kancil lived longer than Elephants.
 
-When exacly they die out? 
-Elephant: dies out (down to 1) — 2017-01-31 in 0.2.1, 2015-04-02 in 0.2.2, and stays at 1 for months/years while the run keeps going. 
+When exacly they die out?
+Elephant: dies out (down to 1) — 2017-01-31 in 0.2.1, 2015-04-02 in 0.2.2, and stays at 1 for months/years while the run keeps going.
 Kancil: never dies out in either version,still hundreds of individuals and still declining at the very last simulated step.
 
 ```python
@@ -177,7 +177,7 @@ Legend
 
 ## 5. Kancil (fast-growing-medium sized herbivore)
 
-Kancil year by year, seems like for the density barely differs between versions, but body mass tells a different story. Seems like they put weight faster for several years, and settle to similar value or both versions. 
+Kancil year by year, seems like for the density barely differs between versions, but body mass tells a different story. Seems like they put weight faster for several years, and settle to similar value or both versions.
 Kancil, sampled roughly yearly:
 
 ```python
@@ -187,7 +187,7 @@ kancil_diff.iloc[:: max(1, len(kancil_diff) // 11)]
 
 ```text
             density_0.2.1  density_0.2.2  ...  body_mass_0.2.2  body_mass_diff_%
-time                                      ...                                   
+time                                      ...
 2010-01-01         90,704         90,748  ...           0.1558        -0.0001153
 2011-01-01         56,558         56,684  ...           0.1636             4.172
 2012-01-01         35,044         35,460  ...           0.1703             8.343
@@ -205,7 +205,7 @@ time                                      ...
 
 ## 6. Elephant (slow growing-large sized herbivore)
 
-While for elephant, body mass identical between versions the whole way thorugh, but density surely looks wild. 
+While for elephant, body mass identical between versions the whole way thorugh, but density surely looks wild.
 Elephant, sampled roughly every six months:
 
 ```python
@@ -215,7 +215,7 @@ elephant_diff.iloc[:: max(1, len(elephant_diff) // 13)]
 
 ```text
             density_0.2.1  density_0.2.2  ...  body_mass_0.2.2  body_mass_diff_%
-time                                      ...                                   
+time                                      ...
 2010-01-01             51             52  ...              100        -3.015e-07
 2010-07-02             41             41  ...            100.3          0.002208
 2011-01-01             35             30  ...            100.5          0.005194
@@ -305,7 +305,7 @@ The clearest effect of the version change is on **Kancil body mass**, where the 
 
 So for this test, the biggest change between the two runs is in how the faster-growing Kancil gains mass, rather than in the overall population decline. (Note: since the runs also differ in configuration, this can't be attributed to the mass-transfer fix alone.)
 
-Just from this testing, it seems like using Kancil as the representative for Maliau_1 now, seems more robust. 
+Just from this testing, it seems like using Kancil as the representative for Maliau_1 now, seems more robust.
 
 ## 9. Caveats
 
