@@ -1,0 +1,25 @@
+schema_version: 1
+record_id: doi-10-5061-dryad-r2280gb95
+doi: 10.5061/dryad.r2280gb95
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains hemipteran data. Litter keywords describe sampling approach only.
+  screened_at: '2026-09-18T02:13:32Z'
+metadata:
+  title: Drought and presence of ants can influence hemipitera in tropical leaf litter
+  authors:
+  - Goldman, Anna
+  - Bonebrake, Timothy
+  - Evans, Theodore
+  - Griffiths, Hannah
+  - Parr, Catherine
+  - Ashton, Louise
+  - Eggleton, Paul
+  year: 2020
+  journal: ~
+  publisher: Dryad
+  url: https://datadryad.org/dataset/doi:10.5061/dryad.r2280gb95
+  keywords: Tropical rainforests
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T02:13:03Z'

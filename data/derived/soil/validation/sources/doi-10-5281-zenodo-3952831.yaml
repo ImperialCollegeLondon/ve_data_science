@@ -1,0 +1,32 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3952831
+doi: 10.5281/zenodo.3952831
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains microclimate, wood density and tree respiration data. Carbon keyword
+    is plant but not soil or litter related.
+  screened_at: '2026-09-18T06:25:53Z'
+metadata:
+  title: Investigating the relationship between tree stem respiration and growth rate
+  authors:
+  - Mills, Maria
+  - Lewton, Jack
+  - Jansen, Olivier
+  - Howlett, Jasmine
+  - Leung, Tsz Kin Calvin
+  - Angell, Sasha
+  - Riutta, Terhi
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3952831
+  keywords:
+  - Stem Respiration
+  - Carbon Fluxes
+  - Old-growth Forest
+  - Carbon balance
+  - Diurnal carbon cycles
+  - Growth rate
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:25:26Z'

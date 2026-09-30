@@ -1,0 +1,19 @@
+schema_version: 1
+record_id: doi-10-48580-d39p2-v32
+doi: 10.48580/d39p2.v32
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Taxonomic discovery without relevant data.
+  screened_at: '2026-09-18T05:32:24Z'
+metadata:
+  title: 'Three new minute leaf litter beetles discovered by citizen scientists in
+    Maliau Basin, Malaysian Borneo (Coleoptera: Leiodidae, Chrysomelidae)'
+  authors: Njunjić, Iva
+  year: 2017
+  journal: ~
+  publisher: ChecklistBank
+  url: https://www.checklistbank.org/dataset/30827/imports/32
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T05:32:09Z'

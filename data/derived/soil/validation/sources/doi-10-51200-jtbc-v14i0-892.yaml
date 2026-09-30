@@ -1,0 +1,23 @@
+schema_version: 1
+record_id: doi-10-51200-jtbc-v14i0-892
+doi: 10.51200/jtbc.v14i0.892
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Samples were water samples from riparian areas, not soil samples.
+  screened_at: '2026-09-18T01:59:16Z'
+metadata:
+  title: Evaluation of Spatial and Seasonal Variations of Dissolved Organic Matter
+    in Maliau Basin, Sabah, Malaysia
+  authors:
+  - Sin Yee, Tan
+  - Harun, Sahana
+  - Boon Hee, Kueh
+  - Fikri, Arman Hadi
+  year: 2017
+  journal: Journal of Tropical Biology &amp; Conservation (JTBC)
+  publisher: Universiti Malaysia Sabah (UMS)
+  url: http://dx.doi.org/10.51200/jtbc.v14i0.892
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T01:58:30Z'

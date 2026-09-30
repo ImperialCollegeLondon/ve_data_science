@@ -1,0 +1,20 @@
+schema_version: 1
+record_id: doi-10-2139-ssrn-7030774
+doi: 10.2139/ssrn.7030774
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contain soil moisture. Also contains soil clay fraction, but this is not
+    an updated variable.
+  screened_at: '2026-09-18T05:45:57Z'
+metadata:
+  title: 'INTEGRATING MACHINE LEARNING AND SITE INVESTIGATION DATA FOR LANDSLIDE SUSCEPTIBILITY
+    ASSESSMENT: A CASE STUDY ALONG THE MALIAU BASIN ROAD CORRIDOR, SABAH, MALAYSIA'
+  authors: Joe, Edgar  Jr.
+  year: 2026
+  journal: []
+  publisher: Elsevier BV
+  url: http://dx.doi.org/10.2139/ssrn.7030774
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T05:45:34Z'
