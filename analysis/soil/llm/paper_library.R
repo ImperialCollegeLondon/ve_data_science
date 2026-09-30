@@ -15,9 +15,9 @@
 #|
 #| VE_module: Soil
 #|
-#| author: Posit Assistant
+#| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: works-csv-nXYzSd9BYzAXpV87UcTYPs.csv
