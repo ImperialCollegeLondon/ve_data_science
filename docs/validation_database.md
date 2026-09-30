@@ -274,14 +274,7 @@ Assumptions and expectations
   units stay in the database. Canonical values and units are recorded as
   missing.
 
-### Spatial and temporal metadata
-
-The `coordinates` and `temporal` blocks are optional. Leave the template
-values blank when the source does not provide that metadata. Missing spatial or
-temporal metadata produces a warning. It also adds typed missing values in the
-database. It does not make a complete schema a draft.
-
-#### Coordinate sources and precedence
+### Spatial metadata
 
 The builder fills coordinates in this order:
 
@@ -435,11 +428,11 @@ unused entries when the schema is complete.
 
 `valdb` depends on
 [Step 5](#5-registry-for-ve-originated-canonical-variables-with-derived-computation)
-when it joins VE outputs to the validation database. That file provides
-`get_data_variables()` and `get_derived_variables()`. The second function reads
-the VE configuration TOML file, computes VE-originated canonical variables that
-are not stored directly in VE outputs, and returns them in the same named-list
-shape as the direct VE variables.
+when it joins VE outputs to the validation database. 'get_ve_variables.R'
+provides provides `get_data_variables()` and `get_derived_variables()`. The
+second function reads the VE configuration TOML file, computes VE-originated
+canonical variables that are not stored directly in VE outputs, and returns them
+in the same named-list shape as the direct VE variables.
 
 The dependency chain is:
 
@@ -453,12 +446,13 @@ flowchart LR
   F --> A
 ```
 
-The shared TOML file is the local registry for VE-originated canonical
-variables that are computed from VE outputs rather than stored directly in them.
-Each entry links one canonical variable name to the R function that computes it.
-When `join_ve_outputs()` sees one of those names, it can request the computed
-canonical value instead of only looking for a variable stored directly in the VE
-output files.
+The shared TOML file is the local registry for VE-originated canonical variables
+that are computed from VE outputs rather than stored directly in them. Each
+entry links one canonical variable name to the R function that computes it (if
+you wrote a Python function, you still need an R wrapper function via
+`reticulate`). When `join_ve_outputs()` sees one of those names, it can request
+the computed canonical value instead of only looking for a variable stored
+directly in the VE output files.
 
 The current file lives at
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
@@ -473,7 +467,7 @@ function = "get_total_soil_n_per_volume"
 ```
 
 For example, suppose you want to add a new VE-originated canonical variable
-named `soil_n_pool_urea_per_mass`, where the VE value must be derived from other
+named `herbivore_density`, where the VE value must be derived from other
 VE outputs. The end-to-end change would look like this:
 
 1. Add a new `[[variable]]` block to
@@ -481,21 +475,22 @@ VE outputs. The end-to-end change would look like this:
 
    ```toml
    [[variable]]
-   name = "soil_n_pool_urea_per_mass"
-   description = "Mass-basis soil urea nitrogen pool"
-   unit = "kg{N} kg^-1"
-   function = "get_soil_n_pool_urea_per_mass"
+   name = "herbivore_density"
+   description = "Density of herbivore function group"
+   unit = "km^-1"
+   function = "get_herbivore_density"
    ```
 
-2. Add the matching R function to
+2. Define the `get_herbivore_density()` R function in
    [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). The function
-   should read the raw VE inputs it needs, compute one array, and return it with
-   the expected VE dimensions.
+   should read the raw VE inputs it needs, compute the output in the right
+   object class (e.g. array or dataframe), and return it with the expected VE
+   dimensions.
 
-Use the exact same `name` in both places, and make `function` point to a
-function that returns one array with the expected VE dimensions. If the new
-variable needs configuration values from the VE TOML file, pass them through the
-helper function that computes it.
+Use the exact same `name` in both places: in the `name = ...` entry in
+[data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
+and in the `var_canonical: ...` entry in the schema in
+[Step 4](#4-complete-schema-fields-manually).
 
 Update [Step 6](#6-build-the-validation-database) when the new canonical
 variable should be accepted in validation schemas. Update
@@ -507,7 +502,7 @@ recognise and validate canonical names.
 
 ## 6) Build the validation database
 
-Run:
+After registering any VE-originated canonical variables, run:
 
 ```r
 valdb$build_validation_database(
@@ -517,7 +512,16 @@ valdb$build_validation_database(
 )
 ```
 
-Build behaviour
+This builds the validation database from the completed schemas in `sources_dir`
+and writes one Parquet file per completed dataset entry to `db_path`.
+
+!!! warning
+    `db_path` is a local output directory, not a Git-tracked location in this
+    repository. Parquet outputs are ignored by Git, so save them in your local
+    repo working copy and, when you need to share or publish them, upload them
+    via Globus rather than committing them to the repository.
+
+What the above code does:
 
 - Loads current canonical variable metadata from the VE `develop` branch.
 - Combines it with local metadata for VE-originated canonical variables that
