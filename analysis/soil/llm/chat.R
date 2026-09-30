@@ -459,7 +459,6 @@ write_csv(
   file.path(data_folder, "soil_constant_literature_values.csv")
 )
 
-
 # Flag rows needing human checking ---------------------------------------
 
 # These checks catch citation rows that still need human review, even though
