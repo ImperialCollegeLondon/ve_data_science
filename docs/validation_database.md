@@ -7,14 +7,14 @@ combine the data into one Parquet validation database.
 
 ```mermaid
 flowchart TD
-  A[screen_dataset()\nScreen dataset and save one DOI YAML record] --> B[add_schema()\nAdd schema template for a \"proceed\" record]
-  B --> C[Download source data and convert it to CSV]
-  C --> D[Complete schema: file path, variable mapping, units, keys, and spatial or temporal metadata]
-  D --> E{Any VE-originated canonical variables that need a derived computation?}
-  E -- No --> F[build_validation_database()\nBuild the harmonised validation database]
-  E -- Yes --> G[get_ve_variables.R\nRegister the canonical variable and add its compute function]
+  A["screen_dataset<br/>Screen dataset and save one DOI YAML record"] --> B["add_schema<br/>Add schema template for a 'proceed' record"]
+  B --> C["Download source data and convert it to CSV"]
+  C --> D["Complete schema: file path, variable mapping, units, keys, and spatial or temporal metadata"]
+  D --> E{"Any VE-originated canonical variables that need a derived computation?"}
+  E -- No --> F["build_validation_database<br/>Build the harmonised validation database"]
+  E -- Yes --> G["get_ve_variables.R<br/>Register the canonical variable and add its compute function"]
   G --> F
-  F --> H[join_ve_outputs()\nJoin VE outputs]
+  F --> H["join_ve_outputs<br/>Join VE outputs"]
 ```
 
 ## Folder structure and path conventions
