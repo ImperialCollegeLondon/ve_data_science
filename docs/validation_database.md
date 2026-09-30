@@ -1,7 +1,7 @@
-# Building a schema-based validation database
+# Build a schema-based validation database
 
-This workflow uses YAML metadata to read source datasets, harmonise them,
-convert units, and combine them into one Parquet validation database.
+This workflow uses YAML metadata to read source datasets, convert units, and
+combine the data into one Parquet validation database.
 
 ## Workflow overview
 
@@ -19,8 +19,12 @@ flowchart TD
 
 ## Folder structure and path conventions
 
-Run commands from the repository root. The workflow expects these folders to
-already exist; the functions below do not create them.
+!!! note
+    Run commands from the repository root. The workflow expects these folders to
+
+```text
+exist. The functions below do not create them.
+```
 
 ```text
 ve_data_science/
@@ -99,8 +103,8 @@ a stable ID automatically derived from the DOI, for example:
 doi-10-5281-zenodo-2024580.yaml
 ```
 
-Existing DOI records are not overwritten. To amend a screening decision,
-delete its per-DOI YAML file and screen the dataset again.
+Existing DOI records are not overwritten. To change a screening decision,
+delete the per-DOI YAML file. Then screen the dataset again.
 
 ## 2) Add a schema template for a `proceed` DOI record
 
@@ -109,7 +113,7 @@ Use `add_schema()` only for a DOI record with
 
 `add_schema()` finds a screening record YAML file from
 [Step 1](#1-data-screening) by DOI and adds one nested dataset template under
-`datasets:` for the current build step.
+`datasets:`.
 
 ```r
 valdb$add_schema(
@@ -121,8 +125,8 @@ valdb$add_schema(
 The DOI can use upper-case characters, a `doi:` prefix, or a DOI resolver URL.
 The code normalises it before lookup. The record must already exist. The record
 must have `screening.decision: proceed`. The record must not already contain a
-schema. If these conditions pass, the template is added safely. Then only the
-target per-DOI YAML file opens for manual editing.
+schema. If these checks pass, the code adds the template. Then it opens only
+that YAML file for manual editing.
 
 The initial template always uses the nested `datasets` layout, even when the
 DOI record currently contains only one dataset. If a DOI record covers more than
@@ -131,51 +135,53 @@ its schema fields separately. For example:
 
 ```yaml
 datasets:
-  - source_id: "dataset_1"
+  - source_id: "author_year"
     data_file: "path/to/file_1.csv"
-  - source_id: "dataset_2"
+  - source_id: "author_year_2"
     data_file: "path/to/file_2.csv"
 ```
 
 ## 3) Download the dataset and convert it to CSV
 
 Download the dataset to `data/primary/<module>/<author>_<year>`. The soil
-folder is an example on this page, and `author_year` is a folder naming
-convention. If names conflict, name the next folder `author_year_2`. Continue in
-that pattern.
+folder on this page is one example. `author_year` is the folder naming pattern.
+If names conflict, use `author_year_2`. Continue in that pattern.
 
-Use CSV files. If the published dataset is in another format, such as Excel or
-zip, manually convert or pre-process the required data sheet into a CSV file.
-When a raw dataset needs data wrangling, store the preprocessing script in
-[analysis/validation/](analysis/validation/) and write the processed output to
-[derived/](derived/) alongside the validation inputs.
+Use CSV files. If the published dataset uses another format, such as Excel or a
+zip archive, convert the required data sheet to CSV. If the raw dataset needs
+extra data wrangling, store the preprocessing script in
+[analysis/validation/](analysis/validation/). Write the processed CSV to
+[derived/](derived/) beside the other validation inputs.
 
-Keep any location or coordinate files that come with the source dataset. For
-the default spatial workflow, export the source location table as
+!!! tip
+    Keep any location or coordinate files that come with the source dataset.
+
+```text
+For the default spatial workflow, export the source location table as
 `locations.csv` beside the measurement CSV.
+```
 
 ## 4) Complete schema fields manually
 
-The template is an editable scaffold, not a build-ready configuration. Replace
-every placeholder with values from the source dataset. Remove unused example
-entries. Add one `variables` entry for each source column to include.
+The template is an editable scaffold. It is not build-ready. Replace every
+placeholder with values from the source dataset. Remove unused example entries.
+Add one `variables` entry for each source column that you want to keep.
 
-This step also determines how later VE joins will behave. For each entry under
-`variables`, check the value of `var_canonical`. If a source column maps to a
-standard VE canonical variable, the join can use the existing VE variable
-metadata.
+This step also controls later VE joins. For each entry under `variables`, check
+`var_canonical`. If a source column maps to a standard VE canonical variable,
+the join can use the existing VE variable metadata.
 
-If a source column maps to a canonical variable that is available
-only through local derived-variable support, the schema alone is not enough.
-You must also add a registry entry for that canonical variable in
-[data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
-and implement its reader in
+If a source column maps to a canonical variable that is available only through
+local derived-variable support, the schema alone is not enough. You must add a
+registry entry for that canonical variable in
+[data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
+You must also implement its reader in
 [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). See
 [Step 5](#5-registry-for-ve-originated-canonical-variables-with-derived-computation).
 
 For each dataset entry under `datasets:`, complete these **required** fields:
 
-- `source_id` (e.g. `dobert_2019`)
+- `source_id` (for example, `dobert_2019`)
 - `data_file` (path to the CSV file)
 - `skip_rows` (use `0` when there are no non-data rows to skip)
 - `variables` (original name, canonical name, original unit)
@@ -240,9 +246,9 @@ datasets:
         note: Start and end dates specified in the Summary sheet of the original file.
 ```
 
-`dedup_key` can be written as one source column name or as several source
-column names. In YAML, that means either one string such as
-`dedup_key: plot.code` or a list such as:
+`dedup_key` can be one source column name or several source column names. In
+YAML, that means either one string such as `dedup_key: plot.code` or a list
+such as:
 
 ```yaml
 dedup_key:
@@ -253,26 +259,25 @@ dedup_key:
 
 Together, those columns identify one observation. Use one column when one field
 is already unique after import. Use several columns when uniqueness depends on a
-combination such as site, sample, and date. The builder uses this key when it
-checks for duplicate rows within a dataset.
+combination such as site, sample, and date. The builder uses this key to check
+for duplicate rows within a dataset.
 
 To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still uses one flat source
 schema per dataset internally, keyed by unique `source_id`.
 
-Assumptions and expectations
+### Assumptions and expectations
 
-- Datasets and location files are CSV (`readr::read_csv()` is used internally).
+- Datasets and location files are CSV. The code uses `readr::read_csv()`.
 - Known `var_canonical` names resolve against the latest VE
   canonical-variable metadata in `data_variables.toml` from the `develop`
   branch and, when supplied, the local derived-variable registry in
-  `data/derived/validation/derived_variables.toml`.
+  [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
 - Source and canonical units are interpreted and converted with the `units`
-  package. Source schemas should use unit strings that the `units` package
-  understands. Malformed or dimensionally incompatible units are errors.
+  package. Use unit strings that the `units` package can read. Malformed or
+  dimensionally incompatible units are errors.
 - Unknown canonical names produce a warning. Their observations and original
-  units stay in the database. Canonical values and units are recorded as
-  missing.
+  units stay in the database. Canonical values and canonical units are missing.
 
 ### Spatial metadata
 
@@ -291,46 +296,52 @@ flowchart TD
   H -- No --> J[Leave coordinates missing\ncoordinate_source: missing]
 ```
 
-Each method sets a `coordinate_source` field that shows the source used:
+Each method sets `coordinate_source` to show which source the build used.
 
-1. **Blanket coordinates** (`same_for_all_rows`): Use when one location applies
-   to the entire dataset. Set both `same_for_all_rows.latitude` and
-   `same_for_all_rows.longitude` to scalar values in WGS84 decimal degrees.
-   Rows filled this way have `coordinate_source: same_for_all_rows`.
+1. **Blanket coordinates** (`same_for_all_rows`): Use this method when one
+   location applies to the whole dataset. Set both
+   `same_for_all_rows.latitude` and `same_for_all_rows.longitude` to scalar
+   values in WGS84 decimal degrees. Rows filled this way have
+   `coordinate_source: same_for_all_rows`.
 
-2. **Data-column coordinates** (`latitude_column`, `longitude_column`): Use when
-   the source CSV contains separate latitude and longitude columns. Set both
-   `latitude_column` and `longitude_column` to the original column names.
-   The builder reads these columns directly from `data_file`, converts them to
-   numeric WGS84 decimal degrees, and flags rows as
-   `coordinate_source: data_columns`. Missing coordinate values are retained
-   and marked as `missing`. If one or both coordinate columns are not
-   configured, the builder falls back to the locations-file workflow.
+2. **Data-column coordinates** (`latitude_column`, `longitude_column`): Use this
+   method when the source CSV contains latitude and longitude columns. Set both
+   `latitude_column` and `longitude_column` to the original column names. The
+   builder reads these columns directly from `data_file` and converts them to
+   numeric WGS84 decimal degrees. Rows filled this way have
+   `coordinate_source: data_columns`. Missing coordinate values are kept and
+   marked as `missing`. If one or both coordinate columns are not configured,
+   the builder falls back to the locations-file workflow.
 
 3. **External locations file** (`from_file`, `match_data_column`,
-   `match_location_column`, `latitude_column`, `longitude_column`): Use when
-   coordinates are stored in a separate file. By default, the builder looks for
-   `locations.csv` beside `data_file`. To use another file, set `from_file`.
-   Match the data with `match_data_column` from `data_file` and
-   `match_location_column` from the locations file. Read latitude and longitude
-   from `latitude_column` and `longitude_column` in the locations file. The
-default names are `Latitude` and `Longitude`. A multi-column `dedup_key`
-   requires an explicit `match_data_column`. Rows filled this way have
-   `coordinate_source: locations_file`.
+   `match_location_column`, `latitude_column`, `longitude_column`): Use this
+   method when coordinates are stored in a separate file. By default, the
+   builder looks for `locations.csv` beside `data_file`. To use another file,
+   set `from_file`. Match the data with `match_data_column` from `data_file`
+   and `match_location_column` from the locations file. Read latitude and
+   longitude from `latitude_column` and `longitude_column` in the locations
+   file. The default names are `Latitude` and `Longitude`. A multi-column
+   `dedup_key` requires an explicit `match_data_column`. Rows filled this way
+   have `coordinate_source: locations_file`.
 
 4. **Gazetteer second pass**: If rows still lack coordinates after the other
    methods, the builder matches the location key against
    `data/primary/site/gazetteer.geojson`. It fills missing coordinates from the
-   centroid values (`centroid_x`, `centroid_y`). Rows filled this way are
-   flagged as `coordinate_source: gazetteer_second_pass`.
+   centroid values (`centroid_x`, `centroid_y`). Rows filled this way have
+   `coordinate_source: gazetteer_second_pass`.
 
-All coordinate values must be WGS84 decimal degrees. The builder does not
-accept invalid coordinates. Non-numeric or out-of-range values abort the build.
-Rows with missing coordinates are flagged as `coordinate_source: missing`.
+!!! important
+    All coordinate values must be WGS84 decimal degrees.
+
+The builder does not accept invalid coordinates. Non-numeric or out-of-range
+values stop the build. Rows with missing coordinates have
+`coordinate_source: missing`.
+
+### Temporal metadata
 
 Temporal metadata can come from one `date_column`, from paired `start_column`
 and `end_column` values, or from `same_for_all_rows.start` and
-`same_for_all_rows.end`. Columns used for time metadata must also be retained by
+`same_for_all_rows.end`. Columns used for time metadata must also be kept by
 `dedup_key` or `variables`. Optional `format`, `timezone`, and `precision`
 settings control parsing. Supported precision values are `second`, `day`,
 `month`, and `year`. Times are stored in UTC as half-open intervals
@@ -392,18 +403,6 @@ The builder reads coordinates from the specified `from_file` path. It matches
 column names as configured. If the locations file contains duplicated keys, the
 build aborts. It does not inflate the number of observations.
 
-#### Temporal metadata
-
-Temporal metadata can come from one `date_column`, from paired `start_column`
-and `end_column` values, or from `same_for_all_rows.start` and
-`same_for_all_rows.end`. Columns used for time metadata must also be retained by
-`dedup_key` or `variables`. Optional `format`, `timezone`, and `precision`
-settings control parsing. Supported precision values are `second`, `day`,
-`month`, and `year`. Times are stored in UTC as half-open intervals
-`[time_start, time_end)`. Source end values use the last inclusive precision
-unit. `same_for_all_rows.end: open` means that the end has no limit. The
-optional blanket `note` is stored in `time_note`.
-
 For example:
 
 ```yaml
@@ -421,18 +420,23 @@ temporal:
     note: Sampling period reported by the source
 ```
 
-Use either per-row settings or `same_for_all_rows` within each block. Remove
-unused entries when the schema is complete.
+!!! note
+    Use either per-row settings or `same_for_all_rows` in one temporal block.
+
+```text
+Do not mix them.
+```
+
+Remove unused inner entries when the schema is complete.
 
 ## 5) Registry for VE-originated canonical variables with derived computation
 
-`valdb` depends on
-[Step 5](#5-registry-for-ve-originated-canonical-variables-with-derived-computation)
-when it joins VE outputs to the validation database. 'get_ve_variables.R'
-provides provides `get_data_variables()` and `get_derived_variables()`. The
-second function reads the VE configuration TOML file, computes VE-originated
-canonical variables that are not stored directly in VE outputs, and returns them
-in the same named-list shape as the direct VE variables.
+`join_ve_outputs()` depends on
+[tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). That file
+provides `get_data_variables()` and `get_derived_variables()`. The second
+function reads the VE configuration TOML file, computes VE-originated canonical
+variables that are not stored directly in VE outputs, and returns them in the
+same named-list shape as the direct VE variables.
 
 The dependency chain is:
 
@@ -448,11 +452,11 @@ flowchart LR
 
 The shared TOML file is the local registry for VE-originated canonical variables
 that are computed from VE outputs rather than stored directly in them. Each
-entry links one canonical variable name to the R function that computes it (if
-you wrote a Python function, you still need an R wrapper function via
-`reticulate`). When `join_ve_outputs()` sees one of those names, it can request
-the computed canonical value instead of only looking for a variable stored
-directly in the VE output files.
+entry links one canonical variable name to the R function that computes it. If
+you wrote a Python function, you still need an R wrapper via `reticulate()`.
+When `join_ve_outputs()` sees one of those names, it can request the computed
+canonical value instead of only looking for a variable stored directly in the VE
+output files.
 
 The current file lives at
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
@@ -467,8 +471,8 @@ function = "get_total_soil_n_per_volume"
 ```
 
 For example, suppose you want to add a new VE-originated canonical variable
-named `herbivore_density`, where the VE value must be derived from other
-VE outputs. The end-to-end change would look like this:
+named `herbivore_density`. Its VE value must be derived from other VE outputs.
+The end-to-end change looks like this:
 
 1. Add a new `[[variable]]` block to
    [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml):
@@ -483,21 +487,25 @@ VE outputs. The end-to-end change would look like this:
 
 2. Define the `get_herbivore_density()` R function in
    [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). The function
-   should read the raw VE inputs it needs, compute the output in the right
-   object class (e.g. array or dataframe), and return it with the expected VE
+   must read the raw VE inputs it needs, compute the output in the right object
+   class (for example, array or data frame), and return it with the expected VE
    dimensions.
 
-Use the exact same `name` in both places: in the `name = ...` entry in
+!!! important
+    Use the exact same `name` in both places: in the `name = ...` entry in
+
+```text
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
 and in the `var_canonical: ...` entry in the schema in
 [Step 4](#4-complete-schema-fields-manually).
+```
 
 Update [Step 6](#6-build-the-validation-database) when the new canonical
-variable should be accepted in validation schemas. Update
+variable must be accepted in validation schemas. Update
 [Step 7](#7-combine-the-validation-database-with-ve-outputs) when that canonical
 variable must be computed from VE output files during scenario joins. In
-practice, the TOML registry and the R helper in `get_ve_variables.R` are what
-`join_ve_outputs()` uses; the build step only uses the derived-variable table to
+practice, `join_ve_outputs()` uses the TOML registry and the R helper in
+`get_ve_variables.R`. The build step uses the derived-variable table only to
 recognise and validate canonical names.
 
 ## 6) Build the validation database
@@ -517,9 +525,12 @@ and writes one Parquet file per completed dataset entry to `db_path`.
 
 !!! warning
     `db_path` is a local output directory, not a Git-tracked location in this
-    repository. Parquet outputs are ignored by Git, so save them in your local
-    repo working copy and, when you need to share or publish them, upload them
-    via Globus rather than committing them to the repository.
+
+```text
+repository. Parquet outputs are ignored by Git, so save them in your local
+repo working copy and, when you need to share or publish them, upload them
+via Globus rather than committing them to the repository.
+```
 
 What the above code does:
 
@@ -535,9 +546,12 @@ What the above code does:
 - Requires every schema record to retain a `proceed` screening decision.
 - Writes Parquet output to `db_path`.
 
-A `proceed` decision alone does not make a record build-ready. The builder uses
-only completed dataset entries. It stops if no completed dataset schemas remain
-after screening-only and draft entries are excluded.
+!!! note
+    A `proceed` decision alone does not make a record build-ready. The builder
+    uses only completed dataset entries.
+
+If no completed dataset schemas remain after screening-only and draft entries
+are excluded, the build stops.
 
 ## 7) Combine the validation database with VE outputs
 
@@ -560,14 +574,14 @@ Supply `zarr_path`, `config_path`, `db_path`, or `combined_db_path` when files
 are stored outside that layout.
 
 `join_ve_outputs()` takes the validation database and VE scenario outputs from a
-Zarr store. It joins the spatiotemporally aggregated VE outputs for each row. It
+Zarr store. It joins the spatiotemporally aggregated VE outputs to each row. It
 reads VE variables that are stored directly in the outputs and VE-originated
 canonical variables that are computed from those outputs. It classifies each
 observation by spatial and temporal overlap with the scenario bounds. It returns
 three added columns: the lower quantile `value_VE_q05`, the median
 `value_VE_q50`, and the upper quantile `value_VE_q95`.
 
-Current implementation supports
+The current implementation supports:
 
 - full spatial and temporal matching (`spatial_within_temporal_within`)
 - temporal-only matching for observations outside VE spatial bounds
