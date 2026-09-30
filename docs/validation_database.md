@@ -173,13 +173,18 @@ and implement its reader in
 [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). See
 [Step 5](#5-registry-for-ve-originated-canonical-variables-with-derived-computation).
 
-For each dataset entry under `datasets:`, complete:
+For each dataset entry under `datasets:`, complete these **required** fields:
 
 - `source_id` (e.g. `dobert_2019`)
 - `data_file` (path to the CSV file)
-- `skip_rows`
+- `skip_rows` (use `0` when there are no non-data rows to skip)
 - `variables` (original name, canonical name, original unit)
 - `dedup_key`
+
+`coordinates` and `temporal` are **optional blocks**. Use them when the dataset
+includes spatial or temporal information that should be mapped into the
+validation database. If you leave either block unused, remove the placeholder
+entries rather than leaving partially completed values in place.
 
 Dataset-specific fields are nested under `datasets`. Record-level fields stay
 at the top level.
@@ -216,6 +221,10 @@ datasets:
     dedup_key:
       - plot.code
 ```
+
+If you omit the `coordinates` or `temporal` blocks, the build still runs, but
+it warns and fills the corresponding spatial or temporal fields in the output
+validation database with `NA` values.
 
 `dedup_key` is a YAML list of source column names. It can contain one column
 name or several column names. Together, those columns identify one observation.
