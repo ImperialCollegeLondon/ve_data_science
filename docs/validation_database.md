@@ -17,6 +17,32 @@ flowchart TD
   F --> H["join_ve_outputs<br/>Join VE outputs"]
 ```
 
+## Final validation database preview
+
+The final output is a long table of one observation per row.
+`build_validation_database()` harmonises source records into a standard schema,
+and `join_ve_outputs()` adds VE-model output columns for the same spatial and
+temporal context.
+
+| Column | Meaning |
+| --- | --- |
+| `ID` | Stable observation ID generated from the source key. |
+| `latitude`, `longitude` | Observation location in decimal degrees (WGS84) when available. |
+| `location_type` | Location classification such as a point or plot-level location. |
+| `coordinate_source` | Where the coordinates came from: data columns, locations file, gazetteer fill, or missing. |
+| `time_start`, `time_end` | Observation time window in UTC, stored as a half-open interval `[time_start, time_end)`. |
+| `time_type` | Whether the timing is a whole-dataset window, instant, or interval. |
+| `time_precision` | Temporal granularity, such as day, month, or year. |
+| `time_source` | Where the time came from: source columns, fixed metadata, or missing. |
+| `time_note` | Free-text note about the source time metadata. |
+| `var_original` | Original variable name from the source dataset. |
+| `value_original` | Raw observation value in the source unit. |
+| `unit_original` | Unit used in the original source dataset. |
+| `var_canonical` | Canonical variable name used for cross-dataset comparisons. |
+| `unit_canonical` | Unit after conversion to the canonical unit. |
+| `value_canonical` | Harmonised measurement value in the canonical unit. |
+| `dataset` | Source dataset identifier from the YAML schema. |
+
 ## Folder structure and path conventions
 
 !!! note
