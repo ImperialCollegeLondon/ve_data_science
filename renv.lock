@@ -6742,6 +6742,29 @@
       "Maintainer": "Yihui Xie <xie@yihui.name>",
       "Repository": "CRAN"
     },
+    "miniUI": {
+      "Package": "miniUI",
+      "Version": "0.1.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Shiny UI Widgets for Small Screens",
+      "Authors@R": "c( person(\"Joe\", \"Cheng\", role = c(\"cre\", \"aut\"), email = \"joe@posit.co\"), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"), comment = c(ROR = \"03wc8by49\")) )",
+      "Description": "Provides UI widget and layout functions for writing Shiny apps that work well on small screens.",
+      "License": "GPL-3",
+      "URL": "https://github.com/rstudio/miniUI",
+      "BugReports": "https://github.com/rstudio/miniUI/issues",
+      "Imports": [
+        "shiny (>= 0.13)",
+        "htmltools (>= 0.3)",
+        "utils"
+      ],
+      "RoxygenNote": "7.3.2",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "Joe Cheng [cre, aut], Posit Software, PBC [cph, fnd] (03wc8by49)",
+      "Maintainer": "Joe Cheng <joe@posit.co>",
+      "Repository": "CRAN"
+    },
     "minqa": {
       "Package": "minqa",
       "Version": "1.2.8",
@@ -8926,6 +8949,45 @@
       "NeedsCompilation": "yes",
       "Author": "Christophe Dutang [aut, cre] (<https://orcid.org/0000-0001-6732-1501>), Petr Savicky [aut], F. Panneton [ctb] (C Code), P. L'Ecuyer [ctb] (C Code), M. Matsumoto [ctb] (C Code)",
       "Maintainer": "Christophe Dutang <dutangc@gmail.com>",
+      "Repository": "CRAN"
+    },
+    "roadoi": {
+      "Package": "roadoi",
+      "Version": "0.7.3",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Find Free Versions of Scholarly Publications via Unpaywall",
+      "Authors@R": "c( person(\"Najko\", \"Jahn\", role = c(\"aut\", \"cre\"), email = \"najko.jahn@gmail.com\"), person(\"Tuija\", \"Sonkkila\", role = c(\"rev\"), comment = c(\"Tuija Sonkkila  reviewed the package for rOpenSci,  see https://github.com/ropensci/onboarding/issues/115\", ORCID = \"0000-0002-6892-9305\")), person(\"Ross\", \"Mounce\", role = c(\"rev\"), comment = c(\"Ross Mounce reviewed the package for rOpenSci,  see https://github.com/ropensci/onboarding/issues/115\", ORCID =  \"0000-0002-3520-2046\")), person(\"Anne\", \"Hobert\", role = c(\"ctb\"),  comment = c(ORCID = \"0000-0003-2429-2995\")), person(\"Delwen\", \"Franzen\", role = c(\"ctb\")) )",
+      "Description": "This web client interfaces Unpaywall <https://unpaywall.org/products/api>, formerly oaDOI, a service finding free full-texts of academic papers by linking DOIs with  open access journals and repositories. It provides unified access to various data sources  for open access full-text links including Crossref and the Directory of Open Access  Journals (DOAJ). API usage is free and no registration is required.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://docs.ropensci.org/roadoi/, https://github.com/ropensci/roadoi/",
+      "BugReports": "https://github.com/ropensci/roadoi/issues/",
+      "Imports": [
+        "httr",
+        "jsonlite",
+        "dplyr",
+        "plyr",
+        "purrr",
+        "tibble",
+        "miniUI",
+        "shiny (>= 1.0.3)",
+        "tidyr",
+        "rlang"
+      ],
+      "Suggests": [
+        "roxygen2 (>= 6.0.1)",
+        "testthat",
+        "knitr",
+        "covr",
+        "rmarkdown",
+        "lintr"
+      ],
+      "RoxygenNote": "7.3.2",
+      "VignetteBuilder": "knitr",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "Najko Jahn [aut, cre], Tuija Sonkkila [rev] (Tuija Sonkkila reviewed the package for rOpenSci, see https://github.com/ropensci/onboarding/issues/115, <https://orcid.org/0000-0002-6892-9305>), Ross Mounce [rev] (Ross Mounce reviewed the package for rOpenSci, see https://github.com/ropensci/onboarding/issues/115, <https://orcid.org/0000-0002-3520-2046>), Anne Hobert [ctb] (<https://orcid.org/0000-0003-2429-2995>), Delwen Franzen [ctb]",
+      "Maintainer": "Najko Jahn <najko.jahn@gmail.com>",
       "Repository": "CRAN"
     },
     "rprojroot": {
