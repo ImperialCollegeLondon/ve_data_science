@@ -24,18 +24,28 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: ve_constant_usage.toml
-#|     path: data/derived/llm/
+#|     path: data/derived/soil/llm/
 #|     description: |
 #|       Parameter database created by extract_constant_metadata.R, providing
 #|       constant metadata, classified usage sites, and function docstrings.
+#|   - name: virtual_ecosystem_repo.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       RAG store of Virtual Ecosystem documentation used to supply model
+#|       context during retrieval.
+#|   - name: soil_literature.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       RAG store of downloaded soil literature used as the only retrieval
+#|       source for empirical evidence.
 #|
 #| output_files:
-#|   - name: constant_literature_values.csv
-#|     path: data/derived/llm/
+#|   - name: soil_constant_literature_values.csv
+#|     path: data/derived/soil/llm/
 #|     description: |
 #|       One row per constant-source pair, with the suggested value, units,
 #|       citation, and the analysed model commit for provenance.
@@ -49,11 +59,12 @@
 #|   - glue
 #|   - RcppTOML
 #|   - cli
+#|   - ragnar
 #|
 #| usage_notes: |
-#|   Run extract_constant_metadata.R first. Values returned by this script are
-#|   unverified proposals: the model has no literature search tool, so every
-#|   citation must be checked by hand before use.
+#|   Run extract_constant_metadata.R, rag_ve.R, and rag_literature.R first.
+#|   Values returned by this script are unverified proposals: every citation and
+#|   unit conversion must be checked by hand before use.
 #| ---
 
 library(tidyverse)
@@ -184,14 +195,19 @@ system_prompt <-
   </task>
 
   <retrieval>
-  A retrieval tool provides context from the Virtual Ecosystem documentation.
-  Use that retrieved documentation when it is relevant for understanding the
-  model context, terminology, or documented behaviour of the constant or
-  process under discussion.
+  Two retrieval tools are available.
 
-  Treat retrieved Virtual Ecosystem documentation as supporting context about
-  the model, not as empirical literature. If the documentation is not relevant,
-  answer normally using the supplied code context and literature search.
+  The Virtual Ecosystem documentation retrieval tool provides supporting
+  context about model terminology, documented behaviour, and process context.
+  Use it only to understand how the model uses the constant.
+
+  The soil literature retrieval tool provides the only permitted empirical
+  evidence for proposed values. Use it to find literature snippets, quotes,
+  and source metadata relevant to the constant.
+
+  Treat retrieved Virtual Ecosystem documentation as model context, not as
+  empirical evidence. Treat retrieved soil literature as the only allowable
+  source of empirical values.
   </retrieval>
 
   <evidence_policy>
@@ -203,15 +219,18 @@ system_prompt <-
   states that a default was chosen for convenience rather than measured. Never
   return the default value back as a recommendation.
 
-  A web search tool is available. Use it to find published empirical
-  literature before answering. Prefer primary sources and report only values
-  that are traceable to a specific publication.
+  Do NOT use online search, web search, browsing, or prior knowledge as
+  evidence. Every suggested value, range, quote, DOI, and citation field must
+  come from the retrieved soil literature context. If a citation field is not
+  present in the retrieved literature context, leave it empty rather than
+  guessing.
 
-  If search does not find a suitable source, or if the source does not report
-  this quantity specifically enough to support a conversion, report status
-  `no_evidence` rather than constructing a plausible-looking citation. A
-  fabricated or weakly grounded citation is far more damaging than an
-  admission of uncertainty, because it will be acted upon.
+  If the retrieved soil literature does not find a suitable source, or if the
+  source does not report this quantity specifically enough to support a
+  conversion, report status `no_evidence` rather than constructing a
+  plausible-looking value or citation. A fabricated or weakly grounded
+  citation is far more damaging than an admission of uncertainty, because it
+  will be acted upon.
   </evidence_policy>
 
   <units>
@@ -357,10 +376,14 @@ type_output <- type_array(
 
 # Query the model --------------------------------------------------------
 
-# Open the existing Virtual Ecosystem documentation RAG store and register its
-# retrieval tool on the main chat object before issuing any requests.
-rag_store <- ragnar_store_connect(
+# Open the existing Virtual Ecosystem documentation RAG store and the soil
+# literature RAG store, then register both retrieval tools on the main chat
+# object before issuing any requests.
+ve_rag_store <- ragnar_store_connect(
   file.path(data_folder, "virtual_ecosystem_repo.ragnar.duckdb")
+)
+literature_rag_store <- ragnar_store_connect(
+  file.path(data_folder, "soil_literature.ragnar.duckdb")
 )
 
 # One request per constant. This keeps each prompt small and focused, and lets
@@ -376,11 +399,16 @@ chat <- chat_openai(
 )
 ragnar_register_tool_retrieve(
   chat,
-  rag_store,
+  ve_rag_store,
   top_k = 10,
   description = "Virtual Ecosystem documentation"
 )
-chat$register_tool(openai_tool_web_search())
+ragnar_register_tool_retrieve(
+  chat,
+  literature_rag_store,
+  top_k = 10,
+  description = "Soil literature full text"
+)
 
 constant_values <-
   candidate_constants |>
@@ -431,11 +459,10 @@ write_csv(
   file.path(data_folder, "soil_constant_literature_values.csv")
 )
 
-
 # Flag rows needing human checking ---------------------------------------
 
-# These checks catch citation rows that still need human review, even when a
-# web search tool is available to the model.
+# These checks catch citation rows that still need human review, even though
+# retrieval is restricted to the local literature store.
 constant_values_table |>
   mutate(
     missing_doi = status == "value_found" & (is.na(doi) | doi == ""),
