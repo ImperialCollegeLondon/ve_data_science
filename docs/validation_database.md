@@ -125,7 +125,17 @@ schema. If these conditions pass, the template is added safely. Then only the
 target per-DOI YAML file opens for manual editing.
 
 The initial template always uses the nested `datasets` layout, even when the
-DOI record currently contains only one dataset.
+DOI record currently contains only one dataset. If a DOI record covers more than
+one dataset, add one nested entry under `datasets:` for each dataset and fill in
+its schema fields separately. For example:
+
+```yaml
+datasets:
+  - source_id: "dataset_1"
+    data_file: "path/to/file_1.csv"
+  - source_id: "dataset_2"
+    data_file: "path/to/file_2.csv"
+```
 
 ## 3) Download the dataset and convert it to CSV
 
