@@ -146,6 +146,9 @@ that pattern.
 
 Use CSV files. If the published dataset is in another format, such as Excel or
 zip, manually convert or pre-process the required data sheet into a CSV file.
+When a raw dataset needs data wrangling, store the preprocessing script in
+[analysis/validation/](analysis/validation/) and write the processed output to
+[derived/](derived/) alongside the validation inputs.
 
 Keep any location or coordinate files that come with the source dataset. For
 the default spatial workflow, export the source location table as
