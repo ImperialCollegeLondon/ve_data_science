@@ -160,7 +160,6 @@ store <- ragnar_store_create(
       endpoint = "https://ellmer.services.ai.azure.com"
     )
   },
-  overwrite = TRUE,
   extra_cols = tibble::tibble(
     record_id = character(),
     doi = character(),
