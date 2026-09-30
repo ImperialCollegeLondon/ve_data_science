@@ -262,7 +262,7 @@ schema per dataset internally, keyed by unique `source_id`.
 
 Assumptions and expectations
 
-- Input files are CSV (`readr::read_csv()` is used internally).
+- Datasets and location files are CSV (`readr::read_csv()` is used internally).
 - Known `var_canonical` names resolve against the latest VE
   canonical-variable metadata in `data_variables.toml` from the `develop`
   branch and, when supplied, the local derived-variable registry in
