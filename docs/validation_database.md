@@ -184,12 +184,13 @@ For each dataset entry under `datasets:`, complete these **required** fields:
 `coordinates` and `temporal` are **optional blocks**. Use them when the dataset
 includes spatial or temporal information that should be mapped into the
 validation database. If you leave either block unused, remove the placeholder
-entries rather than leaving partially completed values in place.
+entries rather than leaving partially completed values in place. If you omit the
+`coordinates` or `temporal` blocks, the build still runs, but it warns and fills
+the corresponding spatial or temporal fields in the output validation database
+with `NA` values.
 
-Dataset-specific fields are nested under `datasets`. Record-level fields stay
-at the top level.
-
-Example with one dataset:
+Example with one dataset, adapted from
+`doi-10-5281-zenodo-2024580`:
 
 ```yaml
 schema_version: 1
@@ -198,13 +199,21 @@ doi: 10.5281/zenodo.2024580
 screening:
   decision: proceed
   reason: relevant_validation_data
-  notes: ""
-  screened_at: "2026-08-13T12:05:00Z"
+  notes: Contains soil nutrients, moisture, pH, bulk density etc.
+  screened_at: "2026-08-14T02:33:27Z"
 metadata:
-  title: Example dataset
+  title: Landuse change and species invasion
   authors:
-    - Doe, Jane
+    - Döbert, Timm
+    - Webber, Bruce L.
+    - Sugau, John B.
+    - Dickinson, Katherine J. M.
+    - Didham, Raphael K.
   year: 2019
+  publisher: Zenodo
+  url: https://zenodo.org/record/2024580
+  provider: doi_content_search
+  retrieved_at: "2026-08-14T02:33:16Z"
 datasets:
   - source_id: dobert_2019
     data_file: data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv
@@ -218,20 +227,34 @@ datasets:
         var_canonical: dissolved_phosphorus
         unit: ug cm^-3
         description: Plant available soil phosphorus content
-    dedup_key:
-      - plot.code
+    dedup_key: plot.code
+    coordinates:
+      from_file: data/primary/soil/dobert_2019/locations.csv
+    temporal:
+      format: "%d/%m/%Y"
+      timezone: Asia/Kuching
+      same_for_all_rows:
+        start: 01/12/2011
+        end: 31/03/2014
+        precision: day
+        note: Start and end dates specified in the Summary sheet of the original file.
 ```
 
-If you omit the `coordinates` or `temporal` blocks, the build still runs, but
-it warns and fills the corresponding spatial or temporal fields in the output
-validation database with `NA` values.
+`dedup_key` can be written as one source column name or as several source
+column names. In YAML, that means either one string such as
+`dedup_key: plot.code` or a list such as:
 
-`dedup_key` is a YAML list of source column names. It can contain one column
-name or several column names. Together, those columns identify one observation.
-Use a single column when one field is already unique after import. Use several
-columns when uniqueness depends on a combination (such as site, sample, and
-date). The builder uses this key when it checks for duplicate rows within a
-dataset.
+```yaml
+dedup_key:
+  - site_id
+  - sample_id
+  - date
+```
+
+Together, those columns identify one observation. Use one column when one field
+is already unique after import. Use several columns when uniqueness depends on a
+combination such as site, sample, and date. The builder uses this key when it
+checks for duplicate rows within a dataset.
 
 To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still uses one flat source
