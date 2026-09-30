@@ -21,10 +21,7 @@ flowchart TD
 
 !!! note
     Run commands from the repository root. The workflow expects these folders to
-
-```text
-exist. The functions below do not create them.
-```
+    exist. The functions below do not create them.
 
 ```text
 ve_data_science/
@@ -155,11 +152,8 @@ extra data wrangling, store the preprocessing script in
 
 !!! tip
     Keep any location or coordinate files that come with the source dataset.
-
-```text
-For the default spatial workflow, export the source location table as
-`locations.csv` beside the measurement CSV.
-```
+    For the default spatial workflow, export the source location table as
+    `locations.csv` beside the measurement CSV.
 
 ## 4) Complete schema fields manually
 
@@ -407,12 +401,7 @@ For example:
 
 ```yaml
 temporal:
-  date_column:
-  start_column:
-  end_column:
-  format:
-  timezone: UTC
-  precision: day
+  timezone: Asia/Kuching
   same_for_all_rows:
     start: 2011-01-01
     end: 2014-12-31
@@ -422,10 +411,7 @@ temporal:
 
 !!! note
     Use either per-row settings or `same_for_all_rows` in one temporal block.
-
-```text
-Do not mix them.
-```
+    Do not mix them.
 
 Remove unused inner entries when the schema is complete.
 
@@ -493,15 +479,12 @@ The end-to-end change looks like this:
 
 !!! important
     Use the exact same `name` in both places: in the `name = ...` entry in
+    [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
+    and in the `var_canonical: ...` entry in the schema in
+    [Step 4](#4-complete-schema-fields-manually).
 
-```text
-[data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
-and in the `var_canonical: ...` entry in the schema in
-[Step 4](#4-complete-schema-fields-manually).
-```
-
-Update [Step 6](#6-build-the-validation-database) when the new canonical
-variable must be accepted in validation schemas. Update
+Update [Step 4](#4-complete-schema-fields-manually) when the new canonical
+variable must be named in validation schemas. Update
 [Step 7](#7-combine-the-validation-database-with-ve-outputs) when that canonical
 variable must be computed from VE output files during scenario joins. In
 practice, `join_ve_outputs()` uses the TOML registry and the R helper in
@@ -525,12 +508,9 @@ and writes one Parquet file per completed dataset entry to `db_path`.
 
 !!! warning
     `db_path` is a local output directory, not a Git-tracked location in this
-
-```text
-repository. Parquet outputs are ignored by Git, so save them in your local
-repo working copy and, when you need to share or publish them, upload them
-via Globus rather than committing them to the repository.
-```
+    repository. Parquet outputs are ignored by Git, so save them in your local
+    repo working copy and, when you need to share or publish them, upload them
+    via Globus rather than committing them to the repository.
 
 What the above code does:
 
