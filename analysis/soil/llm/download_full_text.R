@@ -4,15 +4,16 @@
 #| description: |
 #|   Reads a prepared OpenAlex results CSV, downloads the corresponding
 #|   full text for rows assigned to direct-download retrieval methods, and
-#|   converts it to Markdown. PDF sources are converted with `pymupdf4llm`
-#|   and HTML landing pages are converted with `trafilatura`, both called
-#|   directly from R through `reticulate`.
+#|   converts it to Markdown. In its current configuration the script filters to
+#|   `generic_direct` rows before download. PDF sources are converted with
+#|   `pymupdf4llm` and HTML landing pages are converted with `trafilatura`, both
+#|   called directly from R through `reticulate`.
 #|
 #|   The script writes raw source files under
 #|   `data/derived/soil/llm/full_text/raw/` and Markdown outputs under
 #|   `data/derived/soil/llm/full_text/markdown/`. Rows assigned to
-#|   publisher-specific API methods are skipped here and reserved for separate
-#|   API-aware download scripts. It also writes a timestamped run log to
+#|   publisher-specific API methods are left for separate API-aware download
+#|   scripts. It also writes a timestamped run log to
 #|   `data/derived/soil/llm/full_text/logs/`.
 #|
 #| VE_module: Soil
@@ -162,6 +163,9 @@ response_error_details <- function(response) {
 
 openalex_results <- read_csv(openalex_results_path, show_col_types = FALSE)
 
+# This downloader currently runs only the generic direct-download branch. The
+# loop below still recognises repository_direct rows so the script can be
+# widened later without restructuring the per-record logic.
 openalex_results <- openalex_results |>
   filter(retrieval_method == "generic_direct")
 

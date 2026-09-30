@@ -28,14 +28,24 @@
 #|
 #| input_files:
 #|   - name: ve_constant_usage.toml
-#|     path: data/derived/llm/
+#|     path: data/derived/soil/llm/
 #|     description: |
 #|       Parameter database created by extract_constant_metadata.R, providing
 #|       constant metadata, classified usage sites, and function docstrings.
+#|   - name: virtual_ecosystem_repo.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       RAG store of Virtual Ecosystem documentation used to supply model
+#|       context during retrieval.
+#|   - name: soil_literature.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       RAG store of downloaded soil literature used as the only retrieval
+#|       source for empirical evidence.
 #|
 #| output_files:
-#|   - name: constant_literature_values.csv
-#|     path: data/derived/llm/
+#|   - name: soil_constant_literature_values.csv
+#|     path: data/derived/soil/llm/
 #|     description: |
 #|       One row per constant-source pair, with the suggested value, units,
 #|       citation, and the analysed model commit for provenance.
@@ -49,11 +59,12 @@
 #|   - glue
 #|   - RcppTOML
 #|   - cli
+#|   - ragnar
 #|
 #| usage_notes: |
-#|   Run extract_constant_metadata.R first. Values returned by this script are
-#|   unverified proposals: the model has no literature search tool, so every
-#|   citation must be checked by hand before use.
+#|   Run extract_constant_metadata.R, rag_ve.R, and rag_literature.R first.
+#|   Values returned by this script are unverified proposals: every citation and
+#|   unit conversion must be checked by hand before use.
 #| ---
 
 library(tidyverse)
@@ -451,8 +462,8 @@ write_csv(
 
 # Flag rows needing human checking ---------------------------------------
 
-# These checks catch citation rows that still need human review, even when a
-# web search tool is available to the model.
+# These checks catch citation rows that still need human review, even though
+# retrieval is restricted to the local literature store.
 constant_values_table |>
   mutate(
     missing_doi = status == "value_found" & (is.na(doi) | doi == ""),

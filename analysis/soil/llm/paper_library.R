@@ -3,8 +3,8 @@
 #|
 #| description: |
 #|   Reads a manually exported OpenAlex CSV for the soil literature search,
-#|   normalises and deduplicates DOIs, and looks up preferred full-text URLs
-#|   with Unpaywall.
+#|   normalises and deduplicates DOIs, and uses Unpaywall to look up preferred
+#|   direct-download URLs.
 #|
 #|   The script writes a cached DOI lookup table to
 #|   `data/derived/soil/llm/unpaywall_lookup_results.csv` and then prepares a
@@ -77,7 +77,7 @@ doi_input <- papers |>
   distinct(doi)
 
 # Reuse the cached Unpaywall table when present to avoid repeating a long,
-# rate-limited DOI lookup step.
+# rate-limited DOI lookup step against the Unpaywall API.
 lookup_results_path <-
   here::here("data/derived/soil/llm/unpaywall_lookup_results.csv")
 

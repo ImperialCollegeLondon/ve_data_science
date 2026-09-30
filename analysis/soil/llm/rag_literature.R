@@ -34,12 +34,13 @@
 #|   - ragnar
 #|   - ellmer
 #|   - here
+#|   - DBI
 #|
 #| usage_notes: |
 #|   Run analysis/soil/llm/download_full_text.R first. This script ingests only
-#|   successfully converted Markdown files and reads metadata from each file's
-#|   YAML header. Azure OpenAI endpoint credentials must be available for
-#|   embedding.
+#|   successfully converted Markdown files and reads metadata from the YAML
+#|   header written into each Markdown file. Azure OpenAI endpoint credentials
+#|   must be available for embedding.
 #| ---
 
 library(tidyverse)
@@ -47,6 +48,8 @@ library(ragnar)
 
 
 # Read Markdown full text ----------------------------------------------------
+# Recover per-paper metadata from the YAML front matter written by
+# download_full_text.R, then keep the Markdown body for chunking.
 markdown_root <- here::here("data/derived/soil/llm/full_text/markdown")
 
 read_yaml_field <- function(lines, field) {
