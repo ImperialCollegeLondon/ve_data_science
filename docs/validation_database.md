@@ -23,14 +23,16 @@ Run commands from the repository root. The workflow expects these folders to
 already exist; the functions below do not create them.
 
 ```text
-data/primary/<module>/<author>_<year>/
-└── <data sheet>.csv           # source data, converted manually or preprocessed
-data/derived/<module>/validation/
-├── sources/                   # one screening/schema YAML file per DOI
-└── database/                  # output Parquet dataset
-data/derived/validation/
-└── derived_variables.toml     # VE-originated canonical variables with local compute functions (optional)
-tools/R/R/valdb.R              # workflow functions
+ve_data_science/
+├── data/derived/<module>/validation/sources/      # Step 1: one screening/schema YAML file per DOI
+│   └── <doi>.yaml                                 # screening/schema YAML file
+├── data/<primary or derived>/<module>/<author>_<year>/  # Step 2: source data, converted manually or preprocessed
+│   └── <data sheet>.csv                           # source data file
+├── data/derived/validation/                       # Step 5: VE-originated canonical variables with local compute functions
+│   └── derived_variables.toml                     # derived-variable registry
+├── data/derived/<module>/validation/database/     # Step 6: output Parquet dataset
+│   └── <validation database>.parquet              # validation database
+└── tools/R/R/valdb.R                              # workflow functions
 ```
 
 ## How to load the key functions
