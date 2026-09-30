@@ -107,8 +107,9 @@ delete its per-DOI YAML file and screen the dataset again.
 Use `add_schema()` only for a DOI record with
 `screening.decision: proceed`.
 
-`add_schema()` finds a screening record by DOI and adds one nested dataset
-template under `datasets:` for the current build step.
+`add_schema()` finds a screening record YAML file from
+[Step 1](#1-data-screening) by DOI and adds one nested dataset template under
+`datasets:` for the current build step.
 
 ```r
 valdb$add_schema(
@@ -157,7 +158,7 @@ You must also add a registry entry for that canonical variable in
 [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
 and implement its reader in
 [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). See
-[Registry for VE-originated canonical variables with derived computation](#5-registry-for-ve-originated-canonical-variables-with-derived-computation).
+[Step 5](#5-registry-for-ve-originated-canonical-variables-with-derived-computation).
 
 For each dataset entry under `datasets:`, complete:
 
@@ -387,12 +388,13 @@ unused entries when the schema is complete.
 
 ## 5) Registry for VE-originated canonical variables with derived computation
 
-`valdb` depends on `get_ve_variables.R` when it joins VE outputs to the
-validation database. That file provides `get_data_variables()` and
-`get_derived_variables()`. The second function reads the VE configuration TOML
-file, computes VE-originated canonical variables that are not stored directly in
-VE outputs, and returns them in the same named-list shape as the direct VE
-variables.
+`valdb` depends on
+[Step 5](#5-registry-for-ve-originated-canonical-variables-with-derived-computation)
+when it joins VE outputs to the validation database. That file provides
+`get_data_variables()` and `get_derived_variables()`. The second function reads
+the VE configuration TOML file, computes VE-originated canonical variables that
+are not stored directly in VE outputs, and returns them in the same named-list
+shape as the direct VE variables.
 
 The dependency chain is:
 
@@ -450,12 +452,13 @@ function that returns one array with the expected VE dimensions. If the new
 variable needs configuration values from the VE TOML file, pass them through the
 helper function that computes it.
 
-Update [build_validation_database()](tools/R/R/valdb.R) when the new canonical
-variable should be accepted in validation schemas. Update `join_ve_outputs()`
-when that canonical variable must be computed from VE output files during
-scenario joins. In practice, the TOML registry and the R helper in
-`get_ve_variables.R` are what `join_ve_outputs()` uses; the build step only uses
-the derived-variable table to recognise and validate canonical names.
+Update [Step 6](#6-build-the-validation-database) when the new canonical
+variable should be accepted in validation schemas. Update
+[Step 7](#7-combine-the-validation-database-with-ve-outputs) when that canonical
+variable must be computed from VE output files during scenario joins. In
+practice, the TOML registry and the R helper in `get_ve_variables.R` are what
+`join_ve_outputs()` uses; the build step only uses the derived-variable table to
+recognise and validate canonical names.
 
 ## 6) Build the validation database
 
