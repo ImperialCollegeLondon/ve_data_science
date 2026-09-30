@@ -290,7 +290,8 @@ flowchart TD
   H -- No --> J[Leave coordinates missing\ncoordinate_source: missing]
 ```
 
-Each method sets `coordinate_source` to show which source the build used.
+Each method sets `coordinate_source` to show which source the build used. Choose
+only one of the following combination to use.
 
 1. **Blanket coordinates** (`same_for_all_rows`): Use this method when one
    location applies to the whole dataset. Set both
