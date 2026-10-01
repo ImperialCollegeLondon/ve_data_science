@@ -7,14 +7,14 @@ combine the data into one Parquet validation database.
 
 ```mermaid
 flowchart TD
-  A["screen_dataset<br/>Screen dataset and save one DOI YAML record"] --> B["add_schema<br/>Add schema template for a 'proceed' record"]
-  B --> C["Download source data and convert it to CSV"]
-  C --> D["Complete schema: file path, variable mapping, units, keys, and spatial or temporal metadata"]
-  D --> E{"Any VE-originated canonical variables that need a derived computation?"}
-  E -- No --> F["build_validation_database<br/>Build the harmonised validation database"]
-  E -- Yes --> G["get_ve_variables.R<br/>Register the canonical variable and add its compute function"]
+  A["1. screen_dataset()<br/>Screen dataset and save one DOI YAML record"] --> B["2. add_schema()<br/>Add schema template for a 'proceed' record"]
+  B --> C["3. Download source data and convert it to CSV"]
+  C --> D["4. Complete schema: file path, variable mapping, units, keys, and spatial or temporal metadata"]
+  D --> E{"5. Any VE-originated canonical variables that need a derived computation?"}
+  E -- No --> F["6. build_validation_database()<br/>Build the harmonised validation database"]
+  E -- Yes --> G["5. get_ve_variables.R<br/>Register the canonical variable and add its compute function"]
   G --> F
-  F --> H["join_ve_outputs<br/>Join VE outputs"]
+  F --> H["7. join_ve_outputs()<br/>Join VE outputs"]
 ```
 
 ## Final validation database preview
@@ -85,6 +85,8 @@ After `source()`, call them as `function_name()`. If you call
 
 ## 1) Data screening
 
+[Back to workflow overview](#workflow-overview).
+
 Use `screen_dataset()` to get DOI metadata and record whether a dataset should
 proceed, be excluded, or be deferred.
 
@@ -131,6 +133,8 @@ delete the per-DOI YAML file. Then screen the dataset again.
 
 ## 2) Add a schema template for a `proceed` DOI record
 
+[Back to workflow overview](#workflow-overview).
+
 Use `add_schema()` only for a DOI record with
 `screening.decision: proceed`.
 
@@ -166,6 +170,8 @@ datasets:
 
 ## 3) Download the dataset and convert it to CSV
 
+[Back to workflow overview](#workflow-overview).
+
 Download the dataset to `data/primary/<module>/<author>_<year>`. The soil
 folder on this page is one example. `author_year` is the folder naming pattern.
 If names conflict, use `author_year_2`. Continue in that pattern.
@@ -182,6 +188,8 @@ extra data wrangling, store the preprocessing script in
     `locations.csv` beside the measurement CSV.
 
 ## 4) Complete schema fields manually
+
+[Back to workflow overview](#workflow-overview).
 
 The template is an editable scaffold. It is not build-ready. Replace every
 placeholder with values from the source dataset. Remove unused example entries.
@@ -444,6 +452,8 @@ Remove unused inner entries when the schema is complete.
 
 ## 5) Registry for VE-originated canonical variables with derived computation
 
+[Back to workflow overview](#workflow-overview).
+
 `join_ve_outputs()` depends on
 [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). That file
 provides `get_data_variables()` and `get_derived_variables()`. The second
@@ -520,6 +530,8 @@ recognise and validate canonical names.
 
 ## 6) Build the validation database
 
+[Back to workflow overview](#workflow-overview).
+
 After registering any VE-originated canonical variables, run:
 
 ```r
@@ -561,6 +573,8 @@ If no completed dataset schemas remain after screening-only and draft entries
 are excluded, the build stops.
 
 ## 7) Combine the validation database with VE outputs
+
+[Back to workflow overview](#workflow-overview).
 
 Use
 [analysis/soil/validation/combine_validation_database.R](analysis/soil/validation/combine_validation_database.R)
