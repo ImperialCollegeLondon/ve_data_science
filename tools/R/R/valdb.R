@@ -2490,16 +2490,18 @@ join_ve_outputs_per_row <- function(
       stats::setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95"))
   }
 
+  # A missing observation end means the record is a point-in-time sample, so
+  # use the start time as the effective end for temporal matching.
+  obs_end <- dplyr::coalesce(time_end, time_start)
+
   switch(
     spatiotemporal_join_class,
     "spatial_within_temporal_within" = {
       ve_data |>
         dplyr::filter(
           var_canonical == !!var_canonical,
-          lubridate::`%within%`(
-            date,
-            lubridate::interval(time_start, time_end)
-          ),
+          date >= time_start,
+          date <= obs_end,
           lat_min <= latitude & latitude <= lat_max,
           lon_min <= longitude & longitude <= lon_max
         ) |>
@@ -2511,10 +2513,8 @@ join_ve_outputs_per_row <- function(
       ve_data |>
         dplyr::filter(
           var_canonical == !!var_canonical,
-          lubridate::`%within%`(
-            date,
-            lubridate::interval(time_start, time_end)
-          )
+          date >= time_start,
+          date <= obs_end
         ) |>
         summarise_ve_outputs()
     },
