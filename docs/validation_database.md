@@ -5,6 +5,8 @@ combine the data into one Parquet validation database.
 
 ## Workflow overview
 
+<!-- markdownlint-disable MD013 -->
+
 ```mermaid
 flowchart TD
   A["1. screen_dataset()<br/>Screen dataset and save one DOI YAML record"] --> B["2. add_schema()<br/>Add schema template for a 'proceed' record"]
@@ -16,6 +18,8 @@ flowchart TD
   G --> F
   F --> H["7. join_ve_outputs()<br/>Join VE outputs"]
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 ## Final validation database preview
 
@@ -49,6 +53,8 @@ temporal context.
     Run commands from the repository root. The workflow expects these folders to
     exist. The functions below do not create them.
 
+<!-- markdownlint-disable MD013 -->
+
 ```text
 ve_data_science/
 ├── data/derived/<module>/validation/sources/      # Step 1: one screening/schema YAML file per DOI
@@ -61,6 +67,8 @@ ve_data_science/
 │   └── <validation database>.parquet              # validation database
 └── tools/R/R/valdb.R                              # workflow functions
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 ## How to load the key functions
 
