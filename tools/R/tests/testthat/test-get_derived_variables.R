@@ -260,7 +260,9 @@ test_that("join_ve_outputs_per_row matches temporal-only rows when time_end is m
   )
 
   expect_false(any(is.na(result)))
-  expect_equal(result[["value_VE_q50"]], 2)
+  expect_equal(result[["value_VE_q05"]], 1)
+  expect_equal(result[["value_VE_q50"]], 1)
+  expect_equal(result[["value_VE_q95"]], 1)
 })
 
 test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_n_per_area to area basis correctly.", {
