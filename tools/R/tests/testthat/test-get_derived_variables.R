@@ -235,6 +235,34 @@ test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
   expect_equal(dim(result), c(length(time_index), length(cell_id)))
 })
 
+test_that("join_ve_outputs_per_row matches temporal-only rows when time_end is missing", {
+  ve_data <- tibble::tibble(
+    var_canonical = rep("soil_p_pool_labile_per_mass", 3),
+    date = as.POSIXct(
+      c("2016-09-30 00:00:00", "2016-10-01 00:00:00", "2016-10-02 00:00:00"),
+      tz = "UTC"
+    ),
+    value = c(1, 2, 3),
+    lat_min = 0,
+    lat_max = 1,
+    lon_min = 0,
+    lon_max = 1
+  )
+
+  result <- join_ve_outputs_per_row(
+    ve_data = ve_data,
+    var_canonical = "soil_p_pool_labile_per_mass",
+    time_start = as.POSIXct("2016-09-30 00:00:00", tz = "UTC"),
+    time_end = NA,
+    latitude = 0.5,
+    longitude = 0.5,
+    spatiotemporal_join_class = "spatial_outside_temporal_within"
+  )
+
+  expect_false(any(is.na(result)))
+  expect_equal(result[["value_VE_q50"]], 2)
+})
+
 test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_n_per_area to area basis correctly.", {
   dir <- withr::local_tempdir()
   mock_zarr <- create_mock_zarr(dir)
