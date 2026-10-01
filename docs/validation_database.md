@@ -588,20 +588,6 @@ Use
 [analysis/soil/validation/combine_validation_database.R](analysis/soil/validation/combine_validation_database.R)
 as a reference workflow.
 
-```r
-source("analysis/soil/validation/combine_validation_database.R")
-
-combine_validation_database(
-  module_name = "soil",
-  scenario_group = "maliau",
-  scenario_name = "maliau_2"
-)
-```
-
-The wrapper derives standard repository paths from the module and scenario.
-Supply `zarr_path`, `config_path`, `db_path`, or `combined_db_path` when files
-are stored outside that layout.
-
 `join_ve_outputs()` takes the validation database and VE scenario outputs from a
 Zarr store. It joins the spatiotemporally aggregated VE outputs to each row. It
 reads VE variables that are stored directly in the outputs and VE-originated
