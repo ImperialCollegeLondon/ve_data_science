@@ -1,0 +1,6 @@
+# Paired notebooks and their Markdown sources stay local;
+# only the rendered output folders are committed.
+*.ipynb
+flow_report/hydrological_flow_report.md
+flow_report/interpretation_notes.md
+morris_sensitivity/morris_hydrology_results.md
