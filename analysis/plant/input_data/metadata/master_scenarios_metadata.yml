@@ -398,7 +398,7 @@ scripts:
         date: ~
       assumptions: |
         epsg_code = 32650
-    - name: yes
+    - name: 'y'
       type: numeric
       units: m
       description: |

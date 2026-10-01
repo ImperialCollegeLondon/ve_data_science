@@ -89,7 +89,7 @@
 #|             date: null
 #|         assumptions: |
 #|           epsg_code = 32650
-#|       - name: y
+#|       - name: "y"
 #|         type: numeric
 #|         units: m
 #|         description: |
