@@ -22,7 +22,14 @@ data/primary/*
 data/derived/plant/**/*.csv
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/necromass/li_et_al_2023.csv
-data/derived/soil/llm/soil_constant_usage.toml
+data/derived/soil/llm/ve_constant_usage.toml
+data/derived/soil/llm/soil_code_chunks.jsonl
+data/derived/soil/llm/soil_constant_literature_values.csv
+data/derived/soil/llm/full_text
+data/derived/soil/llm/full_text/**
+!data/derived/soil/llm/full_text/
+!data/derived/soil/llm/full_text/README.md
+data/derived/soil/llm/*csv
 data/derived/litter/stock/litter_stock.csv
 *.duckdb
 analysis/troubleshoot/cnp_ratios/*png

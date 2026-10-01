@@ -1,255 +1,477 @@
 #| ---
-#| title: Scoping LLM to parameterise soil constant parameters in VE
+#| title: Mine literature values for Virtual Ecosystem constants
 #|
 #| description: |
-#|   Use an existing DuckDB-backed RAG store built from the Virtual Ecosystem
-#|   repository to gather grounded context for soil constant data mining. This
-#|   script depends on the store created by rag.R and should only be run after
-#|   that derived artifact has been built.
+#|   Reads the deterministic parameter database built by
+#|   `analysis/soil/llm/extract_constant_metadata.R` and asks a language model to
+#|   propose empirically supported values for selected constants.
 #|
-#| VE_module: Soil
+#|   Code semantics are supplied deterministically rather than retrieved. Each
+#|   constant is accompanied by its declaration, units, default value, and the
+#|   functions that consume it, all extracted by static analysis. The model is
+#|   therefore asked only to search the literature, not to work out what the
+#|   constant means.
+#|
+#|   Constants are selected by `qualified_name` rather than bare name, because
+#|   several Virtual Ecosystem configuration classes declare attributes sharing
+#|   a name (for example `turnover_rate` on both `SoilEnzymeClass` and
+#|   `SoilMicrobialGroup`).
+#|
+#|   One structured request is issued per constant, so the workflow scales to
+#|   the full repository without a single prompt growing without bound.
+#|
+#| VE_module: All
 #|
 #| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
+#|   - name: ve_constant_usage.toml
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       Parameter database created by extract_constant_metadata.R, providing
+#|       constant metadata, classified usage sites, and function docstrings.
 #|   - name: virtual_ecosystem_repo.ragnar.duckdb
 #|     path: data/derived/soil/llm/
 #|     description: |
-#|       DuckDB RAG store created by rag.R and used as the grounding source for
-#|       retrieval during the chat workflow.
+#|       RAG store of Virtual Ecosystem documentation used to supply model
+#|       context during retrieval.
+#|   - name: soil_literature.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       RAG store of downloaded soil literature used as the only retrieval
+#|       source for empirical evidence.
 #|
 #| output_files:
+#|   - name: soil_constant_literature_values.csv
+#|     path: data/derived/soil/llm/
+#|     description: |
+#|       One row per constant-source pair, with the suggested value, units,
+#|       citation, and the analysed model commit for provenance.
 #|
 #| source_files:
 #|
 #| package_dependencies:
 #|   - ellmer
-#|   - ragnar
+#|   - tidyverse
+#|   - here
 #|   - glue
-#|   - reticulate
-#|   - reshape2
-#|   - tictoc
+#|   - RcppTOML
+#|   - cli
+#|   - ragnar
 #|
 #| usage_notes: |
-#|   Ensure rag.R has been run successfully before executing this script. The
-#|   chat workflow assumes the RAG store already exists and will connect to it
-#|   in read-only mode.
+#|   Run extract_constant_metadata.R, rag_ve.R, and rag_literature.R first.
+#|   Values returned by this script are unverified proposals: every citation and
+#|   unit conversion must be checked by hand before use.
 #| ---
 
+library(tidyverse)
 library(ellmer)
-library(ragnar)
+library(here)
 library(glue)
-library(reticulate)
-py_require("virtual_ecosystem")
+library(cli)
+library(ragnar)
 
-data_folder <- "data/derived/soil/llm"
+data_folder <- here("data/derived/soil/llm")
 
 
-# Constant list ----------------------------------------------------------
-# Start with a small subset of candidate constants for scoping
+# Read the parameter database --------------------------------------------
 
-# Import SoilConstants from the installed virtual_ecosystem package
-soil_config_module <- import("virtual_ecosystem.models.soil.model_config")
-SoilConstants <- soil_config_module$SoilConstants
-
-# Instantiate SoilConstants with default values
-soil_constants <- SoilConstants()
-
-# Extract all constant names and values
-constants_list <-
-  py_to_r(soil_constants$model_dump()) |>
-  reshape2::melt()
-
-# Manually pick a few candidate constants
-candidate_constants <- c(
-  "maom_desorption_rate",
-  "lmwc_sorption_rate",
-  "litter_leaching_fraction_carbon",
-  "litter_leaching_fraction_nitrogen",
-  "litter_leaching_fraction_phosphorus",
-  "necromass_decay_rate"
+# `escape = FALSE` is required. RcppTOML's default re-escapes control
+# characters, so newlines inside the model docstrings arrive as a literal
+# backslash-n and render as one unreadable line in the prompt.
+constant_database <- RcppTOML::parseTOML(
+  file.path(data_folder, "ve_constant_usage.toml"),
+  escape = FALSE
 )
 
-# Format candidate constants as a bullet list
-candidate_list <- glue_collapse(
-  glue("  - {candidate_constants}"),
-  sep = "\n"
-)
+ve_commit <- constant_database$metadata$project_commit
+function_docs <- constant_database$functions
+constants <- constant_database$constants
 
 
-# Retrieve RAG store -----------------------------------------------------
+# Select constants to assess ---------------------------------------------
 
-# Make sure that Ollama is running
+# Constants are keyed by qualified name (module.Class.attribute), which is
+# unique. Bare names are not: `turnover_rate`, `c_n_ratio`, `constants` and
+# `static` are each declared on several configuration classes.
+# candidate_constants <- c(
+#   # constants with high uncertainty
+#   "maom_desorption_rate",
+#   "lmwc_sorption_rate",
+#   "litter_leaching_fraction_carbon",
+#   "litter_leaching_fraction_nitrogen",
+#   "litter_leaching_fraction_phosphorus",
+#   "necromass_decay_rate",
+#   # constants for groundtruthing or benchmarking
+#   "free_living_N_fixation_q10_coefficent",
+#   "microbial_water_response_curvature",
+#   "nitrification_optimum_temperature",
+#   "nitrification_thermal_sensitivity",
+#   "denitrification_thermal_sensitivity",
+#   "nitrogen_fixation_cost_thermal_sensitivity"
+# )
+# candidate_constants <- paste0(
+#   "virtual_ecosystem.models.soil.model_config.SoilConstants.",
+#   candidate_constants
+# )
+# stopifnot(all(candidate_constants %in% names(constants)))
 
-store_location <- file.path(data_folder, "virtual_ecosystem_repo.ragnar.duckdb")
-store <- ragnar_store_connect(store_location, read_only = TRUE)
+candidate_constants <- constants |>
+  keep(
+    ~ .x$class_name %in%
+      c("SoilConstants", "SoilEnzymeClass", "SoilMicrobialGroup")
+  ) |>
+  names()
 
-# test the retrieval
-# test_chunks <- ragnar_retrieve(store, "What is reference_cue_logit")
-# cat(test_chunks$text)
+
+# Build the deterministic context for one constant -----------------------
+
+# Render the usage sites of a constant as a readable block. Consumers are
+# resolved through the shared function table, so each docstring appears once
+# per prompt rather than once per site.
+format_usage <- function(record) {
+  if (length(record$referenced_in) == 0) {
+    return("  (no usage sites found in the model code)")
+  }
+
+  record$referenced_in |>
+    map_chr(\(site) {
+      consumer <- site$consumer
+      target <- if (nzchar(consumer)) consumer else site$caller
+      doc <- function_docs[[target]] %||% ""
+
+      glue(
+        "- {site$usage_kind} at {site$file}:{site$line}",
+        "    expression: {site$expression}",
+        "    used by   : {target}",
+        "    which does: {doc}",
+        .sep = "\n"
+      )
+    }) |>
+    paste(collapse = "\n")
+}
+
+# Assemble everything known about a constant from static analysis alone.
+format_constant <- function(qualified_name) {
+  record <- constants[[qualified_name]]
+
+  glue(
+    "
+    Constant      : {record$name}
+    Qualified name: {record$qualified_name}
+    Declared in   : {record$file}:{record$line} (class {record$class_name})
+    Declaration   : {record$declaration}
+    Default value : {record$default_expression}
+    Type          : {record$type_annotation}
+
+    Documentation (verbatim from the model source):
+    {record$docstring}
+
+    Where this constant is used:
+    {format_usage(record)}
+    "
+  )
+}
+
 
 # Prompt -----------------------------------------------------------------
 
-prompt <- glue(
+system_prompt <-
   "
-  You are an expert soil biogeochemist helping parameterise a process-based ecosystem model.
+  You are an expert ecosystem biogeochemist helping parameterise the
+  `virtual_ecosystem` process-based model from published literature.
 
-  Your task is to assess soil constants for `virtual_ecosystem`, using the repository RAG store as the authoritative source for understanding what each constant represents and how it is used.
+  <task>
+  You are given complete, verified information about one model constant,
+  extracted directly from the model source code by static analysis. The
+  meaning, units, default value, and usage of the constant are already
+  established and are not in question.
 
-  <context>
-  The target model is `virtual_ecosystem`, a Python ecosystem model intended to simulate major ecosystem processes including plants, microclimate, hydrology, soils, animals, and microbes.
+  Your only task is to propose values supported by published empirical
+  literature.
+  </task>
 
-  The repo RAG store was built from a checkout of the repository and is the main grounding source for code-level meaning. It includes model code, docs, and configuration or schema files.
-  </context>
+  <retrieval>
+  Two retrieval tools are available.
 
-  <scope>
-  Restrict your analysis to ONLY the following constants:
-  {candidate_list}
+  The Virtual Ecosystem documentation retrieval tool provides supporting
+  context about model terminology, documented behaviour, and process context.
+  Use it only to understand how the model uses the constant.
 
-  Do not assess any other constants. Focus exclusively on these
-  {length(candidate_constants)} parameters.
-  </scope>
+  The soil literature retrieval tool provides the only permitted empirical
+  evidence for proposed values. Use it to find literature snippets, quotes,
+  and source metadata relevant to the constant.
+
+  Treat retrieved Virtual Ecosystem documentation as model context, not as
+  empirical evidence. Treat retrieved soil literature as the only allowable
+  source of empirical values.
+  </retrieval>
 
   <evidence_policy>
-  Treat the repo RAG store as the source of truth for:
-  - what each constant represents
-  - where in the soil model it is used
-  - what process it belongs to
-  - what units, bounds, or transformations are implied by the implementation or documentation
+  The supplied code context is authoritative for what the constant means, its
+  units, and the process it belongs to. Do not contradict it or speculate
+  beyond it.
 
-  Use external literature only for recommended numerical values and their justification. Do not use repo code, repo docs, or preset values as authority for the recommended number itself.
+  The supplied default value is NOT evidence. Model documentation frequently
+  states that a default was chosen for convenience rather than measured. Never
+  return the default value back as a recommendation.
+
+  Do NOT use online search, web search, browsing, or prior knowledge as
+  evidence. Every suggested value, range, quote, DOI, and citation field must
+  come from the retrieved soil literature context. If a citation field is not
+  present in the retrieved literature context, leave it empty rather than
+  guessing.
+
+  If the retrieved soil literature does not find a suitable source, or if the
+  source does not report this quantity specifically enough to support a
+  conversion, report status `no_evidence` rather than constructing a
+  plausible-looking value or citation. A fabricated or weakly grounded
+  citation is far more damaging than an admission of uncertainty, because it
+  will be acted upon.
   </evidence_policy>
 
-  <workflow>
-  For each constant, retrieve repository context before deciding what the constant means. Prefer multiple targeted retrievals over one broad guess. Use the constant name, nearby module or script names to triangulate the right code path.
-  </workflow>
+  <units>
+  Report values in the units implied by the code context. If a source uses
+  different units or a differently parameterised functional form, convert
+  explicitly, state the conversion factor, and show the reasoning.
 
-  <instructions>
-  For each of the specified constants:
-  1. Use repo RAG retrieval first to determine the constant's role in the soil model, its units, and how it is used in the code.
-  2. Identify the most defensible unit from repository evidence.
-  3. Recommend a plausible value only if supported by a real external source.
-  4. If multiple plausible literature values exist for materially different conditions or sources, return one row per source.
-  5. If the repository semantics remain ambiguous, or no supported external value can be found, return `NA` in every field other than `name` and explain the ambiguity in `rationale`.
-  </instructions>
+  For constants declared on SoilMicrobialGroup, provide group-specific
+  estimates for all four microbial groups (bacteria, saprotrophic_fungi,
+  arbuscular_mycorrhiza, ectomycorrhiza) rather than a pooled or mean value.
 
-  <research_rules>
-  Ground every recommendation in a real external source. Do not invent citations. Preserve uncertainty when the literature is mixed or only indirectly applicable.
+  For constants declared on SoilEnzymeClass, provide source-specific estimates
+  for both enzyme source groups (bacteria and fungi) rather than a pooled or
+  mean value.
+  </units>
 
-  Use repository evidence to avoid matching a constant to the wrong process. Pay close attention to whether the constant is a rate, fraction, threshold, half-saturation term, logit-scale parameter, modifier, or empirical coefficient.
+  <uncertainty>
+  Give a plausible range wherever the literature supports one; a process model
+  needs ranges for sensitivity analysis more than it needs point estimates.
 
-  Pay close attention to units. Report values in units consistent with the repository-grounded interpretation of the constant. If the source uses different units or a differently parameterised form, convert it carefully and explain the conversion or mapping.
+  Record the measurement conditions, including soil type, temperature, biome,
+  and method. A kinetic rate without its measurement temperature cannot be
+  used.
 
-  Do not simply echo a default or preset model value. When repo semantics and the literature do not line up cleanly, say so rather than forcing a value.
-  </research_rules>
+  If several sources disagree materially, return one row per source rather
+  than averaging them.
+  </uncertainty>
 
-  <output_format>
-  Return a table with one row per constant-source pair, using these columns in this order:
-  - `name`
-  - `suggested_value`
-  - `unit`
-  - `source_type`
-  - `citation`
-  - `year`
-  - `url_or_doi`
-  - `original_value_reported`
-  - `conversion_or_interpretation_notes`
-  - `relevance_to_model`
-  - `confidence`
-  - `rationale`
-  </output_format>
-
-  <final_checks>
-  Before finalizing, verify that:
-  - the cited source is external to the repository
-  - the recommended number is not merely a repository preset value repeated back
-  - units are internally consistent
-  - uncertainty is proportional to the evidence
-  - you have assessed only and all of the constants in the specified scope
-  </final_checks>
-
-  Think carefully, retrieve before concluding, and prefer `NA` over an unsupported value.
+  <confidence>
+  high   : direct measurement of this exact quantity, same units, comparable
+           system
+  medium : conversion required, or conditions differ somewhat
+  low    : inferred by analogy, or the source measures a related quantity
+  </confidence>
   "
-)
 
-# Define target output classes and types
+user_prompt <- function(qualified_name) {
+  glue(
+    "
+    Propose literature-supported values for the following model constant.
+
+    <constant>
+    {format_constant(qualified_name)}
+    </constant>
+    "
+  )
+}
+
+
+# Structured output ------------------------------------------------------
+
 type_output <- type_array(
   type_object(
-    name = type_enum(
-      candidate_constants,
-      "Name of the constant.",
+    status = type_enum(
+      c("value_found", "no_evidence"),
+      "Whether a specific published source could be recalled.",
+      required = TRUE
+    ),
+    rationale = type_string(
+      paste(
+        "Why this value is appropriate, or if status is no_evidence,",
+        "what is missing and what evidence would resolve it."
+      ),
       required = TRUE
     ),
     suggested_value = type_number(
-      "Suggested value of the constant.",
+      "Suggested value, in the units implied by the code context.",
+      required = FALSE
+    ),
+    value_low = type_number(
+      "Lower end of the plausible range.",
+      required = FALSE
+    ),
+    value_high = type_number(
+      "Upper end of the plausible range.",
       required = FALSE
     ),
     unit = type_string(
-      "Unit or dimension of the constant value.",
+      "Unit of the suggested value, matching the code context.",
       required = FALSE
     ),
-    source_type = type_string(
-      "Type of source, e.g. empirical study, review, dataset, or model paper.",
+    original_value = type_number(
+      "Value exactly as reported by the source, before conversion.",
       required = FALSE
     ),
-    citation = type_string(
-      "External literature or dataset citation.",
+    original_unit = type_string(
+      "Unit as reported by the source.",
       required = FALSE
     ),
-    year = type_integer(
-      "Publication year of the cited source.",
+    conversion_factor = type_number(
+      "Multiplicative factor taking the original value to the suggested value.",
       required = FALSE
     ),
-    url_or_doi = type_string(
-      "Resolvable URL or DOI for the cited source.",
+    conversion_notes = type_string(
+      "How the conversion or functional-form mapping was performed.",
       required = FALSE
     ),
-    original_value_reported = type_string(
-      "Original reported value from the source before any conversion.",
+    quote = type_string(
+      paste(
+        "Verbatim sentence or table entry from the source that states the",
+        "value. Leave empty if it cannot be recalled exactly."
+      ),
       required = FALSE
     ),
-    conversion_or_interpretation_notes = type_string(
-      "Notes on unit conversion or interpretation.",
+    citation_authors = type_string(
+      "Author list of the source.",
       required = FALSE
     ),
-    relevance_to_model = type_string(
-      "How the source maps to the model constant.",
+    citation_title = type_string("Title of the source.", required = FALSE),
+    citation_journal = type_string(
+      "Journal or publisher of the source.",
+      required = FALSE
+    ),
+    citation_year = type_integer("Publication year.", required = FALSE),
+    doi = type_string(
+      "DOI of the source. Leave empty rather than guessing.",
+      required = FALSE
+    ),
+    source_type = type_enum(
+      c(
+        "empirical study",
+        "review",
+        "dataset",
+        "model paper",
+        "textbook",
+        "other"
+      ),
+      "Type of source.",
+      required = FALSE
+    ),
+    measurement_conditions = type_string(
+      "Soil type, temperature, biome, and method used in the source.",
       required = FALSE
     ),
     confidence = type_enum(
       c("low", "medium", "high"),
-      "Confidence rating for the suggested value.",
-      required = FALSE
-    ),
-    rationale = type_string(
-      "Brief explanation of why the value is plausible.",
+      "Confidence, following the rubric in the system prompt.",
       required = FALSE
     )
   )
 )
 
-# Prompt the LLM ---------------------------------------------------------
-chat <- chat_openai_compatible(
+
+# Query the model --------------------------------------------------------
+
+# Open the existing Virtual Ecosystem documentation RAG store and the soil
+# literature RAG store, then register both retrieval tools on the main chat
+# object before issuing any requests.
+ve_rag_store <- ragnar_store_connect(
+  file.path(data_folder, "virtual_ecosystem_repo.ragnar.duckdb")
+)
+literature_rag_store <- ragnar_store_connect(
+  file.path(data_folder, "soil_literature.ragnar.duckdb")
+)
+
+# One request per constant. This keeps each prompt small and focused, and lets
+# the workflow scale to the full repository by extending candidate_constants.
+# A map-based serial loop is used deliberately rather than
+# ellmer::parallel_chat_structured(): parallel requests would likely improve
+# throughput, but speed is not a priority here, and serial execution is less
+# likely to hit provider-side rate limits while staying simple to debug.
+chat <- chat_openai(
   base_url = "https://ellmer.openai.azure.com/openai/v1",
-  model = "gpt-5.6-terra"
+  model = "gpt-5.6-sol",
+  system_prompt = system_prompt
 )
-# Increase top_k to 10 later
-ragnar_register_tool_retrieve(chat, store, top_k = 3)
-
-# quick check about the knowledge store
-chat$chat(
-  "Tell me what you know about the constant parameter `maom_desorption_rate`.
-   Respond in GitHub flavoured Markdown format."
+ragnar_register_tool_retrieve(
+  chat,
+  ve_rag_store,
+  top_k = 10,
+  description = "Virtual Ecosystem documentation"
+)
+ragnar_register_tool_retrieve(
+  chat,
+  literature_rag_store,
+  top_k = 10,
+  description = "Soil literature full text"
 )
 
-# Run a general chat first for tool calling (RAG)
-tictoc::tic()
-constant_search <- chat$chat(prompt)
-tictoc::toc()
+constant_values <-
+  candidate_constants |>
+  set_names() |>
+  (\(constant_names) {
+    progress_id <- cli_progress_bar(
+      format = "Querying literature values for constants [{cli::pb_current}/{cli::pb_total}]",
+      total = length(constant_names)
+    )
 
-# Run a second chat to extract structured data
-tictoc::tic()
-constant_search_structured <- chat$chat_structured(type = type_output)
-tictoc::toc()
+    map(constant_names, \(qualified_name) {
+      cli_progress_update(id = progress_id, force = TRUE)
+
+      result <- chat$clone()$chat_structured(
+        user_prompt(qualified_name),
+        type = type_output,
+        echo = "none"
+      )
+
+      result
+    })
+  })()
+
+
+# Assemble and save ------------------------------------------------------
+
+constant_values_table <-
+  constant_values |>
+  imap(\(rows, qualified_name) {
+    if (length(rows) == 0) {
+      return(NULL)
+    }
+    as_tibble(rows) |>
+      mutate(qualified_name = qualified_name, .before = 1)
+  }) |>
+  list_rbind() |>
+  mutate(
+    name = constants[qualified_name] |> map_chr("name"),
+    model_default = constants[qualified_name] |>
+      map_chr("default_expression"),
+    ve_commit = ve_commit,
+    retrieved_at = Sys.time(),
+    .after = qualified_name
+  )
+
+write_csv(
+  constant_values_table,
+  file.path(data_folder, "soil_constant_literature_values.csv")
+)
+
+# Flag rows needing human checking ---------------------------------------
+
+# These checks catch citation rows that still need human review, even though
+# retrieval is restricted to the local literature store.
+constant_values_table |>
+  mutate(
+    missing_doi = status == "value_found" & (is.na(doi) | doi == ""),
+    missing_quote = status == "value_found" & (is.na(quote) | quote == ""),
+    echoes_default = !is.na(suggested_value) &
+      map2_lgl(suggested_value, model_default, \(value, default) {
+        parsed <- suppressWarnings(as.numeric(default))
+        !is.na(parsed) && isTRUE(all.equal(value, parsed))
+      })
+  ) |>
+  filter(missing_doi | missing_quote | echoes_default) |>
+  select(name, suggested_value, missing_doi, missing_quote, echoes_default)
