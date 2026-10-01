@@ -1219,6 +1219,24 @@ var.def.nc(nc, "y", "NC_DOUBLE", "y")
 var.def.nc(nc, "pft", "NC_STRING", "pft")
 var.def.nc(nc, "element", "NC_STRING", "element")
 
+# xarray needs an explicit fill attribute to decode missing N/P values; without it,
+# the default fill number is read as biomass instead of allowing ideal ratios to apply.
+fill_value <- 9.969209968386869e36
+att.put.nc(
+  nc,
+  "subcanopy_vegetation_cnp",
+  "_FillValue",
+  "NC_FLOAT",
+  fill_value
+)
+att.put.nc(
+  nc,
+  "subcanopy_seedbank_cnp",
+  "_FillValue",
+  "NC_FLOAT",
+  fill_value
+)
+
 # Write the data to variables
 var.put.nc(nc, "plant_pft_propagules", plant_pft_propagules)
 var.put.nc(nc, "subcanopy_vegetation_cnp", veg_matrix)
