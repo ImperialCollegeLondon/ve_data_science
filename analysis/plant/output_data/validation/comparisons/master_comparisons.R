@@ -18,6 +18,7 @@
 #|
 #| scripts:
 #|   - path: analysis/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.R
 #|
 #| output_files:
 #|   - name: master_comparisons_metadata.yml
@@ -159,7 +160,8 @@ write_metadata_summary <- function(metadata_summary) {
 }
 
 scripts <- c(
-  "realised_tissue_productivity_comparison_maliau_2.R"
+  "realised_tissue_productivity_comparison_maliau_2.R",
+  "tree_standing_carbon_mass_comparison_maliau_2.R"
 )
 
 n_scripts <- length(scripts)

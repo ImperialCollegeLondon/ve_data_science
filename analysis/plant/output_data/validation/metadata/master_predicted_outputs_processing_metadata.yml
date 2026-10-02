@@ -206,7 +206,13 @@ scripts:
       units: ISO 8601 date
       spatial_extent: Single Maliau-2 grid cell.
       temporal_extent: Exact model timestep.
-      description: Model date derived from start date and time index.
+      description: Timestep end date; timestep zero ends after one interval.
+    - name: interval_start_time
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Start of the model timestep.
+      description: Model date at the start of the timestep.
     - name: time_index
       type: integer
       units: dimensionless

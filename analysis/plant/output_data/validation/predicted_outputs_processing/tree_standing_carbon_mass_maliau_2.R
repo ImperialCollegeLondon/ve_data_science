@@ -60,7 +60,13 @@
 #|         units: ISO 8601 date
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Exact model timestep.
-#|         description: Model date derived from start date and time index.
+#|         description: Timestep end date; timestep zero ends after one interval.
+#|       - name: interval_start_time
+#|         type: date
+#|         units: ISO 8601 date
+#|         spatial_extent: Single Maliau-2 grid cell.
+#|         temporal_extent: Start of the model timestep.
+#|         description: Model date at the start of the timestep.
 #|       - name: time_index
 #|         type: integer
 #|         units: dimensionless
@@ -292,7 +298,8 @@ plants_cohort_data[, n_individuals := as.numeric(n_individuals)]
 plants_cohort_data[, stem_c_biomass := as.numeric(stem_c_biomass)]
 plants_cohort_data[, foliage_c_biomass := as.numeric(foliage_c_biomass)]
 plants_cohort_data[,
-  exact_time := simulation_start_date + time_index * timestep_interval_in_days
+  exact_time := simulation_start_date +
+    (time_index + 1) * timestep_interval_in_days
 ]
 
 cell_mass <- plants_cohort_data[,
@@ -301,6 +308,10 @@ cell_mass <- plants_cohort_data[,
     foliage_c_mass = sum(foliage_c_biomass * n_individuals, na.rm = TRUE)
   ),
   by = .(cell_id, exact_time, time_index)
+]
+cell_mass[,
+  interval_start_time := simulation_start_date +
+    time_index * timestep_interval_in_days
 ]
 
 # Standardise cell totals to kg C ha-1 ---------------------------------------
@@ -474,6 +485,7 @@ predicted_data <- predicted_data[, .(
   cell_x,
   cell_y,
   exact_time,
+  interval_start_time,
   time_index,
   stem_c_mass_kg_ha,
   foliage_c_mass_kg_ha,
