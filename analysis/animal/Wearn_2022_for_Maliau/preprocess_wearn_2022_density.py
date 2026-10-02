@@ -40,15 +40,17 @@ package_dependencies:
   - pandas
 
 usage_notes: |
-  This file currently contains only Phase 1 setup.
+  This file currently includes Phase 1 setup and Phase 2 source parsing.
 
-  In Phase 2+, parsing and transformation logic will be added. Update the
+  Update the
   species_to_fg_template table in this script by filling the
   functional_group_level5_name values before final output generation.
 ---
 """  # noqa: D205, D212, D400, D415
 
 from pathlib import Path
+
+import pandas as pd
 
 module_name = "animal"
 repo_root = Path(__file__).resolve().parents[3]
@@ -143,7 +145,48 @@ settings = {
     "species_to_fg_template": species_to_fg_template,
 }
 
-
+# Run this code to create the output directory and print the settings.
+# this code block below only runs when the script is executed directly
 if __name__ == "__main__":
     output_dir.mkdir(parents=True, exist_ok=True)
     print(settings)
+
+    # Import and read the Wearn 2022 density data
+    wearn_table = pd.read_csv(
+        input_file,
+        header=None,
+        skiprows=10,
+        # Get only the relevant columns for density in old growth
+        usecols=[0, 1, 8, 9],
+        # Rename the columns for clarity
+        names=[
+            "species_common_name",
+            "species_scientific_name",
+            "density_sample_size_n",
+            "density_old_growth_text",
+        ],
+        dtype="string",
+    )
+
+    # Filter out rows with missing or empty species_common_name
+    wearn_table = wearn_table[
+        wearn_table["species_common_name"].notna()
+        & (wearn_table["species_common_name"] != "")
+    ].copy()
+
+    wearn_table["density_sample_size_n"] = pd.to_numeric(
+        wearn_table["density_sample_size_n"].str.strip(),
+        errors="coerce",
+    )
+
+    print(f"Phase 2 parsed rows: {len(wearn_table)}")
+    print(
+        wearn_table[
+            [
+                "species_common_name",
+                "species_scientific_name",
+                "density_sample_size_n",
+                "density_old_growth_text",
+            ]
+        ].head(5)
+    )
