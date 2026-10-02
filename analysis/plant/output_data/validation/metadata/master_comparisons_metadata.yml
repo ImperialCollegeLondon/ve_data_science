@@ -1,6 +1,6 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-09-22'
+generated_on: '2026-10-02'
 scripts:
 - script_path: realised_tissue_productivity_comparison_maliau_2.R
   title: realised_tissue_productivity_comparison_maliau_2
@@ -31,3 +31,40 @@ scripts:
     The comparison is driven by the realised_tissue_productivity_mapping_maliau_2.yml file.
     To add or remove variables from this comparison, update the contract
     YAML; no changes are required to this script.
+- script_path: tree_standing_carbon_mass_comparison_maliau_2.R
+  title: tree_standing_carbon_mass_comparison_maliau_2
+  description: |
+    Compares observed plot-level tree standing carbon mass with Virtual
+    Ecosystem cell-level stem and foliage carbon mass for Maliau-2. Each
+    comparison row represents one observed plot, one overlapping VE cell,
+    and one actual census date.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: wip
+  input_files:
+  - name: tree_standing_carbon_mass_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Observed plot carbon mass, coordinates, and census dates.
+  - name: tree_standing_carbon_mass_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: VE cell-time standing carbon mass.
+  - name: tree_standing_carbon_mass_mapping_maliau_2.yml
+    path: analysis/plant/output_data/validation/variable_mapping
+    description: Observed-to-predicted variable and date mappings.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid geometry and cell dimensions.
+  output_files:
+  - name: tree_standing_carbon_mass_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      Row-level observed and predicted stem and foliage carbon mass
+      comparisons for each plot-cell-date combination.
+  package_dependencies:
+  - data.table
+  - sf
+  - toml
+  - yaml
+  usage_notes: |
+    Observed plot values are repeated for every VE cell intersecting the plot
+    footprint. These repeated comparison rows are not independent observations.

@@ -33,7 +33,8 @@ library(knitr)
 
 # List of all plant comparison output files to track
 comparison_files <- c(
-  "../../../../../data/derived/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.csv"
+  "../../../../../data/derived/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.csv",
+  "../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv"
 )
 
 output_md_path <- "../../../../../docs/plant_validation_tracker.md"
