@@ -1,0 +1,23 @@
+schema_version: 1
+record_id: doi-10-1111-btp-12517
+doi: 10.1111/btp.12517
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: Contains deadwood volume, but no additional in-situ data to convert volume
+    to deadwood carbon stock. If we do use this dataset later, need to check against
+    any duplication with SAFE datasets.
+  screened_at: '2026-09-18T02:09:18Z'
+metadata:
+  title: Strong but taxon‐specific responses of termites and wood‐nesting ants to
+    forest regeneration in Borneo
+  authors:
+  - Kimber, Annie
+  - Eggleton, Paul
+  year: 2017
+  journal: Biotropica
+  publisher: Wiley
+  url: http://dx.doi.org/10.1111/btp.12517
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T02:08:22Z'

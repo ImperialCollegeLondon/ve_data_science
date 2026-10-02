@@ -1,0 +1,9 @@
+# Plant validation Overview
+
+This table summarizes all completed plant validation comparisons.
+
+|   |observed_variable |predicted_variable          |observed_period    |predicted_period   |observed_spatial_extent                      |predicted_spatial_extent |observed_temporal_extent                                                         |predicted_temporal_extent                                                  |observed_units   |predicted_units  |
+|:--|:-----------------|:---------------------------|:------------------|:------------------|:--------------------------------------------|:------------------------|:--------------------------------------------------------------------------------|:--------------------------------------------------------------------------|:----------------|:----------------|
+|1  |WoodyNPP_Stem     |stem_c_productivity_mean    |2011-08 to 2018-07 |2011-08 to 2018-07 |One value for MLA-01 and MLA-02 plots, each. |Pooled across all cells. |Single value averaged over the measurement period (see period_start/period_end). |Pooled across all timesteps from start month 2011-08 to end month 2018-07. |Mg C ha-1 year-1 |Mg C ha-1 year-1 |
+|3  |CanopyNPP_Leaf    |foliage_c_productivity_mean |2011-08 to 2018-07 |2011-08 to 2018-07 |One value for MLA-01 and MLA-02 plots, each. |Pooled across all cells. |Single value averaged over the measurement period (see period_start/period_end). |Pooled across all timesteps from start month 2011-08 to end month 2018-07. |Mg C ha-1 year-1 |Mg C ha-1 year-1 |
+|5  |FineRootNPP       |root_c_productivity_mean    |2011-08 to 2018-07 |2011-08 to 2018-07 |One value for MLA-01 and MLA-02 plots, each. |Pooled across all cells. |Single value averaged over the measurement period (see period_start/period_end). |Pooled across all timesteps from start month 2011-08 to end month 2018-07. |Mg C ha-1 year-1 |Mg C ha-1 year-1 |

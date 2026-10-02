@@ -73,11 +73,11 @@
 #|         assumptions: |
 #|           PFT names are inherited from pfts_maliau.csv and identify the plant
 #|           functional type associated with each output record.
-#|       - name: deadwood_c_n_ratio
+#|       - name: stem_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
-#|           Carbon-to-nitrogen ratio for sapwood / deadwood tissue.
+#|           Carbon-to-nitrogen ratio for stem tissue.
 #|         references:
 #|           - citation: "Inagawa et al. (2023)"
 #|             doi: "https://doi.org/10.5281/zenodo.8158811"
@@ -88,11 +88,11 @@
 #|             site_condition: "old-growth and selectively logged"
 #|             date: "2011-2020"
 #|         assumptions: "Calculated from sapwood nutrient concentrations and averaged across the limited species sample rather than by PFT."
-#|       - name: deadwood_c_p_ratio
+#|       - name: stem_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
-#|           Carbon-to-phosphorus ratio for sapwood / deadwood tissue.
+#|           Carbon-to-phosphorus ratio for stem tissue.
 #|         references:
 #|           - citation: "Inagawa et al. (2023)"
 #|             doi: "https://doi.org/10.5281/zenodo.8158811"
@@ -183,7 +183,7 @@
 #|           dataset and converted from a dry-mass basis to a carbon-mass basis
 #|           using the lignin carbon-content value reported by Muddasar et al.
 #|           (2024).
-#|       - name: leaf_turnover_c_n_ratio
+#|       - name: foliage_turnover_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
@@ -198,7 +198,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Derived from foliage C:N using a fixed nitrogen resorption efficiency rather than direct senesced leaf measurements."
-#|       - name: leaf_turnover_c_p_ratio
+#|       - name: foliage_turnover_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
@@ -258,7 +258,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Based on combined reproductive-organ litter fractions from selected Kitayama sites, so flowers, fruits and seeds are not separated."
-#|       - name: plant_reproductive_tissue_turnover_c_n_ratio
+#|       - name: fruit_seed_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
@@ -273,7 +273,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Derived from mature fruit values for Dipterocarpus tempehes and used as a proxy for propagule tissue."
-#|       - name: plant_reproductive_tissue_turnover_c_p_ratio
+#|       - name: fruit_seed_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
@@ -303,7 +303,7 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Calculated from mature fruit dry mass and carbon percentage for Dipterocarpus tempehes, after subtracting the estimated carbon mass of one seed."
-#|       - name: c_mass_per_fruit_seed
+#|       - name: c_mass_fruit_seed
 #|         type: numeric
 #|         units: g C
 #|         description: |
@@ -394,11 +394,11 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Calculated as the mean across several flower developmental stages for Dipterocarpus tempehes."
-#|       - name: root_turnover_c_n_ratio
+#|       - name: root_c_n_ratio
 #|         type: numeric
 #|         units: g C g^-1 N
 #|         description: |
-#|           Carbon-to-nitrogen ratio for fine root turnover material.
+#|           Carbon-to-nitrogen ratio for fine root tissue.
 #|         references:
 #|           - citation: "Imai et al. (2010)"
 #|             doi: "https://doi.org/10.1017/S0266467410000350"
@@ -409,11 +409,11 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: "Used directly from fine-root stoichiometry values rather than derived separately for turnover material."
-#|       - name: root_turnover_c_p_ratio
+#|       - name: root_c_p_ratio
 #|         type: numeric
 #|         units: g C g^-1 P
 #|         description: |
-#|           Carbon-to-phosphorus ratio for fine root turnover material.
+#|           Carbon-to-phosphorus ratio for fine root tissue.
 #|         references:
 #|           - citation: "Imai et al. (2010)"
 #|             doi: "https://doi.org/10.1017/S0266467410000350"
@@ -1297,27 +1297,27 @@ names(summary)
 
 colnames(summary) <- c(
   "pft_name",
-  "deadwood_c_n_ratio",
-  "deadwood_c_p_ratio",
+  "stem_c_n_ratio",
+  "stem_c_p_ratio",
   "stem_lignin",
   "foliage_c_n_ratio",
   "foliage_c_p_ratio",
   "leaf_lignin",
-  "leaf_turnover_c_n_ratio",
-  "leaf_turnover_c_p_ratio",
+  "foliage_turnover_c_n_ratio",
+  "foliage_turnover_c_p_ratio",
   "senesced_leaf_lignin",
   "reproductive_organ_CN", # not required anymore but kept for comparison
   "reproductive_organ_CP", # not required anymore but kept for comparison
-  "plant_reproductive_tissue_turnover_c_n_ratio", # old "mature_fruit_c_n_ratio"
-  "plant_reproductive_tissue_turnover_c_p_ratio", # old "mature_fruit_c_p_ratio"
+  "fruit_seed_c_n_ratio", # old "mature_fruit_c_n_ratio"
+  "fruit_seed_c_p_ratio", # old "mature_fruit_c_p_ratio"
   "c_mass_fruit_flesh", # old "mature_fruit_c_mass"
-  "c_mass_per_fruit_seed", # old "carbon_mass_per_propagule"
+  "c_mass_fruit_seed", # old "carbon_mass_per_propagule"
   "seeds_per_fruit",
   "plant_reproductive_tissue_lignin",
   "flower_c_n_ratio",
   "flower_c_p_ratio",
-  "root_turnover_c_n_ratio",
-  "root_turnover_c_p_ratio",
+  "root_c_n_ratio",
+  "root_c_p_ratio",
   "root_lignin"
 )
 

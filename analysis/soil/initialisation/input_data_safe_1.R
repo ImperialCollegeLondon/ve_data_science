@@ -324,14 +324,14 @@ dat <-
 
 
 # Fungal fruiting body biomass:
-# fungal_fruiting_bodies
+# fungal_fruiting_bodies_cnp
 source("analysis/soil/sporocarp_biomass/sporocarp_biomass.R")
 
 # simulate and add directly to dataset
 dat <-
   dat |>
   mutate(
-    fungal_fruiting_bodies = rnorm(
+    fungal_fruiting_bodies_cnp = rnorm(
       n_sim,
       sporocarp_biomass_mean,
       sporocarp_biomass_sd
