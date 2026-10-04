@@ -35,8 +35,8 @@ The project also expects local code quality checks to run before submission:
 ## Contributing code
 
 We expect all contributors to abide by our
-[Code of Conduct](CODE_OF_CONDUCT.md). The repository is organised around the
-following areas:
+[Code of Conduct](CODE_OF_CONDUCT.md).
+The repository is organised around the following areas:
 
 * `analysis/` for domain analysis and model parameterisation scripts
 * `tools/` for shared utility and helper code
