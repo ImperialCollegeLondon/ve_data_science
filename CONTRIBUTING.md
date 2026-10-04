@@ -7,14 +7,15 @@ and documentation.
 The structure of the data analysis workflows - and indeed the Virtual Ecosystem
 model itself - are currently changing rapidly and most of the live issues assume
 familiarity with day to day changes across two code bases. This makes it
-challenging to identify good "first issues" as the changes required for one issue
-often require discussion within our teams about other changes in the code base.
+challenging to identify good "first issues" as the changes required for one
+issue often require discussion within our teams about other changes in the code
+base.
 
-However, we do really appreciate interest in the development of this repository. If
-you have identified an issue with the code or have suggestions for new features
-or development then, at the moment, we request that you contact the core team
-to discuss issues and features rather than directly submitting pull requests to
-the code.
+However, we do really appreciate interest in the development of this repository.
+If you have identified an issue with the code or have suggestions for new
+features or development then, at the moment, we request that you contact the
+core team to discuss issues and features rather than directly submitting pull
+requests to the code.
 
 To make contributions easy to review and maintain, please follow the guidance
 below.
@@ -36,7 +37,11 @@ The project also expects local code quality checks to run before submission:
 
 * `uv run pre-commit run --all-files`
 * R test suite:
-  `Rscript -e "testthat::test_dir(here::here('tools/R/tests/testthat'), reporter='progress', stop_on_failure=TRUE)"`
+
+  ```bash
+  Rscript -e "testthat::test_dir(here::here('tools/R/tests/testthat'),
+  reporter='progress', stop_on_failure=TRUE)"
+  ```
 
 ## Contributing code
 
