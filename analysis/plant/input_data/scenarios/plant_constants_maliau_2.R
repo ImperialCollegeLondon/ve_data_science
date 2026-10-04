@@ -467,8 +467,8 @@ subcanopy_maliau <- read.csv(
 plant_constants_maliau_2 <- subset(
   subcanopy_maliau,
   select = -c(
-    subcanopy_vegetation_biomass,
-    subcanopy_seedbank_biomass
+    subcanopy_vegetation_c,
+    subcanopy_seedbank_c
   )
 )
 

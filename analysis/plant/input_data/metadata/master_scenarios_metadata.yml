@@ -1,6 +1,6 @@
 title: master_scenarios_metadata
 generated_by: analysis/plant/input_data/scenarios/master_scenarios.R
-generated_on: '2026-09-10'
+generated_on: '2026-10-01'
 scripts:
 - script_path: plant_cohort_data_maliau_2.R
   title: plant_cohort_data_maliau_2
@@ -319,7 +319,7 @@ scripts:
   title: plant_input_data_maliau_2
   description: |
     This script prepares the NetCDF file containing plant_pft_propagules,
-    subcanopy_vegetation_biomass and subcanopy_seedbank_biomass for the
+    subcanopy_vegetation_cnp and subcanopy_seedbank_cnp for the
     maliau_2 scenario.
   virtual_ecosystem_module: Plants
   author: Arne Scheire
@@ -375,16 +375,18 @@ scripts:
     path: data/scenarios/maliau/maliau_2/data
     description: |
       NetCDF file containing spatially distributed plant propagule and
-      subcanopy vegetation and seedbank carbon mass for the Maliau 2 scenario.
-      The file contains cell_id and pft dimensions; plant_pft_propagules is
-      stored over pft by cell_id, while the subcanopy variables are stored
-      over cell_id only.
+      subcanopy vegetation and seedbank C, N and P mass for the Maliau 2 scenario.
+      The values for N and P mass are currently set to NA, as the VE populates
+      these based on the subcanopy stoichiometric ratios provided.
+      The file contains cell_id, pft and element dimensions; plant_pft_propagules is
+      stored over pft by x and y, while the subcanopy variables are stored
+      over element by x and y.
     variables:
-    - name: cell_id
-      type: integer
-      units: dimensionless
+    - name: x
+      type: numeric
+      units: m
       description: |
-        Zero-based identifier for each scenario grid cell.
+        Easting coordinate representing the centre of each grid cell.
       references:
       - citation: maliau_grid_definition.toml
         doi: ~
@@ -395,10 +397,23 @@ scripts:
         site_condition: ~
         date: ~
       assumptions: |
-        Cell identifiers are assigned by matching each grid-cell centre's
-        coordinates to the scenario grid definition. The numbering starts
-        at the bottom-left cell, then proceeds from left to right within
-        each row and from bottom to top across rows.
+        epsg_code = 32650
+    - name: 'y'
+      type: numeric
+      units: m
+      description: |
+        Northing coordinate representing the centre of each grid cell.
+      references:
+      - citation: maliau_grid_definition.toml
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        epsg_code = 32650
     - name: pft
       type: character
       units: dimensionless
@@ -416,6 +431,22 @@ scripts:
       assumptions: |
         PFT categories are inherited from the scenario cohort distribution
         and define the pft dimension of the NetCDF file.
+    - name: element
+      type: character
+      units: dimensionless
+      description: |
+        Element name (C, N, or P).
+      references:
+      - citation: ~
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Values are provided for C only, with N and P set to NA.
     - name: plant_pft_propagules
       type: integer
       units: propagules cell-1
@@ -448,16 +479,18 @@ scripts:
         equivalent to a 1:1 tree-to-propagule relationship among PFTs. It
         therefore does not account for PFT-specific fecundity, tree size,
         size-dependent reproductive output, differences in size at
-        reproductive maturity, or episodic mast-fruiting events. Masting
+        reproductive maturity, or episodic masting-fruiting events. Masting
         may substantially change propagule production between years and
         may be especially important for emergent PFTs. These effects may
         cause propagule abundance to differ from standing tree abundance
         but are not parameterised here.
-    - name: subcanopy_vegetation_biomass
+    - name: subcanopy_vegetation_cnp
       type: numeric
-      units: kg C m-2
+      units: kg m-2
       description: |
         Spatially predicted subcanopy vegetation carbon mass per unit area.
+        Values for N and P are set to NA, as they are populated by VE based on
+        the subcanopy stoichiometric ratios provided.
       references:
       - citation: subcanopy_maliau.csv
         doi: ~
@@ -652,7 +685,7 @@ scripts:
         site_condition: ~
         date: ~
       assumptions: |
-        Observed plot-level biomass from the Dobert-derived input is joined
+        Observed plot-level carbon mass from the Dobert-derived input is joined
         to values extracted from every available LiDAR raster. A separate
         Gamma GLM with a log link is fitted for each candidate predictor,
         and the predictor with the highest R-squared is selected. For the
@@ -665,11 +698,13 @@ scripts:
         missing predictions are written as zero.
         The selected predictor should be re-evaluated when the script is
         reused with another calibration dataset or scenario.
-    - name: subcanopy_seedbank_biomass
+    - name: subcanopy_seedbank_cnp
       type: numeric
-      units: kg C m-2
+      units: kg m-2
       description: |
         Spatially distributed subcanopy seedbank carbon mass per unit area.
+        Values for N and P are set to NA, as they are populated by VE based on
+        the subcanopy stoichiometric ratios provided.
       references:
       - citation: subcanopy_maliau.csv
         doi: ~
@@ -680,9 +715,9 @@ scripts:
         site_condition: ~
         date: ~
       assumptions: |
-        Seedbank biomass is calculated for each cell by applying the
+        Seedbank carbon mass is calculated for each cell by applying the
         vegetation-to-seedbank ratio from subcanopy_maliau.csv to the
-        spatially predicted vegetation biomass. The ratio is assumed to be
+        spatially predicted vegetation carbon mass. The ratio is assumed to be
         constant across the scenario grid.
   package_dependencies:
   - RNetCDF
@@ -695,9 +730,9 @@ scripts:
   usage_notes: |
     Run from this script's directory because input and output paths are
     relative. The script currently targets the maliau_2 scenario and writes a
-    NetCDF file with cell and PFT dimensions. Propagules are distributed from
-    local cohort abundance, vegetation biomass is spatially predicted, and
-    seedbank biomass is derived from the vegetation-to-seedbank ratio.
+    NetCDF file with cell, pft and element dimensions. Propagules are distributed from
+    local cohort abundance, vegetation carbon mass is spatially predicted, and
+    seedbank carbon mass is derived from the vegetation-to-seedbank ratio.
 - script_path: plant_pft_definitions_maliau_2.R
   title: plant_pft_definitions_maliau_2
   description: |

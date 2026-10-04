@@ -1,14 +1,20 @@
 # Contributing to the Virtual Ecosystem Data Science
 
-We are glad you are thinking about contributing to this repository. It contains
-the data science workflows used to parameterise and run the Virtual Ecosystem
-model, including analysis code, utilities, tests, and documentation.
+This repository contains the data science workflows used to parameterise
+and run the Virtual Ecosystem model, including analysis code, utilities, tests,
+and documentation.
 
-Although this repository is public, we are not yet in a position to accept
-public contributions from outside our current team. We appreciate your interest
-and will make this clear publicly when we are ready to welcome broader
-contributions. For now, please do not submit unsolicited pull requests or code
-changes unless you are part of the current project team.
+The structure of the data analysis workflows - and indeed the Virtual Ecosystem
+model itself - are currently changing rapidly and most of the live issues assume
+familiarity with day to day changes across two code bases. This makes it
+challenging to identify good "first issues" as the changes required for one issue
+often require discussion within our teams about other changes in the code base.
+
+However, we do really appreciate interest in the development of this repository. If
+you have identified an issue with the code or have suggestions for new features
+or development then, at the moment, we request that you contact the core team
+to discuss issues and features rather than directly submitting pull requests to
+the code.
 
 To make contributions easy to review and maintain, please follow the guidance
 below.

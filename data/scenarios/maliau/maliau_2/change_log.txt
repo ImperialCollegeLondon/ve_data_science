@@ -1,5 +1,18 @@
 # Change log of maliau_2 scenario input data
 
+2026-09-28
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/config/plant_input_data_maliau_2.nc
+  - data/scenarios/maliau/maliau_2/config/plant_input_data_maliau_2_latest_release.nc
+- Changes made:
+  - Updated file and renamed previous version to "latest_release" for use in latest release
+  - plant_input_data_maliau_2.nc = to be used with VE develop version (new cnp array names and new x and y dimensions)
+  - plant_input_data_maliau_2_latest_release.nc = to be used with VE latest release version (old cell_id dimension)
+- References:
+  - PR #672
+
 2026-09-16
 - Module: Soil
 - Author: Hao Ran Lai
