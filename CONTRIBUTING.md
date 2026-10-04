@@ -6,12 +6,12 @@ and documentation.
 
 The structure of the data analysis workflows - and indeed the Virtual Ecosystem
 model itself - are currently changing rapidly and most of the live issues assume
-familiarity with day to day changes across two code bases. This makes it 
+familiarity with day to day changes across two code bases. This makes it
 challenging to identify good "first issues" as the changes required for one issue
 often require discussion within our teams about other changes in the code base.
 
-However, we do really appreciate interest in the development of this repository. If 
-you have identified an issue with the code or have suggestions for new features 
+However, we do really appreciate interest in the development of this repository. If
+you have identified an issue with the code or have suggestions for new features
 or development then, at the moment, we request that you contact the core team
 to discuss issues and features rather than directly submitting pull requests to
 the code.
