@@ -23,10 +23,40 @@ jupyter:
     pygments_lexer: ipython3
     version: 3.12.8
 ---
+# Working with `.md` Reports in Interactive Notebooks
 
-# Notebook Workflows
+This tutorial is provided in plain Markdown (`.md`) to remain **software-neutral**,
+lightweight, and version-control friendly. You can work with this file interactively
+using your preferred environment:
 
-## Setting Everything Up
+## 1. JupyterLab / Jupyter Notebook (via Jupytext)
+
+[Jupytext](https://jupytext.readthedocs.io/) allows Jupyter to open and run Markdown
+files directly as interactive notebooks.
+
+* **Install:** `pip install jupytext`
+* **Open:** In JupyterLab, right-click `Tutorial.md` -> **Open With** -> **Notebook**.
+
+## 2. Quarto
+
+[Quarto](https://quarto.org/) is a scientific publishing system that seamlessly
+executes Markdown files containing code.
+
+* **Install:** Download the CLI from [quarto.org](https://quarto.org/).
+* **Convert/Render:** Run `quarto render Tutorial.md --to ipynb` to generate a
+  standard notebook, or `quarto render Tutorial.md` to produce HTML/PDF reports.
+
+## Formatting Standards for Code Blocks
+
+To ensure code blocks parse cleanly in Jupytext, Quarto, and standard Markdown
+viewers:
+
+* Always specify the language tag explicitly in triple backticks (e.g., `python`).
+* Keep Markdown text outside of code blocks so cell splits parse correctly.
+
+## Notebook Workflows
+
+### Setting Everything Up
 
 1. In the `ve_data_science/notebooks` folder, create a new folder for your notebook.
 2. Create a virtual environment and install the dependencies using the code below.
@@ -59,7 +89,7 @@ pip install matplotlib
 Now you are ready to start your data analysis! Make sure you include any data files that
 you are using in the same folder that your notebook is in.
 
-## Pushing to Github
+### Pushing to Github
 
 When you are ready to push your changes to GitHub, you will need to first export a
 rendered version of the markdown file.
