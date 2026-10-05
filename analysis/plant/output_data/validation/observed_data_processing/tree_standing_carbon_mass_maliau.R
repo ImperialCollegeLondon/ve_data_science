@@ -481,6 +481,7 @@ mean(both_data$C_perc[both_data$forestplots_name %in% c("MLA-01", "MLA-02")])
 # carbon content used = 45.6%
 # Calculate carbon mass for each tree. DBH is converted from millimetres to
 # centimetres before applying the allometric equation.
+# Returns carbon mass in kg C per tree.
 calculate_allometric_carbon <- function(
   dbh_mm,
   coefficient,
@@ -501,6 +502,7 @@ calculate_allometric_carbon <- function(
 # apply to every tree, so their uncertainty is shared rather than independent.
 # The derivatives describe how much the total plot mass changes when parameter
 # a or b changes. They are combined with the reported parameter SEs.
+# Returns the SE of total plot carbon mass in kg C per plot, before area scaling.
 calculate_plot_se <- function(
   dbh_mm,
   coefficient,
@@ -525,21 +527,21 @@ calculate_plot_se <- function(
   )
 }
 
-stem_2011 <- calculate_allometric_carbon(
+stem_2011_kg_c_tree <- calculate_allometric_carbon(
   tree_census_11_20$DBH2011_mm_clean,
   coefficient = 0.0822,
   exponent = 2.48,
   carbon_fraction = 0.456
 )
-stem_2014 <- calculate_allometric_carbon(
+stem_2014_kg_c_tree <- calculate_allometric_carbon(
   tree_census_11_20$DBH2014_mm_clean,
   coefficient = 0.0822,
   exponent = 2.48,
   carbon_fraction = 0.456
 )
 
-tree_census_11_20$obs_stem_mass_2011 <- stem_2011
-tree_census_11_20$obs_stem_mass_2014 <- stem_2014
+tree_census_11_20$obs_stem_mass_2011_kg_c_tree <- stem_2011_kg_c_tree
+tree_census_11_20$obs_stem_mass_2014_kg_c_tree <- stem_2014_kg_c_tree
 
 #####
 
@@ -547,21 +549,21 @@ tree_census_11_20$obs_stem_mass_2014 <- stem_2014
 # Leaf dry biomass = 0.0442*dbh^1.67 (see Kenzo et al., 2009)
 # SE: a = 0.0148 and b = 0.14 (y = ax^b)
 # carbon content used = 44.30682% (see Both et al., above)
-leaf_2011 <- calculate_allometric_carbon(
+leaf_2011_kg_c_tree <- calculate_allometric_carbon(
   tree_census_11_20$DBH2011_mm_clean,
   coefficient = 0.0442,
   exponent = 1.67,
   carbon_fraction = 0.4430682
 )
-leaf_2014 <- calculate_allometric_carbon(
+leaf_2014_kg_c_tree <- calculate_allometric_carbon(
   tree_census_11_20$DBH2014_mm_clean,
   coefficient = 0.0442,
   exponent = 1.67,
   carbon_fraction = 0.4430682
 )
 
-tree_census_11_20$obs_leaf_mass_2011 <- leaf_2011
-tree_census_11_20$obs_leaf_mass_2014 <- leaf_2014
+tree_census_11_20$obs_leaf_mass_2011_kg_c_tree <- leaf_2011_kg_c_tree
+tree_census_11_20$obs_leaf_mass_2014_kg_c_tree <- leaf_2014_kg_c_tree
 
 #####
 
@@ -571,29 +573,49 @@ tree_census_11_20$obs_leaf_mass_2014 <- leaf_2014
 plot_area_m2 <- 25 * 25
 plot_to_hectare <- 10000 / plot_area_m2
 
-mass_columns <- c(
-  "obs_stem_mass_2011",
-  "obs_stem_mass_2014",
-  "obs_leaf_mass_2011",
-  "obs_leaf_mass_2014"
+tree_mass_columns <- c(
+  "obs_stem_mass_2011_kg_c_tree",
+  "obs_stem_mass_2014_kg_c_tree",
+  "obs_leaf_mass_2011_kg_c_tree",
+  "obs_leaf_mass_2014_kg_c_tree"
+)
+
+plot_mass_columns <- c(
+  "obs_stem_mass_2011_kg_c_plot",
+  "obs_stem_mass_2014_kg_c_plot",
+  "obs_leaf_mass_2011_kg_c_plot",
+  "obs_leaf_mass_2014_kg_c_plot"
+)
+
+hectare_mass_columns <- c(
+  "obs_stem_mass_2011_kg_ha",
+  "obs_stem_mass_2014_kg_ha",
+  "obs_leaf_mass_2011_kg_ha",
+  "obs_leaf_mass_2014_kg_ha"
 )
 
 plot_summary <- aggregate(
-  tree_census_11_20[mass_columns],
+  tree_census_11_20[tree_mass_columns],
   by = list(PlotID = tree_census_11_20$PlotID),
   FUN = sum,
   na.rm = TRUE
 )
 
+# Aggregation gives kg C per plot; area scaling converts it to kg C per hectare.
+names(plot_summary)[match(tree_mass_columns, names(plot_summary))] <-
+  plot_mass_columns
 plot_summary$plot_area_m2 <- plot_area_m2
 plot_summary$plot_area_ha <- plot_area_m2 / 10000
 
-plot_summary[mass_columns] <- plot_summary[mass_columns] * plot_to_hectare
+plot_summary[plot_mass_columns] <-
+  plot_summary[plot_mass_columns] * plot_to_hectare
+names(plot_summary)[match(plot_mass_columns, names(plot_summary))] <-
+  hectare_mass_columns
 
 # Plot SEs use the shared-parameter calculation above, rather than treating
 # each tree SE as independent. Apply the same area conversion to the SE.
 plot_groups <- split(tree_census_11_20, tree_census_11_20$PlotID)
-plot_summary$obs_stem_mass_2011_se <- vapply(
+plot_summary$obs_stem_mass_2011_se_kg_ha <- vapply(
   plot_groups,
   function(plot_data) {
     calculate_plot_se(
@@ -608,7 +630,7 @@ plot_summary$obs_stem_mass_2011_se <- vapply(
   },
   numeric(1)
 )
-plot_summary$obs_stem_mass_2014_se <- vapply(
+plot_summary$obs_stem_mass_2014_se_kg_ha <- vapply(
   plot_groups,
   function(plot_data) {
     calculate_plot_se(
@@ -623,7 +645,7 @@ plot_summary$obs_stem_mass_2014_se <- vapply(
   },
   numeric(1)
 )
-plot_summary$obs_leaf_mass_2011_se <- vapply(
+plot_summary$obs_leaf_mass_2011_se_kg_ha <- vapply(
   plot_groups,
   function(plot_data) {
     calculate_plot_se(
@@ -638,7 +660,7 @@ plot_summary$obs_leaf_mass_2011_se <- vapply(
   },
   numeric(1)
 )
-plot_summary$obs_leaf_mass_2014_se <- vapply(
+plot_summary$obs_leaf_mass_2014_se_kg_ha <- vapply(
   plot_groups,
   function(plot_data) {
     calculate_plot_se(
@@ -675,8 +697,8 @@ plot_summary$census_date_2014 <- plot_dates$Date_2014
 plot_summary$census_interval_years <-
   as.numeric(plot_dates$Date_2014 - plot_dates$Date_2011) / 365.25
 plot_summary$obs_stem_increment_kg_ha_y <-
-  (plot_summary$obs_stem_mass_2014 -
-    plot_summary$obs_stem_mass_2011) /
+  (plot_summary$obs_stem_mass_2014_kg_ha -
+    plot_summary$obs_stem_mass_2011_kg_ha) /
   plot_summary$census_interval_years
 
 # Note that this is net change in standing stem carbon, not gross woody productivity.
@@ -693,24 +715,6 @@ plot_summary$plot_y <-
   plot_coordinates$centroid_y[
     match(plot_summary$PlotID, plot_coordinates$PlotID)
   ]
-
-# Make the units of the exported plot-level mass and SE fields explicit.
-names(plot_summary)[names(plot_summary) == "obs_stem_mass_2011"] <-
-  "obs_stem_mass_2011_kg_ha"
-names(plot_summary)[names(plot_summary) == "obs_stem_mass_2011_se"] <-
-  "obs_stem_mass_2011_se_kg_ha"
-names(plot_summary)[names(plot_summary) == "obs_stem_mass_2014"] <-
-  "obs_stem_mass_2014_kg_ha"
-names(plot_summary)[names(plot_summary) == "obs_stem_mass_2014_se"] <-
-  "obs_stem_mass_2014_se_kg_ha"
-names(plot_summary)[names(plot_summary) == "obs_leaf_mass_2011"] <-
-  "obs_leaf_mass_2011_kg_ha"
-names(plot_summary)[names(plot_summary) == "obs_leaf_mass_2011_se"] <-
-  "obs_leaf_mass_2011_se_kg_ha"
-names(plot_summary)[names(plot_summary) == "obs_leaf_mass_2014"] <-
-  "obs_leaf_mass_2014_kg_ha"
-names(plot_summary)[names(plot_summary) == "obs_leaf_mass_2014_se"] <-
-  "obs_leaf_mass_2014_se_kg_ha"
 
 # Ordered with the predicted mass and its standard error for each year
 variables <- c(
