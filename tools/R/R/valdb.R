@@ -2245,7 +2245,7 @@ drop_blanks <- function(x) {
 #' @returns A named list of metadata for canonical VE and derived variables.
 
 build_data_variables_table <- function(
-  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
+  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/main/virtual_ecosystem/data_variables.toml",
   variables_derived,
   downloader = utils::download.file
 ) {
@@ -2298,7 +2298,7 @@ retrieve_variables_table <- function(
 #' @returns A data frame with `var_canonical` and `unit_canonical` columns.
 
 build_canonical_units_table <- function(
-  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/develop/virtual_ecosystem/data_variables.toml",
+  variables_ve = "https://github.com/ImperialCollegeLondon/virtual_ecosystem/raw/refs/heads/main/virtual_ecosystem/data_variables.toml",
   variables_derived,
   downloader = utils::download.file
 ) {
