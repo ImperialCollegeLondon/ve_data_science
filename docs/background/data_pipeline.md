@@ -10,10 +10,10 @@ results against observations.
 
 !!! note "To complete"
 
-   	Each module has a unique pipeline based on the model requirements, available
-	data sources, and domain-specific methods. In future, each module will provide
-	documentation of their pipeline with any additional notes required to understand
-	the methods.
+    Each module has a unique pipeline based on the model requirements, available
+    data sources, and domain-specific methods. In future, each module will provide
+    documentation of their pipeline with any additional notes required to understand
+    the methods.
 
 ## 1. Primary data
 
@@ -74,7 +74,7 @@ To understand how model runs work, see the
 ## 6. Validation
 
 Validation compares model outputs with observations for the same place and time. Validation
-variables are chosen from model outputs and compared with appropriate literature or field data.
+variables are chosen from model outputs and compared with appropriate literature or fielddata.
 Selection of these target variables is unique to each site and module. In future, each module
 will describe the process of developing validation variables and metrics.
 
@@ -82,19 +82,19 @@ will describe the process of developing validation variables and metrics.
 datasets into one table with consistent units, locations and dates, and joins them to
 model outputs. This is currently used in the soil/litter, plant, and animal modules.
 
-* Derived variables : The model's output variables do not always match what is measured in the field. For
-example, the model tracks soil carbon in several pools, while field studies usually
-report total soil carbon. [Derived variables](../derived_variables.md) are
+* Derived variables : The model's output variables do not always match what is measured
+in the field. For example, the model tracks soil carbon in several pools, while field
+studies usually report total soil carbon. [Derived variables](../derived_variables.md) are
 calculated from the outputs so that the two can be compared to validation data.
 
 !!! note "To complete"
 
-   	This page will continue to expand as validation variables are selected. They are
-	unique to ech site and data source but can serve as an example.
-
+    This page will continue to expand as validation variables are selected. They are
+    unique to each site and data source but can serve as an example.
 
 ## Optional: Sensitivity analysis
 
-For some modules, model parameters should be calibrated. [Sensitivity analysis](../sensitivity_analysis.md) runs a scenario many times with
+For some modules, model parameters should be calibrated. 
+[Sensitivity analysis](../sensitivity_analysis.md) runs a scenario many times with
 different parameter values, to find out which parameters the results depend on most.
 It uses the same scenario inputs as a normal run.

@@ -53,7 +53,8 @@ location.
 
 !!! note "To complete"
 
-    Add additional site specific data sources (above is an example). We may split the site pages later.
+    Add additional site specific data sources (above is an example). 
+    We may split the site pages later.
 
 ## Getting the data
 
