@@ -42,10 +42,10 @@
 #|     description: VE cell IDs and observed plot footprints and centroids.
 #|   - name: stem_c_mass_summed_across_pfts_by_cell.png
 #|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-#|     description: Stem carbon mass per cell, summed across PFTs, with observed values.
+#|     description: Stem carbon mass trajectories for cells overlapping observed plots, with census observations.
 #|   - name: foliage_c_mass_summed_across_pfts_by_cell.png
 #|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-#|     description: Foliage carbon mass per cell, summed across PFTs, with observed values.
+#|     description: Foliage carbon mass trajectories for cells overlapping observed plots, with census observations.
 #|
 #| package_dependencies:
 #|   - data.table
@@ -203,9 +203,11 @@ dev.copy(
 )
 dev.off()
 
-# Compare observed plot masses with per-cell totals summed across PFTs.
-plot_cell_ids <- grid_cells$cell_id
-plot_cell_mass_kg_ha <- predicted_data[order(timestep_end_date)]
+# Compare observed plot masses with totals for overlapping cells.
+plot_cell_ids <- unique(plot_cell_matches$cell_id)
+plot_cell_mass_kg_ha <- predicted_data[cell_id %in% plot_cell_ids][
+  order(timestep_end_date)
+]
 cell_colours <- hcl.colors(length(plot_cell_ids), palette = "Dark 3")
 tissue_plots <- c(
   stem_c_mass_kg_ha = "Stem carbon mass",
@@ -235,7 +237,7 @@ for (tissue_column in names(tissue_plots)) {
     lwd = 0.6,
     xlab = "Model date",
     ylab = "kg C ha-1",
-    main = paste(tissue_plots[[tissue_column]], "per cell, summed across PFTs")
+    main = paste(tissue_plots[[tissue_column]], "per overlapping cell")
   )
   for (index in seq_along(plot_cell_ids)) {
     cell_mass_kg_ha_for_plot <-

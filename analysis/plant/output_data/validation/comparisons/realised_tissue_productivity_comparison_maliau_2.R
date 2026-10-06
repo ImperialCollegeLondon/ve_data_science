@@ -45,7 +45,7 @@ observed_metadata_file <- "../metadata/master_observed_data_processing_metadata.
 predicted_metadata_file <- "../metadata/master_predicted_outputs_processing_metadata.yml"
 
 output_dir <- "../../../../../data/derived/plant/output_data/validation/comparisons"
-figure_dir <- file.path(output_dir, "figures_maliau_2")
+figure_dir <- file.path(output_dir, "comparisons_figures_maliau_2")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(figure_dir, recursive = TRUE, showWarnings = FALSE)
 

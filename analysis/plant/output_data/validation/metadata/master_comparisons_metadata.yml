@@ -67,10 +67,12 @@ scripts:
     description: VE cell IDs and observed plot footprints and centroids.
   - name: stem_c_mass_summed_across_pfts_by_cell.png
     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-    description: Stem carbon mass per cell, summed across PFTs, with observed values.
+    description: Stem carbon mass trajectories for cells overlapping observed plots,
+      with census observations.
   - name: foliage_c_mass_summed_across_pfts_by_cell.png
     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-    description: Foliage carbon mass per cell, summed across PFTs, with observed values.
+    description: Foliage carbon mass trajectories for cells overlapping observed plots,
+      with census observations.
   package_dependencies:
   - data.table
   - sf
