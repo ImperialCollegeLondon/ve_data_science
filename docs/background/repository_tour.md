@@ -1,7 +1,7 @@
 # Repository Overview
 
 This page explains what each top-level folder in the repository is for. The
-[data flow page](data_flow.md) explains how the folders relate to each other.
+[data pipeline page](data_pipeline.md) explains how the folders relate to each other.
 
 <!-- markdownlint-disable MD013 -->
 | Folder | What it holds |
