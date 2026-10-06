@@ -10,10 +10,10 @@ results against observations.
 
 !!! note "To complete"
 
-   	Each module has a unique pipeline based on the model requirements, available 
-	data sources, and domain-specific methods. In future, eaach module will provide 
+   	Each module has a unique pipeline based on the model requirements, available
+	data sources, and domain-specific methods. In future, eaach module will provide
 	documentation of their pipeline with any additional notes required to understand
-	the methods. 
+	the methods.
 
 ## 1. Primary data
 
@@ -31,7 +31,7 @@ Scripts in `analysis/` turn primary data into what the model needs. This is wher
 the scientific choices are made. Examples include fitting a statistical model to
 predict soil properties across the grid, assigning tree species to plant functional
 types, or converting climate variables to the units the model expects. These are unique to
-each module and each site.  
+each module and each site.
 
 Every script starts with a metadata header that records its inputs, outputs and
 purpose. Start from the files in `templates/` when writing a new script.
@@ -63,7 +63,7 @@ points to them.
 
 ## 5. Running the model
 
-The model is run with the `ve_run` command using the scenario configuration. Additionally, 
+The model is run with the `ve_run` command using the scenario configuration. Additionally,
 the [Python setup page](../uv_setup.md) shows how to run it with a chosen version of
 the Virtual Ecosystem for testing. Scripts for running batches of simulations on a computing
 cluster are in `hpc_jobs/`.
@@ -73,14 +73,14 @@ To understand how model runs work, see the
 
 ## 6. Validation
 
-Validation compares model outputs with observations for the same place and time. Validation 
-variables are chosen from model outputs and compared with appropriate literature or field data. 
+Validation compares model outputs with observations for the same place and time. Validation
+variables are chosen from model outputs and compared with appropriate literature or field data.
 Selection of these target variables is unique to each site and module. In future, each module
-will describe the process of developing validation variables and metrics. 
+will describe the process of developing validation variables and metrics.
 
 * Tool: The [validation database](../validation_database.md) gathers observations from many
 datasets into one table with consistent units, locations and dates, and joins them to
-model outputs. This is currently used in the soil/litter, plant, and animal modules. 
+model outputs. This is currently used in the soil/litter, plant, and animal modules.
 
 * Derived variables : The model's output variables do not always match what is measured in the field. For
 example, the model tracks soil carbon in several pools, while field studies usually
@@ -90,12 +90,12 @@ calculated from the outputs so that the two can be compared to validation data.
 !!! note "To complete"
 
    	This page will continue to expand as validation variables are selected. They are
-	unique to ech site and data source but can serve as an example. 
+	unique to ech site and data source but can serve as an example.
 
 
 ## Optional: Sensitivity analysis
 
-For some modules, model parameters should be calibrated 
+For some modules, model parameters should be calibrated
 [Sensitivity analysis](../sensitivity_analysis.md) runs a scenario many times with
 different parameter values, to find out which parameters the results depend on most.
 It uses the same scenario inputs as a normal run.
