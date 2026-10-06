@@ -5,7 +5,9 @@ title: Preprocess Wearn 2022 density data for Maliau validation
 description: |
   Preprocessing Wearn et al. (2022) density estimates
   into a valdb-ready species-level table for the animal module.
-
+  In the article, it is stated that the old-growth forest site is
+  Maliau Basin Conservation Area. So here we will only use old-growth
+  data and label it as Maliau.
   TODO: need to change description later on
 
 virtual_ecosystem_module: animal
@@ -20,7 +22,9 @@ input_files:
     path: data/primary/animal/Wearn_2022/
     description: |
       Raw supplementary table containing species density estimates across
-      old-growth and logged forest habitats.
+      old-growth and logged forest habitats. In the article, it is stated that
+      old-growth forest site is Maliau Basin.So here we will only use old-growth
+      and label as Maliau.
   - name: VE_ANIMAL_functionalgroups_model_level5_0250730.csv
     path: data/primary/animal/Functional_group_Anna/
     description: |TODO
@@ -28,23 +32,22 @@ input_files:
       options for manual species-to-group curation.THIS needs updating!
 
 output_files:
-  - name: Wearn_2022_density_old_growth_fg_species_rows.csv
+    - name: Wearn_2022_density_maliau_fg_species_rows.csv
     path: data/derived/animal/Wearn_2022_Maliau/
     description: |
       Target species-row output with functional-group-specific density
-      columns derived from old-growth estimates.
+      columns derived from Maliau estimates.
 
 package_dependencies:
   - pandas
 
 usage_notes: |
   This file currently includes Phase 1 setup, Phase 2 source parsing, and
-  Phase 3 parsing of old-growth density text into numeric values and
-  Phase 4 species-to-functional-group mapping.
+    Phase 3 parsing of Maliau density text into numeric values and
+    Phase 4 species-to-functional-group mapping and Phase 5 output export.
 
-  Update the
-  species_to_fg_template table in this script by filling the
-  functional_group_level5_name values before final output generation.
+  Update the species_to_fg_template table in this script by filling the
+    functional_group_level5_name values before running final output export.
 ---
 """  # noqa: D205, D212, D400, D415
 
@@ -65,7 +68,7 @@ input_file = (
 )
 
 output_dir = repo_root / "data" / "derived" / module_name / "Wearn_2022_Maliau"
-output_file = output_dir / "Wearn_2022_density_old_growth_fg_species_rows.csv"
+output_file = output_dir / "Wearn_2022_density_maliau_fg_species_rows.csv"
 
 # Functional group level 5 from VE_ANIMAL_functionalgroups_model_level5_0250730.csv in
 # data/primary/animal/Functional_group_Anna/
@@ -345,14 +348,14 @@ if __name__ == "__main__":
         input_file,
         header=None,
         skiprows=10,
-        # Get only the relevant columns for density in old growth
+        # Get only the relevant columns for density in Maliau.
         usecols=[0, 1, 8, 9],
         # Rename the columns for clarity
         names=[
             "species_common_name",
             "species_scientific_name",
             "density_sample_size_n",
-            "density_old_growth_text",
+            "density_maliau_text",
         ],
         dtype="string",
     )
@@ -381,22 +384,23 @@ if __name__ == "__main__":
         errors="coerce",
     )
 
-    # Parse old-growth density text into numeric median and CI bounds.
+    # Parse Maliau density text into numeric median and CI bounds.
     density_parsed = (
-        wearn_table["density_old_growth_text"]
+        wearn_table["density_maliau_text"]
         .str.strip()
         .str.extract(
-            r"^\s*(?P<density_old_growth_median>-?\d+(?:\.\d+)?)"
-            r"\s*\(\s*(?P<density_old_growth_ci95_lower>-?\d+(?:\.\d+)?)"
-            r"\s*-\s*(?P<density_old_growth_ci95_upper>-?\d+(?:\.\d+)?)\s*\)\s*$"
+            r"^\s*(?P<density_maliau_median>-?\d+(?:\.\d+)?)"
+            r"\s*\(\s*(?P<density_maliau_ci95_lower>-?\d+(?:\.\d+)?)"
+            r"\s*-\s*(?P<density_maliau_ci95_upper>-?\d+(?:\.\d+)?)\s*\)\s*$"
         )
         .apply(pd.to_numeric, errors="coerce")
     )
     # Concatenate the parsed density columns back to the original table.
     wearn_table = pd.concat([wearn_table, density_parsed], axis=1)
+    wearn_table = wearn_table.drop(columns=["density_maliau_text"])
 
     # Count the number of successfully parsed and failed rows.
-    parsed_rows = int(wearn_table["density_old_growth_median"].notna().sum())
+    parsed_rows = int(wearn_table["density_maliau_median"].notna().sum())
     failed_rows = len(wearn_table) - parsed_rows
 
     # Phase 4: map species to level-5 functional groups.
@@ -494,24 +498,53 @@ if __name__ == "__main__":
         validate="many_to_one",
     )
 
+    # Phase 5: shape the final output table and write it to disk.
+    output_columns = [
+        "species_common_name",
+        "species_scientific_name",
+        "functional_group_level5_name",
+        "density_sample_size_n",
+        "density_maliau_median",
+        "density_maliau_ci95_lower",
+        "density_maliau_ci95_upper",
+    ]
+    missing_output_columns = [
+        column_name
+        for column_name in output_columns
+        if column_name not in wearn_table.columns
+    ]
+    if missing_output_columns:
+        missing_output_columns_list = ", ".join(missing_output_columns)
+        raise ValueError(
+            f"output columns missing from wearn_table: {missing_output_columns_list}"
+        )
+
+    final_output_table = (
+        wearn_table[output_columns]
+        .sort_values("species_scientific_name")
+        .reset_index(drop=True)
+    )
+    final_output_table.to_csv(output_file, index=False)
+
     print(f"parsed rows: {len(wearn_table)}")
     print(
-        wearn_table[
+        final_output_table[
             [
                 "species_common_name",
                 "species_scientific_name",
                 "density_sample_size_n",
-                "density_old_growth_text",
-                "density_old_growth_median",
-                "density_old_growth_ci95_lower",
-                "density_old_growth_ci95_upper",
+                "density_maliau_median",
+                "density_maliau_ci95_lower",
+                "density_maliau_ci95_upper",
                 "functional_group_level5_name",
             ]
         ].head(5)
     )
-    print(f"Phase 3 parsed old-growth rows: {parsed_rows}")
-    print(f"Phase 3 failed old-growth rows: {failed_rows}")
+    print(f"parsed Maliau rows: {parsed_rows}")
+    print(f"failed Maliau rows: {failed_rows}")
     mapped_species = int(species_mapping["functional_group_level5_name"].notna().sum())
     unmapped_species = int(species_mapping["functional_group_level5_name"].isna().sum())
-    print(f"Phase 4 mapped species: {mapped_species}")
-    print(f"Phase 4 unmapped species: {unmapped_species}")
+    print(f"mapped species: {mapped_species}")
+    print(f"unmapped species: {unmapped_species}")
+    print(f"Phase 5 output rows: {len(final_output_table)}")
+    print(f"Phase 5 wrote: {output_file}")
