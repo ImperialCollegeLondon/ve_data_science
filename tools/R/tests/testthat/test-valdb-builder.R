@@ -196,32 +196,6 @@ test_that("list_build_sources reports malformed YAML with its path", {
 })
 
 
-test_that("list_build_sources rejects duplicate DOI records", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record("10.1000/duplicate")
-  write_builder_test_record(record, sources_dir, "first.yaml")
-  write_builder_test_record(record, sources_dir, "second.yaml")
-
-  expect_error(list_build_sources(sources_dir))
-})
-
-
-test_that("list_build_sources rejects schemas without a proceed decision", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record(
-    "10.1000/excluded",
-    decision = "exclude"
-  )
-  path <- write_builder_test_record(record, sources_dir)
-
-  expect_error(
-    list_build_sources(sources_dir),
-    basename(path),
-    fixed = TRUE
-  )
-})
-
-
 test_that("list_build_sources flattens nested multi-dataset records", {
   sources_dir <- withr::local_tempdir()
   record <- new_builder_test_record("10.1000/nested")

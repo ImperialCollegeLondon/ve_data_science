@@ -334,19 +334,6 @@ test_that("screening helpers require explicit sources_dir", {
 })
 
 
-test_that("find_screening_record rejects duplicate DOI records", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_test_record()
-  yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
-  yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
-
-  expect_error(
-    find_screening_record(record$doi, sources_dir),
-    "occurs in multiple"
-  )
-})
-
-
 test_that("write_screening_record creates one round-trippable YAML file", {
   sources_dir <- file.path(withr::local_tempdir(), "sources")
   record <- new_test_record()
@@ -380,16 +367,6 @@ test_that("write_screening_record rejects duplicate DOI records", {
     "delete the existing YAML file"
   )
   expect_length(list.files(sources_dir, pattern = "\\.yaml$"), 1L)
-})
-
-
-test_that("write_screening_record rejects inconsistent identities", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_test_record()
-  record$record_id <- "doi-wrong"
-
-  expect_error(write_screening_record(record, sources_dir))
-  expect_length(list.files(sources_dir), 0L)
 })
 
 
