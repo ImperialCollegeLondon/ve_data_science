@@ -108,6 +108,7 @@ run_script <- function(script_path, index, total) {
   print_script_summary(meta, index, total, script_path)
 
   pdf(NULL)
+  dev.control(displaylist = "enable")
   on.exit(
     {
       if (dev.cur() > 1) {
