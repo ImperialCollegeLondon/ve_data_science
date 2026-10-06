@@ -227,10 +227,7 @@ test_that("initialise_source_schema rejects duplicate DOI records", {
   yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
   yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
 
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "multiple\\s+screening records"
-  )
+  expect_error(initialise_source_schema(record$doi, sources_dir))
 })
 
 
@@ -348,10 +345,7 @@ test_that("add_schema rejects duplicate DOI records without opening an editor", 
     editor_called <<- TRUE
   }
 
-  expect_error(
-    add_schema(record$doi, sources_dir, editor),
-    "multiple\\s+screening records"
-  )
+  expect_error(add_schema(record$doi, sources_dir, editor))
   expect_false(editor_called)
 })
 

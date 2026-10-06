@@ -161,28 +161,16 @@ normalise_doi_metadata <- function(metadata, retrieved_at = Sys.time()) {
 
   authors <- metadata$author
   if (is.data.frame(authors) && nrow(authors) > 0L) {
-    family <- if ("family" %in% names(authors)) {
-      authors$family
-    } else {
-      rep(NA_character_, nrow(authors))
-    }
-    given <- if ("given" %in% names(authors)) {
-      authors$given
-    } else {
-      rep(NA_character_, nrow(authors))
-    }
-    literal <- if ("literal" %in% names(authors)) {
-      authors$literal
-    } else {
-      rep(NA_character_, nrow(authors))
-    }
-
     authors <- purrr::pmap_chr(
-      list(family = family, given = given, literal = literal),
+      list(
+        family = authors$family %||% rep(NA_character_, nrow(authors)),
+        given = authors$given %||% rep(NA_character_, nrow(authors)),
+        literal = authors$literal %||% rep(NA_character_, nrow(authors))
+      ),
       \(family, given, literal) {
-        name_parts <- c(family, given)
-        name_parts <- name_parts[!is.na(name_parts) & nzchar(name_parts)]
-
+        name_parts <- c(family, given)[
+          !is.na(c(family, given)) & nzchar(c(family, given))
+        ]
         if (length(name_parts) > 0L) {
           stringr::str_c(name_parts, collapse = ", ")
         } else if (!is.na(literal) && nzchar(literal)) {
@@ -193,17 +181,13 @@ normalise_doi_metadata <- function(metadata, retrieved_at = Sys.time()) {
       }
     )
     authors <- authors[!is.na(authors) & nzchar(authors)]
-
-    if (length(authors) == 0L) {
-      authors <- NULL
-    }
+    if (length(authors) == 0L) authors <- NULL
   } else {
     authors <- NULL
   }
 
-  date_parts <- metadata$issued[["date-parts"]]
-  year <- if (length(date_parts) > 0L) {
-    as.integer(unlist(date_parts)[[1L]])
+  year <- if (length(metadata$issued[["date-parts"]]) > 0L) {
+    as.integer(unlist(metadata$issued[["date-parts"]])[[1L]])
   } else {
     NULL
   }
@@ -362,9 +346,7 @@ list_screening_records <- function(sources_dir) {
       }
     )
   })
-  names(records) <-
-    basename(paths) |>
-    stringr::str_remove(stringr::regex("\\.yaml$", ignore_case = TRUE))
+  names(records) <- tools::file_path_sans_ext(basename(paths))
 
   records
 }
@@ -393,20 +375,20 @@ find_screening_record <- function(
   doi <- normalise_doi(doi)
   records <- list_screening_records(sources_dir)
 
-  matches <- purrr::keep(records, function(record) {
+  duplicates <- which(purrr::map_lgl(records, function(record) {
     is.list(record) && identical(record$doi, doi)
-  })
+  }))
 
-  if (length(matches) > 1L) {
+  if (length(duplicates) > 1L) {
     cli::cli_abort(
-      "DOI {.val {doi}} occurs in multiple screening records: {names(matches)}."
+      "DOI {.val {doi}} occurs in multiple screening records: {names(records)[duplicates]}."
     )
   }
-  if (length(matches) == 0L) {
+  if (length(duplicates) == 0L) {
     return(NULL)
   }
 
-  matches[[1L]]
+  records[[duplicates[1L]]]
 }
 
 
@@ -845,6 +827,22 @@ list_build_sources <- function(sources_dir) {
 }
 
 
+#' Check if a value is a single non-empty string
+#'
+#' @param value A value to check.
+#'
+#' @returns `TRUE` if `value` is a single non-empty string, `FALSE` otherwise.
+#'
+#' @keywords internal
+
+scalar_string <- function(value) {
+  is.character(value) &&
+    length(value) == 1L &&
+    !is.na(value) &&
+    stringr::str_length(stringr::str_trim(value)) > 0L
+}
+
+
 #' Validate one source schema
 #'
 #' Checks that a source schema contains the required fields and that their
@@ -870,13 +868,6 @@ validate_source_schema <- function(source, path) {
     )
   }
 
-  scalar_string <- function(value) {
-    is.character(value) &&
-      length(value) == 1L &&
-      !is.na(value) &&
-      stringr::str_length(stringr::str_trim(value)) > 0L
-  }
-
   if (!scalar_string(source$source_id)) {
     cli::cli_abort(
       "Source schema {.path {path}} must have one non-empty {.field source_id}."
@@ -888,12 +879,10 @@ validate_source_schema <- function(source, path) {
     )
   }
   if (
-    !is.numeric(source$skip_rows) ||
+    !is.integer(source$skip_rows) ||
       length(source$skip_rows) != 1L ||
       is.na(source$skip_rows) ||
-      !is.finite(source$skip_rows) ||
-      source$skip_rows < 0 ||
-      source$skip_rows != floor(source$skip_rows)
+      source$skip_rows < 0
   ) {
     cli::cli_abort(
       "Source schema {.path {path}} must have a non-negative integer \
@@ -1400,11 +1389,7 @@ harmonise_source_data <- function(src, canonical_units) {
           )
         }
       ),
-      unit_canonical = dplyr::if_else(
-        is.na(unit_canonical),
-        NA_character_,
-        unit_canonical
-      ),
+      unit_canonical = unit_canonical,
       dataset = src$source_id
     ) |>
     dplyr::select(-value) |>
@@ -1517,15 +1502,11 @@ add_coordinates <- function(dat, src) {
 
   # Case 1: one blanket coordinate for the whole dataset
   blanket <- drop_blanks(spec$same_for_all_rows)
-  if (length(blanket) > 0) {
-    if (is.null(blanket$latitude) || is.null(blanket$longitude)) {
-      cli::cli_abort(
-        "{.field same_for_all_rows} in {.val {src$source_id}} needs both
-         a {.field latitude} and a {.field longitude}. You are getting this
-         because you specified something in {.field same_for_all_rows} but left
-         {.field latitude} and a {.field longitude} as blank."
-      )
-    }
+  if (
+    length(blanket) > 0 &&
+      !is.null(blanket$latitude) &&
+      !is.null(blanket$longitude)
+  ) {
     return(dplyr::mutate(
       dat,
       latitude = as.numeric(blanket$latitude),
@@ -1533,6 +1514,12 @@ add_coordinates <- function(dat, src) {
       location_type = "whole dataset",
       coordinate_source = "same_for_all_rows"
     ))
+  }
+  if (length(blanket) > 0) {
+    cli::cli_abort(
+      "{.field same_for_all_rows} in {.val {src$source_id}} needs both
+       a {.field latitude} and a {.field longitude}."
+    )
   }
 
   # Case 1b: coordinates are columns in the data itself
@@ -2321,7 +2308,7 @@ build_canonical_units_table <- function(
     tidyr::unnest_wider(value) |>
     dplyr::select(var_canonical, unit_canonical = unit) |>
     dplyr::mutate(
-      unit_canonical = stringr::str_remove_all(unit_canonical, "\\{[^}]+\\}")
+      unit_canonical = gsub("\\{[^}]+\\}", "", unit_canonical)
     )
 }
 
@@ -2336,12 +2323,10 @@ build_canonical_units_table <- function(
 #' @returns A list of data variables.
 
 import_variables_table <- function(toml) {
-  toml::read_toml(toml) |>
-    purrr::pluck("variable") |>
-    {
-      \(x) purrr::set_names(x, purrr::map_chr(x, "name"))
-    }() |>
-    purrr::map(~ purrr::discard(.x, names(.x) == "name"))
+  vars <- toml::read_toml(toml) |>
+    purrr::pluck("variable")
+  vars <- purrr::set_names(vars, purrr::map_chr(vars, "name"))
+  purrr::map(vars, ~ purrr::discard(.x, names(.x) == "name"))
 }
 
 
@@ -2407,7 +2392,7 @@ classify_spatial_bounds <- function(lat, lon, bounds_spatial) {
   within <-
     (lon >= bounds_spatial[1] & lon <= bounds_spatial[3]) &
     (lat >= bounds_spatial[2] & lat <= bounds_spatial[4])
-  dplyr::case_when(within ~ "within", !within ~ "outside")
+  dplyr::if_else(within, "within", "outside")
 }
 
 
