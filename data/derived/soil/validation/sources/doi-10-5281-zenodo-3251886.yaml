@@ -69,13 +69,15 @@ datasets:
         unit: "mg kg^-1"
         description:
           Soil NH4 concentration extracted with 1M KCl and used colorimetry for
-          analysis.
+          analysis. Unit has been corrected following
+          https://bg.copernicus.org/articles/18/1559/2021/bg-18-1559-2021-corrigendum.pdf
       NO3-N_KCl:
         var_canonical: soil_n_pool_nitrate_per_mass
         unit: "mg kg^-1"
         description:
           Soil NO3 concentration extracted with 1M KCl and used colorimetry for
-          analysis.
+          analysis. Unit has been corrected following
+          https://bg.copernicus.org/articles/18/1559/2021/bg-18-1559-2021-corrigendum.pdf
     dedup_key:
       - site
       - chamber_id
