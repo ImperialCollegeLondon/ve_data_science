@@ -205,6 +205,16 @@ extra data wrangling, store the preprocessing script in
 
 [Back to workflow overview](#workflow-overview).
 
+### How to edit the YAML file
+
+1. Run `list_proceed_screening_records()` in the R console.
+2. Copy the DOI from that list into `add_schema()`.
+3. Open the YAML file in your IDE and edit it directly.
+
+`add_schema()` adds a template to the screened record. It prints the full path
+to the YAML file. Open that file directly in VS Code, Positron, vim, nano, or
+your preferred IDE.
+
 The template is an editable scaffold. It is not build-ready. Replace every
 placeholder with values from the source dataset. Remove unused example entries.
 Add one `variables` entry for each source column that you want to keep.
