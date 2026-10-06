@@ -479,3 +479,26 @@ test_that("screen_dataset rejects duplicates before metadata retrieval", {
   expect_identical(metadata_requested, FALSE)
   expect_length(list.files(sources_dir, pattern = "\\.yaml$"), 1L)
 })
+
+
+test_that("list_proceed_screening_records prints proceed records", {
+  sources_dir <- withr::local_tempdir()
+  write_screening_record(new_test_record(), sources_dir)
+  write_screening_record(
+    new_screening_record(
+      doi = "10.1000/example-two",
+      decision = "exclude",
+      reason = "no_raw_data",
+      metadata = new_test_metadata()
+    ),
+    sources_dir
+  )
+
+  output <- capture.output(
+    rows <- list_proceed_screening_records(sources_dir)
+  )
+
+  expect_identical(nrow(rows), 1L)
+  expect_identical(rows$doi, "10.5281/zenodo.8158810")
+  expect_true(any(grepl("10.5281/zenodo.8158810", output, fixed = TRUE)))
+})
