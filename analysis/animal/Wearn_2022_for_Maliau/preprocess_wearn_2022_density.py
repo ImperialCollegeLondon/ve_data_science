@@ -23,9 +23,9 @@ input_files:
       old-growth and logged forest habitats.
   - name: VE_ANIMAL_functionalgroups_model_level5_0250730.csv
     path: data/primary/animal/Functional_group_Anna/
-    description: |
+    description: |TODO
       Level-5 functional group reference list used to populate the in-script
-      options for manual species-to-group curation.
+      options for manual species-to-group curation.THIS needs updating!
 
 output_files:
   - name: Wearn_2022_density_old_growth_fg_species_rows.csv
@@ -39,7 +39,8 @@ package_dependencies:
 
 usage_notes: |
   This file currently includes Phase 1 setup, Phase 2 source parsing, and
-  Phase 3 parsing of old-growth density text into numeric values.
+  Phase 3 parsing of old-growth density text into numeric values and
+  Phase 4 species-to-functional-group mapping.
 
   Update the
   species_to_fg_template table in this script by filling the
@@ -68,6 +69,7 @@ output_file = output_dir / "Wearn_2022_density_old_growth_fg_species_rows.csv"
 
 # Functional group level 5 from VE_ANIMAL_functionalgroups_model_level5_0250730.csv in
 # data/primary/animal/Functional_group_Anna/
+# TODO: Check if all functional group level 5 with the reference CSV.
 functional_group_level5_options: list[str] = [
     "Carnivorous arboreal birds",
     "Insectivorous arboreal bats",
@@ -107,21 +109,21 @@ functional_group_level5_options: list[str] = [
     "Herbivorous arboreal insects",
     "Carnivorous borrowing mammal",
     "Carnivorous arboreal mammal",
-    "Carnivorous aboreal/terrestrial medium mammal",
+    "Carnivorous arboreal/terrestrial medium mammal",
     "Omnivorous arboreal primate",
     "Omnivorous arboreal small mammal",
     "Herbivorous arboreal bats",
     "Herbivorous arboreal birds",
     "Herbivorous arboreal semelparous larva",
     "Carnivorous terrestrial/arboreal mammal",
-    "Herbivorous terrestrial semelparous  larva",
+    "Herbivorous terrestrial semelparous larva",
     "Carnivorous riparian birds",
     "Carnivorous aquatic mammal",
-    "Omnivorous aboreal/terrestrial large mammal",
-    "Omnivorous aboreal/terrestrial small mammal",
+    "Omnivorous arboreal/terrestrial large mammal",
+    "Omnivorous arboreal/terrestrial small mammal",
     "Carnivorous aquatic snakes",
     "Carnivorous terrestrial snakes",
-    "Omnivorous terrestrial birds",
+    "Omnivorous terrestrial bird",
     "Carnivorous terrestrial birds",
     "Omnivorous flying wasps",
     "Detrital soil macrofauna",
@@ -133,7 +135,195 @@ functional_group_level5_options: list[str] = [
 
 
 # Fill functional_group_level5_name values in later phases.
-species_to_fg_template: list[dict[str, str]] = []
+species_to_fg_template: list[dict[str, str]] = [
+    {
+        "species_common_name": "Oriental_small-clawed_otter",
+        "species_scientific_name": "Aonyx_cinereus",
+        "functional_group_level5_name": "Carnivorous aquatic mammal",
+    },
+    {
+        "species_common_name": "Binturong",
+        "species_scientific_name": "Arctictis_binturong",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Great_argus",
+        "species_scientific_name": "Argusianus_argus",
+        "functional_group_level5_name": "Omnivorous terrestrial bird",
+    },
+    {
+        "species_common_name": "Banteng",
+        "species_scientific_name": "Bos_javanicus",
+        "functional_group_level5_name": "Herbivorous terrestrial medium mammal",
+    },
+    {
+        "species_common_name": "Bay_cat",
+        "species_scientific_name": "Catopuma_badia",
+        "functional_group_level5_name": (
+            "Carnivorous arboreal/terrestrial medium mammal"
+        ),
+    },
+    {
+        "species_common_name": "Hose's_civet",
+        "species_scientific_name": "Diplogale_hosei",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Moon_rat",
+        "species_scientific_name": "Echinosorex_gymnura",
+        "functional_group_level5_name": "Carnivorous borrowing mammal",
+    },
+    {
+        "species_common_name": "Sun_bear",
+        "species_scientific_name": "Helarctos_malayanus",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial large mammal",
+    },
+    {
+        "species_common_name": "Banded_civet",
+        "species_scientific_name": "Hemigalus_derbyanus",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Short-tailed_mongoose",
+        "species_scientific_name": "Herpestes_brachyurus",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Collared_mongoose",
+        "species_scientific_name": "Herpestes_semitorquatus",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Malay_porcupine",
+        "species_scientific_name": "Hystrix_brachyura",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Thick-spined_porcupine",
+        "species_scientific_name": "Hystrix_crassispinis",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Bulwer's_pheasant",
+        "species_scientific_name": "Lophura_bulweri",
+        "functional_group_level5_name": "Omnivorous terrestrial bird",
+    },
+    {
+        "species_common_name": "Crested_fireback",
+        "species_scientific_name": "Lophura_ignita",
+        "functional_group_level5_name": "Omnivorous terrestrial bird",
+    },
+    {
+        "species_common_name": "Long-tailed_macaque",
+        "species_scientific_name": "Macaca_fascicularis",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Pig-tailed_macaque",
+        "species_scientific_name": "Macaca_nemestrina",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Sunda_pangolin",
+        "species_scientific_name": "Manis_javanica",
+        "functional_group_level5_name": (
+            "Carnivorous arboreal/terrestrial medium mammal"
+        ),
+    },
+    {
+        "species_common_name": "Yellow-throated_marten",
+        "species_scientific_name": "Martes_flavigula",
+        "functional_group_level5_name": (
+            "Carnivorous arboreal/terrestrial medium mammal"
+        ),
+    },
+    {
+        "species_common_name": "Yellow_muntjac",
+        "species_scientific_name": "Muntiacus_atherodes",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Red_muntjac",
+        "species_scientific_name": "Muntiacus_muntjak",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Malay_weasel",
+        "species_scientific_name": "Mustela_nudipes",
+        "functional_group_level5_name": "Carnivorous terrestrial/arboreal mammal",
+    },
+    {
+        "species_common_name": "Sunda_stink_badger",
+        "species_scientific_name": "Mydaus_javanensis",
+        "functional_group_level5_name": "Omnivorous terrestrial mammal",
+    },
+    {
+        "species_common_name": "Sunda_clouded_leopard",
+        "species_scientific_name": "Neofelis_diardi",
+        "functional_group_level5_name": (
+            "Carnivorous arboreal/terrestrial medium mammal"
+        ),
+    },
+    {
+        "species_common_name": "Masked_palm_civet",
+        "species_scientific_name": "Paguma_larvata",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Marbled_cat",
+        "species_scientific_name": "Pardofelis_marmorata",
+        "functional_group_level5_name": (
+            "Carnivorous arboreal/terrestrial medium mammal"
+        ),
+    },
+    {
+        "species_common_name": "Bornean_orangutan",
+        "species_scientific_name": "Pongo_pygmaeus",
+        "functional_group_level5_name": "Omnivorous arboreal primate",
+    },
+    {
+        "species_common_name": "Leopard_cat",
+        "species_scientific_name": "Prionailurus_javanensis",
+        "functional_group_level5_name": (
+            "Carnivorous arboreal/terrestrial medium mammal"
+        ),
+    },
+    {
+        "species_common_name": "Tufted_ground_squirrel",
+        "species_scientific_name": "Rheithrosciurus_macrotis",
+        "functional_group_level5_name": "Omnivorous arboreal small mammal",
+    },
+    {
+        "species_common_name": "Sambar_deer",
+        "species_scientific_name": "Rusa_unicolor",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Bearded_pig",
+        "species_scientific_name": "Sus_barbatus",
+        "functional_group_level5_name": "Omnivorous terrestrial mammal",
+    },
+    {
+        "species_common_name": "Lesser_mouse-deer",
+        "species_scientific_name": "Tragulus_kanchil",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Greater_mouse-deer",
+        "species_scientific_name": "Tragulus_napu",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Long-tailed_porcupine",
+        "species_scientific_name": "Trichys_fasciculata",
+        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
+    },
+    {
+        "species_common_name": "Malay_civet",
+        "species_scientific_name": "Viverra_tangalunga",
+        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
+    },
+]
 
 settings = {
     "module_name": module_name,
@@ -173,6 +363,7 @@ if __name__ == "__main__":
         & (wearn_table["species_common_name"] != "")
     ].copy()
 
+    # Strip white spaces and replace them with underscores.
     wearn_table["species_common_name"] = (
         wearn_table["species_common_name"]
         .str.strip()
@@ -208,6 +399,101 @@ if __name__ == "__main__":
     parsed_rows = int(wearn_table["density_old_growth_median"].notna().sum())
     failed_rows = len(wearn_table) - parsed_rows
 
+    # Phase 4: map species to level-5 functional groups.
+    # Many species may map to one FG, and not all FG options need to be used.
+    # Missing FG mappings are allowed and carried through as NA.
+    mapping_columns = [
+        "species_common_name",
+        "species_scientific_name",
+        "functional_group_level5_name",
+    ]
+    species_fg_mapping = pd.DataFrame(
+        species_to_fg_template,
+        columns=mapping_columns,
+    ).copy()
+
+    # Standardize species and functional group columns in the mapping table.
+    for column_name in ["species_common_name", "species_scientific_name"]:
+        species_fg_mapping[column_name] = (
+            species_fg_mapping[column_name]
+            .astype("string")
+            .str.strip()
+            .str.replace(r"\s+", "_", regex=True)
+        )
+    species_fg_mapping["functional_group_level5_name"] = (
+        species_fg_mapping["functional_group_level5_name"]
+        .astype("string")
+        .str.strip()
+        .replace("", pd.NA)
+    )
+
+    # Check for duplicate species_scientific_name entries in the mapping table.
+    duplicate_species = species_fg_mapping[
+        species_fg_mapping["species_scientific_name"].duplicated(keep=False)
+    ]["species_scientific_name"].unique()
+    if len(duplicate_species) > 0:
+        duplicate_species_list = ", ".join(sorted(map(str, duplicate_species)))
+        raise ValueError(
+            "Phase 4 mapping has duplicated species_scientific_name entries: "
+            f"{duplicate_species_list}"
+        )
+
+    # Create a reference table of unique species from the wearn_table.
+    species_reference = (
+        wearn_table[["species_common_name", "species_scientific_name"]]
+        .drop_duplicates()
+        .sort_values("species_scientific_name")
+        .reset_index(drop=True)
+    )
+
+    # If the species_to_fg_template is empty, generate template to copy and fill in
+    if len(species_to_fg_template) == 0:
+        template_rows = species_reference.assign(functional_group_level5_name="")
+        print("\nPhase 4 template helper")
+        print("Copy this block into species_to_fg_template and fill only")
+        print("functional_group_level5_name values:\n")
+        print("species_to_fg_template = [")
+        for row in template_rows.itertuples(index=False):
+            print("    {")
+            print(f'        "species_common_name": "{row.species_common_name}",')
+            print(
+                f'        "species_scientific_name": "{row.species_scientific_name}",'
+            )
+            print('        "functional_group_level5_name": "",')
+            print("    },")
+        print("]\n")
+
+    # Merge the species reference with the functional group mapping.
+    species_mapping = species_reference.merge(
+        species_fg_mapping[["species_scientific_name", "functional_group_level5_name"]],
+        on="species_scientific_name",
+        how="left",
+    )
+
+    # Check for FG group names that dont exist in the functional_group_level5_options
+    invalid_fg_rows = species_mapping[
+        species_mapping["functional_group_level5_name"].notna()
+        & ~species_mapping["functional_group_level5_name"].isin(
+            functional_group_level5_options
+        )
+    ]
+    if not invalid_fg_rows.empty:
+        invalid_fg_list = ", ".join(
+            sorted(invalid_fg_rows["functional_group_level5_name"].unique())
+        )
+        raise ValueError(
+            "Phase 4 mapping contains FG names not in "
+            f"functional_group_level5_options: {invalid_fg_list}"
+        )
+
+    # Merge the functional group information back into the main wearn_table
+    wearn_table = wearn_table.merge(
+        species_mapping[["species_scientific_name", "functional_group_level5_name"]],
+        on="species_scientific_name",
+        how="left",
+        validate="many_to_one",
+    )
+
     print(f"parsed rows: {len(wearn_table)}")
     print(
         wearn_table[
@@ -219,8 +505,13 @@ if __name__ == "__main__":
                 "density_old_growth_median",
                 "density_old_growth_ci95_lower",
                 "density_old_growth_ci95_upper",
+                "functional_group_level5_name",
             ]
         ].head(5)
     )
     print(f"Phase 3 parsed old-growth rows: {parsed_rows}")
     print(f"Phase 3 failed old-growth rows: {failed_rows}")
+    mapped_species = int(species_mapping["functional_group_level5_name"].notna().sum())
+    unmapped_species = int(species_mapping["functional_group_level5_name"].isna().sum())
+    print(f"Phase 4 mapped species: {mapped_species}")
+    print(f"Phase 4 unmapped species: {unmapped_species}")
