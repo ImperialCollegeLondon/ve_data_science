@@ -11,7 +11,7 @@ results against observations.
 !!! note "To complete"
 
    	Each module has a unique pipeline based on the model requirements, available
-	data sources, and domain-specific methods. In future, eaach module will provide
+	data sources, and domain-specific methods. In future, each module will provide
 	documentation of their pipeline with any additional notes required to understand
 	the methods.
 
