@@ -35,6 +35,8 @@
 #|   - toml
 #| ---
 
+source(here::here("tools/R/R/get_ve_variables.R"))
+
 #' Read VE scenario metadata from compiled configuration
 #'
 #' Internal helper for [join_ve_outputs()]. It reads VE grid and timing metadata

@@ -63,25 +63,7 @@
 
 # Import and re-export from submodules
 
-box::use(
-  ./valdb_screening[
-    normalise_doi,
-    doi_to_record_id,
-    normalise_doi_metadata,
-    fetch_doi_metadata,
-    new_screening_record,
-    list_screening_records,
-    find_screening_record,
-    write_screening_record,
-    screen_dataset,
-    new_schema_template,
-    initialise_source_schema,
-    add_schema
-  ],
-  ./valdb_build[
-    build_validation_database
-  ],
-  ./valdb_join_ve[
-    join_ve_outputs
-  ]
-)
+source(here::here("tools/R/R/valdb_screening.R"))
+source(here::here("tools/R/R/valdb_build.R"))
+source(here::here("tools/R/R/valdb_join_ve.R"))
+source(here::here("tools/R/R/get_ve_variables.R"))
