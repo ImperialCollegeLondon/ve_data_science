@@ -62,6 +62,9 @@
 #|   `build_validation_database()` reads completed per-DOI schemas and writes
 #|   grouped Parquet output. `join_ve_outputs()` requires VE output files and
 #|   functions from `tools/R/R/get_ve_variables.R`.
+#|   Use `screen_dataset()` and manual schema completion (see
+#|   docs/validation_database.md) before calling
+#|   `build_validation_database()`.
 #| ---
 
 # Screening record contract -----------------------------------------------
