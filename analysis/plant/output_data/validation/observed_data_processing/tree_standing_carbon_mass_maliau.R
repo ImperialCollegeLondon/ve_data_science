@@ -44,6 +44,12 @@
 #|     description: |
 #|       Calculated tree standing carbon mass components for OG plots in maliau_2.
 #|     variables:
+#|       - name: PlotID
+#|         type: character
+#|         units: dimensionless
+#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+#|         temporal_extent: null
+#|         description: SAFE identifier for each observed census plot.
 #|       - name: plot_area_m2
 #|         type: numeric
 #|         units: m2

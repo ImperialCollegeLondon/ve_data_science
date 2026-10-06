@@ -21,7 +21,9 @@
 #|     description: Observed plot carbon mass, coordinates, and census dates.
 #|   - name: tree_standing_carbon_mass_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
-#|     description: VE cell-time standing carbon mass.
+#|     description: |
+#|       VE cell-time total and per-PFT standing carbon mass. Repeated total
+#|       values are reduced to one cell-time row for comparison.
 #|   - name: tree_standing_carbon_mass_mapping_maliau_2.yml
 #|     path: analysis/plant/output_data/validation/variable_mapping
 #|     description: Observed-to-predicted variable and date mappings.
@@ -35,6 +37,15 @@
 #|     description: |
 #|       Row-level observed and predicted stem and foliage carbon mass
 #|       comparisons for each plot-cell-date combination.
+#|   - name: maliau_2_cells_and_observed_plots.png
+#|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
+#|     description: VE cell IDs and observed plot footprints and centroids.
+#|   - name: stem_c_mass_summed_across_pfts_by_cell.png
+#|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
+#|     description: Stem carbon mass per cell, summed across PFTs, with observed values.
+#|   - name: foliage_c_mass_summed_across_pfts_by_cell.png
+#|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
+#|     description: Foliage carbon mass per cell, summed across PFTs, with observed values.
 #|
 #| package_dependencies:
 #|   - data.table
@@ -64,6 +75,14 @@ grid_definition_file <-
 output_dir <-
   "../../../../../data/derived/plant/output_data/validation/comparisons"
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+figures_dir <- file.path(output_dir, "comparisons_figures_maliau_2")
+dir.create(figures_dir, recursive = TRUE, showWarnings = FALSE)
+figures_dir <- normalizePath(figures_dir, winslash = "/", mustWork = TRUE)
+figure_file_names <- c(
+  grid_and_observed_plots = "maliau_2_cells_and_observed_plots.png",
+  stem_c_mass_kg_ha = "stem_c_mass_summed_across_pfts_by_cell.png",
+  foliage_c_mass_kg_ha = "foliage_c_mass_summed_across_pfts_by_cell.png"
+)
 
 observed_data <- fread(observed_data_file)
 predicted_data <- fread(predicted_data_file)
@@ -73,11 +92,24 @@ site_definition <- grid_definition$Scenario$maliau_2
 
 observed_data[, census_date_2011 := as.Date(census_date_2011)]
 observed_data[, census_date_2014 := as.Date(census_date_2014)]
-predicted_data[, exact_time := as.Date(exact_time)]
-if (!"interval_start_time" %in% names(predicted_data)) {
+predicted_data <- unique(
+  predicted_data[, .(
+    cell_id,
+    cell_x,
+    cell_y,
+    timestep_end_date,
+    timestep_start_date,
+    time_index,
+    stem_c_mass_kg_ha,
+    foliage_c_mass_kg_ha
+  )],
+  by = c("cell_id", "time_index")
+)
+predicted_data[, timestep_end_date := as.Date(timestep_end_date)]
+if (!"timestep_start_date" %in% names(predicted_data)) {
   stop("Rerun predicted processing to export corrected timestep boundaries.")
 }
-predicted_data[, interval_start_time := as.Date(interval_start_time)]
+predicted_data[, timestep_start_date := as.Date(timestep_start_date)]
 
 make_square <- function(x, y, side_length) {
   half_side <- side_length / 2
@@ -90,12 +122,8 @@ make_square <- function(x, y, side_length) {
   )))
 }
 
-# Recreate the plot-cell intersections used by the predicted processing.
-grid_cells <- as.data.table(expand.grid(
-  cell_x = site_definition$cell_x_centres,
-  cell_y = site_definition$cell_y_centres
-))
-grid_cells[, cell_id := .I - 1L]
+# Use the cell IDs and coordinates exported by the simulation.
+grid_cells <- unique(predicted_data[, .(cell_id, cell_x, cell_y)])
 cell_polygons <- st_sf(
   grid_cells,
   geometry = st_sfc(
@@ -135,6 +163,134 @@ plot_cell_matches <- as.data.table(st_drop_geometry(st_join(
   left = FALSE
 )))
 
+# Diagnostic figure: verify the grid and plot-cell intersections.
+plot(
+  st_geometry(cell_polygons),
+  col = NA,
+  border = "grey70",
+  lwd = 0.8,
+  asp = 1,
+  main = "Maliau-2 VE cells and observed OG plots",
+  xlab = "Easting (m)",
+  ylab = "Northing (m)"
+)
+text(
+  grid_cells$cell_x,
+  grid_cells$cell_y,
+  labels = grid_cells$cell_id,
+  cex = 0.65
+)
+plot(st_geometry(plot_polygons), add = TRUE, border = "red", lwd = 2)
+plot_points_xy <- st_coordinates(plot_points)
+points(plot_points_xy, pch = 19, col = "red")
+text(
+  plot_points_xy[, 1],
+  plot_points_xy[, 2],
+  labels = plot_points$PlotID,
+  pos = 3,
+  col = "red",
+  cex = 0.75
+)
+dev.copy(
+  png,
+  filename = file.path(
+    figures_dir,
+    figure_file_names[["grid_and_observed_plots"]]
+  ),
+  width = 1800,
+  height = 1350,
+  res = 150
+)
+dev.off()
+
+# Compare observed plot masses with per-cell totals summed across PFTs.
+plot_cell_ids <- grid_cells$cell_id
+plot_cell_mass_kg_ha <- predicted_data[order(timestep_end_date)]
+cell_colours <- hcl.colors(length(plot_cell_ids), palette = "Dark 3")
+tissue_plots <- c(
+  stem_c_mass_kg_ha = "Stem carbon mass",
+  foliage_c_mass_kg_ha = "Foliage carbon mass"
+)
+
+old_par <- par(mfrow = c(1, 1), mar = c(3, 4, 2, 1))
+for (tissue_column in names(tissue_plots)) {
+  observed_prefix <- if (tissue_column == "stem_c_mass_kg_ha") {
+    "obs_stem_mass"
+  } else {
+    "obs_leaf_mass"
+  }
+  observed_2011 <- observed_data[[paste0(observed_prefix, "_2011_kg_ha")]]
+  observed_2014 <- observed_data[[paste0(observed_prefix, "_2014_kg_ha")]]
+  first_cell_mass_kg_ha <-
+    plot_cell_mass_kg_ha[cell_id == plot_cell_ids[1]]
+  plot(
+    first_cell_mass_kg_ha$timestep_end_date,
+    first_cell_mass_kg_ha[[tissue_column]],
+    type = "l",
+    ylim = range(
+      c(plot_cell_mass_kg_ha[[tissue_column]], observed_2011, observed_2014),
+      na.rm = TRUE
+    ),
+    col = cell_colours[1],
+    lwd = 0.6,
+    xlab = "Model date",
+    ylab = "kg C ha-1",
+    main = paste(tissue_plots[[tissue_column]], "per cell, summed across PFTs")
+  )
+  for (index in seq_along(plot_cell_ids)) {
+    cell_mass_kg_ha_for_plot <-
+      plot_cell_mass_kg_ha[cell_id == plot_cell_ids[index]]
+    lines(
+      cell_mass_kg_ha_for_plot$timestep_end_date,
+      cell_mass_kg_ha_for_plot[[tissue_column]],
+      col = cell_colours[index],
+      lwd = 0.6
+    )
+  }
+  points(
+    observed_data$census_date_2011,
+    observed_2011,
+    pch = 16,
+    col = "black"
+  )
+  text(
+    observed_data$census_date_2011,
+    observed_2011,
+    labels = observed_data$PlotID,
+    pos = 4,
+    cex = 0.65
+  )
+  points(
+    observed_data$census_date_2014,
+    observed_2014,
+    pch = 17,
+    col = "black"
+  )
+  text(
+    observed_data$census_date_2014,
+    observed_2014,
+    labels = observed_data$PlotID,
+    pos = 4,
+    cex = 0.65
+  )
+  legend(
+    "topright",
+    legend = c("Observed 2011", "Observed 2014"),
+    pch = c(16, 17),
+    col = "black",
+    bty = "n"
+  )
+  dev.copy(
+    png,
+    filename = file.path(figures_dir, figure_file_names[[tissue_column]]),
+    width = 1800,
+    height = 1350,
+    res = 150
+  )
+  dev.off()
+}
+par(old_par)
+
 # Build one observed row per plot, overlapping cell, and census date.
 comparison_rows <- rbindlist(
   lapply(mapping, function(mapping_entry) {
@@ -161,7 +317,7 @@ comparison_rows <- rbindlist(
       .(
         cell_id,
         time_index,
-        interval_start_time,
+        timestep_start_date,
         predicted_date = get(predicted_date_variable),
         predicted_value = get(predicted_variable)
       )
@@ -176,22 +332,13 @@ comparison_rows <- rbindlist(
     # Match the plot's representative date to the interval ending at predicted_date.
     # A date on the end boundary belongs to that completed timestep.
     merged_rows <- merged_rows[
-      interval_start_time < observed_date & observed_date <= predicted_date
+      timestep_start_date < observed_date & observed_date <= predicted_date
     ]
     if (nrow(merged_rows) != nrow(observed_rows)) {
       stop("Each plot-cell-date row must match exactly one predicted interval.")
     }
     merged_rows[, observed_variable := observed_variable]
     merged_rows[, predicted_variable := predicted_variable]
-    merged_rows[, difference := predicted_value - observed_value]
-    merged_rows[,
-      relative_difference := fifelse(
-        observed_value == 0,
-        NA_real_,
-        difference / observed_value
-      )
-    ]
-    merged_rows[, units := "kg C ha-1"]
     merged_rows[, observed_period := as.character(observed_date)]
     merged_rows[, predicted_period := as.character(predicted_date)]
     merged_rows[, observed_spatial_extent := paste("Plot", PlotID)]
@@ -202,8 +349,8 @@ comparison_rows <- rbindlist(
     merged_rows[,
       predicted_temporal_extent := "Standing stock at the end of the timestep identified by time_index."
     ]
-    merged_rows[, observed_units := units]
-    merged_rows[, predicted_units := units]
+    merged_rows[, observed_units := "kg C ha-1"]
+    merged_rows[, predicted_units := "kg C ha-1"]
     merged_rows[]
   }),
   fill = TRUE
@@ -223,7 +370,7 @@ setcolorder(
     "cell_x",
     "cell_y",
     "observed_date",
-    "interval_start_time",
+    "timestep_start_date",
     "predicted_date",
     "time_index",
     "observed_variable",
@@ -238,10 +385,7 @@ setcolorder(
     "predicted_units",
     "observed_value",
     "observed_se",
-    "predicted_value",
-    "difference",
-    "relative_difference",
-    "units"
+    "predicted_value"
   )
 )
 

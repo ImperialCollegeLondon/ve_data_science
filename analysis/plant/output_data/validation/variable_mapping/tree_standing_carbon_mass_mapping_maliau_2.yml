@@ -11,7 +11,7 @@ variable_mappings:
       file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
       variable: "stem_c_mass_kg_ha"
       sd_variable: null
-      date_variable: "exact_time"
+      date_variable: "timestep_end_date"
   - observed:
       file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv"
       variable: "obs_stem_mass_2014_kg_ha"
@@ -21,7 +21,7 @@ variable_mappings:
       file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
       variable: "stem_c_mass_kg_ha"
       sd_variable: null
-      date_variable: "exact_time"
+      date_variable: "timestep_end_date"
   - observed:
       file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv"
       variable: "obs_leaf_mass_2011_kg_ha"
@@ -31,7 +31,7 @@ variable_mappings:
       file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
       variable: "foliage_c_mass_kg_ha"
       sd_variable: null
-      date_variable: "exact_time"
+      date_variable: "timestep_end_date"
   - observed:
       file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv"
       variable: "obs_leaf_mass_2014_kg_ha"
@@ -41,4 +41,4 @@ variable_mappings:
       file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
       variable: "foliage_c_mass_kg_ha"
       sd_variable: null
-      date_variable: "exact_time"
+      date_variable: "timestep_end_date"

@@ -27,6 +27,9 @@
 #|   - name: compiled_configuration.toml
 #|     path: data/scenarios/maliau/maliau_2/out
 #|     description: Simulation start date and update interval.
+#|   - name: model_data.nc
+#|     path: data/scenarios/maliau/maliau_2/out
+#|     description: VE cell IDs and projected cell-centre coordinates for the full grid.
 #|   - name: tree_standing_carbon_mass_maliau.csv
 #|     path: data/derived/plant/output_data/validation/observed_data_processing
 #|     description: Observed plot data used for diagnostic figures only.
@@ -35,7 +38,9 @@
 #|   - name: tree_standing_carbon_mass_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: |
-#|       Cell-level Virtual Ecosystem standing stem and foliage carbon mass.
+#|       Per-cell total and per-PFT standing stem and foliage carbon mass for
+#|       each timestep. Total masses repeat across the PFT rows for each cell
+#|       and timestep.
 #|     variables:
 #|       - name: cell_id
 #|         type: integer
@@ -55,18 +60,18 @@
 #|         spatial_extent: Cell centre.
 #|         temporal_extent: null
 #|         description: Cell centre northing in the grid CRS.
-#|       - name: exact_time
+#|       - name: timestep_end_date
 #|         type: date
 #|         units: ISO 8601 date
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Exact model timestep.
-#|         description: Timestep end date; timestep zero ends after one interval.
-#|       - name: interval_start_time
+#|         description: End date of the model timestep.
+#|       - name: timestep_start_date
 #|         type: date
 #|         units: ISO 8601 date
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Start of the model timestep.
-#|         description: Model date at the start of the timestep.
+#|         description: Start date of the model timestep.
 #|       - name: time_index
 #|         type: integer
 #|         units: dimensionless
@@ -78,25 +83,68 @@
 #|         units: kg C ha-1
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Exact model timestep.
-#|         description: Standing stem carbon mass per hectare.
+#|         description: Total standing stem carbon mass across PFTs, repeated on each PFT row.
 #|       - name: foliage_c_mass_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Exact model timestep.
-#|         description: Standing foliage carbon mass per hectare.
+#|         description: Total standing foliage carbon mass across PFTs, repeated on each PFT row.
+#|       - name: pft_name
+#|         type: character
+#|         units: dimensionless
+#|         spatial_extent: Single Maliau-2 grid cell.
+#|         temporal_extent: Exact model timestep.
+#|         description: Plant functional type for the per-PFT mass fields.
+#|       - name: stem_c_mass_per_pft_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: Single Maliau-2 grid cell.
+#|         temporal_extent: Exact model timestep.
+#|         description: Standing stem carbon mass per hectare for pft_name.
+#|       - name: foliage_c_mass_per_pft_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: Single Maliau-2 grid cell.
+#|         temporal_extent: Exact model timestep.
+#|         description: Standing foliage carbon mass per hectare for pft_name.
 #|       - name: units
 #|         type: character
 #|         units: dimensionless
 #|         spatial_extent: All output rows.
 #|         temporal_extent: null
 #|         description: Units for the standing carbon mass fields.
+#|   - name: stem_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Stem carbon mass per PFT and cell, standardised to kg C ha-1.
+#|   - name: foliage_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Foliage carbon mass per PFT and cell, standardised to kg C ha-1.
+#|   - name: stem_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Stem carbon mass per PFT and cell from timestep index 4 onward.
+#|   - name: foliage_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Foliage carbon mass per PFT and cell from timestep index 4 onward.
+#|   - name: stem_c_mass_mean_across_cells_all_time_indices_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Mean total and PFT-specific stem carbon mass across grid cells for all timesteps.
+#|   - name: foliage_c_mass_mean_across_cells_all_time_indices_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Mean total and PFT-specific foliage carbon mass across grid cells for all timesteps.
+#|   - name: stem_c_mass_mean_across_cells_from_time_index_4_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Mean total and PFT-specific stem carbon mass across grid cells from timestep index 4 onward.
+#|   - name: foliage_c_mass_mean_across_cells_from_time_index_4_kg_ha.png
+#|     path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+#|     description: Mean total and PFT-specific foliage carbon mass across grid cells from timestep index 4 onward.
 #|
 #| package_dependencies:
 #|   - data.table
 #|   - sf
 #|   - toml
 #|   - reticulate
+#|   - xarray
 #|
 #| usage_notes: |
 #|   Initialisation rows without whole_crown_gpp are excluded before cohort
@@ -118,34 +166,22 @@ plants_cohort_data_path <-
   "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
 compiled_configuration_path <-
   "../../../../../data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
+model_data_path <-
+  "../../../../../data/scenarios/maliau/maliau_2/out/model_data.nc"
+figures_dir <-
+  "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2"
+dir.create(figures_dir, recursive = TRUE, showWarnings = FALSE)
+figures_dir <- normalizePath(
+  figures_dir,
+  winslash = "/",
+  mustWork = TRUE
+)
 
 # Load and validate observed data used by diagnostic figures ----------------
 
 observed_data <- fread(observed_data_path)
 observed_data[, census_date_2011 := as.Date(census_date_2011)]
 observed_data[, census_date_2014 := as.Date(census_date_2014)]
-required_observed_columns <- c(
-  "PlotID",
-  "plot_area_m2",
-  "plot_x",
-  "plot_y",
-  "census_date_2011",
-  "census_date_2014",
-  "obs_stem_mass_2011_kg_ha",
-  "obs_stem_mass_2014_kg_ha",
-  "obs_leaf_mass_2011_kg_ha",
-  "obs_leaf_mass_2014_kg_ha"
-)
-missing_observed_columns <- setdiff(
-  required_observed_columns,
-  names(observed_data)
-)
-if (length(missing_observed_columns) > 0) {
-  stop(
-    "Observed data are missing: ",
-    paste(missing_observed_columns, collapse = ", ")
-  )
-}
 
 # Load grid definition and model timing ------------------------------------
 
@@ -154,7 +190,9 @@ site_definition <- grid_definition$Scenario$maliau_2
 cell_size_m <- site_definition$res
 cell_area_ha <- cell_size_m^2 / 10000
 
-# Use the same Pint-based timestep conversion as the productivity workflow.
+# Use the Pint-based timestep duration calculation method (requires uv set up to
+# access the VE Python environment)
+# Note that this is currently always 1 month = 30.4375 days
 compiled_configuration <- read_toml(compiled_configuration_path)
 simulation_start_date <- as.Date(
   compiled_configuration$core$timing$start_date
@@ -168,13 +206,18 @@ timestep_interval_in_days <-
 
 # Build the regular Maliau-2 cell grid --------------------------------------
 
-# VE cell IDs start at zero and follow the same x-fastest ordering as the
-# expand.grid() cell layout used to create the model input.
-grid_cells <- as.data.table(expand.grid(
-  cell_x = site_definition$cell_x_centres,
-  cell_y = site_definition$cell_y_centres
-))
-grid_cells[, cell_id := .I - 1L]
+# Use VE's own cell IDs and coordinates so this script does not recreate its
+# cell ordering. These coordinates cover the full grid, including empty cells.
+# Import xarray for reading model data using same VE Python environment as above.
+
+xarray <- import("xarray")
+model_data <- xarray$open_dataset(model_data_path)
+grid_cells <- data.table(
+  cell_id = as.integer(py_to_r(model_data$coords[["cell_id"]]$values)),
+  cell_x = as.numeric(py_to_r(model_data$coords[["x"]]$values)),
+  cell_y = as.numeric(py_to_r(model_data$coords[["y"]]$values))
+)
+model_data$close()
 
 make_square <- function(x, y, side_length) {
   half_side <- side_length / 2
@@ -272,6 +315,7 @@ text(
 # avoids loading the full plants_cohort_data.csv into memory.
 required_columns <- c(
   "cell_id",
+  "pft_name",
   "time",
   "time_index",
   "n_individuals",
@@ -298,199 +342,300 @@ plants_cohort_data[, n_individuals := as.numeric(n_individuals)]
 plants_cohort_data[, stem_c_biomass := as.numeric(stem_c_biomass)]
 plants_cohort_data[, foliage_c_biomass := as.numeric(foliage_c_biomass)]
 plants_cohort_data[,
-  exact_time := simulation_start_date +
+  timestep_end_date := simulation_start_date +
     (time_index + 1) * timestep_interval_in_days
 ]
 
-cell_mass <- plants_cohort_data[,
+# Calculate stem and foliage carbon mass per PFT, cell, and timestep. These
+# values are for diagnostic plots because validation data are not PFT-resolved.
+pft_cell_mass_kg <- plants_cohort_data[,
   .(
-    stem_c_mass = sum(stem_c_biomass * n_individuals, na.rm = TRUE),
-    foliage_c_mass = sum(foliage_c_biomass * n_individuals, na.rm = TRUE)
+    stem_c_mass_kg_cell = sum(stem_c_biomass * n_individuals, na.rm = TRUE),
+    foliage_c_mass_kg_cell = sum(
+      foliage_c_biomass * n_individuals,
+      na.rm = TRUE
+    )
   ),
-  by = .(cell_id, exact_time, time_index)
+  by = .(pft_name, cell_id, timestep_end_date, time_index)
 ]
-cell_mass[,
-  interval_start_time := simulation_start_date +
+pft_cell_mass_kg_ha <- data.table::copy(pft_cell_mass_kg)
+pft_cell_mass_kg_ha[, stem_c_mass_kg_ha := stem_c_mass_kg_cell / cell_area_ha]
+pft_cell_mass_kg_ha[,
+  foliage_c_mass_kg_ha := foliage_c_mass_kg_cell / cell_area_ha
+]
+pft_cell_mass_kg_ha[,
+  c("stem_c_mass_kg_cell", "foliage_c_mass_kg_cell") := NULL
+]
+
+# Repeat for cell total
+cell_mass_kg <- plants_cohort_data[,
+  .(
+    stem_c_mass_kg_cell = sum(stem_c_biomass * n_individuals, na.rm = TRUE),
+    foliage_c_mass_kg_cell = sum(
+      foliage_c_biomass * n_individuals,
+      na.rm = TRUE
+    )
+  ),
+  by = .(cell_id, timestep_end_date, time_index)
+]
+cell_mass_kg[,
+  timestep_start_date := simulation_start_date +
     time_index * timestep_interval_in_days
 ]
 
 # Standardise cell totals to kg C ha-1 ---------------------------------------
-cell_mass[, stem_c_mass_kg_ha := stem_c_mass / cell_area_ha]
-cell_mass[, foliage_c_mass_kg_ha := foliage_c_mass / cell_area_ha]
+cell_mass_kg_ha <- data.table::copy(cell_mass_kg)
+cell_mass_kg_ha[, stem_c_mass_kg_ha := stem_c_mass_kg_cell / cell_area_ha]
+cell_mass_kg_ha[, foliage_c_mass_kg_ha := foliage_c_mass_kg_cell / cell_area_ha]
+cell_mass_kg_ha[, c("stem_c_mass_kg_cell", "foliage_c_mass_kg_cell") := NULL]
 
 # Diagnostic figures: inspect all 100 VE cell trajectories -------------------
 plot_cell_ids <- grid_cells$cell_id
-plot_cell_mass <- cell_mass[
-  cell_id %in% plot_cell_ids
-][order(exact_time)]
 
-cell_values <- lapply(
-  plot_cell_ids,
-  function(cell) plot_cell_mass[cell_id == cell]
-)
 cell_colours <- hcl.colors(length(plot_cell_ids), palette = "Dark 3")
+pft_names <- sort(unique(pft_cell_mass_kg_ha$pft_name))
 
 tissue_plots <- c(
   stem_c_mass_kg_ha = "Stem carbon mass",
   foliage_c_mass_kg_ha = "Foliage carbon mass"
 )
+figure_file_names <- list(
+  all_time_indices = c(
+    stem_c_mass_kg_ha = "stem_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png",
+    foliage_c_mass_kg_ha = "foliage_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png"
+  ),
+  from_time_index_4 = c(
+    stem_c_mass_kg_ha = "stem_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png",
+    foliage_c_mass_kg_ha = "foliage_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png"
+  )
+)
 
-# Each loop iteration creates a separate figure for one tissue type.
-old_par <- par(mfrow = c(1, 1), mar = c(3, 4, 2, 1))
-for (tissue_column in names(tissue_plots)) {
-  observed_prefix <- if (tissue_column == "stem_c_mass_kg_ha") {
-    "obs_stem_mass"
+# Each PFT panel uses its own y-axis scale.
+for (time_scope in names(figure_file_names)) {
+  pft_plot_data <- if (time_scope == "all_time_indices") {
+    pft_cell_mass_kg_ha
   } else {
-    "obs_leaf_mass"
+    pft_cell_mass_kg_ha[time_index >= 4]
   }
-  observed_2011 <- observed_data[[paste0(observed_prefix, "_2011_kg_ha")]]
-  observed_2014 <- observed_data[[paste0(observed_prefix, "_2014_kg_ha")]]
-  plot(
-    cell_values[[1]]$exact_time,
-    cell_values[[1]][[tissue_column]],
-    type = "l",
-    ylim = range(
-      c(plot_cell_mass[[tissue_column]], observed_2011, observed_2014),
-      na.rm = TRUE
-    ),
-    col = cell_colours[1],
-    lwd = 0.6,
-    xlab = "Model date",
-    ylab = "kg C ha-1",
-    main = paste(tissue_plots[[tissue_column]], "for all 100 VE cells")
-  )
-  for (index in seq_along(cell_values)) {
-    lines(
-      cell_values[[index]]$exact_time,
-      cell_values[[index]][[tissue_column]],
-      col = cell_colours[index],
-      lwd = 0.6
+  x_limits <- range(pft_plot_data$timestep_end_date)
+  plot_rows <- ceiling(sqrt(length(pft_names)))
+  plot_columns <- ceiling(length(pft_names) / plot_rows)
+
+  for (tissue_column in names(tissue_plots)) {
+    old_par <- par(
+      mfrow = c(plot_rows, plot_columns),
+      mar = c(3, 4, 2, 1),
+      oma = c(0, 0, 2, 0)
     )
+    for (pft in pft_names) {
+      pft_data <- pft_plot_data[pft_name == pft][order(timestep_end_date)]
+      pft_cell_ids <- intersect(plot_cell_ids, unique(pft_data$cell_id))
+      first_cell <- pft_data[cell_id == pft_cell_ids[1]]
+
+      plot(
+        first_cell$timestep_end_date,
+        first_cell[[tissue_column]],
+        type = "n",
+        xlim = x_limits,
+        ylim = range(pft_data[[tissue_column]], na.rm = TRUE),
+        xlab = "Timestep end date",
+        ylab = "kg C ha-1",
+        main = pft
+      )
+      for (cell_index in seq_along(pft_cell_ids)) {
+        cell_data <- pft_data[cell_id == pft_cell_ids[cell_index]]
+        lines(
+          cell_data$timestep_end_date,
+          cell_data[[tissue_column]],
+          col = cell_colours[match(pft_cell_ids[cell_index], plot_cell_ids)],
+          lwd = 0.6
+        )
+      }
+    }
+    mtext(tissue_plots[[tissue_column]], outer = TRUE, line = 0.5)
+    par(old_par)
+    dev.copy(
+      png,
+      filename = file.path(
+        figures_dir,
+        figure_file_names[[time_scope]][[tissue_column]]
+      ),
+      width = 1800,
+      height = 1350,
+      res = 150
+    )
+    dev.off()
   }
-  points(
-    observed_data$census_date_2011,
-    observed_2011,
-    pch = 16,
-    col = "black"
-  )
-  points(
-    observed_data$census_date_2014,
-    observed_2014,
-    pch = 17,
-    col = "black"
-  )
-  legend(
-    "topright",
-    legend = c("Observed 2011", "Observed 2014"),
-    pch = c(16, 17),
-    col = "black",
-    bty = "n"
-  )
 }
-par(old_par)
 
-# Additional simple diagnostic plots ----------------------------------------
-
-plot(
-  stem_c_mass_kg_ha ~ exact_time,
-  data = cell_mass,
-  ylim = range(
-    c(
-      cell_mass$stem_c_mass_kg_ha,
-      observed_data$obs_stem_mass_2011_kg_ha,
-      observed_data$obs_stem_mass_2014_kg_ha
-    ),
-    na.rm = TRUE
+# Plot mean total and PFT-specific carbon mass across all grid cells.
+time_steps <- unique(cell_mass_kg_ha[, .(time_index, timestep_end_date)])
+pft_colours <- hcl.colors(length(pft_names), palette = "Dark 3")
+mean_figure_file_names <- list(
+  all_time_indices = c(
+    stem_c_mass_kg_ha = "stem_c_mass_mean_across_cells_all_time_indices_kg_ha.png",
+    foliage_c_mass_kg_ha = "foliage_c_mass_mean_across_cells_all_time_indices_kg_ha.png"
+  ),
+  from_time_index_4 = c(
+    stem_c_mass_kg_ha = "stem_c_mass_mean_across_cells_from_time_index_4_kg_ha.png",
+    foliage_c_mass_kg_ha = "foliage_c_mass_mean_across_cells_from_time_index_4_kg_ha.png"
   )
 )
-points(
-  observed_data$census_date_2011,
-  observed_data$obs_stem_mass_2011_kg_ha,
-  pch = 16,
-  col = "black"
-)
-points(
-  observed_data$census_date_2014,
-  observed_data$obs_stem_mass_2014_kg_ha,
-  pch = 17,
-  col = "black"
-)
-#plot(stem_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>0])
-#plot(stem_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>1])
-#plot(stem_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>5])
-#plot(stem_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>10])
 
-plot(
-  foliage_c_mass_kg_ha ~ exact_time,
-  data = cell_mass,
-  ylim = range(
-    c(
-      cell_mass$foliage_c_mass_kg_ha,
-      observed_data$obs_leaf_mass_2011_kg_ha,
-      observed_data$obs_leaf_mass_2014_kg_ha
-    ),
-    na.rm = TRUE
+for (time_scope in names(mean_figure_file_names)) {
+  scope_time_steps <- if (time_scope == "all_time_indices") {
+    time_steps
+  } else {
+    time_steps[time_index >= 4]
+  }
+  cell_time_grid <- CJ(
+    cell_id = grid_cells$cell_id,
+    time_index = scope_time_steps$time_index,
+    unique = TRUE
   )
-)
-points(
-  observed_data$census_date_2011,
-  observed_data$obs_leaf_mass_2011_kg_ha,
-  pch = 16,
-  col = "black"
-)
-points(
-  observed_data$census_date_2014,
-  observed_data$obs_leaf_mass_2014_kg_ha,
-  pch = 17,
-  col = "black"
-)
-#plot(foliage_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>0])
-#plot(foliage_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>1])
-#plot(foliage_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>5])
-#plot(foliage_c_mass_kg_ha~exact_time, data=cell_mass[cell_mass$time_index>10])
+  cell_time_grid <- merge(cell_time_grid, scope_time_steps, by = "time_index")
+  pft_cell_time_grid <- CJ(
+    pft_name = pft_names,
+    cell_id = grid_cells$cell_id,
+    time_index = scope_time_steps$time_index,
+    unique = TRUE
+  )
+  pft_cell_time_grid <- merge(
+    pft_cell_time_grid,
+    scope_time_steps,
+    by = "time_index"
+  )
 
-# Plot for 3 consecutive timesteps to magnify the variability
-plot(
-  stem_c_mass_kg_ha ~ exact_time,
-  data = cell_mass[cell_mass$time_index %in% c(50, 51, 52)]
-)
-plot(
-  foliage_c_mass_kg_ha ~ exact_time,
-  data = cell_mass[cell_mass$time_index %in% c(50, 51, 52)]
-)
+  for (tissue_column in names(tissue_plots)) {
+    total_means <- merge(
+      cell_time_grid,
+      cell_mass_kg_ha[,
+        c("cell_id", "time_index", tissue_column),
+        with = FALSE
+      ],
+      by = c("cell_id", "time_index"),
+      all.x = TRUE
+    )
+    total_means[is.na(get(tissue_column)), (tissue_column) := 0]
+    total_means <- total_means[,
+      .(
+        mean_mass_kg_ha = mean(get(tissue_column))
+      ),
+      by = .(time_index, timestep_end_date)
+    ]
 
-# Plot for 1 consecutive timesteps to magnify the variability
-plot(
-  stem_c_mass_kg_ha ~ exact_time,
-  data = cell_mass[cell_mass$time_index %in% c(50)]
-)
-plot(
-  foliage_c_mass_kg_ha ~ exact_time,
-  data = cell_mass[cell_mass$time_index %in% c(50)]
-)
+    pft_means <- merge(
+      pft_cell_time_grid,
+      pft_cell_mass_kg_ha[,
+        c("pft_name", "cell_id", "time_index", tissue_column),
+        with = FALSE
+      ],
+      by = c("pft_name", "cell_id", "time_index"),
+      all.x = TRUE
+    )
+    pft_means[is.na(get(tissue_column)), (tissue_column) := 0]
+    pft_means <- pft_means[,
+      .(
+        mean_mass_kg_ha = mean(get(tissue_column))
+      ),
+      by = .(pft_name, time_index, timestep_end_date)
+    ]
 
-# Write one row per VE cell and exact model timestep -------------------------
-# Plot-specific observed
-# values and comparison fields will be added by a separate script.
+    plot(
+      total_means$timestep_end_date,
+      total_means$mean_mass_kg_ha,
+      type = "l",
+      col = "black",
+      lwd = 2,
+      ylim = range(
+        c(total_means$mean_mass_kg_ha, pft_means$mean_mass_kg_ha),
+        na.rm = TRUE
+      ),
+      xlab = "Timestep end date",
+      ylab = paste(
+        "Mean",
+        tolower(tissue_plots[[tissue_column]]),
+        "(kg C ha-1)"
+      ),
+      main = paste(
+        "Mean",
+        tolower(tissue_plots[[tissue_column]]),
+        "across grid cells"
+      )
+    )
+    for (pft_index in seq_along(pft_names)) {
+      pft_data <- pft_means[pft_name == pft_names[pft_index]]
+      setorder(pft_data, timestep_end_date)
+      lines(
+        pft_data$timestep_end_date,
+        pft_data$mean_mass_kg_ha,
+        col = pft_colours[pft_index],
+        lwd = 2.5
+      )
+    }
+    legend(
+      "topright",
+      legend = c("Total", pft_names),
+      col = c("black", pft_colours),
+      lty = 1,
+      lwd = c(2, rep(2.5, length(pft_names))),
+      ncol = 2,
+      cex = 0.7,
+      bty = "n"
+    )
+    dev.copy(
+      png,
+      filename = file.path(
+        figures_dir,
+        mean_figure_file_names[[time_scope]][[tissue_column]]
+      ),
+      width = 1800,
+      height = 1350,
+      res = 150
+    )
+    dev.off()
+  }
+}
+
+# Write one row per VE cell, timestep, and PFT. Total mass values repeat for
+# each PFT row; the per-PFT columns contain that PFT's contribution.
+pft_mass_for_output <- pft_cell_mass_kg_ha[, .(
+  cell_id,
+  time_index,
+  pft_name,
+  stem_c_mass_per_pft_kg_ha = stem_c_mass_kg_ha,
+  foliage_c_mass_per_pft_kg_ha = foliage_c_mass_kg_ha
+)]
 predicted_data <- merge(
-  cell_mass,
+  cell_mass_kg_ha,
+  pft_mass_for_output,
+  by = c("cell_id", "time_index"),
+  all.x = TRUE,
+  sort = FALSE
+)
+predicted_data <- merge(
+  predicted_data,
   grid_cells[, .(cell_id, cell_x, cell_y)],
   by = "cell_id",
   all.x = TRUE,
   sort = FALSE
 )
 predicted_data[, units := "kg C ha-1"]
-predicted_data <- predicted_data[, .(
-  cell_id,
-  cell_x,
-  cell_y,
-  exact_time,
-  interval_start_time,
-  time_index,
-  stem_c_mass_kg_ha,
-  foliage_c_mass_kg_ha,
-  units
-)]
+output_columns <- c(
+  "cell_id",
+  "cell_x",
+  "cell_y",
+  "timestep_end_date",
+  "timestep_start_date",
+  "time_index",
+  "stem_c_mass_kg_ha",
+  "foliage_c_mass_kg_ha",
+  "pft_name",
+  "stem_c_mass_per_pft_kg_ha",
+  "foliage_c_mass_per_pft_kg_ha",
+  "units"
+)
+predicted_data <- predicted_data[, output_columns, with = FALSE]
 
 output_dir <-
   "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing"
