@@ -17,7 +17,7 @@ nav:
   - Background:
       - Study sites: background/study_sites.md
       - Scenarios: background/scenarios.md
-      - From field data to validation: background/data_flow.md
+      - From field data to validation: background/data_pipeline.md
       - Repository tour: background/repository_tour.md
   - Getting started:
       - Overview: getting_started.md
