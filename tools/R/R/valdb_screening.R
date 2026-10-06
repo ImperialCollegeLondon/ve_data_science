@@ -363,7 +363,7 @@ list_screening_records <- function(sources_dir) {
 #'
 #' @param sources_dir Directory containing one YAML file per screened dataset.
 #'
-#' @returns Invisibly, a data frame of proceed records.
+#' @returns Invisibly, a tibble of proceed records.
 #'
 #' @export
 
@@ -374,7 +374,7 @@ list_proceed_screening_records <- function(sources_dir) {
   })
 
   rows <- purrr::imap_dfr(proceed, function(record, record_name) {
-    data.frame(
+    tibble::tibble(
       record_id = record_name,
       doi = record$doi %||% "",
       title = record$metadata$title %||% "",
@@ -383,8 +383,7 @@ list_proceed_screening_records <- function(sources_dir) {
         "Draft"
       } else {
         "Complete"
-      },
-      stringsAsFactors = FALSE
+      }
     )
   })
 
