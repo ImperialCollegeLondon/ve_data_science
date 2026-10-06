@@ -1,6 +1,6 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-10-02'
+generated_on: '2026-10-06'
 scripts:
 - script_path: realised_tissue_productivity_comparison_maliau_2.R
   title: realised_tissue_productivity_comparison_maliau_2
@@ -47,7 +47,9 @@ scripts:
     description: Observed plot carbon mass, coordinates, and census dates.
   - name: tree_standing_carbon_mass_maliau_2.csv
     path: data/derived/plant/output_data/validation/predicted_outputs_processing
-    description: VE cell-time standing carbon mass.
+    description: |
+      VE cell-time total and per-PFT standing carbon mass. Repeated total
+      values are reduced to one cell-time row for comparison.
   - name: tree_standing_carbon_mass_mapping_maliau_2.yml
     path: analysis/plant/output_data/validation/variable_mapping
     description: Observed-to-predicted variable and date mappings.
@@ -60,6 +62,15 @@ scripts:
     description: |
       Row-level observed and predicted stem and foliage carbon mass
       comparisons for each plot-cell-date combination.
+  - name: maliau_2_cells_and_observed_plots.png
+    path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
+    description: VE cell IDs and observed plot footprints and centroids.
+  - name: stem_c_mass_summed_across_pfts_by_cell.png
+    path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
+    description: Stem carbon mass per cell, summed across PFTs, with observed values.
+  - name: foliage_c_mass_summed_across_pfts_by_cell.png
+    path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
+    description: Foliage carbon mass per cell, summed across PFTs, with observed values.
   package_dependencies:
   - data.table
   - sf

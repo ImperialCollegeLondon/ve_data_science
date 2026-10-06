@@ -17,6 +17,7 @@
 #|
 #| scripts:
 #|   - path: analysis/plant/output_data/validation/variable_mapping/realised_tissue_productivity_mapping_maliau_2.yml
+#|   - path: analysis/plant/output_data/validation/variable_mapping/tree_standing_carbon_mass_mapping_maliau_2.yml
 #|
 #| output_files:
 #|   - name: master_variable_mapping_metadata.yml

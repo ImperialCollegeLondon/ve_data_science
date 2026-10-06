@@ -1,6 +1,6 @@
 title: master_observed_data_processing_metadata
 generated_by: analysis/plant/output_data/validation/observed_data_processing/master_observed_data_processing.R
-generated_on: '2026-10-05'
+generated_on: '2026-10-06'
 scripts:
 - script_path: carbon_balance_components_maliau.R
   title: carbon_balance_components_maliau
@@ -1033,6 +1033,12 @@ scripts:
     description: |
       Calculated tree standing carbon mass components for OG plots in maliau_2.
     variables:
+    - name: PlotID
+      type: character
+      units: dimensionless
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: SAFE identifier for each observed census plot.
     - name: plot_area_m2
       type: numeric
       units: m2
