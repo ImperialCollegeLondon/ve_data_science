@@ -94,7 +94,7 @@ calculated from the outputs so that the two can be compared to validation data.
 
 ## Optional: Sensitivity analysis
 
-For some modules, model parameters should be calibrated. 
+For some modules, model parameters should be calibrated.
 [Sensitivity analysis](../sensitivity_analysis.md) runs a scenario many times with
 different parameter values, to find out which parameters the results depend on most.
 It uses the same scenario inputs as a normal run.
