@@ -55,13 +55,17 @@ Mean stem mass drops sharply during the initial timesteps.
 
 #### Mean Foliage Mass - from timestep index 4 onwards
 
-The timestep index is zero-based, so index 4 is the fifth model timestep.
-
 ![Predicted mean foliage carbon mass - timestep 4 onwards](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_mean_across_cells_from_time_index_4_kg_ha.png)
 
 ### PFT-Specific Cell Trajectories
 
 These diagnostic figures show cell-level masses for every PFT across the full grid.
+Note that Y-axis is intentionally not standardized across panels to highlight the
+steep drop in carbon for the emergent PFT (not standardizing Y-axis does make it
+more difficult to compare across PFTs).
+
+It's interesting to note how little variability across cells there is compared to
+the variability over time.
 
 #### Stem PFT trajectories - all timesteps
 
@@ -77,7 +81,8 @@ Each line shows foliage carbon mass in one grid cell for the panel's PFT.
 
 #### Stem PFT trajectories - from timestep index 4 onwards
 
-Note the large unexpected difference between emergent and understory stem carbon mass.
+Note the steep decline in carbon mass for emergent PFT at both the start and end.
+Also note the large difference between emergent and understory stem carbon mass.
 
 ![Stem carbon mass by PFT and cell from timestep index 4](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png)
 
@@ -87,8 +92,8 @@ Note the large unexpected difference between emergent and understory stem carbon
 
 ## Observed vs Modelled Comparisons
 
-The figures show full-timestep trajectories only for VE cells that overlap the
-observed plots. Black circles and triangles mark plot observations from the
+The figures below show full-timestep trajectories only for VE cells that overlap
+the observed plots. Black circles and triangles mark plot observations from the
 2011 and 2014 censuses. Values are in kg C ha-1.
 
 The curves provide time-series context; they are not restricted to census-date
@@ -108,7 +113,7 @@ matched variables, periods, spatial and temporal extents, and units.
 
 ![Comparison of observed and predicted foliage carbon mass](../../data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2/foliage_c_mass_summed_across_pfts_by_cell.png)
 
-## Notes on the next steps in the validation process
+## Next steps in the validation process
 
 The next steps in our planned validation process would be to plot observed vs
 predicted for all the model outputs across models. However, there is room for
