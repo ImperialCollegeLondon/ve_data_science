@@ -355,6 +355,51 @@ list_screening_records <- function(sources_dir) {
 }
 
 
+#' List proceed screening records for schema setup
+#'
+#' Prints a compact console table of screening records whose decision is
+#' `proceed`. This gives IDE users the DOI list that the retired dashboard used
+#' to display before schema editing.
+#'
+#' @param sources_dir Directory containing one YAML file per screened dataset.
+#'
+#' @returns Invisibly, a data frame of proceed records.
+#'
+#' @export
+
+list_proceed_screening_records <- function(sources_dir) {
+  records <- list_screening_records(sources_dir)
+  proceed <- purrr::keep(records, function(record) {
+    is.list(record) && identical(record$screening$decision, "proceed")
+  })
+
+  rows <- purrr::imap_dfr(proceed, function(record, record_name) {
+    data.frame(
+      record_id = record_name,
+      doi = record$doi %||% "",
+      title = record$metadata$title %||% "",
+      year = as.integer(record$metadata$year %||% NA_integer_),
+      schema_status = if (schema_needs_completion(record)) {
+        "Draft"
+      } else {
+        "Complete"
+      },
+      stringsAsFactors = FALSE
+    )
+  })
+
+  if (nrow(rows) == 0L) {
+    cli::cli_inform(
+      "No proceed screening records found in {.path {sources_dir}}."
+    )
+    return(invisible(rows))
+  }
+
+  print(rows, row.names = FALSE)
+  invisible(rows)
+}
+
+
 #' Find a dataset screening record by DOI
 #'
 #' This function supports record lookup and checks that a DOI occurs at most
