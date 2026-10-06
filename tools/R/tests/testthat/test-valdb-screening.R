@@ -19,7 +19,7 @@
 #| package_dependencies:
 #|     - testthat
 #| ---
-source(here::here("tools/R/R/valdb.R"))
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 
 new_test_metadata <- function() {
   list(
@@ -342,7 +342,7 @@ test_that("find_screening_record rejects duplicate DOI records", {
 
   expect_error(
     find_screening_record(record$doi, sources_dir),
-    "multiple\\s+screening records"
+    "occurs in multiple"
   )
 })
 

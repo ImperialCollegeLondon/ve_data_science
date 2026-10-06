@@ -18,7 +18,7 @@
 #| package_dependencies:
 #|     - testthat
 #| ---
-source(here::here("tools/R/R/valdb.R"))
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 
 new_schema_test_record <- function(
   doi = "10.5281/zenodo.8158810",

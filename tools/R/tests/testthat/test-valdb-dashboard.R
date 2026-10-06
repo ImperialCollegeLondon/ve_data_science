@@ -17,7 +17,7 @@
 #|     - shiny
 #|     - testthat
 #| ---
-source(here::here("tools/R/R/valdb.R"))
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 source(here::here(
   "analysis/soil/validation/schema_dashboard/dashboard.R"
 ))

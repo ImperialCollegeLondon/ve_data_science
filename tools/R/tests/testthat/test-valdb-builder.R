@@ -20,8 +20,7 @@
 #|     - withr
 #|     - yaml
 #| ---
-source(here::here("tools/R/R/valdb.R"))
-
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 
 new_builder_test_schema <- function(doi) {
   dataset <- new_schema_template()
