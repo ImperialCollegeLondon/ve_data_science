@@ -66,13 +66,13 @@ datasets:
     variables:
       NH4-N_KCl:
         var_canonical: soil_n_pool_ammonium_per_mass
-        unit: "mg g^-1"
+        unit: "mg kg^-1"
         description:
           Soil NH4 concentration extracted with 1M KCl and used colorimetry for
           analysis.
       NO3-N_KCl:
         var_canonical: soil_n_pool_nitrate_per_mass
-        unit: "mg g^-1"
+        unit: "mg kg^-1"
         description:
           Soil NO3 concentration extracted with 1M KCl and used colorimetry for
           analysis.
