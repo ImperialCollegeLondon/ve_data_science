@@ -30,8 +30,8 @@ the main sources.
 Scripts in `analysis/` turn primary data into what the model needs. This is where
 the scientific choices are made. Examples include fitting a statistical model to
 predict soil properties across the grid, assigning tree species to plant functional
-types, or converting climate variables to the units the model expects. These are unique to
-each module and each site.
+types, or converting climate variables to the units the model expects. These are unique
+to each module and each site.
 
 Every script starts with a metadata header that records its inputs, outputs and
 purpose. Start from the files in `templates/` when writing a new script.
