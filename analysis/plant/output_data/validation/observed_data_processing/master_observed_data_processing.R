@@ -191,7 +191,6 @@ run_script <- function(script_path, index, total) {
   )
 
   pdf(NULL)
-  dev.control(displaylist = "enable")
   on.exit(
     {
       if (dev.cur() > 1) {
@@ -201,11 +200,17 @@ run_script <- function(script_path, index, total) {
     add = TRUE
   )
 
+  # Mask figure device calls while sourcing so masters do not overwrite
+  # committed PNGs; standalone scripts retain the normal graphics functions.
+  source_environment <- new.env()
+  source_environment$dev.copy <- function(...) invisible(NULL)
+  source_environment$dev.off <- function(...) invisible(NULL)
+
   invisible(
     capture.output(
       suppressMessages(
         suppressPackageStartupMessages(
-          source(script_path, local = new.env())
+          source(script_path, local = source_environment)
         )
       ),
       type = "output"
