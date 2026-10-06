@@ -2490,16 +2490,53 @@ join_ve_outputs_per_row <- function(
       stats::setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95"))
   }
 
+  # For interval observations, match both time_start and time_end to their
+  # nearest VE timestamps. For point observations (time_end is NA), match only
+  # time_start. This ensures we aggregate VE values over the matched simulation
+  # interval, not just a single timepoint.
+  ve_dates <- ve_data |>
+    dplyr::filter(var_canonical == !!var_canonical) |>
+    dplyr::pull(date) |>
+    unique() |>
+    sort()
+
+  if (length(ve_dates) == 0) {
+    return(empty_quantiles)
+  }
+
+  # Find nearest VE timestamp to observation start
+  obs_start_diff <- abs(as.numeric(difftime(
+    ve_dates,
+    time_start,
+    units = "secs"
+  )))
+  nearest_start <- ve_dates[which.min(obs_start_diff)]
+
+  # Find nearest VE timestamp to observation end (or start if no end provided)
+  obs_end_effective <- if (!is.na(time_end) && time_end > time_start) {
+    time_end
+  } else {
+    time_start
+  }
+  obs_end_diff <- abs(as.numeric(difftime(
+    ve_dates,
+    obs_end_effective,
+    units = "secs"
+  )))
+  nearest_end <- ve_dates[which.min(obs_end_diff)]
+
+  # Use the matched interval: all VE outputs from nearest_start to nearest_end
+  ve_interval_start <- min(nearest_start, nearest_end)
+  ve_interval_end <- max(nearest_start, nearest_end)
+
   switch(
     spatiotemporal_join_class,
     "spatial_within_temporal_within" = {
       ve_data |>
         dplyr::filter(
           var_canonical == !!var_canonical,
-          lubridate::`%within%`(
-            date,
-            lubridate::interval(time_start, time_end)
-          ),
+          date >= ve_interval_start,
+          date <= ve_interval_end,
           lat_min <= latitude & latitude <= lat_max,
           lon_min <= longitude & longitude <= lon_max
         ) |>
@@ -2511,10 +2548,8 @@ join_ve_outputs_per_row <- function(
       ve_data |>
         dplyr::filter(
           var_canonical == !!var_canonical,
-          lubridate::`%within%`(
-            date,
-            lubridate::interval(time_start, time_end)
-          )
+          date >= ve_interval_start,
+          date <= ve_interval_end
         ) |>
         summarise_ve_outputs()
     },
@@ -2540,10 +2575,22 @@ join_ve_outputs_per_row <- function(
 #' @param config_path Path to a compiled VE configuration TOML.
 #'
 #' @details
-#' Spatiotemporal join classes are handled intentionally as follows:
+#' Temporal matching uses nearest-neighbor interval semantics:
 #' \itemize{
-#'   \item `spatial_within_temporal_within`: spatial and temporal matching.
-#'   \item `spatial_outside_temporal_within`: temporal matching only.
+#'   \item For point observations (no `time_end`): match `time_start` to the nearest
+#'         VE output timestamp and aggregate all VE values at that timestamp.
+#'   \item For interval observations (with `time_end`): match `time_start` and
+#'         `time_end` separately to their nearest VE timestamps, then aggregate
+#'         all VE values within the matched interval. This ensures observations
+#'         spanning a time window are compared to VE predictions over the
+#'         corresponding simulation interval.
+#' }
+#' Spatiotemporal join classes then determine spatial filtering:
+#' \itemize{
+#'   \item `spatial_within_temporal_within`: aggregate within the matched time
+#'         interval, then filter to cells containing the observation coordinates.
+#'   \item `spatial_outside_temporal_within`: aggregate within the matched time
+#'         interval across all cells (temporal matching only, no spatial filter).
 #'   \item Other classes are not yet implemented and currently return `NA` quantiles by design. There will be a warning to the user.
 #' }
 #'
