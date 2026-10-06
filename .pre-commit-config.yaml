@@ -10,6 +10,8 @@ repos:
       - id: end-of-file-fixer
         exclude: ^renv/activate\.R$
       - id: check-yaml
+        # mkdocs.yml uses a !!python/name tag to enable Mermaid diagrams
+        args: [--unsafe]
       - id: check-added-large-files
       - id: check-merge-conflict
       - id: debug-statements
