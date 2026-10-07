@@ -13,6 +13,7 @@ Lai, Hao Ran
   variables.
 
 ``` r
+library(knitr)
 library(tidyverse)
 library(patchwork)
 library(arrow)
@@ -274,60 +275,73 @@ conform to a Normal distribution:
 - Contains zeros
 - Right skewed due to positive boundedness
 - Vary widely in scale and unit of measurement
+- *Rare but it happens*: some variable’s values are always the same (due
+  to limited spatiotemporal range or the way they aggregate/marginalise
+  outputs to match empirical data); these constant data cannot use some
+  variance-based metrics such as $R^2$
 
 `rmse_relative()` is the main cross-variable metric here because it is
-unitless. As a skew-robust sensitivity check, we also recompute `mae()`
-and `rmse()` after a `log1p()` transform.
+unitless (with its own caveats). As a skew-robust sensitivity check, we
+also compute `mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
 
 ``` r
-raw_scale_metrics <- metric_set(rmse_relative, mae, rmse)
-log_scale_metrics <- metric_set(mae, rmse)
+raw_scale_metrics <- metric_set(rmse_relative)
+log_scale_metrics <- metric_set(mae, rmse, ccc)
 
-val_db_combined |>
-  dplyr::group_by(var_canonical) |>
-  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
-```
+raw_results <- val_db_combined |>
+  group_by(var_canonical) |>
+  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50) |>
+  mutate(scale = "raw")
 
-```text
-# A tibble: 33 × 4
-   var_canonical                  .metric       .estimator .estimate
-   <chr>                          <chr>         <chr>          <dbl>
- 1 dissolved_phosphorus           rmse_relative standard      0.0757
- 2 soil_n_pool_ammonium_per_mass  rmse_relative standard      0.715 
- 3 soil_n_pool_inorganic_per_area rmse_relative standard     94.5   
- 4 soil_n_pool_nitrate_per_mass   rmse_relative standard      0.148 
- 5 soil_p_pool_labile_per_mass    rmse_relative standard      0.222 
- 6 total_soil_c_per_area          rmse_relative standard      0.272 
- 7 total_soil_c_per_mass          rmse_relative standard      0.199 
- 8 total_soil_c_per_volume        rmse_relative standard      0.279 
- 9 total_soil_n_per_mass          rmse_relative standard      0.246 
-10 total_soil_n_per_volume        rmse_relative standard      0.149 
-# ℹ 23 more rows
-```
-
-``` r
-val_db_combined |>
-  dplyr::mutate(
+log_results <- val_db_combined |>
+  mutate(
     value_canonical = log1p(value_canonical),
     value_VE_q50 = log1p(value_VE_q50)
   ) |>
-  dplyr::group_by(var_canonical) |>
-  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+  group_by(var_canonical) |>
+  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50) |>
+  mutate(scale = "log1p")
+
+metrics_table <- bind_rows(raw_results, log_results) |>
+  select(-`.estimator`, -scale) |>
+  pivot_wider(
+    names_from = `.metric`,
+    values_from = `.estimate`
+  )
+
+metrics_table |>
+  mutate(
+    rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
+    mae = sprintf("%.3g", mae),
+    rmse = sprintf("%.3g", rmse),
+    ccc = sprintf("%.3g", ccc)
+  ) |>
+  kable()
 ```
 
-```text
-# A tibble: 22 × 4
-   var_canonical                  .metric .estimator  .estimate
-   <chr>                          <chr>   <chr>           <dbl>
- 1 dissolved_phosphorus           mae     standard   0.0119    
- 2 soil_n_pool_ammonium_per_mass  mae     standard   0.000326  
- 3 soil_n_pool_inorganic_per_area mae     standard   0.141     
- 4 soil_n_pool_nitrate_per_mass   mae     standard   0.00000230
- 5 soil_p_pool_labile_per_mass    mae     standard   0.00000613
- 6 total_soil_c_per_area          mae     standard   0.421     
- 7 total_soil_c_per_mass          mae     standard   0.742     
- 8 total_soil_c_per_volume        mae     standard   3.87      
- 9 total_soil_n_per_mass          mae     standard   0.153     
-10 total_soil_n_per_volume        mae     standard   0.777     
-# ℹ 12 more rows
-```
+| var_canonical                  | rmse_relative | mae      | rmse     | ccc       |
+|:-------------------------------|:--------------|:---------|:---------|:----------|
+| dissolved_phosphorus           | 7.57%         | 0.0119   | 0.0321   | -1.54e-05 |
+| soil_n_pool_ammonium_per_mass  | 71.50%        | 0.000326 | 0.000328 | 0.000336  |
+| soil_n_pool_inorganic_per_area | 9446.02%      | 0.141    | 0.141    | 0         |
+| soil_n_pool_nitrate_per_mass   | 14.75%        | 2.3e-06  | 3.65e-06 | 0.00208   |
+| soil_p_pool_labile_per_mass    | 22.24%        | 6.13e-06 | 6.94e-06 | 0         |
+| total_soil_c_per_area          | 27.23%        | 0.421    | 0.491    | -0.0182   |
+| total_soil_c_per_mass          | 19.85%        | 0.742    | 1.38     | -0.000697 |
+| total_soil_c_per_volume        | 27.90%        | 3.87     | 3.93     | 0         |
+| total_soil_n_per_mass          | 24.63%        | 0.153    | 0.301    | 6.04e-06  |
+| total_soil_n_per_volume        | 14.94%        | 0.777    | 1.5      | -0.0179   |
+| total_soil_p_per_mass          | 27.25%        | 0.000215 | 0.000241 | 0         |
+
+**Summary by metric:**
+
+| Metric | Best | Worst |
+|:---|:---|:---|
+| rmse_relative | dissolved_phosphorus (0.0757) | soil_n_pool_inorganic_per_area (94.5) |
+| mae | soil_n_pool_nitrate_per_mass (2.3e-06) | total_soil_c_per_volume (3.87) |
+| rmse | soil_n_pool_nitrate_per_mass (3.65e-06) | total_soil_c_per_volume (3.93) |
+| ccc | soil_n_pool_nitrate_per_mass (0.00208) | total_soil_c_per_area (-0.0182) |
+
+Best and worst performers by metric
+
+\`\`\`

@@ -29,6 +29,9 @@ execute:
 - Most effort went into harmonisation, including units and derived variables.
 
 ```text {r}
+#| label: setup
+
+library(knitr)
 library(tidyverse)
 library(patchwork)
 library(arrow)
@@ -270,26 +273,91 @@ Most raw-scale metrics are not good for cross-variable comparison because units 
 - Contains zeros
 - Right skewed due to positive boundedness
 - Vary widely in scale and unit of measurement
+- *Rare but it happens*: some variable's values are always the same (due to limited spatiotemporal range or the way they aggregate/marginalise outputs to match empirical data); these constant data cannot use some variance-based metrics such as $R^2$
 
-`rmse_relative()` is the main cross-variable metric here because it is unitless.
-As a skew-robust sensitivity check, we also recompute `mae()` and `rmse()`
-after a `log1p()` transform.
+`rmse_relative()` is the main cross-variable metric here because it is unitless (with its own caveats).
+As a skew-robust sensitivity check, we also compute `mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
 
 ```text {r}
 #| label: performance-metrics
 
-raw_scale_metrics <- metric_set(rmse_relative, mae, rmse)
-log_scale_metrics <- metric_set(mae, rmse)
+raw_scale_metrics <- metric_set(rmse_relative)
+log_scale_metrics <- metric_set(mae, rmse, ccc)
 
-val_db_combined |>
-  dplyr::group_by(var_canonical) |>
-  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+raw_results <- val_db_combined |>
+  group_by(var_canonical) |>
+  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50) |>
+  mutate(scale = "raw")
 
-val_db_combined |>
-  dplyr::mutate(
+log_results <- val_db_combined |>
+  mutate(
     value_canonical = log1p(value_canonical),
     value_VE_q50 = log1p(value_VE_q50)
   ) |>
-  dplyr::group_by(var_canonical) |>
-  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+  group_by(var_canonical) |>
+  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50) |>
+  mutate(scale = "log1p")
+
+metrics_table <- bind_rows(raw_results, log_results) |>
+  select(-`.estimator`, -scale) |>
+  pivot_wider(
+    names_from = `.metric`,
+    values_from = `.estimate`
+  )
+
+metrics_table |>
+  mutate(
+    rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
+    mae = sprintf("%.3g", mae),
+    rmse = sprintf("%.3g", rmse),
+    ccc = sprintf("%.3g", ccc)
+  ) |>
+  kable()
+```
+
+**Summary by metric:**
+
+```text {r}
+#| echo: false
+
+format_summary <- function(df, metric_name, lower_is_better = TRUE) {
+  vals <- df[[metric_name]]
+  best_idx <- if (lower_is_better) which.min(vals) else which.max(vals)
+  worst_idx <- if (lower_is_better) which.max(vals) else which.min(vals)
+
+  list(
+    best = paste0(
+      df$var_canonical[best_idx],
+      " (",
+      sprintf("%.3g", vals[best_idx]),
+      ")"
+    ),
+    worst = paste0(
+      df$var_canonical[worst_idx],
+      " (",
+      sprintf("%.3g", vals[worst_idx]),
+      ")"
+    )
+  )
+}
+
+tibble::tibble(
+  Metric = c("rmse_relative", "mae", "rmse", "ccc"),
+  Best = c(
+    format_summary(metrics_table, "rmse_relative")$best,
+    format_summary(metrics_table, "mae")$best,
+    format_summary(metrics_table, "rmse")$best,
+    format_summary(metrics_table, "ccc", lower_is_better = FALSE)$best
+  ),
+  Worst = c(
+    format_summary(metrics_table, "rmse_relative")$worst,
+    format_summary(metrics_table, "mae")$worst,
+    format_summary(metrics_table, "rmse")$worst,
+    format_summary(metrics_table, "ccc", lower_is_better = FALSE)$worst
+  )
+) |>
+  kable(caption = "Best and worst performers by metric")
+```
+
+```text
 ```
