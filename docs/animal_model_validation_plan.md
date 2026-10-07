@@ -309,8 +309,6 @@ in the target registry notes.
 | mass_carbon, mass_nitrogen, mass_phosphorus | animal_cohort_data.csv | kg element per individual | Convert to cohort-level elemental mass by multiplying by individuals |
 | reproductive_mass_carbon, reproductive_mass_nitrogen, reproductive_mass_phosphorus | animal_cohort_data.csv | kg element per individual | Difference over timesteps for reproductive allocation rates; multiply by individuals for cohort totals |
 | C, N, P | animal_trophic_interactions.csv | kg element per interaction record (per update step) | Aggregate by cell/time/consumer group; divide by timestep duration for daily rates where needed |
-| net_radiation | output.zarr | W m^-2 | Aggregate by mean or integral over the same window as biological response variables |
-| wind_speed | output.zarr | m s^-1 | Aggregate by mean, quantiles, or threshold exceedance frequency |
 | decomposed_excrement_cnp, decomposed_carcasses_cnp | output.zarr | kg m^-2 day^-1 | Integrate over timestep window: mass = flux x days |
 | herbivory_waste_leaf_cnp | output.zarr | kg | Divide by grid-cell area for areal comparisons when needed |
 | litter_consumed_above_metabolic_cnp, litter_consumed_above_structural_cnp, litter_consumed_woody_cnp, litter_consumed_below_metabolic_cnp, litter_consumed_below_structural_cnp | output.zarr | registry: kg (some runs may expose kg m^-2 attrs) | If unit is kg, divide by area for areal comparisons; if unit is kg m^-2, integrate directly over area/time as needed |
