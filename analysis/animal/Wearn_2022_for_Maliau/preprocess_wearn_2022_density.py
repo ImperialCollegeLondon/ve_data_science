@@ -343,6 +343,8 @@ if __name__ == "__main__":
     output_dir.mkdir(parents=True, exist_ok=True)
     print(settings)
 
+    species_columns = ["species_common_name", "species_scientific_name"]
+
     # Import and read the Wearn 2022 density data
     wearn_table = pd.read_csv(
         input_file,
@@ -367,16 +369,10 @@ if __name__ == "__main__":
     ].copy()
 
     # Strip white spaces and replace them with underscores.
-    wearn_table["species_common_name"] = (
-        wearn_table["species_common_name"]
-        .str.strip()
-        .str.replace(r"\s+", "_", regex=True)
-    )
-    wearn_table["species_scientific_name"] = (
-        wearn_table["species_scientific_name"]
-        .str.strip()
-        .str.replace(r"\s+", "_", regex=True)
-    )
+    for column_name in species_columns:
+        wearn_table[column_name] = (
+            wearn_table[column_name].str.strip().str.replace(r"\s+", "_", regex=True)
+        )
 
     # Convert the density sample size column string to numeric, coercing errors to NaN.
     wearn_table["density_sample_size_n"] = pd.to_numeric(
@@ -406,18 +402,14 @@ if __name__ == "__main__":
     # Phase 4: map species to level-5 functional groups.
     # Many species may map to one FG, and not all FG options need to be used.
     # Missing FG mappings are allowed and carried through as NA.
-    mapping_columns = [
-        "species_common_name",
-        "species_scientific_name",
-        "functional_group_level5_name",
-    ]
+    mapping_columns = [*species_columns, "functional_group_level5_name"]
     species_fg_mapping = pd.DataFrame(
         species_to_fg_template,
         columns=mapping_columns,
     ).copy()
 
     # Standardize species and functional group columns in the mapping table.
-    for column_name in ["species_common_name", "species_scientific_name"]:
+    for column_name in species_columns:
         species_fg_mapping[column_name] = (
             species_fg_mapping[column_name]
             .astype("string")
@@ -444,14 +436,14 @@ if __name__ == "__main__":
 
     # Create a reference table of unique species from the wearn_table.
     species_reference = (
-        wearn_table[["species_common_name", "species_scientific_name"]]
+        wearn_table[species_columns]
         .drop_duplicates()
         .sort_values("species_scientific_name")
         .reset_index(drop=True)
     )
 
     # If the species_to_fg_template is empty, generate template to copy and fill in
-    if len(species_to_fg_template) == 0:
+    if not species_to_fg_template:
         template_rows = species_reference.assign(functional_group_level5_name="")
         print("\nPhase 4 template helper")
         print("Copy this block into species_to_fg_template and fill only")
@@ -499,7 +491,7 @@ if __name__ == "__main__":
     )
 
     # Phase 5: shape the final output table and export.
-    output_columns = [
+    required_output_inputs = {
         "species_common_name",
         "species_scientific_name",
         "functional_group_level5_name",
@@ -507,73 +499,50 @@ if __name__ == "__main__":
         "density_maliau_median",
         "density_maliau_ci95_lower",
         "density_maliau_ci95_upper",
-    ]
-    missing_output_columns = [
-        column_name
-        for column_name in output_columns
-        if column_name not in wearn_table.columns
-    ]
+    }
+    missing_output_columns = sorted(
+        required_output_inputs.difference(wearn_table.columns)
+    )
     if missing_output_columns:
         missing_output_columns_list = ", ".join(missing_output_columns)
         raise ValueError(
             f"output columns missing from wearn_table: {missing_output_columns_list}"
         )
 
+    final_columns = [
+        "species_common_name",
+        "scientific_name",
+        "sample_size_n",
+        "density_maliau",
+        "median",
+        "ci95_lower",
+        "ci95_upper",
+    ]
+    rename_map = {
+        "species_scientific_name": "scientific_name",
+        "density_sample_size_n": "sample_size_n",
+        "density_maliau_median": "median",
+        "density_maliau_ci95_lower": "ci95_lower",
+        "density_maliau_ci95_upper": "ci95_upper",
+    }
+
     # Build density keys from functional group names.
     # TODO: Add km2 into the density_maliau variable name to indicate units.
-    density_maliau_variable = (
+    # Create a suffix for the density column based on the functional group name.
+    density_maliau_suffix = (
         wearn_table["functional_group_level5_name"].astype("string").str.strip()
-    )
+    ).replace("", pd.NA)
 
     final_output_table = (
-        wearn_table.assign(
-            density_maliau=pd.Series(pd.NA, index=wearn_table.index, dtype="string")
-        )
-        # Prefix the functional group name with "density_" to create the column.
-        .assign(
-            density_maliau=(
-                "density_"
-                + density_maliau_variable.where(density_maliau_variable != "")
-            )
-        )[
-            [
-                "species_common_name",
-                "species_scientific_name",
-                "density_maliau",
-                "density_sample_size_n",
-                "density_maliau_median",
-                "density_maliau_ci95_lower",
-                "density_maliau_ci95_upper",
-            ]
-        ]
-        .rename(
-            columns={
-                "species_scientific_name": "scientific_name",
-                "density_maliau_median": "median",
-                "density_maliau_ci95_lower": "ci95_lower",
-                "density_maliau_ci95_upper": "ci95_upper",
-                "density_sample_size_n": "sample_size_n",
-            }
-        )
+        wearn_table.assign(density_maliau="density_" + density_maliau_suffix)
+        .rename(columns=rename_map)[final_columns]
         .sort_values("scientific_name")
         .reset_index(drop=True)
     )
     final_output_table.to_csv(output_file, index=False)
 
     print(f"parsed rows: {len(wearn_table)}")
-    print(
-        final_output_table[
-            [
-                "species_common_name",
-                "scientific_name",
-                "sample_size_n",
-                "density_maliau",
-                "median",
-                "ci95_lower",
-                "ci95_upper",
-            ]
-        ].head(5)
-    )
+    print(final_output_table.head(5))
     print(f"parsed Maliau rows: {parsed_rows}")
     print(f"failed Maliau rows: {failed_rows}")
     mapped_species = int(species_mapping["functional_group_level5_name"].notna().sum())
