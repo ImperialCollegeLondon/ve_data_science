@@ -201,7 +201,9 @@ file_content <- c(
   "",
   "Pooled consecutive simulation dates and cell IDs are shown as ranges.",
   "",
-  md_table
+  md_table,
+  "",
+  "![Observed vs predicted values for Maliau-2 validation comparisons](../analysis/plant/output_data/validation/metadata/observed_predicted_summary/observed_predicted_summary_maliau_2.png)"
 )
 
 # Save the Markdown file
