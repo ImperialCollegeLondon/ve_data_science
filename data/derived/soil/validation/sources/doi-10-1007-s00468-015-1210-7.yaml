@@ -41,7 +41,7 @@ datasets:
     dedup_key:
       - plot
     row_filter:
-      - site == "maliau_basin"
+      - "site == 'maliau_basin'"
     coordinates:
       latitude_column: lat
       longitude_column: lon

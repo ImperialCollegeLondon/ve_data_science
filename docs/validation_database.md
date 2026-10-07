@@ -318,6 +318,62 @@ To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still uses one flat source
 schema per dataset internally, keyed by unique `source_id`.
 
+### Optional row-level filtering
+
+Use `row_filter` to select rows that meet your inclusion criteria. The builder
+applies row filters before reading coordinates or times. Set it as a YAML list of
+R expressions (quoted strings). Each expression must return TRUE or FALSE for each
+row. A row is retained if all expressions are TRUE.
+
+```yaml
+row_filter:
+  - "site == 'maliau_basin'"
+  - "NH4-N_KCl >= 0"
+  - "replicate != 'blank'"
+  - "!is.na(value)"
+```
+
+How it works:
+
+- `row_filter` is optional. If absent or null, no rows are filtered.
+- Each expression must be quoted in YAML as a string.
+- Each expression must refer to columns in `data_file`.
+- All expressions are combined with AND. A row is retained if all expressions
+  are TRUE.
+- Column names are checked at build time (not during schema validation).
+- Rows with missing measurement values are removed later, after unit conversion.
+
+Error handling:
+
+The builder stops if an expression references a missing column or returns
+non-logical values. Error messages name the source, the clause, and the problem.
+
+Real examples:
+
+From `miyamoto_2015` (Maliau Basin subset):
+
+```yaml
+row_filter:
+  - "site == 'maliau_basin'"
+```
+
+Keep rows where the `site` column equals `"maliau_basin"`. The dataset has
+measurements from multiple sites; filtering selects Maliau Basin only.
+
+From `drewer_2019_1b` (Repeated measures of soil nitrogen):
+
+```yaml
+row_filter:
+  - "`NH4-N_KCl` >= 0"
+  - "`NO3-N_KCl` >= 0"
+```
+
+Keep rows where both nitrogen measurements are non-negative. This removes rows
+with measurement errors that produced impossible negative values.
+
+Note: Column names with hyphens or special characters must be quoted with
+backticks inside the expression string, e.g., `` `NH4-N_KCl` ``.
+
 ### Assumptions and expectations
 
 - Datasets and location files are CSV. The code uses `readr::read_csv()`.
@@ -586,6 +642,8 @@ What the above code does:
 - Ignores screening-only records.
 - Warns about dataset entries that still contain mandatory placeholders, then
   skips them.
+- Applies optional dataset-level `row_filter` clauses with AND semantics before
+  attaching coordinates and temporal metadata.
 - Requires every schema record to retain a `proceed` screening decision.
 - Writes Parquet output to `db_path`.
 

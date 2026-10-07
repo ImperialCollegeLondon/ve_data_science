@@ -82,6 +82,9 @@ datasets:
       - site
       - chamber_id
       - date
+    row_filter:
+      - "`NH4-N_KCl` >= 0"
+      - "`NO3-N_KCl` >= 0"
     coordinates:
       latitude_column: Latitude
       longitude_column: Longitude
