@@ -498,7 +498,7 @@ if __name__ == "__main__":
         validate="many_to_one",
     )
 
-    # Phase 5: shape the final output table and write it to disk.
+    # Phase 5: shape the final output table and export.
     output_columns = [
         "species_common_name",
         "species_scientific_name",
@@ -519,9 +519,43 @@ if __name__ == "__main__":
             f"output columns missing from wearn_table: {missing_output_columns_list}"
         )
 
+    # Build density keys from functional group names.
+    # TODO: Add km2 into the density_maliau variable name to indicate units.
+    density_maliau_variable = (
+        wearn_table["functional_group_level5_name"].astype("string").str.strip()
+    )
+
     final_output_table = (
-        wearn_table[output_columns]
-        .sort_values("species_scientific_name")
+        wearn_table.assign(
+            density_maliau=pd.Series(pd.NA, index=wearn_table.index, dtype="string")
+        )
+        # Prefix the functional group name with "density_" to create the column.
+        .assign(
+            density_maliau=(
+                "density_"
+                + density_maliau_variable.where(density_maliau_variable != "")
+            )
+        )[
+            [
+                "species_common_name",
+                "species_scientific_name",
+                "density_maliau",
+                "density_sample_size_n",
+                "density_maliau_median",
+                "density_maliau_ci95_lower",
+                "density_maliau_ci95_upper",
+            ]
+        ]
+        .rename(
+            columns={
+                "species_scientific_name": "scientific_name",
+                "density_maliau_median": "median",
+                "density_maliau_ci95_lower": "ci95_lower",
+                "density_maliau_ci95_upper": "ci95_upper",
+                "density_sample_size_n": "sample_size_n",
+            }
+        )
+        .sort_values("scientific_name")
         .reset_index(drop=True)
     )
     final_output_table.to_csv(output_file, index=False)
@@ -531,12 +565,12 @@ if __name__ == "__main__":
         final_output_table[
             [
                 "species_common_name",
-                "species_scientific_name",
-                "density_sample_size_n",
-                "density_maliau_median",
-                "density_maliau_ci95_lower",
-                "density_maliau_ci95_upper",
-                "functional_group_level5_name",
+                "scientific_name",
+                "sample_size_n",
+                "density_maliau",
+                "median",
+                "ci95_lower",
+                "ci95_upper",
             ]
         ].head(5)
     )
@@ -546,5 +580,5 @@ if __name__ == "__main__":
     unmapped_species = int(species_mapping["functional_group_level5_name"].isna().sum())
     print(f"mapped species: {mapped_species}")
     print(f"unmapped species: {unmapped_species}")
-    print(f"Phase 5 output rows: {len(final_output_table)}")
-    print(f"Phase 5 wrote: {output_file}")
+    print(f"output rows: {len(final_output_table)}")
+    print(f"Parsed and wrote: {output_file}")
