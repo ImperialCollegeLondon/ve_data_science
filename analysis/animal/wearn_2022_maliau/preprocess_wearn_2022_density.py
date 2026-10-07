@@ -532,10 +532,44 @@ if __name__ == "__main__":
         wearn_table["functional_group_level5_name"].astype("string").str.strip()
     ).replace("", pd.NA)
 
-    final_output_table = (
+    species_level_output = (
         wearn_table.assign(density_maliau="density_" + density_maliau_suffix)
         .rename(columns=rename_map)[final_columns]
         .sort_values("scientific_name")
+        .reset_index(drop=True)
+    )
+
+    # Aggregate repeated functional-group density keys into one row per group.
+    final_output_table = (
+        species_level_output.groupby("density_maliau", as_index=False)
+        .agg(
+            species_count=("scientific_name", "nunique"),
+            sample_size_n=("sample_size_n", lambda values: values.sum(min_count=1)),
+            median=("median", "mean"),
+            ci95_lower=("ci95_lower", "first"),
+            ci95_upper=("ci95_upper", "first"),
+        )
+        # Only retain ci95_lower and ci95_upper values for rows with a single species.
+        .assign(
+            ci95_lower=lambda table: table["ci95_lower"].where(
+                table["species_count"] == 1,
+                pd.NA,
+            ),
+            ci95_upper=lambda table: table["ci95_upper"].where(
+                table["species_count"] == 1,
+                pd.NA,
+            ),
+        )[
+            [
+                "density_maliau",
+                "species_count",
+                "sample_size_n",
+                "median",
+                "ci95_lower",
+                "ci95_upper",
+            ]
+        ]
+        .sort_values("density_maliau")
         .reset_index(drop=True)
     )
     final_output_table.to_csv(output_file, index=False)
