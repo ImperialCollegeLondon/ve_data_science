@@ -340,39 +340,13 @@ How it works:
 - Each expression must refer to columns in `data_file`.
 - All expressions are combined with AND. A row is retained if all expressions
   are TRUE.
-- Column names are checked at build time (not during schema validation).
-- Rows with missing measurement values are removed later, after unit conversion.
-
-Error handling:
+- Column names with hyphens or special characters must be quoted with
+  backticks inside the expression string, e.g., `` `NH4-N_KCl` ``.
+- Rows with missing measurement values are removed later, after unit
+  conversion.
 
 The builder stops if an expression references a missing column or returns
 non-logical values. Error messages name the source, the clause, and the problem.
-
-Real examples:
-
-From `miyamoto_2015` (Maliau Basin subset):
-
-```yaml
-row_filter:
-  - "site == 'maliau_basin'"
-```
-
-Keep rows where the `site` column equals `"maliau_basin"`. The dataset has
-measurements from multiple sites; filtering selects Maliau Basin only.
-
-From `drewer_2019_1b` (Repeated measures of soil nitrogen):
-
-```yaml
-row_filter:
-  - "`NH4-N_KCl` >= 0"
-  - "`NO3-N_KCl` >= 0"
-```
-
-Keep rows where both nitrogen measurements are non-negative. This removes rows
-with measurement errors that produced impossible negative values.
-
-Note: Column names with hyphens or special characters must be quoted with
-backticks inside the expression string, e.g., `` `NH4-N_KCl` ``.
 
 ### Assumptions and expectations
 
