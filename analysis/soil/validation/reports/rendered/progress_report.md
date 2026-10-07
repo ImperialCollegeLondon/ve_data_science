@@ -9,13 +9,17 @@ Lai, Hao Ran
 - Built a validation database pipeline, see docs
   [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
 - Screened, add and harmonise datasets using the database functions.
+- Most effort went into harmonisation, including units and derived
+  variables.
 
 ``` r
 library(tidyverse)
+library(patchwork)
 library(arrow)
 library(sf)
 library(toml)
 library(here)
+library(yardstick)
 source(here("tools/R/R/valdb.R"))
 
 # Read the validation database
@@ -163,10 +167,11 @@ ggmap::ggmap(basemap) +
   theme(axis.title = element_blank())
 ```
 
-![Validation data locations relative to the Maliau 2 scenario site. The
+![](validation-map-1.png)
+
+Validation data locations relative to the Maliau 2 scenario site. The
 Maliau 2 indicator is shown as a square marker greatly exaggerated and
-is not to
-scale.](validation-map-1.png)
+is not to scale.
 
 ## Why many screened datasets are excluded / deferred
 
@@ -175,13 +180,15 @@ to technical or scope reasons documented in the YAML `notes` field.
 
 | Group | Reason | No. datasets | Descriptions |
 |----|----|---:|----|
-| Excluded | No relevant variables | 45 | No soil or litter measurements match validation targets. Examples include taxonomic records without quantitative data, compositional data without C/N values, keyword matches that are off-topic, and measurements that cannot be converted to the needed pool or mass terms. |
-| Excluded | Insufficient metadata | 2 | Litter mass is present, but the record lacks enough context to derive a carbon pool or scale the sample reliably. |
-| Excluded | Duplicate source | 10 | The same data already appear in published SAFE datasets in the validation pipeline, so keeping them would add redundancy. |
-| Deferred | Outside module scope | 31 | Useful in principle, but the current build does not yet target them. Examples include soil temperature and moisture, microbial diversity, decomposition, and tissue nutrient data that need mass-per-area conversion. |
-| Deferred | Needs second opinion | 4 | Needs a scope call or curation choice before inclusion. Examples include termite functional groups, deadwood conversion, litter biomass-to-carbon conversion, plant tissue nutrient upscaling, and system-level variables such as NPP or carbon balance. |
+| Excluded | No relevant variables | 45 | No soil or litter measurements match validation targets. Examples include taxonomic records without quantitative data, compositional data without C/N values, and measurements that cannot be converted to the needed pool or mass terms. |
+| Excluded | Insufficient metadata | 2 | e.g., Litter biomass is present, but the record lacks enough context to derive a carbon pool. |
+| Excluded | Duplicate source | 10 | The same data already used for input data. |
+| Deferred | Outside module scope | 31 | Useful in principle, but the currently VE does not yet output them; or they belong to other modules, not soil / litter. Examples include soil temperature and moisture (abiotic), microbial diversity, and plant tissue nutrient data that need mass-per-area conversion. |
+| Deferred | Needs second opinion | 4 | Needs a scope call or curation choice before inclusion; some belong to other modules. Examples include termite functional groups, deadwood conversion, litter biomass-to-carbon conversion, plant tissue nutrient upscaling, and system-level variables such as NPP or carbon balance. |
 
 ## Validation variables summary
+
+In the final database, the empirical data that map to VE outputs are:
 
 ``` r
 val_db_combined |>
@@ -219,9 +226,108 @@ val_db_combined |>
 11 soil_n_pool_inorganic_per_area     3 kg m^-2  3.3 e-4     0.00193  
 ```
 
+## Model performance
+
+### Visual comparison
+
+Now the actual validation itself.
+
+Plotting the predicted vs. observed: original scale and log–log scale.
+(Actually it’s `log1p` or $\log(1+x)$ for accommodate for zeros.)
+
 ``` r
-ggplot(val_db_combined) +
-  geom_point(aes(value_canonical, value_VE_q50))
+p1 <- ggplot(val_db_combined) +
+  geom_abline(slope = 1) +
+  geom_errorbar(aes(
+    x = value_canonical,
+    ymin = value_VE_q05,
+    ymax = value_VE_q95
+  )) +
+  geom_point(aes(value_canonical, value_VE_q50)) +
+  labs(x = "Observed", y = "Predicted") +
+  theme_bw()
+
+p2 <- ggplot(val_db_combined) +
+  geom_abline(slope = 1) +
+  geom_errorbar(aes(
+    x = value_canonical,
+    ymin = value_VE_q05,
+    ymax = value_VE_q95
+  )) +
+  geom_point(aes(value_canonical, value_VE_q50)) +
+  scale_x_continuous(trans = scales::log1p_trans()) +
+  scale_y_continuous(trans = scales::log1p_trans()) +
+  labs(x = "Observed", y = "Predicted") +
+  theme_bw()
+
+patchwork::wrap_plots(p1, p2)
 ```
 
-![](unnamed-chunk-2-1.png)
+![](predicted-observed-1.png)
+
+### Performance metrics
+
+Most raw-scale metrics are not good for cross-variable comparison
+because units and scales are not comparable. Our variables rarely
+conform to a Normal distribution:
+
+- Contains zeros
+- Right skewed due to positive boundedness
+- Vary widely in scale and unit of measurement
+
+`rmse_relative()` is the main cross-variable metric here because it is
+unitless. As a skew-robust sensitivity check, we also recompute `mae()`
+and `rmse()` after a `log1p()` transform.
+
+``` r
+raw_scale_metrics <- metric_set(rmse_relative, mae, rmse)
+log_scale_metrics <- metric_set(mae, rmse)
+
+val_db_combined |>
+  dplyr::group_by(var_canonical) |>
+  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+```
+
+```text
+# A tibble: 33 × 4
+   var_canonical                  .metric       .estimator .estimate
+   <chr>                          <chr>         <chr>          <dbl>
+ 1 dissolved_phosphorus           rmse_relative standard      0.0757
+ 2 soil_n_pool_ammonium_per_mass  rmse_relative standard      0.715 
+ 3 soil_n_pool_inorganic_per_area rmse_relative standard     94.5   
+ 4 soil_n_pool_nitrate_per_mass   rmse_relative standard      0.148 
+ 5 soil_p_pool_labile_per_mass    rmse_relative standard      0.222 
+ 6 total_soil_c_per_area          rmse_relative standard      0.272 
+ 7 total_soil_c_per_mass          rmse_relative standard      0.199 
+ 8 total_soil_c_per_volume        rmse_relative standard      0.279 
+ 9 total_soil_n_per_mass          rmse_relative standard      0.246 
+10 total_soil_n_per_volume        rmse_relative standard      0.149 
+# ℹ 23 more rows
+```
+
+``` r
+val_db_combined |>
+  dplyr::mutate(
+    value_canonical = log1p(value_canonical),
+    value_VE_q50 = log1p(value_VE_q50)
+  ) |>
+  dplyr::group_by(var_canonical) |>
+  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+```
+
+```text
+# A tibble: 22 × 4
+   var_canonical                  .metric .estimator  .estimate
+   <chr>                          <chr>   <chr>           <dbl>
+ 1 dissolved_phosphorus           mae     standard   0.0119    
+ 2 soil_n_pool_ammonium_per_mass  mae     standard   0.000326  
+ 3 soil_n_pool_inorganic_per_area mae     standard   0.141     
+ 4 soil_n_pool_nitrate_per_mass   mae     standard   0.00000230
+ 5 soil_p_pool_labile_per_mass    mae     standard   0.00000613
+ 6 total_soil_c_per_area          mae     standard   0.421     
+ 7 total_soil_c_per_mass          mae     standard   0.742     
+ 8 total_soil_c_per_volume        mae     standard   3.87      
+ 9 total_soil_n_per_mass          mae     standard   0.153     
+10 total_soil_n_per_volume        mae     standard   0.777     
+# ℹ 12 more rows
+```
