@@ -40,6 +40,8 @@ datasets:
           sum of the nitrate and ammonium contents.
     dedup_key:
       - plot
+    row_filter:
+      - site == "maliau_basin"
     coordinates:
       latitude_column: lat
       longitude_column: lon
