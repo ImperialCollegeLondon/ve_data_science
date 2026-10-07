@@ -668,7 +668,8 @@ new_schema_template <- function() {
         precision = NULL,
         note = NULL
       )
-    )
+    ),
+    row_filter = NULL
   )
 }
 
@@ -906,7 +907,12 @@ scalar_string <- function(value) {
 #' @keywords internal
 
 validate_source_schema <- function(source, path) {
-  required_fields <- names(new_schema_template())
+  # row_filter is optional and may be absent in existing schemas; exclude it
+  # from required-field check. All other template fields are mandatory.
+  # TODO: coordinates and temporal could also be made optional in future to
+  # reduce boilerplate for schemas that don't use spatial/temporal metadata.
+  template_fields <- names(new_schema_template())
+  required_fields <- setdiff(template_fields, "row_filter")
   missing_fields <- setdiff(required_fields, names(source))
   if (length(missing_fields) > 0L) {
     cli::cli_abort(
@@ -981,6 +987,46 @@ validate_source_schema <- function(source, path) {
       "Data file {.path {source$data_file}} configured by source schema \
        {.path {path}} does not exist."
     )
+  }
+
+  # Validate row_filter: optional, must be character vector with no blanks
+  # and each clause must parse as valid R expression. Applied during build
+  # with AND semantics: all clauses must evaluate to TRUE for a row to be kept.
+  if (!is.null(source$row_filter)) {
+    if (!is.character(source$row_filter) || length(source$row_filter) == 0L) {
+      cli::cli_abort(
+        "Source schema {.path {path}} {.field row_filter} must be NULL or a \
+         non-empty character vector."
+      )
+    }
+    # Check for blank clauses
+    blank_clauses <- which(
+      is.na(source$row_filter) |
+        stringr::str_length(
+          stringr::str_trim(source$row_filter)
+        ) ==
+          0L
+    )
+    if (length(blank_clauses) > 0L) {
+      cli::cli_abort(
+        "Source schema {.path {path}} {.field row_filter} has blank clauses at \
+         position{?s} {blank_clauses}."
+      )
+    }
+    # Check that each clause parses as valid R expression. Column names are
+    # validated at evaluation time during the build, not here.
+    for (i in seq_along(source$row_filter)) {
+      tryCatch(
+        rlang::parse_expr(source$row_filter[[i]]),
+        error = function(e) {
+          cli::cli_abort(
+            "Source schema {.path {path}} {.field row_filter} clause {i} is not \
+             a valid R expression: {source$row_filter[[i]]}.",
+            parent = e
+          )
+        }
+      )
+    }
   }
 
   invisible(source)

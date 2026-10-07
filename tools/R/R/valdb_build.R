@@ -136,17 +136,18 @@ build_validation_database <- function(
 #' Harmonise one validation source dataset
 #'
 #' Internal helper for [build_validation_database()]. It reads and prepares one
-#' configured source, attaches spatial and temporal metadata, reshapes
-#' measurements, and converts known variables to canonical units. Unknown
-#' canonical mappings retain their original values and units and receive
-#' missing canonical values and units.
+#' configured source, applies optional row-level filtering, attaches spatial and
+#' temporal metadata, reshapes measurements, and converts known variables to
+#' canonical units. Unknown canonical mappings retain their original values and
+#' units and receive missing canonical values and units.
 #'
 #' @param src A validated source schema returned by [list_build_sources()].
 #' @param canonical_units A data frame with `var_canonical` and
 #'   `unit_canonical` columns.
 #'
 #' @returns A long-format data frame of harmonised observations, or `NULL` when
-#'   the source has no available configured measurement columns.
+#'   the source has no available configured measurement columns. Row filtering,
+#'   if configured, is applied before coordinate and temporal attachment.
 
 harmonise_source_data <- function(src, canonical_units) {
   data <- readr::read_csv(
@@ -154,6 +155,9 @@ harmonise_source_data <- function(src, canonical_units) {
     show_col_types = FALSE,
     skip = src$skip_rows
   ) |>
+    # Apply dataset-level row filters before column selection so all columns
+    # are available for filter clauses
+    apply_row_filter(src) |>
     prepare_source_data(src)
   if (is.null(data)) {
     return(NULL)
@@ -1152,4 +1156,70 @@ import_variables_table <- function(toml) {
     purrr::pluck("variable")
   vars <- purrr::set_names(vars, purrr::map_chr(vars, "name"))
   purrr::map(vars, ~ purrr::discard(.x, names(.x) == "name"))
+}
+
+
+#' Apply dataset-level row filters from schema
+#'
+#' Internal helper for [harmonise_source_data()]. Runs before column selection
+#' so all source columns are available for filter clauses. Applies all
+#' `row_filter` clauses in order with AND semantics. Each clause is parsed as
+#' an R expression and evaluated with `rlang::eval_tidy()` against the data
+#' frame. The result must be a logical vector the same length as the input data;
+#' all TRUE values across all clauses are required to retain a row.
+#'
+#' If `row_filter` is NULL or absent, data is returned unchanged. Independently,
+#' missing measurement values (NA) are always removed post-pivot in
+#' [harmonise_source_data()].
+#'
+#' @param data A source data frame (full CSV, before column selection).
+#' @param source The source schema containing optional `row_filter` field.
+#'
+#' @returns `data` with rows filtered by all clauses, or unchanged if
+#'   `row_filter` is NULL. Row count may decrease.
+
+apply_row_filter <- function(data, source) {
+  if (is.null(source$row_filter)) {
+    return(data)
+  }
+
+  for (clause in source$row_filter) {
+    expr <- rlang::parse_expr(clause)
+    # Evaluate the expression in the context of the data frame
+    result <- tryCatch(
+      rlang::eval_tidy(expr, data = data),
+      error = function(e) {
+        cli::cli_abort(
+          c(
+            "Row filter clause evaluation failed for source \
+             {.val {source$source_id}}.",
+            "x" = "Clause: {.val {clause}}",
+            "i" = conditionMessage(e)
+          ),
+          parent = e
+        )
+      }
+    )
+
+    # Validate that result is logical and matches row count
+    if (!is.logical(result)) {
+      cli::cli_abort(
+        "Row filter clause for source {.val {source$source_id}} must return \
+         logical values. Got {.cls {class(result)}} instead.",
+        i = "Clause: {.val {clause}}"
+      )
+    }
+    if (length(result) != nrow(data)) {
+      cli::cli_abort(
+        "Row filter clause for source {.val {source$source_id}} returned \
+         {length(result)} values, but data has {nrow(data)} rows.",
+        i = "Clause: {.val {clause}}"
+      )
+    }
+
+    # Apply the filter; FALSE rows are removed
+    data <- dplyr::filter(data, result)
+  }
+
+  data
 }
