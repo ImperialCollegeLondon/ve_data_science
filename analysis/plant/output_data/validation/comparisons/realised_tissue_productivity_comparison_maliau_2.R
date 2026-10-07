@@ -18,6 +18,9 @@
 #|   - name: carbon_balance_components_maliau.csv
 #|     path: data/derived/plant/output_data/validation/observed_data_processing
 #|     description: Cleaned SAFE carbon-balance observations for Maliau plots.
+#|   - name: master_observed_data_processing_metadata.yml
+#|     path: analysis/plant/output_data/validation/metadata
+#|     description: Variable-specific observed measurement periods.
 #|   - name: realised_tissue_productivity_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: Standardised Maliau 2 plant productivity outputs.
@@ -27,22 +30,24 @@
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: |
 #|       Merged observed and predicted values for all tissues mapped in the
-#|       validation contract, including pooled model SD and spatial/temporal
-#|       extent information.
+#|       validation contract, including pooled model SD, spatial/temporal
+#|       extents, and explicit aggregation statuses.
 #|
 #| package_dependencies:
 #|   - yaml
 #|
 #| usage_notes: |
-#|   The comparison is driven by the realised_tissue_productivity_mapping_maliau_2.yml file.
+#|   The comparison is driven by the
+#|   realised_tissue_productivity_mapping_maliau_2.yml file.
 #|   To add or remove variables from this comparison, update the contract
 #|   YAML; no changes are required to this script.
+#|   Observed values are per plot and period-averaged; predicted values are
+#|   pooled across cells and timesteps in the observed period.
 #| ---
 
 observed_data_file <- "../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv"
 predicted_outputs_file <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv"
 observed_metadata_file <- "../metadata/master_observed_data_processing_metadata.yml"
-predicted_metadata_file <- "../metadata/master_predicted_outputs_processing_metadata.yml"
 
 output_dir <- "../../../../../data/derived/plant/output_data/validation/comparisons"
 figure_dir <- file.path(output_dir, "comparisons_figures_maliau_2")
@@ -60,7 +65,6 @@ model_data <- utils::read.csv(
   check.names = FALSE
 )
 observed_metadata <- yaml::yaml.load_file(observed_metadata_file)
-predicted_metadata <- yaml::yaml.load_file(predicted_metadata_file)
 
 # Look up one variable's spatial_extent/temporal_extent from a master
 # metadata object, by output file name and variable name, so the comparison
@@ -75,7 +79,9 @@ get_variable_extent <- function(metadata, output_file_name, variable_name) {
         if (identical(variable$name, variable_name)) {
           return(list(
             spatial_extent = variable$spatial_extent,
-            temporal_extent = variable$temporal_extent
+            temporal_extent = variable$temporal_extent,
+            period_start = variable$period_start,
+            period_end = variable$period_end
           ))
         }
       }
@@ -107,40 +113,33 @@ variable_map_dynamic <- do.call(rbind, variable_map_list)
 # Woody stem productivity -----------------------------------------------
 variable_map <- variable_map_dynamic
 
-# The predicted mean/sd/selected_period columns are NA outside the pooled
-# period, so the single non-missing value is the comparison value.
-model_units <- unique(model_data$units)
-if (length(model_units) != 1) {
-  stop("Predicted output must have exactly one units value.")
-}
-expected_units <- model_units
-
-comparison_period <- unique(
-  model_data$selected_period[!is.na(model_data$selected_period)]
-)
-if (length(comparison_period) != 1) {
-  stop(
-    "Predicted output must have exactly one non-missing selected_period value."
-  )
-}
-
 # Shared validation, prediction selection, and merge logic
 
 # Confirm that every variable named in the mapping is present in the relevant
 # input table before accessing any columns dynamically.
-required_columns <- c(
+required_validation_columns <- c(
   variable_map$validation_variable,
   variable_map$validation_se,
-  variable_map$predicted_variable,
-  variable_map$predicted_sd_variable,
   "ForestPlotsCode",
   "SAFEPlotName",
   "PlotName"
 )
-missing_columns <- setdiff(
-  required_columns,
-  c(names(validation_data), names(model_data))
+required_model_columns <- c(
+  variable_map$predicted_variable,
+  variable_map$predicted_sd_variable,
+  "cell_id",
+  "selected_period",
+  "units"
 )
+missing_validation_columns <- setdiff(
+  required_validation_columns,
+  names(validation_data)
+)
+missing_model_columns <- setdiff(
+  required_model_columns,
+  names(model_data)
+)
+missing_columns <- c(missing_validation_columns, missing_model_columns)
 if (length(missing_columns) > 0) {
   stop(
     sprintf(
@@ -149,6 +148,14 @@ if (length(missing_columns) > 0) {
     )
   )
 }
+
+# The predicted mean/sd/selected_period columns are NA outside the pooled
+# period, so the single non-missing value is the comparison value.
+model_units <- unique(model_data$units)
+if (length(model_units) != 1) {
+  stop("Predicted output must have exactly one units value.")
+}
+expected_units <- model_units
 
 # Resolve one predicted value for each mapped variable from the pooled,
 # non-missing mean/sd.
@@ -165,9 +172,27 @@ predicted_selection <- lapply(
     if (length(predicted_values) != 1) {
       stop(sprintf("Expected one predicted value for %s.", predicted_variable))
     }
+    pooled_rows <- !is.na(model_data[[predicted_variable]])
+    selected_periods <- unique(as.character(model_data$selected_period[
+      pooled_rows & !is.na(model_data$selected_period)
+    ]))
+    if (length(selected_periods) != 1) {
+      stop(sprintf(
+        "Expected one selected period for %s.",
+        predicted_variable
+      ))
+    }
+    predicted_cell_ids <- sort(unique(model_data$cell_id[
+      pooled_rows & !is.na(model_data$cell_id)
+    ]))
+    if (length(predicted_cell_ids) == 0) {
+      stop(sprintf("No pooled cells found for %s.", predicted_variable))
+    }
     list(
       value = predicted_values,
       variable = predicted_variable,
+      period = selected_periods,
+      cell_ids = predicted_cell_ids,
       sd = unique(model_data[[predicted_sd_variable]][
         !is.na(model_data[[predicted_sd_variable]])
       ])
@@ -189,6 +214,16 @@ predicted_variables <- vapply(
   function(selection) selection$variable,
   character(1)
 )
+predicted_periods <- vapply(
+  predicted_selection,
+  function(selection) selection$period,
+  character(1)
+)
+predicted_spatial_extents <- vapply(
+  predicted_selection,
+  function(selection) paste(selection$cell_ids, collapse = "; "),
+  character(1)
+)
 
 # Repeat the regional predicted value for each validation plot. This creates a
 # merged structural table without adding comparison metrics yet.
@@ -199,16 +234,26 @@ comparison_rows <- lapply(
     validation_se_variable <- variable_map$validation_se[variable_index]
     predicted_variable <- predicted_variables[variable_index]
     predicted_value <- predicted_values[variable_index]
-
     observed_extent <- get_variable_extent(
       observed_metadata,
       basename(observed_data_file),
       validation_variable
     )
-    predicted_extent <- get_variable_extent(
-      predicted_metadata,
-      basename(predicted_outputs_file),
-      predicted_variable
+    observed_period_start <- observed_extent$period_start
+    observed_period_end <- observed_extent$period_end
+    observed_period_dates <- as.Date(c(
+      observed_period_start,
+      observed_period_end
+    ))
+    if (length(observed_period_dates) != 2 || anyNA(observed_period_dates)) {
+      stop(sprintf(
+        "Observed period metadata is invalid for %s.",
+        validation_variable
+      ))
+    }
+    observed_period <- paste(
+      as.character(observed_period_dates),
+      collapse = " to "
     )
 
     lapply(seq_len(nrow(validation_data)), function(plot_index) {
@@ -220,12 +265,14 @@ comparison_rows <- lapply(
         PlotName = validation_data$PlotName[plot_index],
         observed_variable = validation_variable,
         predicted_variable = predicted_variable,
-        observed_period = comparison_period,
-        predicted_period = comparison_period,
-        observed_spatial_extent = observed_extent$spatial_extent,
-        predicted_spatial_extent = predicted_extent$spatial_extent,
-        observed_temporal_extent = observed_extent$temporal_extent,
-        predicted_temporal_extent = predicted_extent$temporal_extent,
+        observed_spatial_extent = validation_data$SAFEPlotName[plot_index],
+        predicted_spatial_extent = predicted_spatial_extents[variable_index],
+        observed_temporal_extent = observed_period,
+        predicted_temporal_extent = predicted_periods[variable_index],
+        observed_spatial_aggregation = "exact",
+        predicted_spatial_aggregation = "pooled",
+        observed_temporal_aggregation = "pooled",
+        predicted_temporal_aggregation = "pooled",
         observed_units = expected_units,
         predicted_units = expected_units,
         observed_value = observed_value,

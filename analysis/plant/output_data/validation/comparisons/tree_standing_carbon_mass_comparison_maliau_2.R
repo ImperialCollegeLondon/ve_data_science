@@ -36,7 +36,8 @@
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: |
 #|       Row-level observed and predicted stem and foliage carbon mass
-#|       comparisons for each plot-cell-date combination.
+#|       comparisons for each plot-cell-date combination, including explicit
+#|       spatial and temporal aggregation status.
 #|   - name: maliau_2_cells_and_observed_plots.png
 #|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
 #|     description: VE cell IDs and observed plot footprints and centroids.
@@ -56,6 +57,8 @@
 #| usage_notes: |
 #|   Observed plot values are repeated for every VE cell intersecting the plot
 #|   footprint. These repeated comparison rows are not independent observations.
+#|   Aggregation status is exact when rows retain one plot/cell and census/
+#|   timestep unit; exact does not necessarily mean exact equal coordinates or dates.
 #| ---
 
 library(data.table)
@@ -341,16 +344,14 @@ comparison_rows <- rbindlist(
     }
     merged_rows[, observed_variable := observed_variable]
     merged_rows[, predicted_variable := predicted_variable]
-    merged_rows[, observed_period := as.character(observed_date)]
-    merged_rows[, predicted_period := as.character(predicted_date)]
-    merged_rows[, observed_spatial_extent := paste("Plot", PlotID)]
-    merged_rows[, predicted_spatial_extent := paste("VE cell", cell_id)]
-    merged_rows[,
-      observed_temporal_extent := "Standing stock at the plot's representative census date."
-    ]
-    merged_rows[,
-      predicted_temporal_extent := "Standing stock at the end of the timestep identified by time_index."
-    ]
+    merged_rows[, observed_spatial_aggregation := "exact"]
+    merged_rows[, predicted_spatial_aggregation := "exact"]
+    merged_rows[, observed_temporal_aggregation := "exact"]
+    merged_rows[, predicted_temporal_aggregation := "exact"]
+    merged_rows[, observed_spatial_extent := PlotID]
+    merged_rows[, predicted_spatial_extent := cell_id]
+    merged_rows[, observed_temporal_extent := as.character(observed_date)]
+    merged_rows[, predicted_temporal_extent := as.character(predicted_date)]
     merged_rows[, observed_units := "kg C ha-1"]
     merged_rows[, predicted_units := "kg C ha-1"]
     merged_rows[]
@@ -377,8 +378,10 @@ setcolorder(
     "time_index",
     "observed_variable",
     "predicted_variable",
-    "observed_period",
-    "predicted_period",
+    "observed_spatial_aggregation",
+    "predicted_spatial_aggregation",
+    "observed_temporal_aggregation",
+    "predicted_temporal_aggregation",
     "observed_spatial_extent",
     "predicted_spatial_extent",
     "observed_temporal_extent",
