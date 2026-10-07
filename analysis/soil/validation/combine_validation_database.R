@@ -53,7 +53,8 @@
 
 library(dplyr)
 library(arrow)
-box::use(tools/R/R/valdb)
+source("tools/R/R/valdb.R")
+source("tools/R/R/get_ve_variables.R")
 
 # Paths to the VE scenario simulation outputs
 zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
@@ -65,7 +66,7 @@ validation_database <- open_dataset(db_path) |> collect()
 
 # Combine the validation database with VE outputs
 combined_database <-
-  valdb$join_ve_outputs(validation_database, zarr_path, config_path)
+  join_ve_outputs(validation_database, zarr_path, config_path)
 
 # Write the combined database
 combined_db_path <- "data/derived/soil/validation/database_combined"

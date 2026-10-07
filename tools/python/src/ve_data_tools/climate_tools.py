@@ -11,7 +11,8 @@ description: |
 
   Specifically, it:
     1. Calculates monthly mean diurnal temperature range (DTR) from
-       ERA5-Land hourly 2 m air temperature.
+       ERA5-Land hourly 2 m air temperature, and monthly mean 10 m wind
+       speed from ERA5-Land hourly 10 m u and v wind components.
     2. Converts ERA5-Land variables to the units required by the
        abiotic and hydrology modules.
     3. Calculates relative humidity from air temperature and dewpoint
@@ -121,6 +122,58 @@ def calculate_monthly_dtr(
     }
 
     return monthly_dtr
+
+
+# ------------------------------------------------------------
+# Calculation of monthly mean wind speed
+# ------------------------------------------------------------
+# Calculate the monthly mean 10 m wind speed from hourly ERA5-Land
+# 10 m u and v wind components.
+#
+# NOTE:
+# Wind speed is calculated from the hourly components before
+# averaging. Calculating it from the monthly mean components,
+# sqrt(mean(u10)^2 + mean(v10)^2), would underestimate the mean
+# wind speed because wind direction varies within the month and
+# opposing winds cancel out in the averaged components.
+
+
+def calculate_monthly_wind_speed(
+    hourly_ds: xr.Dataset,
+) -> xr.DataArray:
+    """Calculate monthly mean 10 m wind speed.
+
+    Calculate the hourly 10 m wind speed from the ERA5-Land hourly
+    10 m u and v wind components, then average it for each month.
+
+    Args:
+      hourly_ds: ERA5-Land hourly dataset containing ``u10`` and ``v10``.
+
+    Returns:
+      Monthly mean 10 m wind speed.
+
+    """
+
+    time_dim = "valid_time" if "valid_time" in hourly_ds.coords else "time"
+
+    # Calculate the hourly wind speed for each grid cell from the
+    # u and v wind components.
+
+    hourly_speed = np.sqrt(hourly_ds["u10"] ** 2 + hourly_ds["v10"] ** 2)
+
+    # Calculate the monthly mean wind speed for each grid cell by
+    # averaging the hourly wind speed values.
+
+    monthly_speed = hourly_speed.resample({time_dim: "1MS"}).mean()
+
+    monthly_speed.name = "wind_speed"
+
+    monthly_speed.attrs = {
+        "long_name": "Monthly mean 10 m wind speed",
+        "units": "m s-1",
+    }
+
+    return monthly_speed
 
 
 # ------------------------------------------------------------
@@ -241,7 +294,6 @@ def select_required_variables(
             "t2m",
             "rh",
             "tp",
-            "u10",
             "sp",
             "ssrd",
             "strd",
@@ -441,7 +493,7 @@ def create_ve_dataset(
         {
             "air_temperature_ref": interpolated["t2m"],
             "relative_humidity_ref": interpolated["rh"],
-            "wind_speed_ref": interpolated["u10"],
+            "wind_speed_ref": interpolated["wind_speed"],
             "precipitation": interpolated["tp"],
             "atmospheric_pressure_ref": interpolated["sp"],
             "downward_shortwave_radiation": interpolated["ssrd"],
