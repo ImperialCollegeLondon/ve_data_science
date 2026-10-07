@@ -1,6 +1,6 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-10-06'
+generated_on: '2026-10-07'
 scripts:
 - script_path: realised_tissue_productivity_comparison_maliau_2.R
   title: realised_tissue_productivity_comparison_maliau_2
@@ -16,6 +16,9 @@ scripts:
   - name: carbon_balance_components_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
     description: Cleaned SAFE carbon-balance observations for Maliau plots.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: Variable-specific observed measurement periods.
   - name: realised_tissue_productivity_maliau_2.csv
     path: data/derived/plant/output_data/validation/predicted_outputs_processing
     description: Standardised Maliau 2 plant productivity outputs.
@@ -24,13 +27,16 @@ scripts:
     path: data/derived/plant/output_data/validation/comparisons
     description: |
       Merged observed and predicted values for all tissues mapped in the
-      validation contract, including pooled model SD and spatial/temporal
-      extent information.
+      validation contract, including pooled model SD, spatial/temporal
+      extents, and explicit aggregation statuses.
   package_dependencies: yaml
   usage_notes: |
-    The comparison is driven by the realised_tissue_productivity_mapping_maliau_2.yml file.
+    The comparison is driven by the
+    realised_tissue_productivity_mapping_maliau_2.yml file.
     To add or remove variables from this comparison, update the contract
     YAML; no changes are required to this script.
+    Observed values are per plot and period-averaged; predicted values are
+    pooled across cells and timesteps in the observed period.
 - script_path: tree_standing_carbon_mass_comparison_maliau_2.R
   title: tree_standing_carbon_mass_comparison_maliau_2
   description: |
@@ -61,7 +67,8 @@ scripts:
     path: data/derived/plant/output_data/validation/comparisons
     description: |
       Row-level observed and predicted stem and foliage carbon mass
-      comparisons for each plot-cell-date combination.
+      comparisons for each plot-cell-date combination, including explicit
+      spatial and temporal aggregation status.
   - name: maliau_2_cells_and_observed_plots.png
     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
     description: VE cell IDs and observed plot footprints and centroids.
@@ -81,3 +88,5 @@ scripts:
   usage_notes: |
     Observed plot values are repeated for every VE cell intersecting the plot
     footprint. These repeated comparison rows are not independent observations.
+    Aggregation status is exact when rows retain one plot/cell and census/
+    timestep unit; exact does not necessarily mean exact equal coordinates or dates.
