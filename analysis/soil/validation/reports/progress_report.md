@@ -223,7 +223,8 @@ val_db_combined |>
     Unit = unit_canonical,
     Min = min_val,
     Max = max_val
-  )
+  ) |>
+  kable()
 ```
 
 ## Model performance
@@ -357,7 +358,4 @@ tibble::tibble(
   )
 ) |>
   kable(caption = "Best and worst performers by metric")
-```
-
-```text
 ```

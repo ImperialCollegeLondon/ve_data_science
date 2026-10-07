@@ -207,25 +207,23 @@ val_db_combined |>
     Unit = unit_canonical,
     Min = min_val,
     Max = max_val
-  )
+  ) |>
+  kable()
 ```
 
-```text
-# A tibble: 11 × 5
-   Variable                           N Unit         Min           Max
-   <chr>                          <int> <chr>      <dbl>         <dbl>
- 1 total_soil_n_per_volume          353 kg m^-3  4.77e-1   482.       
- 2 soil_n_pool_ammonium_per_mass    302 kg kg^-1 3.53e-9     0.000458 
- 3 soil_n_pool_nitrate_per_mass     302 kg kg^-1 0           0.0000248
- 4 soil_p_pool_labile_per_mass      300 kg kg^-1 1.7 e-6     0.0000329
- 5 dissolved_phosphorus             297 kg m^-3  9.09e-4     0.489    
- 6 total_soil_c_per_mass             67 kg kg^-1 3.41e-3    47.6      
- 7 total_soil_n_per_mass             67 kg kg^-1 2.44e-4     1.77     
- 8 total_soil_c_per_volume           56 kg m^-3  5.84e+2 10651.       
- 9 total_soil_p_per_mass             20 kg kg^-1 6.41e-6     0.000891 
-10 total_soil_c_per_area             11 kg m^-2  2.65e+0    20.5      
-11 soil_n_pool_inorganic_per_area     3 kg m^-2  3.3 e-4     0.00193  
-```
+| Variable                       |   N | Unit     |         Min |          Max |
+|:-------------------------------|----:|:---------|------------:|-------------:|
+| total_soil_n_per_volume        | 353 | kg m^-3  |   0.4771187 | 4.819000e+02 |
+| soil_n_pool_ammonium_per_mass  | 302 | kg kg^-1 |   0.0000000 | 4.584000e-04 |
+| soil_n_pool_nitrate_per_mass   | 302 | kg kg^-1 |   0.0000000 | 2.480000e-05 |
+| soil_p_pool_labile_per_mass    | 300 | kg kg^-1 |   0.0000017 | 3.290000e-05 |
+| dissolved_phosphorus           | 297 | kg m^-3  |   0.0009088 | 4.888383e-01 |
+| total_soil_c_per_mass          |  67 | kg kg^-1 |   0.0034059 | 4.764000e+01 |
+| total_soil_n_per_mass          |  67 | kg kg^-1 |   0.0002437 | 1.770000e+00 |
+| total_soil_c_per_volume        |  56 | kg m^-3  | 584.2000000 | 1.065060e+04 |
+| total_soil_p_per_mass          |  20 | kg kg^-1 |   0.0000064 | 8.912000e-04 |
+| total_soil_c_per_area          |  11 | kg m^-2  |   2.6540000 | 2.052900e+01 |
+| soil_n_pool_inorganic_per_area |   3 | kg m^-2  |   0.0003300 | 1.930000e-03 |
 
 ## Model performance
 
@@ -343,5 +341,3 @@ metrics_table |>
 | ccc | soil_n_pool_nitrate_per_mass (0.00208) | total_soil_c_per_area (-0.0182) |
 
 Best and worst performers by metric
-
-\`\`\`
