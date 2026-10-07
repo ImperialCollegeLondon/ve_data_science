@@ -8,7 +8,6 @@ description: |
   In the article, it is stated that the old-growth forest site is
   Maliau Basin Conservation Area. So here we will only use old-growth
   data and label it as Maliau.
-  TODO: need to change description later on
 
 virtual_ecosystem_module: animal
 
@@ -32,8 +31,8 @@ input_files:
       options for manual species-to-group curation.THIS needs updating!
 
 output_files:
-    - name: wearn_2022_density_maliau_fg_species_rows.csv
-    path: data/derived/animal/wearn_2022_Maliau/
+    - name: wearn_2022_density_maliau.csv
+    path: data/derived/animal/wearn_2022_maliau/
     description: |
       Target species-row output with functional-group-specific density
       columns derived from Maliau estimates.
@@ -67,8 +66,8 @@ input_file = (
     / ("wearn_et_al_2022_Density.csv")
 )
 
-output_dir = repo_root / "data" / "derived" / module_name / "wearn_2022_Maliau"
-output_file = output_dir / "wearn_2022_density_maliau_fg_species_rows.csv"
+output_dir = repo_root / "data" / "derived" / module_name / "wearn_2022_maliau"
+output_file = output_dir / "wearn_2022_density_maliau.csv"
 
 # Functional group level 5 from VE_ANIMAL_functionalgroups_model_level5_0250730.csv in
 # data/primary/animal/Functional_group_Anna/
