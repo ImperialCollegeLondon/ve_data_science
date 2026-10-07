@@ -1,6 +1,6 @@
 title: master_data_library_metadata
 generated_by: analysis/plant/input_data/data_library/master_data_library.R
-generated_on: '2026-09-10'
+generated_on: '2026-09-28'
 scripts:
 - script_path: pfts_maliau.R
   title: pfts_maliau
@@ -1332,7 +1332,7 @@ scripts:
       This CSV file contains the subcanopy parameters used as plant model
       constants in the plant input data library workflow.
     variables:
-    - name: subcanopy_vegetation_biomass
+    - name: subcanopy_vegetation_c
       type: numeric
       units: kg C m^-2
       description: |
@@ -1360,7 +1360,7 @@ scripts:
         dry weight is used because the model allocates subcanopy carbon to
         leafy biomass; using leaf dry weight only would better match predicted
         leaf area but would underestimate total subcanopy carbon.
-    - name: subcanopy_seedbank_biomass
+    - name: subcanopy_seedbank_c
       type: numeric
       units: kg C m^-2
       description: |
