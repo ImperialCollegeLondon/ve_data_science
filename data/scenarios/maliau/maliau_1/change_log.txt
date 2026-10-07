@@ -1,5 +1,17 @@
 # Change log of maliau_1 scenario input data
 
+2026-10-06
+- Module: Abiotic & Hydrology
+- Author: Lelavathy
+- Files changed:
+  - data/scenarios/maliau/maliau_1/data/era5_maliau_2010_2020_100m.nc (Globus)
+- Changes made:
+  - Corrected wind_speed_ref to represent 10 m wind speed calculated from both ERA5-Land U and V wind components.
+  - Wind speed is calculated at the hourly timestep and then averaged to monthly values.
+  - Updated the NetCDF forcing files for maliau_1 in the globus.
+References:
+PR #698
+
 2026-09-16
 - Module: Soil
 - Author: Hao Ran Lai

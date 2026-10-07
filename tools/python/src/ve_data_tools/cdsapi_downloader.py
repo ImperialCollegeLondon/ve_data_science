@@ -40,12 +40,13 @@ output_files:
       Monthly averaged ERA5-Land climate variables stored as a NetCDF file.
       This file is used as input for the climate preparation workflow.
 
-  - name: ERA5-Land hourly temperature NetCDF
+  - name: ERA5-Land hourly NetCDF
     path: User-defined output path
     description: |
-      Hourly ERA5-Land 2 m air temperature stored as a NetCDF file.
-      This dataset is subsequently used to calculate the monthly mean
-      diurnal temperature range.
+      Hourly ERA5-Land 2 m air temperature and 10 m u and v wind
+      components stored as a NetCDF file. This dataset is subsequently
+      used to calculate the monthly mean diurnal temperature range and
+      monthly mean wind speed.
 
 package_dependencies:
   - pathlib
@@ -84,7 +85,7 @@ usage_notes: |
   downloaded again unless they are removed manually.
 
   ERA5-Land hourly time-series data are distributed by the CDS as a
-  ZIP archive. This module automatically extracts the NetCDF file,
+    ZIP archive. This module automatically extracts and merges the NetCDF files,
   removes temporary files, and returns the downloaded data as an
   `xarray.Dataset`.
 
@@ -117,6 +118,7 @@ references: |
 
 import shutil
 import zipfile
+from contextlib import ExitStack
 from pathlib import Path
 
 import cdsapi
@@ -213,15 +215,20 @@ def download_dataset(
         ) as z:
             z.extractall(extract_dir)
 
-        nc_files = list(extract_dir.glob("*.nc"))
+        nc_files = sorted(extract_dir.rglob("*.nc"))
 
         if len(nc_files) == 0:
             raise RuntimeError("Downloaded archive contains no NetCDF file.")
 
-        shutil.move(
-            nc_files[0],
-            outfile,
-        )
+        if len(nc_files) == 1:
+            shutil.move(nc_files[0], outfile)
+        else:
+            with ExitStack() as stack:
+                datasets = [
+                    stack.enter_context(open_dataset(filename)) for filename in nc_files
+                ]
+                merged = xr.merge(datasets, join="exact", compat="no_conflicts")
+                merged.to_netcdf(outfile, engine="netcdf4")
 
         shutil.rmtree(
             extract_dir,
@@ -262,7 +269,6 @@ def cdsapi_era5_monthly_downloader(
     - 2 m temperature (K)
     - 2 m dewpoint temperature (K)
     - surface pressure (Pa)
-    - 10 m u wind component(m s-1)
     - total precipitation (m)
     - surface solar radiation downward (Jm-2)
     - surface thermal radiation downward (Jm-2)
@@ -290,7 +296,6 @@ def cdsapi_era5_monthly_downloader(
             "2m_temperature",
             "2m_dewpoint_temperature",
             "surface_pressure",
-            "10m_u_component_of_wind",
             "total_precipitation",
             "surface_solar_radiation_downwards",
             "surface_thermal_radiation_downwards",
@@ -323,6 +328,90 @@ def cdsapi_era5_monthly_downloader(
     )
 
     return open_dataset(outfile)
+
+
+# ============================================================
+# ERA5-LAND HOURLY TIME SERIES
+# ============================================================
+# Download hourly ERA5-Land variables. Hourly 2 m temperature is used
+# for the diurnal temperature range (DTR) and hourly 10 m u and v wind
+# components for the monthly mean wind speed.
+
+
+def cdsapi_era5_hourly_downloader(
+    start_date,
+    end_date,
+    bbox,
+    outfile,
+    variables=(
+        "2m_temperature",
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind",
+    ),
+):
+    """Download ERA5-Land hourly time series.
+
+    Parameters
+    ----------
+    start_date : str
+        YYYY-MM-DD
+
+    end_date : str
+        YYYY-MM-DD
+
+    bbox : list
+        Bounding box for the download in the format [north, west, south, east]
+        in degrees.
+
+    outfile : Path
+        Path to the output file where the downloaded dataset will be saved.
+
+    variables : sequence of str
+        CDS names of the hourly variables to download. Defaults to 2 m
+        temperature (K) and 10 m u and v wind components (m s-1).
+
+    Returns
+    -------
+    xarray.Dataset
+
+    """
+
+    request = {
+        "variable": list(variables),
+        "area": bbox,
+        "date": [f"{start_date}/{end_date}"],
+        "data_format": "netcdf",
+    }
+
+    download_dataset(
+        dataset="reanalysis-era5-land-timeseries",
+        request=request,
+        outfile=outfile,
+        zipped=True,
+    )
+
+    hourly_ds = open_dataset(outfile)
+    variable_names = {
+        "2m_temperature": "t2m",
+        "10m_u_component_of_wind": "u10",
+        "10m_v_component_of_wind": "v10",
+    }
+    required_variables = {
+        variable_names[variable] for variable in variables if variable in variable_names
+    }
+    missing_variables = required_variables.difference(hourly_ds.data_vars)
+    if missing_variables:
+        available_variables = sorted(hourly_ds.data_vars)
+        hourly_ds.close()
+        raise ValueError(
+            f"Hourly ERA5-Land file {outfile} is missing requested variables: "
+            f"{', '.join(sorted(missing_variables))}. "
+            f"Available variables: {', '.join(available_variables)}. "
+            "Rename this incomplete file to keep a backup, then rerun the script "
+            "to download all requested variables."
+        )
+
+    return hourly_ds
 
 
 # ============================================================
@@ -365,20 +454,10 @@ def cdsapi_era5_hourly_temperature_downloader(
 
     """
 
-    request = {
-        "variable": [
-            "2m_temperature",
-        ],
-        "area": bbox,
-        "date": [f"{start_date}/{end_date}"],
-        "data_format": "netcdf",
-    }
-
-    download_dataset(
-        dataset="reanalysis-era5-land-timeseries",
-        request=request,
+    return cdsapi_era5_hourly_downloader(
+        start_date=start_date,
+        end_date=end_date,
+        bbox=bbox,
         outfile=outfile,
-        zipped=True,
+        variables=("2m_temperature",),
     )
-
-    return open_dataset(outfile)
