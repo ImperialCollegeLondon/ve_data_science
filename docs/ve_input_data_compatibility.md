@@ -14,7 +14,7 @@ below should be agreed by the VE and Data Science teams before each breaking cha
   a problem?).
 - Generate new files in the local active data location (`maliau_2/data`) from the
   maintained scripts.
-- Do not edit the Globus backup - treat it as "read-only".
+- Do not edit the Globus backup folder - treat it as "read-only".
 - Treat a local testing backup separate from the Globus backup. The local backup may
   contain a different set of files and may not be an exact copy of the Globus backup.
 - Treat the backup as a working snapshot, not a maintained second dataset. Record the VE
@@ -105,3 +105,17 @@ Recommended overall sequence, subject to team agreement:
 If the PR VE version fails the test run, resolve the VE code first, then repeat the test.
 This may require updating the files locally again. Add the new files to Globus only after
 the VE PR runs successfully.
+
+## Extra note on multiple VE PR data requests
+
+Point 4 under "Before Changing Data" recommends removing files expected to change from
+the active data folder (e.g., `maliau_2/data`) after confirming the Globus backup. This
+has two benefits:
+
+- People retrieving data from Globus are directed to the backup files, which remain
+  available for runs using the previous compatible VE version.
+- Missing files make an active VE data request visible to anyone preparing another
+  backup. Pause a second breaking-change request until the first one is resolved.
+
+Clear communication between the VE and Data Science teams can also help identify active
+requests before another one begins.
