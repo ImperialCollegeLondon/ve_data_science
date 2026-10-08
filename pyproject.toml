@@ -50,6 +50,10 @@ dev = [
 # the release version on PyPI is always tested to be stable
 dev-pinned = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@0f67349"]
 
+# a specific PR version of VE by GitHub commit hash, this is used to test
+# if the PR version of VE is working with the newly prepared input data
+dev-PR1889 = ["virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@72f8724629ee8fbbddadac460a2c2abd6c483f68"]
+
 [tool.ruff]
 line-length = 88
 
@@ -83,5 +87,7 @@ cell_metadata_filter = "all,-trusted"
 package = false
 default-groups = []
 conflicts = [
-  [{ group = "dev" }, { group = "dev-pinned" }]
+  [{ group = "dev" }, { group = "dev-pinned" }],
+  [{ group = "dev" }, { group = "dev-PR1889" }],
+  [{ group = "dev-pinned" }, { group = "dev-PR1889" }],
 ]

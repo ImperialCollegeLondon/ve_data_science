@@ -1,6 +1,6 @@
 title: master_scenarios_metadata
 generated_by: analysis/plant/input_data/scenarios/master_scenarios.R
-generated_on: '2026-10-01'
+generated_on: '2026-10-08'
 scripts:
 - script_path: plant_cohort_data_maliau_2.R
   title: plant_cohort_data_maliau_2
@@ -103,11 +103,11 @@ scripts:
       Spatially predicted PFT cohort distribution for individuals with DBH
       greater than 10 cm.
     variables:
-    - name: plant_cohorts_cell_id
-      type: integer
-      units: dimensionless
+    - name: plant_cohorts_x
+      type: numeric
+      units: m
       description: |
-        Identifier of the scenario grid cell.
+        Easting coordinate of the scenario grid-cell centre.
       references:
       - citation: maliau_grid_definition.toml
         doi: ~
@@ -118,7 +118,25 @@ scripts:
         site_condition: ~
         date: ~
       assumptions: |
-        Cell identifiers are inherited from the scenario grid definition.
+        Coordinates are inherited from the scenario grid definition and
+        use its projected coordinate reference system.
+    - name: plant_cohorts_y
+      type: numeric
+      units: m
+      description: |
+        Northing coordinate of the scenario grid-cell centre.
+      references:
+      - citation: maliau_grid_definition.toml
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Coordinates are inherited from the scenario grid definition and
+        use its projected coordinate reference system.
     - name: plant_cohorts_pft
       type: character
       units: dimensionless
@@ -203,11 +221,11 @@ scripts:
       5–10 cm size-class fractions, then allocated across PFTs using cell-level
       PFT abundance.
     variables:
-    - name: plant_cohorts_cell_id
-      type: integer
-      units: dimensionless
+    - name: plant_cohorts_x
+      type: numeric
+      units: m
       description: |
-        Identifier of the scenario grid cell.
+        Easting coordinate of the scenario grid-cell centre.
       references:
       - citation: maliau_grid_definition.toml
         doi: ~
@@ -218,7 +236,25 @@ scripts:
         site_condition: ~
         date: ~
       assumptions: |
-        Cell identifiers are inherited from the scenario grid definition.
+        Coordinates are inherited from the scenario grid definition and
+        use its projected coordinate reference system.
+    - name: plant_cohorts_y
+      type: numeric
+      units: m
+      description: |
+        Northing coordinate of the scenario grid-cell centre.
+      references:
+      - citation: maliau_grid_definition.toml
+        doi: ~
+        url: ~
+        origin: ~
+        biome: ~
+        vegetation_type: ~
+        site_condition: ~
+        date: ~
+      assumptions: |
+        Coordinates are inherited from the scenario grid definition and
+        use its projected coordinate reference system.
     - name: plant_cohorts_pft
       type: character
       units: dimensionless
