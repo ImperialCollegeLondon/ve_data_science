@@ -375,7 +375,7 @@ def recommendation_reason(
     else:
         extras.append("Lang can support a baseline resource-level CE candidate.")
 
-    return " ".join([base] + extras)
+    return " ".join([base, *extras])
 
 
 def summarise_resource(
