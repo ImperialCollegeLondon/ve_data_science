@@ -22,7 +22,9 @@ status: final
 
 input_files:
   - name: Lang_et_al_2017_data.csv
-    path: Required local path supplied with --input (for example, a Globus-managed data folder)
+    path: |
+      Required local path supplied with --input
+      (for example, a Globus-managed data folder).
     description: |
       Lang et al. (2017) assimilation-efficiency dataset. The first row
       contains metadata and the column headers begin on the second row. The raw
