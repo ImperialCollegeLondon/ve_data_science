@@ -65,14 +65,20 @@ ve_data_science/
 │   └── derived_variables.toml                     # derived-variable registry
 ├── data/derived/<module>/validation/database/     # Step 6: output Parquet dataset
 │   └── <validation database>.parquet              # validation database
-└── tools/R/R/valdb.R                              # workflow functions
+└── tools/R/R/
+    ├── valdb.R                                    # aggregator and re-export module
+    ├── valdb_screening.R                          # DOI and screening functions
+    ├── valdb_build.R                              # database build and harmonization
+    └── valdb_join_ve.R                            # VE output joining
 ```
 
 <!-- markdownlint-enable MD013 -->
 
 ## How to load the key functions
 
-These functions work with both `box::use()` and `source()`.
+These functions work with both `box::use()` and `source()`. The implementation
+is split into three focused modules for maintainability; `valdb.R` aggregates
+and re-exports them for backward compatibility.
 
 With `box::use()`:
 
@@ -199,6 +205,16 @@ extra data wrangling, store the preprocessing script in
 
 [Back to workflow overview](#workflow-overview).
 
+### How to edit the YAML file
+
+1. Run `list_proceed_screening_records()` in the R console.
+2. Copy the DOI from that list into `add_schema()`.
+3. Open the YAML file in your IDE and edit it directly.
+
+`add_schema()` adds a template to the screened record. It prints the full path
+to the YAML file. Open that file directly in VS Code, Positron, vim, nano, or
+your preferred IDE.
+
 The template is an editable scaffold. It is not build-ready. Replace every
 placeholder with values from the source dataset. Remove unused example entries.
 Add one `variables` entry for each source column that you want to keep.
@@ -301,6 +317,36 @@ for duplicate rows within a dataset.
 To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still uses one flat source
 schema per dataset internally, keyed by unique `source_id`.
+
+### Optional row-level filtering
+
+Use `row_filter` to select rows that meet your inclusion criteria. The builder
+applies row filters before reading coordinates or times. Set it as a YAML list of
+R expressions (quoted strings). Each expression must return TRUE or FALSE for each
+row. A row is retained if all expressions are TRUE.
+
+```yaml
+row_filter:
+  - "site == 'maliau_basin'"
+  - "NH4-N_KCl >= 0"
+  - "replicate != 'blank'"
+  - "!is.na(value)"
+```
+
+How it works:
+
+- `row_filter` is optional. If absent or null, no rows are filtered.
+- Each expression must be quoted in YAML as a string.
+- Each expression must refer to columns in `data_file`.
+- All expressions are combined with AND. A row is retained if all expressions
+  are TRUE.
+- Column names with hyphens or special characters must be quoted with
+  backticks inside the expression string, e.g., `` `NH4-N_KCl` ``.
+- Rows with missing measurement values are removed later, after unit
+  conversion.
+
+The builder stops if an expression references a missing column or returns
+non-logical values. Error messages name the source, the clause, and the problem.
 
 ### Assumptions and expectations
 
@@ -570,6 +616,8 @@ What the above code does:
 - Ignores screening-only records.
 - Warns about dataset entries that still contain mandatory placeholders, then
   skips them.
+- Applies optional dataset-level `row_filter` clauses with AND semantics before
+  attaching coordinates and temporal metadata.
 - Requires every schema record to retain a `proceed` screening decision.
 - Writes Parquet output to `db_path`.
 
