@@ -41,12 +41,17 @@ package_dependencies:
   - pandas
 
 usage_notes: |
-  This file currently includes Phase 1 setup, Phase 2 source parsing, and
-    Phase 3 parsing of Maliau density text into numeric values and
-    Phase 4 species-to-functional-group mapping and Phase 5 output export.
+    Phases:
+        1. Configure input/output paths and functional-group mappings.
+        2. Read and clean species names and sample sizes.
+        3. Parse Maliau density estimates and confidence intervals.
+        4. Map species to functional groups and validate the mappings.
+        5. Aggregate by functional group and export the CSV. Sample sizes are
+             summed, medians averaged, and confidence intervals retained only for
+             groups containing one species.
 
-  Update the species_to_fg_template table in this script by filling the
-    functional_group_level5_name values before running final output export.
+    Fill functional_group_level5_name values in species_to_fg_template before
+    running the script.
 ---
 """  # noqa: D205, D212, D400, D415
 
@@ -57,6 +62,7 @@ import pandas as pd
 module_name = "animal"
 repo_root = Path(__file__).resolve().parents[3]
 
+# Phase 1: Configure input/output paths and functional-group mappings.
 input_file = (
     repo_root
     / "data"
@@ -344,7 +350,7 @@ if __name__ == "__main__":
 
     species_columns = ["species_common_name", "species_scientific_name"]
 
-    # Import and read the Wearn 2022 density data
+    # Phase 2: read and clean species names and sample sizes.
     wearn_table = pd.read_csv(
         input_file,
         header=None,
@@ -379,7 +385,7 @@ if __name__ == "__main__":
         errors="coerce",
     )
 
-    # Parse Maliau density text into numeric median and CI bounds.
+    # Phase 3: parse Maliau densities and confidence intervals.
     density_parsed = (
         wearn_table["density_maliau_text"]
         .str.strip()
