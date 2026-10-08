@@ -31,6 +31,7 @@ def test_calculate_landscape_population_density():
     assert result.loc[0, "area_m2"] == 40_000
     assert result.loc[0, "population_density"] == pytest.approx(2_500)
 
+
 def test_calculate_territory_population_density():
     """Calculate density from unique occupied territory cells."""
     cohort_df = pd.DataFrame(
