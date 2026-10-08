@@ -512,7 +512,7 @@ if __name__ == "__main__":
         "species_common_name",
         "scientific_name",
         "sample_size_n",
-        "density_maliau",
+        "density_maliau_per_km2",
         "median",
         "ci95_lower",
         "ci95_upper",
@@ -533,7 +533,7 @@ if __name__ == "__main__":
 
     species_level_output = (
         wearn_table.assign(
-            density_maliau=("density_" + density_maliau_suffix + "_per_km2")
+            density_maliau_per_km2=("density_" + density_maliau_suffix + "_per_km2")
         )
         .rename(columns=rename_map)[final_columns]
         .sort_values("scientific_name")
@@ -542,7 +542,7 @@ if __name__ == "__main__":
 
     # Aggregate repeated functional-group density keys into one row per group.
     final_output_table = (
-        species_level_output.groupby("density_maliau", as_index=False)
+        species_level_output.groupby("density_maliau_per_km2", as_index=False)
         .agg(
             species_count=("scientific_name", "nunique"),
             sample_size_n=("sample_size_n", lambda values: values.sum(min_count=1)),
@@ -562,7 +562,7 @@ if __name__ == "__main__":
             ),
         )[
             [
-                "density_maliau",
+                "density_maliau_per_km2",
                 "species_count",
                 "sample_size_n",
                 "median",
@@ -570,7 +570,7 @@ if __name__ == "__main__":
                 "ci95_upper",
             ]
         ]
-        .sort_values("density_maliau")
+        .sort_values("density_maliau_per_km2")
         .reset_index(drop=True)
     )
     final_output_table.to_csv(output_file, index=False)
