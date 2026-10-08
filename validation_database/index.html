@@ -1,0 +1,2085 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://imperialcollegelondon.github.io/ve_data_science/validation_database/">
+      
+      
+        <link rel="prev" href="../sensitivity_analysis/">
+      
+      
+        <link rel="next" href="../derived_variables/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Validation database - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#build-a-schema-based-validation-database" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Validation database
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ImperialCollegeLondon/ve_data_science" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ImperialCollegeLondon/ve_data_science" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Background
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Background
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/study_sites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Study sites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenarios
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/data_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From field data to validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/repository_tour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository tour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uv_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python with uv
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../renv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R with renv
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../using_globus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data with Globus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git and GitHub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../animal_model_validation_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animal validation plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plant_validation_tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plant validation tracker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shared workflows
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Shared workflows
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensitivity_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sensitivity analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation database
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-validation-database-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Final validation database preview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#folder-structure-and-path-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder structure and path conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-load-the-key-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to load the key functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-data-screening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Data screening
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-add-a-schema-template-for-a-proceed-doi-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Add a schema template for a proceed DOI record
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-download-the-dataset-and-convert-it-to-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Download the dataset and convert it to CSV
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-complete-schema-fields-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Complete schema fields manually
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Complete schema fields manually">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assumptions-and-expectations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assumptions and expectations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatial-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spatial metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal metadata
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Temporal metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-coordinates-from-data-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Coordinates from data columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-blanket-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Blanket coordinates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-custom-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (custom path)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-registry-for-ve-originated-canonical-variables-with-derived-computation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Registry for VE-originated canonical variables with derived computation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-build-the-validation-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Build the validation database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-combine-the-validation-database-with-ve-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) Combine the validation database with VE outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-for-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes for users
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derived_variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derived variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-validation-database-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Final validation database preview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#folder-structure-and-path-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder structure and path conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-load-the-key-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to load the key functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-data-screening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Data screening
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-add-a-schema-template-for-a-proceed-doi-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Add a schema template for a proceed DOI record
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-download-the-dataset-and-convert-it-to-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Download the dataset and convert it to CSV
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-complete-schema-fields-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Complete schema fields manually
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Complete schema fields manually">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assumptions-and-expectations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assumptions and expectations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatial-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spatial metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal metadata
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Temporal metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-coordinates-from-data-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Coordinates from data columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-blanket-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Blanket coordinates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-external-locations-file-custom-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: External locations file (custom path)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-registry-for-ve-originated-canonical-variables-with-derived-computation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Registry for VE-originated canonical variables with derived computation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-build-the-validation-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Build the validation database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-combine-the-validation-database-with-ve-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) Combine the validation database with VE outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-for-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes for users
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="build-a-schema-based-validation-database">Build a schema-based validation database</h1>
+<p>This workflow uses YAML metadata to read source datasets, convert units, and
+combine the data into one Parquet validation database.</p>
+<h2 id="workflow-overview">Workflow overview</h2>
+<!-- markdownlint-disable MD013 -->
+
+<pre class="mermaid"><code>flowchart TD
+  A["1. screen_dataset()&lt;br/&gt;Screen dataset and save one DOI YAML record"] --&gt; B["2. add_schema()&lt;br/&gt;Add schema template for a 'proceed' record"]
+  B --&gt; C["3. Download source data and convert it to CSV"]
+  C --&gt; D["4. Complete schema: file path, variable mapping, units, keys, and spatial or temporal metadata"]
+  D --&gt; E{"5. Any VE-originated canonical variables that need a derived computation?"}
+  E -- No --&gt; F["6. build_validation_database()&lt;br/&gt;Build the harmonised validation database"]
+  E -- Yes --&gt; G["5. get_ve_variables.R&lt;br/&gt;Register the canonical variable and add its compute function"]
+  G --&gt; F
+  F --&gt; H["7. join_ve_outputs()&lt;br/&gt;Join VE outputs"]</code></pre>
+<!-- markdownlint-enable MD013 -->
+
+<h2 id="final-validation-database-preview">Final validation database preview</h2>
+<p>The final output is a long table of one observation per row.
+<code>build_validation_database()</code> harmonises source records into a standard schema,
+and <code>join_ve_outputs()</code> adds VE-model output columns for the same spatial and
+temporal context.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ID</code></td>
+<td>Stable observation ID generated from the source key.</td>
+</tr>
+<tr>
+<td><code>latitude</code>, <code>longitude</code></td>
+<td>Observation location in decimal degrees (WGS84) when available.</td>
+</tr>
+<tr>
+<td><code>location_type</code></td>
+<td>Location classification such as a point or plot-level location.</td>
+</tr>
+<tr>
+<td><code>coordinate_source</code></td>
+<td>Where the coordinates came from: data columns, locations file, gazetteer fill, or missing.</td>
+</tr>
+<tr>
+<td><code>time_start</code>, <code>time_end</code></td>
+<td>Observation time window in UTC, stored as a half-open interval <code>[time_start, time_end)</code>.</td>
+</tr>
+<tr>
+<td><code>time_type</code></td>
+<td>Whether the timing is a whole-dataset window, instant, or interval.</td>
+</tr>
+<tr>
+<td><code>time_precision</code></td>
+<td>Temporal granularity, such as day, month, or year.</td>
+</tr>
+<tr>
+<td><code>time_source</code></td>
+<td>Where the time came from: source columns, fixed metadata, or missing.</td>
+</tr>
+<tr>
+<td><code>time_note</code></td>
+<td>Free-text note about the source time metadata.</td>
+</tr>
+<tr>
+<td><code>var_original</code></td>
+<td>Original variable name from the source dataset.</td>
+</tr>
+<tr>
+<td><code>value_original</code></td>
+<td>Raw observation value in the source unit.</td>
+</tr>
+<tr>
+<td><code>unit_original</code></td>
+<td>Unit used in the original source dataset.</td>
+</tr>
+<tr>
+<td><code>var_canonical</code></td>
+<td>Canonical variable name used for cross-dataset comparisons.</td>
+</tr>
+<tr>
+<td><code>unit_canonical</code></td>
+<td>Unit after conversion to the canonical unit.</td>
+</tr>
+<tr>
+<td><code>value_canonical</code></td>
+<td>Harmonised measurement value in the canonical unit.</td>
+</tr>
+<tr>
+<td><code>dataset</code></td>
+<td>Source dataset identifier from the YAML schema.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="folder-structure-and-path-conventions">Folder structure and path conventions</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Run commands from the repository root. The workflow expects these folders to
+exist. The functions below do not create them.</p>
+</div>
+<!-- markdownlint-disable MD013 -->
+
+<div class="highlight"><pre><span></span><code>ve_data_science/
+├── data/derived/&lt;module&gt;/validation/sources/      # Step 1: one screening/schema YAML file per DOI
+│   └── &lt;doi&gt;.yaml                                 # screening/schema YAML file
+├── data/&lt;primary or derived&gt;/&lt;module&gt;/&lt;author&gt;_&lt;year&gt;/  # Step 2: source data, converted manually or preprocessed
+│   └── &lt;data sheet&gt;.csv                           # source data file
+├── data/derived/validation/                       # Step 5: VE-originated canonical variables with local compute functions
+│   └── derived_variables.toml                     # derived-variable registry
+├── data/derived/&lt;module&gt;/validation/database/     # Step 6: output Parquet dataset
+│   └── &lt;validation database&gt;.parquet              # validation database
+└── tools/R/R/valdb.R                              # workflow functions
+</code></pre></div>
+<!-- markdownlint-enable MD013 -->
+
+<h2 id="how-to-load-the-key-functions">How to load the key functions</h2>
+<p>These functions work with both <code>box::use()</code> and <code>source()</code>.</p>
+<p>With <code>box::use()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">box</span><span class="o">::</span><span class="nf">use</span><span class="p">(</span><span class="n">tools</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">valdb</span><span class="p">)</span>
+</code></pre></div>
+<p>With <code>source()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nf">source</span><span class="p">(</span><span class="s">"tools/R/R/valdb.R"</span><span class="p">)</span>
+</code></pre></div>
+<p>After <code>box::use()</code>, call exported functions as <code>valdb$function_name()</code>.
+After <code>source()</code>, call them as <code>function_name()</code>. If you call
+<code>join_ve_outputs()</code> after <code>source()</code>, also source
+<code>tools/R/R/get_ve_variables.R</code> so VE variable readers are available.</p>
+<h2 id="1-data-screening">1) Data screening</h2>
+<p><a href="#workflow-overview">Back to workflow overview</a>.</p>
+<p>Use <code>screen_dataset()</code> to get DOI metadata and record whether a dataset should
+proceed, be excluded, or be deferred.</p>
+<div class="highlight"><pre><span></span><code><span class="n">box</span><span class="o">::</span><span class="nf">use</span><span class="p">(</span><span class="n">tools</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">R</span><span class="o">/</span><span class="n">valdb</span><span class="p">)</span>
+
+<span class="c1"># setup path names</span>
+<span class="n">module_name</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s">"soil"</span>
+<span class="n">validation_root</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span>
+<span class="w">  </span><span class="s">"data"</span><span class="p">,</span><span class="w"> </span><span class="s">"derived"</span><span class="p">,</span><span class="w"> </span><span class="n">module_name</span><span class="p">,</span><span class="w"> </span><span class="s">"validation"</span>
+<span class="p">)</span>
+<span class="n">variables_derived</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span>
+<span class="w">  </span><span class="s">"data"</span><span class="p">,</span><span class="w"> </span><span class="s">"derived"</span><span class="p">,</span><span class="w"> </span><span class="s">"validation"</span><span class="p">,</span><span class="w"> </span><span class="s">"derived_variables.toml"</span>
+<span class="p">)</span>
+<span class="n">sources_dir</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">file.path</span><span class="p">(</span><span class="n">validation_root</span><span class="p">,</span><span class="w"> </span><span class="s">"sources"</span><span class="p">)</span>
+<span class="n">db_path</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">file.path</span><span class="p">(</span><span class="n">validation_root</span><span class="p">,</span><span class="w"> </span><span class="s">"database"</span><span class="p">)</span>
+
+<span class="c1"># run the screening function</span>
+<span class="n">valdb</span><span class="o">$</span><span class="nf">screen_dataset</span><span class="p">(</span><span class="n">sources_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sources_dir</span><span class="p">)</span>
+</code></pre></div>
+<p>The function asks for a DOI, a decision, a reason for the decision, and notes.
+The available decisions are:</p>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>proceed</code></td>
+<td>The source contains relevant validation data.</td>
+</tr>
+<tr>
+<td><code>exclude</code></td>
+<td>The source is unsuitable for the validation database.</td>
+</tr>
+<tr>
+<td><code>defer</code></td>
+<td>A decision requires more information or another opinion.</td>
+</tr>
+</tbody>
+</table>
+<p>Notes are required for <code>defer</code> decisions and when the selected reason is
+<code>other</code>. DOI metadata must resolve through DOI content negotiation
+(<code>rcrossref::cr_cn()</code>).</p>
+<p>Each successful screening creates one file under <code>sources_dir</code>. The filename is
+a stable ID automatically derived from the DOI, for example:</p>
+<div class="highlight"><pre><span></span><code>doi-10-5281-zenodo-2024580.yaml
+</code></pre></div>
+<p>Existing DOI records are not overwritten. To change a screening decision,
+delete the per-DOI YAML file. Then screen the dataset again.</p>
+<h2 id="2-add-a-schema-template-for-a-proceed-doi-record">2) Add a schema template for a <code>proceed</code> DOI record</h2>
+<p><a href="#workflow-overview">Back to workflow overview</a>.</p>
+<p>Use <code>add_schema()</code> only for a DOI record with
+<code>screening.decision: proceed</code>.</p>
+<p><code>add_schema()</code> finds a screening record YAML file from
+<a href="#1-data-screening">Step 1</a> by DOI and adds one nested dataset template under
+<code>datasets:</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">add_schema</span><span class="p">(</span>
+<span class="w">  </span><span class="n">doi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"10.5281/zenodo.2024580"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">sources_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sources_dir</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The DOI can use upper-case characters, a <code>doi:</code> prefix, or a DOI resolver URL.
+The code normalises it before lookup. The record must already exist. The record
+must have <code>screening.decision: proceed</code>. The record must not already contain a
+schema. If these checks pass, the code adds the template. Then it opens only
+that YAML file for manual editing.</p>
+<p>The initial template always uses the nested <code>datasets</code> layout, even when the
+DOI record currently contains only one dataset. If a DOI record covers more than
+one dataset, add one nested entry under <code>datasets:</code> for each dataset and fill in
+its schema fields separately. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">datasets</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_id</span><span class="p">:</span><span class="w"> </span><span class="s">"author_year"</span>
+<span class="w">    </span><span class="nt">data_file</span><span class="p">:</span><span class="w"> </span><span class="s">"path/to/file_1.csv"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_id</span><span class="p">:</span><span class="w"> </span><span class="s">"author_year_2"</span>
+<span class="w">    </span><span class="nt">data_file</span><span class="p">:</span><span class="w"> </span><span class="s">"path/to/file_2.csv"</span>
+</code></pre></div>
+<h2 id="3-download-the-dataset-and-convert-it-to-csv">3) Download the dataset and convert it to CSV</h2>
+<p><a href="#workflow-overview">Back to workflow overview</a>.</p>
+<p>Download the dataset to <code>data/primary/&lt;module&gt;/&lt;author&gt;_&lt;year&gt;</code>. The soil
+folder on this page is one example. <code>author_year</code> is the folder naming pattern.
+If names conflict, use <code>author_year_2</code>. Continue in that pattern.</p>
+<p>Use CSV files. If the published dataset uses another format, such as Excel or a
+zip archive, convert the required data sheet to CSV. If the raw dataset needs
+extra data wrangling, store the preprocessing script in
+<a href="analysis/validation/">analysis/validation/</a>. Write the processed CSV to
+<a href="derived/">derived/</a> beside the other validation inputs.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Keep any location or coordinate files that come with the source dataset.
+For the default spatial workflow, export the source location table as
+<code>locations.csv</code> beside the measurement CSV.</p>
+</div>
+<h2 id="4-complete-schema-fields-manually">4) Complete schema fields manually</h2>
+<p><a href="#workflow-overview">Back to workflow overview</a>.</p>
+<p>The template is an editable scaffold. It is not build-ready. Replace every
+placeholder with values from the source dataset. Remove unused example entries.
+Add one <code>variables</code> entry for each source column that you want to keep.</p>
+<p>This step also controls later VE joins. For each entry under <code>variables</code>, check
+<code>var_canonical</code>. If a source column maps to a standard VE canonical variable,
+the join can use the existing VE variable metadata.</p>
+<p>If a source column maps to a canonical variable that is available only through
+local derived-variable support, the schema alone is not enough. You must add a
+registry entry for that canonical variable in
+<a href="data/derived/validation/derived_variables.toml">data/derived/validation/derived_variables.toml</a>.
+You must also implement its reader in
+<a href="tools/R/R/get_ve_variables.R">tools/R/R/get_ve_variables.R</a>. See
+<a href="#5-registry-for-ve-originated-canonical-variables-with-derived-computation">Step 5</a>.</p>
+<p>For each dataset entry under <code>datasets:</code>, complete these <strong>required</strong> fields:</p>
+<ul>
+<li><code>source_id</code> (for example, <code>dobert_2019</code>)</li>
+<li><code>data_file</code> (path to the CSV file)</li>
+<li><code>skip_rows</code> (use <code>0</code> when there are no non-data rows to skip)</li>
+<li><code>variables</code> (original name, canonical name, original unit)</li>
+<li><code>dedup_key</code></li>
+</ul>
+<p><code>coordinates</code> and <code>temporal</code> are <strong>optional blocks</strong>. Use them when the dataset
+includes spatial or temporal information that should be mapped into the
+validation database. If you leave either block unused, remove the placeholder
+entries rather than leaving partially completed values in place. If you omit the
+<code>coordinates</code> or <code>temporal</code> blocks, the build still runs, but it warns and fills
+the corresponding spatial or temporal fields in the output validation database
+with <code>NA</code> values.</p>
+<p>Example with one dataset, adapted from
+<code>doi-10-5281-zenodo-2024580</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">record_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">doi-10-5281-zenodo-2024580</span>
+<span class="nt">doi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.5281/zenodo.2024580</span>
+<span class="nt">screening</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">decision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">proceed</span>
+<span class="w">  </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relevant_validation_data</span>
+<span class="w">  </span><span class="nt">notes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contains soil nutrients, moisture, pH, bulk density etc.</span>
+<span class="w">  </span><span class="nt">screened_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-08-14T02:33:27Z"</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Landuse change and species invasion</span>
+<span class="w">  </span><span class="nt">authors</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Döbert, Timm</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Webber, Bruce L.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sugau, John B.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dickinson, Katherine J. M.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Didham, Raphael K.</span>
+<span class="w">  </span><span class="nt">year</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2019</span>
+<span class="w">  </span><span class="nt">publisher</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Zenodo</span>
+<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://zenodo.org/record/2024580</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">doi_content_search</span>
+<span class="w">  </span><span class="nt">retrieved_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-08-14T02:33:16Z"</span>
+<span class="nt">datasets</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dobert_2019</span>
+<span class="w">    </span><span class="nt">data_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/primary/soil/dobert_2019/DoebertTF_SAFE_PlotData.csv</span>
+<span class="w">    </span><span class="nt">skip_rows</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9</span>
+<span class="w">    </span><span class="nt">variables</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">soilN</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">var_canonical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">total_soil_n_per_volume</span>
+<span class="w">        </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mg cm^-3</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Total soil nitrogen content</span>
+<span class="w">      </span><span class="nt">soilP</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">var_canonical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dissolved_phosphorus</span>
+<span class="w">        </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ug cm^-3</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Plant available soil phosphorus content</span>
+<span class="w">    </span><span class="nt">dedup_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plot.code</span>
+<span class="w">    </span><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">from_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/primary/soil/dobert_2019/locations.csv</span>
+<span class="w">    </span><span class="nt">temporal</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="s">"%d/%m/%Y"</span>
+<span class="w">      </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Asia/Kuching</span>
+<span class="w">      </span><span class="nt">same_for_all_rows</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">01/12/2011</span>
+<span class="w">        </span><span class="nt">end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">31/03/2014</span>
+<span class="w">        </span><span class="nt">precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">day</span>
+<span class="w">        </span><span class="nt">note</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Start and end dates specified in the Summary sheet of the original file.</span>
+</code></pre></div>
+<p><code>dedup_key</code> can be one source column name or several source column names. In
+YAML, that means either one string such as <code>dedup_key: plot.code</code> or a list
+such as:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">dedup_key</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">site_id</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample_id</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">date</span>
+</code></pre></div>
+<p>Together, those columns identify one observation. Use one column when one field
+is already unique after import. Use several columns when uniqueness depends on a
+combination such as site, sample, and date. The builder uses this key to check
+for duplicate rows within a dataset.</p>
+<p>To add another dataset from the same DOI, append another entry under
+<code>datasets:</code> in the same YAML file. The build pipeline still uses one flat source
+schema per dataset internally, keyed by unique <code>source_id</code>.</p>
+<h3 id="assumptions-and-expectations">Assumptions and expectations</h3>
+<ul>
+<li>Datasets and location files are CSV. The code uses <code>readr::read_csv()</code>.</li>
+<li>Known <code>var_canonical</code> names resolve against the latest VE
+  canonical-variable metadata in <code>data_variables.toml</code> from the <code>develop</code>
+  branch and, when supplied, the local derived-variable registry in
+  <a href="data/derived/validation/derived_variables.toml">data/derived/validation/derived_variables.toml</a>.</li>
+<li>Source and canonical units are interpreted and converted with the <code>units</code>
+  package. Use unit strings that the <code>units</code> package can read. Malformed or
+  dimensionally incompatible units are errors.</li>
+<li>Unknown canonical names produce a warning. Their observations and original
+  units stay in the database. Canonical values and canonical units are missing.</li>
+</ul>
+<h3 id="spatial-metadata">Spatial metadata</h3>
+<p>The builder fills coordinates in this order:</p>
+<pre class="mermaid"><code>flowchart TD
+  A[Need coordinates for a row] --&gt; B{same_for_all_rows set?}
+  B -- Yes --&gt; C[Use blanket coordinates\ncoordinate_source: same_for_all_rows]
+  B -- No --&gt; D{latitude_column and\nlongitude_column set?}
+  D -- Yes --&gt; E[Read from data_file\ncoordinate_source: data_columns]
+  D -- No --&gt; F{locations file configured\nor locations.csv present?}
+  F -- Yes --&gt; G[Match rows and read coordinates\ncoordinate_source: locations_file]
+  F -- No --&gt; H{Gazetteer match available?}
+  H -- Yes --&gt; I[Use gazetteer centroid\ncoordinate_source: gazetteer_second_pass]
+  H -- No --&gt; J[Leave coordinates missing\ncoordinate_source: missing]</code></pre>
+<p>Each method sets <code>coordinate_source</code> to show which source the build used. Choose
+only one of the following combination to use.</p>
+<ol>
+<li>
+<p><strong>Blanket coordinates</strong> (<code>same_for_all_rows</code>): Use this method when one
+   location applies to the whole dataset. Set both
+   <code>same_for_all_rows.latitude</code> and <code>same_for_all_rows.longitude</code> to scalar
+   values in WGS84 decimal degrees. Rows filled this way have
+   <code>coordinate_source: same_for_all_rows</code>.</p>
+</li>
+<li>
+<p><strong>Data-column coordinates</strong> (<code>latitude_column</code>, <code>longitude_column</code>): Use this
+   method when the source CSV contains latitude and longitude columns. Set both
+   <code>latitude_column</code> and <code>longitude_column</code> to the original column names. The
+   builder reads these columns directly from <code>data_file</code> and converts them to
+   numeric WGS84 decimal degrees. Rows filled this way have
+   <code>coordinate_source: data_columns</code>. Missing coordinate values are kept and
+   marked as <code>missing</code>. If one or both coordinate columns are not configured,
+   the builder falls back to the locations-file workflow.</p>
+</li>
+<li>
+<p><strong>External locations file</strong> (<code>from_file</code>, <code>match_data_column</code>,
+   <code>match_location_column</code>, <code>latitude_column</code>, <code>longitude_column</code>): Use this
+   method when coordinates are stored in a separate file. By default, the
+   builder looks for <code>locations.csv</code> beside <code>data_file</code>. To use another file,
+   set <code>from_file</code>. Match the data with <code>match_data_column</code> from <code>data_file</code>
+   and <code>match_location_column</code> from the locations file. Read latitude and
+   longitude from <code>latitude_column</code> and <code>longitude_column</code> in the locations
+   file. The default names are <code>Latitude</code> and <code>Longitude</code>. A multi-column
+   <code>dedup_key</code> requires an explicit <code>match_data_column</code>. Rows filled this way
+   have <code>coordinate_source: locations_file</code>.</p>
+</li>
+<li>
+<p><strong>Gazetteer second pass</strong>: If rows still lack coordinates after the other
+   methods, the builder matches the location key against
+   <code>data/primary/site/gazetteer.geojson</code>. It fills missing coordinates from the
+   centroid values (<code>centroid_x</code>, <code>centroid_y</code>). Rows filled this way have
+   <code>coordinate_source: gazetteer_second_pass</code>.</p>
+</li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>All coordinate values must be WGS84 decimal degrees.</p>
+</div>
+<p>The builder does not accept invalid coordinates. Non-numeric or out-of-range
+values stop the build. Rows with missing coordinates have
+<code>coordinate_source: missing</code>.</p>
+<h3 id="temporal-metadata">Temporal metadata</h3>
+<p>Temporal metadata can come from one <code>date_column</code>, from paired <code>start_column</code>
+and <code>end_column</code> values, or from <code>same_for_all_rows.start</code> and
+<code>same_for_all_rows.end</code>. Columns used for time metadata must also be kept by
+<code>dedup_key</code> or <code>variables</code>. Optional <code>format</code>, <code>timezone</code>, and <code>precision</code>
+settings control parsing. Supported precision values are <code>second</code>, <code>day</code>,
+<code>month</code>, and <code>year</code>. Times are stored in UTC as half-open intervals
+<code>[time_start, time_end)</code>. Source end values use the last inclusive precision
+unit. <code>same_for_all_rows.end: open</code> means that the end has no limit. The
+optional blanket <code>note</code> is stored in <code>time_note</code>.</p>
+<h4 id="example-coordinates-from-data-columns">Example: Coordinates from data columns</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Latitude</span>
+<span class="w">  </span><span class="nt">longitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Longitude</span>
+</code></pre></div>
+<p>The builder reads <code>Latitude</code> and <code>Longitude</code> directly from the source CSV
+(<code>data_file</code>). It converts them to numeric WGS84 values.</p>
+<h4 id="example-blanket-coordinates">Example: Blanket coordinates</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">same_for_all_rows</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4.3975</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">117.3659</span>
+</code></pre></div>
+<p>All rows receive this single coordinate pair. The location is constant across
+the dataset.</p>
+<h4 id="example-external-locations-file-default">Example: External locations file (default)</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">match_data_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plot.code</span>
+<span class="w">  </span><span class="nt">match_location_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Location name</span>
+<span class="w">  </span><span class="nt">latitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Latitude</span>
+<span class="w">  </span><span class="nt">longitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Longitude</span>
+</code></pre></div>
+<p>The builder looks for <code>locations.csv</code> beside <code>data_file</code>. It matches
+<code>plot.code</code> from the data against <code>Location name</code> in the locations file. It
+reads coordinates from the <code>Latitude</code> and <code>Longitude</code> columns in the locations
+file. If the locations file has missing coordinates for some matches, those rows
+are kept and marked as <code>missing</code>.</p>
+<h4 id="example-external-locations-file-custom-path">Example: External locations file (custom path)</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">coordinates</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">from_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/primary/soil/dobert_2019/sites.csv</span>
+<span class="w">  </span><span class="nt">match_data_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plot.code</span>
+<span class="w">  </span><span class="nt">match_location_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">site_id</span>
+<span class="w">  </span><span class="nt">latitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lat</span>
+<span class="w">  </span><span class="nt">longitude_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lon</span>
+</code></pre></div>
+<p>The builder reads coordinates from the specified <code>from_file</code> path. It matches
+column names as configured. If the locations file contains duplicated keys, the
+build aborts. It does not inflate the number of observations.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">temporal</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Asia/Kuching</span>
+<span class="w">  </span><span class="nt">same_for_all_rows</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2011-01-01</span>
+<span class="w">    </span><span class="nt">end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2014-12-31</span>
+<span class="w">    </span><span class="nt">precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">day</span>
+<span class="w">    </span><span class="nt">note</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sampling period reported by the source</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use either per-row settings or <code>same_for_all_rows</code> in one temporal block.
+Do not mix them.</p>
+</div>
+<p>Remove unused inner entries when the schema is complete.</p>
+<h2 id="5-registry-for-ve-originated-canonical-variables-with-derived-computation">5) Registry for VE-originated canonical variables with derived computation</h2>
+<p><a href="#workflow-overview">Back to workflow overview</a>.</p>
+<p><code>join_ve_outputs()</code> depends on
+<a href="tools/R/R/get_ve_variables.R">tools/R/R/get_ve_variables.R</a>. That file
+provides <code>get_data_variables()</code> and <code>get_derived_variables()</code>. The second
+function reads the VE configuration TOML file, computes VE-originated canonical
+variables that are not stored directly in VE outputs, and returns them in the
+same named-list shape as the direct VE variables.</p>
+<p>The dependency chain is:</p>
+<pre class="mermaid"><code>flowchart LR
+  A[join_ve_outputs] --&gt; B[get_ve_variables.R]
+  B --&gt; C[get_derived_variables]
+  C --&gt; D[data/derived/validation/derived_variables.toml]
+  D --&gt; E[Local registry of canonical names and compute functions]
+  C --&gt; F[Computed canonical-variable arrays]
+  F --&gt; A</code></pre>
+<p>The shared TOML file is the local registry for VE-originated canonical variables
+that are computed from VE outputs rather than stored directly in them. Each
+entry links one canonical variable name to the R function that computes it. If
+you wrote a Python function, you still need an R wrapper via <code>reticulate()</code>.
+When <code>join_ve_outputs()</code> sees one of those names, it can request the computed
+canonical value instead of only looking for a variable stored directly in the VE
+output files.</p>
+<p>The current file lives at
+<a href="data/derived/validation/derived_variables.toml">data/derived/validation/derived_variables.toml</a>.
+Its entries follow this shape:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[[variable]]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"total_soil_n_per_volume"</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Total soil nitrogen per volume"</span>
+<span class="n">unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"kg{N} m^-3"</span>
+<span class="n">function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"get_total_soil_n_per_volume"</span>
+</code></pre></div>
+<p>For example, suppose you want to add a new VE-originated canonical variable
+named <code>herbivore_density</code>. Its VE value must be derived from other VE outputs.
+The end-to-end change looks like this:</p>
+<ol>
+<li>Add a new <code>[[variable]]</code> block to
+   <a href="data/derived/validation/derived_variables.toml">data/derived/validation/derived_variables.toml</a>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="k">[[variable]]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"herbivore_density"</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Density of herbivore function group"</span>
+<span class="n">unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"km^-1"</span>
+<span class="n">function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"get_herbivore_density"</span>
+</code></pre></div>
+<ol>
+<li>Define the <code>get_herbivore_density()</code> R function in
+   <a href="tools/R/R/get_ve_variables.R">tools/R/R/get_ve_variables.R</a>. The function
+   must read the raw VE inputs it needs, compute the output in the right object
+   class (for example, array or data frame), and return it with the expected VE
+   dimensions.</li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Use the exact same <code>name</code> in both places: in the <code>name = ...</code> entry in
+<a href="data/derived/validation/derived_variables.toml">data/derived/validation/derived_variables.toml</a>
+and in the <code>var_canonical: ...</code> entry in the schema in
+<a href="#4-complete-schema-fields-manually">Step 4</a>.</p>
+</div>
+<p>Update <a href="#4-complete-schema-fields-manually">Step 4</a> when the new canonical
+variable must be named in validation schemas. Update
+<a href="#7-combine-the-validation-database-with-ve-outputs">Step 7</a> when that canonical
+variable must be computed from VE output files during scenario joins. In
+practice, <code>join_ve_outputs()</code> uses the TOML registry and the R helper in
+<code>get_ve_variables.R</code>. The build step uses the derived-variable table only to
+recognise and validate canonical names.</p>
+<h2 id="6-build-the-validation-database">6) Build the validation database</h2>
+<p><a href="#workflow-overview">Back to workflow overview</a>.</p>
+<p>After registering any VE-originated canonical variables, run:</p>
+<div class="highlight"><pre><span></span><code><span class="n">valdb</span><span class="o">$</span><span class="nf">build_validation_database</span><span class="p">(</span>
+<span class="w">  </span><span class="n">variables_derived</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">variables_derived</span><span class="p">,</span>
+<span class="w">  </span><span class="n">sources_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sources_dir</span><span class="p">,</span>
+<span class="w">  </span><span class="n">db_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_path</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>This builds the validation database from the completed schemas in <code>sources_dir</code>
+and writes one Parquet file per completed dataset entry to <code>db_path</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>db_path</code> is a local output directory, not a Git-tracked location in this
+repository. Parquet outputs are ignored by Git, so save them in your local
+repo working copy and, when you need to share or publish them, upload them
+via Globus rather than committing them to the repository.</p>
+</div>
+<p>What the above code does:</p>
+<ul>
+<li>Loads current canonical variable metadata from the VE <code>develop</code> branch.</li>
+<li>Combines it with local metadata for VE-originated canonical variables that
+  use a derived computation path when that table is supplied.</li>
+<li>Converts known variables between compatible units with <code>units</code>.</li>
+<li>Reads per-DOI records from <code>sources_dir</code> in sorted filename order.</li>
+<li>Flattens each record to one build source per dataset entry under <code>datasets</code>.</li>
+<li>Ignores screening-only records.</li>
+<li>Warns about dataset entries that still contain mandatory placeholders, then
+  skips them.</li>
+<li>Requires every schema record to retain a <code>proceed</code> screening decision.</li>
+<li>Writes Parquet output to <code>db_path</code>.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A <code>proceed</code> decision alone does not make a record build-ready. The builder
+uses only completed dataset entries.</p>
+</div>
+<p>If no completed dataset schemas remain after screening-only and draft entries
+are excluded, the build stops.</p>
+<h2 id="7-combine-the-validation-database-with-ve-outputs">7) Combine the validation database with VE outputs</h2>
+<p><a href="#workflow-overview">Back to workflow overview</a>.</p>
+<p>Use
+<a href="analysis/soil/validation/combine_validation_database.R">analysis/soil/validation/combine_validation_database.R</a>
+as a reference workflow.</p>
+<p><code>join_ve_outputs()</code> takes the validation database and VE scenario outputs from a
+Zarr store. It joins the spatiotemporally aggregated VE outputs to each row. It
+reads VE variables that are stored directly in the outputs and VE-originated
+canonical variables that are computed from those outputs. It classifies each
+observation by spatial and temporal overlap with the scenario bounds. It returns
+three added columns: the lower quantile <code>value_VE_q05</code>, the median
+<code>value_VE_q50</code>, and the upper quantile <code>value_VE_q95</code>.</p>
+<p>The current implementation supports:</p>
+<ul>
+<li>full spatial and temporal matching (<code>spatial_within_temporal_within</code>)</li>
+<li>temporal-only matching for observations outside VE spatial bounds
+  (<code>spatial_outside_temporal_within</code>)</li>
+</ul>
+<p>Other spatiotemporal classes return <code>NA</code> quantiles with a warning.</p>
+<h2 id="notes-for-users">Notes for users</h2>
+<ul>
+<li>Keep schema edits small.</li>
+<li>Commit frequently.</li>
+<li>Prefer explicit relative paths from the repository root.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
