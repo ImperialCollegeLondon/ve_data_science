@@ -1,4 +1,4 @@
-"""title: Extract Lang assimilation efficiency observations and map to VE resources. 
+"""title: Extract Lang assimilation efficiency observations and map to VE resources.
 
 description: |
   Extract assimilation-efficiency observations from Lang et al. (2017),
