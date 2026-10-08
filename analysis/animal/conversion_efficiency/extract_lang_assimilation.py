@@ -1,6 +1,4 @@
-"""---
-
-title: Extract Lang assimilation efficiency observations and map to VE resources
+"""title: Extract Lang assimilation efficiency observations and map to VE resources. 
 
 description: |
   Extract assimilation-efficiency observations from Lang et al. (2017),
@@ -24,7 +22,6 @@ input_files:
   - name: Lang_et_al_2017_data.csv
     path: |
       Required local path supplied with --input
-      (for example, a Globus-managed data folder).
     description: |
       Lang et al. (2017) assimilation-efficiency dataset. The first row
       contains metadata and the column headers begin on the second row. The raw
@@ -55,7 +52,7 @@ usage_notes: |
   to the data explicitly, for example after transferring it from Globus.
 
 Example:
-    python extract_lang_assimilation.py --input C:/path/to/Globus/Lang_et_al_2017_data.csv
+    python extract_lang_assimilation.py --input C:/data/Lang_et_al_2017_data.csv
 
   If --output is omitted, the mapped observation CSV is written beside the
   input dataset. Use --output to write it elsewhere.
