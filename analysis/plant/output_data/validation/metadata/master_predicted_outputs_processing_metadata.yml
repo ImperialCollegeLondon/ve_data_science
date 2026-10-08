@@ -1,6 +1,6 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-09-22'
+generated_on: '2026-10-07'
 scripts:
 - script_path: realised_tissue_productivity_maliau_2.R
   title: realised_tissue_productivity_maliau_2
@@ -152,3 +152,150 @@ scripts:
     variable in master_observed_data_processing_metadata.yml (stem ->
     WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP), so they
     always match the observed dataset's declared periods without manual syncing.
+- script_path: tree_standing_carbon_mass_maliau_2.R
+  title: tree_standing_carbon_mass_maliau_2
+  description: |
+    This script calculates Virtual Ecosystem standing stem and foliage carbon
+    mass for every Maliau-2 grid cell and model timestep. Cohort-level biomass
+    is multiplied by cohort abundance, summed across cohorts, and standardised
+    to kg C ha-1.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: wip
+  input_files:
+  - name: plants_cohort_data.csv
+    path: data/scenarios/maliau/maliau_2/out
+    description: |
+      Virtual Ecosystem plant cohort biomass, abundance, cell identifiers,
+      and timesteps.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid geometry, cell IDs, and cell resolution.
+  - name: compiled_configuration.toml
+    path: data/scenarios/maliau/maliau_2/out
+    description: Simulation start date and update interval.
+  - name: model_data.nc
+    path: data/scenarios/maliau/maliau_2/out
+    description: VE cell IDs and projected cell-centre coordinates for the full grid.
+  - name: tree_standing_carbon_mass_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Observed plot data used for diagnostic figures only.
+  output_files:
+  - name: tree_standing_carbon_mass_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      Per-cell total and per-PFT standing stem and foliage carbon mass for
+      each timestep. Total masses repeat across the PFT rows for each cell
+      and timestep.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Each model timestep.
+      description: Zero-based Virtual Ecosystem cell identifier.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      temporal_extent: ~
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      temporal_extent: ~
+      description: Cell centre northing in the grid CRS.
+    - name: timestep_end_date
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: End date of the model timestep.
+    - name: timestep_start_date
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Start of the model timestep.
+      description: Start date of the model timestep.
+    - name: time_index
+      type: integer
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Model timestep index.
+      description: Zero-based Virtual Ecosystem timestep index.
+    - name: stem_c_mass_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Total standing stem carbon mass across PFTs, repeated on each PFT
+        row.
+    - name: foliage_c_mass_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Total standing foliage carbon mass across PFTs, repeated on each
+        PFT row.
+    - name: pft_name
+      type: character
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Plant functional type for the per-PFT mass fields.
+    - name: stem_c_mass_per_pft_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Standing stem carbon mass per hectare for pft_name.
+    - name: foliage_c_mass_per_pft_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Standing foliage carbon mass per hectare for pft_name.
+    - name: units
+      type: character
+      units: dimensionless
+      spatial_extent: All output rows.
+      temporal_extent: ~
+      description: Units for the standing carbon mass fields.
+  - name: stem_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Stem carbon mass per PFT and cell, standardised to kg C ha-1.
+  - name: foliage_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Foliage carbon mass per PFT and cell, standardised to kg C ha-1.
+  - name: stem_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Stem carbon mass per PFT and cell from timestep index 4 onward.
+  - name: foliage_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Foliage carbon mass per PFT and cell from timestep index 4 onward.
+  - name: stem_c_mass_mean_across_cells_all_time_indices_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Mean total and PFT-specific stem carbon mass across grid cells for
+      all timesteps.
+  - name: foliage_c_mass_mean_across_cells_all_time_indices_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Mean total and PFT-specific foliage carbon mass across grid cells
+      for all timesteps.
+  - name: stem_c_mass_mean_across_cells_from_time_index_4_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Mean total and PFT-specific stem carbon mass across grid cells from
+      timestep index 4 onward.
+  - name: foliage_c_mass_mean_across_cells_from_time_index_4_kg_ha.png
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2
+    description: Mean total and PFT-specific foliage carbon mass across grid cells
+      from timestep index 4 onward.
+  package_dependencies:
+  - data.table
+  - sf
+  - toml
+  - reticulate
+  - xarray
+  usage_notes: |
+    Initialisation rows without whole_crown_gpp are excluded before cohort
+    aggregation to avoid double-counting timestep zero.

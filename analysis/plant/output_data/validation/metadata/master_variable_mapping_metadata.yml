@@ -1,6 +1,6 @@
 title: master_variable_mapping_metadata
 generated_by: analysis/plant/output_data/validation/variable_mapping/master_variable_mapping.R
-generated_on: '2026-09-22'
+generated_on: '2026-10-07'
 mappings:
 - mapping_path: realised_tissue_productivity_mapping_maliau_2.yml
   variable_mappings:
@@ -28,3 +28,45 @@ mappings:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
       variable: root_c_productivity_mean
       sd_variable: root_c_productivity_sd
+- mapping_path: tree_standing_carbon_mass_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv
+      variable: obs_stem_mass_2011_kg_ha
+      se_variable: obs_stem_mass_2011_se_kg_ha
+      date_variable: census_date_2011
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv
+      variable: stem_c_mass_kg_ha
+      sd_variable: ~
+      date_variable: timestep_end_date
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv
+      variable: obs_stem_mass_2014_kg_ha
+      se_variable: obs_stem_mass_2014_se_kg_ha
+      date_variable: census_date_2014
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv
+      variable: stem_c_mass_kg_ha
+      sd_variable: ~
+      date_variable: timestep_end_date
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv
+      variable: obs_leaf_mass_2011_kg_ha
+      se_variable: obs_leaf_mass_2011_se_kg_ha
+      date_variable: census_date_2011
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv
+      variable: foliage_c_mass_kg_ha
+      sd_variable: ~
+      date_variable: timestep_end_date
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv
+      variable: obs_leaf_mass_2014_kg_ha
+      se_variable: obs_leaf_mass_2014_se_kg_ha
+      date_variable: census_date_2014
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv
+      variable: foliage_c_mass_kg_ha
+      sd_variable: ~
+      date_variable: timestep_end_date

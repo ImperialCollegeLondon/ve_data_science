@@ -1,6 +1,6 @@
 title: master_observed_data_processing_metadata
 generated_by: analysis/plant/output_data/validation/observed_data_processing/master_observed_data_processing.R
-generated_on: '2026-09-22'
+generated_on: '2026-10-07'
 scripts:
 - script_path: carbon_balance_components_maliau.R
   title: carbon_balance_components_maliau
@@ -35,8 +35,8 @@ scripts:
     - name: ForestType
       type: character
       units: dimensionless
-      spatial_extent: Not applicable (plot identifier).
-      temporal_extent: Not applicable (static identifier).
+      spatial_extent: ~
+      temporal_extent: ~
       description: |
         Old-growth or Logged
       method: ~
@@ -52,8 +52,8 @@ scripts:
     - name: SAFEPlotName
       type: character
       units: dimensionless
-      spatial_extent: Not applicable (plot identifier).
-      temporal_extent: Not applicable (static identifier).
+      spatial_extent: ~
+      temporal_extent: ~
       description: |
         SAFE plot name, as in the SAFE Gazetteer
       method: ~
@@ -69,8 +69,8 @@ scripts:
     - name: PlotName
       type: character
       units: dimensionless
-      spatial_extent: Not applicable (plot identifier).
-      temporal_extent: Not applicable (static identifier).
+      spatial_extent: ~
+      temporal_extent: ~
       description: |
         Plot name (used in field work)
       method: ~
@@ -86,8 +86,8 @@ scripts:
     - name: ForestPlotsCode
       type: character
       units: dimensionless
-      spatial_extent: Not applicable (plot identifier).
-      temporal_extent: Not applicable (static identifier).
+      spatial_extent: ~
+      temporal_extent: ~
       description: |
         Plot code, as in the ForestPlots database (this should be used in publications, instead of plot name)
       method: ~
@@ -996,3 +996,151 @@ scripts:
       and Mg C ha^-1 for stocks) are maintained in the metadata rather than as
       text rows in the CSV, keeping all tabular data strictly numeric for
       downstream computation.
+- script_path: tree_standing_carbon_mass_maliau.R
+  title: tree_standing_carbon_mass_maliau
+  description: |
+    This script prepares the observed validation data for tree standing carbon
+    mass for Maliau. It calculates plot-level stem and leaf carbon mass for
+    2011 and 2014 using allometric equations applied to tree census DBH data
+    from OG plots within the maliau_2 grid.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: tree_census_11_20.xlsx
+    path: data/primary/plant/tree_census
+    description: |
+      https://doi.org/10.5281/zenodo.14882506
+      Tree census data from the SAFE Project 2011–2020.
+      Data includes measurements of DBH and estimates of tree height for
+      all stems, fruiting and flowering estimates, estimates of epiphyte
+      and liana cover, and taxonomic IDs.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid extent and dimensions.
+  - name: gazetteer.geojson
+    path: data/primary/site
+    description: Plot centroid coordinates used to identify plots in the grid.
+  - name: inagawa_nutrients_wood_density.xlsx
+    path: data/primary/plant/traits_data
+    description: Wood carbon content data used to derive the mean wood carbon fraction.
+  - name: both_tree_functional_traits.xlsx
+    path: data/primary/plant/traits_data
+    description: Leaf carbon content data used to derive the mean leaf carbon fraction.
+  output_files:
+  - name: tree_standing_carbon_mass_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: |
+      Calculated tree standing carbon mass components for OG plots in maliau_2.
+    variables:
+    - name: PlotID
+      type: character
+      units: dimensionless
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: SAFE identifier for each observed census plot.
+    - name: plot_area_m2
+      type: numeric
+      units: m2
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Area of each OG census plot.
+    - name: plot_area_ha
+      type: numeric
+      units: ha
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Area of each OG census plot in hectares.
+    - name: plot_x
+      type: numeric
+      units: degrees longitude
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Plot centroid longitude in WGS84.
+    - name: plot_y
+      type: numeric
+      units: degrees latitude
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Plot centroid latitude in WGS84.
+    - name: census_date_2011
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date from the 2011 census.
+      description: Mean date of the 2011 census for the plot.
+    - name: census_date_2014
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date from the 2014 census.
+      description: Mean date of the 2014 census for the plot.
+    - name: obs_stem_mass_2011_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2011.
+      description: Plot stem carbon mass estimated from 2011 DBH values.
+    - name: obs_stem_mass_2011_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2011.
+      description: SE from the allometric parameter uncertainties.
+    - name: obs_stem_mass_2014_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: Plot stem carbon mass estimated from 2014 DBH values.
+    - name: obs_stem_mass_2014_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: SE from the allometric parameter uncertainties.
+    - name: obs_leaf_mass_2011_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2011.
+      description: Plot leaf carbon mass estimated from 2011 DBH values.
+    - name: obs_leaf_mass_2011_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2011.
+      description: SE from the allometric parameter uncertainties.
+    - name: obs_leaf_mass_2014_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: Plot leaf carbon mass estimated from 2014 DBH values.
+    - name: obs_leaf_mass_2014_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: SE from the allometric parameter uncertainties.
+    - name: census_interval_years
+      type: numeric
+      units: years
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
+      description: Time between the mean 2011 and 2014 census dates per plot.
+    - name: obs_stem_increment_kg_ha_y
+      type: numeric
+      units: kg C ha-1 y-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
+      description: Net annual change in standing stem carbon between censuses.
+  package_dependencies:
+  - readxl
+  - sf
+  - toml
+  - dplyr
+  usage_notes: |
+    Mass values are standardised from 25 m x 25 m plots to kg C ha-1.
+    Standard errors represent allometric parameter uncertainty only. The stem
+    increment is net standing-carbon change, not gross woody productivity.

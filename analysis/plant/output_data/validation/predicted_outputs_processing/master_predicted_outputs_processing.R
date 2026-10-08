@@ -18,6 +18,7 @@
 #|
 #| scripts:
 #|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.R
 #|
 #| output_files:
 #|   - name: master_predicted_outputs_processing_metadata.yml
@@ -126,11 +127,17 @@ run_script <- function(script_path, index, total) {
     add = TRUE
   )
 
+  # Mask figure device calls while sourcing so masters do not overwrite
+  # committed PNGs; standalone scripts retain the normal graphics functions.
+  source_environment <- new.env()
+  source_environment$dev.copy <- function(...) invisible(NULL)
+  source_environment$dev.off <- function(...) invisible(NULL)
+
   invisible(
     capture.output(
       suppressMessages(
         suppressPackageStartupMessages(
-          source(script_path, local = new.env())
+          source(script_path, local = source_environment)
         )
       ),
       type = "output"
@@ -169,7 +176,8 @@ write_metadata_summary <- function(metadata_summary) {
 }
 
 scripts <- c(
-  "realised_tissue_productivity_maliau_2.R"
+  "realised_tissue_productivity_maliau_2.R",
+  "tree_standing_carbon_mass_maliau_2.R"
 )
 
 n_scripts <- length(scripts)
