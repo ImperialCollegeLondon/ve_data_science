@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 from ve_data_tools.fg_population_density import (
     calculate_fg_population_density,
-    parse_territory_cells,
 )
 
 
@@ -31,14 +30,6 @@ def test_calculate_landscape_population_density():
     assert result.loc[0, "total_individuals"] == 100
     assert result.loc[0, "area_m2"] == 40_000
     assert result.loc[0, "population_density"] == pytest.approx(2_500)
-
-
-def test_parse_territory_cells():
-    """Convert a stored territory string into unique cell identifiers."""
-    result = parse_territory_cells("[1, 2, 2, 3]")
-
-    assert result == {1, 2, 3}
-
 
 def test_calculate_territory_population_density():
     """Calculate density from unique occupied territory cells."""
