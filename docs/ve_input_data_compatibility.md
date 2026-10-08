@@ -15,7 +15,7 @@ below should be agreed by the VE and Data Science teams before each breaking cha
 - Generate new files in the local active data location (`maliau_2/data`) from the
   maintained scripts.
 - Do not edit the Globus backup folder - treat it as "read-only".
-- People could choose to also create a local backup (e.g., if your local folder)
+- People could choose to also create a local backup (e.g., if your local folder
   contains a different set of files and is thus not an exact copy of the Globus backup).
 - Treat the Globus backup as a working snapshot, not a maintained second dataset.
   Recording the VE version or commit known to work with this data is not yet
