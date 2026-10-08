@@ -12,14 +12,14 @@ below should be agreed by the VE and Data Science teams before each breaking cha
 - Before replacing active data in Globus, create a timestamped backup in Globus.
   Back up all the active data files in the folder (unless the extra storage required is
   a problem?).
-- Generate new files in the local active data location (`maliau_2/data`) from the
-  maintained scripts.
 - Do not edit the Globus backup folder - treat it as "read-only".
-- People could choose to also create a local backup (e.g., if your local folder
-  contains a different set of files and is thus not an exact copy of the Globus backup).
 - Treat the Globus backup as a working snapshot, not a maintained second dataset.
   Recording the VE version or commit known to work with this data is not yet
   implemented.
+- People could choose to also create a local backup (e.g., if your local folder
+  contains a different set of files and is thus not an exact copy of the Globus backup).
+- Generate new files in the local active data location (`maliau_2/data`) from the
+  maintained scripts.
 - Do not sync new files to the active data folder in Globus until the VE PR that supports
   them has been tested to work, and has been merged into the main branch.
 - Once merged, this PR VE version then becomes the latest main version.
