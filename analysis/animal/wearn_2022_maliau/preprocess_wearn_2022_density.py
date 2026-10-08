@@ -526,14 +526,15 @@ if __name__ == "__main__":
     }
 
     # Build density keys from functional group names.
-    # TODO: Add km2 into the density_maliau variable name to indicate units.
     # Create a suffix for the density column based on the functional group name.
     density_maliau_suffix = (
         wearn_table["functional_group_level5_name"].astype("string").str.strip()
     ).replace("", pd.NA)
 
     species_level_output = (
-        wearn_table.assign(density_maliau="density_" + density_maliau_suffix)
+        wearn_table.assign(
+            density_maliau=("density_" + density_maliau_suffix + "_per_km2")
+        )
         .rename(columns=rename_map)[final_columns]
         .sort_values("scientific_name")
         .reset_index(drop=True)
