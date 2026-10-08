@@ -65,14 +65,20 @@ ve_data_science/
 │   └── derived_variables.toml                     # derived-variable registry
 ├── data/derived/<module>/validation/database/     # Step 6: output Parquet dataset
 │   └── <validation database>.parquet              # validation database
-└── tools/R/R/valdb.R                              # workflow functions
+└── tools/R/R/
+    ├── valdb.R                                    # aggregator and re-export module
+    ├── valdb_screening.R                          # DOI and screening functions
+    ├── valdb_build.R                              # database build and harmonization
+    └── valdb_join_ve.R                            # VE output joining
 ```
 
 <!-- markdownlint-enable MD013 -->
 
 ## How to load the key functions
 
-These functions work with both `box::use()` and `source()`.
+These functions work with both `box::use()` and `source()`. The implementation
+is split into three focused modules for maintainability; `valdb.R` aggregates
+and re-exports them for backward compatibility.
 
 With `box::use()`:
 
@@ -198,6 +204,16 @@ extra data wrangling, store the preprocessing script in
 ## 4) Complete schema fields manually
 
 [Back to workflow overview](#workflow-overview).
+
+### How to edit the YAML file
+
+1. Run `list_proceed_screening_records()` in the R console.
+2. Copy the DOI from that list into `add_schema()`.
+3. Open the YAML file in your IDE and edit it directly.
+
+`add_schema()` adds a template to the screened record. It prints the full path
+to the YAML file. Open that file directly in VS Code, Positron, vim, nano, or
+your preferred IDE.
 
 The template is an editable scaffold. It is not build-ready. Replace every
 placeholder with values from the source dataset. Remove unused example entries.
