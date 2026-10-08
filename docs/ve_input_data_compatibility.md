@@ -5,6 +5,8 @@ require incompatible input-data schemas. It uses the Maliau 2 plant cohort updat
 VE PR1889 as a worked example. The backup and Globus sequencing recommendations
 below should be agreed by the VE and Data Science teams before each breaking change.
 
+TO DO: How to document the VE commit or release version that works for the backup?
+
 ## Principles
 
 - Coordinate one breaking VE input change at a time where possible. Notify the affected
