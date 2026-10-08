@@ -61,14 +61,10 @@ def test_check_grid_dimensions_missing_column():
 def test_check_grid_dimensions_custom_column():
     dataframe = pd.DataFrame({"cell_id": [0, 1]})
 
-    assert check_grid_dimensions(
-        dataframe, 1, 2, grid_cell_column="cell_id"
-    ) is None
+    assert check_grid_dimensions(dataframe, 1, 2, grid_cell_column="cell_id") is None
 
     with pytest.raises(ValueError, match="'cell_id'"):
-        check_grid_dimensions(
-            dataframe, 1, 1, grid_cell_column="cell_id"
-        )
+        check_grid_dimensions(dataframe, 1, 1, grid_cell_column="cell_id")
 
 
 @pytest.mark.parametrize(
