@@ -547,15 +547,6 @@ propagules_per_ha <- unique(t_model_maliau$propagules_per_ha)
 cell_area_ha <- cell_area / 10000
 propagules_per_cell <- propagules_per_ha * cell_area_ha
 
-# Calculate row and column indices (0-based)
-# Since cell_id is already 0-based, no need to subtract 1
-col_idx <- cohort_distribution$plant_cohorts_cell_id %% site_def$cell_nx
-row_idx <- cohort_distribution$plant_cohorts_cell_id %/% site_def$cell_nx
-
-# Map to coordinates using the provided centre arrays
-cohort_distribution$x <- site_def$cell_x_centres[col_idx + 1] # +1 because R is 1-indexed
-cohort_distribution$y <- site_def$cell_y_centres[row_idx + 1] # +1 because R is 1-indexed
-
 # Sum stem counts per pft, x, and y; default = 0 fills missing combinations
 # so the resulting array aligns directly with plant_pft_propagules
 # (dimensions: pft by x by y)
@@ -563,8 +554,8 @@ pft_abundance <- tapply(
   cohort_distribution$plant_cohorts_n,
   list(
     factor(cohort_distribution$plant_cohorts_pft, levels = pft_index),
-    factor(cohort_distribution$x, levels = cell_x_centres),
-    factor(cohort_distribution$y, levels = cell_y_centres)
+    factor(cohort_distribution$plant_cohorts_x, levels = cell_x_centres),
+    factor(cohort_distribution$plant_cohorts_y, levels = cell_y_centres)
   ),
   sum,
   default = 0

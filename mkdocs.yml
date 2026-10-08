@@ -34,3 +34,4 @@ nav:
       - Sensitivity analysis: sensitivity_analysis.md
       - Validation database: validation_database.md
       - Derived variables: derived_variables.md
+      - VE input-data compatibility: ve_input_data_compatibility.md
