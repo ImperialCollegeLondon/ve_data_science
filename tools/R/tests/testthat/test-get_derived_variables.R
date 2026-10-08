@@ -69,6 +69,11 @@ test_that("get_derived_variables returns the expected top-level names", {
       "total_soil_p_per_volume",
       "total_soil_p_per_mass",
       "total_soil_p_per_area",
+      "soil_n_pool_ammonium_per_mass",
+      "soil_n_pool_nitrate_per_mass",
+      "soil_p_pool_labile_per_mass",
+      "soil_n_pool_inorganic_per_volume",
+      "soil_n_pool_inorganic_per_area",
       "soil_n_pool_bacteria",
       "soil_n_pool_arbuscular_mycorrhiza",
       "soil_n_pool_ectomycorrhiza",
@@ -228,6 +233,36 @@ test_that("get_total_soil_n_per_volume preserves spatiotemporal dimensions", {
 
   result <- get_total_soil_n_per_volume(mock_zarr, config = config)
   expect_equal(dim(result), c(length(time_index), length(cell_id)))
+})
+
+test_that("join_ve_outputs_per_row matches temporal-only rows when time_end is missing", {
+  ve_data <- tibble::tibble(
+    var_canonical = rep("soil_p_pool_labile_per_mass", 3),
+    date = as.POSIXct(
+      c("2016-09-30 00:00:00", "2016-10-01 00:00:00", "2016-10-02 00:00:00"),
+      tz = "UTC"
+    ),
+    value = c(1, 2, 3),
+    lat_min = 0,
+    lat_max = 1,
+    lon_min = 0,
+    lon_max = 1
+  )
+
+  result <- join_ve_outputs_per_row(
+    ve_data = ve_data,
+    var_canonical = "soil_p_pool_labile_per_mass",
+    time_start = as.POSIXct("2016-09-30 00:00:00", tz = "UTC"),
+    time_end = NA,
+    latitude = 0.5,
+    longitude = 0.5,
+    spatiotemporal_join_class = "spatial_outside_temporal_within"
+  )
+
+  expect_false(any(is.na(result)))
+  expect_equal(result[["value_VE_q05"]], 1)
+  expect_equal(result[["value_VE_q50"]], 1)
+  expect_equal(result[["value_VE_q95"]], 1)
 })
 
 test_that("get_total_soil_n_per_mass converts volume to mass and get_total_soil_n_per_area to area basis correctly.", {
