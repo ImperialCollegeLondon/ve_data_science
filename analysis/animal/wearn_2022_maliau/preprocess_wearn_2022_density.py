@@ -4,7 +4,7 @@ title: Preprocess Wearn 2022 density data for Maliau validation
 
 description: |
   Preprocessing Wearn et al. (2022) density estimates
-  into a valdb-ready species-level table for the animal module.
+  into a valdb-ready functional-level table for the animal module.
   In the article, it is stated that the old-growth forest site is
   Maliau Basin Conservation Area. So here we will only use old-growth
   data and label it as Maliau.
