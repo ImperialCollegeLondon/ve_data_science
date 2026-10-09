@@ -47,7 +47,7 @@ usage_notes: |
         3. Parse Maliau density estimates and confidence intervals.
         4. Map species to functional groups and validate the mappings.
         5. Aggregate by functional group and export the CSV. Sample sizes are
-             summed, medians averaged, and confidence intervals retained only for
+               summed, medians summed, and confidence intervals retained only for
              groups containing one species.
 
     Fill functional_group_level5_name values in species_to_fg_template before
@@ -552,7 +552,7 @@ if __name__ == "__main__":
         .agg(
             species_count=("scientific_name", "nunique"),
             sample_size_n=("sample_size_n", lambda values: values.sum(min_count=1)),
-            median=("median", "mean"),
+            median=("median", lambda values: values.sum(min_count=1)),
             ci95_lower=("ci95_lower", "first"),
             ci95_upper=("ci95_upper", "first"),
         )
