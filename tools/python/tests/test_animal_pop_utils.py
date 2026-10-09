@@ -16,7 +16,7 @@ def test_check_required_columns():
     dataframe = pd.DataFrame({"a": [1], "b": [2]})
     assert check_required_columns(dataframe, {"a", "b"}) is None
 
-    with pytest.raises(ValueError, match="missing.*required columns: c"):
+    with pytest.raises(ValueError, match=r"missing.*required columns: c"):
         check_required_columns(dataframe, {"a", "c"})
 
 
@@ -26,7 +26,7 @@ def test_check_required_columns_empty_dataframe():
 
     assert check_required_columns(dataframe, {"a", "b"}) is None
 
-    with pytest.raises(ValueError, match="missing.*required columns: c"):
+    with pytest.raises(ValueError, match=r"missing.*required columns: c"):
         check_required_columns(dataframe, {"a", "c"})
 
 
