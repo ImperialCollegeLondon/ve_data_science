@@ -322,8 +322,8 @@ schema per dataset internally, keyed by unique `source_id`.
 
 Use `row_filter` to select and keep rows that meet your inclusion criteria.
 The builder applies row filters before reading coordinates or times. Set it as
-a YAML list of R expressions (quoted strings). Each expression must return TRUE or
-FALSE for each row.
+a YAML list of R expressions (quoted strings). Each expression must return TRUE
+or FALSE for each row.
 
 ```yaml
 row_filter:
@@ -339,11 +339,11 @@ How it works:
 - Write each condition as you would inside `dplyr::filter()`, using column names
   from the source CSV (`data_file`), and enclose the whole condition in double
   quotes.
-- All expressions are combined with AND. A row is retained if all expressions
-  are TRUE.
-- Use backticks around column names containing spaces or hyphens.
-- Filters run before coordinates and times are attached. Missing measurement
-  values are removed later, after unit conversion.
+- All expressions are combined with AND.
+- Column names with hyphens or special characters must be quoted with
+  backticks inside the expression string, e.g., `` `NH4-N_KCl` ``.
+- Rows with missing measurement values are removed later, after unit
+  conversion.
 
 The builder stops if an expression references a missing column or returns
 non-logical values. Error messages name the source, the clause, and the problem.
