@@ -531,16 +531,13 @@ if __name__ == "__main__":
         "density_maliau_ci95_upper": "ci95_upper",
     }
 
-    # Build density keys from functional group names.
-    # Create a suffix for the density column based on the functional group name.
-    density_maliau_suffix = (
+    # Build functional_group values from level-5 names.
+    functional_group_suffix = (
         wearn_table["functional_group_level5_name"].astype("string").str.strip()
     ).replace("", pd.NA)
 
     species_level_output = (
-        wearn_table.assign(
-            functional_group=("density_" + density_maliau_suffix + "_per_km2")
-        )
+        wearn_table.assign(functional_group=("maliau_" + functional_group_suffix))
         .rename(columns=rename_map)[final_columns]
         .sort_values("scientific_name")
         .reset_index(drop=True)
