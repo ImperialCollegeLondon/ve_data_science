@@ -4,14 +4,14 @@
 - Module: Plants
 - Author: Arne Scheire
 - Files changed:
-  - backup_pre_PR1889_local
+  - backup_pre_PR1889
   - data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2
   - data/scenarios/maliau/maliau_2/data/cohort_data_10_cm_maliau_2
   - data/scenarios/maliau/maliau_2/data/plant_constants_maliau_2
   - data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_2
   - data/scenarios/maliau/maliau_2/data/plant_pft_definitions_maliau_2
 - Changes made:
-  - Made backup_pre_PR1889_local
+  - Made backup_pre_PR1889
   - Updated plant input files to use x and y instead of cell_id
   - Updated calculation of tau_b and resp_s
 - References:
