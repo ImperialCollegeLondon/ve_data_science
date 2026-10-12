@@ -17,7 +17,7 @@ class Job:
     name: str
     repeats: int = 1
     config: dict[str, Any]
-    this_repeat: None | int = field(init=False, default=None)
+    this_repeat: int | None = field(init=False, default=None)
 
 
 @dataclass
