@@ -1,8 +1,36 @@
 site_name: The VE Data Science repo
-site_url: https://mydomain.org/mysite
+site_url: https://imperialcollegelondon.github.io/ve_data_science/
+repo_url: https://github.com/ImperialCollegeLondon/ve_data_science
 theme:
   name: material
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        # Render ```mermaid code blocks as diagrams
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+nav:
+  - Home: index.md
+  - Background:
+      - Study sites: background/study_sites.md
+      - Scenarios: background/scenarios.md
+      - From field data to validation: background/data_pipeline.md
+      - Repository tour: background/repository_tour.md
+  - Getting started:
+      - Overview: getting_started.md
+      - Python with uv: uv_setup.md
+      - R with renv: renv.md
+      - Data with Globus: using_globus.md
+      - Git and GitHub: github_overview.md
+      - Uploading an R script: uploading_r_scripts.md
+      - Configuration files: what_are_those_odd_files.md
+  - Modules:
+      - Animal validation plan: animal_model_validation_plan.md
+      - Plant validation tracker: plant_validation_tracker.md
+  - Shared workflows:
+      - Sensitivity analysis: sensitivity_analysis.md
+      - Validation database: validation_database.md
+      - Derived variables: derived_variables.md
