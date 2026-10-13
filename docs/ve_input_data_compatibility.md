@@ -1,21 +1,27 @@
 # Coordinating VE Input Data Compatibility Changes
 
-This guide describes a coordinated workflow for Virtual Ecosystem (VE) changes that
+This guide describes a suggested workflow for Virtual Ecosystem (VE) changes that
 require incompatible input-data schemas. It uses the Maliau 2 plant cohort update for
 VE PR1889 as a worked example. The backup and Globus sequencing recommendations
-below should be agreed by the VE and Data Science teams before each breaking change.
+below should be agreed by the VE coding and data science teams before each breaking change.
 
-TO DO: How to document the VE commit or release version that works for the backup?
+Please note that this docs page provides suggestions on how to navigate the process of
+replacing and keeping up to date the files that should represent the "working version of
+VE's main branch. Please also note that this process is different from creating a backup
+for the latest release version of VE, and should be seen separately.
+
+- TO DO: Discuss workflow with the data science team and make changes as needed.
+- TO DO: How to document the VE commit or release version that works for the backup?
 
 ## Principles
 
 - Coordinate one breaking VE input change at a time where possible. Notify the affected
-  module and Data Science teams about the required changes to the input files.
+  coding and data science teams about the required changes to the input files.
 - Before replacing active data in Globus, create a timestamped backup in Globus.
   Back up all the active data files in the folder (unless the extra storage required is
   a problem?).
 - Do not edit the Globus backup folder - treat it as "read-only".
-- Treat the Globus backup as a working snapshot, not a maintained second dataset.
+- Treat the Globus backup as a snapshot of the data before the new VE PR is merged.
   Recording the VE version or commit known to work with this data is not yet
   implemented.
 - People could choose to also create a local backup (e.g., if your local folder
@@ -24,7 +30,10 @@ TO DO: How to document the VE commit or release version that works for the backu
   maintained scripts.
 - Do not sync new files to the active data folder in Globus until the VE PR that supports
   them has been tested to work, and has been merged into the main branch.
-- Once merged, this PR VE version then becomes the latest main version.
+- Once merged, this PR VE version then becomes the latest main version. This also means
+  that the files in the backup folder will no longer work with the new version of main.
+  To use the backup files, you would have to use the VE version linked to a specific commit
+  before the new VE PR was merged.
 
 ## Before Changing Data
 
@@ -36,11 +45,17 @@ TO DO: How to document the VE commit or release version that works for the backu
 3. Verify that the Globus backup contains the intended files. A separate local backup,
   such as `backup_pre_PR1889_local`, may contain additional or different testing files.
 4. Once the Globus backup has been verified, the active files that require changes can
-   be removed from active data folder in Globus (e.g., plant files in `maliau_2/data`)
+   be removed from active data folder in Globus (e.g., plant files in `maliau_2/data`).
+   The idea behind removing these files is to visually indicate that they are currently
+   being reworked. Anyone needing to download files while an update is in progress
+   should use the backup files instead, which remain available for runs requiring the
+   previous compatible VE version for Globus users. Furthermore, these missing files
+   make active VE data requests visible to anyone preparing another backup, serving as
+   a signal to pause a second breaking-change request until the first is resolved.
+   Maintaining clear communication between the VE coding and data science teams also
+   helps identify active requests before another begins.
 5. Keep backup folders out of input-generation scripts. Do not worry about
-  maintaining backup contents after creation. Having to maintain multiple versions of
-  the data science repo would add a whole lot of extra work and complexity for minimal
-  benefits (can always use older data_science repo commits if needed).
+  maintaining backups after creation.
 
 ## Regenerate and Validate Inputs
 
@@ -59,7 +74,7 @@ TO DO: How to document the VE commit or release version that works for the backu
    simulation still crashes at later timesteps, but those types of errors are not
    within the scope of what we're testing for here. They're also not part of what
    this new compatibility system aims to address (those types of error are
-   broader than (and actually unrelated to) new changes to input requirements).
+   broader than new changes to input requirements).
 
 ## Pin and Run a VE PR
 
@@ -72,6 +87,20 @@ dev-PR1889 = [
     "virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@72f8724629ee8fbbddadac460a2c2abd6c483f68"
 ]
 ```
+
+Note that the specific commit used here is open to discussion. It would be a good idea
+to use a commit that has main merged into the PR branch, and that represents a state of
+the PR branch that is ready for testing. It may be that additiol commits are added to
+this PR branch, in which case we could opt to update the specific commit.
+
+Also note that there is a case to be made for updating the commit to the final commit
+of the PR right before it is merged into main. This would be useful to maintain a
+consistent approach for re-use later on.
+
+Also note that it is possible to add an entire branch instead of a specific commit.
+The benefit is that this makes it easier to update `uv` but the downside is that
+changes to the branch may be "hidden". The branch aproach also stops working once
+the VE PR is merged, as the branch is automatically deleted. Hence not preferred.
 
 Because `dev`, `dev-pinned`, and `dev-PR1889` provide different Git revisions of the
 same package, declare the groups mutually exclusive in `[tool.uv].conflicts`. Keep the
@@ -103,11 +132,11 @@ uv run --group dev-PR1889 ve_run <scenario config files> --out <output directory
 
 Recommended overall sequence, subject to team agreement:
 
-1. Open the Data Science PR. Request a review from at least the VE PR author.
+1. Open the data science PR. Preferably request a review from at least the VE PR author.
 2. Test the new files with the pinned VE PR revision. Keep the backup unchanged.
 3. Merge the VE PR (after successfull test run), only then sync the new files to Globus.
 4. Once the new files have been synced to Globus, record the changes in the change log.
-   Complete the Data Science PR and merge it (preferably shotly after step 4).
+   Complete the data science PR and merge it (preferably shortly after step 4).
 5. Agree a retention period with the teams before deleting a backup. Two to four weeks
    is a possible starting point (or keep indefinitely if storage is not a problem).
 
@@ -115,16 +144,4 @@ If the PR VE version fails the test run, resolve the VE code first, then repeat 
 This may require updating the files locally again. Add the new files to Globus only after
 the VE PR runs successfully.
 
-## Extra note on multiple VE PR data requests
-
-Point 4 under "Before Changing Data" recommends removing files expected to change from
-the active data folder (e.g., `maliau_2/data`) after confirming the Globus backup. This
-has two benefits:
-
-- People retrieving data from Globus are directed to the backup files, which remain
-  available for runs using the previous compatible VE version.
-- Missing files make an active VE data request visible to anyone preparing another
-  backup. Pause a second breaking-change request until the first one is resolved.
-
-Clear communication between the VE and Data Science teams can also help identify active
-requests before another one begins.
+Note that there is a plan to use Zenodo for dataset releases, which supports versioning.
