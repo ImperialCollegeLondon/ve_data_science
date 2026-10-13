@@ -187,8 +187,8 @@ observed_data[, census_date_2014 := as.Date(census_date_2014)]
 
 grid_definition <- read_toml(grid_definition_path)
 site_definition <- grid_definition$Scenario$maliau_2
-cell_size_m <- site_definition$res
-cell_area_ha <- cell_size_m^2 / 10000
+cell_length_m <- site_definition$res
+cell_area_ha <- cell_length_m^2 / 10000
 
 # Use the Pint-based timestep duration calculation method (requires uv set up to
 # access the VE Python environment)
@@ -237,7 +237,7 @@ cell_polygons <- st_sf(
       make_square,
       grid_cells$cell_x,
       grid_cells$cell_y,
-      MoreArgs = list(side_length = cell_size_m)
+      MoreArgs = list(side_length = cell_length_m)
     ),
     crs = site_definition$epsg_code
   )

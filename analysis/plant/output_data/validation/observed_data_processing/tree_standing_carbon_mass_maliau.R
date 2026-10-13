@@ -140,7 +140,7 @@
 #|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
 #|         temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
 #|         description: Time between the mean 2011 and 2014 census dates per plot.
-#|       - name: obs_stem_increment_kg_ha_y
+#|       - name: obs_stem_increment_kg_ha_yr
 #|         type: numeric
 #|         units: kg C ha-1 y-1
 #|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
@@ -323,10 +323,11 @@ names(tree_census_11_20)
 # In terms of date, some variation is fine, as long as it fits within the same month
 
 simulation_plot_ids
+selected_columns <- c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
 
 OG2_720 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_720",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Order based on Dead_year_IND
 # 2707-1 dead in 2014
@@ -343,56 +344,56 @@ OG2_720 <- tree_census_11_20[
 
 OG2_721 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_721",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
 
 OG2_722 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_722",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
 
 OG2_723 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_723",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
 
 OG2_724 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_724",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
 
 OG2_725 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_725",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
 
 OG2_726 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_726",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
 
 OG2_727 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_727",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
 
 OG2_728 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_728",
-  c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+  c(selected_columns)
 ]
 # Same, checked
 # Good: 2011, 2014
@@ -407,8 +408,10 @@ tree_census_11_20 <- tree_census_11_20[
 # - add wood density if using Riutta et al. (2018) (Chave) method (not used for now)
 # - for Kenzo et al. (2009) method wood density is not required (so proceed)
 
-# - then apply allometric equations from Kenzo et al. (2009) to the dbh values
-# to obtain "observed" stem mass, leaf mass, aboveground mass, fine root mass.
+# - then apply allometric equations from Kenzo et al. (2009)
+# https://doi.org/10.1007/s10310-009-0149-1
+# to the dbh values to obtain "observed" stem mass, leaf mass, aboveground mass,
+# fine root mass.
 
 #####
 
@@ -482,7 +485,9 @@ mean(both_data$C_perc[both_data$forestplots_name %in% c("MLA-01", "MLA-02")])
 #####
 
 # obs_stem_mass
-# Stem dry biomass = 0.0822*dbh^2.48 (see Kenzo et al., 2009)
+# For allometric equations, see Kenzo et al. (2009)
+# https://doi.org/10.1007/s10310-009-0149-1
+# Stem dry biomass = 0.0822*dbh^2.48
 # SE: a = 0.0152 and b = 0.08 (y = ax^b)
 # carbon content used = 45.6%
 # Calculate carbon mass for each tree. DBH is converted from millimetres to
@@ -552,7 +557,9 @@ tree_census_11_20$obs_stem_mass_2014_kg_c_tree <- stem_2014_kg_c_tree
 #####
 
 # obs_leaf_mass
-# Leaf dry biomass = 0.0442*dbh^1.67 (see Kenzo et al., 2009)
+# For allometric equations, see Kenzo et al. (2009)
+# https://doi.org/10.1007/s10310-009-0149-1
+# Leaf dry biomass = 0.0442*dbh^1.67
 # SE: a = 0.0148 and b = 0.14 (y = ax^b)
 # carbon content used = 44.30682% (see Both et al., above)
 leaf_2011_kg_c_tree <- calculate_allometric_carbon(
@@ -620,6 +627,8 @@ names(plot_summary)[match(plot_mass_columns, names(plot_summary))] <-
 
 # Plot SEs use the shared-parameter calculation above, rather than treating
 # each tree SE as independent. Apply the same area conversion to the SE.
+# For allometric equations, see Kenzo et al. (2009)
+# https://doi.org/10.1007/s10310-009-0149-1
 plot_groups <- split(tree_census_11_20, tree_census_11_20$PlotID)
 plot_summary$obs_stem_mass_2011_se_kg_ha <- vapply(
   plot_groups,
@@ -702,7 +711,7 @@ plot_summary$census_date_2011 <- plot_dates$Date_2011
 plot_summary$census_date_2014 <- plot_dates$Date_2014
 plot_summary$census_interval_years <-
   as.numeric(plot_dates$Date_2014 - plot_dates$Date_2011) / 365.25
-plot_summary$obs_stem_increment_kg_ha_y <-
+plot_summary$obs_stem_increment_kg_ha_yr <-
   (plot_summary$obs_stem_mass_2014_kg_ha -
     plot_summary$obs_stem_mass_2011_kg_ha) /
   plot_summary$census_interval_years
@@ -740,7 +749,7 @@ variables <- c(
   "census_date_2011",
   "census_date_2014",
   "census_interval_years",
-  "obs_stem_increment_kg_ha_y"
+  "obs_stem_increment_kg_ha_yr"
 )
 
 plot_summary <- plot_summary[, variables]
