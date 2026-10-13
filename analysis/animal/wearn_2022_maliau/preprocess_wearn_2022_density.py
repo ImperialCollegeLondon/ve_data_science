@@ -21,7 +21,8 @@ input_files:
         path: data/primary/animal/wearn_2022/
     description: |
       Raw supplementary table containing species density estimates across
-      old-growth (Maliau) and logged (SAFE) forest habitats.
+      old-growth (Maliau) and logged (SAFE) forest habitats, according to
+      the article. See https://doi.org/10.1111/2041-210X.13930
   - name: VE_ANIMAL_functionalgroups_model_level5_0250730.csv
     path: data/primary/animal/Functional_group_Anna/
     description: |TODO
