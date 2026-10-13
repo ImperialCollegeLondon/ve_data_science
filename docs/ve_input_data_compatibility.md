@@ -90,7 +90,7 @@ dev-PR1889 = [
 
 Note that the specific commit used here is open to discussion. It would be a good idea
 to use a commit that has main merged into the PR branch, and that represents a state of
-the PR branch that is ready for testing. It may be that additiol commits are added to
+the PR branch that is ready for testing. It may be that additional commits are added to
 this PR branch, in which case we could opt to update the specific commit.
 
 Also note that there is a case to be made for updating the commit to the final commit
@@ -100,7 +100,8 @@ consistent approach for re-use later on.
 Also note that it is possible to add an entire branch instead of a specific commit.
 The benefit is that this makes it easier to update `uv` but the downside is that
 changes to the branch may be "hidden". The branch aproach also stops working once
-the VE PR is merged, as the branch is automatically deleted. Hence not preferred.
+the VE PR is merged, as the branch is automatically deleted. Hence manual selection
+of which specific commit to use is preferred over the branch approach.
 
 Because `dev`, `dev-pinned`, and `dev-PR1889` provide different Git revisions of the
 same package, declare the groups mutually exclusive in `[tool.uv].conflicts`. Keep the
