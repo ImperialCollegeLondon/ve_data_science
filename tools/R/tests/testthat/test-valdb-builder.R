@@ -298,6 +298,53 @@ test_that("validate_source_schema checks scalar fields and collections", {
 })
 
 
+test_that("validate_source_schema checks optional provenance fields", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  raw_path <- file.path(directory, "raw.csv")
+  script_path <- file.path(directory, "preprocess_script")
+  readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
+  file.create(raw_path, script_path)
+  source <- new_builder_test_schema("10.1000/valid")
+  source$data_file <- data_path
+  schema_path <- file.path(directory, "source.yaml")
+
+  absent <- source
+  absent$data_file_original <- NULL
+  absent$preprocess_script <- NULL
+  expect_no_error(validate_source_schema(absent, schema_path))
+
+  provided <- source
+  provided$data_file_original <- raw_path
+  provided$preprocess_script <- script_path
+  expect_no_error(validate_source_schema(provided, schema_path))
+
+  missing_script <- provided
+  missing_script$preprocess_script <- file.path(directory, "missing_script")
+  expect_error(
+    validate_source_schema(missing_script, schema_path),
+    "preprocess_script"
+  )
+
+  blank_original <- provided
+  blank_original$data_file_original <- ""
+  expect_error(
+    validate_source_schema(blank_original, schema_path),
+    "data_file_original"
+  )
+
+  missing_original <- provided
+  missing_original$data_file_original <- file.path(
+    directory,
+    "missing_original"
+  )
+  expect_error(
+    validate_source_schema(missing_original, schema_path),
+    "does not exist"
+  )
+})
+
+
 test_that("validate_build_sources rejects duplicate source IDs", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
