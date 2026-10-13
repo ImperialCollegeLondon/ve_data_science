@@ -1,6 +1,6 @@
 """
 ---
-title: Preprocess Wearn 2022 density data for Maliau validation
+title: Preprocess Wearn 2022 density data for Maliau and SAFE validation
 
 description: |
   Preprocessing Wearn et al. (2022) density estimates
@@ -21,9 +21,7 @@ input_files:
         path: data/primary/animal/wearn_2022/
     description: |
       Raw supplementary table containing species density estimates across
-      old-growth and logged forest habitats. In the article, it is stated that
-      old-growth forest site is Maliau Basin.So here we will only use old-growth
-      and label as Maliau.
+      old-growth (Maliau) and logged (SAFE) forest habitats.
   - name: VE_ANIMAL_functionalgroups_model_level5_0250730.csv
     path: data/primary/animal/Functional_group_Anna/
     description: |TODO
@@ -31,8 +29,8 @@ input_files:
       options for manual species-to-group curation.THIS needs updating!
 
 output_files:
-    - name: wearn_2022_density_maliau.csv
-    path: data/derived/animal/wearn_2022_maliau/
+    - name: wearn_2022_density.csv
+    path: data/derived/animal/wearn_2022/
     description: |
       Wide table with one row per site (maliau, safe) and one column per
       metric and functional group, e.g.
@@ -75,8 +73,8 @@ input_file = (
     / ("wearn_et_al_2022_Density.csv")
 )
 
-output_dir = repo_root / "data" / "derived" / module_name / "wearn_2022_maliau"
-output_file = output_dir / "wearn_2022_density_maliau.csv"
+output_dir = repo_root / "data" / "derived" / module_name / "wearn_2022"
+output_file = output_dir / "wearn_2022_density.csv"
 
 # Functional group level 5 from VE_ANIMAL_functionalgroups_model_level5_0250730.csv in
 # data/primary/animal/Functional_group_Anna/
