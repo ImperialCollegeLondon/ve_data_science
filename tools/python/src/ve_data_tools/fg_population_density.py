@@ -10,7 +10,7 @@ virtual_ecosystem_module:
 author:
   - Siti Nor Baizurah
 
-status: wip
+status: final
 
 input_files:
   - name: animal_cohort_data.csv
