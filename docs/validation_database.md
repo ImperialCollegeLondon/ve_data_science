@@ -318,6 +318,36 @@ To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still uses one flat source
 schema per dataset internally, keyed by unique `source_id`.
 
+### Optional row-level filtering
+
+Use `row_filter` to select and keep rows that meet your inclusion criteria.
+The builder applies row filters before reading coordinates or times. Set it as
+a YAML list of R expressions (quoted strings). Each expression must return TRUE
+or FALSE for each row.
+
+```yaml
+row_filter:
+  - "site == 'maliau_basin'"
+  - "`NH4-N_KCl` >= 0"
+  - "replicate != 'blank'"
+  - "!is.na(value)"
+```
+
+How it works:
+
+- `row_filter` is optional. If absent or null, no rows are filtered.
+- Write each condition as you would inside `dplyr::filter()`, using column names
+  from the source CSV (`data_file`), and enclose the whole condition in double
+  quotes.
+- All expressions are combined with AND.
+- Column names with hyphens or special characters must be quoted with
+  backticks inside the expression string, e.g., `` `NH4-N_KCl` ``.
+- Rows with missing measurement values are removed later, after unit
+  conversion.
+
+The builder stops if an expression references a missing column or returns
+non-logical values. Error messages name the source, the clause, and the problem.
+
 ### Assumptions and expectations
 
 - Datasets and location files are CSV. The code uses `readr::read_csv()`.
@@ -586,6 +616,8 @@ What the above code does:
 - Ignores screening-only records.
 - Warns about dataset entries that still contain mandatory placeholders, then
   skips them.
+- Applies optional dataset-level `row_filter` clauses with AND semantics before
+  attaching coordinates and temporal metadata.
 - Requires every schema record to retain a `proceed` screening decision.
 - Writes Parquet output to `db_path`.
 

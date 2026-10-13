@@ -54,7 +54,8 @@ test_that("new_schema_template returns the builder contract", {
       "variables",
       "dedup_key",
       "coordinates",
-      "temporal"
+      "temporal",
+      "row_filter"
     )
   )
   expect_identical(template$source_id, "author_year")
