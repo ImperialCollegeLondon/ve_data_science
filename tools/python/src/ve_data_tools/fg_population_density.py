@@ -1,4 +1,6 @@
-"""title: Calculate functional group population density over time.
+"""---
+
+title: Calculate functional group population density over time.
 
 description: |
   Calculate functional group population density from Virtual Ecosystem
@@ -33,6 +35,7 @@ usage_notes: |
   Load the cohort dataframe separately and pass it to the calculation
   and plotting functions. Requires the
   ve_data_tools.animal_population_utils module.
+---
 """
 
 import matplotlib.pyplot as plt
