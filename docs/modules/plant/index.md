@@ -21,8 +21,8 @@ The purpose of your module landing page is to create a "site map" for your
 documentation, scripts and notebooks. It explains how everything fits together and
 links to the files that hold the details. The scripts and notebooks themselves
 describe how they work internally, in their metadata headers and comments, so this
-page only needs a brief description of each file and how it is used. Each section 
-below has a table where you can provide a link and brief description of these files. 
+page only needs a brief description of each file and how it is used. Each section
+below has a table where you can provide a link and brief description of these files.
 
 The page has six sections:
 
