@@ -34,8 +34,8 @@ output_files:
     - name: wearn_2022_density_maliau.csv
     path: data/derived/animal/wearn_2022_maliau/
     description: |
-      Target species-row output with functional-group-specific density
-      columns derived from Maliau estimates.
+      One-row wide table for the Maliau site with one column per metric and
+      functional group, e.g. density_median_per_km2_<functional_group>.
 
 package_dependencies:
   - pandas
@@ -47,8 +47,9 @@ usage_notes: |
         3. Parse Maliau density estimates and confidence intervals.
         4. Map species to functional groups and validate the mappings.
         5. Aggregate by functional group and export the CSV. Sample sizes are
-               summed, medians summed, and confidence intervals retained only for
-             groups containing one species.
+             summed, medians summed, and confidence intervals retained only for
+             groups containing one species. The result is pivoted to one row
+             for the site with <metric>_<functional_group> columns.
 
     Fill functional_group_level5_name values in species_to_fg_template before
     running the script.
@@ -531,20 +532,27 @@ if __name__ == "__main__":
         "density_maliau_ci95_upper": "ci95_upper",
     }
 
-    # Build functional_group values from level-5 names.
-    functional_group_suffix = (
-        wearn_table["functional_group_level5_name"].astype("string").str.strip()
+    # e.g. "Omnivorous arboreal/terrestrial small mammal"
+    # -> "omnivorous_arboreal_terrestrial_small_mammal"
+    functional_group = (
+        wearn_table["functional_group_level5_name"]
+        .astype("string")
+        .str.strip()
+        .str.lower()
+        .str.replace("&", "and", regex=False)
+        .str.replace(r"[^a-z0-9]+", "_", regex=True)
+        .str.strip("_")
     ).replace("", pd.NA)
 
     species_level_output = (
-        wearn_table.assign(functional_group=("maliau_" + functional_group_suffix))
+        wearn_table.assign(functional_group=functional_group)
         .rename(columns=rename_map)[final_columns]
         .sort_values("scientific_name")
         .reset_index(drop=True)
     )
 
-    # Aggregate repeated functional-group density keys into one row per group.
-    final_output_table = (
+    # Aggregate species into one row per functional group; unmapped species drop out.
+    fg_long_table = (
         species_level_output.groupby("functional_group", as_index=False)
         .agg(
             species_count=("scientific_name", "nunique"),
@@ -579,10 +587,28 @@ if __name__ == "__main__":
         .sort_values("functional_group")
         .reset_index(drop=True)
     )
+
+    # Wide layout: one row per site, one column per metric and functional group.
+    wide_metrics = [
+        "density_median_per_km2",
+        "ci95_lower",
+        "ci95_upper",
+        "species_count",
+        "sample_size_n",
+    ]
+    final_output_table = fg_long_table.assign(site="maliau").pivot(
+        index="site", columns="functional_group", values=wide_metrics
+    )
+    final_output_table.columns = [
+        f"{metric}_{fg}" for metric, fg in final_output_table.columns
+    ]
+    # CI columns of multi-species groups are entirely NA.
+    final_output_table = final_output_table.dropna(axis=1, how="all").reset_index()
     final_output_table.to_csv(output_file, index=False)
 
     print(f"parsed rows: {len(wearn_table)}")
-    print(final_output_table.head(5))
+    print(f"functional groups: {len(fg_long_table)}")
+    print(f"output columns: {len(final_output_table.columns)}")
     print(f"parsed Maliau rows: {parsed_rows}")
     print(f"failed Maliau rows: {failed_rows}")
     mapped_species = int(species_mapping["functional_group_level5_name"].notna().sum())
