@@ -1643,13 +1643,13 @@ summary$turnover_reproductive_organ <- 1 / 10
 # we obtain a weighted average by using branch input and standing crop
 # This approach is the same as used by Anderson et al. to obtain the turnover rate
 anderson_dipterocarp_branch_input <- c(
-  small_wood_lt_2cm = 2.1,
+  small_wood_0_2cm = 2.1,
   large_wood_2_10cm = 0.5
 )
 
 anderson_dipterocarp_branch_standing_crop <- c(
-  small_wood_lt_2cm = 2.7,
-  large_wood_2_10cm = 5.5
+  small_wood_0_2cm = 2.7,
+  large_wood_2_10cm = 5.1
 )
 
 branch_turnover_rate <- sum(anderson_dipterocarp_branch_input) /
@@ -1680,9 +1680,11 @@ summary$respiration_fine_root <- (1.5 * 10^-3) * 365
 summary$respiration_leaf <- (2.0 * 10^-3) * 365
 
 # Wood specific respiration
-# Same approach and data used as for fine root and leaf specific respiration
-
-summary$respiration_wood <- (1.0 * 10^-3) * 365
+# We no longer use the same approach and data as for fine root and leaf specific
+# respiration based on Yan and Zhao (2007)
+# summary$respiration_wood <- (1.0 * 10^-3) * 365
+# Instead, we use the same value used by Li et al. (2014)
+summary$respiration_wood <- 0.044
 
 # Reproductive organ respiration
 # Using value given in Kinugasa et al. (2005; https://doi.org/10.1093/aob/mci152)
