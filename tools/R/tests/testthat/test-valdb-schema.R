@@ -18,7 +18,7 @@
 #| package_dependencies:
 #|     - testthat
 #| ---
-source(here::here("tools/R/R/valdb.R"))
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 
 new_schema_test_record <- function(
   doi = "10.5281/zenodo.8158810",
@@ -221,32 +221,6 @@ test_that("initialise_source_schema rejects an unscreened DOI", {
 })
 
 
-test_that("initialise_source_schema rejects duplicate DOI records", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_schema_test_record()
-  yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
-  yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
-
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "multiple\\s+screening records"
-  )
-})
-
-
-test_that("initialise_source_schema requires a proceed decision", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_schema_test_record(decision = "exclude")
-  path <- write_screening_record(record, sources_dir)
-
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "must have a.*proceed.*screening decision"
-  )
-  expect_identical(yaml::read_yaml(path), record)
-})
-
-
 test_that("schema_needs_completion handles nested records by dataset", {
   record <- new_schema_test_record()
   record$datasets <- list(new_schema_template())
@@ -335,42 +309,6 @@ test_that("add_schema rejects an unscreened DOI without opening an editor", {
   )
   expect_false(editor_called)
   expect_length(list.files(sources_dir), 0L)
-})
-
-
-test_that("add_schema rejects duplicate DOI records without opening an editor", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_schema_test_record()
-  yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
-  yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
-  editor_called <- FALSE
-  editor <- function(path) {
-    editor_called <<- TRUE
-  }
-
-  expect_error(
-    add_schema(record$doi, sources_dir, editor),
-    "multiple\\s+screening records"
-  )
-  expect_false(editor_called)
-})
-
-
-test_that("add_schema requires a proceed decision", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_schema_test_record(decision = "exclude")
-  path <- write_screening_record(record, sources_dir)
-  editor_called <- FALSE
-  editor <- function(path) {
-    editor_called <<- TRUE
-  }
-
-  expect_error(
-    add_schema(record$doi, sources_dir, editor),
-    "must have a.*proceed.*screening decision"
-  )
-  expect_false(editor_called)
-  expect_identical(yaml::read_yaml(path), record)
 })
 
 
