@@ -286,11 +286,7 @@ tools/python/abiotic/sensitivity_tools.py
 ### Step 2 Output
 
 ```python
-problem = {
-    "num_vars": ...,
-    "names": ...,
-    "bounds": ...
-}
+problem = {"num_vars": ..., "names": ..., "bounds": ...}
 ```
 
 This problem dictionary is then passed directly to SALib sampling routines.
