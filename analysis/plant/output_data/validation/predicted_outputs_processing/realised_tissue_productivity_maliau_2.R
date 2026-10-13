@@ -26,6 +26,9 @@
 #|     description: |
 #|       Virtual Ecosystem plant cohort output containing realised tissue carbon
 #|       mass per individual, cohort abundance, cell identifiers, and timestamps.
+#|   - name: maliau_grid_definition.toml
+#|     path: data/derived/site/maliau
+#|     description: Maliau-2 grid coordinate vectors used to map cell IDs.
 #|   - name: master_observed_data_processing_metadata.yml
 #|     path: analysis/plant/output_data/validation/metadata
 #|     description: |
@@ -50,6 +53,16 @@
 #|         type: integer
 #|         units: dimensionless
 #|         description: VE spatial cell identifier.
+#|       - name: cell_x
+#|         type: numeric
+#|         units: m
+#|         spatial_extent: Cell centre.
+#|         description: Cell centre easting in the grid CRS.
+#|       - name: cell_y
+#|         type: numeric
+#|         units: m
+#|         spatial_extent: Cell centre.
+#|         description: Cell centre northing in the grid CRS.
 #|       - name: time
 #|         type: date
 #|         units: ISO 8601 date
@@ -168,10 +181,16 @@ library(reticulate)
 source("../../../../../tools/R/R/get_ve_variables.R")
 
 plants_cohort_data_path <- "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
+grid_definition_path <- "../../../../../data/derived/site/maliau/maliau_grid_definition.toml"
 observed_metadata_file <- "../metadata/master_observed_data_processing_metadata.yml"
 
 compiled_configuration_path <- "../../../../../data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 compiled_configuration <- toml::read_toml(compiled_configuration_path)
+grid_definition <- toml::read_toml(grid_definition_path)
+site_definition <- grid_definition$Scenario$maliau_2
+simulation_start_date <- as.Date(
+  compiled_configuration$core$timing$start_date
+)
 
 # Define simulation timestep duration (days) and cell area (ha) for use in
 # calculate_ve_realised_tissue_productivity function
@@ -204,14 +223,13 @@ update_interval_in_days <- ureg(update_interval)$to("days")$magnitude
 # memory pressure when this large scenario file is loaded into R. Using
 # data.table::fread(select = ...) avoids a large header-only pass over the CSV.
 required_columns <- c(
-  "cell_id",
-  "time",
+  "cell_x",
+  "cell_y",
   "time_index",
-  "n_individuals",
   "whole_crown_gpp",
-  "stem_c_biomass",
-  "foliage_c_biomass",
-  "root_c_biomass"
+  "stem_C_biomass",
+  "foliage_C_biomass",
+  "root_C_biomass"
 )
 plants_cohort_data <- data.table::fread(
   plants_cohort_data_path,
@@ -219,6 +237,37 @@ plants_cohort_data <- data.table::fread(
   stringsAsFactors = FALSE,
   check.names = FALSE
 )
+plants_cohort_data[, time_index := as.numeric(time_index)]
+plants_cohort_data[,
+  time := simulation_start_date +
+    (time_index + 1) * update_interval_in_days
+]
+
+grid_cells <- data.table::as.data.table(expand.grid(
+  cell_x = as.numeric(
+    unlist(site_definition$cell_x_centres, use.names = FALSE)
+  ),
+  cell_y = as.numeric(
+    unlist(site_definition$cell_y_centres, use.names = FALSE)
+  )
+))
+cell_id_origin <- "bottom-left"
+grid_order <- order(
+  if (cell_id_origin == "top-left") -grid_cells$cell_y else grid_cells$cell_y,
+  grid_cells$cell_x
+)
+grid_cells$cell_id <- NA_integer_
+grid_cells$cell_id[grid_order] <- seq_len(nrow(grid_cells)) - 1L
+
+plants_cohort_data$cell_id <- grid_cells$cell_id[
+  match(
+    paste(plants_cohort_data$cell_x, plants_cohort_data$cell_y),
+    paste(grid_cells$cell_x, grid_cells$cell_y)
+  )
+]
+if (anyNA(plants_cohort_data$cell_id)) {
+  stop("Some cohort coordinates do not match the Maliau-2 grid definition.")
+}
 
 output_dir <- "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing"
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -257,7 +306,7 @@ root_period <- get_observed_period("FineRootNPP")
 
 standardised_stem_c_productivity <- calculate_ve_realised_tissue_productivity(
   plants_cohort_data = plants_cohort_data,
-  input_variable = "stem_c_biomass",
+  input_variable = "stem_C_biomass",
   output_variable = "stem_c_productivity",
   cell_area_ha = cell_area_ha,
   update_interval_in_days = update_interval_in_days,
@@ -268,7 +317,7 @@ standardised_stem_c_productivity <- calculate_ve_realised_tissue_productivity(
 standardised_foliage_c_productivity <-
   calculate_ve_realised_tissue_productivity(
     plants_cohort_data = plants_cohort_data,
-    input_variable = "foliage_c_biomass",
+    input_variable = "foliage_C_biomass",
     output_variable = "foliage_c_productivity",
     cell_area_ha = cell_area_ha,
     update_interval_in_days = update_interval_in_days,
@@ -278,7 +327,7 @@ standardised_foliage_c_productivity <-
 
 standardised_root_c_productivity <- calculate_ve_realised_tissue_productivity(
   plants_cohort_data = plants_cohort_data,
-  input_variable = "root_c_biomass",
+  input_variable = "root_C_biomass",
   output_variable = "root_c_productivity",
   cell_area_ha = cell_area_ha,
   update_interval_in_days = update_interval_in_days,
@@ -300,6 +349,13 @@ standardised_data <- merge(
   standardised_root_c_productivity,
   by = c("cell_id", "time", "time_index", "selected_period", "units"),
   all = TRUE,
+  sort = FALSE
+)
+standardised_data <- merge(
+  standardised_data,
+  grid_cells[, .(cell_id, cell_x, cell_y)],
+  by = "cell_id",
+  all.x = TRUE,
   sort = FALSE
 )
 

@@ -13,7 +13,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: plants_cohort_data.csv
@@ -27,9 +27,6 @@
 #|   - name: compiled_configuration.toml
 #|     path: data/scenarios/maliau/maliau_2/out
 #|     description: Simulation start date and update interval.
-#|   - name: model_data.nc
-#|     path: data/scenarios/maliau/maliau_2/out
-#|     description: VE cell IDs and projected cell-centre coordinates for the full grid.
 #|   - name: tree_standing_carbon_mass_maliau.csv
 #|     path: data/derived/plant/output_data/validation/observed_data_processing
 #|     description: Observed plot data used for diagnostic figures only.
@@ -144,7 +141,6 @@
 #|   - sf
 #|   - toml
 #|   - reticulate
-#|   - xarray
 #|
 #| usage_notes: |
 #|   Initialisation rows without whole_crown_gpp are excluded before cohort
@@ -166,8 +162,6 @@ plants_cohort_data_path <-
   "../../../../../data/scenarios/maliau/maliau_2/out/plants_cohort_data.csv"
 compiled_configuration_path <-
   "../../../../../data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
-model_data_path <-
-  "../../../../../data/scenarios/maliau/maliau_2/out/model_data.nc"
 figures_dir <-
   "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2"
 dir.create(figures_dir, recursive = TRUE, showWarnings = FALSE)
@@ -206,18 +200,25 @@ timestep_interval_in_days <-
 
 # Build the regular Maliau-2 cell grid --------------------------------------
 
-# Use VE's own cell IDs and coordinates so this script does not recreate its
-# cell ordering. These coordinates cover the full grid, including empty cells.
-# Import xarray for reading model data using same VE Python environment as above.
+grid_cells <- data.table::as.data.table(expand.grid(
+  cell_x = as.numeric(
+    unlist(site_definition$cell_x_centres, use.names = FALSE)
+  ),
+  cell_y = as.numeric(
+    unlist(site_definition$cell_y_centres, use.names = FALSE)
+  )
+))
+# Set the origin manually: use either "top-left" or "bottom-left".
+cell_id_origin <- "bottom-left"
 
-xarray <- import("xarray")
-model_data <- xarray$open_dataset(model_data_path)
-grid_cells <- data.table(
-  cell_id = as.integer(py_to_r(model_data$coords[["cell_id"]]$values)),
-  cell_x = as.numeric(py_to_r(model_data$coords[["x"]]$values)),
-  cell_y = as.numeric(py_to_r(model_data$coords[["y"]]$values))
+# Order coordinates from left to right within each row.
+# Reverse the y order when the origin should be at the top of the grid.
+grid_order <- order(
+  if (cell_id_origin == "top-left") -grid_cells$cell_y else grid_cells$cell_y,
+  grid_cells$cell_x
 )
-model_data$close()
+grid_cells$cell_id <- NA_integer_
+grid_cells$cell_id[grid_order] <- seq_len(nrow(grid_cells)) - 1L
 
 make_square <- function(x, y, side_length) {
   half_side <- side_length / 2
@@ -314,14 +315,15 @@ text(
 # Only the fields needed for the standing-mass calculation are loaded. This
 # avoids loading the full plants_cohort_data.csv into memory.
 required_columns <- c(
-  "cell_id",
+  "cell_x",
+  "cell_y",
   "pft_name",
   "time",
   "time_index",
   "n_individuals",
   "whole_crown_gpp",
-  "stem_c_biomass",
-  "foliage_c_biomass"
+  "stem_C_biomass",
+  "foliage_C_biomass"
 )
 plants_cohort_data <- data.table::fread(
   plants_cohort_data_path,
@@ -329,6 +331,14 @@ plants_cohort_data <- data.table::fread(
   stringsAsFactors = FALSE,
   check.names = FALSE
 )
+
+# Add cell_id here based on the mapping earlier
+plants_cohort_data$cell_id <- grid_cells$cell_id[
+  match(
+    paste(plants_cohort_data$cell_x, plants_cohort_data$cell_y),
+    paste(grid_cells$cell_x, grid_cells$cell_y)
+  )
+]
 
 # Exclude initialisation rows, which have no computed GPP and would otherwise
 # duplicate the timestep-0 biomass.
@@ -339,8 +349,8 @@ plants_cohort_data <- plants_cohort_data[!is.na(whole_crown_gpp)]
 plants_cohort_data[, cell_id := as.integer(cell_id)]
 plants_cohort_data[, time_index := as.numeric(time_index)]
 plants_cohort_data[, n_individuals := as.numeric(n_individuals)]
-plants_cohort_data[, stem_c_biomass := as.numeric(stem_c_biomass)]
-plants_cohort_data[, foliage_c_biomass := as.numeric(foliage_c_biomass)]
+plants_cohort_data[, stem_C_biomass := as.numeric(stem_C_biomass)]
+plants_cohort_data[, foliage_C_biomass := as.numeric(foliage_C_biomass)]
 plants_cohort_data[,
   timestep_end_date := simulation_start_date +
     (time_index + 1) * timestep_interval_in_days
@@ -350,9 +360,9 @@ plants_cohort_data[,
 # values are for diagnostic plots because validation data are not PFT-resolved.
 pft_cell_mass_kg <- plants_cohort_data[,
   .(
-    stem_c_mass_kg_cell = sum(stem_c_biomass * n_individuals, na.rm = TRUE),
+    stem_c_mass_kg_cell = sum(stem_C_biomass * n_individuals, na.rm = TRUE),
     foliage_c_mass_kg_cell = sum(
-      foliage_c_biomass * n_individuals,
+      foliage_C_biomass * n_individuals,
       na.rm = TRUE
     )
   ),
@@ -370,9 +380,9 @@ pft_cell_mass_kg_ha[,
 # Repeat for cell total
 cell_mass_kg <- plants_cohort_data[,
   .(
-    stem_c_mass_kg_cell = sum(stem_c_biomass * n_individuals, na.rm = TRUE),
+    stem_c_mass_kg_cell = sum(stem_C_biomass * n_individuals, na.rm = TRUE),
     foliage_c_mass_kg_cell = sum(
-      foliage_c_biomass * n_individuals,
+      foliage_C_biomass * n_individuals,
       na.rm = TRUE
     )
   ),
@@ -438,9 +448,16 @@ for (time_scope in names(figure_file_names)) {
         type = "n",
         xlim = x_limits,
         ylim = range(pft_data[[tissue_column]], na.rm = TRUE),
+        yaxt = "n",
         xlab = "Timestep end date",
         ylab = "kg C ha-1",
         main = pft
+      )
+      y_ticks <- axTicks(2)
+      axis(
+        2,
+        at = y_ticks,
+        labels = format(y_ticks, scientific = FALSE, trim = TRUE)
       )
       for (cell_index in seq_along(pft_cell_ids)) {
         cell_data <- pft_data[cell_id == pft_cell_ids[cell_index]]
@@ -551,6 +568,7 @@ for (time_scope in names(mean_figure_file_names)) {
         c(total_means$mean_mass_kg_ha, pft_means$mean_mass_kg_ha),
         na.rm = TRUE
       ),
+      yaxt = "n",
       xlab = "Timestep end date",
       ylab = paste(
         "Mean",
@@ -562,6 +580,12 @@ for (time_scope in names(mean_figure_file_names)) {
         tolower(tissue_plots[[tissue_column]]),
         "across grid cells"
       )
+    )
+    y_ticks <- axTicks(2)
+    axis(
+      2,
+      at = y_ticks,
+      labels = format(y_ticks, scientific = FALSE, trim = TRUE)
     )
     for (pft_index in seq_along(pft_names)) {
       pft_data <- pft_means[pft_name == pft_names[pft_index]]
