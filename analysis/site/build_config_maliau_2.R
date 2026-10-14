@@ -211,5 +211,5 @@ lines <- c(
 build_config(
   lines = lines,
   path = "data/scenarios/maliau/maliau_2/config",
-  file_name = "config.toml"
+  file_name = "config_script_based.toml"
 )
