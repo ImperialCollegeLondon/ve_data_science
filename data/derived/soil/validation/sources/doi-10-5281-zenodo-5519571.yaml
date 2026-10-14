@@ -4,34 +4,68 @@ doi: 10.5281/zenodo.5519571
 screening:
   decision: proceed
   reason: relevant_validation_data
-  notes: Contains soil CO2 efflux that can be validated when fluxes are added to VE
+  notes:
+    Contains soil CO2 efflux that can be validated when fluxes are added to VE
     later. Also contains soil moisture and temperature.
-  screened_at: '2026-08-17T03:05:18Z'
+  screened_at: "2026-08-17T03:05:18Z"
 metadata:
-  title: Large contribution of recent photosynthate to soil respiration in tropical
+  title:
+    Large contribution of recent photosynthate to soil respiration in tropical
     dipterocarp forest revealed by girdling
   authors:
-  - Nottingham, Andrew
-  - Cheeseman, Alexander
-  - Riutta, Terhi
-  - Doughty, Christopher
-  - Telford, Elizabeth
-  - Huasco, Walter Huaraca
-  - Svátek, Martin
-  - Kvasnica, Jakub
-  - Majalap, Noreen
-  - Malhi, Yadvinder
-  - Meir, Patrick
-  - Teh, Yit Arn
+    - Nottingham, Andrew
+    - Cheeseman, Alexander
+    - Riutta, Terhi
+    - Doughty, Christopher
+    - Telford, Elizabeth
+    - Huasco, Walter Huaraca
+    - Svátek, Martin
+    - Kvasnica, Jakub
+    - Majalap, Noreen
+    - Malhi, Yadvinder
+    - Meir, Patrick
+    - Teh, Yit Arn
   year: 2021
   journal: ~
   publisher: Zenodo
   url: https://zenodo.org/record/5519571
   keywords:
-  - Girdling
-  - Licor
-  - Carbon
-  - Tree
-  - Mortality
+    - Girdling
+    - Licor
+    - Carbon
+    - Tree
+    - Mortality
   provider: doi_content_search
-  retrieved_at: '2026-08-17T03:04:39Z'
+  retrieved_at: "2026-08-17T03:04:39Z"
+datasets:
+  - source_id: nottingham_2021
+    data_file: data/primary/soil/nottingham_2021/BALI_Nottingham_Girdling_Data_2021_rev.csv
+    skip_rows: 5
+    variables:
+      var_original_1:
+        var_canonical: soil_respiration
+        unit: unit
+        description: ~
+    dedup_key:
+      - PlotName
+      - portplot
+    coordinates:
+      from_file: ~
+      match_data_column: ~
+      match_location_column: ~
+      latitude_column: ~
+      longitude_column: ~
+      same_for_all_rows:
+        latitude: ~
+        longitude: ~
+    temporal:
+      date_column: date
+      format: "%d/%m/%Y"
+      timezone: Asia/Kuching
+      precision: day
+      same_for_all_rows:
+        start: ~
+        end: ~
+        precision: ~
+        note: ~
+    row_filter: ~
