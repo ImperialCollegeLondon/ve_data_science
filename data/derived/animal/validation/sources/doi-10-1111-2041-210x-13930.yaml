@@ -35,68 +35,63 @@ datasets:
   variables:
     density_median_per_km2_carnivorous_aquatic_mammal:
       var_canonical: density_carnivorous_aquatic_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_carnivorous_arboreal_terrestrial_medium_mammal:
       var_canonical: density_carnivorous_arboreal_terrestrial_medium_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_carnivorous_borrowing_mammal:
       var_canonical: density_carnivorous_borrowing_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_carnivorous_terrestrial_arboreal_mammal:
       var_canonical: density_carnivorous_terrestrial_arboreal_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_herbivorous_terrestrial_medium_mammal:
       var_canonical: density_herbivorous_terrestrial_medium_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_herbivorous_terrestrial_small_mammal:
       var_canonical: density_herbivorous_terrestrial_small_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_omnivorous_arboreal_primate:
       var_canonical: density_omnivorous_arboreal_primate_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_omnivorous_arboreal_small_mammal:
       var_canonical: density_omnivorous_arboreal_small_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_omnivorous_arboreal_terrestrial_large_mammal:
       var_canonical: density_omnivorous_arboreal_terrestrial_large_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_omnivorous_arboreal_terrestrial_small_mammal:
       var_canonical: density_omnivorous_arboreal_terrestrial_small_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_omnivorous_terrestrial_bird:
       var_canonical: density_omnivorous_terrestrial_bird_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_omnivorous_terrestrial_mammal:
       var_canonical: density_omnivorous_terrestrial_mammal_L5
-      unit: individuals_per_km2
+      unit: km-2
       description: Population density of the animal functional group per square kilometer.
   dedup_key:
   - site
-  row_filter:
-  - "site == 'maliau'"
   coordinates:
     same_for_all_rows:
       latitude: 116.957115
       longitude: 4.7744711
-      note: Placeholder. Georeferenced location for centre of OG plots. On hold till PR for
-        bounding box
+      note: Placeholder. Georeferenced location for centre of OG plots. On hold till PR for bounding box
   temporal:
-    format: "%d/%m/%Y"
-    timezone: Asia/Kuching
     same_for_all_rows:
       start: 2011-05-01
       end: 2013-12-01
       precision: month
-      note: Sampling period reported in Wearn et al. (2022). The authors did not describe
-        exact day of the sampling. just the months and years.
+      note: Sampling period reported by Wearn et al. (2022)
+  row_filter: "site == 'maliau_basin'"
