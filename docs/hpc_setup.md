@@ -34,25 +34,53 @@ nodes through PBS.*
 
 ## Clone the repository
 
-Keep a personal checkout (like you would locally) rather than working from a
-shared project directory. This avoids conflicts with other users' files.
+The project datafiles are shared via GLOBUS from the path:
+
+```sh
+/rds/general/project/virtual_rainforest/live/ve_data_science/
+```
+
+This directory is *also* the root for a clone of the `ve_data_science` repository but it
+is really important that this clone is kept up to date and on the `main` branch. This
+ensures that the code files available through GLOBUS are synchronized with the data
+files they run.
+
+For this reason, you **must use a personal checkout** of the `ve_data_science`
+repository into your own user directory to run code. This is like using the local clone
+on your own computer: it isolates the code you are running from other users and also
+avoids altering the code files served through GLOBUS.
 
 ```bash
 cd ~
-git clone --branch hpc-workflow-preview-v1 --single-branch \
-    https://github.com/ImperialCollegeLondon/ve_data_science.git
+git clone https://github.com/ImperialCollegeLondon/ve_data_science.git
 cd ve_data_science
 ```
 
+<!-- markdownlint-disable MD046 -->
+
+!!! warning "Traceability and code versions"
+
+    When you run code on the HPC, you need to be able to trace the outputs back to
+    the versions of any `ve_data_science` code being used and the version of Virtual
+    Ecosystem being run. The Virtual Ecosystem will include version information in the
+    output log but you need to ensure that you are using specific named releases and
+    then documenting which releases were used.
+
+    For the `ve_data_science` code this means taking care to check which branch is
+    currently checked out: you are likely to be using the current code in `main`.
+
+<!-- markdownlint-enable MD046 -->
+
 ## Install `uv` and create a virtual environment
 
-See [uv setup](uv_setup.md) for instructions about using uv.
-
-A pinned version of Virtual Ecosystem is available for running the example:
+See [uv setup](uv_setup.md) for instructions about using uv. Note that by default `uv`
+is configured to use the most recent release on PyPi, but you can specify to run using
+the most recent code by setting `--group dev` to alter the `uv` dependency group with
+the `uv sync` and `uv run` commands below.
 
 ```bash
 uv venv
-uv sync --group hpc-pinned
+uv sync
 ```
 
 ## Install the example data/configs
@@ -60,7 +88,7 @@ uv sync --group hpc-pinned
 For testing the HPC workflow, install the example data and configuration files:
 
 ```bash
-uv run --group hpc-pined ve_run --install-example .
+uv run ve_run --install-example .
 ```
 
 ## Create a array job configuration
@@ -68,7 +96,7 @@ uv run --group hpc-pined ve_run --install-example .
 Create a TOML job specification that describes the Virtual Ecosystem runs in
 the array. You can produce the job entries with a sampling method such as Morris,
 Sobol, or Latin hypercube sampling. A small example is available in
-`hpc_jobs/examaple_hpc_configs/arrayJob_config.toml`.
+`hpc_jobs/example_hpc_configs/arrayJob_config.toml`.
 
 The specification has four parts:
 
@@ -96,9 +124,9 @@ The output directory must not already exist. The script creates it and then crea
 one child directory per PBS array sub-job. From the repository root, run:
 
 ```bash
-uv run --group hpc-pinned python -m hpc_jobs.submit_ve_array_job \
-    hpc_jobs/examaple_hpc_configs/arrayJob_config.toml \
-    hpc_jobs/examaple_hpc_configs/pbs_resources_config.toml \
+uv run python -m hpc_jobs.submit_ve_array_job \
+    hpc_jobs/example_hpc_configs/arrayJob_config.toml \
+    hpc_jobs/example_hpc_configs/pbs_resources_config.toml \
     ve_example/<experiment-output>
 ```
 
@@ -113,9 +141,9 @@ For known-good Virtual Ecosystem configurations, add `--skip-ve-validation` to s
 their model-level validation:
 
 ```bash
-uv run --group hpc-pinned python -m hpc_jobs.submit_ve_array_job \
-    hpc_jobs/examaple_hpc_configs/arrayJob_config.toml \
-    hpc_jobs/examaple_hpc_configs/pbs_resources_config.toml \
+uv run python -m hpc_jobs.submit_ve_array_job \
+    hpc_jobs/example_hpc_configs/arrayJob_config.toml \
+    hpc_jobs/example_hpc_configs/pbs_resources_config.toml \
     ve_example/<experiment-output> \
     --skip-ve-validation
 ```
@@ -169,7 +197,7 @@ shared/quota-limited storage entirely.
 ## Choose job resources
 
 The PBS resource request is defined in a resource configuration TOML file.
-`hpc_jobs/examaple_hpc_configs/pbs_resources_config.toml` has a small allocation
+`hpc_jobs/example_hpc_configs/pbs_resources_config.toml` has a small allocation
 suitable for the example data.
 
 Every value applies to each individual array sub-job,
