@@ -5,9 +5,8 @@ screening:
   decision: proceed
   reason: relevant_validation_data
   notes:
-    Contains mineralization rates of plant available soil nutrients, which
-    may     align with litter_mineralisation_rate_cnp. Also contains soil
-    moisture.
+    Contains mineralization rates of plant available soil nutrients, which may
+    align with litter_mineralisation_rate_cnp. Also contains soil moisture.
   screened_at: "2026-08-14T02:36:08Z"
 metadata:
   title:
