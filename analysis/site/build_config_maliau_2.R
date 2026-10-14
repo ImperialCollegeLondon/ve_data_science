@@ -15,7 +15,7 @@
 #| author:
 #|   - Hao Ran Lai
 #|
-#| status: final
+#| status: deprecated
 #|
 #| input_files:
 #|   - name: maliau_grid_definition.toml
@@ -47,6 +47,8 @@
 #|   - toml
 #|
 #| usage_notes: |
+#|   THIS SCRIPT WORKFLOW HAS BEEN DEPRECATED. DO NOT RUN.
+#|
 #|   Run this script from the repository root so that the relative paths used
 #|   by `source()`, `toml::read_toml()`, `read_csv()`, and the rendered config
 #|   remain valid.
