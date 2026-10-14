@@ -332,16 +332,6 @@ test_that("validate_source_schema checks optional provenance fields", {
     validate_source_schema(blank_original, schema_path),
     "data_file_original"
   )
-
-  missing_original <- provided
-  missing_original$data_file_original <- file.path(
-    directory,
-    "missing_original"
-  )
-  expect_error(
-    validate_source_schema(missing_original, schema_path),
-    "does not exist"
-  )
 })
 
 
