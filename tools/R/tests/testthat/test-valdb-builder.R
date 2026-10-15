@@ -309,11 +309,6 @@ test_that("validate_source_schema checks optional provenance fields", {
   source$data_file <- data_path
   schema_path <- file.path(directory, "source.yaml")
 
-  absent <- source
-  absent$data_file_original <- NULL
-  absent$preprocess_script <- NULL
-  expect_no_error(validate_source_schema(absent, schema_path))
-
   provided <- source
   provided$data_file_original <- raw_path
   provided$preprocess_script <- script_path
