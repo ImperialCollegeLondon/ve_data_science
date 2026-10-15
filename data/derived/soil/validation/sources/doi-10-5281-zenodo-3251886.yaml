@@ -78,6 +78,16 @@ datasets:
           Soil NO3 concentration extracted with 1M KCl and used colorimetry for
           analysis. Unit has been corrected following
           https://bg.copernicus.org/articles/18/1559/2021/bg-18-1559-2021-corrigendum.pdf
+      flux_CO2-C:
+        var_canonical: soil_respiration_CO2_mass
+        unit: mg{CO2} m-2 h-1
+        description: Soil CO2 flux measured with IRGA in situ (EGM4).
+      flux_N2O-N:
+        var_canonical: soil_nitrous_oxide_emission_N2O_mass
+        unit: µg{N2O} m-2 h-1
+        description:
+          Soil N2O flux. Samples collected and used gas chromotography for
+          analysis.
     dedup_key:
       - site
       - chamber_id
