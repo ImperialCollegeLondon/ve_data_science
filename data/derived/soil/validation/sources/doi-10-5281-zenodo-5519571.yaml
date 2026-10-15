@@ -39,33 +39,24 @@ metadata:
   retrieved_at: "2026-08-17T03:04:39Z"
 datasets:
   - source_id: nottingham_2021
-    data_file: data/primary/soil/nottingham_2021/BALI_Nottingham_Girdling_Data_2021_rev.csv
-    skip_rows: 5
+    data_file: data/derived/soil/validation/datasets/nottingham_2021/data.csv
+    preprocess_script: analysis/soil/validation/pre_processing/nottingham_2021.R
+    skip_rows: 0
     variables:
-      var_original_1:
+      CO2_daily:
         var_canonical: soil_respiration
-        unit: unit
-        description: ~
+        unit: micromol {CO2} m-2 s-1
+        description:
+          Soil CO2 efflux aggregated from hourly measurement measured with
+          portable Licor 8100 long term chamber.
     dedup_key:
       - PlotName
-      - portplot
+      - plot
+      - date
     coordinates:
-      from_file: ~
-      match_data_column: ~
-      match_location_column: ~
-      latitude_column: ~
-      longitude_column: ~
-      same_for_all_rows:
-        latitude: ~
-        longitude: ~
+      match_data_column: PlotName
     temporal:
       date_column: date
       format: "%d/%m/%Y"
       timezone: Asia/Kuching
       precision: day
-      same_for_all_rows:
-        start: ~
-        end: ~
-        precision: ~
-        note: ~
-    row_filter: ~
