@@ -288,7 +288,7 @@ join_ve_outputs_per_row <- function(
 #' @param zarr_path Path to VE model outputs in a Zarr store.
 #' @param config_path Path to a compiled VE configuration TOML.
 #' @param cohort_data_path Optional path to the animal cohort CSV for the model
-#'   run. When supplied, FG landscape-density series are calculated and included.
+#'   run. When supplied, FG landscape densities are calculated and included.
 #'
 #' @details
 #' Temporal matching uses nearest-neighbor interval semantics:
@@ -427,7 +427,7 @@ join_ve_outputs <- function(
   derived_variables <- cell_derived_arrays |>
     reshape2::melt() |>
     dplyr::rename(var_canonical = L1)
-  # Process the foreground density arrays if any exist
+  # Process the density arrays if any exist
   if (length(fg_density_arrays) > 0L) {
     fg_density_variables <-
       purrr::imap_dfr(
@@ -441,7 +441,7 @@ join_ve_outputs <- function(
             )
         }
       )
-    # Combine the foreground density variables with the cell-derived variables
+    # Combine the density variables with the cell-derived variables
     derived_variables <-
       dplyr::bind_rows(
         derived_variables,
