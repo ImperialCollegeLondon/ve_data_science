@@ -89,6 +89,12 @@ unit = "mol{CO2} m-2 day-1"
 function = "get_soil_respiration_CO2_molar"
 
 [[variable]]
+name = "soil_respiration_CO2_mass"
+description = "Rate of respiration from soil in CO2 mass basis, typically from field measurement using gas chamber"
+unit = "kg{CO2} m-2 day-1"
+function = "get_soil_respiration_CO2_mass"
+
+[[variable]]
 name = "stem_c_productivity"
 description = "Interval realised stem carbon productivity for each cell"
 unit = "Mg C ha-1 year-1"

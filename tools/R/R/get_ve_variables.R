@@ -239,7 +239,8 @@ get_derived_variables <- function(zarr_path, config_path, ...) {
       zarr_path,
       config
     ),
-    soil_respiration_CO2_molar = get_soil_respiration_CO2_molar(zarr_path)
+    soil_respiration_CO2_molar = get_soil_respiration_CO2_molar(zarr_path),
+    soil_respiration_CO2_mass = get_soil_respiration_CO2_mass(zarr_path)
   ) |>
     # then collect the derived variables that are returned as a list of arrays
     append(
@@ -683,6 +684,25 @@ get_soil_respiration_CO2_molar <- function(zarr_path) {
   )
   # 1 mol CO2 per mol C; molar mass of C is 12.011 g/mol
   soil_respiration$soil_respiration * 1000 / 12.011
+}
+
+
+#' Calculate soil respiration in CO2 mass basis
+#'
+#' Convert soil respiration from kg{C} m-2 day-1 to kg{CO2} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @return Array of soil respiration in kg CO2 m-2 day-1.
+#' @export
+
+get_soil_respiration_CO2_mass <- function(zarr_path) {
+  soil_respiration <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_respiration"
+  )
+  # Molar masses: CO2 = 44.009 g/mol, C = 12.011 g/mol
+  soil_respiration$soil_respiration * 44.009 / 12.011
 }
 
 

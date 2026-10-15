@@ -38,7 +38,7 @@ metadata:
   retrieved_at: "2026-08-14T02:35:40Z"
 datasets:
   - source_id: drewer_2019
-    data_file: data/primary/soil/drewer_2019/3_GHG_jdrewer.csv
+    data_file: data/primary/soil/drewer_2019/data_one_off.csv
     skip_rows: 5
     variables:
       soil_N:
@@ -49,6 +49,33 @@ datasets:
           bulk_density'.
       soil_C:
         var_canonical: total_soil_c_per_volume
+        unit: g cm^-3
+        description:
+          Percentage of soil C. Calculated in the CSV sheet as 'soil_C% *
+          bulk_density'.
+    dedup_key: Location
+    coordinates:
+      from_file: data/primary/soil/drewer_2019/locations.csv
+    temporal:
+      format: "%d/%m/%Y"
+      timezone: Asia/Kuching
+      same_for_all_rows:
+        start: 01/01/2015
+        end: 31/12/2016
+        precision: day
+        note:
+          Start and end dates specified in the Summary sheet of the original
+          file.
+  - source_id: drewer_2019_b
+    data_file: data/primary/soil/drewer_2019/data_repeated_measures.csv
+    skip_rows: 5
+    variables:
+      flux_CO2-C:
+        var_canonical: soil_respiration_CO2_mass
+        unit: mg{CO2} m-2 h-1
+        description: Soil CO2 flux measured with IRGA in situ (EGM4).
+      soil_C:
+        var_canonical:
         unit: g cm^-3
         description:
           Percentage of soil C. Calculated in the CSV sheet as 'soil_C% *
