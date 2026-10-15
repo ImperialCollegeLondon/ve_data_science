@@ -74,12 +74,12 @@ datasets:
         var_canonical: soil_respiration_CO2_mass
         unit: mg{CO2} m-2 h-1
         description: Soil CO2 flux measured with IRGA in situ (EGM4).
-      soil_C:
-        var_canonical:
-        unit: g cm^-3
+      flux_N2O-N:
+        var_canonical: soil_nitrous_oxide_emission_N2O_mass
+        unit: µg{N2O} m-2 h-1
         description:
-          Percentage of soil C. Calculated in the CSV sheet as 'soil_C% *
-          bulk_density'.
+          Soil N2O flux. Samples collected and used gas chromotography for
+          analysis.
     dedup_key: Location
     coordinates:
       from_file: data/primary/soil/drewer_2019/locations.csv
