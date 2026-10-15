@@ -414,6 +414,7 @@ join_ve_outputs <- function(
       group = "outputs",
       cohort_data_path = cohort_data_path
     )
+  # Separate derived variables into those with/without a spatial scope
   has_spatial_scope <- purrr::map_lgl(
     all_derived_variables,
     function(variable) {
@@ -422,26 +423,25 @@ join_ve_outputs <- function(
   )
   fg_density_arrays <- all_derived_variables[has_spatial_scope]
   cell_derived_arrays <- all_derived_variables[!has_spatial_scope]
-
+  # Melt the cell-derived arrays into a long format for further processing
   derived_variables <- cell_derived_arrays |>
     reshape2::melt() |>
     dplyr::rename(var_canonical = L1)
-
+  # Process the foreground density arrays if any exist
   if (length(fg_density_arrays) > 0L) {
     fg_density_variables <-
       purrr::imap_dfr(
         fg_density_arrays,
         function(variable, variable_name) {
-          melted_variable <-
-            variable |>
-            reshape2::melt()
-          melted_variable |>
+          variable |>
+            reshape2::melt() |>
             dplyr::mutate(
               var_canonical = variable_name,
               time_index = as.integer(time_index)
             )
         }
       )
+    # Combine the foreground density variables with the cell-derived variables
     derived_variables <-
       dplyr::bind_rows(
         derived_variables,
