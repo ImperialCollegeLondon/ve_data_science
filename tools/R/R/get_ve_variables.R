@@ -239,10 +239,7 @@ get_derived_variables <- function(zarr_path, config_path, ...) {
       zarr_path,
       config
     ),
-    soil_respiration_CO2_molar = get_soil_respiration_CO2_molar(
-      zarr_path,
-      config
-    )
+    soil_respiration_CO2_molar = get_soil_respiration_CO2_molar(zarr_path)
   ) |>
     # then collect the derived variables that are returned as a list of arrays
     append(
