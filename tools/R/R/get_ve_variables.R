@@ -195,7 +195,9 @@ get_data_variables_nc <- function(tidync, variables = NULL) {
 #'
 #' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config_path Path to the exported full VE configuration TOML file.
-#' @param ... Additional arguments passed to \\code{get_data_variables()}.
+#' @param ... Additional arguments passed to \code{get_data_variables()}.
+#' @param cohort_data_path Optional path to the animal cohort CSV for the model
+#'   run. When supplied, FG population-density arrays are appended.
 #' @return A named list with derived variables.
 #'
 #' @examples
@@ -208,11 +210,16 @@ get_data_variables_nc <- function(tidync, variables = NULL) {
 #'
 #' @export
 
-get_derived_variables <- function(zarr_path, config_path, ...) {
+get_derived_variables <- function(
+  zarr_path,
+  config_path,
+  ...,
+  cohort_data_path = NULL
+) {
   config <- toml::read_toml(config_path)
 
   # first collect the derived variables that are returned as a single array
-  list(
+  derived_variables <- list(
     total_soil_c_per_volume = get_total_soil_c_per_volume(zarr_path),
     total_soil_c_per_mass = get_total_soil_c_per_mass(zarr_path, config),
     total_soil_c_per_area = get_total_soil_c_per_area(zarr_path, config),
@@ -244,9 +251,19 @@ get_derived_variables <- function(zarr_path, config_path, ...) {
     )
   ) |>
     # then collect the derived variables that are returned as a list of arrays
-    append(
-      get_soil_np_pool_microbial(zarr_path, config)
+    append(get_soil_np_pool_microbial(zarr_path, config))
+
+  if (!is.null(cohort_data_path)) {
+    derived_variables <- append(
+      derived_variables,
+      get_fg_population_density(
+        cohort_data_path = cohort_data_path,
+        config = config
+      )
     )
+  }
+
+  derived_variables
 }
 
 
