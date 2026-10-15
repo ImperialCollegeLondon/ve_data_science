@@ -100,5 +100,3 @@ virtual-ecosystem = [
   { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", rev = "0f67349", group = "dev-pinned" },
   { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", rev = "72f8724629ee8fbbddadac460a2c2abd6c483f68", group = "dev-PR1889" },
 ]
-default-groups = []
-package = false
