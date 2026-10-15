@@ -16,7 +16,11 @@ Marginal and conditional predictions are core terms in hierarchical or
 mixed-effect models or regressions, but I will simplify it to a linear
 regression with a single (fixed) predictor.
 
-Consider a simple linear regression: $$ Y = a + bX\,, $$ where $Y$ is the
+Consider a simple linear regression:
+
+$$ Y = a + bX\,, $$
+
+where $Y$ is the
 response or output variable, $X$ is the input predictor, $a$ is the intercept,
 and $b$ is the effect (slope) of $X$. The error term is ignored here for
 brevity.
@@ -33,7 +37,11 @@ to) *conditional* prediction: the predicted value of $Y$ is conditioned on the
 site-specific predictor $X$.
 
 When we want to make a new prediction but lacks the input predictor $X$, our
-best bet is the intercept-only (null) model: $$Y = a\,.$$ This is the *marginal*
+best bet is the intercept-only (null) model:
+
+$$Y = a\,.$$
+
+This is the *marginal*
 prediction, in which we marginalise (or average out) over the unknown values of
 $X$. In VE, which is not a linear regression, taking the average of output
 values, $\bar{Y}$, would be roughly equivalent to marginalising the predictions
