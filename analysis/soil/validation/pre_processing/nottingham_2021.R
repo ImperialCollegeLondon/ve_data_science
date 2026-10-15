@@ -39,3 +39,12 @@ write_csv(
   CO2_daily_control,
   "data/derived/soil/validation/datasets/nottingham_2021/data.csv"
 )
+
+# also output location data
+read_excel(
+  "data/primary/soil/nottingham_2021/BALI_Nottingham_Girdling_Data_2021_rev.xlsx",
+  sheet = 3
+) |>
+  write_csv(
+    "data/derived/soil/validation/datasets/nottingham_2021/locations.csv"
+  )

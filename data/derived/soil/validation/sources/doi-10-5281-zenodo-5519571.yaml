@@ -54,6 +54,8 @@ datasets:
       - plot
       - date
     coordinates:
+      from_file: data/derived/soil/validation/datasets/nottingham_2021/locations.csv
+      match_location_column: Location name
       match_data_column: PlotName
     temporal:
       date_column: date
