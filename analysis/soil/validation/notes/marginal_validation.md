@@ -18,7 +18,7 @@ regression with a single (fixed) predictor.
 
 Consider a simple linear regression:
 
-$$ Y = a + bX\,, $$
+$$ Y = a + bX , $$
 
 where $Y$ is the
 response or output variable, $X$ is the input predictor, $a$ is the intercept,
@@ -39,13 +39,12 @@ site-specific predictor $X$.
 When we want to make a new prediction but lacks the input predictor $X$, our
 best bet is the intercept-only (null) model:
 
-$$Y = a\,.$$
+$$Y = a .$$
 
-This is the *marginal*
-prediction, in which we marginalise (or average out) over the unknown values of
-$X$. In VE, which is not a linear regression, taking the average of output
-values, $\bar{Y}$, would be roughly equivalent to marginalising the predictions
-to a new site without a known input variable.
+This is the *marginal* prediction, in which we marginalise (or average out) over
+the unknown values of $X$. In the VE model, which is not a linear regression,
+taking the average of output values, $\bar{Y}$ would be roughly equivalent to
+marginalising the predictions to a new site without a known input variable.
 
 > [!CAUTION]
 > Note that marginalising through $Y = a$ implies setting $X = 0$. In many
