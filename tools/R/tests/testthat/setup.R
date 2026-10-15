@@ -157,6 +157,11 @@ mock_arrays <- list(
     13:16,
     dim = c(2, 3),
     dimnames = list(time_index = time_index, cell_id = cell_id)
+  ),
+  soil_respiration = array(
+    14:17,
+    dim = c(2, 3),
+    dimnames = list(time_index = time_index, cell_id = cell_id)
   )
 )
 

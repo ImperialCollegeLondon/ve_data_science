@@ -6,7 +6,7 @@ screening:
   reason: relevant_validation_data
   notes:
     Contains soil and litter C and N. Added soil C and N, but litter are leaf
-    litter, and there is easy way to convert them to aboveground structural +
+    litter, and there is no easy way to convert them to aboveground structural +
     metabolic litter since we do not know the wood and reproductive organs'
     contribution in this empirical dataset. This will be an ongoing challenge to
     find litter validation data.
