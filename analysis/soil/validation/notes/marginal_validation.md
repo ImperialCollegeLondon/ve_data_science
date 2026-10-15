@@ -55,11 +55,11 @@ marginalising the predictions to a new site without a known input variable.
 > input value. This implies that, for a new validation site without a known
 > input, we should match it to the VE outputs from a grid with the average input
 > value. This grid does not exist; it is a *counterfactual* grid. At most, we
-> can get as close to this hypothetical grid by search for a grid is closest to
-> the mean input value. But VE has $>1$ input variables, and searching for a
-> grid that is closest to the multivariate mean starts to sound pointless. In
-> short, I think simply calculating the average of output values, $\bar{Y}$, is
-> our next best justified option.
+> can get as close to this hypothetical grid by searching for a grid that is
+> closest to the mean input value. But VE has $>1$ input variables, and
+> searching for a grid that is closest to the multivariate mean starts to sound
+> pointless. In short, I think simply calculating the average of output values,
+> $\bar{Y}$, is our next best justified option.
 
 This concludes my thought on "What to do when an observation fall outside of
 Maliau?"
