@@ -44,8 +44,8 @@ datasets:
     skip_rows: 0
     variables:
       CO2_daily:
-        var_canonical: soil_respiration
-        unit: micromol {CO2} m-2 s-1
+        var_canonical: soil_respiration_CO2_molar
+        unit: micromol{CO2} m-2 s-1
         description:
           Soil CO2 efflux aggregated from hourly measurement measured with
           portable Licor 8100 long term chamber.

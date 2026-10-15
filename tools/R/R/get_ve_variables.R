@@ -238,6 +238,10 @@ get_derived_variables <- function(zarr_path, config_path, ...) {
     soil_n_pool_inorganic_per_area = get_soil_n_pool_inorganic_per_area(
       zarr_path,
       config
+    ),
+    soil_respiration_CO2_molar = get_soil_respiration_CO2_molar(
+      zarr_path,
+      config
     )
   ) |>
     # then collect the derived variables that are returned as a list of arrays
@@ -663,6 +667,25 @@ get_soil_n_pool_inorganic_per_area <- function(zarr_path, config) {
       config
     )
   convert_volume_to_area_basis(soil_n_pool_inorganic_per_volume, config)
+}
+
+#' Calculate soil respiration in CO2 molar basis
+#'
+#' Convert soil respiration from kg{C} m-2 day-1 to mol{CO2} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' configuration TOML file. Unused; kept for a consistent interface.
+#' @return Array of soil respiration in mol CO2 m-2 day-1.
+#' @export
+
+get_soil_respiration_CO2_molar <- function(zarr_path) {
+  soil_respiration <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_respiration"
+  )
+  # 1 mol CO2 per mol C; molar mass of C is 12.011 g/mol
+  soil_respiration$soil_respiration * 1000 / 12.011
 }
 
 
