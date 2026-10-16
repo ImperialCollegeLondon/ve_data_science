@@ -29,7 +29,7 @@ metadata:
 datasets:
 - source_id: wearn_2022
   data_file: data/derived/animal/wearn_2022/wearn_2022_density.csv
-  data_file_original: data/primary/animal/wearn_2022/wearn_2022_density.csv
+  data_file_original: data/primary/animal/wearn_2022/wearn_2022_Table_S3.1.csv
   preprocess_script: analysis/animal/wearn_2022/preprocess_wearn_2022_density.py
   skip_rows: 0
   variables:
@@ -94,4 +94,4 @@ datasets:
       end: 2013-12-01
       precision: month
       note: Sampling period reported by Wearn et al. (2022)
-  row_filter: "site == 'maliau_basin'"
+  row_filter: "site == 'maliau'"

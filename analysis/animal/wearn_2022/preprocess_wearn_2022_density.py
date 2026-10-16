@@ -17,7 +17,7 @@ author:
 status: wip
 
 input_files:
-    - name: wearn_et_al_2022_Density.csv
+    - name: wearn_2022_Table_S3.1.csv
         path: data/primary/animal/wearn_2022/
     description: |
       Raw supplementary table containing species density estimates across
@@ -71,7 +71,7 @@ input_file = (
     / "primary"
     / module_name
     / "wearn_2022"
-    / ("wearn_et_al_2022_Density.csv")
+    / "wearn_2022_Table_S3.1.csv"
 )
 
 output_dir = repo_root / "data" / "derived" / module_name / "wearn_2022"
