@@ -624,8 +624,13 @@ screen_dataset <- function(
 #'
 #' This helper function is intended to be used with [initialise_source_schema()].
 #'
+#' The optional `data_file_original` and `preprocess_script` fields record
+#' provenance when `data_file` was derived from a raw file by a preprocessing
+#' script. Leave them empty when `data_file` is the raw data.
+#'
 #' @returns A named list containing placeholders for the mandatory dataset fields
-#'   and optional `coordinates` and `temporal` blocks.
+#'   and optional `data_file_original`, `preprocess_script`, `coordinates`,
+#'   `temporal` and `row_filter` fields.
 #'
 #' @export
 
@@ -633,6 +638,8 @@ new_schema_template <- function() {
   list(
     source_id = "author_year",
     data_file = "data/primary/<module>/author_year/*.csv",
+    data_file_original = NULL,
+    preprocess_script = NULL,
     skip_rows = 0L,
     variables = list(
       var_original_1 = list(
@@ -907,12 +914,13 @@ scalar_string <- function(value) {
 #' @keywords internal
 
 validate_source_schema <- function(source, path) {
-  # row_filter is optional and may be absent in existing schemas; exclude it
+  # optional_fields may be absent in existing schemas; exclude it
   # from required-field check. All other template fields are mandatory.
   # TODO: coordinates and temporal could also be made optional in future to
   # reduce boilerplate for schemas that don't use spatial/temporal metadata.
+  optional_fields <- c("data_file_original", "preprocess_script", "row_filter")
   template_fields <- names(new_schema_template())
-  required_fields <- setdiff(template_fields, "row_filter")
+  required_fields <- setdiff(template_fields, optional_fields)
   missing_fields <- setdiff(required_fields, names(source))
   if (length(missing_fields) > 0L) {
     cli::cli_abort(
@@ -987,6 +995,25 @@ validate_source_schema <- function(source, path) {
       "Data file {.path {source$data_file}} configured by source schema \
        {.path {path}} does not exist."
     )
+  }
+
+  for (field in c("data_file_original", "preprocess_script")) {
+    value <- source[[field]]
+    if (is.null(value)) {
+      next
+    }
+    if (!scalar_string(value)) {
+      cli::cli_abort(
+        "Source schema {.path {path}} {.field {field}} must be empty or one \
+         non-empty path."
+      )
+    }
+    if (!file.exists(value)) {
+      cli::cli_abort(
+        "{.field {field}} {.path {value}} configured by source schema \
+         {.path {path}} does not exist."
+      )
+    }
   }
 
   # Validate row_filter: optional, must be character vector with no blanks
