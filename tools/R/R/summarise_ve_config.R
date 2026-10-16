@@ -84,7 +84,7 @@ summarise_ve_config <- function(config_path, log_path, dev = FALSE) {
     paste0(
       "- **VE version**: ",
       version,
-      if (dev) " (running on develop version)"
+      if (dev) " (develop version)"
     ),
     paste0("- **Models**: ", paste(models, collapse = ", ")),
     paste0("- **Grid**: ", grid$cell_nx, " x ", grid$cell_ny, " cells"),
