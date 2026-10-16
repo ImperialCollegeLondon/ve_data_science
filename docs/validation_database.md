@@ -65,14 +65,20 @@ ve_data_science/
 │   └── derived_variables.toml                     # derived-variable registry
 ├── data/derived/<module>/validation/database/     # Step 6: output Parquet dataset
 │   └── <validation database>.parquet              # validation database
-└── tools/R/R/valdb.R                              # workflow functions
+└── tools/R/R/
+    ├── valdb.R                                    # aggregator and re-export module
+    ├── valdb_screening.R                          # DOI and screening functions
+    ├── valdb_build.R                              # database build and harmonization
+    └── valdb_join_ve.R                            # VE output joining
 ```
 
 <!-- markdownlint-enable MD013 -->
 
 ## How to load the key functions
 
-These functions work with both `box::use()` and `source()`.
+These functions work with both `box::use()` and `source()`. The implementation
+is split into three focused modules for maintainability; `valdb.R` aggregates
+and re-exports them for backward compatibility.
 
 With `box::use()`:
 
@@ -187,8 +193,8 @@ If names conflict, use `author_year_2`. Continue in that pattern.
 Use CSV files. If the published dataset uses another format, such as Excel or a
 zip archive, convert the required data sheet to CSV. If the raw dataset needs
 extra data wrangling, store the preprocessing script in
-[analysis/validation/](analysis/validation/). Write the processed CSV to
-[derived/](derived/) beside the other validation inputs.
+`analysis/validation/<module>/`. Write the processed CSV to
+`derived/<module>/` beside the other validation inputs.
 
 !!! tip
     Keep any location or coordinate files that come with the source dataset.
@@ -198,6 +204,16 @@ extra data wrangling, store the preprocessing script in
 ## 4) Complete schema fields manually
 
 [Back to workflow overview](#workflow-overview).
+
+### How to edit the YAML file
+
+1. Run `list_proceed_screening_records()` in the R console.
+2. Copy the DOI from that list into `add_schema()`.
+3. Open the YAML file in your IDE and edit it directly.
+
+`add_schema()` adds a template to the screened record. It prints the full path
+to the YAML file. Open that file directly in VS Code, Positron, vim, nano, or
+your preferred IDE.
 
 The template is an editable scaffold. It is not build-ready. Replace every
 placeholder with values from the source dataset. Remove unused example entries.
@@ -222,6 +238,23 @@ For each dataset entry under `datasets:`, complete these **required** fields:
 - `skip_rows` (use `0` when there are no non-data rows to skip)
 - `variables` (original name, canonical name, original unit)
 - `dedup_key`
+
+These provenance fields are **optional**:
+
+- `data_file_original` (path to the raw input file used to produce `data_file`)
+- `preprocess_script` (path to the script that produced `data_file`)
+
+When supplied, each must be a non-empty path to an existing file. The file
+extension is not restricted. Valdb records these paths for provenance; but does
+not execute the script. For example:
+
+```yaml
+data_file: data/derived/soil/example/processed.csv
+data_file_original: data/primary/soil/example/raw.xlsx
+preprocess_script: analysis/soil/example/preprocess.R
+```
+
+If no preprocessing was needed, omit these fields or leave them `null`.
 
 `coordinates` and `temporal` are **optional blocks**. Use them when the dataset
 includes spatial or temporal information that should be mapped into the
@@ -301,6 +334,36 @@ for duplicate rows within a dataset.
 To add another dataset from the same DOI, append another entry under
 `datasets:` in the same YAML file. The build pipeline still uses one flat source
 schema per dataset internally, keyed by unique `source_id`.
+
+### Optional row-level filtering
+
+Use `row_filter` to select and keep rows that meet your inclusion criteria.
+The builder applies row filters before reading coordinates or times. Set it as
+a YAML list of R expressions (quoted strings). Each expression must return TRUE
+or FALSE for each row.
+
+```yaml
+row_filter:
+  - "site == 'maliau_basin'"
+  - "`NH4-N_KCl` >= 0"
+  - "replicate != 'blank'"
+  - "!is.na(value)"
+```
+
+How it works:
+
+- `row_filter` is optional. If absent or null, no rows are filtered.
+- Write each condition as you would inside `dplyr::filter()`, using column names
+  from the source CSV (`data_file`), and enclose the whole condition in double
+  quotes.
+- All expressions are combined with AND.
+- Column names with hyphens or special characters must be quoted with
+  backticks inside the expression string, e.g., `` `NH4-N_KCl` ``.
+- Rows with missing measurement values are removed later, after unit
+  conversion.
+
+The builder stops if an expression references a missing column or returns
+non-logical values. Error messages name the source, the clause, and the problem.
 
 ### Assumptions and expectations
 
@@ -570,6 +633,8 @@ What the above code does:
 - Ignores screening-only records.
 - Warns about dataset entries that still contain mandatory placeholders, then
   skips them.
+- Applies optional dataset-level `row_filter` clauses with AND semantics before
+  attaching coordinates and temporal metadata.
 - Requires every schema record to retain a `proceed` screening decision.
 - Writes Parquet output to `db_path`.
 

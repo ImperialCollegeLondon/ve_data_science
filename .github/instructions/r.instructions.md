@@ -13,8 +13,12 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
 ## Core Conventions
 
 - **Match the project’s style.** If the file shows a preference (tidyverse vs. base R, `%>%` vs. `|>`), follow it.
+- **Match nearby local conventions before generic templates.** For script structure, metadata headers, comments, and sectioning, prefer the style already used in nearby files in the same folder.
 - **Prefer clear, vectorized code.** Keep functions small and avoid hidden side effects.
+- **Prefer linear workflow scripts when appropriate.** In editor-driven analysis or data-prep scripts, prefer a top-to-bottom flow with a small parameter block near the top, then setup, then execution.
+- **Keep abstraction modest in scripts.** Do not introduce one-off helper functions unless they clearly improve readability or reuse; otherwise they can make review harder.
 - **Qualify non-base functions in examples/snippets**, e.g., `dplyr::mutate()`, `stringr::str_detect()`. In project code, using `library()` is acceptable when that’s the repo norm.
+- **Keep imports obvious in scripts.** In script-style files, place `library()` calls near the top rather than hiding dependency setup behind helpers.
 - **Naming:** `lower_snake_case` for objects/files; avoid dots in names.
 - **Side effects:** Never call `setwd()`; prefer project-relative paths (e.g., `here::here()`).
 - **Reproducibility:** Set seeds locally around stochastic operations using `withr::with_seed()`.
@@ -52,6 +56,7 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
   operations) instead of explicit `for` loops when they improve clarity or performance.
 - **Strings & Dates:** use `stringr`/`lubridate` where already present; otherwise use clear base helpers (e.g., `nchar()`, `substr()`, `as.Date()` with explicit format).
 - **I/O:** prefer explicit, typed readers (e.g., `readr::read_csv()`); make parsing assumptions explicit.
+- **Comments:** add brief inline comments when they explain purpose or a non-obvious decision; do not comment code that is already self-explanatory.
 
 ## Plotting
 
@@ -93,7 +98,7 @@ Help GitHub Copilot generate idiomatic, safe, and maintainable R code across pro
 - If the current file uses tidyverse, **suggest tidyverse-first patterns** (e.g., `dplyr::across()` instead of superseded verbs). If base-R style is present, **use base idioms**.
 - Qualify non-base calls in suggestions (e.g., `dplyr::mutate()`).
 - Suggest vectorized or tidy solutions over loops when idiomatic.
-- Prefer small helper functions over long pipelines.
+- For ordinary workflow scripts, prefer the implementation that is easiest to scan and review linearly over extra abstraction or decomposition.
 - When asked to document an R script with non-executable scaffolding, use R
   section headers (comment lines that start with `#` and end with a repeated
   marker run such as `-`, `=`, or `#`, e.g.,
