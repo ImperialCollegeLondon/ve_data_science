@@ -23,9 +23,13 @@ execute:
 
 ## Progress over the past few months
 
-- Built a validation database pipeline, see docs [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
+- Built a validation database pipeline, see docs
+  [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
 - Screened, add and harmonise datasets using the database functions.
-- I did not limit datasets to only Maliau or old growth. I included SAFE and disturbed forests since we are going to need them in future scenarios. The database has spatial coordinates to filter what we need (can be combined with all sorts of GIS layer, including SAFE layers).
+- I did not limit datasets to only Maliau or old growth. I included SAFE and
+  disturbed forests since we are going to need them in future scenarios. The
+  database has spatial coordinates to filter what we need (can be combined with
+  all sorts of GIS layer, including SAFE layers).
 - Most effort went into harmonisation, including units and derived variables.
 
 ```text {r}
@@ -119,7 +123,12 @@ p_within_spatial <- val_db_combined$spatial_join_class |>
   pluck("within")
 ```
 
-I screened a total of `r n_screened` datasets or literature, and obtained `r n_datasets` that can be included into the validation database. The included datasets contained a total of `r n_data` data points. `r round(p_within_temporal*100, 1)`% of data points fall within the simulation's temporal range, but only `r round(p_within_spatial*100, 1)`% fall within the spatial extent of Maliau 2.
+I screened a total of `r n_screened` datasets or literature, and obtained
+`r n_datasets` that can be included into the validation database. The included
+datasets contained a total of `r n_data` data points.
+`r round(p_within_temporal*100, 1)`% of data points fall within the simulation's
+temporal range, but only `r round(p_within_spatial*100, 1)`% fall within the
+spatial extent of Maliau 2.
 
 ## Where datasets come from
 
@@ -127,6 +136,9 @@ I screened a total of `r n_screened` datasets or literature, and obtained `r n_d
 #| label: validation-map
 #| fig-width: 8
 #| fig-height: 3
+#| fig-alt: >
+#|   Map of unique validation data locations (black crosses) over a terrain
+#|   basemap, with the Maliau 2 scenario site marked by a red square.
 
 # draw the map
 unique_locations <-
@@ -201,15 +213,17 @@ ggmap::ggmap(basemap) +
   theme(axis.title = element_blank())
 ```
 
-Validation data locations relative to the Maliau 2 scenario site. The Maliau 2 indicator is shown as a square marker greatly exaggerated and is not to scale.
+Validation data locations relative to the Maliau 2 scenario site. The Maliau 2
+indicator is shown as a square marker greatly exaggerated and is not to scale.
 
 ## Why many screened datasets are excluded / deferred
 
-The remaining `r n_screened_not_in_db` are split into **`r n_excluded` excluded** and **`r n_deferred` deferred**
-due to technical or scope reasons documented in the YAML `notes` field.
+The remaining `r n_screened_not_in_db` are split into
+**`r n_excluded` excluded** and **`r n_deferred` deferred** due to technical or
+scope reasons documented in the YAML `notes` field.
 
 | Group | Reason | No. datasets | Descriptions |
-|---|---|---:|---|
+| --- | --- | ---: | --- |
 | Excluded | No relevant variables | `r n_excluded_no_relevant_variables` | No soil or litter measurements match validation targets. Examples include taxonomic records without quantitative data, compositional data without C/N values, and measurements that cannot be converted to the needed pool or mass terms. |
 | Excluded | Insufficient metadata | `r n_excluded_insufficient_metadata` | e.g., Litter biomass is present, but the record lacks enough context to derive a carbon pool. |
 | Excluded | Duplicate source | `r n_excluded_duplicate_source` | The same data already used for input data. |
@@ -245,7 +259,8 @@ val_db_combined |>
   kable()
 ```
 
-*Orders of magnitude = $\log_{10}$(max / smallest positive value); zeros are ignored.
+*Orders of magnitude = $\log_{10}$(max / smallest positive value); zeros are
+ignored.
 
 ## Model performance
 
@@ -253,12 +268,18 @@ val_db_combined |>
 
 Now the actual validation itself.
 
-Plotting the predicted vs. observed: original scale and log--log scale. (Actually it's `log1p` or $\log(1+x)$ for accommodate for zeros.)
+Plotting the predicted vs. observed: original scale and log--log scale.
+(Actually it's `log1p` or $\log(1+x)$ for accommodate for zeros.)
 
 ```text {r}
 #| label: predicted-observed
 #| fig-width: 8
 #| fig-height: 4
+#| fig-alt: >
+#|   Two scatter plots of predicted versus observed values with a 1:1 line and
+#|   grey 5th-95th percentile error bars: original scale (left) and log1p
+#|   scale (right). Points inside Maliau 2 are filled black and larger; points
+#|   outside are white.
 
 # Factor order sets draw order after arrange(): "within" plotted last (on top)
 val_db_plot <-
@@ -312,15 +333,21 @@ patchwork::wrap_plots(p1, p2, guides = "collect") &
 
 ### Performance metrics
 
-Most raw-scale metrics are not good for cross-variable comparison because units and scales are not comparable. Our variables rarely conform to a Normal distribution:
+Most raw-scale metrics are not good for cross-variable comparison because units
+and scales are not comparable. Our variables rarely conform to a Normal
+distribution:
 
 - Contains zeros
 - Right skewed due to positive boundedness
 - Vary widely in scale and unit of measurement
-- *Rare but it happens*: some variable's values are always the same (due to limited spatiotemporal range or the way they aggregate/marginalise outputs to match empirical data); these constant data cannot use some variance-based metrics such as $R^2$
+- *Rare but it happens*: some variable's values are always the same (due to
+  limited spatiotemporal range or the way they aggregate/marginalise outputs to
+  match empirical data); these constant data cannot use some variance-based
+  metrics such as $R^2$
 
-`rmse_relative()` is the main cross-variable metric here because it is unitless (with its own caveats).
-As a skew-robust sensitivity check, we also compute `mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
+`rmse_relative()` is the main cross-variable metric here because it is unitless
+(with its own caveats). As a skew-robust sensitivity check, we also compute
+`mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
 
 ```text {r}
 #| label: performance-metrics
@@ -350,6 +377,45 @@ metrics_table <- bind_rows(raw_results, log_results) |>
   )
 
 metrics_table |>
+  mutate(
+    rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
+    mae = sprintf("%.3g", mae),
+    rmse = sprintf("%.3g", rmse),
+    ccc = sprintf("%.3g", ccc)
+  ) |>
+  kable()
+```
+
+Metrics split by `spatial_join_class`, for variables with both "within" and
+"outside" observations only:
+
+```text {r}
+#| label: performance-metrics-by-class
+
+vars_with_both <- val_db_combined |>
+  distinct(var_canonical, spatial_join_class) |>
+  count(var_canonical) |>
+  filter(n == 2) |>
+  pull(var_canonical)
+
+val_db_both <- val_db_combined |>
+  filter(var_canonical %in% vars_with_both)
+
+raw_results_class <- val_db_both |>
+  group_by(var_canonical, spatial_join_class) |>
+  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+
+log_results_class <- val_db_both |>
+  mutate(
+    value_canonical = log1p(value_canonical),
+    value_VE_q50 = log1p(value_VE_q50)
+  ) |>
+  group_by(var_canonical, spatial_join_class) |>
+  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+
+bind_rows(raw_results_class, log_results_class) |>
+  select(-`.estimator`) |>
+  pivot_wider(names_from = `.metric`, values_from = `.estimate`) |>
   mutate(
     rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
     mae = sprintf("%.3g", mae),
@@ -405,5 +471,6 @@ tibble::tibble(
 
 ## Thoughts
 
-- If we need more validation data, we could split the datasets used for input data into training and testing sets (reminder from Jacob).
+- If we need more validation data, we could split the datasets used for input
+  data into training and testing sets (reminder from Jacob).
 - ph

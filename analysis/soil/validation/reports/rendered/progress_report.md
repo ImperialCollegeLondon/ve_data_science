@@ -200,7 +200,7 @@ ggmap::ggmap(basemap) +
   theme(axis.title = element_blank())
 ```
 
-![](validation-map-1.png)
+<img src="validation-map-1.png" data-fig-alt="Map of unique validation data locations (black crosses) over a terrain basemap, with the Maliau 2 scenario site marked by a red square." />
 
 Validation data locations relative to the Maliau 2 scenario site. The
 Maliau 2 indicator is shown as a square marker greatly exaggerated and
@@ -212,7 +212,7 @@ The remaining 93 are split into **57 excluded** and **35 deferred** due
 to technical or scope reasons documented in the YAML `notes` field.
 
 | Group | Reason | No. datasets | Descriptions |
-|----|----|---:|----|
+| ---- | ---- | ---: | ---- |
 | Excluded | No relevant variables | 45 | No soil or litter measurements match validation targets. Examples include taxonomic records without quantitative data, compositional data without C/N values, and measurements that cannot be converted to the needed pool or mass terms. |
 | Excluded | Insufficient metadata | 2 | e.g., Litter biomass is present, but the record lacks enough context to derive a carbon pool. |
 | Excluded | Duplicate source | 10 | The same data already used for input data. |
@@ -248,7 +248,7 @@ val_db_combined |>
 ```
 
 | Variable | N | Unit | Min | Max | Orders of magnitude |
-|:---|---:|:---|---:|---:|---:|
+| :--- | ---: | :--- | ---: | ---: | ---: |
 | soil_respiration_CO2_mass | 974 | kg m-2 day-1 | -0.0097649 | 1.805760e-02 | 2.7 |
 | soil_nitrous_oxide_emission_N2O_mass | 973 | kg m-2 day-1 | -0.0000038 | 4.300000e-05 | 4.3 |
 | total_soil_n_per_volume | 353 | kg m^-3 | 0.4771187 | 4.819000e+02 | 3.0 |
@@ -328,7 +328,7 @@ patchwork::wrap_plots(p1, p2, guides = "collect") &
   theme(legend.position = "bottom")
 ```
 
-![](predicted-observed-1.png)
+<img src="predicted-observed-1.png" data-fig-alt="Two scatter plots of predicted versus observed values with a 1:1 line and grey 5th-95th percentile error bars: original scale (left) and log1p scale (right). Points inside Maliau 2 are filled black and larger; points outside are white." />
 
 ### Performance metrics
 
@@ -384,7 +384,7 @@ metrics_table |>
 ```
 
 | var_canonical | rmse_relative | mae | rmse | ccc |
-|:---|:---|:---|:---|:---|
+| :--- | :--- | :--- | :--- | :--- |
 | dissolved_phosphorus | 7.57% | 0.0119 | 0.0321 | -2.71e-08 |
 | soil_n_pool_ammonium_per_mass | 8.56% | 8.33e-06 | 3.92e-05 | 8.72e-05 |
 | soil_n_pool_inorganic_per_area | 64.36% | 0.00079 | 0.00103 | 0 |
@@ -401,10 +401,54 @@ metrics_table |>
 | total_soil_n_per_volume | 14.99% | 0.908 | 1.62 | 0.0169 |
 | total_soil_p_per_mass | 23.17% | 0.000152 | 0.000205 | 0 |
 
+Metrics split by `spatial_join_class`, for variables with both “within”
+and “outside” observations only:
+
+``` r
+vars_with_both <- val_db_combined |>
+  distinct(var_canonical, spatial_join_class) |>
+  count(var_canonical) |>
+  filter(n == 2) |>
+  pull(var_canonical)
+
+val_db_both <- val_db_combined |>
+  filter(var_canonical %in% vars_with_both)
+
+raw_results_class <- val_db_both |>
+  group_by(var_canonical, spatial_join_class) |>
+  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+
+log_results_class <- val_db_both |>
+  mutate(
+    value_canonical = log1p(value_canonical),
+    value_VE_q50 = log1p(value_VE_q50)
+  ) |>
+  group_by(var_canonical, spatial_join_class) |>
+  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+
+bind_rows(raw_results_class, log_results_class) |>
+  select(-`.estimator`) |>
+  pivot_wider(names_from = `.metric`, values_from = `.estimate`) |>
+  mutate(
+    rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
+    mae = sprintf("%.3g", mae),
+    rmse = sprintf("%.3g", rmse),
+    ccc = sprintf("%.3g", ccc)
+  ) |>
+  kable()
+```
+
+| var_canonical | spatial_join_class | rmse_relative | mae | rmse | ccc |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| dissolved_phosphorus | outside | 7.64% | 0.0121 | 0.0325 | 0 |
+| dissolved_phosphorus | within | 149.64% | 0.00443 | 0.00456 | 0 |
+| total_soil_n_per_volume | outside | 15.12% | 0.92 | 1.63 | 0.0174 |
+| total_soil_n_per_volume | within | 35.74% | 0.176 | 0.203 | 5.73e-31 |
+
 **Summary by metric:**
 
 | Metric | Best | Worst |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | rmse_relative | dissolved_phosphorus (0.0757) | soil_respiration (2.94) |
 | mae | soil_n_pool_nitrate_per_mass (2.13e-06) | total_soil_c_per_volume (3.55) |
 | rmse | soil_n_pool_nitrate_per_mass (3.45e-06) | total_soil_c_per_volume (3.62) |
