@@ -439,9 +439,9 @@ Best and worst performers by metric:
 
 ```text
 # A tibble: 4 × 3
-  Metric        Best                                    Worst                   
-  <chr>         <chr>                                   <chr>                   
-1 rmse_relative dissolved_phosphorus (0.0757)           soil_respiration (2.94) 
+  Metric        Best                                    Worst
+  <chr>         <chr>                                   <chr>
+1 rmse_relative dissolved_phosphorus (0.0757)           soil_respiration (2.94)
 2 mae           soil_n_pool_nitrate_per_mass (2.13e-06) total_soil_c_per_volume…
 3 rmse          soil_n_pool_nitrate_per_mass (3.45e-06) total_soil_c_per_volume…
 4 ccc_loss      total_soil_n_per_volume (0.983)         soil_n_pool_nitrate_per…
