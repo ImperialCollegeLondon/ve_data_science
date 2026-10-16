@@ -117,3 +117,75 @@ name = "root_c_productivity_mean"
 description = "Mean root carbon productivity pooled across all cells and timesteps in the selected period. NA outside that period"
 unit = "Mg C ha-1 year-1"
 function = "calculate_ve_realised_tissue_productivity"
+
+[[variable]]
+name = "density_carnivorous_aquatic_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_carnivorous_arboreal_terrestrial_medium_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_carnivorous_borrowing_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_carnivorous_terrestrial_arboreal_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_herbivorous_terrestrial_medium_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_herbivorous_terrestrial_small_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_omnivorous_arboreal_primate_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_omnivorous_arboreal_small_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_omnivorous_arboreal_terrestrial_large_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_omnivorous_arboreal_terrestrial_small_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_omnivorous_terrestrial_bird_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_omnivorous_terrestrial_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
