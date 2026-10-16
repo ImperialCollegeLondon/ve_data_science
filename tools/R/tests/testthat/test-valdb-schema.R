@@ -50,6 +50,8 @@ test_that("new_schema_template returns the builder contract", {
     c(
       "source_id",
       "data_file",
+      "data_file_original",
+      "preprocess_script",
       "skip_rows",
       "variables",
       "dedup_key",

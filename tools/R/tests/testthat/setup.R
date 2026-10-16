@@ -162,6 +162,11 @@ mock_arrays <- list(
     14:17,
     dim = c(2, 3),
     dimnames = list(time_index = time_index, cell_id = cell_id)
+  ),
+  soil_nitrous_oxide_emission = array(
+    15:18,
+    dim = c(2, 3),
+    dimnames = list(time_index = time_index, cell_id = cell_id)
   )
 )
 
