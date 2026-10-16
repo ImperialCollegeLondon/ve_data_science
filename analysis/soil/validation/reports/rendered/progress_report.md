@@ -437,15 +437,31 @@ val_db_combined |>
 
 Best and worst performers by metric:
 
-```text
-# A tibble: 4 × 3
-  Metric        Best                                    Worst                   
-  <chr>         <chr>                                   <chr>                   
-1 rmse_relative dissolved_phosphorus (0.0757)           soil_respiration (2.94) 
-2 mae           soil_n_pool_nitrate_per_mass (2.13e-06) total_soil_c_per_volume…
-3 rmse          soil_n_pool_nitrate_per_mass (3.45e-06) total_soil_c_per_volume…
-4 ccc_loss      total_soil_n_per_volume (0.983)         soil_n_pool_nitrate_per…
+``` r
+metrics_table |>
+  pivot_longer(-var_canonical, names_to = "Metric") |>
+  summarise(
+    Best = sprintf(
+      "%s (%.3g)",
+      var_canonical[which.min(value)],
+      value[which.min(value)]
+    ),
+    Worst = sprintf(
+      "%s (%.3g)",
+      var_canonical[which.max(value)],
+      value[which.max(value)]
+    ),
+    .by = Metric
+  ) |>
+  kable()
 ```
+
+| Metric | Best | Worst |
+| :--- | :--- | :--- |
+| rmse_relative | dissolved_phosphorus (0.0757) | soil_respiration (2.94) |
+| mae | soil_n_pool_nitrate_per_mass (2.13e-06) | total_soil_c_per_volume (3.55) |
+| rmse | soil_n_pool_nitrate_per_mass (3.45e-06) | total_soil_c_per_volume (3.62) |
+| ccc_loss | total_soil_n_per_volume (0.983) | soil_n_pool_nitrate_per_mass (1.02) |
 
 ## Thoughts
 

@@ -417,8 +417,7 @@ val_db_combined |>
 Best and worst performers by metric:
 
 ```text {r}
-#| echo: false
-
+#| label: best-worst-performers
 metrics_table |>
   pivot_longer(-var_canonical, names_to = "Metric") |>
   summarise(
@@ -433,7 +432,8 @@ metrics_table |>
       value[which.max(value)]
     ),
     .by = Metric
-  )
+  ) |>
+  kable()
 ```
 
 ## Thoughts
