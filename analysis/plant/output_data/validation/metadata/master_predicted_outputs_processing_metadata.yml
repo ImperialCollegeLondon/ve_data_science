@@ -1,6 +1,6 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-10-07'
+generated_on: '2026-10-16'
 scripts:
 - script_path: realised_tissue_productivity_maliau_2.R
   title: realised_tissue_productivity_maliau_2
@@ -23,6 +23,9 @@ scripts:
     description: |
       Virtual Ecosystem plant cohort output containing realised tissue carbon
       mass per individual, cohort abundance, cell identifiers, and timestamps.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid coordinate vectors used to map cell IDs.
   - name: master_observed_data_processing_metadata.yml
     path: analysis/plant/output_data/validation/metadata
     description: |
@@ -46,6 +49,16 @@ scripts:
       type: integer
       units: dimensionless
       description: VE spatial cell identifier.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre northing in the grid CRS.
     - name: time
       type: date
       units: ISO 8601 date
@@ -161,7 +174,7 @@ scripts:
     to kg C ha-1.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: plants_cohort_data.csv
     path: data/scenarios/maliau/maliau_2/out
@@ -174,9 +187,6 @@ scripts:
   - name: compiled_configuration.toml
     path: data/scenarios/maliau/maliau_2/out
     description: Simulation start date and update interval.
-  - name: model_data.nc
-    path: data/scenarios/maliau/maliau_2/out
-    description: VE cell IDs and projected cell-centre coordinates for the full grid.
   - name: tree_standing_carbon_mass_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
     description: Observed plot data used for diagnostic figures only.
@@ -295,7 +305,6 @@ scripts:
   - sf
   - toml
   - reticulate
-  - xarray
   usage_notes: |
     Initialisation rows without whole_crown_gpp are excluded before cohort
     aggregation to avoid double-counting timestep zero.

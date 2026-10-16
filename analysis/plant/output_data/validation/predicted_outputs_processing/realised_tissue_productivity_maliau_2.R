@@ -226,6 +226,7 @@ required_columns <- c(
   "cell_x",
   "cell_y",
   "time_index",
+  "n_individuals",
   "whole_crown_gpp",
   "stem_C_biomass",
   "foliage_C_biomass",

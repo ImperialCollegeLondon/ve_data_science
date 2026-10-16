@@ -1,6 +1,6 @@
 title: master_observed_data_processing_metadata
 generated_by: analysis/plant/output_data/validation/observed_data_processing/master_observed_data_processing.R
-generated_on: '2026-10-07'
+generated_on: '2026-10-16'
 scripts:
 - script_path: carbon_balance_components_maliau.R
   title: carbon_balance_components_maliau
@@ -1129,7 +1129,7 @@ scripts:
       spatial_extent: One value for each selected plot OG2_720 to OG2_728.
       temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
       description: Time between the mean 2011 and 2014 census dates per plot.
-    - name: obs_stem_increment_kg_ha_y
+    - name: obs_stem_increment_kg_ha_yr
       type: numeric
       units: kg C ha-1 y-1
       spatial_extent: One value for each selected plot OG2_720 to OG2_728.
