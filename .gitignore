@@ -43,7 +43,6 @@ data/derived/soil/validation/datasets/nottingham_2021/*.csv
 data/scenarios/*/*/*/**
 !data/scenarios/maliau/*/change_log.txt
 !data/scenarios/maliau/maliau_2/config/config.toml
-!data/scenarios/maliau/maliau_2/config/config_latest_release.toml
 data/scenarios/runtime_per_cell
 
 # troubleshoot files
