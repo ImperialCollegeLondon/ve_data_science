@@ -23,14 +23,20 @@ execute:
 
 ## Progress over the past few months
 
-- Built a validation database pipeline, see docs
+- I built a validation database pipeline, see docs
   [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
-- Screened, add and harmonise datasets using the database functions.
+- I screened, added and harmonised datasets using the database functions.
 - I did not limit datasets to only Maliau or old growth. I included SAFE and
-  disturbed forests since we are going to need them in future scenarios. The
-  database has spatial coordinates to filter what we need (can be combined with
-  all sorts of GIS layer, including SAFE layers).
-- Most effort went into harmonisation, including units and derived variables.
+  disturbed forests since we will need them in future scenarios. The database
+  has spatial coordinates, so I can filter to what we need (and combine them
+  with any GIS layer, including SAFE layers).
+- I also did a broader search using the OpenAlex website.
+- Most of my effort went into harmonisation, including units and derived
+  variables.
+
+As VE is being developed, the results below will likely change dramatically (we
+are already seeing this going from v0.2.1 to v0.2.3); therefore I'll focus on
+the overall findings.
 
 ```text {r}
 #| label: setup
@@ -123,12 +129,14 @@ p_within_spatial <- val_db_combined$spatial_join_class |>
   pluck("within")
 ```
 
-I screened a total of `r n_screened` datasets or literature, and obtained
-`r n_datasets` that can be included into the validation database. The included
-datasets contained a total of `r n_data` data points.
+I screened a total of `r n_screened` datasets or literature sources, and
+`r n_datasets` of them could be included in the validation database. The
+included datasets contain a total of `r n_data` data points.
 `r round(p_within_temporal*100, 1)`% of data points fall within the simulation's
 temporal range, but only `r round(p_within_spatial*100, 1)`% fall within the
-spatial extent of Maliau 2.
+spatial extent of Maliau 2. `r round(p_within_temporal*100, 1)`% of data points
+fall within the simulation's temporal range, but only
+`r round(p_within_spatial*100, 1)`% fall within the spatial extent of Maliau 2.
 
 ## Where datasets come from
 
@@ -218,9 +226,9 @@ indicator is shown as a square marker greatly exaggerated and is not to scale.
 
 ## Why many screened datasets are excluded / deferred
 
-The remaining `r n_screened_not_in_db` are split into
-**`r n_excluded` excluded** and **`r n_deferred` deferred** due to technical or
-scope reasons documented in the YAML `notes` field.
+Of the remaining `r n_screened_not_in_db`, I excluded **`r n_excluded`** and
+deferred **`r n_deferred`** for technical or scope reasons, which I documented
+in the YAML `notes` field.
 
 | Group | Reason | No. datasets | Descriptions |
 | --- | --- | ---: | --- |
@@ -232,7 +240,7 @@ scope reasons documented in the YAML `notes` field.
 
 ## Validation variables summary
 
-In the final database, the empirical data that map to VE outputs are:
+In the final database, the empirical data that I could map to VE outputs are:
 
 ```text {r}
 #| label: validation-summary-table
@@ -268,8 +276,9 @@ ignored.
 
 Now the actual validation itself.
 
-Plotting the predicted vs. observed: original scale and log--log scale.
-(Actually it's `log1p` or $\log(1+x)$ for accommodate for zeros.)
+I plot predicted vs. observed values on the original scale and on a log--log
+scale. (The log scale is actually `log1p`, or $\log(1+x)$, which I use to
+accommodate zeros.)
 
 ```text {r}
 #| label: predicted-observed
@@ -319,8 +328,8 @@ patchwork::wrap_plots(p1, p2, guides = "collect") &
 
 ### Performance metrics
 
-Most raw-scale metrics are not good for cross-variable comparison because units
-and scales are not comparable. Our variables rarely conform to a Normal
+I avoid most raw-scale metrics for cross-variable comparison because units and
+scales are not comparable. Our variables rarely conform to a Normal
 distribution:
 
 - Contains zeros
@@ -331,14 +340,15 @@ distribution:
   match empirical data); these constant data cannot use some variance-based
   metrics such as $R^2$ or variance-based normalisation
 
-`rmse_relative()` is the main cross-variable metric because it is unitless.
-Caveats: the range denominator is set by the two most extreme observations, so
-outliers shrink the score; it is `Inf` for constant variables; and it is not
-comparable across variables with very different range-to-spread ratios.
+I use `rmse_relative()` as the main cross-variable metric because it is
+unitless. Caveats: the range denominator is set by the two most extreme
+observations, so outliers shrink the score; it is `Inf` for constant variables;
+and it is not comparable across variables with very different range-to-spread
+ratios.
 
-As a skew-robust sensitivity check, `mae()`, `rmse()` and `ccc()` are also
-computed after a `log1p()` transform. Equations follow the `yardstick` package,
-with $y_i$ = truth and $\hat{y}_i$ = estimate.
+As a skew-robust sensitivity check, I also compute `mae()`, `rmse()` and `ccc()`
+after a `log1p()` transform. Equations follow the `yardstick` package, with
+$y_i$ = truth and $\hat{y}_i$ = estimate.
 
 | Metric | Function | Unit | Transformation | Direction | Perfect score | Equation |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -349,15 +359,13 @@ with $y_i$ = truth and $\hat{y}_i$ = estimate.
 
 Notes:
 
-- `rmse_relative()` returns `Inf` when all true values are identical (zero
-  range).
-- `rmse_relative()` is sensitive to low-variance observations because of the
-  range denominator.
 - `mae()` and `rmse()` are comparable across variables only loosely, because
   `log1p` values still depend on each variable's original scale.
-- `ccc()` ranges from -1 to 1 and penalises both poor correlation and bias. It
-  is reported as the loss `ccc_loss` $= 1 - \text{CCC}$ (range 0 to 2) so that
-  all metrics are minimised in the calibration objective.
+- `ccc()` ranges from -1 to 1 and penalises both poor correlation and bias. I
+  report it as the loss `ccc_loss` $= 1 - \text{CCC}$ (range 0 to 2) so that all
+  metrics are minimised in the calibration objective.
+- There are many more performance metrics, but I start with only a few to avoid
+  cluttering this report.
 
 ```text {r}
 #| label: performance-metrics
@@ -365,125 +373,97 @@ Notes:
 raw_scale_metrics <- metric_set(rmse_relative)
 log_scale_metrics <- metric_set(mae, rmse, ccc)
 
-raw_results <- val_db_combined |>
-  group_by(var_canonical) |>
-  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50) |>
-  mutate(scale = "raw")
+compute_metrics <- function(data, by = "var_canonical") {
+  raw <- data |>
+    group_by(across(all_of(by))) |>
+    raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
+  logged <- data |>
+    mutate(across(c(value_canonical, value_VE_q50), log1p)) |>
+    group_by(across(all_of(by))) |>
+    log_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
 
-log_results <- val_db_combined |>
-  mutate(
-    value_canonical = log1p(value_canonical),
-    value_VE_q50 = log1p(value_VE_q50)
-  ) |>
-  group_by(var_canonical) |>
-  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50) |>
-  mutate(scale = "log1p")
+  bind_rows(raw, logged) |>
+    select(-`.estimator`) |>
+    pivot_wider(names_from = `.metric`, values_from = `.estimate`) |>
+    # Loss form so every metric is minimised in the calibration objective
+    mutate(ccc_loss = 1 - ccc, .keep = "unused")
+}
 
-metrics_table <- bind_rows(raw_results, log_results) |>
-  select(-`.estimator`, -scale) |>
-  pivot_wider(
-    names_from = `.metric`,
-    values_from = `.estimate`
-  ) |>
-  # Loss form so every metric is minimised in the calibration objective
-  mutate(ccc_loss = 1 - ccc, .keep = "unused")
+kable_metrics <- function(metrics) {
+  metrics |>
+    mutate(
+      rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
+      across(c(mae, rmse, ccc_loss), \(x) sprintf("%.3g", x))
+    ) |>
+    kable()
+}
 
-metrics_table |>
-  mutate(
-    rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
-    mae = sprintf("%.3g", mae),
-    rmse = sprintf("%.3g", rmse),
-    ccc_loss = sprintf("%.3g", ccc_loss)
-  ) |>
-  kable()
+metrics_table <- compute_metrics(val_db_combined)
+kable_metrics(metrics_table)
 ```
 
-Metrics split by `spatial_join_class`, for variables with both "within" and
-"outside" observations only:
+Metrics split by within Maliau vs. outside of Maliau (only some variables
+included both spatial classes):
 
 ```text {r}
 #| label: performance-metrics-by-class
 
-vars_with_both <- val_db_combined |>
-  distinct(var_canonical, spatial_join_class) |>
-  count(var_canonical) |>
-  filter(n == 2) |>
-  pull(var_canonical)
-
-val_db_both <- val_db_combined |>
-  filter(var_canonical %in% vars_with_both)
-
-raw_results_class <- val_db_both |>
-  group_by(var_canonical, spatial_join_class) |>
-  raw_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
-
-log_results_class <- val_db_both |>
-  mutate(
-    value_canonical = log1p(value_canonical),
-    value_VE_q50 = log1p(value_VE_q50)
-  ) |>
-  group_by(var_canonical, spatial_join_class) |>
-  log_scale_metrics(truth = value_canonical, estimate = value_VE_q50)
-
-bind_rows(raw_results_class, log_results_class) |>
-  select(-`.estimator`) |>
-  pivot_wider(names_from = `.metric`, values_from = `.estimate`) |>
-  mutate(ccc_loss = 1 - ccc, .keep = "unused") |>
-  mutate(
-    rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
-    mae = sprintf("%.3g", mae),
-    rmse = sprintf("%.3g", rmse),
-    ccc_loss = sprintf("%.3g", ccc_loss)
-  ) |>
-  kable()
+val_db_combined |>
+  filter(n_distinct(spatial_join_class) == 2, .by = var_canonical) |>
+  compute_metrics(by = c("var_canonical", "spatial_join_class")) |>
+  kable_metrics()
 ```
 
-**Summary by metric:**
+Best and worst performers by metric:
 
 ```text {r}
 #| echo: false
 
-format_summary <- function(df, metric_name, lower_is_better = TRUE) {
-  vals <- df[[metric_name]]
-  best_idx <- if (lower_is_better) which.min(vals) else which.max(vals)
-  worst_idx <- if (lower_is_better) which.max(vals) else which.min(vals)
-
-  list(
-    best = paste0(
-      df$var_canonical[best_idx],
-      " (",
-      sprintf("%.3g", vals[best_idx]),
-      ")"
+metrics_table |>
+  pivot_longer(-var_canonical, names_to = "Metric") |>
+  summarise(
+    Best = sprintf(
+      "%s (%.3g)",
+      var_canonical[which.min(value)],
+      value[which.min(value)]
     ),
-    worst = paste0(
-      df$var_canonical[worst_idx],
-      " (",
-      sprintf("%.3g", vals[worst_idx]),
-      ")"
-    )
+    Worst = sprintf(
+      "%s (%.3g)",
+      var_canonical[which.max(value)],
+      value[which.max(value)]
+    ),
+    .by = Metric
   )
-}
-
-tibble::tibble(
-  Metric = c("rmse_relative", "mae", "rmse", "ccc_loss"),
-  Best = c(
-    format_summary(metrics_table, "rmse_relative")$best,
-    format_summary(metrics_table, "mae")$best,
-    format_summary(metrics_table, "rmse")$best,
-    format_summary(metrics_table, "ccc_loss")$best
-  ),
-  Worst = c(
-    format_summary(metrics_table, "rmse_relative")$worst,
-    format_summary(metrics_table, "mae")$worst,
-    format_summary(metrics_table, "rmse")$worst,
-    format_summary(metrics_table, "ccc_loss")$worst
-  )
-) |>
-  kable(caption = "Best and worst performers by metric")
 ```
 
 ## Thoughts
 
-- If we need more validation data, we could split the datasets used for input
+- Overall the predicted--observed plot looks **better than expected**. But:
+  - Within-Maliau validation data fall closer to the 1:1 line, which is great,
+    but I need to check if there is any self-fulling prophecy (e.g., input data
+    already near correct and the variable was not dynamic during simulation.)
+  - Although the log--log scale reigned in the small and large values, I think
+    the relative ranking can still be misleading, because it is very hard for
+    very large-valued variables to take very small values, so the positive
+    correlation on a log--log plot is sort of expected. I have explored a few
+    normalised or standardised comparisons, but each has its own quirks and I
+    need more time to do some hard thinking.
+- Performance is quite inconsistent across the chosen metrics, indicating that
+  **metric choice is very crucial** to our conclusion.
+- Within-Maliau data performed better than Outside-Maliau data in MAE and RMSE,
+  but the opposite for normalised RMSE. I think the latter is an artefact of a
+  lower value range in Within-Maliau data (because we have much fewer data
+  points from within Maliau), so the range-normalisation demonitor was small,
+  inflating the normalised RMSE.
+- CCC loss just look weird all over the place. Need to investigate. But gut
+  feeling is that **variance--covariance based metric may not work well** on our
+  small-ish validation datasets. This indicates that $R^2$ will also work
+  poorly.
+- Any metrics we use need to **include calibration in mind**. Calibration needs
+  an objective function that aggregates unitless metrics across variables. Jacob
+  and I have had some discussion on this.
+- There is really not a lot of validation data exactly from the Maliau 2 spatial
+  extent. Not even the entire Maliau Basin. See extended thoughts
+  [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/notes/marginal_validation.md).
+- If we need more validation data, I could split the datasets used for input
   data into training and testing sets (reminder from Jacob).
-- ph
