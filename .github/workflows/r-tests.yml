@@ -43,9 +43,7 @@ jobs:
           enable-cache: true
 
       - name: Install Python dependencies
-        run: |
-          uv venv .venv
-          uv pip install --python .venv/bin/python tomli-w pandas matplotlib
+        run: uv sync --frozen
 
       # --- System libraries required by R packages ---
       - name: Install system dependencies
