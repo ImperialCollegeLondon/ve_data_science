@@ -1,0 +1,44 @@
+# This file defines the variable mappings for:
+# tree_standing_carbon_mass_comparison_maliau_2.R
+
+variable_mappings:
+  - observed:
+      file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv"
+      variable: "obs_stem_mass_2011_kg_ha"
+      se_variable: "obs_stem_mass_2011_se_kg_ha"
+      date_variable: "census_date_2011"
+    predicted:
+      file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
+      variable: "stem_c_mass_kg_ha"
+      sd_variable: null
+      date_variable: "timestep_end_date"
+  - observed:
+      file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv"
+      variable: "obs_stem_mass_2014_kg_ha"
+      se_variable: "obs_stem_mass_2014_se_kg_ha"
+      date_variable: "census_date_2014"
+    predicted:
+      file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
+      variable: "stem_c_mass_kg_ha"
+      sd_variable: null
+      date_variable: "timestep_end_date"
+  - observed:
+      file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv"
+      variable: "obs_leaf_mass_2011_kg_ha"
+      se_variable: "obs_leaf_mass_2011_se_kg_ha"
+      date_variable: "census_date_2011"
+    predicted:
+      file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
+      variable: "foliage_c_mass_kg_ha"
+      sd_variable: null
+      date_variable: "timestep_end_date"
+  - observed:
+      file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.csv"
+      variable: "obs_leaf_mass_2014_kg_ha"
+      se_variable: "obs_leaf_mass_2014_se_kg_ha"
+      date_variable: "census_date_2014"
+    predicted:
+      file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.csv"
+      variable: "foliage_c_mass_kg_ha"
+      sd_variable: null
+      date_variable: "timestep_end_date"
