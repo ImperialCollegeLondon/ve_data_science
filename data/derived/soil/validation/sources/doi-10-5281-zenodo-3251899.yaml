@@ -81,11 +81,11 @@ datasets:
           Soil N2O flux. Samples collected and used gas chromotography for
           analysis.
     dedup_key:
-      - site
-      - chamber_id
+      - Location
       - date
     coordinates:
       from_file: data/primary/soil/drewer_2019/locations.csv
+      match_data_column: Location
     temporal:
       format: "%d/%m/%Y"
       timezone: Asia/Kuching
