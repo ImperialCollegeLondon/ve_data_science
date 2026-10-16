@@ -1,14 +1,17 @@
 # Soil–Litter validation progress report
 
 Lai, Hao Ran
-2026-10-07
+2026-10-16
 
-## Overview
+## Progress over the past few months
 
-- Ran the `maliau_2` scenario with VE version v0.2.1
 - Built a validation database pipeline, see docs
   [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
 - Screened, add and harmonise datasets using the database functions.
+- I did not limit datasets to only Maliau or old growth. I included SAFE
+  and disturbed forests since we are going to need them in future
+  scenarios. The database has spatial coordinates to filter what we need
+  (can be combined with all sorts of GIS layer, including SAFE layers).
 - Most effort went into harmonisation, including units and derived
   variables.
 
@@ -22,12 +25,41 @@ library(toml)
 library(here)
 library(yardstick)
 source(here("tools/R/R/valdb.R"))
+source(here("tools/R/R/summarise_ve_config.R"))
 
 # Read the validation database
 val_db_combined <-
   open_dataset(here("data/derived/soil/validation/database_combined")) |>
   collect()
 ```
+
+## Simulation settings
+
+``` r
+out_dir <- here("data/scenarios/maliau/maliau_2/out")
+invisible(summarise_ve_config(
+  file.path(out_dir, "compiled_configuration.toml"),
+  file.path(out_dir, "logfile.log")
+))
+```
+
+- **VE version**: v0.2.3
+- **Models**: AbioticSimple, Hydrology, Animal, Plants, Soil, Litter
+- **Grid**: 10 x 10 cells
+- **Resolution**: 100 m
+- **Extent (bbox)**: xmin: 495559.3 ymin: 524298.8 xmax: 496559.3 ymax:
+  525298.8
+- **Time period**: start 2010-01-01, length 11 years, update interval 1
+  month
+- **Input files**:
+  - `era5_maliau_10x10_2010_2020.nc`
+  - `elevation_maliau_10x10.nc`
+  - `plant_input_data_maliau_2.nc`
+  - `soil_maliau.nc`
+  - `litter_maliau.nc`
+  - `animal_functional_groups_Maliau_level3.csv`
+  - `plant_pft_definitions_maliau_2.csv`
+  - `cohort_data_1_cm_maliau_2.csv`
 
 ## Datasets included
 
@@ -86,10 +118,10 @@ p_within_spatial <- val_db_combined$spatial_join_class |>
   pluck("within")
 ```
 
-I screened a total of 103 datasets or literature, and obtained 8 that
+I screened a total of 103 datasets or literature, and obtained 10 that
 can be included into the validation database. The included datasets
-contained a total of 1778 data points. 100% of data points fall within
-the simulation’s temporal range, but only 1.2% fall within the spatial
+contained a total of 3750 data points. 100% of data points fall within
+the simulation’s temporal range, but only 0.3% fall within the spatial
 extent of Maliau 2.
 
 ## Where datasets come from
@@ -176,7 +208,7 @@ is not to scale.
 
 ## Why many screened datasets are excluded / deferred
 
-The remaining 95 are split into **57 excluded** and **35 deferred** due
+The remaining 93 are split into **57 excluded** and **35 deferred** due
 to technical or scope reasons documented in the YAML `notes` field.
 
 | Group | Reason | No. datasets | Descriptions |
@@ -198,32 +230,43 @@ val_db_combined |>
     n_obs = n(),
     min_val = min(value_canonical, na.rm = TRUE),
     max_val = max(value_canonical, na.rm = TRUE),
+    # Span uses positive values only, since zeros have no log
+    oom_span = log10(max_val / min(value_canonical[value_canonical > 0])),
     .groups = "drop"
   ) |>
   arrange(desc(n_obs)) |>
+  mutate(oom_span = round(oom_span, 1)) |>
   select(
     Variable = var_canonical,
     N = n_obs,
     Unit = unit_canonical,
     Min = min_val,
-    Max = max_val
+    Max = max_val,
+    `Orders of magnitude` = oom_span
   ) |>
   kable()
 ```
 
-| Variable                       |   N | Unit     |         Min |          Max |
-|:-------------------------------|----:|:---------|------------:|-------------:|
-| total_soil_n_per_volume        | 353 | kg m^-3  |   0.4771187 | 4.819000e+02 |
-| soil_n_pool_ammonium_per_mass  | 302 | kg kg^-1 |   0.0000000 | 4.584000e-04 |
-| soil_n_pool_nitrate_per_mass   | 302 | kg kg^-1 |   0.0000000 | 2.480000e-05 |
-| soil_p_pool_labile_per_mass    | 300 | kg kg^-1 |   0.0000017 | 3.290000e-05 |
-| dissolved_phosphorus           | 297 | kg m^-3  |   0.0009088 | 4.888383e-01 |
-| total_soil_c_per_mass          |  67 | kg kg^-1 |   0.0034059 | 4.764000e+01 |
-| total_soil_n_per_mass          |  67 | kg kg^-1 |   0.0002437 | 1.770000e+00 |
-| total_soil_c_per_volume        |  56 | kg m^-3  | 584.2000000 | 1.065060e+04 |
-| total_soil_p_per_mass          |  20 | kg kg^-1 |   0.0000064 | 8.912000e-04 |
-| total_soil_c_per_area          |  11 | kg m^-2  |   2.6540000 | 2.052900e+01 |
-| soil_n_pool_inorganic_per_area |   3 | kg m^-2  |   0.0003300 | 1.930000e-03 |
+| Variable | N | Unit | Min | Max | Orders of magnitude |
+|:---|---:|:---|---:|---:|---:|
+| soil_respiration_CO2_mass | 974 | kg m-2 day-1 | -0.0097649 | 1.805760e-02 | 2.7 |
+| soil_nitrous_oxide_emission_N2O_mass | 973 | kg m-2 day-1 | -0.0000038 | 4.300000e-05 | 4.3 |
+| total_soil_n_per_volume | 353 | kg m^-3 | 0.4771187 | 4.819000e+02 | 3.0 |
+| soil_n_pool_ammonium_per_mass | 302 | kg kg^-1 | 0.0000000 | 4.584000e-04 | 5.1 |
+| soil_n_pool_nitrate_per_mass | 302 | kg kg^-1 | 0.0000000 | 2.480000e-05 | 3.9 |
+| soil_p_pool_labile_per_mass | 300 | kg kg^-1 | 0.0000017 | 3.290000e-05 | 1.3 |
+| dissolved_phosphorus | 297 | kg m^-3 | 0.0009088 | 4.888383e-01 | 2.7 |
+| total_soil_c_per_mass | 67 | kg kg^-1 | 0.0034059 | 4.764000e+01 | 4.1 |
+| total_soil_n_per_mass | 67 | kg kg^-1 | 0.0002437 | 1.770000e+00 | 3.9 |
+| total_soil_c_per_volume | 56 | kg m^-3 | 584.2000000 | 1.065060e+04 | 1.3 |
+| total_soil_p_per_mass | 20 | kg kg^-1 | 0.0000064 | 8.912000e-04 | 2.1 |
+| soil_respiration_CO2_molar | 14 | mol m-2 day-1 | 0.2090970 | 5.262030e-01 | 0.4 |
+| soil_respiration | 11 | kg m-2 day-1 | 0.0028283 | 4.085000e-03 | 0.2 |
+| total_soil_c_per_area | 11 | kg m^-2 | 2.6540000 | 2.052900e+01 | 0.9 |
+| soil_n_pool_inorganic_per_area | 3 | kg m^-2 | 0.0003300 | 1.930000e-03 | 0.8 |
+
+\*Orders of magnitude = $\log_{10}$(max / smallest positive value);
+zeros are ignored. `Inf`/`NA` means no positive values.
 
 ## Model performance
 
@@ -317,27 +360,37 @@ metrics_table |>
   kable()
 ```
 
-| var_canonical                  | rmse_relative | mae      | rmse     | ccc       |
-|:-------------------------------|:--------------|:---------|:---------|:----------|
-| dissolved_phosphorus           | 7.57%         | 0.0119   | 0.0321   | -1.54e-05 |
-| soil_n_pool_ammonium_per_mass  | 71.50%        | 0.000326 | 0.000328 | 0.000336  |
-| soil_n_pool_inorganic_per_area | 9446.02%      | 0.141    | 0.141    | 0         |
-| soil_n_pool_nitrate_per_mass   | 14.75%        | 2.3e-06  | 3.65e-06 | 0.00208   |
-| soil_p_pool_labile_per_mass    | 22.24%        | 6.13e-06 | 6.94e-06 | 0         |
-| total_soil_c_per_area          | 27.23%        | 0.421    | 0.491    | -0.0182   |
-| total_soil_c_per_mass          | 19.85%        | 0.742    | 1.38     | -0.000697 |
-| total_soil_c_per_volume        | 27.90%        | 3.87     | 3.93     | 0         |
-| total_soil_n_per_mass          | 24.63%        | 0.153    | 0.301    | 6.04e-06  |
-| total_soil_n_per_volume        | 14.94%        | 0.777    | 1.5      | -0.0179   |
-| total_soil_p_per_mass          | 27.25%        | 0.000215 | 0.000241 | 0         |
+| var_canonical | rmse_relative | mae | rmse | ccc |
+|:---|:---|:---|:---|:---|
+| dissolved_phosphorus | 7.57% | 0.0119 | 0.0321 | -2.71e-08 |
+| soil_n_pool_ammonium_per_mass | 8.56% | 8.33e-06 | 3.92e-05 | 8.72e-05 |
+| soil_n_pool_inorganic_per_area | 64.36% | 0.00079 | 0.00103 | 0 |
+| soil_n_pool_nitrate_per_mass | 13.92% | 2.13e-06 | 3.45e-06 | -0.0204 |
+| soil_nitrous_oxide_emission_N2O_mass | 8.56% | 2.51e-06 | 4e-06 | -4.38e-05 |
+| soil_p_pool_labile_per_mass | 13.01% | 2.88e-06 | 4.06e-06 | 0 |
+| soil_respiration | 293.88% | 0.00367 | 0.00369 | 0 |
+| soil_respiration_CO2_mass | 13.95% | 0.00316 | 0.00387 | -3.16e-05 |
+| soil_respiration_CO2_molar | 136.51% | 0.345 | 0.355 | -2.35e-37 |
+| total_soil_c_per_area | 30.70% | 0.534 | 0.611 | 0 |
+| total_soil_c_per_mass | 19.84% | 0.747 | 1.37 | -0.00138 |
+| total_soil_c_per_volume | 27.81% | 3.55 | 3.62 | 0 |
+| total_soil_n_per_mass | 24.65% | 0.153 | 0.301 | -3.23e-05 |
+| total_soil_n_per_volume | 14.99% | 0.908 | 1.62 | 0.0169 |
+| total_soil_p_per_mass | 23.17% | 0.000152 | 0.000205 | 0 |
 
 **Summary by metric:**
 
 | Metric | Best | Worst |
 |:---|:---|:---|
-| rmse_relative | dissolved_phosphorus (0.0757) | soil_n_pool_inorganic_per_area (94.5) |
-| mae | soil_n_pool_nitrate_per_mass (2.3e-06) | total_soil_c_per_volume (3.87) |
-| rmse | soil_n_pool_nitrate_per_mass (3.65e-06) | total_soil_c_per_volume (3.93) |
-| ccc | soil_n_pool_nitrate_per_mass (0.00208) | total_soil_c_per_area (-0.0182) |
+| rmse_relative | dissolved_phosphorus (0.0757) | soil_respiration (2.94) |
+| mae | soil_n_pool_nitrate_per_mass (2.13e-06) | total_soil_c_per_volume (3.55) |
+| rmse | soil_n_pool_nitrate_per_mass (3.45e-06) | total_soil_c_per_volume (3.62) |
+| ccc | total_soil_n_per_volume (0.0169) | soil_n_pool_nitrate_per_mass (-0.0204) |
 
 Best and worst performers by metric
+
+## Afterthoughts
+
+- If we need more validation data, we could split the datasets used for
+
+## input data into training and testing sets (reminder from Jacob)

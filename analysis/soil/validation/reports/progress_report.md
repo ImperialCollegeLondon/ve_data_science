@@ -11,7 +11,7 @@ jupyter:
     display_name: Python 3 (ipykernel)
     language: python
     name: python3
-    path: C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\share\jupyter\kernels\python3
+    path: C:\Users\User\Documents\ve_data_science\.venv\share\jupyter\kernels\python3
 title: "Soil--Litter validation progress report"
 author: Lai, Hao Ran
 date: last-modified
@@ -21,11 +21,15 @@ execute:
   message: false
 ---
 
-## Overview
+## Progress over the past few months
 
-- Ran the `maliau_2` scenario with VE version v0.2.1
-- Built a validation database pipeline, see docs [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
+- Built a validation database pipeline, see docs
+  [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
 - Screened, add and harmonise datasets using the database functions.
+- I did not limit datasets to only Maliau or old growth. I included SAFE and
+  disturbed forests since we are going to need them in future scenarios. The
+  database has spatial coordinates to filter what we need (can be combined with
+  all sorts of GIS layer, including SAFE layers).
 - Most effort went into harmonisation, including units and derived variables.
 
 ```text {r}
@@ -40,11 +44,25 @@ library(toml)
 library(here)
 library(yardstick)
 source(here("tools/R/R/valdb.R"))
+source(here("tools/R/R/summarise_ve_config.R"))
 
 # Read the validation database
 val_db_combined <-
   open_dataset(here("data/derived/soil/validation/database_combined")) |>
   collect()
+```
+
+## Simulation settings
+
+```text {r}
+#| label: ve-config
+#| results: asis
+
+out_dir <- here("data/scenarios/maliau/maliau_2/out")
+invisible(summarise_ve_config(
+  file.path(out_dir, "compiled_configuration.toml"),
+  file.path(out_dir, "logfile.log")
+))
 ```
 
 ## Datasets included
@@ -105,7 +123,12 @@ p_within_spatial <- val_db_combined$spatial_join_class |>
   pluck("within")
 ```
 
-I screened a total of `r n_screened` datasets or literature, and obtained `r n_datasets` that can be included into the validation database. The included datasets contained a total of `r n_data` data points. `r round(p_within_temporal*100, 1)`% of data points fall within the simulation's temporal range, but only `r round(p_within_spatial*100, 1)`% fall within the spatial extent of Maliau 2.
+I screened a total of `r n_screened` datasets or literature, and obtained
+`r n_datasets` that can be included into the validation database. The included
+datasets contained a total of `r n_data` data points.
+`r round(p_within_temporal*100, 1)`% of data points fall within the simulation's
+temporal range, but only `r round(p_within_spatial*100, 1)`% fall within the
+spatial extent of Maliau 2.
 
 ## Where datasets come from
 
@@ -187,15 +210,17 @@ ggmap::ggmap(basemap) +
   theme(axis.title = element_blank())
 ```
 
-Validation data locations relative to the Maliau 2 scenario site. The Maliau 2 indicator is shown as a square marker greatly exaggerated and is not to scale.
+Validation data locations relative to the Maliau 2 scenario site. The Maliau 2
+indicator is shown as a square marker greatly exaggerated and is not to scale.
 
 ## Why many screened datasets are excluded / deferred
 
-The remaining `r n_screened_not_in_db` are split into **`r n_excluded` excluded** and **`r n_deferred` deferred**
-due to technical or scope reasons documented in the YAML `notes` field.
+The remaining `r n_screened_not_in_db` are split into
+**`r n_excluded` excluded** and **`r n_deferred` deferred** due to technical or
+scope reasons documented in the YAML `notes` field.
 
 | Group | Reason | No. datasets | Descriptions |
-|---|---|---:|---|
+| --- | --- | ---: | --- |
 | Excluded | No relevant variables | `r n_excluded_no_relevant_variables` | No soil or litter measurements match validation targets. Examples include taxonomic records without quantitative data, compositional data without C/N values, and measurements that cannot be converted to the needed pool or mass terms. |
 | Excluded | Insufficient metadata | `r n_excluded_insufficient_metadata` | e.g., Litter biomass is present, but the record lacks enough context to derive a carbon pool. |
 | Excluded | Duplicate source | `r n_excluded_duplicate_source` | The same data already used for input data. |
@@ -214,18 +239,25 @@ val_db_combined |>
     n_obs = n(),
     min_val = min(value_canonical, na.rm = TRUE),
     max_val = max(value_canonical, na.rm = TRUE),
+    # Span uses positive values only, since zeros have no log
+    oom_span = log10(max_val / min(value_canonical[value_canonical > 0])),
     .groups = "drop"
   ) |>
   arrange(desc(n_obs)) |>
+  mutate(oom_span = round(oom_span, 1)) |>
   select(
     Variable = var_canonical,
     N = n_obs,
     Unit = unit_canonical,
     Min = min_val,
-    Max = max_val
+    Max = max_val,
+    `Orders of magnitude` = oom_span
   ) |>
   kable()
 ```
+
+*Orders of magnitude = $\log_{10}$(max / smallest positive value); zeros are
+ignored. `Inf`/`NA` means no positive values.
 
 ## Model performance
 
@@ -233,7 +265,8 @@ val_db_combined |>
 
 Now the actual validation itself.
 
-Plotting the predicted vs. observed: original scale and log--log scale. (Actually it's `log1p` or $\log(1+x)$ for accommodate for zeros.)
+Plotting the predicted vs. observed: original scale and log--log scale.
+(Actually it's `log1p` or $\log(1+x)$ for accommodate for zeros.)
 
 ```text {r}
 #| label: predicted-observed
@@ -269,15 +302,21 @@ patchwork::wrap_plots(p1, p2)
 
 ### Performance metrics
 
-Most raw-scale metrics are not good for cross-variable comparison because units and scales are not comparable. Our variables rarely conform to a Normal distribution:
+Most raw-scale metrics are not good for cross-variable comparison because units
+and scales are not comparable. Our variables rarely conform to a Normal
+distribution:
 
 - Contains zeros
 - Right skewed due to positive boundedness
 - Vary widely in scale and unit of measurement
-- *Rare but it happens*: some variable's values are always the same (due to limited spatiotemporal range or the way they aggregate/marginalise outputs to match empirical data); these constant data cannot use some variance-based metrics such as $R^2$
+- *Rare but it happens*: some variable's values are always the same (due to
+  limited spatiotemporal range or the way they aggregate/marginalise outputs to
+  match empirical data); these constant data cannot use some variance-based
+  metrics such as $R^2$
 
-`rmse_relative()` is the main cross-variable metric here because it is unitless (with its own caveats).
-As a skew-robust sensitivity check, we also compute `mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
+`rmse_relative()` is the main cross-variable metric here because it is unitless
+(with its own caveats). As a skew-robust sensitivity check, we also compute
+`mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
 
 ```text {r}
 #| label: performance-metrics
@@ -359,3 +398,9 @@ tibble::tibble(
 ) |>
   kable(caption = "Best and worst performers by metric")
 ```
+
+## Afterthoughts
+
+- If we need more validation data, we could split the datasets used for input
+
+## data into training and testing sets (reminder from Jacob)
