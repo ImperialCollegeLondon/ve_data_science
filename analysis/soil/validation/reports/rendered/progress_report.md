@@ -266,7 +266,7 @@ val_db_combined |>
 | soil_n_pool_inorganic_per_area | 3 | kg m^-2 | 0.0003300 | 1.930000e-03 | 0.8 |
 
 \*Orders of magnitude = $\log_{10}$(max / smallest positive value);
-zeros are ignored. `Inf`/`NA` means no positive values.
+zeros are ignored.
 
 ## Model performance
 
@@ -278,31 +278,54 @@ Plotting the predicted vs. observed: original scale and log–log scale.
 (Actually it’s `log1p` or $\log(1+x)$ for accommodate for zeros.)
 
 ``` r
-p1 <- ggplot(val_db_combined) +
+# Factor order sets draw order after arrange(): "within" plotted last (on top)
+val_db_plot <-
+  val_db_combined |>
+  mutate(
+    spatial_join_class = factor(spatial_join_class, c("outside", "within"))
+  ) |>
+  arrange(spatial_join_class)
+
+p1 <- ggplot(val_db_plot) +
   geom_abline(slope = 1) +
-  geom_errorbar(aes(
-    x = value_canonical,
-    ymin = value_VE_q05,
-    ymax = value_VE_q95
-  )) +
-  geom_point(aes(value_canonical, value_VE_q50)) +
-  labs(x = "Observed", y = "Predicted") +
+  # geom_function(fun = \(x) x) +
+  # geom_function(fun = \(x) 10 * x, linetype = "dashed") +
+  # geom_function(fun = \(x) x / 10, linetype = "dashed") +
+  geom_errorbar(
+    aes(
+      x = value_canonical,
+      ymin = value_VE_q05,
+      ymax = value_VE_q95
+    ),
+    colour = "grey",
+    alpha = 0.5
+  ) +
+  geom_point(
+    aes(
+      value_canonical,
+      value_VE_q50,
+      fill = spatial_join_class,
+      size = spatial_join_class
+    ),
+    shape = 21,
+    colour = "black"
+  ) +
+  scale_fill_manual(values = c(within = "black", outside = "white")) +
+  scale_size_manual(values = c(within = 2.5, outside = 1.5)) +
+  labs(
+    x = "Observed",
+    y = "Predicted",
+    fill = "Within Maliau 2",
+    size = "Within Maliau 2"
+  ) +
   theme_bw()
 
-p2 <- ggplot(val_db_combined) +
-  geom_abline(slope = 1) +
-  geom_errorbar(aes(
-    x = value_canonical,
-    ymin = value_VE_q05,
-    ymax = value_VE_q95
-  )) +
-  geom_point(aes(value_canonical, value_VE_q50)) +
+p2 <- p1 +
   scale_x_continuous(trans = scales::log1p_trans()) +
-  scale_y_continuous(trans = scales::log1p_trans()) +
-  labs(x = "Observed", y = "Predicted") +
-  theme_bw()
+  scale_y_continuous(trans = scales::log1p_trans())
 
-patchwork::wrap_plots(p1, p2)
+patchwork::wrap_plots(p1, p2, guides = "collect") &
+  theme(legend.position = "bottom")
 ```
 
 ![](predicted-observed-1.png)
@@ -389,8 +412,8 @@ metrics_table |>
 
 Best and worst performers by metric
 
-## Afterthoughts
+## Thoughts
 
 - If we need more validation data, we could split the datasets used for
-
-## input data into training and testing sets (reminder from Jacob)
+  input data into training and testing sets (reminder from Jacob).
+- ph

@@ -23,13 +23,9 @@ execute:
 
 ## Progress over the past few months
 
-- Built a validation database pipeline, see docs
-  [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
+- Built a validation database pipeline, see docs [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
 - Screened, add and harmonise datasets using the database functions.
-- I did not limit datasets to only Maliau or old growth. I included SAFE and
-  disturbed forests since we are going to need them in future scenarios. The
-  database has spatial coordinates to filter what we need (can be combined with
-  all sorts of GIS layer, including SAFE layers).
+- I did not limit datasets to only Maliau or old growth. I included SAFE and disturbed forests since we are going to need them in future scenarios. The database has spatial coordinates to filter what we need (can be combined with all sorts of GIS layer, including SAFE layers).
 - Most effort went into harmonisation, including units and derived variables.
 
 ```text {r}
@@ -123,12 +119,7 @@ p_within_spatial <- val_db_combined$spatial_join_class |>
   pluck("within")
 ```
 
-I screened a total of `r n_screened` datasets or literature, and obtained
-`r n_datasets` that can be included into the validation database. The included
-datasets contained a total of `r n_data` data points.
-`r round(p_within_temporal*100, 1)`% of data points fall within the simulation's
-temporal range, but only `r round(p_within_spatial*100, 1)`% fall within the
-spatial extent of Maliau 2.
+I screened a total of `r n_screened` datasets or literature, and obtained `r n_datasets` that can be included into the validation database. The included datasets contained a total of `r n_data` data points. `r round(p_within_temporal*100, 1)`% of data points fall within the simulation's temporal range, but only `r round(p_within_spatial*100, 1)`% fall within the spatial extent of Maliau 2.
 
 ## Where datasets come from
 
@@ -210,17 +201,15 @@ ggmap::ggmap(basemap) +
   theme(axis.title = element_blank())
 ```
 
-Validation data locations relative to the Maliau 2 scenario site. The Maliau 2
-indicator is shown as a square marker greatly exaggerated and is not to scale.
+Validation data locations relative to the Maliau 2 scenario site. The Maliau 2 indicator is shown as a square marker greatly exaggerated and is not to scale.
 
 ## Why many screened datasets are excluded / deferred
 
-The remaining `r n_screened_not_in_db` are split into
-**`r n_excluded` excluded** and **`r n_deferred` deferred** due to technical or
-scope reasons documented in the YAML `notes` field.
+The remaining `r n_screened_not_in_db` are split into **`r n_excluded` excluded** and **`r n_deferred` deferred**
+due to technical or scope reasons documented in the YAML `notes` field.
 
 | Group | Reason | No. datasets | Descriptions |
-| --- | --- | ---: | --- |
+|---|---|---:|---|
 | Excluded | No relevant variables | `r n_excluded_no_relevant_variables` | No soil or litter measurements match validation targets. Examples include taxonomic records without quantitative data, compositional data without C/N values, and measurements that cannot be converted to the needed pool or mass terms. |
 | Excluded | Insufficient metadata | `r n_excluded_insufficient_metadata` | e.g., Litter biomass is present, but the record lacks enough context to derive a carbon pool. |
 | Excluded | Duplicate source | `r n_excluded_duplicate_source` | The same data already used for input data. |
@@ -256,8 +245,7 @@ val_db_combined |>
   kable()
 ```
 
-*Orders of magnitude = $\log_{10}$(max / smallest positive value); zeros are
-ignored. `Inf`/`NA` means no positive values.
+*Orders of magnitude = $\log_{10}$(max / smallest positive value); zeros are ignored.
 
 ## Model performance
 
@@ -265,58 +253,74 @@ ignored. `Inf`/`NA` means no positive values.
 
 Now the actual validation itself.
 
-Plotting the predicted vs. observed: original scale and log--log scale.
-(Actually it's `log1p` or $\log(1+x)$ for accommodate for zeros.)
+Plotting the predicted vs. observed: original scale and log--log scale. (Actually it's `log1p` or $\log(1+x)$ for accommodate for zeros.)
 
 ```text {r}
 #| label: predicted-observed
 #| fig-width: 8
 #| fig-height: 4
 
-p1 <- ggplot(val_db_combined) +
+# Factor order sets draw order after arrange(): "within" plotted last (on top)
+val_db_plot <-
+  val_db_combined |>
+  mutate(
+    spatial_join_class = factor(spatial_join_class, c("outside", "within"))
+  ) |>
+  arrange(spatial_join_class)
+
+p1 <- ggplot(val_db_plot) +
   geom_abline(slope = 1) +
-  geom_errorbar(aes(
-    x = value_canonical,
-    ymin = value_VE_q05,
-    ymax = value_VE_q95
-  )) +
-  geom_point(aes(value_canonical, value_VE_q50)) +
-  labs(x = "Observed", y = "Predicted") +
+  # geom_function(fun = \(x) x) +
+  # geom_function(fun = \(x) 10 * x, linetype = "dashed") +
+  # geom_function(fun = \(x) x / 10, linetype = "dashed") +
+  geom_errorbar(
+    aes(
+      x = value_canonical,
+      ymin = value_VE_q05,
+      ymax = value_VE_q95
+    ),
+    colour = "grey",
+    alpha = 0.5
+  ) +
+  geom_point(
+    aes(
+      value_canonical,
+      value_VE_q50,
+      fill = spatial_join_class,
+      size = spatial_join_class
+    ),
+    shape = 21,
+    colour = "black"
+  ) +
+  scale_fill_manual(values = c(within = "black", outside = "white")) +
+  scale_size_manual(values = c(within = 2.5, outside = 1.5)) +
+  labs(
+    x = "Observed",
+    y = "Predicted",
+    fill = "Within Maliau 2",
+    size = "Within Maliau 2"
+  ) +
   theme_bw()
 
-p2 <- ggplot(val_db_combined) +
-  geom_abline(slope = 1) +
-  geom_errorbar(aes(
-    x = value_canonical,
-    ymin = value_VE_q05,
-    ymax = value_VE_q95
-  )) +
-  geom_point(aes(value_canonical, value_VE_q50)) +
+p2 <- p1 +
   scale_x_continuous(trans = scales::log1p_trans()) +
-  scale_y_continuous(trans = scales::log1p_trans()) +
-  labs(x = "Observed", y = "Predicted") +
-  theme_bw()
+  scale_y_continuous(trans = scales::log1p_trans())
 
-patchwork::wrap_plots(p1, p2)
+patchwork::wrap_plots(p1, p2, guides = "collect") &
+  theme(legend.position = "bottom")
 ```
 
 ### Performance metrics
 
-Most raw-scale metrics are not good for cross-variable comparison because units
-and scales are not comparable. Our variables rarely conform to a Normal
-distribution:
+Most raw-scale metrics are not good for cross-variable comparison because units and scales are not comparable. Our variables rarely conform to a Normal distribution:
 
 - Contains zeros
 - Right skewed due to positive boundedness
 - Vary widely in scale and unit of measurement
-- *Rare but it happens*: some variable's values are always the same (due to
-  limited spatiotemporal range or the way they aggregate/marginalise outputs to
-  match empirical data); these constant data cannot use some variance-based
-  metrics such as $R^2$
+- *Rare but it happens*: some variable's values are always the same (due to limited spatiotemporal range or the way they aggregate/marginalise outputs to match empirical data); these constant data cannot use some variance-based metrics such as $R^2$
 
-`rmse_relative()` is the main cross-variable metric here because it is unitless
-(with its own caveats). As a skew-robust sensitivity check, we also compute
-`mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
+`rmse_relative()` is the main cross-variable metric here because it is unitless (with its own caveats).
+As a skew-robust sensitivity check, we also compute `mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
 
 ```text {r}
 #| label: performance-metrics
@@ -399,8 +403,7 @@ tibble::tibble(
   kable(caption = "Best and worst performers by metric")
 ```
 
-## Afterthoughts
+## Thoughts
 
-- If we need more validation data, we could split the datasets used for input
-
-## data into training and testing sets (reminder from Jacob)
+- If we need more validation data, we could split the datasets used for input data into training and testing sets (reminder from Jacob).
+- ph
