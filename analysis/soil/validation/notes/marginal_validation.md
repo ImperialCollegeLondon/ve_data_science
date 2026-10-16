@@ -1,8 +1,9 @@
 # VE validation can borrow concepts from marginal and conditional predictions
 
-We have been discussing how to match empirical data ("observed") to VE
-simulation outputs ("predicted") in space and time. Two sources of indecision
-remain:
+We have been
+[discussing](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/notes/spatiotemporal_match.md)
+how to match empirical data ("observed") to VE simulation outputs ("predicted")
+in space and time. Two sources of indecision remain:
 
 1. What to do when an observation fall outside of Maliau?
 2. How to determine if an external site is sufficiently Maliau-like?
