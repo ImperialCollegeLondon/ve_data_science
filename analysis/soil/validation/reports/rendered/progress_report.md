@@ -278,37 +278,23 @@ Plotting the predicted vs. observed: original scale and log–log scale.
 (Actually it’s `log1p` or $\log(1+x)$ for accommodate for zeros.)
 
 ``` r
-# Factor order sets draw order after arrange(): "within" plotted last (on top)
-val_db_plot <-
-  val_db_combined |>
-  mutate(
-    spatial_join_class = factor(spatial_join_class, c("outside", "within"))
-  ) |>
-  arrange(spatial_join_class)
-
-p1 <- ggplot(val_db_plot) +
+# Row order is draw order; "within" sorts after "outside", so it plots on top
+p1 <- ggplot(
+  arrange(val_db_combined, spatial_join_class),
+  aes(value_canonical, value_VE_q50)
+) +
   geom_abline(slope = 1) +
   # geom_function(fun = \(x) x) +
   # geom_function(fun = \(x) 10 * x, linetype = "dashed") +
   # geom_function(fun = \(x) x / 10, linetype = "dashed") +
   geom_errorbar(
-    aes(
-      x = value_canonical,
-      ymin = value_VE_q05,
-      ymax = value_VE_q95
-    ),
+    aes(ymin = value_VE_q05, ymax = value_VE_q95),
     colour = "grey",
     alpha = 0.5
   ) +
   geom_point(
-    aes(
-      value_canonical,
-      value_VE_q50,
-      fill = spatial_join_class,
-      size = spatial_join_class
-    ),
-    shape = 21,
-    colour = "black"
+    aes(fill = spatial_join_class, size = spatial_join_class),
+    shape = 21
   ) +
   scale_fill_manual(values = c(within = "black", outside = "white")) +
   scale_size_manual(values = c(within = 2.5, outside = 1.5)) +
@@ -342,11 +328,37 @@ conform to a Normal distribution:
 - *Rare but it happens*: some variable’s values are always the same (due
   to limited spatiotemporal range or the way they aggregate/marginalise
   outputs to match empirical data); these constant data cannot use some
-  variance-based metrics such as $R^2$
+  variance-based metrics such as $R^2$ or variance-based normalisation
 
-`rmse_relative()` is the main cross-variable metric here because it is
-unitless (with its own caveats). As a skew-robust sensitivity check, we
-also compute `mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
+`rmse_relative()` is the main cross-variable metric because it is
+unitless. Caveats: the range denominator is set by the two most extreme
+observations, so outliers shrink the score; it is `Inf` for constant
+variables; and it is not comparable across variables with very different
+range-to-spread ratios.
+
+As a skew-robust sensitivity check, `mae()`, `rmse()` and `ccc()` are
+also computed after a `log1p()` transform. Equations follow the
+`yardstick` package, with $y_i$ = truth and $\hat{y}_i$ = estimate.
+
+| Metric | Function | Unit | Transformation | Direction | Perfect score | Equation |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Relative root mean squared error (range-normalised RMSE) | `rmse_relative()` | Unitless | Raw | Minimise | 0 | $\dfrac{\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}}{\max(y)-\min(y)}$ |
+| Mean absolute error | `mae()` | `log1p` of original unit | `log1p` | Minimise | 0 | $\frac{1}{n}\sum_{i=1}^{n}\lvert y_i-\hat{y}_i\rvert$ |
+| Root mean squared error | `rmse()` | `log1p` of original unit | `log1p` | Minimise | 0 | $\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}$ |
+| Concordance correlation loss ($1 - \text{CCC}$) | `ccc()` | Unitless | `log1p` | Minimise | 0 | $1-\dfrac{2\,\text{cov}(y,\hat{y})}{\text{var}(y)+\text{var}(\hat{y})+(\bar{y}-\bar{\hat{y}})^2}$ |
+
+Notes:
+
+- `rmse_relative()` returns `Inf` when all true values are identical
+  (zero range).
+- `rmse_relative()` is sensitive to low-variance observations because of
+  the range denominator.
+- `mae()` and `rmse()` are comparable across variables only loosely,
+  because `log1p` values still depend on each variable’s original scale.
+- `ccc()` ranges from -1 to 1 and penalises both poor correlation and
+  bias. It is reported as the loss `ccc_loss` $= 1 - \text{CCC}$ (range
+  0 to 2) so that all metrics are minimised in the calibration
+  objective.
 
 ``` r
 raw_scale_metrics <- metric_set(rmse_relative)
@@ -371,35 +383,37 @@ metrics_table <- bind_rows(raw_results, log_results) |>
   pivot_wider(
     names_from = `.metric`,
     values_from = `.estimate`
-  )
+  ) |>
+  # Loss form so every metric is minimised in the calibration objective
+  mutate(ccc_loss = 1 - ccc, .keep = "unused")
 
 metrics_table |>
   mutate(
     rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
     mae = sprintf("%.3g", mae),
     rmse = sprintf("%.3g", rmse),
-    ccc = sprintf("%.3g", ccc)
+    ccc_loss = sprintf("%.3g", ccc_loss)
   ) |>
   kable()
 ```
 
-| var_canonical | rmse_relative | mae | rmse | ccc |
+| var_canonical | rmse_relative | mae | rmse | ccc_loss |
 | :--- | :--- | :--- | :--- | :--- |
-| dissolved_phosphorus | 7.57% | 0.0119 | 0.0321 | -2.71e-08 |
-| soil_n_pool_ammonium_per_mass | 8.56% | 8.33e-06 | 3.92e-05 | 8.72e-05 |
-| soil_n_pool_inorganic_per_area | 64.36% | 0.00079 | 0.00103 | 0 |
-| soil_n_pool_nitrate_per_mass | 13.92% | 2.13e-06 | 3.45e-06 | -0.0204 |
-| soil_nitrous_oxide_emission_N2O_mass | 8.56% | 2.51e-06 | 4e-06 | -4.38e-05 |
-| soil_p_pool_labile_per_mass | 13.01% | 2.88e-06 | 4.06e-06 | 0 |
-| soil_respiration | 293.88% | 0.00367 | 0.00369 | 0 |
-| soil_respiration_CO2_mass | 13.95% | 0.00316 | 0.00387 | -3.16e-05 |
-| soil_respiration_CO2_molar | 136.51% | 0.345 | 0.355 | -2.35e-37 |
-| total_soil_c_per_area | 30.70% | 0.534 | 0.611 | 0 |
-| total_soil_c_per_mass | 19.84% | 0.747 | 1.37 | -0.00138 |
-| total_soil_c_per_volume | 27.81% | 3.55 | 3.62 | 0 |
-| total_soil_n_per_mass | 24.65% | 0.153 | 0.301 | -3.23e-05 |
-| total_soil_n_per_volume | 14.99% | 0.908 | 1.62 | 0.0169 |
-| total_soil_p_per_mass | 23.17% | 0.000152 | 0.000205 | 0 |
+| dissolved_phosphorus | 7.57% | 0.0119 | 0.0321 | 1 |
+| soil_n_pool_ammonium_per_mass | 8.56% | 8.33e-06 | 3.92e-05 | 1 |
+| soil_n_pool_inorganic_per_area | 64.36% | 0.00079 | 0.00103 | 1 |
+| soil_n_pool_nitrate_per_mass | 13.92% | 2.13e-06 | 3.45e-06 | 1.02 |
+| soil_nitrous_oxide_emission_N2O_mass | 8.56% | 2.51e-06 | 4e-06 | 1 |
+| soil_p_pool_labile_per_mass | 13.01% | 2.88e-06 | 4.06e-06 | 1 |
+| soil_respiration | 293.88% | 0.00367 | 0.00369 | 1 |
+| soil_respiration_CO2_mass | 13.95% | 0.00316 | 0.00387 | 1 |
+| soil_respiration_CO2_molar | 136.51% | 0.345 | 0.355 | 1 |
+| total_soil_c_per_area | 30.70% | 0.534 | 0.611 | 1 |
+| total_soil_c_per_mass | 19.84% | 0.747 | 1.37 | 1 |
+| total_soil_c_per_volume | 27.81% | 3.55 | 3.62 | 1 |
+| total_soil_n_per_mass | 24.65% | 0.153 | 0.301 | 1 |
+| total_soil_n_per_volume | 14.99% | 0.908 | 1.62 | 0.983 |
+| total_soil_p_per_mass | 23.17% | 0.000152 | 0.000205 | 1 |
 
 Metrics split by `spatial_join_class`, for variables with both “within”
 and “outside” observations only:
@@ -429,21 +443,22 @@ log_results_class <- val_db_both |>
 bind_rows(raw_results_class, log_results_class) |>
   select(-`.estimator`) |>
   pivot_wider(names_from = `.metric`, values_from = `.estimate`) |>
+  mutate(ccc_loss = 1 - ccc, .keep = "unused") |>
   mutate(
     rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
     mae = sprintf("%.3g", mae),
     rmse = sprintf("%.3g", rmse),
-    ccc = sprintf("%.3g", ccc)
+    ccc_loss = sprintf("%.3g", ccc_loss)
   ) |>
   kable()
 ```
 
-| var_canonical | spatial_join_class | rmse_relative | mae | rmse | ccc |
+| var_canonical | spatial_join_class | rmse_relative | mae | rmse | ccc_loss |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| dissolved_phosphorus | outside | 7.64% | 0.0121 | 0.0325 | 0 |
-| dissolved_phosphorus | within | 149.64% | 0.00443 | 0.00456 | 0 |
-| total_soil_n_per_volume | outside | 15.12% | 0.92 | 1.63 | 0.0174 |
-| total_soil_n_per_volume | within | 35.74% | 0.176 | 0.203 | 5.73e-31 |
+| dissolved_phosphorus | outside | 7.64% | 0.0121 | 0.0325 | 1 |
+| dissolved_phosphorus | within | 149.64% | 0.00443 | 0.00456 | 1 |
+| total_soil_n_per_volume | outside | 15.12% | 0.92 | 1.63 | 0.983 |
+| total_soil_n_per_volume | within | 35.74% | 0.176 | 0.203 | 1 |
 
 **Summary by metric:**
 
@@ -452,7 +467,7 @@ bind_rows(raw_results_class, log_results_class) |>
 | rmse_relative | dissolved_phosphorus (0.0757) | soil_respiration (2.94) |
 | mae | soil_n_pool_nitrate_per_mass (2.13e-06) | total_soil_c_per_volume (3.55) |
 | rmse | soil_n_pool_nitrate_per_mass (3.45e-06) | total_soil_c_per_volume (3.62) |
-| ccc | total_soil_n_per_volume (0.0169) | soil_n_pool_nitrate_per_mass (-0.0204) |
+| ccc_loss | total_soil_n_per_volume (0.983) | soil_n_pool_nitrate_per_mass (1.02) |
 
 Best and worst performers by metric
 

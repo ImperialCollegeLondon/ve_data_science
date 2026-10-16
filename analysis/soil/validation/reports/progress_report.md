@@ -281,37 +281,23 @@ Plotting the predicted vs. observed: original scale and log--log scale.
 #|   scale (right). Points inside Maliau 2 are filled black and larger; points
 #|   outside are white.
 
-# Factor order sets draw order after arrange(): "within" plotted last (on top)
-val_db_plot <-
-  val_db_combined |>
-  mutate(
-    spatial_join_class = factor(spatial_join_class, c("outside", "within"))
-  ) |>
-  arrange(spatial_join_class)
-
-p1 <- ggplot(val_db_plot) +
+# Row order is draw order; "within" sorts after "outside", so it plots on top
+p1 <- ggplot(
+  arrange(val_db_combined, spatial_join_class),
+  aes(value_canonical, value_VE_q50)
+) +
   geom_abline(slope = 1) +
   # geom_function(fun = \(x) x) +
   # geom_function(fun = \(x) 10 * x, linetype = "dashed") +
   # geom_function(fun = \(x) x / 10, linetype = "dashed") +
   geom_errorbar(
-    aes(
-      x = value_canonical,
-      ymin = value_VE_q05,
-      ymax = value_VE_q95
-    ),
+    aes(ymin = value_VE_q05, ymax = value_VE_q95),
     colour = "grey",
     alpha = 0.5
   ) +
   geom_point(
-    aes(
-      value_canonical,
-      value_VE_q50,
-      fill = spatial_join_class,
-      size = spatial_join_class
-    ),
-    shape = 21,
-    colour = "black"
+    aes(fill = spatial_join_class, size = spatial_join_class),
+    shape = 21
   ) +
   scale_fill_manual(values = c(within = "black", outside = "white")) +
   scale_size_manual(values = c(within = 2.5, outside = 1.5)) +
@@ -343,11 +329,35 @@ distribution:
 - *Rare but it happens*: some variable's values are always the same (due to
   limited spatiotemporal range or the way they aggregate/marginalise outputs to
   match empirical data); these constant data cannot use some variance-based
-  metrics such as $R^2$
+  metrics such as $R^2$ or variance-based normalisation
 
-`rmse_relative()` is the main cross-variable metric here because it is unitless
-(with its own caveats). As a skew-robust sensitivity check, we also compute
-`mae()`, `rmse()` and `ccc()` after a `log1p()` transform.
+`rmse_relative()` is the main cross-variable metric because it is unitless.
+Caveats: the range denominator is set by the two most extreme observations, so
+outliers shrink the score; it is `Inf` for constant variables; and it is not
+comparable across variables with very different range-to-spread ratios.
+
+As a skew-robust sensitivity check, `mae()`, `rmse()` and `ccc()` are also
+computed after a `log1p()` transform. Equations follow the `yardstick` package,
+with $y_i$ = truth and $\hat{y}_i$ = estimate.
+
+| Metric | Function | Unit | Transformation | Direction | Perfect score | Equation |
+| --- | --- | --- | --- | --- | --- | --- |
+| Relative root mean squared error (range-normalised RMSE) | `rmse_relative()` | Unitless | Raw | Minimise | 0 | $\dfrac{\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}}{\max(y)-\min(y)}$ |
+| Mean absolute error | `mae()` | `log1p` of original unit | `log1p` | Minimise | 0 | $\frac{1}{n}\sum_{i=1}^{n}\lvert y_i-\hat{y}_i\rvert$ |
+| Root mean squared error | `rmse()` | `log1p` of original unit | `log1p` | Minimise | 0 | $\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}$ |
+| Concordance correlation loss ($1 - \text{CCC}$) | `ccc()` | Unitless | `log1p` | Minimise | 0 | $1-\dfrac{2\,\text{cov}(y,\hat{y})}{\text{var}(y)+\text{var}(\hat{y})+(\bar{y}-\bar{\hat{y}})^2}$ |
+
+Notes:
+
+- `rmse_relative()` returns `Inf` when all true values are identical (zero
+  range).
+- `rmse_relative()` is sensitive to low-variance observations because of the
+  range denominator.
+- `mae()` and `rmse()` are comparable across variables only loosely, because
+  `log1p` values still depend on each variable's original scale.
+- `ccc()` ranges from -1 to 1 and penalises both poor correlation and bias. It
+  is reported as the loss `ccc_loss` $= 1 - \text{CCC}$ (range 0 to 2) so that
+  all metrics are minimised in the calibration objective.
 
 ```text {r}
 #| label: performance-metrics
@@ -374,14 +384,16 @@ metrics_table <- bind_rows(raw_results, log_results) |>
   pivot_wider(
     names_from = `.metric`,
     values_from = `.estimate`
-  )
+  ) |>
+  # Loss form so every metric is minimised in the calibration objective
+  mutate(ccc_loss = 1 - ccc, .keep = "unused")
 
 metrics_table |>
   mutate(
     rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
     mae = sprintf("%.3g", mae),
     rmse = sprintf("%.3g", rmse),
-    ccc = sprintf("%.3g", ccc)
+    ccc_loss = sprintf("%.3g", ccc_loss)
   ) |>
   kable()
 ```
@@ -416,11 +428,12 @@ log_results_class <- val_db_both |>
 bind_rows(raw_results_class, log_results_class) |>
   select(-`.estimator`) |>
   pivot_wider(names_from = `.metric`, values_from = `.estimate`) |>
+  mutate(ccc_loss = 1 - ccc, .keep = "unused") |>
   mutate(
     rmse_relative = sprintf("%.2f%%", rmse_relative * 100),
     mae = sprintf("%.3g", mae),
     rmse = sprintf("%.3g", rmse),
-    ccc = sprintf("%.3g", ccc)
+    ccc_loss = sprintf("%.3g", ccc_loss)
   ) |>
   kable()
 ```
@@ -452,18 +465,18 @@ format_summary <- function(df, metric_name, lower_is_better = TRUE) {
 }
 
 tibble::tibble(
-  Metric = c("rmse_relative", "mae", "rmse", "ccc"),
+  Metric = c("rmse_relative", "mae", "rmse", "ccc_loss"),
   Best = c(
     format_summary(metrics_table, "rmse_relative")$best,
     format_summary(metrics_table, "mae")$best,
     format_summary(metrics_table, "rmse")$best,
-    format_summary(metrics_table, "ccc", lower_is_better = FALSE)$best
+    format_summary(metrics_table, "ccc_loss")$best
   ),
   Worst = c(
     format_summary(metrics_table, "rmse_relative")$worst,
     format_summary(metrics_table, "mae")$worst,
     format_summary(metrics_table, "rmse")$worst,
-    format_summary(metrics_table, "ccc", lower_is_better = FALSE)$worst
+    format_summary(metrics_table, "ccc_loss")$worst
   )
 ) |>
   kable(caption = "Best and worst performers by metric")
