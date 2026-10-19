@@ -397,7 +397,10 @@ join_ve_outputs <- function(
     pizzarr::zarr_open(zarr_path)$get_item("outputs")$get_store()$listdir(
       "outputs"
     )
+  # Identify the direct data variables that are present in both the
+  #   validation database and the VE outputs.
   vars_direct <- base::intersect(vars_target, vars_ve_output)
+  # Store them in tibble
   data_variables <- tibble::tibble()
   if (length(vars_direct) > 0L) {
     data_variables <-
