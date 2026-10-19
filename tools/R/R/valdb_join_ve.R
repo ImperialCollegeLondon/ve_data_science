@@ -397,14 +397,18 @@ join_ve_outputs <- function(
     pizzarr::zarr_open(zarr_path)$get_item("outputs")$get_store()$listdir(
       "outputs"
     )
-  data_variables <-
-    get_data_variables(
-      zarr_path,
-      group = "outputs",
-      variables = base::intersect(vars_target, vars_ve_output)
-    ) |>
-    reshape2::melt() |>
-    dplyr::rename(var_canonical = L1)
+  vars_direct <- base::intersect(vars_target, vars_ve_output)
+  data_variables <- tibble::tibble()
+  if (length(vars_direct) > 0L) {
+    data_variables <-
+      get_data_variables(
+        zarr_path,
+        group = "outputs",
+        variables = vars_direct
+      ) |>
+      reshape2::melt() |>
+      dplyr::rename(var_canonical = L1)
+  }
 
   # Derived variables, calculated from direct data variables.
   all_derived_variables <-

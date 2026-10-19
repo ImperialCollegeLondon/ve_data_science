@@ -72,7 +72,7 @@ get_data_variables <- function(
   # retrieve state variables
   vars <- ve_vars$get_store()$listdir(group)
   var_discard <- c(".zattrs", ".zgroup", "number", "spatial_ref")
-  vars <- vars[vars %notin% var_discard]
+  vars <- vars[!(vars %in% var_discard)]
 
   # use all variables if none specified,
   # otherwise validate requested variables exist
@@ -108,13 +108,20 @@ get_data_variables <- function(
     \(variable) {
       tmp_zarr <- ve_vars$get_item(variable)
       out_array <- tmp_zarr$as.array()
+      if (inherits(out_array, "integer64")) {
+        out_array <- array(as.numeric(out_array), dim = dim(out_array))
+      }
       dimnames_names <-
         tmp_zarr$get_attrs()$to_list()$`_ARRAY_DIMENSIONS` |>
         unlist()
       dimnames <-
         dimnames_names |>
         purrr::map(\(name) {
-          ve_vars$get_item(name)$as.array()
+          coordinate <- ve_vars$get_item(name)$as.array()
+          if (inherits(coordinate, "integer64")) {
+            coordinate <- as.character(coordinate)
+          }
+          coordinate
         })
       names(dimnames) <- dimnames_names
       dimnames(out_array) <- dimnames
@@ -298,11 +305,14 @@ get_fg_population_density <- function(
   cohort_df <- readr::read_csv(cohort_data_path, show_col_types = FALSE)
 
   python_source <- here::here("tools", "python", "src")
-  python_sys <- reticulate::import("sys")
+  python_sys <- reticulate::import("sys", convert = FALSE)
   if (!python_source %in% reticulate::py_to_r(python_sys$path)) {
     python_sys$path$insert(0L, python_source)
   }
-  density_tool <- reticulate::import("ve_data_tools.fg_population_density")
+  density_tool <- reticulate::import(
+    "ve_data_tools.fg_population_density",
+    convert = FALSE
+  )
   density_df <- density_tool$calculate_fg_population_density(
     cohort_df = cohort_df,
     cell_size = sqrt(grid$cell_area),
