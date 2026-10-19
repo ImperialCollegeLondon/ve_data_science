@@ -6,10 +6,10 @@
 - Files changed:
   - data/scenarios/maliau/maliau_2/data/level_5.csv
 - Changes made:
-  - Added preliminary Level 5 animal functional groups (FGs) for testing animal validation workflow. 
+  - Added preliminary Level 5 animal functional groups (FGs) for testing animal validation workflow.
   - Expanded FG representation across taxa, diets, and vertical strata.
   - Added representative species and associated ecological traits.
-  - WIP: FG definitions and parameters are subject to further refinement, pending code clarifications/changes. 
+  - WIP: FG definitions and parameters are subject to further refinement, pending code clarifications/changes.
 - References:
   - NA
 
