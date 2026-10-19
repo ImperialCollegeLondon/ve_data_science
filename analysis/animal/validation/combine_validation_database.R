@@ -58,6 +58,7 @@
 library(dplyr)
 library(arrow)
 library(pizzarr)
+reticulate::py_require(c("pandas", "matplotlib"))
 source("tools/R/R/valdb.R")
 source("tools/R/R/get_ve_variables.R")
 
