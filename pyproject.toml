@@ -20,7 +20,7 @@ dependencies = [
   "radian>=0.6.13,<0.8",
   "rasterio>=1.5.1,<2",
   "rioxarray>=0.23.0,<0.24",
-  "ruff>=0.16.3,<0.17",
+  "ruff>=0.16.3,<0.18",
   "SALib>=1.5.1,<2",
   "scipy>=1.16,<2",
   "shapely>=2.1.1,<3",
@@ -100,5 +100,3 @@ virtual-ecosystem = [
   { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", rev = "0f67349", group = "dev-pinned" },
   { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", rev = "72f8724629ee8fbbddadac460a2c2abd6c483f68", group = "dev-PR1889" },
 ]
-default-groups = []
-package = false
