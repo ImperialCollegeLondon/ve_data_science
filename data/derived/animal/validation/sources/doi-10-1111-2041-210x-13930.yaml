@@ -85,8 +85,8 @@ datasets:
   - site
   coordinates:
     same_for_all_rows:
-      latitude: 116.957115
-      longitude: 4.7744711
+      latitude: 4.7744711
+      longitude: 116.957115
       note: Placeholder. Georeferenced location for centre of OG plots. On hold till PR for bounding box
   temporal:
     same_for_all_rows:
