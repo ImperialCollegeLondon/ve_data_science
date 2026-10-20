@@ -39,8 +39,8 @@
 #|       - name: ForestType
 #|         type: character
 #|         units: dimensionless
-#|         spatial_extent: Not applicable (plot identifier).
-#|         temporal_extent: Not applicable (static identifier).
+#|         spatial_extent: null
+#|         temporal_extent: null
 #|         description: |
 #|           Old-growth or Logged
 #|         method: null
@@ -56,8 +56,8 @@
 #|       - name: SAFEPlotName
 #|         type: character
 #|         units: dimensionless
-#|         spatial_extent: Not applicable (plot identifier).
-#|         temporal_extent: Not applicable (static identifier).
+#|         spatial_extent: null
+#|         temporal_extent: null
 #|         description: |
 #|           SAFE plot name, as in the SAFE Gazetteer
 #|         method: null
@@ -73,8 +73,8 @@
 #|       - name: PlotName
 #|         type: character
 #|         units: dimensionless
-#|         spatial_extent: Not applicable (plot identifier).
-#|         temporal_extent: Not applicable (static identifier).
+#|         spatial_extent: null
+#|         temporal_extent: null
 #|         description: |
 #|           Plot name (used in field work)
 #|         method: null
@@ -90,8 +90,8 @@
 #|       - name: ForestPlotsCode
 #|         type: character
 #|         units: dimensionless
-#|         spatial_extent: Not applicable (plot identifier).
-#|         temporal_extent: Not applicable (static identifier).
+#|         spatial_extent: null
+#|         temporal_extent: null
 #|         description: |
 #|           Plot code, as in the ForestPlots database (this should be used in publications, instead of plot name)
 #|         method: null
