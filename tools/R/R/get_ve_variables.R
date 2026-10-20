@@ -304,13 +304,9 @@ get_fg_population_density <- function(
   grid <- config$core$grid
   cohort_df <- readr::read_csv(cohort_data_path, show_col_types = FALSE)
 
-  python_source <- here::here("tools", "python", "src")
-  python_sys <- reticulate::import("sys", convert = FALSE)
-  if (!python_source %in% reticulate::py_to_r(python_sys$path)) {
-    python_sys$path$insert(0L, python_source)
-  }
-  density_tool <- reticulate::import(
+  density_tool <- reticulate::import_from_path(
     "ve_data_tools.fg_population_density",
+    path = here::here("tools", "python", "src"),
     convert = FALSE
   )
   density_df <- density_tool$calculate_fg_population_density(
