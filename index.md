@@ -26,7 +26,7 @@ needs explaining.
 
 Context that applies to every module: the [study sites](background/study_sites.md), the
 [scenarios](background/scenarios.md) we simulate, the
-[data pipeline](background/data_pipeline.md) from field data to validation, and a
+[data pipeline](background/data_pipeline.md) from input data to validation, and a
 [tour of the repository](background/repository_tour.md).
 
 ### Getting started
