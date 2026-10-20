@@ -81,8 +81,14 @@ Kancil: never dies out in either version,still hundreds of individuals and still
 
 ```python
 initialisation[
-    ["test", "version", "total_individuals", "population_density",
-     "mean_individual_body_mass", "n_cohorts"]
+    [
+        "test",
+        "version",
+        "total_individuals",
+        "population_density",
+        "mean_individual_body_mass",
+        "n_cohorts",
+    ]
 ]
 ```
 
@@ -126,34 +132,49 @@ def version_difference(test: str) -> pd.DataFrame:
     """Return 0.2.2-vs-0.2.1 percentage differences at each shared date."""
     wide = (
         trajectories.loc[trajectories["test"] == test]
-        .pivot(index="time", columns="version",
-               values=["population_density", "mean_individual_body_mass"])
+        .pivot(
+            index="time",
+            columns="version",
+            values=["population_density", "mean_individual_body_mass"],
+        )
         .dropna()
     )
-    return pd.DataFrame({
-        "density_0.2.1": wide[("population_density", "0.2.1")],
-        "density_0.2.2": wide[("population_density", "0.2.2")],
-        "density_diff_%": (wide[("population_density", "0.2.2")]
-                           / wide[("population_density", "0.2.1")] - 1) * 100,
-        "body_mass_0.2.1": wide[("mean_individual_body_mass", "0.2.1")],
-        "body_mass_0.2.2": wide[("mean_individual_body_mass", "0.2.2")],
-        "body_mass_diff_%": (wide[("mean_individual_body_mass", "0.2.2")]
-                             / wide[("mean_individual_body_mass", "0.2.1")] - 1) * 100,
-    })
+    return pd.DataFrame(
+        {
+            "density_0.2.1": wide[("population_density", "0.2.1")],
+            "density_0.2.2": wide[("population_density", "0.2.2")],
+            "density_diff_%": (
+                wide[("population_density", "0.2.2")]
+                / wide[("population_density", "0.2.1")]
+                - 1
+            )
+            * 100,
+            "body_mass_0.2.1": wide[("mean_individual_body_mass", "0.2.1")],
+            "body_mass_0.2.2": wide[("mean_individual_body_mass", "0.2.2")],
+            "body_mass_diff_%": (
+                wide[("mean_individual_body_mass", "0.2.2")]
+                / wide[("mean_individual_body_mass", "0.2.1")]
+                - 1
+            )
+            * 100,
+        }
+    )
 
 
 differences = {test: version_difference(test) for test in ["elephant", "kancil"]}
 
-largest = pd.DataFrame([
-    {
-        "test": test,
-        "max_abs_density_diff_%": d["density_diff_%"].abs().max(),
-        "density_diff_date": d["density_diff_%"].abs().idxmax(),
-        "max_abs_body_mass_diff_%": d["body_mass_diff_%"].abs().max(),
-        "body_mass_diff_date": d["body_mass_diff_%"].abs().idxmax(),
-    }
-    for test, d in differences.items()
-])
+largest = pd.DataFrame(
+    [
+        {
+            "test": test,
+            "max_abs_density_diff_%": d["density_diff_%"].abs().max(),
+            "density_diff_date": d["density_diff_%"].abs().idxmax(),
+            "max_abs_body_mass_diff_%": d["body_mass_diff_%"].abs().max(),
+            "body_mass_diff_date": d["body_mass_diff_%"].abs().idxmax(),
+        }
+        for test, d in differences.items()
+    ]
+)
 largest
 ```
 
@@ -249,7 +270,9 @@ def show_comparison(test: str) -> None:
     for version, group in shared.groupby("version"):
         group = group.sort_values("time_index")
         axes[0].plot(group["time_index"], group["population_density"], label=version)
-        axes[1].plot(group["time_index"], group["mean_individual_body_mass"], label=version)
+        axes[1].plot(
+            group["time_index"], group["mean_individual_body_mass"], label=version
+        )
 
     density = shared["population_density"]
     if (density > 0).all() and density.max() / density.min() >= 100:
