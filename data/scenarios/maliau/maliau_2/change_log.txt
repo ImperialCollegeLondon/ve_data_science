@@ -1,4 +1,14 @@
-# Change log of maliau_2 scenario input data
+# Change log of maliau_2 scenario input data and config 
+
+2026-10-20
+- Module: Animals
+- Author: Siti Nor Baizurah
+- Files changed:
+  - animal_config.toml.
+- Changes made:
+  - Revise config pointing to level 5 of FG with remarks that other simplified level also available in Globus. 
+- References:
+  - #735
 
 2026-10-19
 - Module: Animals
