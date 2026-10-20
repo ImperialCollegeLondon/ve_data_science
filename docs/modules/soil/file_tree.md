@@ -26,8 +26,9 @@ build_file_dependency_graph()
 render_file_dependency_graph()
 ```
 
-`render_file_dependency_graph()` uses `DiagrammeR` and `DiagrammeRsvg` to
-create `file_dependencies.svg` from the DOT file.
+`render_file_dependency_graph()` uses `DiagrammeR` and `DiagrammeRsvg` to create
+`file_dependencies.svg` from the DOT file. We will automated this graph
+rendering with CI later.
 
 Solid arrows point from a required script to the script that uses it. Dashed
 green arrows point from a script that writes a static artefact path to one that

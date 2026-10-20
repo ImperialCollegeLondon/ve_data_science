@@ -68,7 +68,10 @@ ranges, which is preparatory sensitivity work rather than calibration.
 
 Validation harmonises observations into a common database, then joins model
 values from the matching spatial and temporal context. The current soil workflow
-targets the `maliau_2` scenario and remains work in progress.
+targets the `maliau_2` scenario and remains work in progress. Validation is
+fully documented in
+[the validation database documentation](../../validation_database.md), including
+a workflow flowchart.
 
 | File | What it does | How it is used |
 | --- | --- | --- |
