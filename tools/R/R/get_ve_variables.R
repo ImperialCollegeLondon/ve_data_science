@@ -72,7 +72,7 @@ get_data_variables <- function(
   # retrieve state variables
   vars <- ve_vars$get_store()$listdir(group)
   var_discard <- c(".zattrs", ".zgroup", "number", "spatial_ref")
-  vars <- vars[vars %notin% var_discard]
+  vars <- vars[!(vars %in% var_discard)]
 
   # use all variables if none specified,
   # otherwise validate requested variables exist
@@ -304,9 +304,13 @@ get_fg_population_density <- function(
   grid <- config$core$grid
   cohort_df <- readr::read_csv(cohort_data_path, show_col_types = FALSE)
 
-  density_tool <- reticulate::import_from_path(
+  python_source <- here::here("tools", "python", "src")
+  python_sys <- reticulate::import("sys", convert = FALSE)
+  if (!python_source %in% reticulate::py_to_r(python_sys$path)) {
+    python_sys$path$insert(0L, python_source)
+  }
+  density_tool <- reticulate::import(
     "ve_data_tools.fg_population_density",
-    path = here::here("tools", "python", "src"),
     convert = FALSE
   )
   density_df <- density_tool$calculate_fg_population_density(
