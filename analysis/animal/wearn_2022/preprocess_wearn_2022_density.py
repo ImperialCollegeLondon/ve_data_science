@@ -23,11 +23,11 @@ input_files:
       Raw supplementary table containing species density estimates across
       old-growth (Maliau) and logged (SAFE) forest habitats, according to
       the article. See https://doi.org/10.1111/2041-210X.13930
-  - name: VE_ANIMAL_functionalgroups_model_level5_0250730.csv
-    path: data/primary/animal/Functional_group_Anna/
+  - name: animal_functional_groups_Maliau_level5.csv
+    path: data/primary/animal/functional_group/
     description: |TODO
-      Level-5 functional group reference list used to populate the in-script
-      options for manual species-to-group curation.THIS needs updating!
+      Temporary placeholder for level 5 FG - should be replaced later
+      by master input file - and script updated accordingly.
 
 output_files:
     - name: wearn_2022_density.csv
@@ -77,74 +77,24 @@ input_file = (
 output_dir = repo_root / "data" / "derived" / module_name / "wearn_2022"
 output_file = output_dir / "wearn_2022_density.csv"
 
-# Functional group level 5 from VE_ANIMAL_functionalgroups_model_level5_0250730.csv in
-# data/primary/animal/Functional_group_Anna/
-# TODO: Check if all functional group level 5 with the reference CSV.
-functional_group_level5_options: list[str] = [
-    "Carnivorous arboreal birds",
-    "Insectivorous arboreal bats",
-    "Insectivorous arboreal birds",
-    "Omnivorous terrestrial ants",
-    "Herbivorous terrestrial termites",
-    "Herbivorous terrestrial beetles & crickets",
-    "Herbivorous terrestrial & subterranean larva",
-    "Carnivorous flying insects",
-    "Arboreal reptiles",
-    "Arboreal amphibians",
-    "Carnivorous terrestrial ants",
-    "Omnivorous terrestrial beetles",
-    "Omnivorous terrestrial larva",
-    "Herbivorous arboreal bees",
-    "Herbivorous arboreal bugs",
-    "Herbivorous arboreal butterflies & moths",
-    "Carnivorous arboreal spiders",
-    "Herbivorous arboreal larva",
-    "Non-Feeding semelparous flying insects",
-    "Carnivorous semelparous flies",
-    "Herbivorous terrestrial large mammal",
-    "Herbivorous terrestrial medium mammal",
-    "Herbivorous terrestrial small mammal",
-    "Omnivorous arboreal birds",
-    "Terrestrial amphibians",
-    "Terrestrial reptiles",
-    "Omnivorous arboreal ants",
-    "Carnivorous terrestrial larva",
-    "Carnivorous predatory beetles",
-    "Omnivorous terrestrial semelparous flying insects",
-    "Herbivorous arboreal primates",
-    "Omnivorous terrestrial mammal",
-    "Herbivorous terrestrial semelparous flies",
-    "Arboreal snakes",
-    "Herbivorous terrestrial insects",
-    "Herbivorous arboreal insects",
-    "Carnivorous borrowing mammal",
-    "Carnivorous arboreal mammal",
-    "Carnivorous arboreal/terrestrial medium mammal",
-    "Omnivorous arboreal primate",
-    "Omnivorous arboreal small mammal",
-    "Herbivorous arboreal bats",
-    "Herbivorous arboreal birds",
-    "Herbivorous arboreal semelparous larva",
-    "Carnivorous terrestrial/arboreal mammal",
-    "Herbivorous terrestrial semelparous larva",
-    "Carnivorous riparian birds",
-    "Carnivorous aquatic mammal",
-    "Omnivorous arboreal/terrestrial large mammal",
-    "Omnivorous arboreal/terrestrial small mammal",
-    "Carnivorous aquatic snakes",
-    "Carnivorous terrestrial snakes",
-    "Omnivorous terrestrial bird",
-    "Carnivorous terrestrial birds",
-    "Omnivorous flying wasps",
-    "Detrital soil macrofauna",
-    "Carnivorous soil macrofauna",
-    "Soil-feeding soil macrofauna",
-    "Soil-feeding soil mesofauna",
-    "Soil-feeding soil microfauna",
-]
+## TODO: Change to master input csv and update the script accordingly.
 
+functional_group_level5_options: list[str] = (
+    pd.read_csv(
+        repo_root
+        / "data"
+        / "primary"
+        / module_name
+        / "functional_group"
+        / "animal_functional_groups_Maliau_level5.csv",
+        usecols=["name"],
+    )["name"]
+    .dropna()
+    .tolist()
+)
 
-# Fill functional_group_level5_name values in later phases.
+# Manually filled functional_group_level5_name values to match species from observed
+# data to functional group
 species_to_fg_template: list[dict[str, str]] = [
     {
         "species_common_name": "Oriental_small-clawed_otter",
