@@ -21,7 +21,7 @@ repos:
       - id: debug-statements
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # This is python specific linting and formatting using ruff
-    rev: v0.17.0
+    rev: v0.17.1
     hooks:
       # Run the linter.
       - id: ruff-check
@@ -39,7 +39,7 @@ repos:
     # Note that this currently points to a specific GitHub commit to avoid an issue with
     # Rcpp: https://github.com/lorenzwalthert/precommit/issues/612 but should be updated
     # when that issue gets resolved in a published version.
-    rev: v0.4.3.9030
+    rev: v0.4.3.9032
     hooks:
       - id: parsable-R
       - id: no-browser-statement
