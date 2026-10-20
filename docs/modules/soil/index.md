@@ -1,81 +1,13 @@
 # Soil and litter
 
-<!-- markdownlint-disable MD046 -->
-<!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
-indented content of the admonition is code. -->
-
-!!! note "Draft"
-
-    This page has not been filled in yet. It will describe how this repository
-    parameterises, runs and tests the soil and litter module, and link to the scripts
-    and notebooks involved.
-
-<!--
-HOW TO FILL IN THIS PAGE
-
-This page was created from templates/docs/module_landing_template.md. Replace
-every [bracketed] placeholder, and delete these comments as you fill each section in.
-When the page is complete, delete the "Draft" note at the top of the page.
-
-The purpose of your module landing page is to create a "site map" for your
-documentation, scripts and notebooks. It explains how everything fits together and
-links to the files that hold the details. The scripts and notebooks themselves
-describe how they work internally, in their metadata headers and comments, so this
-page only needs a brief description of each file and how it is used. Each section
-below has a table where you can provide a link and brief description of these files.
-
-The page has six sections:
-
-1. Module overview: the general approach of the module, with links to the VE docs.
-2. Input data: formats, special considerations, the pipeline and the files that
-   prepare the inputs.
-3. Output data: the outputs you work with and the files that process them.
-4. Calibration: the files and tools used to calibrate the module.
-5. Validation: the files and tools used to validate the module.
-6. Other: any testing or tools that do not fit the sections above.
-
-Not needed:
-
-1. Information on the sites or site-specific considerations. Please leave this for
-   the Study sites page (docs/background/study_sites.md).
-2. Any substantial repeats of the VE docs. Just include a link.
-3. Detailed information about your methods. Please put this in your script and
-   notebook comments, and link to the files from here.
-
-If a section does not apply to your module yet, keep the heading and write one line
-saying so, for example "No calibration has been done for this module yet."
-
-FILE TABLES
-
-Sections 2 to 6 each list files in a table. For each file, give:
-
-- File: the path, linked to the file on GitHub. Link to a folder if several files
-  do one job together.
-- What it does: one sentence on its purpose.
-- How it is used: when it is run and how it connects to other files. Say if it is
-  part of a pipeline or used together with another file, for example "Run after
-  model_safe.R; its output is read by input_data_maliau_2.R", or "Sourced by all
-  scripts in this folder". Name any shared function from tools/ that it relies on.
-
-List the files in the order they are run.
--->
-
 ## Module overview
 
-<!--
-Give a short overview of how this repository has interpreted and worked with the VE
-for your module. Key questions can include:
-
-- Which VE models does this module cover (for example soil and litter)?
-- What is the general approach of the module?
-- What is the current state of the work, and what is planned?
-
-The links to the VE theory and implementation pages for this module are already
-listed below. Link to them rather than explaining the model.
--->
-
-[Two or three sentences describing how this repository parameterises and tests the
-module.]
+Here we prepares initial soil and litter states for Virtual Ecosystem
+scenarios, principally by assembling analysed data into model-ready NetCDF
+files. It also contains work to inspect outputs, build a validation database,
+and sample initial-state ranges for sensitivity analysis. Variable-level
+sources, units, and assumptions for the Maliau inputs are recorded in
+[`soil_litter_metadata.toml`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/scenarios/maliau/soil_litter_metadata.toml).
 
 For how the model itself works, see the VE documentation:
 
@@ -86,94 +18,77 @@ For how the model itself works, see the VE documentation:
 
 ## Input data
 
-<!--
-Give a brief overview of the input data formats (link to the VE docs where
-appropriate) and any special considerations about source or format. For example: is
-the data spatially explicit? Continuous or categorical? Gridded or per plot?
-
-Then give an overview of your pipeline. A figure is a good option: the flowchart
-below renders as a diagram on the website. Edit the boxes to match your files, or
-delete it if a figure does not help.
--->
-
-[Brief overview of the input data, its formats and any special considerations.]
+Soil and litter initial states are spatial NetCDF inputs on the scenario grid.
+The Maliau inputs include soil properties, carbon, nitrogen and phosphorus
+pools, microbial and enzyme pools, litter pools, and lignin proportions. Their
+sources, units, and assumptions are recorded in the scenario metadata. Input
+data files are shared through Globus rather than stored in the repository.
 
 ```mermaid
 flowchart LR
-  A["Primary data<br/>data/primary/soil/"] --> B["[First script]"]
-  B --> C["Derived data<br/>data/derived/soil/"]
-  C --> D["[Script that builds scenario inputs]"]
-  D --> E["Scenario inputs<br/>data/scenarios/"]
+  A["Primary data"] --> B["Soil and litter analyses"]
+  B --> C["Derived data"]
+  C --> D["Compile Maliau 1 inputs"]
+  D --> E["Subset Maliau 2 inputs"]
+  E --> F["Scenario NetCDF inputs"]
 ```
 
 | File | What it does | How it is used |
 | --- | --- | --- |
-| [`analysis/soil/[folder]/[file]`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main/analysis/soil) | [One sentence] | [When it runs; what it reads from and feeds into] |
-| [`analysis/soil/[folder]/[file]`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main/analysis/soil) | [One sentence] | [When it runs; what it reads from and feeds into] |
+| [`analysis/soil/initialisation/input_data_maliau_1.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/initialisation/input_data_maliau_1.R) | Compiles analysed soil variables into `soil_maliau.nc` for `maliau_1`. | Run after analyses that estimate soil variables; it reads grid metadata and writes the full-grid scenario input. |
+| [`analysis/litter/initialisation/input_data_maliau_1.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/litter/initialisation/input_data_maliau_1.R) | Compiles analysed litter variables into `litter_maliau.nc` for `maliau_1`. | Run after litter stock and nutrient analyses; it reads grid metadata and writes the full-grid scenario input. |
+| [`analysis/soil/initialisation/input_data_maliau_2.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/initialisation/input_data_maliau_2.R) | Subsets the `maliau_1` soil input to the `maliau_2` grid. | Run after the `maliau_1` soil compilation; it writes the `maliau_2` soil input. |
+| [`analysis/litter/initialisation/input_data_maliau_2.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/litter/initialisation/input_data_maliau_2.R) | Subsets the `maliau_1` litter input to the `maliau_2` grid. | Run after the `maliau_1` litter compilation; it writes the `maliau_2` litter input. |
 
 ### Input parameters
 
-<!--
-Optional. Describe any input parameters that need specific pre-processing, and list
-the files that produce them. Delete this subsection if it does not apply.
--->
-
-[Brief description of the parameters and how they are derived.]
+The initial-state variables are assembled from several analyses rather than from
+a separate parameter-preprocessing pipeline. The metadata file is the
+authoritative record of each variable's source, unit, assumptions, and producing
+script.
 
 | File | What it does | How it is used |
 | --- | --- | --- |
-| [`path/to/file`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main) | [One sentence] | [When it runs; what it reads from and feeds into] |
+| [`data/scenarios/maliau/soil_litter_metadata.toml`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/scenarios/maliau/soil_litter_metadata.toml) | Records provenance and units for Maliau soil and litter initial-state variables. | Read by the Maliau input-compilation scripts to obtain variable names and units; use it to trace a variable to its analysis script. |
 
 ## Output data
 
-<!--
-Give a brief description of the module outputs you work with and any special
-considerations, such as variables that must be converted or aggregated before they
-can be compared with observations. Then list the notebooks and scripts that process
-the outputs.
--->
-
-[Brief description of the outputs and any special considerations.]
+Virtual Ecosystem outputs for `maliau_2` are stored as a Zarr dataset. The
+validation workflow joins selected outputs to observations after harmonising
+those observations into the repository validation database. A separate script
+demonstrates visualisation of continuous soil outputs and initial states.
 
 | File | What it does | How it is used |
 | --- | --- | --- |
-| [`path/to/file`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main) | [One sentence] | [When it runs; what it reads from and feeds into] |
+| [`analysis/soil/validation/build_soil_validation_database.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/build_soil_validation_database.R) | Builds the soil validation database and joins it to `maliau_2` model outputs. | Run after validation source schemas and data are available; it reads `out/model_data.zarr` and writes a Parquet dataset partitioned by source dataset. |
+| [`analysis/soil/visualisation/visualise_continuous_data.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/visualisation/visualise_continuous_data.R) | Demonstrates plots of selected continuous soil outputs and initial states. | Run against Maliau output NetCDF files; it uses `tidy_continuous_data()` to prepare variables for time-series and spatial plots. |
 
 ## Calibration
 
-<!--
-Give a short overview of any calibration or sensitivity analysis for this module,
-then list the notebooks, tools and other documentation used.
--->
-
-[Brief overview of the calibration work.]
+No calibration workflow has been completed for the soil and litter module. The
+available script creates Sobol samples across observed Maliau initial-state
+ranges, which is preparatory sensitivity work rather than calibration.
 
 | File | What it does | How it is used |
 | --- | --- | --- |
-| [`path/to/file`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main) | [One sentence] | [When it runs; what it reads from and feeds into] |
+| [`analysis/soil/sensitivity/sobol.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/sensitivity/sobol.R) | Reads required initial-state variables and generates first-order Sobol sample matrices scaled to Maliau input ranges. | Run with Maliau soil and litter input NetCDF files available; its sampled matrix can support later sensitivity experiments. |
 
 ## Validation
 
-<!--
-Give a short overview of how the module outputs are validated, then list the
-notebooks, tools and other documentation used.
--->
-
-[Brief overview of the validation work.]
+Validation harmonises observations into a common database, then joins model
+values from the matching spatial and temporal context. The current soil workflow
+targets the `maliau_2` scenario and remains work in progress.
 
 | File | What it does | How it is used |
 | --- | --- | --- |
-| [`path/to/file`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main) | [One sentence] | [When it runs; what it reads from and feeds into] |
+| [`analysis/soil/validation/build_soil_validation_database.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/build_soil_validation_database.R) | Builds the soil validation database and adds Virtual Ecosystem output values. | Run after source datasets have been screened and described by validation schemas; it writes the combined Parquet dataset for downstream validation. |
 
 ## Other
 
-<!--
-Describe any special testing or tools that do not fit the sections above, using the
-same table. Delete this section if there are none.
--->
-
-[Brief description of other tools or testing.]
+Shared validation and NetCDF helpers are maintained and tested under `tools/`.
+The scripts on this page use those helpers rather than duplicating their
+behaviour.
 
 | File | What it does | How it is used |
 | --- | --- | --- |
-| [`path/to/file`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main) | [One sentence] | [When it runs; what it reads from and feeds into] |
+| [`tools/R/tests/testthat/`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main/tools/R/tests/testthat) | Contains tests for shared R helper functions, including utilities used by analysis workflows. | Run when changing a shared helper or its supported behaviour; module scripts source helpers from `tools/R/R/`. |
