@@ -5,9 +5,7 @@
 Here we prepares initial soil and litter states for Virtual Ecosystem
 scenarios, principally by assembling analysed data into model-ready NetCDF
 files. It also contains work to inspect outputs, build a validation database,
-and sample initial-state ranges for sensitivity analysis. Variable-level
-sources, units, and assumptions for the Maliau inputs are recorded in
-[`soil_litter_metadata.toml`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/scenarios/maliau/soil_litter_metadata.toml).
+and sample initial-state ranges for sensitivity analysis.
 
 For how the model itself works, see the VE documentation:
 
@@ -20,9 +18,11 @@ For how the model itself works, see the VE documentation:
 
 Soil and litter initial states are spatial NetCDF inputs on the scenario grid.
 The Maliau inputs include soil properties, carbon, nitrogen and phosphorus
-pools, microbial and enzyme pools, litter pools, and lignin proportions. Their
-sources, units, and assumptions are recorded in the scenario metadata. Input
-data files are shared through Globus rather than stored in the repository.
+pools, microbial and enzyme pools, litter pools, and lignin proportions.
+Variable-level sources, units, and assumptions for the Maliau inputs are
+recorded in
+[`soil_litter_metadata.toml`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/scenarios/maliau/soil_litter_metadata.toml).
+Input data files are shared through Globus rather than stored in the repository.
 
 ```mermaid
 flowchart LR
@@ -30,6 +30,7 @@ flowchart LR
   B --> C["Derived data"]
   C --> D["Compile Maliau 1 inputs"]
   D --> E["Subset Maliau 2 inputs"]
+  D --> F["Scenario NetCDF inputs"]
   E --> F["Scenario NetCDF inputs"]
 ```
 
@@ -39,16 +40,6 @@ flowchart LR
 | [`analysis/litter/initialisation/input_data_maliau_1.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/litter/initialisation/input_data_maliau_1.R) | Compiles analysed litter variables into `litter_maliau.nc` for `maliau_1`. | Run after litter stock and nutrient analyses; it reads grid metadata and writes the full-grid scenario input. |
 | [`analysis/soil/initialisation/input_data_maliau_2.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/initialisation/input_data_maliau_2.R) | Subsets the `maliau_1` soil input to the `maliau_2` grid. | Run after the `maliau_1` soil compilation; it writes the `maliau_2` soil input. |
 | [`analysis/litter/initialisation/input_data_maliau_2.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/litter/initialisation/input_data_maliau_2.R) | Subsets the `maliau_1` litter input to the `maliau_2` grid. | Run after the `maliau_1` litter compilation; it writes the `maliau_2` litter input. |
-
-### Input parameters
-
-The initial-state variables are assembled from several analyses rather than from
-a separate parameter-preprocessing pipeline. The metadata file is the
-authoritative record of each variable's source, unit, assumptions, and producing
-script.
-
-| File | What it does | How it is used |
-| --- | --- | --- |
 | [`data/scenarios/maliau/soil_litter_metadata.toml`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/scenarios/maliau/soil_litter_metadata.toml) | Records provenance and units for Maliau soil and litter initial-state variables. | Read by the Maliau input-compilation scripts to obtain variable names and units; use it to trace a variable to its analysis script. |
 
 ## Output data
@@ -82,13 +73,3 @@ targets the `maliau_2` scenario and remains work in progress.
 | File | What it does | How it is used |
 | --- | --- | --- |
 | [`analysis/soil/validation/build_soil_validation_database.R`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/build_soil_validation_database.R) | Builds the soil validation database and adds Virtual Ecosystem output values. | Run after source datasets have been screened and described by validation schemas; it writes the combined Parquet dataset for downstream validation. |
-
-## Other
-
-Shared validation and NetCDF helpers are maintained and tested under `tools/`.
-The scripts on this page use those helpers rather than duplicating their
-behaviour.
-
-| File | What it does | How it is used |
-| --- | --- | --- |
-| [`tools/R/tests/testthat/`](https://github.com/ImperialCollegeLondon/ve_data_science/tree/main/tools/R/tests/testthat) | Contains tests for shared R helper functions, including utilities used by analysis workflows. | Run when changing a shared helper or its supported behaviour; module scripts source helpers from `tools/R/R/`. |
