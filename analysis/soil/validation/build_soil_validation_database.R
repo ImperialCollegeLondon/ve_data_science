@@ -56,12 +56,21 @@ library(arrow)
 source("tools/R/R/valdb.R")
 source("tools/R/R/get_ve_variables.R")
 
-# Paths to the VE scenario simulation outputs
-zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
-config_path <- "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
+# setup path names
+module_name <- "soil"
+validation_root <- file.path("data/derived", module_name, "validation")
+sources_dir <- file.path(validation_root, "sources")
+db_path <- file.path(validation_root, "database")
+variables_derived <- "data/derived/validation/derived_variables.toml"
+scenario_path <- "data/scenarios/maliau/maliau_2"
+zarr_path <- file.path(scenario_path, "out/model_data.zarr")
+config_path <- file.path(scenario_path, "out/compiled_configuration.toml")
+db_path <- file.path(validation_root, "database")
+
+# (re)build the soil validation database
+build_validation_database(variables_derived, sources_dir, db_path)
 
 # Read the validation database
-db_path <- "data/derived/soil/validation/database"
 validation_database <- open_dataset(db_path) |> collect()
 
 # Combine the validation database with VE outputs
