@@ -72,7 +72,7 @@ get_data_variables <- function(
   # retrieve state variables
   vars <- ve_vars$get_store()$listdir(group)
   var_discard <- c(".zattrs", ".zgroup", "number", "spatial_ref")
-  vars <- vars[!(vars %in% var_discard)]
+  vars <- vars[vars %notin% var_discard]
 
   # use all variables if none specified,
   # otherwise validate requested variables exist
