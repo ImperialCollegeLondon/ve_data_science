@@ -259,6 +259,7 @@ convert_canonical_value <- function(
 
   tryCatch(
     {
+      unit_original <- gsub("\\{[^}]+\\}", "", unit_original)
       original <- value * units::as_units(unit_original)
       converted <- units::set_units(
         original,
@@ -271,18 +272,8 @@ convert_canonical_value <- function(
       cli::cli_abort(
         c(
           "Cannot convert units for source {.val {source_id}}.",
-          "x" = paste0(
-            "Variable ",
-            var_original,
-            " mapped to ",
-            var_canonical,
-            " cannot be converted from ",
-            unit_original,
-            " to ",
-            unit_canonical,
-            "."
-          ),
-          "i" = conditionMessage(error)
+          "x" = "Variable {var_original} mapped to {var_canonical} cannot be converted from {unit_original} to {unit_canonical}.",
+          "i" = "{conditionMessage(error)}"
         ),
         parent = error
       )
