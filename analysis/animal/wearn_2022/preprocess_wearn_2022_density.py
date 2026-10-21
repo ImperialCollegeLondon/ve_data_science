@@ -14,7 +14,7 @@ virtual_ecosystem_module: animal
 author:
   - Nicholas Wei Cheng Tan
 
-status: wip
+status: final
 
 input_files:
     - name: wearn_2022_Table_S3.1.csv
@@ -92,9 +92,8 @@ functional_group_level5_options: list[str] = (
     .tolist()
 )
 
-# Manually filled functional_group_level5_name values to match species from observed
-# data to functional group in a nested structure
-species_to_fg_template: list[dict[str, str]] = {
+# Manually map observed species to the exact FG identifiers in the input CSV.
+species_to_fg_template: dict[str, list[str]] = {
     "carnivorous_aquatic_mammal": [
         "Oriental_small-clawed_otter",
     ],
@@ -152,6 +151,7 @@ species_to_fg_template: list[dict[str, str]] = {
         "Long-tailed_macaque",
         "Pig-tailed_macaque",
     ],
+    "carnivorous_burrowing_mammal": ["Moon_rat"],
 }
 
 
@@ -241,35 +241,57 @@ if __name__ == "__main__":
     # Phase 4: map species to level-5 functional groups.
     # Many species may map to one FG, and not all FG options need to be used.
     # Missing FG mappings are allowed and carried through as NA.
-    mapping_columns = [*species_columns, "functional_group_level5_name"]
-    species_fg_mapping = pd.DataFrame(
-        species_to_fg_template,
-        columns=mapping_columns,
-    ).copy()
+    mapped_species_names = [
+        species_name
+        for species_names in species_to_fg_template.values()
+        for species_name in species_names
+    ]
+    # Ensure that each species maps to only one functional group.
+    if len(mapped_species_names) != len(set(mapped_species_names)):
+        raise ValueError("Each species common name must map to one functional group.")
 
-    # Standardize species and functional group columns in the mapping table.
-    for column_name in species_columns:
-        species_fg_mapping[column_name] = (
-            species_fg_mapping[column_name]
-            .astype("string")
-            .str.strip()
-            .str.replace(r"\s+", "_", regex=True)
+    invalid_functional_groups = sorted(
+        set(species_to_fg_template).difference(functional_group_level5_options)
+    )
+    if invalid_functional_groups:
+        raise ValueError(
+            "Functional groups not found in the input CSV: "
+            + ", ".join(invalid_functional_groups)
         )
-    species_fg_mapping["functional_group_level5_name"] = (
-        species_fg_mapping["functional_group_level5_name"]
-        .astype("string")
-        .str.strip()
-        .replace("", pd.NA)
+
+    # Create mapping table
+    species_fg_mapping = pd.DataFrame(
+        [
+            {
+                "species_common_name": species_name,
+                "functional_group_level5_name": functional_group,
+            }
+            for functional_group, species_names in species_to_fg_template.items()
+            for species_name in species_names
+        ]
     )
 
-    # Check for duplicate species_scientific_name entries in the mapping table.
+    # Standardize species names to match the source table.
+    for column_name in species_columns:
+        if column_name in species_fg_mapping:
+            species_fg_mapping[column_name] = (
+                species_fg_mapping[column_name]
+                .astype("string")
+                .str.strip()
+                .str.replace(r"\s+", "_", regex=True)
+            )
+    species_fg_mapping["species_common_name"] = (
+        species_fg_mapping["species_common_name"].astype("string").str.strip()
+    )
+
+    # Check for duplicate species entries in the mapping table.
     duplicate_species = species_fg_mapping[
-        species_fg_mapping["species_scientific_name"].duplicated(keep=False)
-    ]["species_scientific_name"].unique()
+        species_fg_mapping["species_common_name"].duplicated(keep=False)
+    ]["species_common_name"].unique()
     if len(duplicate_species) > 0:
         duplicate_species_list = ", ".join(sorted(map(str, duplicate_species)))
         raise ValueError(
-            "Phase 4 mapping has duplicated species_scientific_name entries: "
+            "Phase 4 mapping has duplicated species_common_name entries: "
             f"{duplicate_species_list}"
         )
 
@@ -287,39 +309,18 @@ if __name__ == "__main__":
         print("\nPhase 4 template helper")
         print("Copy this block into species_to_fg_template and fill only")
         print("functional_group_level5_name values:\n")
-        print("species_to_fg_template = [")
+        print("species_to_fg_template = {")
         for row in template_rows.itertuples(index=False):
-            print("    {")
-            print(f'        "species_common_name": "{row.species_common_name}",')
-            print(
-                f'        "species_scientific_name": "{row.species_scientific_name}",'
-            )
-            print('        "functional_group_level5_name": "",')
-            print("    },")
-        print("]\n")
+            print(f'    "": ["{row.species_common_name}"],')
+        print("}\n")
 
     # Merge the species reference with the functional group mapping.
     species_mapping = species_reference.merge(
-        species_fg_mapping[["species_scientific_name", "functional_group_level5_name"]],
-        on="species_scientific_name",
+        species_fg_mapping,
+        on="species_common_name",
         how="left",
+        validate="many_to_one",
     )
-
-    # Check for FG group names that dont exist in the functional_group_level5_options
-    invalid_fg_rows = species_mapping[
-        species_mapping["functional_group_level5_name"].notna()
-        & ~species_mapping["functional_group_level5_name"].isin(
-            functional_group_level5_options
-        )
-    ]
-    if not invalid_fg_rows.empty:
-        invalid_fg_list = ", ".join(
-            sorted(invalid_fg_rows["functional_group_level5_name"].unique())
-        )
-        raise ValueError(
-            "Phase 4 mapping contains FG names not in "
-            f"functional_group_level5_options: {invalid_fg_list}"
-        )
 
     # Merge the functional group information back into the main wearn_table
     wearn_table = wearn_table.merge(
@@ -367,17 +368,7 @@ if __name__ == "__main__":
         "density_ci95_upper": "ci95_upper",
     }
 
-    # e.g. "Omnivorous arboreal/terrestrial small mammal"
-    # -> "omnivorous_arboreal_terrestrial_small_mammal"
-    functional_group = (
-        wearn_table["functional_group_level5_name"]
-        .astype("string")
-        .str.strip()
-        .str.lower()
-        .str.replace("&", "and", regex=False)
-        .str.replace(r"[^a-z0-9]+", "_", regex=True)
-        .str.strip("_")
-    ).replace("", pd.NA)
+    functional_group = wearn_table["functional_group_level5_name"].astype("string")
 
     species_level_output = (
         wearn_table.assign(functional_group=functional_group)
