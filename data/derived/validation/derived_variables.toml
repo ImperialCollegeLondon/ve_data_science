@@ -131,13 +131,19 @@ unit = "km^-2"
 function = "get_fg_population_density"
 
 [[variable]]
-name = "density_carnivorous_borrowing_mammal_L5"
+name = "density_carnivorous_burrowing_mammal_L5"
 description = "Population density of the animal functional group per square kilometer"
 unit = "km^-2"
 function = "get_fg_population_density"
 
 [[variable]]
 name = "density_carnivorous_terrestrial_arboreal_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_herbivorous_terrestrial_large_mammal_L5"
 description = "Population density of the animal functional group per square kilometer"
 unit = "km^-2"
 function = "get_fg_population_density"
@@ -185,7 +191,13 @@ unit = "km^-2"
 function = "get_fg_population_density"
 
 [[variable]]
-name = "density_omnivorous_terrestrial_mammal_L5"
+name = "density_omnivorous_terrestrial_large_mammal_L5"
+description = "Population density of the animal functional group per square kilometer"
+unit = "km^-2"
+function = "get_fg_population_density"
+
+[[variable]]
+name = "density_omnivorous_terrestrial_small_mammal_L5"
 description = "Population density of the animal functional group per square kilometer"
 unit = "km^-2"
 function = "get_fg_population_density"
