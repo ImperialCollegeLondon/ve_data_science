@@ -88,7 +88,7 @@ daily values, a mean of the daily values, or the state at the end of the month.
 | vertical_flow | mm d⁻¹ | monthly mean, per soil layer | Medium-High | literature | Drainage or lysimeter fluxes |
 | interception | mm | monthly sum, per canopy layer | Medium | literature | Throughfall and stemflow in old-growth forest |
 | canopy_evaporation | mm | monthly sum, per canopy layer | Medium | derived (evapotranspiration) | As interception |
-| precipitation_surface | mm | monthly sum, per cell | Medium | derived (rainfall − interception) | As interception |
+| precipitation_surface | mm | monthly sum, per cell | Medium | derived (rainfall + condensation - canopy evaporation + remaining interception) | As interception |
 | soil_evaporation | mm | monthly sum, per cell | Medium | derived (evapotranspiration) | A partition of evapotranspiration |
 | matric_potential | kPa | monthly mean, per soil layer | Medium | literature | Values at Maliau; paired θ and potential |
 | bypass_flow | mm | monthly sum, per cell | Medium | literature | Literature values |
