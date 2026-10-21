@@ -83,6 +83,24 @@ unit = "kg{N} m^-2"
 function = "get_soil_n_pool_inorganic_per_area"
 
 [[variable]]
+name = "soil_respiration_CO2_molar"
+description = "Rate of respiration from soil in CO2 molar basis, typically from field measurement using gas chamber"
+unit = "mol{CO2} m-2 day-1"
+function = "get_soil_respiration_CO2_molar"
+
+[[variable]]
+name = "soil_respiration_CO2_mass"
+description = "Rate of respiration from soil in CO2 mass basis, typically from field measurement using gas chamber"
+unit = "kg{CO2} m-2 day-1"
+function = "get_soil_respiration_CO2_mass"
+
+[[variable]]
+name = "soil_nitrous_oxide_emission_N2O_mass"
+description = "Rate of nitrous oxide emission from soil in N2O mass basis, typically from field measurement using gas chamber"
+unit = "kg{N2O} m-2 day-1"
+function = "get_soil_nitrous_oxide_emission_N2O_mass"
+
+[[variable]]
 name = "stem_c_productivity"
 description = "Interval realised stem carbon productivity for each cell"
 unit = "Mg C ha-1 year-1"
