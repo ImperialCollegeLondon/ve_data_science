@@ -76,7 +76,6 @@ input_file = (
 
 output_dir = repo_root / "data" / "derived" / module_name / "wearn_2022"
 output_file = output_dir / "wearn_2022_density.csv"
-
 ## TODO: Change to master input csv and update the script accordingly.
 
 functional_group_level5_options: list[str] = (
@@ -94,196 +93,67 @@ functional_group_level5_options: list[str] = (
 )
 
 # Manually filled functional_group_level5_name values to match species from observed
-# data to functional group
-species_to_fg_template: list[dict[str, str]] = [
-    {
-        "species_common_name": "Oriental_small-clawed_otter",
-        "species_scientific_name": "Aonyx_cinereus",
-        "functional_group_level5_name": "Carnivorous aquatic mammal",
-    },
-    {
-        "species_common_name": "Binturong",
-        "species_scientific_name": "Arctictis_binturong",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Great_argus",
-        "species_scientific_name": "Argusianus_argus",
-        "functional_group_level5_name": "Omnivorous terrestrial bird",
-    },
-    {
-        "species_common_name": "Banteng",
-        "species_scientific_name": "Bos_javanicus",
-        "functional_group_level5_name": "Herbivorous terrestrial medium mammal",
-    },
-    {
-        "species_common_name": "Bay_cat",
-        "species_scientific_name": "Catopuma_badia",
-        "functional_group_level5_name": (
-            "Carnivorous arboreal/terrestrial medium mammal"
-        ),
-    },
-    {
-        "species_common_name": "Hose's_civet",
-        "species_scientific_name": "Diplogale_hosei",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Moon_rat",
-        "species_scientific_name": "Echinosorex_gymnura",
-        "functional_group_level5_name": "Carnivorous borrowing mammal",
-    },
-    {
-        "species_common_name": "Sun_bear",
-        "species_scientific_name": "Helarctos_malayanus",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial large mammal",
-    },
-    {
-        "species_common_name": "Banded_civet",
-        "species_scientific_name": "Hemigalus_derbyanus",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Short-tailed_mongoose",
-        "species_scientific_name": "Herpestes_brachyurus",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Collared_mongoose",
-        "species_scientific_name": "Herpestes_semitorquatus",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Malay_porcupine",
-        "species_scientific_name": "Hystrix_brachyura",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Thick-spined_porcupine",
-        "species_scientific_name": "Hystrix_crassispinis",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Bulwer's_pheasant",
-        "species_scientific_name": "Lophura_bulweri",
-        "functional_group_level5_name": "Omnivorous terrestrial bird",
-    },
-    {
-        "species_common_name": "Crested_fireback",
-        "species_scientific_name": "Lophura_ignita",
-        "functional_group_level5_name": "Omnivorous terrestrial bird",
-    },
-    {
-        "species_common_name": "Long-tailed_macaque",
-        "species_scientific_name": "Macaca_fascicularis",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Pig-tailed_macaque",
-        "species_scientific_name": "Macaca_nemestrina",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Sunda_pangolin",
-        "species_scientific_name": "Manis_javanica",
-        "functional_group_level5_name": (
-            "Carnivorous arboreal/terrestrial medium mammal"
-        ),
-    },
-    {
-        "species_common_name": "Yellow-throated_marten",
-        "species_scientific_name": "Martes_flavigula",
-        "functional_group_level5_name": (
-            "Carnivorous arboreal/terrestrial medium mammal"
-        ),
-    },
-    {
-        "species_common_name": "Yellow_muntjac",
-        "species_scientific_name": "Muntiacus_atherodes",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Red_muntjac",
-        "species_scientific_name": "Muntiacus_muntjak",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Malay_weasel",
-        "species_scientific_name": "Mustela_nudipes",
-        "functional_group_level5_name": "Carnivorous terrestrial/arboreal mammal",
-    },
-    {
-        "species_common_name": "Sunda_stink_badger",
-        "species_scientific_name": "Mydaus_javanensis",
-        "functional_group_level5_name": "Omnivorous terrestrial mammal",
-    },
-    {
-        "species_common_name": "Sunda_clouded_leopard",
-        "species_scientific_name": "Neofelis_diardi",
-        "functional_group_level5_name": (
-            "Carnivorous arboreal/terrestrial medium mammal"
-        ),
-    },
-    {
-        "species_common_name": "Masked_palm_civet",
-        "species_scientific_name": "Paguma_larvata",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Marbled_cat",
-        "species_scientific_name": "Pardofelis_marmorata",
-        "functional_group_level5_name": (
-            "Carnivorous arboreal/terrestrial medium mammal"
-        ),
-    },
-    {
-        "species_common_name": "Bornean_orangutan",
-        "species_scientific_name": "Pongo_pygmaeus",
-        "functional_group_level5_name": "Omnivorous arboreal primate",
-    },
-    {
-        "species_common_name": "Leopard_cat",
-        "species_scientific_name": "Prionailurus_javanensis",
-        "functional_group_level5_name": (
-            "Carnivorous arboreal/terrestrial medium mammal"
-        ),
-    },
-    {
-        "species_common_name": "Tufted_ground_squirrel",
-        "species_scientific_name": "Rheithrosciurus_macrotis",
-        "functional_group_level5_name": "Omnivorous arboreal small mammal",
-    },
-    {
-        "species_common_name": "Sambar_deer",
-        "species_scientific_name": "Rusa_unicolor",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Bearded_pig",
-        "species_scientific_name": "Sus_barbatus",
-        "functional_group_level5_name": "Omnivorous terrestrial mammal",
-    },
-    {
-        "species_common_name": "Lesser_mouse-deer",
-        "species_scientific_name": "Tragulus_kanchil",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Greater_mouse-deer",
-        "species_scientific_name": "Tragulus_napu",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Long-tailed_porcupine",
-        "species_scientific_name": "Trichys_fasciculata",
-        "functional_group_level5_name": "Herbivorous terrestrial small mammal",
-    },
-    {
-        "species_common_name": "Malay_civet",
-        "species_scientific_name": "Viverra_tangalunga",
-        "functional_group_level5_name": "Omnivorous arboreal/terrestrial small mammal",
-    },
-]
+# data to functional group in a nested structure
+species_to_fg_template: list[dict[str, str]] = {
+    "carnivorous_aquatic_mammal": [
+        "Oriental_small-clawed_otter",
+    ],
+    "omnivorous_terrestrial_small_mammal": [
+        "Short-tailed_mongoose",
+        "Collared_mongoose",
+        "Sunda_stink_badger",
+        "Tufted_ground_squirrel",
+    ],
+    "omnivorous_terrestrial_large_mammal": [
+        "Bearded_pig",
+    ],
+    "omnivorous_arboreal_small_mammal": ["Binturong", "Masked_palm_civet"],
+    "omnivorous_terrestrial_bird": [
+        "Great_argus",
+        "Bulwer's_pheasant",
+        "Crested_fireback",
+    ],
+    "herbivorous_terrestrial_large_mammal": [
+        "Banteng",
+    ],
+    "herbivorous_terrestrial_medium_mammal": [
+        "Yellow_muntjac",
+        "Red_muntjac",
+        "Sambar_deer",
+    ],
+    "herbivorous_terrestrial_small_mammal": [
+        "Malay_porcupine",
+        "Thick-spined_porcupine",
+        "Lesser_mouse-deer",
+        "Greater_mouse-deer",
+        "Long-tailed_porcupine",
+    ],
+    "carnivorous_arboreal_terrestrial_medium_mammal": [
+        "Bay_cat",
+        "Sunda_clouded_leopard",
+        "Malay_weasel",
+        "Marbled_cat",
+        "Leopard_cat",
+    ],
+    "carnivorous_terrestrial_arboreal_mammal": [
+        "Hose's_civet",
+        "Banded_civet",
+        "Sunda_pangolin",
+    ],
+    "omnivorous_arboreal_terrestrial_small_mammal": [
+        "Malay_civet",
+        "Yellow-throated_marten",
+    ],
+    "omnivorous_arboreal_terrestrial_large_mammal": [
+        "Sun_bear",
+    ],
+    "omnivorous_arboreal_primate": [
+        "Bornean_orangutan",
+        "Long-tailed_macaque",
+        "Pig-tailed_macaque",
+    ],
+}
+
 
 settings = {
     "module_name": module_name,
