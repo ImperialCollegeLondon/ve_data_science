@@ -23,8 +23,8 @@ execute:
 
 ## Progress over the past few months
 
-- I built a validation database pipeline, see docs
-  [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
+- I built a validation database pipeline; see the
+  [validation database documentation](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/docs/validation_database.md).
 - I screened, added and harmonised datasets using the database functions.
 - I did not limit datasets to only Maliau or old growth. I included SAFE and
   disturbed forests since we will need them in future scenarios. The database
@@ -463,7 +463,7 @@ metrics_table |>
   an objective function that aggregates unitless metrics across variables. Jacob
   and I have had some discussion on this.
 - There is really not a lot of validation data exactly from the Maliau 2 spatial
-  extent. Not even the entire Maliau Basin. See extended thoughts
-  [here](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/notes/marginal_validation.md).
+  extent. Not even the entire Maliau Basin. See
+  [extended thoughts on limited validation data](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/notes/marginal_validation.md).
 - If we need more validation data, I could split the datasets used for input
   data into training and testing sets (reminder from Jacob).
