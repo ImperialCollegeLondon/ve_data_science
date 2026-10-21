@@ -1,5 +1,15 @@
 # Change log of maliau_2 scenario input data
 
+2026-10-21
+- Module: Plants
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/plant_pft_definitions_maliau_2
+- Changes made:
+  - Updated value of tau_f
+- References:
+  - PR #738
+
 2026-10-12
 - Module: Plants
 - Author: Arne Scheire
