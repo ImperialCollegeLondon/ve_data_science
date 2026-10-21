@@ -1016,3 +1016,178 @@ calculate_ve_realised_tissue_productivity <- function(
 
   return(result)
 }
+
+#' Calculate VE respiration and turnover
+#'
+#' Per-individual carbon fluxes are multiplied by cohort abundance, summed
+#' within each cell and timestep, and converted to Mg C ha-1 year-1.
+#' Rows with NA value for whole_crown_gpp are excluded since these are
+#' initialisation rows.
+#'
+#' @param plants_cohort_data A data frame containing cell_id, time,
+#'   time_index, n_individuals, whole_crown_gpp, and the input variable.
+#' @param input_variable Name of the per-individual carbon mass column,
+#'   representing the amount respired or turned over per timestep.
+#' @param output_variable Name for the standardised flux column.
+#' @param input_mass_unit Mass unit of the input carbon values: "g" or "kg".
+#' @param cell_area_ha Area represented by each cell in hectares.
+#' @param update_interval_in_days Duration of each timestep in days.
+#' @param start_date Start of the summary period, as a date. Both dates
+#'   must be supplied together, or both NULL for the entire output period.
+#' @param end_date End of the summary period. Selection uses the recorded
+#'   timestep's month, including both boundary months. Both boundary months
+#'   must be present in the regular output.
+#'
+#' @returns A data frame with one row per cell and timestep, containing
+#'   cell_id, time, time_index, the standardised flux, and units. The
+#'   <output_variable>_mean and <output_variable>_sd columns contain the
+#'   mean and sample standard deviation pooled across all cell-timestep
+#'   values in the selected period. These and selected_period are NA
+#'   outside that period. A valid first timestep is retained; SD is NA
+#'   when the period contains only one value.
+#'
+#' @export
+calculate_ve_respiration_and_turnover <- function(
+  plants_cohort_data,
+  input_variable,
+  output_variable,
+  input_mass_unit,
+  cell_area_ha,
+  update_interval_in_days,
+  start_date = NULL,
+  end_date = NULL
+) {
+  required_columns <- c(
+    "cell_id",
+    "time",
+    "time_index",
+    "n_individuals",
+    "whole_crown_gpp",
+    input_variable
+  )
+  missing_columns <- setdiff(required_columns, names(plants_cohort_data))
+  if (length(missing_columns) > 0) {
+    cli::cli_abort("Missing required columns: {.val {missing_columns}}")
+  }
+
+  if (
+    length(input_mass_unit) != 1 ||
+      is.na(input_mass_unit) ||
+      !input_mass_unit %in% c("g", "kg")
+  ) {
+    cli::cli_abort('input_mass_unit must be "g" or "kg".')
+  }
+  if (
+    !is.numeric(cell_area_ha) ||
+      length(cell_area_ha) != 1 ||
+      !is.finite(cell_area_ha) ||
+      cell_area_ha <= 0
+  ) {
+    cli::cli_abort("cell_area_ha must be one positive finite number.")
+  }
+  if (
+    !is.numeric(update_interval_in_days) ||
+      length(update_interval_in_days) != 1 ||
+      !is.finite(update_interval_in_days) ||
+      update_interval_in_days <= 0
+  ) {
+    cli::cli_abort(
+      "update_interval_in_days must be one positive finite number."
+    )
+  }
+  if (xor(is.null(start_date), is.null(end_date))) {
+    cli::cli_abort("start_date and end_date must be supplied together.")
+  }
+  if (!is.null(start_date)) {
+    start_date <- as.Date(start_date)
+    end_date <- as.Date(end_date)
+    if (
+      length(start_date) != 1 ||
+        length(end_date) != 1 ||
+        is.na(start_date) ||
+        is.na(end_date) ||
+        start_date > end_date
+    ) {
+      cli::cli_abort(
+        "start_date and end_date must each be one valid ordered date."
+      )
+    }
+  }
+
+  regular_rows <- !is.na(plants_cohort_data$whole_crown_gpp)
+  if (!any(regular_rows)) {
+    cli::cli_abort(
+      "No regular output rows with computed whole_crown_gpp were found."
+    )
+  }
+  cohort_data <- as.data.frame(plants_cohort_data)[
+    regular_rows,
+    required_columns,
+    drop = FALSE
+  ]
+  cohort_data$time <- as.Date(cohort_data$time)
+  if (
+    anyNA(cohort_data$cell_id) ||
+      anyNA(cohort_data$time) ||
+      anyNA(cohort_data$time_index)
+  ) {
+    cli::cli_abort("Cell and timestep identifiers must not be missing.")
+  }
+  if (
+    !is.numeric(cohort_data[[input_variable]]) ||
+      any(!is.finite(cohort_data[[input_variable]])) ||
+      !is.numeric(cohort_data$n_individuals) ||
+      any(!is.finite(cohort_data$n_individuals)) ||
+      any(cohort_data$n_individuals < 0)
+  ) {
+    cli::cli_abort(
+      "Flux values and abundances must be finite numbers;
+      abundances must be non-negative."
+    )
+  }
+
+  cohort_data$cohort_flux <- cohort_data[[input_variable]] *
+    cohort_data$n_individuals
+  result <- aggregate(
+    cohort_flux ~ cell_id + time + time_index,
+    data = cohort_data,
+    FUN = sum
+  )
+  result <- result[order(result$cell_id, result$time), , drop = FALSE]
+  mass_per_mg <- if (input_mass_unit == "g") 1e6 else 1e3
+  result[[output_variable]] <- result$cohort_flux /
+    mass_per_mg /
+    cell_area_ha *
+    (365.25 / update_interval_in_days)
+  result$cohort_flux <- NULL
+
+  output_months <- format(result$time, "%Y-%m")
+  if (is.null(start_date)) {
+    start_month <- min(output_months)
+    end_month <- max(output_months)
+  } else {
+    start_month <- format(start_date, "%Y-%m")
+    end_month <- format(end_date, "%Y-%m")
+    if (!start_month %in% output_months || !end_month %in% output_months) {
+      cli::cli_abort(
+        "The requested start_date or end_date is outside the available output months."
+      )
+    }
+  }
+  period_rows <- output_months >= start_month & output_months <= end_month
+  period_values <- result[[output_variable]][period_rows]
+  result[[paste0(output_variable, "_mean")]] <- NA_real_
+  result[[paste0(output_variable, "_mean")]][period_rows] <- mean(period_values)
+  result[[paste0(output_variable, "_sd")]] <- NA_real_
+  result[[paste0(output_variable, "_sd")]][period_rows] <-
+    stats::sd(period_values)
+  result$selected_period <- NA_character_
+  result$selected_period[period_rows] <- paste(
+    start_month,
+    end_month,
+    sep = " to "
+  )
+  result$units <- "Mg C ha-1 year-1"
+  rownames(result) <- NULL
+  return(result)
+}

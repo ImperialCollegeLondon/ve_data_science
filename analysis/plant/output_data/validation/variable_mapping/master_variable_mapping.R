@@ -17,6 +17,7 @@
 #|
 #| scripts:
 #|   - path: analysis/plant/output_data/validation/variable_mapping/realised_tissue_productivity_mapping_maliau_2.yml
+#|   - path: analysis/plant/output_data/validation/variable_mapping/respiration_and_turnover_mapping_maliau_2.yml
 #|   - path: analysis/plant/output_data/validation/variable_mapping/tree_standing_carbon_mass_mapping_maliau_2.yml
 #|
 #| output_files:
@@ -80,6 +81,7 @@ write_metadata_summary <- function(metadata_summary) {
 
 mapping_files <- c(
   "realised_tissue_productivity_mapping_maliau_2.yml",
+  "respiration_and_turnover_mapping_maliau_2.yml",
   "tree_standing_carbon_mass_mapping_maliau_2.yml"
 )
 

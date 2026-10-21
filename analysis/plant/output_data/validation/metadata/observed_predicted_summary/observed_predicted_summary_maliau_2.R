@@ -17,6 +17,9 @@
 #|   - name: realised_tissue_productivity_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: Observed and pooled predicted productivity values.
+#|   - name: respiration_and_turnover_comparison_maliau_2.csv
+#|     path: data/derived/plant/output_data/validation/comparisons
+#|     description: Observed and pooled predicted respiration and turnover values.
 #|   - name: tree_standing_carbon_mass_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: Matched observed and predicted standing-carbon values.
@@ -35,6 +38,7 @@
 
 comparison_files <- c(
   "../../../../../../data/derived/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.csv",
+  "../../../../../../data/derived/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv"
 )
 output_file <- "observed_predicted_summary_maliau_2.png"

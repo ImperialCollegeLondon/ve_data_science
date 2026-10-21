@@ -222,6 +222,12 @@ update_interval_in_days <- ureg(update_interval)$to("days")$magnitude
 # Read only the columns needed for the productivity calculations to reduce
 # memory pressure when this large scenario file is loaded into R. Using
 # data.table::fread(select = ...) avoids a large header-only pass over the CSV.
+
+column_names <- names(
+  data.table::fread(plants_cohort_data_path, nrows = 0)
+)
+print(column_names)
+
 required_columns <- c(
   "cell_x",
   "cell_y",
