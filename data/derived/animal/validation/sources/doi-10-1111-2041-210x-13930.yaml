@@ -41,12 +41,16 @@ datasets:
       var_canonical: density_carnivorous_arboreal_terrestrial_medium_mammal_L5
       unit: km-2
       description: Population density of the animal functional group per square kilometer.
-    density_median_per_km2_carnivorous_borrowing_mammal:
-      var_canonical: density_carnivorous_borrowing_mammal_L5
+    density_median_per_km2_carnivorous_burrowing_mammal:
+      var_canonical: density_carnivorous_burrowing_mammal_L5
       unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_carnivorous_terrestrial_arboreal_mammal:
       var_canonical: density_carnivorous_terrestrial_arboreal_mammal_L5
+      unit: km-2
+      description: Population density of the animal functional group per square kilometer.
+    density_median_per_km2_herbivorous_terrestrial_large_mammal:
+      var_canonical: density_herbivorous_terrestrial_large_mammal_L5
       unit: km-2
       description: Population density of the animal functional group per square kilometer.
     density_median_per_km2_herbivorous_terrestrial_medium_mammal:
@@ -77,8 +81,12 @@ datasets:
       var_canonical: density_omnivorous_terrestrial_bird_L5
       unit: km-2
       description: Population density of the animal functional group per square kilometer.
-    density_median_per_km2_omnivorous_terrestrial_mammal:
-      var_canonical: density_omnivorous_terrestrial_mammal_L5
+    density_median_per_km2_omnivorous_terrestrial_large_mammal:
+      var_canonical: density_omnivorous_terrestrial_large_mammal_L5
+      unit: km-2
+      description: Population density of the animal functional group per square kilometer.
+    density_median_per_km2_omnivorous_terrestrial_small_mammal:
+      var_canonical: density_omnivorous_terrestrial_small_mammal_L5
       unit: km-2
       description: Population density of the animal functional group per square kilometer.
   dedup_key:
