@@ -4,7 +4,7 @@
 - Module: Animals
 - Author: Siti Nor Baizurah
 - Files changed:
-  - animal_config.toml in Globus and also compiled config in Github. 
+  - animal_config.toml in Globus and also compiled config in Github.
 - Changes made:
   - Revise config pointing to level 5 of FG with remarks that other simplified level also available in Globus.
 - References:
