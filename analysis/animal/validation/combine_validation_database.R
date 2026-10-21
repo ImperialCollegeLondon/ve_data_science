@@ -68,8 +68,14 @@ zarr_path <- file.path(scenario_out, "model_data.zarr")
 config_path <- file.path(scenario_out, "compiled_configuration.toml")
 cohort_data_path <- file.path(scenario_out, "animal_cohort_data.csv")
 
-# Read the validation database
+# Build the validation
 db_path <- "data/derived/animal/validation/database"
+build_validation_database(
+  sources_dir = "data/derived/animal/validation/sources",
+  db_path = db_path
+)
+
+# Read the validation database
 validation_database <- open_dataset(db_path) |> collect()
 
 # Combine the validation database with VE outputs, including FG density
