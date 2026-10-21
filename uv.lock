@@ -3726,7 +3726,7 @@ dependencies = [
     { name = "virtual-ecosystem", version = "0.2.1", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git?rev=0f67349#0f673499b4af7d8f19d7c3990a77ae903f0b1f7f" }, marker = "extra == 'group-15-ve-data-science-dev-pinned' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "virtual-ecosystem", version = "0.2.2", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git?rev=72f8724629ee8fbbddadac460a2c2abd6c483f68#72f8724629ee8fbbddadac460a2c2abd6c483f68" }, marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "virtual-ecosystem", version = "0.2.3", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra != 'group-15-ve-data-science-dev-pinned' and extra != 'group-15-ve-data-science-dev-pr1889')" },
-    { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#4483d9ec9e0e8036ef95ebc081941819c8677f5a" }, marker = "extra == 'group-15-ve-data-science-dev' or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#6d68fa858f9eec85d119a3ddec06495d2a5a7353" }, marker = "extra == 'group-15-ve-data-science-dev' or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "xarray", extra = ["io"] },
 ]
 
@@ -3890,7 +3890,7 @@ wheels = [
 [[package]]
 name = "virtual-ecosystem"
 version = "0.2.3"
-source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#4483d9ec9e0e8036ef95ebc081941819c8677f5a" }
+source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#6d68fa858f9eec85d119a3ddec06495d2a5a7353" }
 resolution-markers = [
     "python_full_version >= '3.14' and platform_machine == 'ARM64' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and platform_machine != 'ARM64' and sys_platform == 'win32'",
