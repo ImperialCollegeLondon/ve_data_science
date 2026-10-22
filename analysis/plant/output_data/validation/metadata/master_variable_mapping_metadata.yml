@@ -6,16 +6,16 @@ mappings:
   variable_mappings:
   - observed:
       file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
-      variable: GPP_WithMycorrhiza
-      se_variable: SE_GPP_WithMycorrhiza
+      variable: GPP_WithoutMycorrhiza
+      se_variable: SE_GPP_WithoutMycorrhiza
     predicted:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/gpp_and_npp_maliau_2.csv
       variable: gpp_mean
       sd_variable: gpp_sd
   - observed:
       file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
-      variable: TotalNPP_WithMycorrhiza
-      se_variable: SE_TotalNPP_WithMycorrhiza
+      variable: TotalNPP_WithoutMycorrhiza
+      se_variable: SE_TotalNPP_WithoutMycorrhiza
     predicted:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/gpp_and_npp_maliau_2.csv
       variable: npp_mean

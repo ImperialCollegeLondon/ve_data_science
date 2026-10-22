@@ -141,7 +141,7 @@ scripts:
     comparison value.
     Each variable's period is loaded at runtime from its own corresponding
     variable in master_observed_data_processing_metadata.yml:
-    gpp -> GPP_WithMycorrhiza, npp -> TotalNPP_WithMycorrhiza.
+    gpp -> GPP_WithoutMycorrhiza, npp -> TotalNPP_WithoutMycorrhiza.
     Input carbon mass is in kg C per individual per timestep for gpp,
     and in g C per individual per timestep for npp.
     Each variable has its own selected-period column.

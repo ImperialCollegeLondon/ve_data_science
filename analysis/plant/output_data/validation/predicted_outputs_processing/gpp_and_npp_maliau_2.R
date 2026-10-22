@@ -147,7 +147,7 @@
 #|   comparison value.
 #|   Each variable's period is loaded at runtime from its own corresponding
 #|   variable in master_observed_data_processing_metadata.yml:
-#|   gpp -> GPP_WithMycorrhiza, npp -> TotalNPP_WithMycorrhiza.
+#|   gpp -> GPP_WithoutMycorrhiza, npp -> TotalNPP_WithoutMycorrhiza.
 #|   Input carbon mass is in kg C per individual per timestep for gpp,
 #|   and in g C per individual per timestep for npp.
 #|   Each variable has its own selected-period column.
@@ -292,8 +292,8 @@ get_observed_period <- function(variable_name) {
   )
 }
 
-gpp_period <- get_observed_period("GPP_WithMycorrhiza")
-npp_period <- get_observed_period("TotalNPP_WithMycorrhiza")
+gpp_period <- get_observed_period("GPP_WithoutMycorrhiza")
+npp_period <- get_observed_period("TotalNPP_WithoutMycorrhiza")
 
 standardised_gpp <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
