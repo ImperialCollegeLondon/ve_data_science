@@ -14,6 +14,9 @@
 #| status: wip
 #|
 #| input_files:
+#|   - name: gpp_and_npp_comparison_maliau_2.csv
+#|     path: data/derived/plant/output_data/validation/comparisons
+#|     description: Observed and pooled predicted GPP and NPP values.
 #|   - name: realised_tissue_productivity_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: Observed and pooled predicted productivity values.
@@ -37,6 +40,7 @@
 #| ---
 
 comparison_files <- c(
+  "../../../../../../data/derived/plant/output_data/validation/comparisons/gpp_and_npp_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv"

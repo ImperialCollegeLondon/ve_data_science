@@ -6,7 +6,7 @@
 #|   foliage) from Virtual Ecosystem plant cohort output for the Maliau 2
 #|   scenario. Cohort-level respiration and turnover are multiplied by cohort
 #|   individuals, corrected for cell area and timestep duration to give an
-#|   annual area-normalised rate per cell and timestep.
+#|   annualised area-normalised rate per cell and timestep.
 #|   These standardised respiration and turnover values are also pooled across
 #|   all cells and timesteps within the selected period into a single mean and
 #|   standard deviation, matching the spatial and temporal extent of the
@@ -232,7 +232,7 @@
 #|   observations for individual cells, so `<variable>_mean` (pooled across
 #|   all cells and timesteps in the selected period) is the primary
 #|   comparison value.
-#|   Each tissue's period is loaded at runtime from its own corresponding
+#|   Each variable's period is loaded at runtime from its own corresponding
 #|   variable in master_observed_data_processing_metadata.yml:
 #|   stem respiration -> R_Stem, foliage respiration -> R_Leaf,
 #|   fine root respiration -> R_FineRoots, branch turnover ->
@@ -261,7 +261,7 @@ simulation_start_date <- as.Date(
 )
 
 # Define simulation timestep duration (days) and cell area (ha) for use in
-# calculate_ve_respiration_and_turnover function
+# standardise_ve_cohort_carbon_output function
 # Both are derived from compiled_configuration.toml
 cell_area_m2 <- compiled_configuration$core$grid$cell_area
 cell_area_ha <- cell_area_m2 / 10000
@@ -358,7 +358,14 @@ if (!file.exists(observed_metadata_file)) {
   )
 }
 observed_metadata <- yaml::yaml.load_file(observed_metadata_file)
-observed_variables <- observed_metadata$scripts[[1]]$output_files[[1]]$variables
+names(observed_metadata$scripts) <- sapply(
+  observed_metadata$scripts,
+  `[[`,
+  "script_path"
+)
+observed_variables <- observed_metadata$scripts[[
+  "carbon_balance_components_maliau.R"
+]]$output_files[[1]]$variables
 
 get_observed_period <- function(variable_name) {
   matches <- Filter(
@@ -383,7 +390,7 @@ root_respiration_period <- get_observed_period("R_FineRoots")
 branch_turnover_period <- get_observed_period("WoodyNPP_BranchTurnover")
 foliage_turnover_period <- get_observed_period("CanopyNPP_Leaf")
 
-standardised_stem_respiration <- calculate_ve_respiration_and_turnover(
+standardised_stem_respiration <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "sapwood_respiration",
   output_variable = "stem_respiration",
@@ -395,7 +402,7 @@ standardised_stem_respiration <- calculate_ve_respiration_and_turnover(
 )
 
 standardised_foliage_respiration <-
-  calculate_ve_respiration_and_turnover(
+  standardise_ve_cohort_carbon_output(
     plants_cohort_data = plants_cohort_data,
     input_variable = "foliage_respiration",
     output_variable = "foliage_respiration",
@@ -406,7 +413,7 @@ standardised_foliage_respiration <-
     end_date = foliage_respiration_period$end_date
   )
 
-standardised_fine_root_respiration <- calculate_ve_respiration_and_turnover(
+standardised_fine_root_respiration <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "fine_root_respiration",
   output_variable = "fine_root_respiration",
@@ -417,7 +424,7 @@ standardised_fine_root_respiration <- calculate_ve_respiration_and_turnover(
   end_date = root_respiration_period$end_date
 )
 
-standardised_branch_turnover <- calculate_ve_respiration_and_turnover(
+standardised_branch_turnover <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "branch_turnover",
   output_variable = "branch_turnover",
@@ -428,7 +435,7 @@ standardised_branch_turnover <- calculate_ve_respiration_and_turnover(
   end_date = branch_turnover_period$end_date
 )
 
-standardised_foliage_turnover <- calculate_ve_respiration_and_turnover(
+standardised_foliage_turnover <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "foliage_turnover",
   output_variable = "foliage_turnover",

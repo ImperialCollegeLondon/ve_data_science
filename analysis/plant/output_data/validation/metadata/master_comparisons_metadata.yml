@@ -1,7 +1,42 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-10-21'
+generated_on: '2026-10-22'
 scripts:
+- script_path: gpp_and_npp_comparison_maliau_2.R
+  title: gpp_and_npp_comparison_maliau_2
+  description: |
+    Compares standardised Virtual Ecosystem GPP and NPP predictions with
+    field observations for Maliau scenario 2. Variables are loaded from
+    ../variable_mapping/gpp_and_npp_mapping_maliau_2.yml.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: wip
+  input_files:
+  - name: carbon_balance_components_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Cleaned SAFE carbon-balance observations for Maliau plots.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: Variable-specific observed measurement periods.
+  - name: gpp_and_npp_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: Standardised Maliau 2 plant GPP and NPP outputs.
+  - name: gpp_and_npp_mapping_maliau_2.yml
+    path: analysis/plant/output_data/validation/variable_mapping
+    description: Observed and predicted variable mappings.
+  output_files:
+  - name: gpp_and_npp_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      One row per observed plot and mapped variable, including observed SE,
+      pooled model SD, spatial/temporal extents, and aggregation statuses.
+  package_dependencies: yaml
+  usage_notes: |
+    Run from this script's directory. Variables are defined in the mapping
+    YAML. Observed values are per plot and period-averaged; predictions are
+    pooled across cells and timesteps in each variable's selected period.
+    Both datasets use Mg C ha-1 year-1. Predicted SD describes pooled
+    cell-timestep variability, not prediction uncertainty.
 - script_path: realised_tissue_productivity_comparison_maliau_2.R
   title: realised_tissue_productivity_comparison_maliau_2
   description: |

@@ -740,14 +740,14 @@ get_soil_nitrous_oxide_emission_N2O_mass <- function(zarr_path) {
 #' period, matching the spatial and temporal extent of a validation estimate
 #' (e.g. one Maliau-wide annual rate for a given period).
 #'
-#' `time_index = 0` has no preceding timestep to calculate a rate from, so
-#' its `output_variable` value is `NA`. The initialisation data rows could
-#' be used for this, but leads to a very messy approach, so not used here.
+#' The earliest regular timestep for each cell has no preceding regular
+#' timestep to calculate a rate from, so its `output_variable` value is `NA`.
+#' Initialisation rows are excluded from this calculation.
 #'
-#' `start_date` and `end_date` are matched to the nearest available output
-#' month, and only intervals falling within that range are pooled for the
-#' summary mean and standard deviation. If both are `NULL` (the default), the
-#' entire simulation period is pooled instead.
+#' `start_date` and `end_date` are matched by month. Both boundary months must
+#' be present in the available interval dates, and only intervals fully within
+#' that month range are pooled for the summary mean and standard deviation. If
+#' both are `NULL` (the default), the entire simulation period is pooled.
 #'
 #' @param plants_cohort_data A data frame of VE `plants_cohort_data.csv`
 #'   output containing the required columns.
@@ -758,11 +758,10 @@ get_soil_nitrous_oxide_emission_N2O_mass <- function(zarr_path) {
 #'   supplied explicitly.
 #' @param update_interval_in_days The duration of each timestep in days.
 #' @param start_date Start of the period to pool the summary mean over.
-#'   Matched by month. If `NULL` (default), pooling effectively starts from
-#'   `time_index = 1` (the earliest timestep with a valid rate).
-#' @param end_date End of the period to pool the summary mean over. Matched
-#'   by month. If `NULL` (default), pooling ends at the latest available
-#'   output.
+#'   Matched by month. If `NULL` (default), pooling starts at the earliest
+#'   interval with a valid rate.
+#' @param end_date End of the period to pool the summary mean over. Matched by
+#'   month. If `NULL` (default), pooling ends at the latest available output.
 #'
 #' @returns A data frame with one row per cell and timestep, containing the
 #'   annual area-normalised productivity rate for that interval
@@ -1017,18 +1016,19 @@ calculate_ve_realised_tissue_productivity <- function(
   return(result)
 }
 
-#' Calculate VE respiration and turnover
+#' Standardise VE cohort carbon output
 #'
-#' Per-individual carbon fluxes are multiplied by cohort abundance, summed
-#' within each cell and timestep, and converted to Mg C ha-1 year-1.
+#' Per-individual carbon masses are multiplied by cohort abundance, summed
+#' within each cell and timestep, then normalised by cell area and annualised
+#' using the timestep duration to give Mg C ha-1 year-1.
 #' Rows with NA value for whole_crown_gpp are excluded since these are
 #' initialisation rows.
 #'
 #' @param plants_cohort_data A data frame containing cell_id, time,
-#'   time_index, n_individuals, whole_crown_gpp, and the input variable.
+#'   time_index, n_individuals, whole_crown_gpp, and the input variable(s).
 #' @param input_variable Name of the per-individual carbon mass column,
-#'   representing the amount respired or turned over per timestep.
-#' @param output_variable Name for the standardised flux column.
+#'   representing the per-individual carbon mass per timestep.
+#' @param output_variable Name for the standardised output column.
 #' @param input_mass_unit Mass unit of the input carbon values: "g" or "kg".
 #' @param cell_area_ha Area represented by each cell in hectares.
 #' @param update_interval_in_days Duration of each timestep in days.
@@ -1039,7 +1039,7 @@ calculate_ve_realised_tissue_productivity <- function(
 #'   must be present in the regular output.
 #'
 #' @returns A data frame with one row per cell and timestep, containing
-#'   cell_id, time, time_index, the standardised flux, and units. The
+#'   cell_id, time, time_index, the standardised carbon mass, and units. The
 #'   <output_variable>_mean and <output_variable>_sd columns contain the
 #'   mean and sample standard deviation pooled across all cell-timestep
 #'   values in the selected period. These and selected_period are NA
@@ -1047,7 +1047,7 @@ calculate_ve_realised_tissue_productivity <- function(
 #'   when the period contains only one value.
 #'
 #' @export
-calculate_ve_respiration_and_turnover <- function(
+standardise_ve_cohort_carbon_output <- function(
   plants_cohort_data,
   input_variable,
   output_variable,
@@ -1141,25 +1141,25 @@ calculate_ve_respiration_and_turnover <- function(
       any(cohort_data$n_individuals < 0)
   ) {
     cli::cli_abort(
-      "Flux values and abundances must be finite numbers;
+      "Carbon values and abundances must be finite numbers;
       abundances must be non-negative."
     )
   }
 
-  cohort_data$cohort_flux <- cohort_data[[input_variable]] *
+  cohort_data$cohort_carbon_mass <- cohort_data[[input_variable]] *
     cohort_data$n_individuals
   result <- aggregate(
-    cohort_flux ~ cell_id + time + time_index,
+    cohort_carbon_mass ~ cell_id + time + time_index,
     data = cohort_data,
     FUN = sum
   )
   result <- result[order(result$cell_id, result$time), , drop = FALSE]
   mass_per_mg <- if (input_mass_unit == "g") 1e6 else 1e3
-  result[[output_variable]] <- result$cohort_flux /
+  result[[output_variable]] <- result$cohort_carbon_mass /
     mass_per_mg /
     cell_area_ha *
     (365.25 / update_interval_in_days)
-  result$cohort_flux <- NULL
+  result$cohort_carbon_mass <- NULL
 
   output_months <- format(result$time, "%Y-%m")
   if (is.null(start_date)) {

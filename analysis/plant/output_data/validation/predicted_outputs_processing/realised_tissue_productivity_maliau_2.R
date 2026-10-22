@@ -288,7 +288,14 @@ if (!file.exists(observed_metadata_file)) {
   )
 }
 observed_metadata <- yaml::yaml.load_file(observed_metadata_file)
-observed_variables <- observed_metadata$scripts[[1]]$output_files[[1]]$variables
+names(observed_metadata$scripts) <- sapply(
+  observed_metadata$scripts,
+  `[[`,
+  "script_path"
+)
+observed_variables <- observed_metadata$scripts[[
+  "carbon_balance_components_maliau.R"
+]]$output_files[[1]]$variables
 
 get_observed_period <- function(variable_name) {
   matches <- Filter(
