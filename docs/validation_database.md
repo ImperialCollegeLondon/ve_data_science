@@ -193,8 +193,8 @@ If names conflict, use `author_year_2`. Continue in that pattern.
 Use CSV files. If the published dataset uses another format, such as Excel or a
 zip archive, convert the required data sheet to CSV. If the raw dataset needs
 extra data wrangling, store the preprocessing script in
-[analysis/validation/](analysis/validation/). Write the processed CSV to
-[derived/](derived/) beside the other validation inputs.
+`analysis/validation/<module>/`. Write the processed CSV to
+`derived/<module>/` beside the other validation inputs.
 
 !!! tip
     Keep any location or coordinate files that come with the source dataset.
@@ -238,6 +238,23 @@ For each dataset entry under `datasets:`, complete these **required** fields:
 - `skip_rows` (use `0` when there are no non-data rows to skip)
 - `variables` (original name, canonical name, original unit)
 - `dedup_key`
+
+These provenance fields are **optional**:
+
+- `data_file_original` (path to the raw input file used to produce `data_file`)
+- `preprocess_script` (path to the script that produced `data_file`)
+
+When supplied, each must be a non-empty path to an existing file. The file
+extension is not restricted. Valdb records these paths for provenance; but does
+not execute the script. For example:
+
+```yaml
+data_file: data/derived/soil/example/processed.csv
+data_file_original: data/primary/soil/example/raw.xlsx
+preprocess_script: analysis/soil/example/preprocess.R
+```
+
+If no preprocessing was needed, omit these fields or leave them `null`.
 
 `coordinates` and `temporal` are **optional blocks**. Use them when the dataset
 includes spatial or temporal information that should be mapped into the
