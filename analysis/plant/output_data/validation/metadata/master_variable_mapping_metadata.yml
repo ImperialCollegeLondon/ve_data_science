@@ -1,6 +1,6 @@
 title: master_variable_mapping_metadata
 generated_by: analysis/plant/output_data/validation/variable_mapping/master_variable_mapping.R
-generated_on: '2026-10-22'
+generated_on: '2026-10-23'
 mappings:
 - mapping_path: gpp_and_npp_mapping_maliau_2.yml
   variable_mappings:
@@ -46,6 +46,24 @@ mappings:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
       variable: root_c_productivity_mean
       sd_variable: root_c_productivity_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: CanopyNPP_Reproductive
+      se_variable: SE_CanopyNPP_Reproductive
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
+      variable: reproductive_c_productivity_mean
+      sd_variable: reproductive_c_productivity_sd
+- mapping_path: reproductive_turnover_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: CanopyNPP_Reproductive
+      se_variable: SE_CanopyNPP_Reproductive
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/reproductive_turnover_maliau_2.csv
+      variable: reproductive_turnover_cell_mean
+      sd_variable: reproductive_turnover_cell_sd
 - mapping_path: respiration_and_turnover_mapping_maliau_2.yml
   variable_mappings:
   - observed:
