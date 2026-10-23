@@ -1,11 +1,154 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-10-16'
+generated_on: '2026-10-23'
 scripts:
+- script_path: gpp_and_npp_maliau_2.R
+  title: gpp_and_npp_maliau_2
+  description: |
+    Calculates gpp and npp from Virtual Ecosystem plant cohort output for the
+    Maliau 2 scenario. Cohort-level gpp and npp are multiplied by cohort
+    individuals, corrected for cell area and timestep duration to give an
+    annualised area-normalised rate per cell and timestep.
+    These standardised gpp and npp values are also pooled across
+    all cells and timesteps within the selected period into a single mean and
+    standard deviation, matching the spatial and temporal extent of the
+    validation data.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: wip
+  input_files:
+  - name: plants_cohort_data.csv
+    path: data/scenarios/maliau/maliau_2/out
+    description: |
+      Virtual Ecosystem plant cohort output containing gpp and npp carbon
+      mass per individual, cohort abundance, cell coordinates, and timestep
+      indices.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid coordinate vectors used to map cell IDs.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: |
+      Provides the validation period (`period_start`/`period_end`) declared
+      by carbon_balance_components_maliau.R, so the pooled mean/sd below
+      always match the observed dataset's temporal extent. Requires
+      master_observed_data_processing.R to have been run first.
+  output_files:
+  - name: gpp_and_npp_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      Gpp and npp in Mg C ha-1 year-1, with one row per cell and timestep,
+      plus a pooled mean and standard deviation across all cells and
+      timesteps within each variable's selected period. The mean/sd/period
+      columns are `NA` for timesteps outside the selected period.
+      The standard deviation describes variability across cells and intervals,
+      not prediction uncertainty.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      description: VE spatial cell identifier.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre northing in the grid CRS.
+    - name: time
+      type: date
+      units: ISO 8601 date
+      description: Interval-ending simulation date.
+    - name: time_index
+      type: integer
+      units: dimensionless
+      description: Interval-ending simulation timestep index.
+    - name: gpp_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled gpp mean/sd.
+    - name: npp_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled npp mean/sd.
+    - name: units
+      type: character
+      units: dimensionless
+      description: Units of the gpp and npp columns.
+    - name: gpp
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: Interval gpp for each cell.
+    - name: gpp_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean gpp pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: gpp_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of gpp pooled across all
+        cells and timesteps in the selected period. NA outside that period.
+    - name: npp
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: Interval npp for each cell.
+    - name: npp_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean npp pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: npp_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of npp pooled across
+        all cells and timesteps in the selected period. NA outside that
+        period.
+  package_dependencies:
+  - data.table
+  - yaml
+  - toml
+  - reticulate
+  usage_notes: |
+    If no period dates are supplied, the mean/sd are pooled across the entire
+    simulation instead. Dates are matched by month.
+    The validation data provide a single regional mean rather than
+    observations for individual cells, so `<variable>_mean` (pooled across
+    all cells and timesteps in the selected period) is the primary
+    comparison value.
+    Each variable's period is loaded at runtime from its own corresponding
+    variable in master_observed_data_processing_metadata.yml:
+    gpp -> GPP_WithoutMycorrhiza, npp -> TotalNPP_WithoutMycorrhiza.
+    Input carbon mass is in kg C per individual per timestep for gpp,
+    and in g C per individual per timestep for npp.
+    Each variable has its own selected-period column.
 - script_path: realised_tissue_productivity_maliau_2.R
   title: realised_tissue_productivity_maliau_2
   description: |
-    Calculates realised stem, foliage and root carbon
+    Calculates realised stem, foliage, root and reproductive carbon
     productivity from Virtual Ecosystem plant cohort output for the Maliau 2
     scenario. Cohort-level biomasses are multiplied by cohort individuals,
     summed to cell-level carbon stocks, and differenced between consecutive
@@ -37,11 +180,11 @@ scripts:
   - name: realised_tissue_productivity_maliau_2.csv
     path: data/derived/plant/output_data/validation/predicted_outputs_processing
     description: |
-      Realised stem, foliage and root carbon productivity in
+      Realised stem, foliage, root and reproductive carbon productivity in
       Mg C ha-1 year-1, with one row per cell and timestep, plus a pooled
       mean and standard deviation across all cells and timesteps within
-      the selected period. The mean/sd/`selected_period` columns are `NA`
-      for timesteps outside the selected period. The standard deviation
+      each variable's selected period. The mean/sd/selected-period columns
+      are `NA` outside their respective periods. The standard deviation
       describes variability across cells and intervals, not prediction
       uncertainty.
     variables:
@@ -67,11 +210,26 @@ scripts:
       type: integer
       units: dimensionless
       description: Interval-ending simulation timestep index.
-    - name: selected_period
+    - name: stem_c_productivity_selected_period
       type: character
       units: dimensionless
       description: |
-        Month-based period used for calculating pooled mean/sd.
+        Month-based period used for pooled stem productivity mean/sd.
+    - name: foliage_c_productivity_selected_period
+      type: character
+      units: dimensionless
+      description: |
+        Month-based period used for pooled foliage productivity mean/sd.
+    - name: root_c_productivity_selected_period
+      type: character
+      units: dimensionless
+      description: |
+        Month-based period used for pooled root productivity mean/sd.
+    - name: reproductive_c_productivity_selected_period
+      type: character
+      units: dimensionless
+      description: |
+        Month-based period used for pooled reproductive productivity mean/sd.
     - name: units
       type: character
       units: dimensionless
@@ -149,6 +307,33 @@ scripts:
       description: |
         Standard deviation of root carbon productivity pooled across all
         cells and timesteps in the selected period. NA outside that period.
+    - name: reproductive_c_productivity
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: |
+        Interval realised reproductive carbon productivity (fruit and seed)
+        for each cell.
+    - name: reproductive_c_productivity_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean reproductive carbon productivity pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: reproductive_c_productivity_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of reproductive carbon productivity pooled
+        across all cells and timesteps in the selected period. NA outside
+        that period.
   package_dependencies:
   - data.table
   - yaml
@@ -163,8 +348,366 @@ scripts:
     comparison value.
     Each tissue's period is loaded at runtime from its own corresponding
     variable in master_observed_data_processing_metadata.yml (stem ->
-    WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP), so they
-    always match the observed dataset's declared periods without manual syncing.
+    WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP,
+    reproductive -> CanopyNPP_Reproductive), so they always match the
+    observed dataset's declared periods without manual syncing.
+- script_path: reproductive_turnover_maliau_2.R
+  title: reproductive_turnover_maliau_2
+  description: |
+    Calculates reproductive turnover (fruit and seed combined)
+    from Virtual Ecosystem array variable outputs for the Maliau 2
+    scenario. Fruit and seed turnover are combined, and corrected for cell area
+    and timestep duration to give an annualised area-normalised rate per cell
+    and timestep.
+    These standardised turnover values are also pooled across
+    all cells and timesteps within the selected period into a single mean and
+    standard deviation, matching the spatial and temporal extent of the
+    validation data.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: wip
+  input_files:
+  - name: model_data.nc
+    path: data/scenarios/maliau/maliau_2/out
+    description: |
+      Virtual Ecosystem array variable outputs containing fruit and seed
+      turnover per pft, cell coordinates and timestep index.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid coordinate vectors used to map cell IDs.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: |
+      Provides the validation period (`period_start`/`period_end`) declared
+      by carbon_balance_components_maliau.R, so the pooled mean/sd below
+      always match the observed dataset's temporal extent. Requires
+      master_observed_data_processing.R to have been run first.
+  output_files:
+  - name: reproductive_turnover_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      Annualised PFT-specific reproductive turnover and cell-total rates in
+      Mg C ha-1 year-1. There is one row per PFT, cell, and timestep; the
+      cell total and its pooled summaries are repeated across PFT rows.
+      Mean/sd/period columns are `NA` outside the selected period. The
+      standard deviation describes variability across unique cells and
+      intervals, not prediction uncertainty.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      description: VE spatial cell identifier.
+    - name: pft
+      type: character
+      units: dimensionless
+      description: Plant functional type from the NetCDF output.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre northing in the grid CRS.
+    - name: time
+      type: date
+      units: ISO 8601 date
+      description: Interval-ending simulation date.
+    - name: time_index
+      type: integer
+      units: dimensionless
+      description: Interval-ending simulation timestep index.
+    - name: reproductive_turnover_cell_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled cell-total turnover mean/sd.
+    - name: units
+      type: character
+      units: dimensionless
+      description: Units for standardised turnover rates and pooled summaries.
+    - name: reproductive_turnover
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id) and PFT.
+      temporal_extent: Single interval ending at time/time_index.
+      description: |
+        Annualised fruit and seed turnover for this PFT in this cell and
+        timestep.
+    - name: reproductive_turnover_cell
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id), repeated across PFT rows.
+      temporal_extent: Single interval ending at time/time_index.
+      description: Annualised fruit and seed turnover summed across PFTs.
+    - name: reproductive_turnover_cell_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean cell-total reproductive turnover pooled across all cells and
+        timesteps in the selected period, counting each cell/timestep
+        once. NA outside that period.
+    - name: reproductive_turnover_cell_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of cell-total reproductive turnover pooled across
+        unique cells and timesteps in the selected period. NA outside
+        that period.
+  package_dependencies:
+  - data.table
+  - ncdf4
+  - yaml
+  - toml
+  - reticulate
+  usage_notes: |
+    If no period dates are supplied, the mean/sd are pooled across the entire
+    simulation instead. Dates are matched by month.
+    The validation data provide a single regional mean rather than
+    observations for individual cells, so `reproductive_turnover_cell_mean`
+    is the primary comparison value. It is pooled across unique cells and
+    timesteps in the selected period.
+    The selected period is loaded from `CanopyNPP_Reproductive` in
+    master_observed_data_processing_metadata.yml. Input carbon masses are in
+    kg C per cell per timestep and are standardised to Mg C ha-1 year-1.
+- script_path: respiration_and_turnover_maliau_2.R
+  title: respiration_and_turnover_maliau_2
+  description: |
+    Calculates respiration (stem, foliage, fine roots) and turnover (branch,
+    foliage) from Virtual Ecosystem plant cohort output for the Maliau 2
+    scenario. Cohort-level respiration and turnover are multiplied by cohort
+    individuals, corrected for cell area and timestep duration to give an
+    annualised area-normalised rate per cell and timestep.
+    These standardised respiration and turnover values are also pooled across
+    all cells and timesteps within the selected period into a single mean and
+    standard deviation, matching the spatial and temporal extent of the
+    validation data.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: wip
+  input_files:
+  - name: plants_cohort_data.csv
+    path: data/scenarios/maliau/maliau_2/out
+    description: |
+      Virtual Ecosystem plant cohort output containing respiration and
+      turnover carbon mass per individual, cohort abundance, cell
+      coordinates, and timestep indices.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid coordinate vectors used to map cell IDs.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: |
+      Provides the validation period (`period_start`/`period_end`) declared
+      by carbon_balance_components_maliau.R, so the pooled mean/sd below
+      always match the observed dataset's temporal extent. Requires
+      master_observed_data_processing.R to have been run first.
+  output_files:
+  - name: respiration_and_turnover_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      Respiration (stem, foliage, fine roots) and turnover (branch, foliage)
+      in Mg C ha-1 year-1, with one row per cell and timestep, plus a pooled
+      mean and standard deviation across all cells and timesteps within
+      each variable's selected period. The mean/sd/period columns are `NA`
+      for timesteps outside the selected period. The standard deviation
+      describes variability across cells and intervals, not prediction
+      uncertainty.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      description: VE spatial cell identifier.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre northing in the grid CRS.
+    - name: time
+      type: date
+      units: ISO 8601 date
+      description: Interval-ending simulation date.
+    - name: time_index
+      type: integer
+      units: dimensionless
+      description: Interval-ending simulation timestep index.
+    - name: stem_respiration_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled stem respiration mean/sd.
+    - name: foliage_respiration_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled foliage respiration mean/sd.
+    - name: fine_root_respiration_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled fine root respiration mean/sd.
+    - name: branch_turnover_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled branch turnover mean/sd.
+    - name: foliage_turnover_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled foliage turnover mean/sd.
+    - name: units
+      type: character
+      units: dimensionless
+      description: Units of the respiration and turnover columns.
+    - name: stem_respiration
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: Interval stem respiration for each cell.
+    - name: stem_respiration_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean stem respiration pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: stem_respiration_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of stem respiration pooled across all
+        cells and timesteps in the selected period. NA outside that period.
+    - name: foliage_respiration
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: Interval foliage respiration for each cell.
+    - name: foliage_respiration_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean foliage respiration pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: foliage_respiration_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of foliage respiration pooled across
+        all cells and timesteps in the selected period. NA outside that
+        period.
+    - name: fine_root_respiration
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: Interval fine root respiration for each cell.
+    - name: fine_root_respiration_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean fine root respiration pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: fine_root_respiration_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of fine root respiration pooled across all
+        cells and timesteps in the selected period. NA outside that period.
+    - name: branch_turnover
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: Interval branch turnover for each cell.
+    - name: branch_turnover_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean branch turnover pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: branch_turnover_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of branch turnover pooled across all
+        cells and timesteps in the selected period. NA outside that period.
+    - name: foliage_turnover
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: Interval foliage turnover for each cell.
+    - name: foliage_turnover_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean foliage turnover pooled across all cells and
+        timesteps in the selected period. NA outside that period.
+    - name: foliage_turnover_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of foliage turnover pooled across
+        all cells and timesteps in the selected period. NA outside that
+        period.
+  package_dependencies:
+  - data.table
+  - yaml
+  - toml
+  - reticulate
+  usage_notes: |
+    If no period dates are supplied, the mean/sd are pooled across the entire
+    simulation instead. Dates are matched by month.
+    The validation data provide a single regional mean rather than
+    observations for individual cells, so `<variable>_mean` (pooled across
+    all cells and timesteps in the selected period) is the primary
+    comparison value.
+    Each variable's period is loaded at runtime from its own corresponding
+    variable in master_observed_data_processing_metadata.yml:
+    stem respiration -> R_Stem, foliage respiration -> R_Leaf,
+    fine root respiration -> R_FineRoots, branch turnover ->
+    WoodyNPP_BranchTurnover, foliage turnover -> CanopyNPP_Leaf.
+    Input carbon masses are in g C per individual per timestep.
+    Each variable has its own selected-period column.
 - script_path: tree_standing_carbon_mass_maliau_2.R
   title: tree_standing_carbon_mass_maliau_2
   description: |
