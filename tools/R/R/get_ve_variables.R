@@ -255,6 +255,11 @@ get_derived_variables <- function(
     soil_n_pool_inorganic_per_area = get_soil_n_pool_inorganic_per_area(
       zarr_path,
       config
+    ),
+    soil_respiration_CO2_molar = get_soil_respiration_CO2_molar(zarr_path),
+    soil_respiration_CO2_mass = get_soil_respiration_CO2_mass(zarr_path),
+    soil_nitrous_oxide_emission_N2O_mass = get_soil_nitrous_oxide_emission_N2O_mass(
+      zarr_path
     )
   ) |>
     # then collect the derived variables that are returned as a list of arrays
@@ -760,6 +765,64 @@ get_soil_n_pool_inorganic_per_area <- function(zarr_path, config) {
       config
     )
   convert_volume_to_area_basis(soil_n_pool_inorganic_per_volume, config)
+}
+
+#' Calculate soil respiration in CO2 molar basis
+#'
+#' Convert soil respiration from kg{C} m-2 day-1 to mol{CO2} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' configuration TOML file. Unused; kept for a consistent interface.
+#' @return Array of soil respiration in mol CO2 m-2 day-1.
+#' @export
+
+get_soil_respiration_CO2_molar <- function(zarr_path) {
+  soil_respiration <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_respiration"
+  )
+  # 1 mol CO2 per mol C; molar mass of C is 12.011 g/mol
+  soil_respiration$soil_respiration * 1000 / 12.011
+}
+
+
+#' Calculate soil respiration in CO2 mass basis
+#'
+#' Convert soil respiration from kg{C} m-2 day-1 to kg{CO2} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @return Array of soil respiration in kg CO2 m-2 day-1.
+#' @export
+
+get_soil_respiration_CO2_mass <- function(zarr_path) {
+  soil_respiration <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_respiration"
+  )
+  # Molar masses: CO2 = 44.009 g/mol, C = 12.011 g/mol
+  soil_respiration$soil_respiration * 44.009 / 12.011
+}
+
+
+#' Calculate soil nitrous oxide emission in N2O mass basis
+#'
+#' Convert soil nitrous oxide emission from kg{N} m-2 day-1 to
+#' kg{N2O} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @return Array of soil nitrous oxide emission in kg N2O m-2 day-1.
+#' @export
+
+get_soil_nitrous_oxide_emission_N2O_mass <- function(zarr_path) {
+  soil_n2o <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_nitrous_oxide_emission"
+  )
+  # Molar masses: N2O = 44.013 g/mol (2 N), N = 14.007 g/mol
+  soil_n2o$soil_nitrous_oxide_emission * 44.013 / (2 * 14.007)
 }
 
 

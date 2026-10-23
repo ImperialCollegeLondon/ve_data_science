@@ -64,8 +64,8 @@ var_name = "elevation"
 # Animal settings
 [animal]
 # Animal functional group definitions file path.
-# Currently uses Maliau_level3, other levels are also available through Globus.
-functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv"
+# Currently uses Maliau_level5, other levels are also available through Globus.
+functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level5.csv"
 
 [animal.cohort_data_export]
 enabled = true
