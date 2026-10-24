@@ -1,0 +1,14 @@
+directory: data/derived/abiotic/elevation_data
+files:
+- md5: null
+  name: elevation_data_danum.nc
+  script: null
+  url: null
+- md5: null
+  name: example_elevation_90m_small_Maliau_data.nc
+  script: null
+  url: null
+- md5: null
+  name: elevation_data_maliau.nc
+  script: null
+  url: null

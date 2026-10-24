@@ -1,0 +1,18 @@
+directory: data/primary/soil/mycorrhizae
+files:
+- md5: null
+  name: GlobalFungi_5_sample_metadata.txt
+  script: null
+  url: null
+- md5: null
+  name: Soil_Mycelial_Fungi_SAFE_Dataset.xlsx
+  script: null
+  url: null
+- md5: null
+  name: GlobalFungi_5_genus_abundance_ITS1_ITS2.txt
+  script: null
+  url: null
+- md5: null
+  name: 13225_2020_466_MOESM4_ESM.xlsx
+  script: null
+  url: null
