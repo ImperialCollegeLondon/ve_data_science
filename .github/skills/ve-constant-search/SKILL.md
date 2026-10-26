@@ -117,28 +117,29 @@ proxy measurements, or making a consequential scientific judgment.
 
 Discuss evidence and unresolved gaps with the user before writing a research
 result. With approval, write results under `data/derived/llm/`, grouped by VE
-module: `<module>_constant_literature_values.csv`. For soil, append new results
-or update approved existing results in
-`data/derived/llm/soil_constant_literature_values.csv`. Use
-`assets/soil_constant_literature_values.csv` as the blank column template and
-`assets/README.md` as the field guide. Existing CSV headers may differ in order:
-match columns by name. Keep a per-parameter search/screening log beside the
-module CSV. Preserve prior rows: append or replace only user-approved qualified
-names; do not overwrite other constants. Each row represents one constant-source
-pair (or a documented `no_evidence` outcome). Populate `qualified_name`,
-`ve_commit`, `retrieved_at` (UTC), `status`, `rationale`, and evidence fields;
-`name` and `model_default` come from the TOML. For source-group-specific values,
-identify the group in `rationale` and `measurement_conditions`. Leave
-unsupported citation and numerical fields empty. Keep `suggested_value` numeric;
-if only a range is supported, fill `value_low` and `value_high` without
-inventing a point estimate. For conversions, record original units, multiplier
-and calculation in `conversion_notes`. Cite DOI when available, and locate
-retained source text in `rationale` or `conversion_notes` if there is no DOI.
-Check that each `value_found` row has a traceable full-text quote and source,
-matches the recorded model commit and units, and does not merely repeat the
-default. Flag remaining gaps for human review. Existing first- and second-pass
-reports read this CSV but describe historical results; do not silently rewrite
-their conclusions.
+module: `<module>_constant_literature_values.csv`. For soil, create this CSV
+from `assets/soil_constant_literature_values.csv` if it does not exist. The
+existing `data/derived/soil/llm/soil_constant_literature_values.csv` contains
+historical results. Do not copy its rows into a new CSV without approval. Do not
+silently rewrite the historical file. Use `assets/README.md`
+as the field guide. CSV headers may differ in order: match columns by name. Keep
+a per-parameter search/screening log beside the module CSV. Preserve prior rows:
+append or replace only user-approved qualified names; do not overwrite other
+constants. Each row represents one constant-source pair (or a documented
+`no_evidence` outcome). Populate `qualified_name`, `ve_commit`, `retrieved_at`
+(UTC), `status`, `rationale`, and evidence fields; `name` and `model_default`
+come from the TOML. For source-group-specific values, identify the group in
+`rationale` and `measurement_conditions`. Leave unsupported citation and
+numerical fields empty. Keep `suggested_value` numeric; if only a range is
+supported, fill `value_low` and `value_high` without inventing a point estimate.
+For conversions, record original units, multiplier and calculation in
+`conversion_notes`. Cite DOI when available, and locate retained source text in
+`rationale` or `conversion_notes` if there is no DOI. Check that each
+`value_found` row has a traceable full-text quote and source, matches the
+recorded model commit and units, and does not merely repeat the default. Flag
+remaining gaps for human review. Existing first- and second-pass reports
+describe historical results in the older soil CSV; they do not read the new
+output. Do not silently rewrite their conclusions.
 
 Stop once the chosen constants are assessed and the user-approved output is
 checked; report counts of `value_found` and `no_evidence`, sources screened, and

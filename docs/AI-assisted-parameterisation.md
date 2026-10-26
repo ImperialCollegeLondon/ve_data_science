@@ -36,6 +36,29 @@ above is a soil-specific request, not the default scope.
 
 ## Review the evidence
 
+The workflow has a review step before it saves results:
+
+```mermaid
+flowchart TD
+    A[Select one or a few constants] --> B[Check VE source and inventory]
+    B --> C{Units and model form clear?}
+    C -- No --> D[Ask for clarification]
+    D --> B
+    C -- Yes --> E[Search and log candidates]
+    E --> F{Eligible full-text evidence?}
+    F -- Yes --> G[Check values, units and conditions]
+    F -- No --> H[Record the evidence gap]
+    G --> I[Discuss proposals and gaps]
+    H --> I
+    I --> J{User approves results?}
+    J -- No --> K[Stop without changing results]
+    J -- Yes --> L[Write module CSV and search log]
+    L --> M[Check saved values against source and VE commit]
+```
+
+The search does not change VE configuration. A failed search cannot support a
+`no_evidence` result.
+
 The assistant uses
 [`ve_constant_usage.toml`](../.github/skills/ve-constant-search/assets/ve_constant_usage.toml)
 to match selected constants to declarations, reference sites, functions and
@@ -82,19 +105,21 @@ limits of this search, not proof that no literature exists.
 ## Approve and retain results
 
 Discuss proposed values, exclusions and gaps before authorising changes. The
-assistant should ask before using proxies, changing inclusion criteria or making
-consequential scientific judgments. After your approval, write results under
-`data/derived/llm/`, grouped by VE module in
-`<module>_constant_literature_values.csv`. For soil, append new results or
-update approved existing results in
-[`soil_constant_literature_values.csv`](../data/derived/llm/soil_constant_literature_values.csv).
-Other constants' rows must remain unchanged. The skill's
+assistant must ask before it uses proxies or changes inclusion criteria. It must
+also ask before it makes a consequential scientific judgment. After your
+approval, it writes results under `data/derived/llm/`, with one CSV per VE
+module: `<module>_constant_literature_values.csv`. For soil, create this CSV
+from the blank template for new searches. An older soil CSV exists at
+[`data/derived/soil/llm/soil_constant_literature_values.csv`](../data/derived/soil/llm/soil_constant_literature_values.csv).
+That file contains historical results and is not the output path for new
+searches. Do not copy its rows into a new CSV without approval. Rows for other
+constants must remain unchanged. The skill's
 [CSV template](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/assets/soil_constant_literature_values.csv)
 is blank; the
 [field guide](../.github/skills/ve-constant-search/assets/README.md) defines its
-fields. The existing soil CSV uses a different column order, so match columns by
-name. Keep each module's results in its own CSV; put each per-parameter log
-beside the corresponding module CSV.
+fields. The historical soil CSV uses a different column order, so match columns
+by name if you review its rows. Keep each module's new results in its own CSV.
+Put each per-parameter log beside the corresponding module CSV.
 
 Each supported value should identify its source, quotation, original units,
 conversion, measurement conditions and confidence. If only a range is
