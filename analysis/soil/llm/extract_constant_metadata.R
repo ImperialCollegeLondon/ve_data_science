@@ -86,8 +86,9 @@
 #|   jedi and tomli_w installed, and a clone of the virtual_ecosystem repository
 #|   as a sibling directory of ve_data_science.
 #|
-#|   Re-run whenever the analysed virtual_ecosystem commit changes. The commit
-#|   hash is recorded in the output metadata.
+#|   For VE-version refreshes, use refresh_constant_metadata.py instead: it
+#|   checks source cleanliness and compares a staged inventory before replacing
+#|   the maintained TOML. This exploratory script overwrites its output directly.
 #| ---
 
 library(tidyverse)
