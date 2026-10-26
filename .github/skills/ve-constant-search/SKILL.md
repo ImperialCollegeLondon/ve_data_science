@@ -1,6 +1,6 @@
 ---
 name: ve-constant-search
-description: Find and review published values for one or a few Virtual Ecosystem configuration constants in any module. Use for parameter literature searches, evidence appraisal, or proposing values from full text.
+description: Find and review published values for one or a few Virtual Ecosystem (VE) configuration constants in any module. Use for parameter literature searches, evidence appraisal, or proposing values from full text.
 ---
 
 # VE constant search
