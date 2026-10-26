@@ -32,18 +32,9 @@ and leaves the existing asset intact on a dry run. If the source is dirty,
 inspect the selected declarations and references directly; do not infer that its
 commit describes local changes. A committed change outside VE package source may
 also affect imports; check provenance and relevant files before relying on an
-inventory. Keep the human-edited soil workbook separate and refresh it only with
-explicit permission. Do not refresh literature assets when VE changes.
+inventory. Do not refresh literature assets when VE changes.
 
-For a soil constant, review its row in
-`data/derived/soil/llm/soil_constant_review.xlsx` when available; resolve any
-relevant `human_decision_required` or `issue` flags before interpreting usage.
-The workbook generator at
-`analysis/soil/llm/generate_constant_review_workbook.R` filters to the soil
-module. Generate it only for soil constants if needed, and never overwrite
-completed human review without permission. For other modules, inspect the
-selected constant's source and reference sites directly; the soil workbook is
-not a substitute for their review.
+Inspect each selected constant's source and reference sites directly.
 
 For each selected constant, use its declaration, docstring, default, type,
 reference sites and the `functions` table's consumer docstrings to establish

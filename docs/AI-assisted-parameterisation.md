@@ -38,12 +38,9 @@ to match selected constants to declarations, reference sites, functions and
 VE commit. This generated inventory covers declared configuration attributes
 across VE modules, including shared model and disturbance settings. It excludes
 hardcoded numeric literals and external trait tables. Reference resolution is
-best-effort. For soil constants only,
-check the
-[constant review workbook](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/soil/llm/soil_constant_review.xlsx)
-when available. For other modules, review the VE declaration and reference
-sites directly. Resolve flagged issues and ambiguous units or functional forms
-before accepting an interpretation.
+best-effort. Review the VE declaration and reference sites directly for each
+selected constant. Resolve ambiguous units or functional forms before accepting
+an interpretation.
 
 When the local VE commit changes, run the inventory dry run from this repository
 root with a clean VE package source tree:
@@ -61,8 +58,7 @@ configuration classes. Do not apply an inventory built from a different VE
 installation. Check changes outside the package
 that might affect imports separately. The TOML is generated model grounding,
 not empirical evidence. Updating it does not regenerate literature search,
-soil workbook, paper library, RAG stores, or historical reports. The soil
-workbook contains human decisions: refresh it separately and only with consent.
+paper library, RAG stores, or historical reports.
 
 For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table
