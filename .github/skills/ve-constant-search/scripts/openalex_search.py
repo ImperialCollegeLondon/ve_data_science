@@ -34,7 +34,10 @@ def get_openalex_email():
     """Return the user-provided contact address or fail before searching."""
     email = os.environ.get("OPENALEX_EMAIL", "").strip()
     if not email:
-        raise ValueError("Set OPENALEX_EMAIL in the process environment")
+        raise ValueError(
+            "OPENALEX_EMAIL is unset. Follow the 'Configure OpenAlex' steps in "
+            "docs/AI-assisted-parameterisation.md, restart Positron, and retry."
+        )
     return email
 
 

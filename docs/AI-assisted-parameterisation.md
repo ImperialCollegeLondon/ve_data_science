@@ -17,10 +17,50 @@ VE. A model default or an abstract alone is not evidence for a new value.
    `renv.lock`, including `ragnar` and `DBI`. Rebuilding the documentation store
    also needs `tidyverse` from that lockfile. Local renv use is otherwise
    optional; see [R with renv](renv.md).
-3. Export `OPENALEX_EMAIL` with your own contact address in the Python process
-   environment. The required OpenAlex Python helper does not read `.env` or R
-   `.Renviron` files. If the address is unavailable, stop before searching;
-   do not switch to OpenAlex MCP tools or another search integration.
+3. Configure `OPENALEX_EMAIL` with your own contact address. See the commands
+   below. The address identifies API traffic to OpenAlex; it is not a password
+   or API key.
+
+### Configure OpenAlex
+
+The helper must inherit `OPENALEX_EMAIL` when Positron starts. It does not read
+`.env` or R `.Renviron` files.
+
+On Windows, open PowerShell outside Positron and run:
+
+```powershell
+[Environment]::SetEnvironmentVariable(
+  "OPENALEX_EMAIL",
+  "you@example.org",
+  "User"
+)
+```
+
+Replace `you@example.org` with your address. Fully close every Positron window,
+start Positron again, and reopen the workspace. A new integrated PowerShell
+terminal should return your address for:
+
+```powershell
+$env:OPENALEX_EMAIL
+```
+
+On macOS or Linux, start Positron from a terminal where the variable is
+exported:
+
+```bash
+export OPENALEX_EMAIL="you@example.org"
+positron .
+```
+
+Add the `export` command to your shell profile if it should persist. Verify it
+in a new Positron terminal:
+
+```bash
+printf '%s\n' "$OPENALEX_EMAIL"
+```
+
+If you cannot provide an address, stop before searching. Do not switch to
+OpenAlex MCP tools or another search integration.
 
 In an assistant that supports repository skills, ask it to use
 [`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md).

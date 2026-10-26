@@ -25,6 +25,14 @@ def response(data, error=None):
     return result
 
 
+def test_missing_email_points_to_setup(monkeypatch):
+    """A missing contact address reports where to find exact setup steps."""
+    monkeypatch.delenv("OPENALEX_EMAIL", raising=False)
+
+    with pytest.raises(ValueError, match="Configure OpenAlex"):
+        helper.get_openalex_email()
+
+
 def test_zero_results_are_success(monkeypatch):
     """Successful empty searches remain distinguishable from errors."""
     monkeypatch.setenv("OPENALEX_EMAIL", "researcher@example.org")
