@@ -148,8 +148,7 @@
 #|   Each variable's period is loaded at runtime from its own corresponding
 #|   variable in master_observed_data_processing_metadata.yml:
 #|   gpp -> GPP_WithoutMycorrhiza, npp -> TotalNPP_WithoutMycorrhiza.
-#|   Input carbon mass is in kg C per individual per timestep for gpp,
-#|   and in g C per individual per timestep for npp.
+#|   Input carbon masses are in kg C per individual per timestep for gpp and npp.
 #|   Each variable has its own selected-period column.
 #| ---
 
@@ -311,7 +310,7 @@ standardised_npp <-
     plants_cohort_data = plants_cohort_data,
     input_variable = "npp",
     output_variable = "npp",
-    input_mass_unit = "g",
+    input_mass_unit = "kg",
     cell_area_ha = cell_area_ha,
     update_interval_in_days = update_interval_in_days,
     start_date = npp_period$start_date,

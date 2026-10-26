@@ -237,7 +237,7 @@
 #|   stem respiration -> R_Stem, foliage respiration -> R_Leaf,
 #|   fine root respiration -> R_FineRoots, branch turnover ->
 #|   WoodyNPP_BranchTurnover, foliage turnover -> CanopyNPP_Leaf.
-#|   Input carbon masses are in g C per individual per timestep.
+#|   Input carbon masses are in kg C per individual per timestep.
 #|   Each variable has its own selected-period column.
 #| ---
 
@@ -394,7 +394,7 @@ standardised_stem_respiration <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "sapwood_respiration",
   output_variable = "stem_respiration",
-  input_mass_unit = "g",
+  input_mass_unit = "kg",
   cell_area_ha = cell_area_ha,
   update_interval_in_days = update_interval_in_days,
   start_date = stem_respiration_period$start_date,
@@ -406,7 +406,7 @@ standardised_foliage_respiration <-
     plants_cohort_data = plants_cohort_data,
     input_variable = "foliage_respiration",
     output_variable = "foliage_respiration",
-    input_mass_unit = "g",
+    input_mass_unit = "kg",
     cell_area_ha = cell_area_ha,
     update_interval_in_days = update_interval_in_days,
     start_date = foliage_respiration_period$start_date,
@@ -417,7 +417,7 @@ standardised_fine_root_respiration <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "fine_root_respiration",
   output_variable = "fine_root_respiration",
-  input_mass_unit = "g",
+  input_mass_unit = "kg",
   cell_area_ha = cell_area_ha,
   update_interval_in_days = update_interval_in_days,
   start_date = root_respiration_period$start_date,
@@ -428,7 +428,7 @@ standardised_branch_turnover <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "branch_turnover",
   output_variable = "branch_turnover",
-  input_mass_unit = "g",
+  input_mass_unit = "kg",
   cell_area_ha = cell_area_ha,
   update_interval_in_days = update_interval_in_days,
   start_date = branch_turnover_period$start_date,
@@ -439,7 +439,7 @@ standardised_foliage_turnover <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
   input_variable = "foliage_turnover",
   output_variable = "foliage_turnover",
-  input_mass_unit = "g",
+  input_mass_unit = "kg",
   cell_area_ha = cell_area_ha,
   update_interval_in_days = update_interval_in_days,
   start_date = foliage_turnover_period$start_date,
