@@ -25,12 +25,32 @@ def response(data, error=None):
     return result
 
 
-def test_missing_email_points_to_setup(monkeypatch):
+def test_missing_email_points_to_setup(monkeypatch, tmp_path):
     """A missing contact address reports where to find exact setup steps."""
     monkeypatch.delenv("OPENALEX_EMAIL", raising=False)
+    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
+        with pytest.raises(ValueError, match="Configure OpenAlex"):
+            helper.get_openalex_email()
 
-    with pytest.raises(ValueError, match="Configure OpenAlex"):
-        helper.get_openalex_email()
+
+def test_skill_local_email_without_process_variable(monkeypatch, tmp_path):
+    """The skill-local file works regardless of the working directory."""
+    monkeypatch.delenv("OPENALEX_EMAIL", raising=False)
+    env_file = tmp_path / ".env"
+    env_file.write_text("# local settings\nOPENALEX_EMAIL=local@example.org\n")
+    monkeypatch.chdir(tmp_path / "..")
+
+    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
+        assert helper.get_openalex_email() == "local@example.org"
+
+
+def test_process_email_takes_precedence(monkeypatch, tmp_path):
+    """An explicit process setting overrides the skill-local file."""
+    monkeypatch.setenv("OPENALEX_EMAIL", "process@example.org")
+    (tmp_path / ".env").write_text("OPENALEX_EMAIL=local@example.org\n")
+
+    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
+        assert helper.get_openalex_email() == "process@example.org"
 
 
 def test_zero_results_are_success(monkeypatch):

@@ -66,16 +66,17 @@ URL, journal and OpenAlex ID; `fetch_snowball_citations()` can follow promising
 papers. Run from the repository root with
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/openalex_search.py search "QUERY"`
 (or `snowball --id W...`) after `uv sync`, which installs `requests`. The helper
-requires `OPENALEX_EMAIL` in the process environment; ask the user to set their
-own address using the platform-specific commands in the "Configure OpenAlex"
-section of `docs/AI-assisted-parameterisation.md`. Include those commands in the
-response; do not only tell the user to edit the process environment. Do not
-create credentials or choose an address for the user. If none is available, stop
-and wait until the user confirms setup. Record exact query and date. The helper
-only discovers candidates; it does not screen, download or verify full text. A
-failed API request raises an error rather than returning an empty list. Log the
-failure; retry with the same helper or stop and report it. Never count failure
-as zero results or use it to justify `no_evidence`.
+reads `OPENALEX_EMAIL` from the process environment first, then from an ignored
+`.env` beside this skill's `SKILL.md`. Ask the user to set their own address
+using the "Configure OpenAlex" instructions in
+`docs/AI-assisted-parameterisation.md`; include the relevant setup command in
+the response. Do not create credentials or choose an address for the user. If
+none is available, stop and wait until the user confirms setup. Record exact
+query and date. The helper only discovers candidates; it does not screen,
+download or verify full text. A failed API request raises an error rather than
+returning an empty list. Log the failure; retry with the same helper or stop and
+report it. Never count failure as zero results or use it to justify
+`no_evidence`.
 
 Keep a per-parameter search/screening log beside the resulting CSV. Start from
 `assets/constant_search_log.csv` and its `assets/README.md` field guide; record

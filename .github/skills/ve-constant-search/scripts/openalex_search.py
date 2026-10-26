@@ -17,7 +17,8 @@ package_dependencies:
   - requests
 usage_notes: |
   Run search "QUERY" or snowball --id W... from the repository root with
-  uv. Set OPENALEX_EMAIL in the process environment. Results go to stdout;
+  uv. Set OPENALEX_EMAIL in the process environment or in the skill's .env.
+  The process environment takes precedence. Results go to stdout;
   network, HTTP, and JSON errors propagate rather than becoming empty results.
   This script neither downloads full text nor changes the repository.
 ---
@@ -26,6 +27,7 @@ usage_notes: |
 import argparse
 import json
 import os
+from pathlib import Path
 
 import requests
 
@@ -33,12 +35,22 @@ import requests
 def get_openalex_email():
     """Return the user-provided contact address or fail before searching."""
     email = os.environ.get("OPENALEX_EMAIL", "").strip()
-    if not email:
-        raise ValueError(
-            "OPENALEX_EMAIL is unset. Follow the 'Configure OpenAlex' steps in "
-            "docs/AI-assisted-parameterisation.md, restart Positron, and retry."
-        )
-    return email
+    if email:
+        return email
+
+    env_file = Path(__file__).resolve().parents[1] / ".env"
+    if env_file.is_file():
+        for line in env_file.read_text(encoding="utf-8-sig").splitlines():
+            key, separator, value = line.strip().partition("=")
+            if separator and key.strip() == "OPENALEX_EMAIL":
+                email = value.strip().strip("\"'")
+                if email:
+                    return email
+
+    raise ValueError(
+        "OPENALEX_EMAIL is unset. Follow the 'Configure OpenAlex' steps in "
+        "docs/AI-assisted-parameterisation.md and retry."
+    )
 
 
 def reconstruct_openalex_abstract(inverted_index):

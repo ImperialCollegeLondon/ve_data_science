@@ -23,41 +23,25 @@ VE. A model default or an abstract alone is not evidence for a new value.
 
 ### Configure OpenAlex
 
-The helper must inherit `OPENALEX_EMAIL` when Positron starts. It does not read
-`.env` or R `.Renviron` files.
+For repo-local setup, create `.github/skills/ve-constant-search/.env` with:
 
-On Windows, open PowerShell outside Positron and run:
+```dotenv
+OPENALEX_EMAIL=you@example.org
+```
+
+Replace `you@example.org` with your address. The file is ignored by Git. The
+helper reads it relative to its own location, regardless of the working
+directory. No Positron restart is needed. It does not read R `.Renviron` files.
+
+An existing `OPENALEX_EMAIL` in the process environment takes precedence over
+the `.env` file. To use the repo-local address instead, remove the user-level
+variable and restart Positron, or unset it in the terminal running the helper:
 
 ```powershell
-[Environment]::SetEnvironmentVariable(
-  "OPENALEX_EMAIL",
-  "you@example.org",
-  "User"
-)
+Remove-Item Env:OPENALEX_EMAIL
 ```
 
-Replace `you@example.org` with your address. Fully close every Positron window,
-start Positron again, and reopen the workspace. A new integrated PowerShell
-terminal should return your address for:
-
-```powershell
-$env:OPENALEX_EMAIL
-```
-
-On macOS or Linux, start Positron from a terminal where the variable is
-exported:
-
-```bash
-export OPENALEX_EMAIL="you@example.org"
-positron .
-```
-
-Add the `export` command to your shell profile if it should persist. Verify it
-in a new Positron terminal:
-
-```bash
-printf '%s\n' "$OPENALEX_EMAIL"
-```
+On macOS or Linux, use `unset OPENALEX_EMAIL` instead.
 
 If you cannot provide an address, stop before searching. Do not switch to
 OpenAlex MCP tools or another search integration.
