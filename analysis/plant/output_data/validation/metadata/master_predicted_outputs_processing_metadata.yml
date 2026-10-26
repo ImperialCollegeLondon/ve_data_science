@@ -1,6 +1,6 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-10-23'
+generated_on: '2026-10-26'
 scripts:
 - script_path: gpp_and_npp_maliau_2.R
   title: gpp_and_npp_maliau_2
@@ -142,8 +142,7 @@ scripts:
     Each variable's period is loaded at runtime from its own corresponding
     variable in master_observed_data_processing_metadata.yml:
     gpp -> GPP_WithoutMycorrhiza, npp -> TotalNPP_WithoutMycorrhiza.
-    Input carbon mass is in kg C per individual per timestep for gpp,
-    and in g C per individual per timestep for npp.
+    Input carbon masses are in kg C per individual per timestep for gpp and npp.
     Each variable has its own selected-period column.
 - script_path: realised_tissue_productivity_maliau_2.R
   title: realised_tissue_productivity_maliau_2
@@ -706,7 +705,7 @@ scripts:
     stem respiration -> R_Stem, foliage respiration -> R_Leaf,
     fine root respiration -> R_FineRoots, branch turnover ->
     WoodyNPP_BranchTurnover, foliage turnover -> CanopyNPP_Leaf.
-    Input carbon masses are in g C per individual per timestep.
+    Input carbon masses are in kg C per individual per timestep.
     Each variable has its own selected-period column.
 - script_path: tree_standing_carbon_mass_maliau_2.R
   title: tree_standing_carbon_mass_maliau_2
