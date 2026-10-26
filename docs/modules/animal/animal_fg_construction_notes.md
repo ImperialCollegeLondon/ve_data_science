@@ -37,9 +37,9 @@ A stratum gives an FG three things: access to the food in that stratum, exposure
 predators in that stratum, and that stratum's temperature. An FG can eat from a pool
 or prey on another FG if they share any stratum. There is no splitting, an FG in
 `ground_canopy` can eat everything on the ground and everything in the canopy, as if
-it were in both all the time. Only temperature is averaged across strata. 
+it were in both all the time. Only temperature is averaged across strata.
 
-Carcasses and dung are handled differently. There's currently no stratum check for either, and both are treated as ground-level resources. 
+Carcasses and dung are handled differently. There's currently no stratum check for either, and both are treated as ground-level resources.
 ([virtual_ecosystem#1952](https://github.com/ImperialCollegeLondon/virtual_ecosystem/issues/1952)).
 
 ### Approach for Level 5
@@ -61,7 +61,7 @@ pools at the time of writing. Still provisional, and open to change.
 ### Open questions
 
 1. Where does animal use of the canopy begin? This isn’t documented anywhere. Does any tree-associated use (saplings, lower trunks, mid-storey) count as canopy? I also cannot find any height bands for canopy.
-2. Choosing stratum: nesting versus foraging activity. For a context, ants nest in soil or litter, forage on the ground and climb to collect honeydew-producing insects. How should we define this, as ground_canopy (where they feed) or soil_ground_canopy (where they live)? Adding soil would let them feed on soil resources, make them available to soil predators, and pull their climate towards topsoil temperature. This affects FG like, Omnivorous_arboreal_ants. 
+2. Choosing stratum: nesting versus foraging activity. For a context, ants nest in soil or litter, forage on the ground and climb to collect honeydew-producing insects. How should we define this, as ground_canopy (where they feed) or soil_ground_canopy (where they live)? Adding soil would let them feed on soil resources, make them available to soil predators, and pull their climate towards topsoil temperature. This affects FG like, Omnivorous_arboreal_ants.
 3. FG that use a stratum only temporarily or seasonally:
    (e.g. canopy frogs moving lower to breed or semi-arboreal mammals or cicada), which is essential to an animal's life cycle without being a major part of where it spends its time. Listing only the main stratum ignores the temporary but critical use, but listing every stratum gives full access (resources pool, predation exposure, prey access) to all of them. Another limitation that should be recorded?
 
@@ -82,7 +82,7 @@ The VE has no habitat trait. "Terrestrial" appears in only two places:
 Some Level 5 FG names include "terrestrial" or "arboreal" (e.g.
 `herbivorous_terrestrial_small_mammal`, "Omnivorous arboreal/terrestrial small
 mammal"). These words are labels only and have no effect in the model but then overlap
-with `vertical_occupancy`. 
+with `vertical_occupancy`.
 
 ### Open questions
 
@@ -125,7 +125,7 @@ valid diet tags, but the VE has no food pool for them. Several FGs that rely onl
 
 * An Asian forest tortoise (\~10 kg, ground) mostly eats plants but opportunistically eats carrion (evidence-based). Adding `carcasses` makes it scavenge every time step, competing with true scavengers, and reduces its time for plant foraging.
 * If the same tortoise were given `vertebrates`, its capture success would be highest for prey of about 2.6 kg, so the lesser mouse deer (\~2 kg) would be among
-  its most likely prey, more than a rat (\~0.2 kg) and neither is realistic. 
+  its most likely prey, more than a rat (\~0.2 kg) and neither is realistic.
 * Meanwhile, having `invertebrates` in the diet tags, means that it can't realistically catch any prey on ground (ideal prey is around 2.6 kg, based on capture success) as our largest invertebrate is around 8g.
 
 ### Open questions
@@ -148,11 +148,11 @@ offspring away from the active community for a set time before they join it. Not
 developers (`development_type = direct`, offspring = self):
 
 * **Aquatic-juvenile FGs** (frogs and toads, dragonflies, mosquitoes): their larvae
-  live in water, but VE has no aquatic habitat. A separate larval FG (imagine a tadpole) would have to be placed in soil, ground or canopy and given a terrestrial diet, which would be ecologically wrong. 
+  live in water, but VE has no aquatic habitat. A separate larval FG (imagine a tadpole) would have to be placed in soil, ground or canopy and given a terrestrial diet, which would be ecologically wrong.
 * **Social insects** (ants, termites, bees and hornets): brood develop inside the
   colony and are fed by workers, so they do not forage independently. A separate
   larval FG would misrepresent this.
-  Hence, `direct` for both cases. 
+  Hence, `direct` for both cases.
 
 This keeps these FGs ecologically sensible within what the VE can represent. The
 trade-off is that their larval stages are not part of the food web, as either
@@ -160,7 +160,7 @@ consumers or prey.
 
 ### Open questions
 
-1. Does the team agree with this approach? 
+1. Does the team agree with this approach?
 2. Should it be recorded as a known limitation in the VE functional group data
    documentation, so future users understand why these FGs are coded as direct?
 
@@ -268,7 +268,7 @@ happens to be close to the female mass.
 1. For species/group (which represents the FG) with strong sexual size dimorphism (SSD), the value of `adult_mass`
 depends on whose mass we use. For example, monitor lizard ie: *Varanus salvator* females average about 4 kg and
 males about 10 kg. Using the male value would mean cohorts have to grow to about
-2.5 times the mass before they can breed. 
+2.5 times the mass before they can breed.
 In this case, which value should
    `adult_mass` represent: female mass (since females limit reproduction), male mass,
    or the mean of both?
