@@ -11,7 +11,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: deprecated
+#| status: final
 #|
 #| input_files:
 #|
