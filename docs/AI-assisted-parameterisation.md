@@ -17,10 +17,10 @@ VE. A model default or an abstract alone is not evidence for a new value.
    `renv.lock`, including `ragnar` and `DBI`. Rebuilding the documentation store
    also needs `tidyverse` from that lockfile. Local renv use is otherwise
    optional; see [R with renv](renv.md).
-3. If using the skill's OpenAlex Python helper, export `OPENALEX_EMAIL` with
-   your own contact address in the Python process environment. It does not
-   read `.env` or R `.Renviron` files. You may instead use an OpenAlex
-   integration that does not require an email address.
+3. Export `OPENALEX_EMAIL` with your own contact address in the Python process
+   environment. The required OpenAlex Python helper does not read `.env` or R
+   `.Renviron` files. If the address is unavailable, stop before searching;
+   do not switch to OpenAlex MCP tools or another search integration.
 
 In an assistant that supports repository skills, ask it to use
 [`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md).
@@ -86,6 +86,13 @@ installation. Check changes outside the package
 that might affect imports separately. The TOML is generated model grounding,
 not empirical evidence. Updating it does not rerun literature searches or
 update historical reports. Do not assume a local full-text library exists.
+
+Use only the Python helper for OpenAlex discovery and citation lookup. Do not
+use `webfetch` or general web search for literature discovery or screening.
+For screened candidates, `webfetch` is permitted only to open a specific
+full-text article or PDF URL identified by the helper or supplied by the user;
+do not use it to search for additional papers. If full text is inaccessible,
+record that gap instead of searching elsewhere.
 
 For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table

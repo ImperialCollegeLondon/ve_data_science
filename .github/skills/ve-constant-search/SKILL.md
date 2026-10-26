@@ -58,7 +58,9 @@ reference remain ambiguous, ask the user before proposing values.
 ## 2. Discover and screen literature
 
 Search per constant or a small group of related constants, not one generic
-corpus query. Use `scripts/openalex_search.py` for OpenAlex searches:
+corpus query. Use only `scripts/openalex_search.py` for OpenAlex literature
+searches and citation lookup. Do not use OpenAlex MCP tools, `webfetch`, or
+general web search to discover or screen papers. The helper's
 `search_openalex()` returns title, authors, year, DOI, abstract, open-access PDF
 URL, journal and OpenAlex ID; `fetch_snowball_citations()` can follow promising
 papers. Run from the repository root with
@@ -66,12 +68,12 @@ papers. Run from the repository root with
 (or `snowball --id W...`) after `uv sync`, which installs `requests`. The helper
 requires `OPENALEX_EMAIL` in the process environment; ask the user to set their
 own address as described in `docs/AI-assisted-parameterisation.md`. Do not
-create credentials or choose an address for the user. If none is available, use
-an OpenAlex integration that does not require one. Record exact query and date.
-The helper only discovers candidates; it does not screen, download or verify
-full text. A failed API request raises an error rather than returning an empty
-list. Retry or switch integrations and log failed searches separately; never
-count failure as zero results or use it to justify `no_evidence`.
+create credentials or choose an address for the user. If none is available, stop
+and ask the user to set it. Record exact query and date. The helper only
+discovers candidates; it does not screen, download or verify full text. A failed
+API request raises an error rather than returning an empty list. Log the
+failure; retry with the same helper or stop and report it. Never count failure
+as zero results or use it to justify `no_evidence`.
 
 Keep a per-parameter search/screening log beside the resulting CSV. Start from
 `assets/constant_search_log.csv` and its `assets/README.md` field guide; record
@@ -83,12 +85,15 @@ not a value. Track no-DOI and inaccessible papers so `no_evidence` describes the
 search coverage, not universal absence. Follow references when coverage is thin.
 Do not infer study quality from citation count or publisher alone.
 
-Obtain full text for screened candidates through authorized sources; retain
-source URL and DOI, inspect the actual tables/methods, and keep a stable
-provenance record. Do not assume a local OpenAlex full-text library exists or
-covers the selected constants. Check access and sharing rights before copying
-restricted full text into the repository. Neither a PDF cache nor abstract
-results substitute for verified full text.
+Obtain full text for screened candidates through authorized sources. As the
+only `webfetch` exception, open a specific article or PDF URL returned by the
+helper or supplied by the user; do not use it to search for papers or follow
+links to new candidates. If full text is inaccessible, record the gap rather
+than searching elsewhere. Retain source URL and DOI, inspect the actual
+tables/methods, and keep a stable provenance record. Do not assume a local
+OpenAlex full-text library exists or covers the selected constants. Check access
+and sharing rights before copying restricted full text into the repository.
+Neither a PDF cache nor abstract results substitute for verified full text.
 
 ## 3. Extract and verify
 
