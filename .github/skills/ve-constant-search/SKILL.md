@@ -71,20 +71,13 @@ not a value. Track no-DOI and inaccessible papers so `no_evidence` describes the
 search coverage, not universal absence. Follow references when coverage is thin.
 Do not infer study quality from citation count or publisher alone.
 
-Read existing local full text under `data/derived/soil/llm/full_text/markdown/`
-when relevant. Newly found full text that you can legally access is also
-allowed: obtain it through authorized sources, retain source URL and DOI,
-inspect the actual tables/methods, and keep a stable provenance record. Check
-access and sharing rights before copying restricted full text into the
-repository. The existing `analysis/soil/llm/paper_library.R` accepts a manual
-OpenAlex CSV, not the colleague's JSON; use it only when that input exists. The
-`download_full_text.R` downloader needs `record_id`, `doi`, `source_type`,
-`preferred_full_text_url`, `retrieval_method`, and `title_export`; its current
-filter only downloads `generic_direct`. Use it only with compatible input.
-Neither the colleague's PDF cache nor its abstract results are a substitute for
-verified full text. Existing `rag_literature.R` is optional for retrieval from
-its prepared Markdown library, not for validating source text. `rag_ve.R` uses
-remote develop docs, which may differ from the workspace commit.
+Obtain full text for screened candidates through authorized sources; retain
+source URL and DOI, inspect the actual tables/methods, and keep a stable
+provenance record. Do not assume a local OpenAlex full-text library exists or
+covers the selected constants. Check access and sharing rights before copying
+restricted full text into the repository. Neither a PDF cache nor abstract
+results substitute for verified full text. `rag_ve.R` uses remote develop docs,
+which may differ from the workspace commit.
 
 ## 3. Extract and verify
 

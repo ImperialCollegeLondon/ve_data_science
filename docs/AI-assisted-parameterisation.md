@@ -57,8 +57,8 @@ to the selected local VE clone before regenerating: the generator imports VE
 configuration classes. Do not apply an inventory built from a different VE
 installation. Check changes outside the package
 that might affect imports separately. The TOML is generated model grounding,
-not empirical evidence. Updating it does not regenerate literature search,
-paper library, RAG stores, or historical reports.
+not empirical evidence. Updating it does not rerun literature searches or
+update historical reports. Do not assume a local full-text library exists.
 
 For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table
