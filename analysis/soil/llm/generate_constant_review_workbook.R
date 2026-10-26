@@ -51,7 +51,9 @@ library(purrr)
 library(stringr)
 library(tibble)
 
-input_file <- here("data/derived/soil/llm/ve_constant_usage.toml")
+input_file <- here(
+  ".github/skills/ve-constant-search/assets/ve_constant_usage.toml"
+)
 output_file <- here("data/derived/soil/llm/soil_constant_review.xlsx")
 soil_module_prefix <- "virtual_ecosystem.models.soil"
 ve_repository_url <-

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import subprocess
 import sys
 import tempfile
@@ -10,7 +11,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
-ASSET = ROOT / "data/derived/soil/llm/ve_constant_usage.toml"
+ASSET = ROOT / ".github/skills/ve-constant-search/assets/ve_constant_usage.toml"
 TOOL_DIR = ROOT / "tools/python/src/ve_data_tools"
 
 
@@ -44,6 +45,8 @@ def refresh(ve_root: Path, apply: bool = False) -> str:
         current
         and current["metadata"]["project_commit"] == commit
         and not current["metadata"].get("project_source_modified", True)
+        and "virtual_ecosystem/core/configuration.py"
+        in current["metadata"].get("target_files", [])
     ):
         return f"Current inventory already matches VE commit {commit}; no changes."
 
@@ -61,6 +64,25 @@ def refresh(ve_root: Path, apply: bool = False) -> str:
     )
     if not targets:
         raise ValueError("No VE model_config.py files found")
+
+    # Include shared settings declared in the configuration base classes.
+    base_path = ve_root / "virtual_ecosystem/core/configuration.py"
+    base_tree = ast.parse(base_path.read_text(encoding="utf-8"))
+    shared_fields = {
+        node.name: {
+            statement.target.id
+            for statement in node.body
+            if isinstance(statement, ast.AnnAssign)
+            and isinstance(statement.target, ast.Name)
+            and not statement.target.id.startswith("_")
+        }
+        for node in base_tree.body
+        if isinstance(node, ast.ClassDef)
+        and node.name in {"ModelConfigurationRoot", "DisturbanceConfigurationRoot"}
+    }
+    if set(shared_fields) != {"ModelConfigurationRoot", "DisturbanceConfigurationRoot"}:
+        raise ValueError("VE shared configuration classes are missing")
+    targets = [base_path.relative_to(ve_root).as_posix(), *targets]
     with tempfile.TemporaryDirectory() as directory:
         staged_path = Path(directory) / "ve_constant_usage.toml"
         staged = get_constant_references(
@@ -74,6 +96,16 @@ def refresh(ve_root: Path, apply: bool = False) -> str:
             or staged["metadata"]["project_source_modified"]
         ):
             raise ValueError("VE source changed during scan; discard staged inventory")
+        expected_shared = {
+            f"virtual_ecosystem.core.configuration.{class_name}.{field}"
+            for class_name, fields in shared_fields.items()
+            for field in fields
+        }
+        missing_shared = expected_shared - staged["constants"].keys()
+        if missing_shared:
+            raise ValueError(
+                f"Shared VE fields missing from inventory: {sorted(missing_shared)}"
+            )
         if git(
             ve_root,
             "status",

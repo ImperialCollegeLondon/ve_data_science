@@ -90,7 +90,7 @@
 #|   .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py:
 #|   it checks source cleanliness and compares a staged inventory before
 #|   replacing the maintained TOML. This exploratory script overwrites its
-#|   output directly.
+#|   output directly; it is not the maintained inventory.
 #| ---
 
 library(tidyverse)
@@ -148,7 +148,7 @@ progress_update <- function(completed, total, path) {
 ve_constants <-
   cu$get_constant_references(
     target_paths = as.list(ve_config_files),
-    out_path = "data/derived/soil/llm/ve_constant_usage.toml",
+    out_path = "data/derived/soil/llm/ve_constant_usage_exploratory.toml",
     project_root = ve_project_root,
     include_tests = FALSE,
     progress_callback = progress_update

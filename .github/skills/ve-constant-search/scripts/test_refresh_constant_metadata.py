@@ -1,6 +1,7 @@
 """Offline checks for safe VE inventory refresh."""
 
 import importlib.util
+import tomllib
 from pathlib import Path
 from unittest.mock import patch
 
@@ -20,7 +21,8 @@ def test_matching_commit_skips_scan(tmp_path):
     (ve / "virtual_ecosystem").mkdir(parents=True)
     asset = tmp_path / "inventory.toml"
     asset.write_text(
-        '[metadata]\nproject_commit = "abc"\nproject_source_modified = false\n',
+        '[metadata]\nproject_commit = "abc"\nproject_source_modified = false\n'
+        'target_files = ["virtual_ecosystem/core/configuration.py"]\n',
         encoding="utf-8",
     )
     with (
@@ -29,6 +31,24 @@ def test_matching_commit_skips_scan(tmp_path):
     ):
         assert "no changes" in refresh.refresh(ve)
     assert 'project_commit = "abc"' in asset.read_text(encoding="utf-8")
+
+
+def test_asset_is_packaged_with_skill():
+    """The maintained inventory is part of the skill and includes shared fields."""
+
+    assert refresh.ASSET.parent == Path(__file__).parents[1] / "assets"
+    inventory = tomllib.loads(refresh.ASSET.read_text(encoding="utf-8"))
+    assert (
+        "virtual_ecosystem/core/configuration.py"
+        in inventory["metadata"]["target_files"]
+    )
+    for name in (
+        "ModelConfigurationRoot.static",
+        "DisturbanceConfigurationRoot.run_at",
+        "DisturbanceConfigurationRoot.run_every",
+        "DisturbanceConfigurationRoot.priority",
+    ):
+        assert f"virtual_ecosystem.core.configuration.{name}" in inventory["constants"]
 
 
 def test_dirty_source_blocks_apply(tmp_path):

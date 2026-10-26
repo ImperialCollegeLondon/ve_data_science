@@ -18,13 +18,12 @@ class, or parameter family instead, identify matching names and agree on a
 small subset before searching. Do not default to every constant in a class or
 module.
 
-Read `data/derived/soil/llm/ve_constant_usage.toml` (`metadata`, `functions`,
-`constants`); despite its path, it inventories configuration constants across VE
-modules. The TOML is the single generated grounding asset, not literature
-evidence. It covers declared configuration attributes, not hardcoded literals or
-external trait tables; its reference lookup is best-effort. Compare
-`project_commit` with local VE HEAD and check uncommitted Python source changes.
-For a changed VE commit, run
+Read `assets/ve_constant_usage.toml` (`metadata`, `functions`, `constants`); it
+inventories declared configuration attributes across VE modules, including
+shared model and disturbance settings. The TOML is generated model context, not
+literature evidence. It excludes hardcoded literals and external trait tables;
+reference lookup is best-effort. Compare `project_commit` with local VE HEAD and
+check uncommitted Python source changes. For a changed VE commit, run
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`
 from the repository root (requires the project Python dependencies and a sibling
 VE clone). Review the staged added, removed and changed record names; then run

@@ -1,4 +1,10 @@
-# Evidence templates
+# Skill assets
+
+`ve_constant_usage.toml` is the generated, all-module VE configuration
+inventory used for model grounding. It is not literature evidence. Refresh it
+with `../scripts/refresh_constant_metadata.py` after checking the VE commit.
+
+## Evidence templates
 
 `soil_constant_literature_values.csv` is an empty template, not an evidence
 set. Its header order differs from the historical soil results CSV: match

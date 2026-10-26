@@ -33,11 +33,12 @@ above is a soil-specific request, not the default scope.
 ## Review the evidence
 
 The assistant uses
-[`ve_constant_usage.toml`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/soil/llm/ve_constant_usage.toml)
+[`ve_constant_usage.toml`](../.github/skills/ve-constant-search/assets/ve_constant_usage.toml)
 to match selected constants to declarations, reference sites, functions and
-VE commit. Despite its soil directory, this generated inventory covers all VE
-configuration attributes; it excludes hardcoded numeric literals and external
-trait tables. Reference resolution is best-effort. For soil constants only,
+VE commit. This generated inventory covers declared configuration attributes
+across VE modules, including shared model and disturbance settings. It excludes
+hardcoded numeric literals and external trait tables. Reference resolution is
+best-effort. For soil constants only,
 check the
 [constant review workbook](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/soil/llm/soil_constant_review.xlsx)
 when available. For other modules, review the VE declaration and reference
