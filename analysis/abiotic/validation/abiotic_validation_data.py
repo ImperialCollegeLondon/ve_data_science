@@ -1559,14 +1559,14 @@ def add_ve_columns(long: pd.DataFrame) -> pd.DataFrame:
     )
     for name in ["latent_heat_flux", "sensible_heat_flux"]:
         long.loc[tower & (long["var_canonical"] == name), "ve_formula"] = (
-            f"sum of {name} over the canopy layers and topsoil"
+            f"sum of {name} over the canopy layers, surface layer and topsoil"
         )
     nr = tower & (long["var_canonical"] == "net_radiation")
     long.loc[nr, "ve_compare_note"] = (
         "Grid mean of the VE net radiation of the canopy and soil (regional site)"
     )
     long.loc[nr, "ve_formula"] = (
-        "sum of net_radiation over the canopy layers and topsoil"
+        "sum of net_radiation over the canopy layers, surface layer and topsoil"
     )
 
     long.loc[
