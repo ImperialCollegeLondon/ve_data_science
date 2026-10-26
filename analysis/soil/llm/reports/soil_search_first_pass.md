@@ -14,12 +14,9 @@ jupyter:
     path: C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\share\jupyter\kernels\python3
 ---
 
----
+# Soil constant search (first pass review)
 
-title: "Soil constant search (first pass review)"
-format: gfm
-
-## author: Hao Ran Lai
+Author: Hao Ran Lai
 
 This is an intermittent report to review the rationales of a LLM when asked to
 search for soil constant values from the literature. The R script that ran the
