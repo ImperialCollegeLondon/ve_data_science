@@ -122,11 +122,27 @@ database).
 | vapour_pressure (observed) | $e_a = e_s(T)\,RH / 100$, $e_s(T) = 0.6112 \exp(17.62\,T / (T + 243.12))$, the Magnus equation the VE uses (pyrealm `calc_vp_sat`, default coefficients of Sonntag 1990) | kPa |
 | vapour_pressure_deficit (observed) | $VPD = e_s(T) - e_a$ | kPa |
 | latent_heat_flux from evapotranspiration | $LE = ET \cdot \lambda$ / seconds per period (as `calculate_latent_heat_flux` in the VE), with $\lambda = 1.91846 \times 10^6\,(T_K / (T_K - 33.91))^2$ J kg⁻¹ (Henderson-Sellers 1984, as the VE; about 2.44 MJ kg⁻¹ at 25 °C); the evapotranspiration values of the [hydrology plan](hydrology_validation_plan.md) also check LE | W m⁻² |
-| energy balance closure | $R_n \approx LE + H + G$ with LE and H positive upward; in the VE the topsoil $G = R_n - LE - H$ (residual) | W m⁻² |
+| energy balance closure | $G = R_n + LE + H$ with the VE signs (see the sign convention below the table: $R_n$ positive when the surface gains energy, $LE$ and $H$ negative from the surface to the air, $G$ positive into the soil); in the VE the topsoil $G$ is this residual | W m⁻² |
 | diurnal_temperature_range (observed) | monthly mean of daily maximum − daily minimum air temperature | °C |
 | above-canopy net_radiation, latent_heat_flux, sensible_heat_flux | sum of the VE profile over the canopy layers and topsoil, compared with the flux tower; the VE stores LE and H as negative from the surface to the air, so the tower LE and H change sign (`obs_in_ve_unit`) | W m⁻² |
 
 <!-- markdownlint-enable MD013 -->
+
+*Sign convention of the energy balance.* The plan uses the VE signs for each
+term of the energy balance:
+
+* **$R_n$ (net radiation)** is positive when the surface gains energy, that is,
+  it absorbs more radiation from the sun and sky than it emits.
+* **$LE$ (latent heat flux)** and **$H$ (sensible heat flux)** are negative
+  when heat leaves the surface (soil or leaves) and goes into the air, and
+  positive when heat goes from the air to the surface.
+* **$G$ (ground heat flux)** is positive when heat goes down into the soil.
+
+With these signs the balance is $G = R_n + LE + H$: the soil receives the
+radiation energy the surface gains ($R_n$), less the energy used to evaporate
+water ($LE$) and warm the air ($H$). The VE computes the topsoil $G$ this way,
+as the residual. The SAFE flux tower reports $LE$ and $H$ as positive from the
+surface to the air, so `obs_in_ve_unit` holds them with the VE sign.
 
 *Inputs and constants* the same data can check: the ERA5-Land forcing (air
 temperature, relative humidity, pressure and wind against the flux tower above
@@ -271,7 +287,8 @@ unless the path is given in full.
 Checks of the flux tower values (2026-10-13): VPD calculated from the 50 m
 temperature and RH matches the eddy covariance VPD (median 0.36 kPa for both);
 LE matches the ET column × 2.45 MJ kg⁻¹; the energy balance closure
-(LE + H) / Rn is 0.55-0.82 per month, usual for tropical forest towers; the
+(LE + H) / Rn with the tower signs, or −(LE + H) / Rn with the VE signs, is
+0.55-0.82 per month, usual for tropical forest towers; the
 net radiation in the file is negative at midday, which confirms the sign
 reversal. The eddy covariance air pressure is about 100.7 kPa against 97.4 kPa
 from the barometer, so pressure comes from the barometer only.
