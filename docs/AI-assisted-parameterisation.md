@@ -78,17 +78,19 @@ limits of this search, not proof that no literature exists.
 ## Approve and retain results
 
 Discuss proposed values, exclusions and gaps before authorising changes. The
-assistant should ask before using proxies, changing inclusion criteria or
-making consequential scientific judgments. For soil constants only, after your
-approval, append or replace approved qualified names in
-[`soil_constant_literature_values.csv`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/soil/llm/soil_constant_literature_values.csv).
+assistant should ask before using proxies, changing inclusion criteria or making
+consequential scientific judgments. After your approval, write results under
+`data/derived/llm/`, grouped by VE module in
+`<module>_constant_literature_values.csv`. For soil, append new results or
+update approved existing results in
+[`soil_constant_literature_values.csv`](../data/derived/llm/soil_constant_literature_values.csv).
 Other constants' rows must remain unchanged. The skill's
 [CSV template](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/assets/soil_constant_literature_values.csv)
 is blank; the
 [field guide](../.github/skills/ve-constant-search/assets/README.md) defines its
 fields. The existing soil CSV uses a different column order, so match columns by
-name. For non-soil constants, agree on an output and log path before writing
-either; do not add non-soil results to the soil CSV by default.
+name. Keep each module's results in its own CSV; put each per-parameter log
+beside the corresponding module CSV.
 
 Each supported value should identify its source, quotation, original units,
 conversion, measurement conditions and confidence. If only a range is
