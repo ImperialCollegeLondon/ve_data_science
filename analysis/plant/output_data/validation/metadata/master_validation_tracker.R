@@ -35,6 +35,7 @@ library(knitr)
 comparison_files <- c(
   "../../../../../data/derived/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.csv",
   "../../../../../data/derived/plant/output_data/validation/comparisons/reproductive_turnover_comparison_maliau_2.csv",
+  "../../../../../data/derived/plant/output_data/validation/comparisons/symbiote_allocation_comparison_maliau_2.csv",
   "../../../../../data/derived/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.csv",
   "../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv"
 )

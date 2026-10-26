@@ -707,6 +707,121 @@ scripts:
     WoodyNPP_BranchTurnover, foliage turnover -> CanopyNPP_Leaf.
     Input carbon masses are in kg C per individual per timestep.
     Each variable has its own selected-period column.
+- script_path: symbiote_allocation_maliau_2.R
+  title: symbiote_allocation_maliau_2
+  description: |
+    Calculates symbiote allocation
+    from Virtual Ecosystem array variable outputs for the Maliau 2
+    scenario. Symbiote allocation is corrected for cell area
+    and timestep duration to give an annualised area-normalised rate per cell
+    and timestep.
+    These standardised symbiote allocation values are also pooled across
+    all cells and timesteps within the selected period into a single mean and
+    standard deviation, matching the spatial and temporal extent of the
+    validation data.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: model_data.nc
+    path: data/scenarios/maliau/maliau_2/out
+    description: |
+      Virtual Ecosystem array variable outputs containing symbiote allocation
+      per cell, cell coordinates and timestep index.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid coordinate vectors used to map cell IDs.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: |
+      Provides the validation period (`period_start`/`period_end`) declared
+      by carbon_balance_components_maliau.R, so the pooled mean/sd below
+      always match the observed dataset's temporal extent. Requires
+      master_observed_data_processing.R to have been run first.
+  output_files:
+  - name: symbiote_allocation_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      Annualised symbiote allocation and cell-total rates in
+      Mg C ha-1 year-1. There is one row per cell and timestep.
+      Mean/sd/period columns are `NA` outside the selected period. The
+      standard deviation describes variability across unique cells and
+      intervals, not prediction uncertainty.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      description: VE spatial cell identifier.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      description: Cell centre northing in the grid CRS.
+    - name: time
+      type: date
+      units: ISO 8601 date
+      description: Interval-ending simulation date.
+    - name: time_index
+      type: integer
+      units: dimensionless
+      description: Interval-ending simulation timestep index.
+    - name: symbiote_allocation_selected_period
+      type: character
+      units: dimensionless
+      description: Month-based period for pooled cell-total symbiote allocation mean/sd.
+    - name: units
+      type: character
+      units: dimensionless
+      description: Units for standardised symbiote allocation and pooled summaries.
+    - name: symbiote_allocation
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Single cell (cell_id).
+      temporal_extent: Single interval ending at time/time_index.
+      description: |
+        Annualised symbiote allocation in this cell and timestep.
+    - name: symbiote_allocation_mean
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Mean cell-total symbiote allocation pooled across all cells and
+        timesteps in the selected period, counting each cell/timestep
+        once. NA outside that period.
+    - name: symbiote_allocation_sd
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: Pooled across all cells.
+      temporal_extent: |
+        Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+      description: |
+        Standard deviation of cell-total symbiote allocation pooled across
+        unique cells and timesteps in the selected period. NA outside
+        that period.
+  package_dependencies:
+  - data.table
+  - ncdf4
+  - yaml
+  - toml
+  - reticulate
+  usage_notes: |
+    If no period dates are supplied, the mean/sd are pooled across the entire
+    simulation instead. Dates are matched by month.
+    The validation data provide a single regional mean rather than
+    observations for individual cells, so `symbiote_allocation_mean`
+    is the primary comparison value. It is pooled across unique cells and
+    timesteps in the selected period.
+    The selected period is loaded from `TotalNPP_WithMycorrhiza` in
+    master_observed_data_processing_metadata.yml.
+    Input symbiote allocation rates are in kg C m-2 day-1 and are
+    converted to Mg C ha-1 year-1.
 - script_path: tree_standing_carbon_mass_maliau_2.R
   title: tree_standing_carbon_mass_maliau_2
   description: |

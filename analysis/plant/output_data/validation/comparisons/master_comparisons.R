@@ -20,6 +20,7 @@
 #|   - path: analysis/plant/output_data/validation/comparisons/gpp_and_npp_comparison_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/comparisons/reproductive_turnover_comparison_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/comparisons/symbiote_allocation_comparison_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.R
 #|
@@ -172,6 +173,7 @@ scripts <- c(
   "gpp_and_npp_comparison_maliau_2.R",
   "realised_tissue_productivity_comparison_maliau_2.R",
   "reproductive_turnover_comparison_maliau_2.R",
+  "symbiote_allocation_comparison_maliau_2.R",
   "respiration_and_turnover_comparison_maliau_2.R",
   "tree_standing_carbon_mass_comparison_maliau_2.R"
 )

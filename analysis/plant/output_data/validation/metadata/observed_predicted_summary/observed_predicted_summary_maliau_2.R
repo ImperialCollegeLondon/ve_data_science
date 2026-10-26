@@ -23,6 +23,9 @@
 #|   - name: reproductive_turnover_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: Observed and pooled predicted cell-total reproductive turnover.
+#|   - name: symbiote_allocation_comparison_maliau_2.csv
+#|     path: data/derived/plant/output_data/validation/comparisons
+#|     description: Observed and pooled predicted symbiote allocation.
 #|   - name: respiration_and_turnover_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: Observed and pooled predicted respiration and turnover values.
@@ -46,6 +49,7 @@ comparison_files <- c(
   "../../../../../../data/derived/plant/output_data/validation/comparisons/gpp_and_npp_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/realised_tissue_productivity_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/reproductive_turnover_comparison_maliau_2.csv",
+  "../../../../../../data/derived/plant/output_data/validation/comparisons/symbiote_allocation_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv"
 )
