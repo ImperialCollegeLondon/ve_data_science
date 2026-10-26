@@ -57,6 +57,8 @@ usage_notes: |
 
 from __future__ import annotations
 
+import ast
+import importlib
 import sys
 import textwrap
 from collections.abc import Callable
