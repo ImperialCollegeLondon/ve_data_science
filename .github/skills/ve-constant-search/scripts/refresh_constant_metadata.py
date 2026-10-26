@@ -9,7 +9,7 @@ import tempfile
 import tomllib
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 ASSET = ROOT / "data/derived/soil/llm/ve_constant_usage.toml"
 TOOL_DIR = ROOT / "tools/python/src/ve_data_tools"
 

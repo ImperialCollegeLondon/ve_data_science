@@ -25,14 +25,14 @@ evidence. It covers declared configuration attributes, not hardcoded literals or
 external trait tables; its reference lookup is best-effort. Compare
 `project_commit` with local VE HEAD and check uncommitted Python source changes.
 For a changed VE commit, run
-`uv run --no-sync python analysis/soil/llm/refresh_constant_metadata.py` from
-the repository root (requires the project Python dependencies and a sibling VE
-clone). Review the staged added, removed and changed record names; then run with
-`--apply` to replace the TOML. The script refuses dirty VE package source and
-leaves the existing asset intact on a dry run. If the source is dirty, inspect
-the selected declarations and references directly; do not infer that its commit
-describes local changes. A committed change outside VE package source may also
-affect imports; check provenance and relevant files before relying on an
+`uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`
+from the repository root (requires the project Python dependencies and a sibling
+VE clone). Review the staged added, removed and changed record names; then run
+with `--apply` to replace the TOML. The script refuses dirty VE package source
+and leaves the existing asset intact on a dry run. If the source is dirty,
+inspect the selected declarations and references directly; do not infer that its
+commit describes local changes. A committed change outside VE package source may
+also affect imports; check provenance and relevant files before relying on an
 inventory. Keep the human-edited soil workbook separate and refresh it only with
 explicit permission. Do not refresh literature assets when VE changes.
 

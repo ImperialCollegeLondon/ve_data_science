@@ -48,7 +48,7 @@ When the local VE commit changes, run the inventory dry run from this repository
 root with a clean VE package source tree:
 
 ```bash
-uv run --no-sync python analysis/soil/llm/refresh_constant_metadata.py
+uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py
 ```
 
 Review listed added, removed and changed qualified names. Only then rerun with

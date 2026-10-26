@@ -86,9 +86,11 @@
 #|   jedi and tomli_w installed, and a clone of the virtual_ecosystem repository
 #|   as a sibling directory of ve_data_science.
 #|
-#|   For VE-version refreshes, use refresh_constant_metadata.py instead: it
-#|   checks source cleanliness and compares a staged inventory before replacing
-#|   the maintained TOML. This exploratory script overwrites its output directly.
+#|   For VE-version refreshes, use
+#|   .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py:
+#|   it checks source cleanliness and compares a staged inventory before
+#|   replacing the maintained TOML. This exploratory script overwrites its
+#|   output directly.
 #| ---
 
 library(tidyverse)
