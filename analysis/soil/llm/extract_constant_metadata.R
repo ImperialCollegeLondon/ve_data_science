@@ -26,7 +26,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: final
+#| status: deprecated
 #|
 #| input_files:
 #|   - name: model_config.py
