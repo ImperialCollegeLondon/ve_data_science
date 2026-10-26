@@ -8,8 +8,9 @@ description: Find and review published values for Virtual Ecosystem soil, enzyme
 Use the IDE workspace containing `ve_data_science` and `virtual_ecosystem`. Work
 in `ve_data_science`; locate the sibling repository from the workspace, not a
 remote branch. This skill replaces `analysis/soil/llm/chat.R` as the
-value-search interface. Keep research judgments with the user; treat every
-result as an unverified proposal.
+value-search interface. For user setup, review and approval, see
+`docs/AI-assisted-parameterisation.md`. Treat every result as an unverified
+proposal.
 
 ## 1. Ground the constants
 
@@ -44,16 +45,13 @@ corpus query. Use `scripts/deep_scholar_tool.py` for OpenAlex searches:
 URL, journal and OpenAlex ID; `fetch_snowball_citations()` can follow promising
 papers. Run it with the Python environment specified by that script (requires
 `requests` and the other declared dependencies). The helper requires
-`OPENALEX_EMAIL` and raises an error if it is missing. For persistent local
-setup, ask the user to save `OPENALEX_EMAIL=their_address` in
-`.github/skills/ve-constant-search/.env`. The helper reads this file, and
-`.gitignore` excludes it. An exported environment variable takes precedence;
-`.Renviron` alone is not loaded by this Python helper. Do not create the file
-or choose an address for the user. If none is available, ask the user for one
-or use an OpenAlex integration that does not require one. Record the exact query
-and date. Avoid the helper's `run-pipeline` scoring, Scholar/SerpAPI dependency,
-and PDF downloads: its review ranking and filenames do not preserve soil
-parameter specificity or the local downloader's DOI-based provenance.
+`OPENALEX_EMAIL`; ask the user to set their own address as described in
+`docs/AI-assisted-parameterisation.md`. Do not create the `.env` file or choose
+an address for the user. If none is available, use an OpenAlex integration that
+does not require one. Record the exact query and date. Avoid the helper's
+`run-pipeline` scoring, Scholar/SerpAPI dependency, and PDF downloads: its
+review ranking and filenames do not preserve soil parameter specificity or the
+local downloader's DOI-based provenance.
 
 The helper logs request errors and returns an empty list, which is
 indistinguishable from a successful zero-result search. Check for request errors
