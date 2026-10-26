@@ -23,12 +23,14 @@
 #|       embeddings. Ready for semantic search via LLM tools.
 #|
 #| source_files:
+#|   - name: ve_docs_provenance.R
+#|     path: .github/skills/ve-constant-search/scripts/
+#|     description: Records the clone commit and Markdown checksums in the store.
 #|
 #| package_dependencies:
 #|   - tidyverse
-#|   - jsonlite
 #|   - ragnar
-#|   - ellmer
+#|   - DBI
 #|
 #| usage_notes: |
 #|   Run from the repository root. Build from the sibling Virtual Ecosystem docs.

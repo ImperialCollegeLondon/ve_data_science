@@ -7,8 +7,11 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
+SCRIPTS = (
+    Path(__file__).resolve().parents[3] / ".github/skills/ve-constant-search/scripts"
+)
 spec = importlib.util.spec_from_file_location(
-    "openalex_search", Path(__file__).with_name("openalex_search.py")
+    "openalex_search", SCRIPTS / "openalex_search.py"
 )
 helper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helper)

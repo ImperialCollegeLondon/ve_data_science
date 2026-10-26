@@ -1,4 +1,39 @@
-"""Stage and compare the all-module VE constant inventory before replacing it."""
+"""---
+title: Refresh the Virtual Ecosystem constant inventory
+
+description: |
+  Stage a configuration constant inventory from a clean sibling VE clone,
+  compare qualified names with the maintained TOML, and replace it only with
+  --apply. A matching commit leaves the asset unchanged.
+
+virtual_ecosystem_module: All
+status: final
+input_files:
+  - name: Virtual Ecosystem Python package
+    path: ../virtual_ecosystem/virtual_ecosystem/
+    description: Configuration declarations and their reference sites.
+  - name: ve_constant_usage.toml
+    path: .github/skills/ve-constant-search/assets/
+    description: Current inventory and recorded VE commit.
+output_files:
+  - name: ve_constant_usage.toml
+    path: .github/skills/ve-constant-search/assets/
+    description: Replaced only after --apply passes provenance checks.
+imported_files:
+  - name: constant_usage_tool.py
+    path: tools/python/src/ve_data_tools/
+    description: Builds the inventory using VE classes and reference resolution.
+package_dependencies:
+  - virtual-ecosystem
+  - jedi
+  - tomli-w
+usage_notes: |
+  Run from the repository root using uv. Review the dry-run diff before
+  --apply. --ve-root selects another clone; the script checks that imported
+  VE configuration code comes from that clone. It rejects dirty VE package
+  source, but changes outside the package need separate review.
+---
+"""  # noqa: D205, D400, D415
 
 from __future__ import annotations
 

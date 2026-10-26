@@ -25,26 +25,28 @@ literature evidence. It excludes hardcoded literals and external trait tables;
 reference lookup is best-effort. Compare `project_commit` with local VE HEAD and
 check uncommitted Python source changes. For a changed VE commit, run
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`
-from the repository root (requires the project Python dependencies and a sibling
-VE clone). Review the staged added, removed and changed record names; then run
-with `--apply` to replace the TOML. The script refuses dirty VE package source
-and leaves the existing asset intact on a dry run. If the source is dirty,
-inspect the selected declarations and references directly; do not infer that its
-commit describes local changes. A committed change outside VE package source may
-also affect imports; check provenance and relevant files before relying on an
-inventory. Do not refresh literature assets when VE changes.
+from the repository root after `uv sync` (which installs `jedi`, `tomli-w` and
+`virtual-ecosystem`), with a sibling VE clone. Review the staged added, removed
+and changed record names; then run with `--apply` to replace the TOML. The
+script refuses dirty VE package source and leaves the existing asset intact on a
+dry run. If the source is dirty, inspect the selected declarations and
+references directly; do not infer that its commit describes local changes. A
+committed change outside VE package source may also affect imports; check
+provenance and relevant files before relying on an inventory. Do not refresh
+literature assets when VE changes.
 
 Inspect each selected constant's source and reference sites directly. If broader
 model context would help, optionally query the existing VE documentation store
 from the repository root with
 `Rscript .github/skills/ve-constant-search/scripts/search_ve_docs.R "QUERY"`
-(requires R, `ragnar` and `DBI`). This read-only BM25 lookup needs no embedding
+(requires R and `renv::restore()` from the repository root to install `ragnar`
+and `DBI` from `renv.lock`). This read-only BM25 lookup needs no embedding
 credentials. It checks the store's VE commit and Markdown checksums against the
 sibling VE clone before returning snippets. Older stores have no provenance and
 will be rejected; rebuild with `analysis/soil/llm/rag_ve.R` when appropriate
-(Azure embedding credentials required). If the store is missing, stale or
-unavailable, use local VE docs rather than relying on retrieved snippets. Treat
-model docs as context, never empirical evidence.
+(`tidyverse` from `renv.lock` and Azure embedding credentials required). If the
+store is missing, stale or unavailable, use local VE docs rather than relying on
+retrieved snippets. Treat model docs as context, never empirical evidence.
 
 For each selected constant, use its declaration, docstring, default, type,
 reference sites and the `functions` table's consumer docstrings to establish
@@ -59,13 +61,13 @@ Search per constant or a small group of related constants, not one generic
 corpus query. Use `scripts/openalex_search.py` for OpenAlex searches:
 `search_openalex()` returns title, authors, year, DOI, abstract, open-access PDF
 URL, journal and OpenAlex ID; `fetch_snowball_citations()` can follow promising
-papers. Run from the repository root with `uv run --no-sync python
-.github/skills/ve-constant-search/scripts/openalex_search.py search "QUERY"`
-(or `snowball --id W...`); this path needs `requests`. The helper requires
-`OPENALEX_EMAIL` in the process environment; ask the user to set their own
-address as described in `docs/AI-assisted-parameterisation.md`. Do not create
-credentials or choose an address for the user. If none is available, use an
-OpenAlex integration that does not require one. Record exact query and date.
+papers. Run from the repository root with
+`uv run --no-sync python .github/skills/ve-constant-search/scripts/openalex_search.py search "QUERY"`
+(or `snowball --id W...`) after `uv sync`, which installs `requests`. The helper
+requires `OPENALEX_EMAIL` in the process environment; ask the user to set their
+own address as described in `docs/AI-assisted-parameterisation.md`. Do not
+create credentials or choose an address for the user. If none is available, use
+an OpenAlex integration that does not require one. Record exact query and date.
 The helper only discovers candidates; it does not screen, download or verify
 full text. A failed API request raises an error rather than returning an empty
 list. Retry or switch integrations and log failed searches separately; never

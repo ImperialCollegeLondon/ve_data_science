@@ -1,6 +1,8 @@
-source("ve_docs_provenance.R")
+source(here::here(
+  ".github/skills/ve-constant-search/scripts/ve_docs_provenance.R"
+))
 withr::with_dir(
-  "../../../..",
+  here::here(),
   source(
     ".github/skills/ve-constant-search/scripts/search_ve_docs.R"
   )
@@ -56,11 +58,13 @@ testthat::test_that("provenance tracks changed and added docs", {
 testthat::test_that("legacy store without provenance cannot be searched", {
   testthat::skip_if_not_installed("ragnar")
   testthat::skip_if_not_installed("DBI")
-  store_path <- "../../../../data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb"
+  store_path <- here::here(
+    "data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb"
+  )
   if (!file.exists(store_path)) {
     testthat::skip("VE documentation store not available")
   }
-  withr::with_dir("../../../..", {
+  withr::with_dir(here::here(), {
     testthat::expect_error(
       search_ve_docs("soil carbon"),
       "store has no provenance"

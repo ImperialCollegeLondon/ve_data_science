@@ -1,4 +1,33 @@
-# Search the existing VE documentation store without embedding a query.
+#| ---
+#| title: Search the indexed Virtual Ecosystem documentation
+#|
+#| description: |
+#|   Retrieve BM25 snippets from the local VE documentation store after
+#|   checking its recorded commit and Markdown checksums against the clone.
+#|
+#| virtual_ecosystem_module: All
+#| status: final
+#| input_files:
+#|   - name: virtual_ecosystem_repo.ragnar.duckdb
+#|     path: data/derived/soil/llm/
+#|     description: Existing indexed VE documentation and provenance table.
+#|   - name: Virtual Ecosystem Markdown documentation
+#|     path: ../virtual_ecosystem/docs/source/virtual_ecosystem/
+#|     description: Source files checked against the store's provenance.
+#| output_files: []
+#| source_files:
+#|   - name: ve_docs_provenance.R
+#|     path: .github/skills/ve-constant-search/scripts/
+#|     description: Computes the current clone's commit and checksums.
+#| package_dependencies:
+#|   - ragnar
+#|   - DBI
+#| usage_notes: |
+#|   Run from the repository root with one quoted query. Snippets go to
+#|   stdout; the read-only lookup needs no embedding credentials. Missing,
+#|   legacy or stale stores fail; rebuild with analysis/soil/llm/rag_ve.R.
+#|   Retrieved model docs provide context, not empirical evidence.
+#| ---
 source(".github/skills/ve-constant-search/scripts/ve_docs_provenance.R")
 
 search_ve_docs <- function(args = commandArgs(trailingOnly = TRUE)) {

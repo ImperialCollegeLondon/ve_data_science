@@ -2,7 +2,26 @@
 # requires-python = ">=3.12"
 # dependencies = ["requests"]
 # ///
-"""Search OpenAlex and follow citations without downloading or scoring papers."""
+"""---
+title: Search OpenAlex for candidate parameter literature
+
+description: |
+  Search OpenAlex works or follow citations from a work ID or DOI. Return
+  candidate metadata as JSON; results do not verify full-text measurements.
+
+virtual_ecosystem_module: All
+status: final
+input_files: []
+output_files: []
+package_dependencies:
+  - requests
+usage_notes: |
+  Run search "QUERY" or snowball --id W... from the repository root with
+  uv. Set OPENALEX_EMAIL in the process environment. Results go to stdout;
+  network, HTTP, and JSON errors propagate rather than becoming empty results.
+  This script neither downloads full text nor changes the repository.
+---
+"""  # noqa: D205, D400, D415
 
 import argparse
 import json

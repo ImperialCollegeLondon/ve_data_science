@@ -7,9 +7,12 @@ from unittest.mock import patch
 
 import pytest
 
+SCRIPTS = (
+    Path(__file__).resolve().parents[3] / ".github/skills/ve-constant-search/scripts"
+)
 spec = importlib.util.spec_from_file_location(
     "refresh_constant_metadata",
-    Path(__file__).with_name("refresh_constant_metadata.py"),
+    SCRIPTS / "refresh_constant_metadata.py",
 )
 refresh = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(refresh)
@@ -36,7 +39,7 @@ def test_matching_commit_skips_scan(tmp_path):
 def test_asset_is_packaged_with_skill():
     """The maintained inventory is part of the skill and includes shared fields."""
 
-    assert refresh.ASSET.parent == Path(__file__).parents[1] / "assets"
+    assert refresh.ASSET.parent == SCRIPTS.parent / "assets"
     inventory = tomllib.loads(refresh.ASSET.read_text(encoding="utf-8"))
     assert (
         "virtual_ecosystem/core/configuration.py"

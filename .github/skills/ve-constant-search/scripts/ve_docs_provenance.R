@@ -1,3 +1,23 @@
+#| ---
+#| title: Record Virtual Ecosystem documentation provenance
+#|
+#| description: |
+#|   Return the VE commit and MD5 checksum for each Markdown file in the
+#|   selected clone's Virtual Ecosystem documentation tree.
+#|
+#| virtual_ecosystem_module: All
+#| status: final
+#| input_files:
+#|   - name: Virtual Ecosystem Markdown documentation
+#|     path: ../virtual_ecosystem/docs/source/virtual_ecosystem/
+#|     description: Files whose checksums identify the indexed documentation.
+#| output_files: []
+#| package_dependencies: []
+#| usage_notes: |
+#|   Source this helper from the repository root. ve_root selects the clone;
+#|   Git must report its commit. Used when building and checking the RAG store.
+#| ---
+
 ve_docs_provenance <- function(ve_root) {
   ve_root <- normalizePath(ve_root, winslash = "/", mustWork = TRUE)
   docs_root <- file.path(ve_root, "docs/source/virtual_ecosystem")

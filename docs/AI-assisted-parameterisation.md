@@ -10,9 +10,13 @@ VE. A model default or an abstract alone is not evidence for a new value.
 1. Open a workspace containing this repository and a sibling
    `virtual_ecosystem` repository. Use the VE version whose constants you want
    to assess; record its commit and any relevant uncommitted changes.
-2. Set up the project dependencies described in [Python with uv](uv_setup.md)
-   and [R with renv](renv.md). The skill may use the metadata extraction scripts
-   and an OpenAlex search helper.
+2. Run `uv sync` from the repository root to install the Python dependencies
+   declared in `pyproject.toml`, including `jedi`, `tomli-w` and `requests`.
+   See [Python with uv](uv_setup.md). For the optional R documentation lookup,
+   run `renv::restore()` from the repository root to install the packages in
+   `renv.lock`, including `ragnar` and `DBI`. Rebuilding the documentation store
+   also needs `tidyverse` from that lockfile. Local renv use is otherwise
+   optional; see [R with renv](renv.md).
 3. If using the skill's OpenAlex Python helper, export `OPENALEX_EMAIL` with
    your own contact address in the Python process environment. It does not
    read `.env` or R `.Renviron` files. You may instead use an OpenAlex
@@ -102,7 +106,7 @@ Start a new per-parameter log from the
 Record failed requests separately from successful zero-result searches. The
 OpenAlex helper supports `search "QUERY"` and `snowball --id W...` via
 `uv run --no-sync python
-.github/skills/ve-constant-search/scripts/deep_scholar_tool.py` from the
+.github/skills/ve-constant-search/scripts/openalex_search.py` from the
 repository root. It only returns candidates; it does not verify full text.
 Before using any proposal in VE, verify it against the cited source and the
 recorded VE commit. This workflow does not update VE configuration or
