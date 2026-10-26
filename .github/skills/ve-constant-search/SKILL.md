@@ -1,9 +1,9 @@
 ---
-name: soil-constant-literature
+name: ve-constant-search
 description: Find and review published values for Virtual Ecosystem soil, enzyme, and microbial constants. Use for soil parameter literature searches, evidence appraisal, or updating soil_constant_literature_values.csv from full text.
 ---
 
-# Soil constant literature
+# VE constant search
 
 Use the IDE workspace containing `ve_data_science` and `virtual_ecosystem`. Work
 in `ve_data_science`; locate the sibling repository from the workspace, not a
@@ -39,21 +39,27 @@ user before proposing values.
 ## 2. Discover and screen literature
 
 Search per constant or a small group of related constants, not one generic
-corpus query. Reuse the colleague's OpenAlex implementation in
-`.github/skills/deep-literature-review/scripts/deep_scholar_tool.py`: its
+corpus query. Use `scripts/deep_scholar_tool.py` for OpenAlex searches:
 `search_openalex()` returns title, authors, year, DOI, abstract, open-access PDF
 URL, journal and OpenAlex ID; `fetch_snowball_citations()` can follow promising
 papers. Run it with the Python environment specified by that script (requires
-`requests` and the other declared dependencies). Set `OPENALEX_EMAIL` to your
-own contact address; do not rely on its built-in personal default. These
-functions can be imported directly from the existing file; no soil-specific copy
-of the API code is needed. The colleague's file is currently untracked in this
-workspace: include it in the shared repository before relying on it elsewhere.
-If the colleague's skill is unavailable, use an available OpenAlex integration
-with equivalent metadata. Record the exact query and date. Avoid the colleague's
-`run-pipeline` scoring, Scholar/SerpAPI dependency, and PDF downloads: its
-review ranking and filenames do not preserve soil parameter specificity or the
-local downloader's DOI-based provenance.
+`requests` and the other declared dependencies). The helper requires
+`OPENALEX_EMAIL` and raises an error if it is missing. For persistent local
+setup, ask the user to save `OPENALEX_EMAIL=their_address` in
+`.github/skills/ve-constant-search/.env`. The helper reads this file, and
+`.gitignore` excludes it. An exported environment variable takes precedence;
+`.Renviron` alone is not loaded by this Python helper. Do not create the file
+or choose an address for the user. If none is available, ask the user for one
+or use an OpenAlex integration that does not require one. Record the exact query
+and date. Avoid the helper's `run-pipeline` scoring, Scholar/SerpAPI dependency,
+and PDF downloads: its review ranking and filenames do not preserve soil
+parameter specificity or the local downloader's DOI-based provenance.
+
+The helper logs request errors and returns an empty list, which is
+indistinguishable from a successful zero-result search. Check for request errors
+before interpreting empty results; retry or switch integrations if a search
+fails. Record failed searches separately and never count them as zero results
+or use them to justify `no_evidence`.
 
 Keep a search/screening log beside the resulting CSV, recording the query, date,
 counts screened and excluded, reasons, and DOI/OpenAlex ID for each candidate.
