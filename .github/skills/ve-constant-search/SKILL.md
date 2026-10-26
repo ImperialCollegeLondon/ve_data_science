@@ -34,7 +34,17 @@ commit describes local changes. A committed change outside VE package source may
 also affect imports; check provenance and relevant files before relying on an
 inventory. Do not refresh literature assets when VE changes.
 
-Inspect each selected constant's source and reference sites directly.
+Inspect each selected constant's source and reference sites directly. If broader
+model context would help, optionally query the existing VE documentation store
+from the repository root with
+`Rscript .github/skills/ve-constant-search/scripts/search_ve_docs.R "QUERY"`
+(requires R, `ragnar` and `DBI`). This read-only BM25 lookup needs no embedding
+credentials. It checks the store's VE commit and Markdown checksums against the
+sibling VE clone before returning snippets. Older stores have no provenance and
+will be rejected; rebuild with `analysis/soil/llm/rag_ve.R` when appropriate
+(Azure embedding credentials required). If the store is missing, stale or
+unavailable, use local VE docs rather than relying on retrieved snippets. Treat
+model docs as context, never empirical evidence.
 
 For each selected constant, use its declaration, docstring, default, type,
 reference sites and the `functions` table's consumer docstrings to establish
@@ -76,8 +86,7 @@ source URL and DOI, inspect the actual tables/methods, and keep a stable
 provenance record. Do not assume a local OpenAlex full-text library exists or
 covers the selected constants. Check access and sharing rights before copying
 restricted full text into the repository. Neither a PDF cache nor abstract
-results substitute for verified full text. `rag_ve.R` uses remote develop docs,
-which may differ from the workspace commit.
+results substitute for verified full text.
 
 ## 3. Extract and verify
 

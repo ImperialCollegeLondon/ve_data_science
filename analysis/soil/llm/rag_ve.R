@@ -31,38 +31,31 @@
 #|   - ellmer
 #|
 #| usage_notes: |
-#|   Regenerate both outputs whenever the installed Virtual Ecosystem source
-#|   changes. Azure OpenAI endpoint credentials must be available for embedding.
+#|   Run from the repository root. Build from the sibling Virtual Ecosystem docs.
+#|   Move an existing store aside before rebuilding. The store records the VE
+#|   commit and Markdown checksums. Azure credentials are needed for embedding.
+#|   The old remote-develop store has no provenance and cannot pass lookup checks.
 #| ---
 
 library(tidyverse)
 library(ragnar)
 
 
-# Split VE source code into chunks -------------------------------------------
-# List Markdown docs under docs/source/virtual_ecosystem in develop branch.
-ve_md_paths <-
-  jsonlite::fromJSON(
-    "https://api.github.com/repos/ImperialCollegeLondon/virtual_ecosystem/git/trees/develop?recursive=1"
-  ) |>
-  pluck("tree", "path") |>
-  (\(x) x[grepl("^docs/source/virtual_ecosystem/.*\\.md$", x)])() |>
-  sort()
-
-# Compile raw GitHub URLs and read each file as MarkdownDocument.
-ve_docs_md <-
-  paste0(
-    "https://raw.githubusercontent.com/ImperialCollegeLondon/",
-    "virtual_ecosystem/develop/",
-    ve_md_paths
-  ) |>
-  map(read_as_markdown)
-
-# Chunk the documents
-ve_docs_chunks <- ve_docs_md |> map(markdown_chunk)
+# Split VE documentation into chunks -----------------------------------------
+source(".github/skills/ve-constant-search/scripts/ve_docs_provenance.R")
+ve_root <- normalizePath("../virtual_ecosystem", mustWork = TRUE)
+provenance <- ve_docs_provenance(ve_root)
+ve_md_paths <- file.path(ve_root, provenance$path)
+ve_docs_chunks <- ve_md_paths |>
+  map(read_as_markdown) |>
+  map(markdown_chunk)
 
 
 # Initialize the RAG store --------------------------------------------------
+
+if (file.exists("data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb")) {
+  stop("Store exists; move it aside before rebuilding", call. = FALSE)
+}
 
 # Create a new DuckDB database and configure it with an embedding function.
 # Embeddings convert text into vectors; when searching, the RAG system will
@@ -71,7 +64,7 @@ store_location <- "data/derived/soil/llm/virtual_ecosystem_repo.ragnar.duckdb"
 store <- ragnar_store_create(
   store_location,
   embed = \(x) {
-    embed_azure_openai(
+    ragnar::embed_azure_openai(
       x,
       model = "text-embedding-3-large",
       endpoint = "https://ellmer.services.ai.azure.com"
@@ -87,22 +80,9 @@ ve_docs_chunks |> map(\(x) ragnar_store_insert(store, x))
 
 # Finalize the store ------------------------------------------------------
 
-# Build the vector index in DuckDB so queries can efficiently search by
-# embedding similarity. Then close the connection.
 ragnar_store_build_index(store)
+if (!identical(provenance, ve_docs_provenance(ve_root))) {
+  stop("VE docs changed during indexing; discard the new store", call. = FALSE)
+}
+DBI::dbWriteTable(store@con, "ve_docs_provenance", provenance)
 DBI::dbDisconnect(store@con)
-
-# Testing (NOT RUN normally)
-chat <- ellmer::chat_openai(
-  base_url = "https://ellmer.openai.azure.com/openai/v1",
-  model = "gpt-5.6-terra",
-  system_prompt = "You are an expert on the Virtual Ecosystem process model. Answer the user questions using the RAG store of embedded documentation."
-)
-ragnar_register_tool_retrieve(
-  chat,
-  store,
-  top_k = 10,
-  description = "Virtual Ecosystem documentation"
-)
-chat$chat("How does the soil module work?")
-chat$chat("How is carbon cycle in the soil captured?")
