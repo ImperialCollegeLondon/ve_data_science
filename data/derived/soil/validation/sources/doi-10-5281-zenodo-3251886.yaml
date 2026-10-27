@@ -6,7 +6,7 @@ screening:
   reason: relevant_validation_data
   notes:
     Contains soil and litter C and N. Added soil C and N, but litter are leaf
-    litter, and there is easy way to convert them to aboveground structural +
+    litter, and there is no easy way to convert them to aboveground structural +
     metabolic litter since we do not know the wood and reproductive organs'
     contribution in this empirical dataset. This will be an ongoing challenge to
     find litter validation data.
@@ -66,20 +66,35 @@ datasets:
     variables:
       NH4-N_KCl:
         var_canonical: soil_n_pool_ammonium_per_mass
-        unit: "mg g^-1"
+        unit: "mg kg^-1"
         description:
           Soil NH4 concentration extracted with 1M KCl and used colorimetry for
-          analysis.
+          analysis. Unit has been corrected following
+          https://bg.copernicus.org/articles/18/1559/2021/bg-18-1559-2021-corrigendum.pdf
       NO3-N_KCl:
         var_canonical: soil_n_pool_nitrate_per_mass
-        unit: "mg g^-1"
+        unit: "mg kg^-1"
         description:
           Soil NO3 concentration extracted with 1M KCl and used colorimetry for
+          analysis. Unit has been corrected following
+          https://bg.copernicus.org/articles/18/1559/2021/bg-18-1559-2021-corrigendum.pdf
+      flux_CO2-C:
+        var_canonical: soil_respiration_CO2_mass
+        unit: mg{CO2} m-2 h-1
+        description: Soil CO2 flux measured with IRGA in situ (EGM4).
+      flux_N2O-N:
+        var_canonical: soil_nitrous_oxide_emission_N2O_mass
+        unit: µg{N2O} m-2 h-1
+        description:
+          Soil N2O flux. Samples collected and used gas chromotography for
           analysis.
     dedup_key:
       - site
       - chamber_id
       - date
+    row_filter:
+      - "`NH4-N_KCl` >= 0"
+      - "`NO3-N_KCl` >= 0"
     coordinates:
       latitude_column: Latitude
       longitude_column: Longitude
