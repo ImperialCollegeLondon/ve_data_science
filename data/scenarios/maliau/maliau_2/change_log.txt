@@ -1,4 +1,27 @@
-# Change log of maliau_2 scenario input data
+# Change log of maliau_2 scenario input data and config
+
+2026-10-20
+- Module: Animals
+- Author: Siti Nor Baizurah
+- Files changed:
+  - animal_config.toml in Globus and also compiled config in Github.
+- Changes made:
+  - Revise config pointing to level 5 of FG with remarks that other simplified level also available in Globus.
+- References:
+  - #735
+
+2026-10-19
+- Module: Animals
+- Author: Siti Nor Baizurah
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/level_5.csv
+- Changes made:
+  - Added preliminary Level 5 animal functional groups (FGs) for testing animal validation workflow.
+  - Expanded FG representation across taxa, diets, and vertical strata.
+  - Added representative species and associated ecological traits.
+  - WIP: FG definitions and parameters are subject to further refinement, pending code clarifications/changes.
+- References:
+  - NA
 
 2026-10-21
 - Module: Plants

@@ -17,8 +17,12 @@
 #| status: wip
 #|
 #| scripts:
+#|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/gpp_and_npp_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/reproductive_turnover_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/respiration_and_turnover_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/symbiote_allocation_maliau_2.R
 #|
 #| output_files:
 #|   - name: master_predicted_outputs_processing_metadata.yml
@@ -176,7 +180,11 @@ write_metadata_summary <- function(metadata_summary) {
 }
 
 scripts <- c(
+  "gpp_and_npp_maliau_2.R",
   "realised_tissue_productivity_maliau_2.R",
+  "reproductive_turnover_maliau_2.R",
+  "respiration_and_turnover_maliau_2.R",
+  "symbiote_allocation_maliau_2.R",
   "tree_standing_carbon_mass_maliau_2.R"
 )
 

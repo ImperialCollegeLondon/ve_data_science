@@ -1,6 +1,6 @@
 title: master_observed_data_processing_metadata
 generated_by: analysis/plant/output_data/validation/observed_data_processing/master_observed_data_processing.R
-generated_on: '2026-10-16'
+generated_on: '2026-10-28'
 scripts:
 - script_path: carbon_balance_components_maliau.R
   title: carbon_balance_components_maliau
@@ -11,7 +11,8 @@ scripts:
     It filters for these two plots and selects variables relevant for
     Virtual Ecosystem plant module output comparison (biomass carbon
     stocks, primary productivity components, autotrophic respiration, and
-    observational standard errors), exporting the curated data to CSV.
+    observational standard errors). It also derives symbiote allocation as
+    the difference between total NPP with and without mycorrhiza.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
   status: final
@@ -30,7 +31,8 @@ scripts:
     description: |
       Cleaned and filtered carbon balance components for Maliau old-growth
       plots MLA-01 (Belian) and MLA-02 (Seraya), subset to variables
-      relevant for Virtual Ecosystem plant output validation.
+      relevant for Virtual Ecosystem plant output validation, including
+      derived symbiote allocation.
     variables:
     - name: ForestType
       type: character
@@ -620,6 +622,37 @@ scripts:
         vegetation_type: lowland dipterocarp forest
         site_condition: old-growth
         date: 2011-2018
+    - name: SymbioteAllocation
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+      temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+      period_start: '2011-08-25'
+      period_end: '2018-07-17'
+      description: |
+        Net primary productivity allocated to mycorrhiza (symbiote).
+      method: |
+        Calculated as TotalNPP_WithMycorrhiza minus
+        TotalNPP_WithoutMycorrhiza.
+      references:
+      - citation: Riutta et al. (2021)
+        doi: https://doi.org/10.5281/zenodo.7307449
+        url: https://zenodo.org/records/7307449
+        origin: Maliau Basin, Sabah, Malaysia
+        biome: tropical
+        vegetation_type: lowland dipterocarp forest
+        site_condition: old-growth
+        date: 2011-2018
+    - name: SE_SymbioteAllocation
+      type: numeric
+      units: Mg C ha-1 year-1
+      spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+      temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+      period_start: '2011-08-25'
+      period_end: '2018-07-17'
+      description: Standard error for symbiote allocation; unavailable.
+      method: ~
+      references: ~
     - name: GPP_WithoutMycorrhiza
       type: numeric
       units: Mg C ha-1 year-1
