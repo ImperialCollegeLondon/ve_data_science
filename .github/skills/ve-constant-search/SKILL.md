@@ -20,11 +20,13 @@ module. Check that selected attributes represent parameters needing empirical
 estimates; exclude identifiers or labels such as `name`, `taxonomic_group` and
 `source` from literature searches.
 
-Read `assets/ve_constant_usage.toml` (`metadata`, `functions`, `constants`). It
-inventories declared VE configuration attributes, including shared model and
-disturbance settings, but excludes hardcoded literals and external trait tables;
-reference lookup is best-effort. Compare `project_commit` with local VE HEAD and
-check uncommitted Python source changes. If the VE commit changed, run
+Search `assets/ve_constant_usage.toml` for each exact `qualified_name`. Read
+only its constant record, the inventory metadata and any `functions` entries
+named by that record. Do not read the full inventory into the conversation. The
+inventory includes shared model and disturbance settings, but excludes hardcoded
+literals and external trait tables; reference lookup is best-effort. Compare
+`project_commit` with local VE HEAD and check uncommitted Python source changes.
+If the VE commit changed, run
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`
 from the repository root after `uv sync` (installs `jedi`, `tomli-w` and
 `virtual-ecosystem`), with a sibling VE clone. Review added, removed and changed
@@ -34,9 +36,11 @@ declarations and references directly; the commit does not describe local
 changes. Check provenance and relevant files if commits outside VE package
 source could affect imports. Leave literature assets unchanged when VE changes.
 
-Inspect each selected constant's declaration, docstring, default, type,
-reference sites and the `functions` table's consumer docstrings. Establish units
-and functional form from VE source. For broader context, optionally query the
+Inspect each selected constant's declaration, docstring, default, type and
+recorded reference sites. Read narrow line ranges around those locations, not
+whole source files. Read a `functions` consumer docstring only when its recorded
+reference forwards or applies the constant. Establish units and functional form
+from VE source. For broader context, optionally query the
 VE documentation store from the repository root with
 `Rscript .github/skills/ve-constant-search/scripts/search_ve_docs.R "QUERY"`
 (requires R and `renv::restore()` from the repository root for `ragnar` and
@@ -56,8 +60,11 @@ Search each constant or small related group with
 from the repository root after `uv sync` (installs `requests`). Use only this
 helper for OpenAlex searches and citation lookup (`snowball --id W...`). Do not
 use OpenAlex MCP tools, `webfetch` or general web search to discover or screen
-papers. The helper returns title, authors, year, DOI, abstract, open-access PDF
-URL, journal and OpenAlex ID; use snowball citations for promising leads.
+papers. The helper returns at most eight candidates by default, with title,
+authors, year, DOI, abstract, open-access PDF URL, journal and OpenAlex ID.
+Start with the default limit; increase it only when screening shows inadequate
+coverage. Output omits each work's full reference list; use bounded snowball
+citation searches for promising leads.
 
 The helper reads `OPENALEX_EMAIL` from the process environment, then from an
 ignored `.env` beside this `SKILL.md`. If absent, ask the user to follow

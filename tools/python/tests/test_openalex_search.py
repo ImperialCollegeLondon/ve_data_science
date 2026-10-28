@@ -60,6 +60,23 @@ def test_zero_results_are_success(monkeypatch):
         assert helper.search_openalex("rare parameter") == []
 
 
+def test_search_defaults_to_compact_batch(monkeypatch):
+    """Default searches stay small and omit citation lists from output."""
+    monkeypatch.setenv("OPENALEX_EMAIL", "researcher@example.org")
+    item = {
+        "id": "https://openalex.org/W1",
+        "title": "Candidate",
+        "referenced_works": ["https://openalex.org/W2"],
+    }
+    with patch.object(
+        helper.requests, "get", return_value=response({"results": [item]})
+    ) as request:
+        papers = helper.search_openalex("parameter")
+
+    assert request.call_args.kwargs["params"]["per_page"] == 10
+    assert "referenced_works" not in papers[0]
+
+
 def test_search_http_failure_propagates(monkeypatch):
     """A request failure must not be reported as zero evidence."""
     monkeypatch.setenv("OPENALEX_EMAIL", "researcher@example.org")

@@ -98,11 +98,10 @@ def paper_record(item):
         or location.get("pdf_url")
         or "",
         "landing_url": item.get("doi") or location.get("landing_page_url") or "",
-        "referenced_works": item.get("referenced_works", []),
     }
 
 
-def search_openalex(query, limit=25):
+def search_openalex(query, limit=10):
     """Return OpenAlex search candidates; an empty list means a successful search."""
     if not 1 <= limit <= 50:
         raise ValueError("limit must be between 1 and 50")
@@ -152,7 +151,7 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     search = commands.add_parser("search")
     search.add_argument("query")
-    search.add_argument("--limit", type=int, default=25)
+    search.add_argument("--limit", type=int, default=8)
     snowball = commands.add_parser("snowball")
     snowball.add_argument("--id", default="")
     snowball.add_argument("--doi", default="")
