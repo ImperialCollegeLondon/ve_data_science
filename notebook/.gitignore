@@ -1,0 +1,4 @@
+# Paired notebooks and their Markdown sources stay local;
+# only the rendered output folders are committed.
+*.ipynb
+
