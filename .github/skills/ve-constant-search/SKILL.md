@@ -20,65 +20,53 @@ module. Check that selected attributes represent parameters needing empirical
 estimates; exclude identifiers or labels such as `name`, `taxonomic_group` and
 `source` from literature searches.
 
-Read `assets/ve_constant_usage.toml` (`metadata`, `functions`, `constants`); it
-inventories declared configuration attributes across VE modules, including
-shared model and disturbance settings. The TOML is generated model context, not
-literature evidence. It excludes hardcoded literals and external trait tables;
+Read `assets/ve_constant_usage.toml` (`metadata`, `functions`, `constants`). It
+inventories declared VE configuration attributes, including shared model and
+disturbance settings, but excludes hardcoded literals and external trait tables;
 reference lookup is best-effort. Compare `project_commit` with local VE HEAD and
-check uncommitted Python source changes. For a changed VE commit, run
+check uncommitted Python source changes. If the VE commit changed, run
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`
-from the repository root after `uv sync` (which installs `jedi`, `tomli-w` and
-`virtual-ecosystem`), with a sibling VE clone. Review the staged added, removed
-and changed record names; then run with `--apply` to replace the TOML. The
-script refuses dirty VE package source and leaves the existing asset intact on a
-dry run. If the source is dirty, inspect the selected declarations and
-references directly; do not infer that its commit describes local changes. A
-committed change outside VE package source may also affect imports; check
-provenance and relevant files before relying on an inventory. Do not refresh
-literature assets when VE changes.
+from the repository root after `uv sync` (installs `jedi`, `tomli-w` and
+`virtual-ecosystem`), with a sibling VE clone. Review added, removed and changed
+record names; then run with `--apply`. The dry run leaves the asset intact, and
+the script refuses dirty VE package source. If source is dirty, inspect selected
+declarations and references directly; the commit does not describe local
+changes. Check provenance and relevant files if commits outside VE package
+source could affect imports. Leave literature assets unchanged when VE changes.
 
-Inspect each selected constant's source and reference sites directly. If broader
-model context would help, optionally query the existing VE documentation store
-from the repository root with
+Inspect each selected constant's declaration, docstring, default, type,
+reference sites and the `functions` table's consumer docstrings. Establish units
+and functional form from VE source. For broader context, optionally query the
+VE documentation store from the repository root with
 `Rscript .github/skills/ve-constant-search/scripts/search_ve_docs.R "QUERY"`
-(requires R and `renv::restore()` from the repository root to install `ragnar`
-and `DBI` from `renv.lock`). This read-only BM25 lookup needs no embedding
-credentials. It checks the store's VE commit and Markdown checksums against the
-sibling VE clone before returning snippets. Older stores have no provenance and
-will be rejected; rebuild with `analysis/soil/llm/rag_ve.R` when appropriate
-(`tidyverse` from `renv.lock` and Azure embedding credentials required). If the
-store is missing, stale or unavailable, use local VE docs rather than relying on
-retrieved snippets. Treat model docs as context, never empirical evidence.
-
-For each selected constant, use its declaration, docstring, default, type,
-reference sites and the `functions` table's consumer docstrings to establish
-units and functional form. Check the corresponding Virtual Ecosystem source
-when interpretation is uncertain. Defaults and Virtual Ecosystem docs are model
-context, never empirical evidence. If units, functional form or a forwarded
-reference remain ambiguous, ask the user before proposing values.
+(requires R and `renv::restore()` from the repository root for `ragnar` and
+`DBI`). This read-only BM25 lookup needs no embedding credentials. It checks
+the store's VE commit and Markdown checksums against the sibling VE clone.
+Older stores lack provenance and are rejected; rebuild with
+`analysis/soil/llm/rag_ve.R` when appropriate (`tidyverse` from `renv.lock` and
+Azure embedding credentials required). If the store is missing, stale or
+unavailable, use local VE docs. The inventory, defaults and VE docs provide
+model context, never empirical evidence. If units, functional form or a
+forwarded reference remain ambiguous, ask the user before proposing values.
 
 ## 2. Discover and screen literature
 
-Search per constant or a small group of related constants, not one generic
-corpus query. Use only `scripts/openalex_search.py` for OpenAlex literature
-searches and citation lookup. Do not use OpenAlex MCP tools, `webfetch`, or
-general web search to discover or screen papers. The helper's
-`search_openalex()` returns title, authors, year, DOI, abstract, open-access PDF
-URL, journal and OpenAlex ID; `fetch_snowball_citations()` can follow promising
-papers. Run from the repository root with
+Search each constant or small related group with
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/openalex_search.py search "QUERY"`
-(or `snowball --id W...`) after `uv sync`, which installs `requests`. The helper
-reads `OPENALEX_EMAIL` from the process environment first, then from an ignored
-`.env` beside this skill's `SKILL.md`. Ask the user to set their own address
-using the "Configure OpenAlex" instructions in
-`docs/AI-assisted-parameterisation.md`; include the relevant setup command in
-the response. Do not create credentials or choose an address for the user. If
-none is available, stop and wait until the user confirms setup. Record exact
-query and date. The helper only discovers candidates; it does not screen,
-download or verify full text. A failed API request raises an error rather than
-returning an empty list. Log the failure; retry with the same helper or stop and
-report it. Never count failure as zero results or use it to justify
-`no_evidence`.
+from the repository root after `uv sync` (installs `requests`). Use only this
+helper for OpenAlex searches and citation lookup (`snowball --id W...`). Do not
+use OpenAlex MCP tools, `webfetch` or general web search to discover or screen
+papers. The helper returns title, authors, year, DOI, abstract, open-access PDF
+URL, journal and OpenAlex ID; use snowball citations for promising leads.
+
+The helper reads `OPENALEX_EMAIL` from the process environment, then from an
+ignored `.env` beside this `SKILL.md`. If absent, ask the user to follow
+"Configure OpenAlex" in `docs/AI-assisted-parameterisation.md`; include the
+relevant setup command. Do not choose an address or create credentials. Wait
+for confirmed setup before searching. Record the exact query and date. Helper
+results are candidates, not screened or verified evidence. On API failure, log
+the error; retry with the same helper or stop and report it. Never treat failure
+as zero results or `no_evidence`.
 
 Keep a per-parameter search/screening log beside the resulting CSV. Start from
 `assets/constant_search_log.csv` and its `assets/README.md` field guide; record
@@ -90,24 +78,22 @@ not a value. Track no-DOI and inaccessible papers so `no_evidence` describes the
 search coverage, not universal absence. Follow references when coverage is thin.
 Do not infer study quality from citation count or publisher alone.
 
-Obtain full text for screened candidates through authorized sources. As the only
-`webfetch` exception, open a specific article or PDF URL returned by the helper
-or supplied by the user; do not use it to search for papers or follow links to
-new candidates. For a PDF URL, after checking access and retention rights,
-optionally run
+Get authorized full text for screened candidates. The sole `webfetch` exception
+is a specific article or PDF URL from the helper or user; do not use it to
+discover papers or follow links to new candidates. After checking access and
+retention rights, optionally download a specific HTTPS PDF URL from either
+source with
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/download_authorized_pdf.py "PDF_URL" "OUTPUT.pdf" --doi "DOI"`
-from the repository root. Use only a specific HTTPS PDF URL returned by the
-OpenAlex helper or supplied by the user. Create the output directory first; keep
-PDFs outside the repository unless copying them is permitted. The helper rejects
-redirects, HTML and non-PDF responses, does not overwrite files, and writes a
-`.pdf.json` provenance record with source URL, DOI, UTC time, HTTP status,
-SHA-256 and download outcome. It does not search for alternative URLs or verify
-scientific content. If full text is inaccessible, record the gap rather than
-searching elsewhere. Retain source URL and DOI, inspect the actual
-tables/methods, and keep a stable provenance record. Do not assume a local
-OpenAlex full-text library exists or covers the selected constants. Check access
-and sharing rights before copying restricted full text into the repository.
-Neither a PDF cache nor abstract results substitute for verified full text.
+from the repository root. Create the output directory first; keep PDFs outside
+the repository unless copying is permitted. The helper rejects redirects, HTML
+and non-PDF responses, preserves existing files, and writes `.pdf.json` with
+source URL, DOI, UTC time, HTTP status, SHA-256 and download outcome. It neither
+finds alternate URLs nor verifies scientific content. If full text is
+inaccessible, log the gap; do not search elsewhere. Retain source URL and DOI,
+inspect tables and methods, and keep stable provenance. Do not assume a local
+OpenAlex full-text library exists or covers the constants. Check sharing rights
+before copying restricted text into the repository. Neither cached PDFs nor
+abstracts count as verified evidence.
 
 ## 3. Extract and verify
 
@@ -135,24 +121,21 @@ moderately different conditions, low for indirect analogy (not a verified exact
 value).
 
 Use `no_evidence` when no eligible full text supports a defensible value or
-conversion. State whether the gap is search coverage, inaccessible text, missing
+conversion. Name the gap: search coverage, inaccessible text, missing
 measurement, unresolved units, functional-form mismatch or required reanalysis.
-Relevant but non-extractable studies still count as gaps, not as an absence of
-empirical research. Check existing empirical citations and analyses in this repo
-as leads, distinguishing an already-supported estimate from a novel finding;
-verify the original full text before reporting either as `value_found`. Never
-echo a model default as evidence. Ask the user before changing inclusion
-criteria, using proxy measurements, or making a consequential scientific
+Relevant but non-extractable studies are gaps, not proof that research is
+absent. Check existing empirical citations and analyses in this repo as leads.
+Verify original full text before calling an existing estimate or new finding
+`value_found`; never use a model default as evidence. Ask the user before
+changing inclusion criteria, using proxies or making a consequential scientific
 judgment.
 
-When no concrete value is verified, leave a trail for human follow-up. Identify
-the most promising paper or existing analysis, its DOI or local location, what
-it measures, why it cannot yet support the constant, and the specific next step
-most likely to resolve the gap (for example, obtain full text, check a cited
-dataset, or fit the model form to reported data). Rank leads by relevance and
-feasibility, not citation count. Separate an unverified best-guess or modelling
-analogy from empirical evidence; suggest it only as a question for human review,
-never as a `value_found` or a numeric CSV value without the user's approval.
+For each unresolved constant, name the best paper or existing analysis, its DOI
+or local path, what it measures, the blocker and the next human step (such as
+obtaining full text, checking a cited dataset or fitting the model form). Rank
+leads by relevance and feasibility, not citation count. Suggest guesses or
+modelling analogies only as questions for human review; keep them out of
+`value_found` and numeric CSV fields without user approval.
 
 ## 4. Deliver results
 
