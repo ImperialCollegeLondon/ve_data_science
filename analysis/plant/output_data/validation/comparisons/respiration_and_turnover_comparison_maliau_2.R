@@ -11,7 +11,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: carbon_balance_components_maliau.csv

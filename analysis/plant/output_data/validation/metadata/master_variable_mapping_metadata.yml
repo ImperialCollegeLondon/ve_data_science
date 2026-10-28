@@ -1,21 +1,21 @@
 title: master_variable_mapping_metadata
 generated_by: analysis/plant/output_data/validation/variable_mapping/master_variable_mapping.R
-generated_on: '2026-10-26'
+generated_on: '2026-10-28'
 mappings:
 - mapping_path: gpp_and_npp_mapping_maliau_2.yml
   variable_mappings:
   - observed:
       file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
-      variable: GPP_WithoutMycorrhiza
-      se_variable: SE_GPP_WithoutMycorrhiza
+      variable: GPP_WithMycorrhiza
+      se_variable: SE_GPP_WithMycorrhiza
     predicted:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/gpp_and_npp_maliau_2.csv
       variable: gpp_mean
       sd_variable: gpp_sd
   - observed:
       file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
-      variable: TotalNPP_WithoutMycorrhiza
-      se_variable: SE_TotalNPP_WithoutMycorrhiza
+      variable: TotalNPP_WithMycorrhiza
+      se_variable: SE_TotalNPP_WithMycorrhiza
     predicted:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/gpp_and_npp_maliau_2.csv
       variable: npp_mean

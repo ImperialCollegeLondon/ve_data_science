@@ -1,6 +1,6 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-10-26'
+generated_on: '2026-10-28'
 scripts:
 - script_path: gpp_and_npp_comparison_maliau_2.R
   title: gpp_and_npp_comparison_maliau_2
@@ -10,7 +10,7 @@ scripts:
     ../variable_mapping/gpp_and_npp_mapping_maliau_2.yml.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: carbon_balance_components_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
@@ -46,7 +46,7 @@ scripts:
     ../variable_mapping/realised_tissue_productivity_mapping_maliau_2.yml.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: carbon_balance_components_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
@@ -80,7 +80,7 @@ scripts:
     uses the cell-total mean and SD, not the PFT-specific turnover column.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: carbon_balance_components_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
@@ -118,7 +118,7 @@ scripts:
     mycorrhiza for Maliau scenario 2.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: carbon_balance_components_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
@@ -156,7 +156,7 @@ scripts:
     are loaded from respiration_and_turnover_mapping_maliau_2.yml.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: carbon_balance_components_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
@@ -193,7 +193,7 @@ scripts:
     and one actual census date.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: tree_standing_carbon_mass_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing

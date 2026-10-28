@@ -18,7 +18,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: plants_cohort_data.csv

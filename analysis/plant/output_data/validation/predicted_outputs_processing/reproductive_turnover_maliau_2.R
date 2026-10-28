@@ -18,7 +18,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: model_data.nc

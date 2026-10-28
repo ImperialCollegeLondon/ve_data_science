@@ -1,6 +1,6 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-10-26'
+generated_on: '2026-10-28'
 scripts:
 - script_path: gpp_and_npp_maliau_2.R
   title: gpp_and_npp_maliau_2
@@ -15,7 +15,7 @@ scripts:
     validation data.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: plants_cohort_data.csv
     path: data/scenarios/maliau/maliau_2/out
@@ -141,7 +141,16 @@ scripts:
     comparison value.
     Each variable's period is loaded at runtime from its own corresponding
     variable in master_observed_data_processing_metadata.yml:
-    gpp -> GPP_WithoutMycorrhiza, npp -> TotalNPP_WithoutMycorrhiza.
+    gpp -> GPP_WithMycorrhiza, npp -> TotalNPP_WithMycorrhiza.
+    The predicted VE GPP and NPP outputs include carbon used for allocation to
+    symbiotes, so the matching observations are the with-mycorrhiza totals.
+    The without-mycorrhiza variants exclude that contribution.
+    The validation GPP and NPP do not include carbon allocated to root
+    exudates because this flux was not measured. The VE GPP and NPP include
+    this carbon, so their values contain an extra component relative to the
+    validation data. Subtracting root-exudate allocation from predicted NPP
+    would align its measurement boundary; this script currently reports the
+    unadjusted model values.
     Input carbon masses are in kg C per individual per timestep for gpp and npp.
     Each variable has its own selected-period column.
 - script_path: realised_tissue_productivity_maliau_2.R
@@ -158,7 +167,7 @@ scripts:
     and temporal extent of the expected validation data.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: plants_cohort_data.csv
     path: data/scenarios/maliau/maliau_2/out
@@ -364,7 +373,7 @@ scripts:
     validation data.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: model_data.nc
     path: data/scenarios/maliau/maliau_2/out
@@ -490,7 +499,7 @@ scripts:
     validation data.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: plants_cohort_data.csv
     path: data/scenarios/maliau/maliau_2/out

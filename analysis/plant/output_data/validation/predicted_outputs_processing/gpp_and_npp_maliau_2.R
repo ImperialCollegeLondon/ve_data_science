@@ -17,7 +17,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: plants_cohort_data.csv
@@ -147,7 +147,16 @@
 #|   comparison value.
 #|   Each variable's period is loaded at runtime from its own corresponding
 #|   variable in master_observed_data_processing_metadata.yml:
-#|   gpp -> GPP_WithoutMycorrhiza, npp -> TotalNPP_WithoutMycorrhiza.
+#|   gpp -> GPP_WithMycorrhiza, npp -> TotalNPP_WithMycorrhiza.
+#|   The predicted VE GPP and NPP outputs include carbon used for allocation to
+#|   symbiotes, so the matching observations are the with-mycorrhiza totals.
+#|   The without-mycorrhiza variants exclude that contribution.
+#|   The validation GPP and NPP do not include carbon allocated to root
+#|   exudates because this flux was not measured. The VE GPP and NPP include
+#|   this carbon, so their values contain an extra component relative to the
+#|   validation data. Subtracting root-exudate allocation from predicted NPP
+#|   would align its measurement boundary; this script currently reports the
+#|   unadjusted model values.
 #|   Input carbon masses are in kg C per individual per timestep for gpp and npp.
 #|   Each variable has its own selected-period column.
 #| ---
@@ -291,8 +300,8 @@ get_observed_period <- function(variable_name) {
   )
 }
 
-gpp_period <- get_observed_period("GPP_WithoutMycorrhiza")
-npp_period <- get_observed_period("TotalNPP_WithoutMycorrhiza")
+gpp_period <- get_observed_period("GPP_WithMycorrhiza")
+npp_period <- get_observed_period("TotalNPP_WithMycorrhiza")
 
 standardised_gpp <- standardise_ve_cohort_carbon_output(
   plants_cohort_data = plants_cohort_data,
