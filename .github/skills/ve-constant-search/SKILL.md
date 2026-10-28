@@ -55,10 +55,16 @@ forwarded reference remain ambiguous, ask the user before proposing values.
 
 ## 2. Discover and screen literature
 
-Search each constant or small related group with
-`uv run --no-sync python .github/skills/ve-constant-search/scripts/openalex_search.py search "QUERY"`
-from the repository root after `uv sync` (installs `requests`). Use only this
-helper for OpenAlex searches and citation lookup (`snowball --id W...`). Do not
+From the repository root, after `uv sync` (installs `requests`), search each
+constant or small related group with:
+
+```bash
+uv run --no-sync python \
+  .github/skills/ve-constant-search/scripts/openalex_search.py search "QUERY"
+```
+
+Use only this helper for OpenAlex searches and citation lookup
+(`snowball --id W...`). Do not
 use OpenAlex MCP tools, `webfetch` or general web search to discover or screen
 papers. The helper returns at most eight candidates by default, with title,
 authors, year, DOI, abstract, open-access PDF URL, journal and OpenAlex ID.
@@ -89,9 +95,15 @@ Get authorized full text for screened candidates. The sole `webfetch` exception
 is a specific article or PDF URL from the helper or user; do not use it to
 discover papers or follow links to new candidates. After checking access and
 retention rights, optionally download a specific HTTPS PDF URL from either
-source with
-`uv run --no-sync python .github/skills/ve-constant-search/scripts/download_authorized_pdf.py "PDF_URL" "OUTPUT.pdf" --doi "DOI"`
-from the repository root. Create the output directory first; keep PDFs outside
+source. From the repository root, run:
+
+```bash
+uv run --no-sync python \
+  .github/skills/ve-constant-search/scripts/download_authorized_pdf.py \
+  "PDF_URL" "OUTPUT.pdf" --doi "DOI"
+```
+
+Create the output directory first; keep PDFs outside
 the repository unless copying is permitted. The helper rejects redirects, HTML
 and non-PDF responses, preserves existing files, and writes `.pdf.json` with
 source URL, DOI, UTC time, HTTP status, SHA-256 and download outcome. It neither

@@ -119,7 +119,9 @@ do not use it to search for additional papers. For a PDF URL, check access and
 retention rights before optionally downloading it with:
 
 ```bash
-uv run --no-sync python .github/skills/ve-constant-search/scripts/download_authorized_pdf.py "PDF_URL" "OUTPUT.pdf" --doi "DOI"
+uv run --no-sync python \
+  .github/skills/ve-constant-search/scripts/download_authorized_pdf.py \
+  "PDF_URL" "OUTPUT.pdf" --doi "DOI"
 ```
 
 Use a specific HTTPS PDF URL returned by the OpenAlex helper or supplied by the
@@ -133,9 +135,11 @@ For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table
 location. Compare the original measurement's units, conditions, organism or
 enzyme source, and response function with the model. Check every conversion to
-model units. Only use full text you are allowed to access and retain; an
-inaccessible paper, search failure or abstract-only result cannot verify a
-value. Citation counts do not establish measurement quality.
+model units. If a value requires re-fitting, digitising, pooling or other
+reanalysis, record it as a gap rather than a verified value; ask for approval
+before doing that reanalysis. Only use full text you are allowed to access and
+retain; an inaccessible paper, search failure or abstract-only result cannot
+verify a value. Citation counts do not establish measurement quality.
 
 For soil microbial groups, seek separate evidence for bacteria, saprotrophic
 fungi, arbuscular mycorrhiza and ectomycorrhiza; soil enzymes need separate
