@@ -16,7 +16,9 @@ Start with one or a few user-selected configuration constants, identified by
 **qualified_name** (`module.Class.attribute`). If the user names a module,
 class, or parameter family instead, identify matching names and agree on a
 small subset before searching. Do not default to every constant in a class or
-module.
+module. Check that selected attributes represent parameters needing empirical
+estimates; exclude identifiers or labels such as `name`, `taxonomic_group` and
+`source` from literature searches.
 
 Read `assets/ve_constant_usage.toml` (`metadata`, `functions`, `constants`); it
 inventories declared configuration attributes across VE modules, including
@@ -136,9 +138,21 @@ Use `no_evidence` when no eligible full text supports a defensible value or
 conversion. State whether the gap is search coverage, inaccessible text, missing
 measurement, unresolved units, functional-form mismatch or required reanalysis.
 Relevant but non-extractable studies still count as gaps, not as an absence of
-empirical research. Never echo a model default as evidence. Ask the user before
-changing inclusion criteria, using proxy measurements, or making a consequential
-scientific judgment.
+empirical research. Check existing empirical citations and analyses in this repo
+as leads, distinguishing an already-supported estimate from a novel finding;
+verify the original full text before reporting either as `value_found`. Never
+echo a model default as evidence. Ask the user before changing inclusion
+criteria, using proxy measurements, or making a consequential scientific
+judgment.
+
+When no concrete value is verified, leave a trail for human follow-up. Identify
+the most promising paper or existing analysis, its DOI or local location, what
+it measures, why it cannot yet support the constant, and the specific next step
+most likely to resolve the gap (for example, obtain full text, check a cited
+dataset, or fit the model form to reported data). Rank leads by relevance and
+feasibility, not citation count. Separate an unverified best-guess or modelling
+analogy from empirical evidence; suggest it only as a question for human review,
+never as a `value_found` or a numeric CSV value without the user's approval.
 
 ## 4. Deliver results
 
@@ -164,10 +178,13 @@ For conversions, record original units, multiplier and calculation in
 `rationale` or `conversion_notes` if there is no DOI. Check that each
 `value_found` row has a traceable full-text quote and source, matches the
 recorded model commit and units, and does not merely repeat the default. Flag
-remaining gaps for human review. Existing first- and second-pass reports
-describe historical results in the older soil CSV; they do not read the new
-output. Do not silently rewrite their conclusions.
+remaining gaps for human review. For `no_evidence`, put the strongest lead,
+its blocker and the recommended next human step in `rationale`; keep candidate
+IDs and screening detail in the search log. Existing first- and second-pass
+reports describe historical results in the older soil CSV; they do not read the
+new output. Do not silently rewrite their conclusions.
 
 Stop once the chosen constants are assessed and the user-approved output is
 checked; report counts of `value_found` and `no_evidence`, sources screened, and
-remaining coverage limits.
+remaining coverage limits. For each unresolved constant, give the human a
+prioritised, actionable next step rather than ending at `no_evidence`.
