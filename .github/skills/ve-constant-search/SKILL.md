@@ -167,7 +167,24 @@ IDs and screening detail in the search log. Existing first- and second-pass
 reports describe historical results in the older soil CSV; they do not read the
 new output. Do not silently rewrite their conclusions.
 
-Stop once the chosen constants are assessed and the user-approved output is
-checked; report counts of `value_found` and `no_evidence`, sources screened, and
-remaining coverage limits. For each unresolved constant, give the human a
-prioritised, actionable next step rather than ending at `no_evidence`.
+Stop once the chosen constants are assessed and any user-approved output is
+checked. In the first user-facing response, lead with **Files touched**: list
+each created or modified file and its purpose, or state "No files changed."
+Then state **Actions taken**: constants checked, searches attempted, sources
+screened and full texts verified. Distinguish completed actions from actions
+blocked or awaiting approval.
+
+If defensible values were found, summarise each constant's proposed value or
+range, units, source, confidence and important limits. State that values remain
+proposals pending user review.
+
+If no defensible value was found, say so explicitly. For each unresolved
+constant, identify the best lead and what worked, the blocker and what did not
+work, and the next actionable step and who must take it. Flag approaches
+unlikely to help or likely to be dead ends, with reasons; do not present an
+untried approach as a demonstrated dead end. State when no useful next step is
+known.
+
+Report `value_found` and `no_evidence` counts, sources screened and remaining
+coverage limits. Say whether the next action is with the user, the agent after
+approval or access, or neither.
