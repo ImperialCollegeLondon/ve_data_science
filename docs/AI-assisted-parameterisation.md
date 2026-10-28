@@ -115,8 +115,19 @@ Use only the Python helper for OpenAlex discovery and citation lookup. Do not
 use `webfetch` or general web search for literature discovery or screening.
 For screened candidates, `webfetch` is permitted only to open a specific
 full-text article or PDF URL identified by the helper or supplied by the user;
-do not use it to search for additional papers. If full text is inaccessible,
-record that gap instead of searching elsewhere.
+do not use it to search for additional papers. For a PDF URL, check access and
+retention rights before optionally downloading it with:
+
+```bash
+uv run --no-sync python .github/skills/ve-constant-search/scripts/download_authorized_pdf.py "PDF_URL" "OUTPUT.pdf" --doi "DOI"
+```
+
+Use a specific HTTPS PDF URL returned by the OpenAlex helper or supplied by the
+user. Create the output directory first. Keep PDFs outside the repository unless
+retention there is permitted. The tool rejects redirects and non-PDF responses,
+never overwrites files, and saves a `.pdf.json` provenance record beside the
+PDF. A saved PDF still needs manual full-text review. If full text is
+inaccessible, record that gap instead of searching elsewhere.
 
 For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table

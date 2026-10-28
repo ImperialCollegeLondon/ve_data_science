@@ -88,11 +88,20 @@ not a value. Track no-DOI and inaccessible papers so `no_evidence` describes the
 search coverage, not universal absence. Follow references when coverage is thin.
 Do not infer study quality from citation count or publisher alone.
 
-Obtain full text for screened candidates through authorized sources. As the
-only `webfetch` exception, open a specific article or PDF URL returned by the
-helper or supplied by the user; do not use it to search for papers or follow
-links to new candidates. If full text is inaccessible, record the gap rather
-than searching elsewhere. Retain source URL and DOI, inspect the actual
+Obtain full text for screened candidates through authorized sources. As the only
+`webfetch` exception, open a specific article or PDF URL returned by the helper
+or supplied by the user; do not use it to search for papers or follow links to
+new candidates. For a PDF URL, after checking access and retention rights,
+optionally run
+`uv run --no-sync python .github/skills/ve-constant-search/scripts/download_authorized_pdf.py "PDF_URL" "OUTPUT.pdf" --doi "DOI"`
+from the repository root. Use only a specific HTTPS PDF URL returned by the
+OpenAlex helper or supplied by the user. Create the output directory first; keep
+PDFs outside the repository unless copying them is permitted. The helper rejects
+redirects, HTML and non-PDF responses, does not overwrite files, and writes a
+`.pdf.json` provenance record with source URL, DOI, UTC time, HTTP status,
+SHA-256 and download outcome. It does not search for alternative URLs or verify
+scientific content. If full text is inaccessible, record the gap rather than
+searching elsewhere. Retain source URL and DOI, inspect the actual
 tables/methods, and keep a stable provenance record. Do not assume a local
 OpenAlex full-text library exists or covers the selected constants. Check access
 and sharing rights before copying restricted full text into the repository.
