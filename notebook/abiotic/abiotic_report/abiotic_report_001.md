@@ -565,20 +565,20 @@ kg⁻¹ divided by the seconds in a year.
      escape.
 6. **Smaller points.**
    - The saturation humidity used for condensation is too low at high temperatures.
-  
-   - A canopy layer that does not exist in a cell gets 0 W m⁻² instead of being empty (NaN). 
-     In this run, 12 cells have no second canopy layer; their zeros lower that layer's mean from 
+
+   - A canopy layer that does not exist in a cell gets 0 W m⁻² instead of being empty (NaN).
+     In this run, 12 cells have no second canopy layer; their zeros lower that layer's mean from
      425 to 375 W m⁻². Fill missing layers with NaN, as the other outputs do.
-    
-   - The reference vapour pressure and VPD are labelled as relative humidity in % 
+
+   - The reference vapour pressure and VPD are labelled as relative humidity in %
      in `AbioticModel._setup` (`abiotic_model.py`,lines 205-211)
-  
-   - The latitude is set to 0° `[abiotic] latitude = 0.0` instead of about 4.7° N, 
+
+   - The latitude is set to 0° `[abiotic] latitude = 0.0` instead of about 4.7° N,
      which affects day length.
 
-   - The starting profile comes from the simple abiotic model: surface air 14.9 °C, 
+   - The starting profile comes from the simple abiotic model: surface air 14.9 °C,
      topsoil 19.1 °C and 100 % humidity. The full model then takes months (air) to years (soil)
-     to move away from it, so 2010-2011 are not representative. Either leave the first years out 
+     to move away from it, so 2010-2011 are not representative. Either leave the first years out
      of the analysis (the report quotes 2012-2020 for this reason), run a spin-up year first, or
     start from the ERA5 temperature and humidity.
 
