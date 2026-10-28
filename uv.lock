@@ -1180,14 +1180,14 @@ wheels = [
 
 [[package]]
 name = "jedi"
-version = "0.20.1"
+version = "0.19.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "parso" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/a4/4692ecd7fa700ac1066b1c1f6cadef60aa2e01e5e364710235137d823e0a/jedi-0.20.1.tar.gz", hash = "sha256:2f71208c3f9c1bca057c0e90d3f272aba44ace88fc4067d7587e9e069331b7e5", size = 3121738, upload-time = "2026-10-12T17:42:24.361Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/3a/79a912fbd4d8dd6fbb02bf69afd3bb72cf0c729bb3063c6f4498603db17a/jedi-0.19.2.tar.gz", hash = "sha256:4770dc3de41bde3966b02eb84fbcf557fb33cce26ad23da12c742fb50ecb11f0", size = 1231287, upload-time = "2024-11-11T01:41:42.873Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/c7/71eb0d51cdcbb63b857c931aa4e9218b078b5d9f8ecd383b234f28fe7b0f/jedi-0.20.1-py2.py3-none-any.whl", hash = "sha256:0fb16d86c4a4c73c37ba518c77419975e30fcc620658a8d14fbb5720cdd34142", size = 4885980, upload-time = "2026-10-12T17:42:21.585Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/5a/9cac0c82afec3d09ccd97c8b6502d48f165f9124db81b4bcb90b4af974ee/jedi-0.19.2-py2.py3-none-any.whl", hash = "sha256:a8ef22bde8490f57fe5c7681a3c83cb58874daf72b4784de3cce5b6ef6edb5b9", size = 1572278, upload-time = "2024-11-11T01:41:40.175Z" },
 ]
 
 [[package]]
@@ -4139,6 +4139,7 @@ dependencies = [
     { name = "cdsapi" },
     { name = "cftime" },
     { name = "ipython" },
+    { name = "jedi" },
     { name = "jupyterlab" },
     { name = "jupyterlab-myst" },
     { name = "jupytext" },
@@ -4151,6 +4152,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "radian" },
     { name = "rasterio" },
+    { name = "requests" },
     { name = "rioxarray" },
     { name = "ruff" },
     { name = "salib" },
@@ -4183,6 +4185,7 @@ requires-dist = [
     { name = "cdsapi", specifier = ">=0.7.6,<0.8" },
     { name = "cftime", specifier = ">=1.6.4.post1,<2" },
     { name = "ipython", specifier = ">=9.16.1,<10" },
+    { name = "jedi", specifier = ">=0.19.2,<0.20" },
     { name = "jupyterlab", specifier = ">=4.6.3,<5" },
     { name = "jupyterlab-myst", specifier = ">=2.4.2,<3" },
     { name = "jupytext", specifier = ">=1.19.5,<2" },
@@ -4195,6 +4198,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.2,<7" },
     { name = "radian", specifier = ">=0.6.13,<0.8" },
     { name = "rasterio", specifier = ">=1.5.1,<2" },
+    { name = "requests", specifier = ">=2.32.5,<3" },
     { name = "rioxarray", specifier = ">=0.23.0,<0.24" },
     { name = "ruff", specifier = ">=0.16.3,<0.18" },
     { name = "salib", specifier = ">=1.5.1,<2" },

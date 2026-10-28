@@ -24,7 +24,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: final
+#| status: deprecated
 #|
 #| input_files:
 #|   - name: ve_constant_usage.toml
