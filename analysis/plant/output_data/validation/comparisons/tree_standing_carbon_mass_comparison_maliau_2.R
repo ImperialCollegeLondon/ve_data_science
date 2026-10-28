@@ -13,7 +13,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: tree_standing_carbon_mass_maliau.csv

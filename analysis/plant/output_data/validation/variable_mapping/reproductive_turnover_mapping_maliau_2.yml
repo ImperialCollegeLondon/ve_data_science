@@ -1,0 +1,11 @@
+# Variable mapping for Maliau-2 reproductive turnover validation.
+
+variable_mappings:
+  - observed:
+      file: "../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv"
+      variable: "CanopyNPP_Reproductive"
+      se_variable: "SE_CanopyNPP_Reproductive"
+    predicted:
+      file: "../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/reproductive_turnover_maliau_2.csv"
+      variable: "reproductive_turnover_cell_mean"
+      sd_variable: "reproductive_turnover_cell_sd"

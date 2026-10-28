@@ -8,7 +8,8 @@
 #|   It filters for these two plots and selects variables relevant for
 #|   Virtual Ecosystem plant module output comparison (biomass carbon
 #|   stocks, primary productivity components, autotrophic respiration, and
-#|   observational standard errors), exporting the curated data to CSV.
+#|   observational standard errors). It also derives symbiote allocation as
+#|   the difference between total NPP with and without mycorrhiza.
 #|
 #| virtual_ecosystem_module:
 #|   - Plant
@@ -34,7 +35,8 @@
 #|     description: |
 #|       Cleaned and filtered carbon balance components for Maliau old-growth
 #|       plots MLA-01 (Belian) and MLA-02 (Seraya), subset to variables
-#|       relevant for Virtual Ecosystem plant output validation.
+#|       relevant for Virtual Ecosystem plant output validation, including
+#|       derived symbiote allocation.
 #|     variables:
 #|       - name: ForestType
 #|         type: character
@@ -624,6 +626,37 @@
 #|             vegetation_type: "lowland dipterocarp forest"
 #|             site_condition: "old-growth"
 #|             date: "2011-2018"
+#|       - name: SymbioteAllocation
+#|         type: numeric
+#|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
+#|         description: |
+#|           Net primary productivity allocated to mycorrhiza (symbiote).
+#|         method: |
+#|           Calculated as TotalNPP_WithMycorrhiza minus
+#|           TotalNPP_WithoutMycorrhiza.
+#|         references:
+#|           - citation: "Riutta et al. (2021)"
+#|             doi: "https://doi.org/10.5281/zenodo.7307449"
+#|             url: "https://zenodo.org/records/7307449"
+#|             origin: "Maliau Basin, Sabah, Malaysia"
+#|             biome: "tropical"
+#|             vegetation_type: "lowland dipterocarp forest"
+#|             site_condition: "old-growth"
+#|             date: "2011-2018"
+#|       - name: SE_SymbioteAllocation
+#|         type: numeric
+#|         units: Mg C ha-1 year-1
+#|         spatial_extent: One value for MLA-01 and MLA-02 plots, each.
+#|         temporal_extent: Single value averaged over the measurement period (see period_start/period_end).
+#|         period_start: 2011-08-25
+#|         period_end: 2018-07-17
+#|         description: Standard error for symbiote allocation; unavailable.
+#|         method: null
+#|         references: null
 #|       - name: GPP_WithoutMycorrhiza
 #|         type: numeric
 #|         units: Mg C ha-1 year-1
@@ -1076,6 +1109,12 @@ plant_variables <- c(
 )
 
 cleaned_data <- maliau_data[, plant_variables]
+cleaned_data$SymbioteAllocation <-
+  cleaned_data$TotalNPP_WithMycorrhiza -
+  cleaned_data$TotalNPP_WithoutMycorrhiza
+# No symbiote allocation SE is provided; propagating the component SEs requires
+# covariance information, which is unavailable.
+cleaned_data$SE_SymbioteAllocation <- NA_real_
 
 # Output directory and file path
 output_dir <- "../../../../../data/derived/plant/output_data/validation/observed_data_processing"
