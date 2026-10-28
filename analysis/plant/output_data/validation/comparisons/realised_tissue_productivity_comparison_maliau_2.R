@@ -12,7 +12,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: carbon_balance_components_maliau.csv
@@ -104,6 +104,11 @@ variable_map_list <- lapply(contract$variable_mappings, function(m) {
     validation_se = m$observed$se_variable,
     predicted_variable = m$predicted$variable,
     predicted_sd_variable = m$predicted$sd_variable,
+    predicted_period_variable = sub(
+      "_mean$",
+      "_selected_period",
+      m$predicted$variable
+    ),
     stringsAsFactors = FALSE
   )
 })
@@ -127,8 +132,8 @@ required_validation_columns <- c(
 required_model_columns <- c(
   variable_map$predicted_variable,
   variable_map$predicted_sd_variable,
+  variable_map$predicted_period_variable,
   "cell_id",
-  "selected_period",
   "units"
 )
 missing_validation_columns <- setdiff(
@@ -149,8 +154,7 @@ if (length(missing_columns) > 0) {
   )
 }
 
-# The predicted mean/sd/selected_period columns are NA outside the pooled
-# period, so the single non-missing value is the comparison value.
+# Predicted mean/sd/period columns are NA outside each tissue's pooled period.
 model_units <- unique(model_data$units)
 if (length(model_units) != 1) {
   stop("Predicted output must have exactly one units value.")
@@ -166,6 +170,9 @@ predicted_selection <- lapply(
     predicted_sd_variable <- variable_map$predicted_sd_variable[
       variable_index
     ]
+    predicted_period_variable <- variable_map$predicted_period_variable[
+      variable_index
+    ]
     predicted_values <- unique(model_data[[predicted_variable]][
       !is.na(model_data[[predicted_variable]])
     ])
@@ -173,9 +180,11 @@ predicted_selection <- lapply(
       stop(sprintf("Expected one predicted value for %s.", predicted_variable))
     }
     pooled_rows <- !is.na(model_data[[predicted_variable]])
-    selected_periods <- unique(as.character(model_data$selected_period[
-      pooled_rows & !is.na(model_data$selected_period)
-    ]))
+    selected_periods <- unique(as.character(
+      model_data[[predicted_period_variable]][
+        pooled_rows & !is.na(model_data[[predicted_period_variable]])
+      ]
+    ))
     if (length(selected_periods) != 1) {
       stop(sprintf(
         "Expected one selected period for %s.",
