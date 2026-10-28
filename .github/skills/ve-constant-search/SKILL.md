@@ -109,6 +109,14 @@ Neither a PDF cache nor abstract results substitute for verified full text.
 
 ## 3. Extract and verify
 
+Distinguish unit conversion from reanalysis. Check whether the reported
+measurement identifies the model parameter at the required scale, aggregation
+and functional form. If extracting a parameter requires re-fitting, digitising,
+pooling or other reanalysis of study data, record the paper as relevant but not
+extractable under this workflow. Explain what reanalysis would be needed; do not
+report a `value_found` or perform that reanalysis without the user's explicit
+approval.
+
 For each proposed value, cite the exact full-text sentence or table entry and
 its page/table location, identify original value and units, show the conversion
 factor and calculation to the model's units, and check measurement conditions
@@ -126,9 +134,11 @@ value).
 
 Use `no_evidence` when no eligible full text supports a defensible value or
 conversion. State whether the gap is search coverage, inaccessible text, missing
-measurement, unresolved units or functional-form mismatch. Never echo a model
-default as evidence. Ask the user before changing inclusion criteria, using
-proxy measurements, or making a consequential scientific judgment.
+measurement, unresolved units, functional-form mismatch or required reanalysis.
+Relevant but non-extractable studies still count as gaps, not as an absence of
+empirical research. Never echo a model default as evidence. Ask the user before
+changing inclusion criteria, using proxy measurements, or making a consequential
+scientific judgment.
 
 ## 4. Deliver results
 
