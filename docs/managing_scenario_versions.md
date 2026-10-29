@@ -55,7 +55,7 @@ However, changes to the `config` files and `change_log.txt` file on GitHub do no
 automatically show up in Globus. This is because files on Globus are stored on the
 Research Data Storage (RDS) on the High Performance Computer (HPC). This setup isn't
 that different from e.g. your local hard drive on your local pc. Having said that,
-there are 2 ways to add/update "GitHub files on Globus, with the second option being
+there are 2 ways to add/update "GitHub" files on Globus, with the second option being
 the preferred and safer choice.
 
 Assuming the changes have already been merged into the `main` branch of the VE Data
@@ -75,6 +75,7 @@ pulled from GitHub directly, there is no possibility of a conflict and the respe
 file will always be the latest GitHub version, which is what we want in this case.
 To access the HPC, please follow the instructions below. Additional details can also be
 found here: <https://imperialcollegelondon.github.io/ve_data_science/hpc_setup/>.
+
 Please note that this guide only focuses on how to manage the `config` files and
 `change_log.txt` file, and does not focus on using the HPC to run specific analyses
 or using different branches (for additional things to consider, see the link above).
@@ -88,7 +89,7 @@ git pull origin
 
 Once you have pulled the changes from GitHub to the `main` branch on the HPC, Globus
 will contain the changes. In other words, the files you see on Globus are the files
-on the `main` branch on the HPC. For this reason, it is preferred to keep the HPC on
+on the current branch on the HPC. For this reason, it is preferred to keep the HPC on
 the `main` branch as much as possible. It is good practice to keep the `main` branch
 on the HPC up to date as much as possible, because then the "GitHub" files on Globus
 and the actual files on GitHub will remain in sync. Therefore, whenever you make merge
