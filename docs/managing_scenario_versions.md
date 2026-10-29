@@ -105,7 +105,7 @@ the latest `main` version of the VE code.
 The second part of this guide focuses on how to add additional data+config versions
 to Globus. An example of when this is needed is when a particular PR in the VE repo has
 changed the VE code, causing a change in the required inputs. In such case, using the
-data and config files in `maliau_2/data` with the VE PR version would cause the
+data and config files in `maliau_2/data/main` with the VE PR version would cause the
 simulation to fail during configuration. More specific examples of such changes include
 a variable name being changed, or a new variable being added, etc.
 
@@ -171,10 +171,11 @@ updated (see Part 1).
 It is worth pointing out that once the "outdated" main files in `maliau_2/data/main`
 have been replaced with an updated version, the "outdated" files are considered gone.
 It may be that they are kept within the repo if they were part of a specific PR folder,
-but maintaining each of these "outdated" versions is not being done. The reason for
+but maintaining each of these "outdated" versions is not a priority. The reason for
 this is that we think that nobody will be interested in running an outdated `main`
-version of VE. Having said that, we will focus on keeping data+config versions for each
-new release, which we will discuss in Part 3 of the guide below.
+version of VE (that is not an official release). Having said that, we will focus on
+keeping data+config versions for each new release, which we will discuss in Part 3 of
+the guide.
 
 ### Notes on testing a specific VE PR version
 
