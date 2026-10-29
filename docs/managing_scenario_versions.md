@@ -92,7 +92,7 @@ will contain the changes. In other words, the files you see on Globus are the fi
 on the current branch on the HPC. For this reason, it is preferred to keep the HPC on
 the `main` branch as much as possible. It is good practice to keep the `main` branch
 on the HPC up to date as much as possible, because then the "GitHub" files on Globus
-and the actual files on GitHub will remain in sync. Therefore, whenever you make merge
+and the actual files on GitHub will remain in sync. Therefore, whenever you merge
 changes into the `main` branch on the VE Data Science repo, it is preferred to also
 update the HPC `main` branch.
 
