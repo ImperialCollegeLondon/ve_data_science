@@ -1,0 +1,2656 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://imperialcollegelondon.github.io/ve_data_science/hydrology_validation_plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Hydrology validation plan - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hydrology-validation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Hydrology validation plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ImperialCollegeLondon/ve_data_science" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ImperialCollegeLondon/ve_data_science" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Background
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Background
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/study_sites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Study sites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenarios
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/data_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/repository_tour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository tour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uv_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python with uv
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../renv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R with renv
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../using_globus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data with Globus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git and GitHub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/documenting_your_work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documenting your work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Soil and litter
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Soil and litter
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/soil/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/soil/file_tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Abiotic and hydrology
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Abiotic and hydrology
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/abiotic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensitivity_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sensitivity analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animals
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Animals
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/animal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../animal_model_validation_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animal validation plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plants
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plants
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/plant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plant_validation_tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plant validation tracker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shared workflows
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Shared workflows
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AI-assisted-parameterisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI-assisted parameterisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derived_variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derived variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ve_input_data_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VE input-data compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-ve-scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The VE scenario
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-variables-and-data-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Variables and data needed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-available-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Available data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Available data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-stream-gauges-vjr-and-pf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Stream gauges: VJR and PF
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-processing-to-ve-units-and-monthly-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Processing to VE units and monthly values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-validation-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Validation tracker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="hydrology-validation-plan">Hydrology validation plan</h1>
+<p>For each VE hydrology variable we find observations or published
+values, convert them to the VE unit and the VE monthly time step, record how
+close they are to the VE grid in space and time, for comparing them with the
+model output for the same cells and months.</p>
+<p>This plan gives an overview of that process for the hydrology module at Maliau:
+the variables to validate and the data they need
+(<a href="#3-variables-and-data-needed">Section 3</a>), the data in hand
+(<a href="#4-available-data">Section 4</a>), how the data are processed
+(<a href="#5-processing-to-ve-units-and-monthly-values">Section 5</a>) and the status of
+each variable (<a href="#6-validation-tracker">Section 6</a>).</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data/primary/validation/maliau_variables_summary.xlsx</code> (globus)</td>
+<td>VE variables with unit and validation priority (<code>output_variables</code>) and model constants (<code>model_constats</code>)</td>
+</tr>
+<tr>
+<td><code>data/primary/validation/dataset/</code>(globus)</td>
+<td>The raw data from <a href="https://zenodo.org/communities/searrp/about">SEARRP</a> and <a href="https://zenodo.org/communities/safe/about">SAFE</a> Zenodo : <code>safe_hydro/</code> (stream gauges in <code>streamflow/</code>, Danum rainfall) and <code>safe_soil/</code> (soil moisture surveys)</td>
+</tr>
+<tr>
+<td><code>data/primary/validation/hydrology/hydrology_literature_values.csv</code> (globus)</td>
+<td>Published values and ranges, one row per value, with citation, DOI and <code>status</code></td>
+</tr>
+<tr>
+<td><code>data/primary/validation/hydrology/hydrology_sources.toml</code>(globus)</td>
+<td>Where each dataset is, its columns, units, filters, coordinates and citation</td>
+</tr>
+<tr>
+<td><code>analysis/abiotic/validation/hydrology_validation_data.py</code>(github)</td>
+<td>Python script that reads, cleans and converts the data, generates <code>hydrology_validation_data.xlsx</code> and writes the tracker in Section 6</td>
+</tr>
+<tr>
+<td><code>data/derived/validation/hydrology/hydrology_validation_data.xlsx</code>(globus)</td>
+<td>Processed data: monthly values, the long table <code>validation_long</code> and the <code>variable_registry</code></td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<h2 id="1-workflow">1. Workflow</h2>
+<!-- markdownlint-disable MD013 -->
+
+<pre class="mermaid"><code>flowchart LR
+  A["Variables&lt;br/&gt;maliau_variables_summary.xlsx"] --&gt; B["Data&lt;br/&gt;dataset folder, literature"]
+  B --&gt; C["Describe sources&lt;br/&gt;hydrology_sources.toml"]
+  C --&gt; D["Process&lt;br/&gt;hydrology_validation_data.py"]
+  D --&gt; E["validation_long&lt;br/&gt;workbook"]</code></pre>
+<!-- markdownlint-enable MD013 -->
+
+<ol>
+<li><strong>Variables:</strong> list the VE hydrology outputs and their priority
+   (<a href="#3-variables-and-data-needed">Section 3</a>).</li>
+<li><strong>Data:</strong> find observations and literature values and decide which to use
+   (<a href="#4-available-data">Section 4</a>); screening in the validation database.</li>
+<li><strong>Describe sources:</strong> record file, sheet, columns, units, filters and DOI in
+   <code>hydrology_sources.toml</code>; the schema in the validation database.</li>
+<li><strong>Process:</strong> quality control, conversion to VE units and monthly values
+   (<a href="#5-processing-to-ve-units-and-monthly-values">Section 5</a>); building the
+   validation database.</li>
+</ol>
+<h2 id="2-the-ve-scenario">2. The VE scenario</h2>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scenario</td>
+<td><code>maliau_2</code>, 10 x 10 cells of 100 m (1 km²), from <code>data/derived/site/maliau/maliau_grid_definition.toml</code></td>
+</tr>
+<tr>
+<td>Run period and time step</td>
+<td>2010-01 to 2020-12, monthly</td>
+</tr>
+<tr>
+<td>Soil layers</td>
+<td>top soil 0-0.25 m, sub soil 0.25-1.0 m</td>
+</tr>
+<tr>
+<td>Forcing</td>
+<td>ERA5-Land monthly, the same for every cell</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>Times are stored in UTC and months are local (Asia/Kuching, UTC+8).</p>
+<h2 id="3-variables-and-data-needed">3. Variables and data needed</h2>
+<p>Variables, units and priorities are from the <code>output_variables</code> sheet of
+<code>maliau_variables_summary.xlsx</code>. <em>Direct</em> means compared with observations of
+the same quantity, <em>derived</em> through a quantity in the second table, and
+<em>literature</em> with published values only. <em>VE output</em> is how the model reports
+the variable for each month (read from the hydrology model code): a sum of the
+daily values, a mean of the daily values, or the state at the end of the month.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>VE variable</th>
+<th>VE unit</th>
+<th>VE output</th>
+<th>Priority</th>
+<th>How validated</th>
+<th>Data still needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>river_discharge_rate</td>
+<td>m³ s⁻¹</td>
+<td>monthly mean, per cell, routed</td>
+<td>Very High</td>
+<td>direct, as specific discharge</td>
+<td>A river gauge in or near Maliau; the upstream area of the grid's outlet cell</td>
+</tr>
+<tr>
+<td>total_runoff</td>
+<td>mm</td>
+<td>monthly sum, per cell, routed</td>
+<td>Very High</td>
+<td>direct</td>
+<td>As above</td>
+</tr>
+<tr>
+<td>soil_moisture</td>
+<td>mm</td>
+<td>monthly mean, per soil layer</td>
+<td>Very High</td>
+<td>direct, as θ</td>
+<td>A continuous logger record at Maliau; a profile below 12 cm</td>
+</tr>
+<tr>
+<td>baseflow</td>
+<td>mm</td>
+<td>monthly sum, per cell, local</td>
+<td>High</td>
+<td>derived (baseflow)</td>
+<td>A baseflow recession constant</td>
+</tr>
+<tr>
+<td>subsurface_runoff_routed_plus_local</td>
+<td>mm</td>
+<td>monthly sum, per cell, routed</td>
+<td>High</td>
+<td>derived (baseflow)</td>
+<td>As baseflow</td>
+</tr>
+<tr>
+<td>surface_runoff</td>
+<td>mm</td>
+<td>monthly sum, per cell, local</td>
+<td>High</td>
+<td>literature</td>
+<td>Overland flow from forest plots near Maliau</td>
+</tr>
+<tr>
+<td>surface_runoff_routed_plus_local</td>
+<td>mm</td>
+<td>monthly sum, per cell, routed</td>
+<td>High</td>
+<td>derived (quickflow)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>groundwater_storage</td>
+<td>mm</td>
+<td>end of month, per groundwater layer</td>
+<td>High</td>
+<td>derived (baseflow recession)</td>
+<td>Groundwater level records</td>
+</tr>
+<tr>
+<td>subsurface_flow</td>
+<td>mm</td>
+<td>monthly sum, per cell, local</td>
+<td>Medium-High</td>
+<td>derived (baseflow)</td>
+<td>Drainage or lysimeter fluxes</td>
+</tr>
+<tr>
+<td>vertical_flow</td>
+<td>mm d⁻¹</td>
+<td>monthly mean, per soil layer</td>
+<td>Medium-High</td>
+<td>literature</td>
+<td>Drainage or lysimeter fluxes</td>
+</tr>
+<tr>
+<td>interception</td>
+<td>mm</td>
+<td>monthly sum, per canopy layer</td>
+<td>Medium</td>
+<td>literature</td>
+<td>Throughfall and stemflow in old-growth forest</td>
+</tr>
+<tr>
+<td>canopy_evaporation</td>
+<td>mm</td>
+<td>monthly sum, per canopy layer</td>
+<td>Medium</td>
+<td>derived (evapotranspiration)</td>
+<td>As interception</td>
+</tr>
+<tr>
+<td>precipitation_surface</td>
+<td>mm</td>
+<td>monthly sum, per cell</td>
+<td>Medium</td>
+<td>derived (rainfall + condensation - canopy evaporation + remaining interception)</td>
+<td>As interception</td>
+</tr>
+<tr>
+<td>soil_evaporation</td>
+<td>mm</td>
+<td>monthly sum, per cell</td>
+<td>Medium</td>
+<td>derived (evapotranspiration)</td>
+<td>A partition of evapotranspiration</td>
+</tr>
+<tr>
+<td>matric_potential</td>
+<td>kPa</td>
+<td>monthly mean, per soil layer</td>
+<td>Medium</td>
+<td>literature</td>
+<td>Values at Maliau; paired θ and potential</td>
+</tr>
+<tr>
+<td>bypass_flow</td>
+<td>mm</td>
+<td>monthly sum, per cell</td>
+<td>Medium</td>
+<td>literature</td>
+<td>Literature values</td>
+</tr>
+<tr>
+<td>aerodynamic_resistance_soil</td>
+<td>s m⁻¹</td>
+<td>monthly mean, per cell</td>
+<td>Medium</td>
+<td>literature</td>
+<td>Literature values</td>
+</tr>
+<tr>
+<td>subsurface_stormflow</td>
+<td>mm</td>
+<td>monthly sum, per cell, local</td>
+<td></td>
+<td>derived (quickflow)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>aerodynamic_resistance_canopy</td>
+<td>s m⁻¹</td>
+<td>set at start</td>
+<td></td>
+<td>literature</td>
+<td>Literature values</td>
+</tr>
+<tr>
+<td>stomatal_conductance</td>
+<td>mol m⁻² s⁻¹</td>
+<td>set at start</td>
+<td></td>
+<td>literature</td>
+<td>Literature values</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p><code>condensation</code>, <code>density_air</code>, <code>latent_heat_vapourisation</code> and
+<code>specific_heat_air</code> need no field data: they follow standard physical formulas
+and are checked by unit tests.</p>
+<p><em>Derived variables</em> combine VE outputs so that they match what is measured.
+They are candidates for <code>data/derived/validation/derived_variables.toml</code> (step 5
+of the validation database). Σ upstream means the sum over the outlet cell and
+all cells draining to it; VE routes water to the outlet within the same month,
+with no delay.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Derived variable</th>
+<th>Formula from VE outputs</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>specific_discharge</td>
+<td>river_discharge_rate / upstream area of the outlet cell</td>
+<td>m³ s⁻¹ km⁻²</td>
+</tr>
+<tr>
+<td>quickflow</td>
+<td>surface_runoff_routed_plus_local + Σ upstream subsurface_stormflow, at the outlet cell</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>baseflow (as separated from the gauge)</td>
+<td>subsurface_runoff_routed_plus_local − Σ upstream subsurface_stormflow, at the outlet cell (that is, Σ upstream subsurface_flow + baseflow)</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>baseflow_index</td>
+<td>Σ baseflow (as separated from the gauge) / Σ total_runoff, at the outlet cell</td>
+<td>fraction</td>
+</tr>
+<tr>
+<td>runoff_ratio</td>
+<td>Σ total_runoff / Σ precipitation</td>
+<td>fraction</td>
+</tr>
+<tr>
+<td>evapotranspiration</td>
+<td>canopy_evaporation (summed over canopy layers) + soil_evaporation + transpiration (plants model)</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>interception share, surface runoff share</td>
+<td>Σ flux / Σ precipitation</td>
+<td>fraction</td>
+</tr>
+<tr>
+<td>θ (top layer)</td>
+<td>soil_moisture (top layer) / 250 mm</td>
+<td>m³ m⁻³</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p><em>Inputs and constants</em> the same data can check: the precipitation forcing
+(against the gauges), <code>saturated_hydraulic_conductivity</code>,
+<code>soil_moisture_saturation</code>, <code>soil_moisture_residual</code> and the van Genuchten
+parameters (values in the <code>model_constats</code> sheet). Two constants already
+look out of range for Maliau:</p>
+<ul>
+<li><code>saturated_hydraulic_conductivity</code> is 3.5 × 10⁻⁵ m s⁻¹ in VE, 5 to 57 times
+  the values measured at Danum (6.1 × 10⁻⁷ to 7.1 × 10⁻⁶ m s⁻¹, in
+  <code>hydrology_literature_values.csv</code>).</li>
+<li><code>soil_moisture_residual</code> is 0.175, so VE soil cannot be drier than 17.5 %.
+  A quarter of the soil respiration readings are below 18.2 %, so the driest
+  observed months cannot be matched.</li>
+</ul>
+<p>Snow variables and constants are left out: there is no snow at Maliau.</p>
+<h2 id="4-available-data">4. Available data</h2>
+<p>One row per dataset, as recorded in <code>hydrology_sources.toml</code>: each source there has a
+screening record (<code>record_id</code>, <code>doi</code>, decision and reason) and its metadata, in the
+format of the validation database. <em>Zenodo</em> is the dataset record; <em>DOI</em> is the paper or
+other repository describing the same data. Values, sites and periods of each dataset are
+in the workbook (<code>sources</code>, <code>stream_sites</code>, <code>soil_moisture_sites</code> sheets) and in the
+tracker.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Dataset (file name)</th>
+<th>Folder</th>
+<th>Citation</th>
+<th>Zenodo</th>
+<th>DOI (paper or other repository)</th>
+<th>VE variable</th>
+<th>Screening</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vjr_streamflow.csv</code>, <code>pf_streamflow.csv</code>, <code>*_event_basis_new.csv</code></td>
+<td><code>safe_hydro/streamflow/VJR/</code> (SAFE), <code>safe_hydro/streamflow/PF/</code> (Danum)</td>
+<td>Nainar et al. (2018, 2022)</td>
+<td>none</td>
+<td><a href="https://doi.org/10.1016/j.jhydrol.2018.09.022">10.1016/j.jhydrol.2018.09.022</a>; <a href="https://doi.org/10.3390/w14223791">10.3390/w14223791</a></td>
+<td>river_discharge_rate, total_runoff, baseflow, quickflow, precipitation</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>SEARPP_compiled_climate_data_2025.xlsx</code></td>
+<td><code>safe_hydro/</code></td>
+<td>O'Brien et al. (2026)</td>
+<td><a href="https://doi.org/10.5281/zenodo.18159592">10.5281/zenodo.18159592</a></td>
+<td>none</td>
+<td>precipitation (PF, Danum station)</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Riutta et al. (2021)</td>
+<td><a href="https://doi.org/10.5281/zenodo.4542881">10.5281/zenodo.4542881</a></td>
+<td>none</td>
+<td>soil_moisture</td>
+<td>proceed: old-growth plots</td>
+</tr>
+<tr>
+<td><code>Termite_monitoring_maliau.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Ashton et al. (2019)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3265746">10.5281/zenodo.3265746</a></td>
+<td><a href="https://doi.org/10.5285/1e9993ae-add7-497a-b54b-745b0fc6a7ca">10.5285/1e9993ae-add7-497a-b54b-745b0fc6a7ca</a></td>
+<td>soil_moisture</td>
+<td>proceed: control plots</td>
+</tr>
+<tr>
+<td><code>Carbon_corrected_slopes.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Orme et al. (2019)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3247592">10.5281/zenodo.3247592</a></td>
+<td>none</td>
+<td>soil_moisture</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>BALI_Nottingham_Girdling_Data_2021_rev .xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Nottingham et al. (2021)</td>
+<td><a href="https://doi.org/10.5281/zenodo.5519572">10.5281/zenodo.5519572</a></td>
+<td>none</td>
+<td>soil_moisture</td>
+<td>exclude: logged forest with girdled trees; the only continuous soil moisture record found</td>
+</tr>
+<tr>
+<td><code>1_HJ_river_water_riparian.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Drewer et al. (2019a)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3258079">10.5281/zenodo.3258079</a></td>
+<td>none</td>
+<td>soil_moisture</td>
+<td>exclude: oil palm and riparian reserve, not old-growth forest</td>
+</tr>
+<tr>
+<td><code>3_GHG_jdrewer.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Drewer et al. (2019b)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3258117">10.5281/zenodo.3258117</a></td>
+<td>none</td>
+<td>soil_moisture</td>
+<td>exclude: logged forest and oil palm, not old-growth forest</td>
+</tr>
+<tr>
+<td><code>Lab_experiment_Melissa_corrected.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Drewer et al. (2020)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3897394">10.5281/zenodo.3897394</a></td>
+<td>none</td>
+<td>soil moisture in incubations</td>
+<td>exclude: laboratory experiment, not field soil moisture</td>
+</tr>
+<tr>
+<td><code>SAFE_Dataset.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Elias et al. (2020)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3929632">10.5281/zenodo.3929632</a></td>
+<td>none</td>
+<td>gravimetric soil moisture</td>
+<td>exclude: no sampling dates, and gravimetric, not volumetric</td>
+</tr>
+<tr>
+<td><code>hydrology_literature_values.csv</code></td>
+<td><code>data/primary/validation/hydrology/</code></td>
+<td>per row</td>
+<td>per row</td>
+<td>per row</td>
+<td>precipitation, interception, transpiration, evapotranspiration, surface_runoff, baseflow, saturated_hydraulic_conductivity, matric_potential</td>
+<td><code>extracted</code> rows</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<h3 id="41-stream-gauges-vjr-and-pf">4.1 Stream gauges: VJR and PF</h3>
+<p>Two small forested catchments, VJR in the SAFE landscape and PF in Danum
+Valley, are the only gauged streams in old-growth or primary forest (Nainar et
+al. 2018, 2022). The other SAFE catchments (LF2, LF3, OP) are logged forest or
+oil palm and are not used. Catchment areas and outlet coordinates are in
+<code>hydrology_sources.toml</code>.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>VJR</th>
+<th>PF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name and habitat</td>
+<td>Virgin Jungle Reserve, old-growth forest</td>
+<td>Primary forest, Danum Valley</td>
+</tr>
+<tr>
+<td>Catchment area</td>
+<td>3.08 km²</td>
+<td>1.7 km²</td>
+</tr>
+<tr>
+<td>Gauging station (lat, lon)</td>
+<td>4.646301, 117.542163</td>
+<td>4.960274, 117.795029</td>
+</tr>
+<tr>
+<td>Distance to the <code>maliau_2</code> grid</td>
+<td>64.5 km</td>
+<td>94.4 km</td>
+</tr>
+<tr>
+<td>Record</td>
+<td>2011-09 to 2013-01</td>
+<td>2012-02 to 2013-08</td>
+</tr>
+<tr>
+<td>Files (<code>safe_hydro/streamflow/</code>)</td>
+<td><code>VJR/vjr_streamflow.csv</code>, <code>VJR/vjr_event_basis_new.csv</code></td>
+<td><code>PF/pf_streamflow.csv</code>, <code>PF/pf_event_basis_new.csv</code></td>
+</tr>
+<tr>
+<td>Streamflow file</td>
+<td>5-minute specific discharge (m³ s⁻¹ km⁻²), rainfall (mm), water temperature (°C); date only, so record times are rebuilt from their position in the day</td>
+<td>5-minute specific discharge (m³ s⁻¹ km⁻²); Excel serial date-time; an Excel workbook saved with a .csv name; no rainfall or water temperature</td>
+</tr>
+<tr>
+<td>Rainfall</td>
+<td>Gauge rainfall in the streamflow file</td>
+<td>Danum Valley weather station, daily (<code>safe_hydro/SEARPP_compiled_climate_data_2025.xlsx</code>)</td>
+</tr>
+<tr>
+<td>Storm events</td>
+<td>Start and end rows, rainfall, total, subsurface and storm flow, initial, end and peak discharge, time to peak (<code>*_event_basis_new.csv</code>)</td>
+<td>Same; event rainfall is negative and set missing</td>
+</tr>
+<tr>
+<td>Not used</td>
+<td><code>*_simple_cond.csv</code>, <code>*_5min.csv</code></td>
+<td><code>*_simple_cond.csv</code>, <code>*_5min.csv</code></td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>The stored "discharge" is specific discharge (already divided by catchment
+area). The event-file headers give Qinitial, Qend and Qpeak in mm per 5 min and
+Ttpeak and Tstorm in 5-min steps, but the values are specific discharge and
+minutes. Record means, monthly, daily and hourly values and the storm events are
+in the <code>streams_*</code> and <code>storm_events</code> sheets of the workbook.</p>
+<h2 id="5-processing-to-ve-units-and-monthly-values">5. Processing to VE units and monthly values</h2>
+<p>The script <code>hydrology_validation_data.py</code> does every step below; each quality-control
+step is logged in the workbook's <code>qc_log</code> sheet. Files are under the dataset folder
+(<code>data/primary/validation/dataset/</code>) unless the path is given in full.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Files processed</th>
+<th>Steps to a monthly value</th>
+<th>Conversion to the VE unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stream gauges (5 min)</td>
+<td><code>safe_hydro/streamflow/VJR/vjr_streamflow.csv</code>, <code>safe_hydro/streamflow/PF/pf_streamflow.csv</code>; storm events from <code>safe_hydro/streamflow/VJR/vjr_event_basis_new.csv</code>, <code>safe_hydro/streamflow/PF/pf_event_basis_new.csv</code></td>
+<td>Remove missing codes and negative values; average to hourly (at least 6 of 12 records); fill gaps up to 6 hours; split baseflow and quickflow (Lyne-Hollick filter); monthly total when at least 80 % of hours are present</td>
+<td>Specific discharge q (m³ s⁻¹ km⁻²) × 3.6 = runoff in mm per hour; compare VE river_discharge_rate / upstream area with q</td>
+</tr>
+<tr>
+<td>Rainfall (5 min at VJR, daily at Danum)</td>
+<td><code>safe_hydro/streamflow/VJR/vjr_streamflow.csv</code> (VJR gauge); <code>safe_hydro/SEARPP_compiled_climate_data_2025.xlsx</code> (Danum station, for PF)</td>
+<td>Sum to monthly totals; gaps not filled; gauge failures removed</td>
+<td>mm, no conversion</td>
+</tr>
+<tr>
+<td>Soil moisture (probe surveys, 0-12 cm)</td>
+<td><code>safe_soil/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx</code>, <code>safe_soil/Termite_monitoring_maliau.xlsx</code>, <code>safe_soil/Carbon_corrected_slopes.xlsx</code></td>
+<td>Keep old-growth, untreated plots; remove values outside 0-100 %; mean of all readings of a plot in a month</td>
+<td>θ = % / 100; VE value = θ × 250 mm (top layer)</td>
+</tr>
+<tr>
+<td>Literature</td>
+<td><code>data/primary/validation/hydrology/hydrology_literature_values.csv</code></td>
+<td>Only <code>extracted</code> rows; a range becomes two rows</td>
+<td>Annual values against the mean annual sum of monthly VE values; shares of rainfall against the same share from the VE</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>Checks against the raw files and the papers (2026-10-13): monthly runoff,
+rainfall, soil moisture and the storm-event totals recalculated from the raw
+files match the workbook. The record means agree with Nainar et al. (2018,
+Fig. 4): runoff ratio 0.62 against 0.615 at VJR and 0.77 against 0.789 at PF;
+rainfall 2920 and 3529 mm against 2904 and 3504 mm. The Lyne-Hollick baseflow
+index (0.43 at both) matches the paper's Hewlett-Hibbert value at VJR (0.42)
+but not at PF (0.68), so read baseflow with the method in mind. PF runoff is
+high for the Danum station rainfall (some months with more runoff than rain;
+P − Q about 800 mm per year), as in the source. The termite survey readings of
+March 2016 (about 2 %) look too low for these soils.</p>
+<p>Every row is then classed by its distance to the grid and its period:</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Match</th>
+<th>Classes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spatial</td>
+<td>inside grid (match); near grid, within 2 km (partial); regional, within 100 km (partial); outside region (no match)</td>
+</tr>
+<tr>
+<td>Temporal</td>
+<td>in run (match); in run but needs daily output, or partly in run (partial); outside run (no match)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>The result is the <code>validation_long</code> sheet in
+<code>data/derived/validation/hydrology/hydrology_validation_data.xlsx</code>: one row per
+observation in the columns of the validation database (location, time window, original and
+converted value), plus the value in VE terms (<code>ve_variable</code>, <code>ve_unit</code>,
+<code>obs_in_ve_unit</code>, the observed value in the VE unit, not model output), where
+to read the VE value (<code>ve_compare_at</code>: sink cell or grid mean) and the match
+classes.</p>
+<h2 id="6-validation-tracker">6. Validation tracker</h2>
+<!-- tracker:start -->
+<!-- Generated by hydrology_validation_data.py; do not edit this block. -->
+
+<p>Every VE value is predicted for 2010-01 to 2020-12 on the maliau_2 grid
+(maliau_2: 10 x 10 cells of 100 m) at monthly time steps.
+Data folders and files are under the dataset folder; the literature values
+are in <code>hydrology_literature_values.csv</code>. Distances are from the sites to the
+edge of the grid; the match classes are explained in
+<a href="#5-processing-to-ve-units-and-monthly-values">Section 5</a>. Citations, every
+site and the row counts are in the <code>variable_registry</code> sheet of the workbook.</p>
+<!-- markdownlint-disable MD013 -->
+
+<p>Status counts: no data yet 17, observed 6, observed + literature 4, literature 4, literature to extract 1.</p>
+<table>
+<thead>
+<tr>
+<th>VE variable</th>
+<th>VE unit</th>
+<th>priority</th>
+<th>data</th>
+<th>sites (distance to grid)</th>
+<th>spatial match</th>
+<th>period</th>
+<th>temporal match</th>
+<th>status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aerodynamic_resistance_canopy</td>
+<td>s m⁻¹</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>aerodynamic_resistance_soil</td>
+<td>s m⁻¹</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>baseflow</td>
+<td>mm</td>
+<td>High</td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code>; <code>hydrology_literature_values.csv</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-10 to 2013-08</td>
+<td>in run</td>
+<td>observed + literature</td>
+</tr>
+<tr>
+<td>bypass_flow</td>
+<td>mm</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>canopy_evaporation</td>
+<td>mm</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>condensation</td>
+<td>mm</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>density_air</td>
+<td>kg m⁻³</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>groundwater_storage</td>
+<td>mm</td>
+<td>High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>interception</td>
+<td>mm</td>
+<td>Medium</td>
+<td><code>hydrology_literature_values.csv</code></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>literature</td>
+</tr>
+<tr>
+<td>latent_heat_vapourisation</td>
+<td>kJ kg⁻¹</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>matric_potential</td>
+<td>kPa</td>
+<td>Medium</td>
+<td><code>hydrology_literature_values.csv</code> (to extract)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>literature to extract</td>
+</tr>
+<tr>
+<td>precipitation_surface</td>
+<td>mm</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>river_discharge_rate</td>
+<td>m³ s⁻¹</td>
+<td>Very High</td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-10 to 2013-08</td>
+<td>in run</td>
+<td>observed</td>
+</tr>
+<tr>
+<td>soil_evaporation</td>
+<td>mm</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>soil_moisture</td>
+<td>mm</td>
+<td>Very High</td>
+<td><code>safe_soil/Carbon_corrected_slopes.xlsx</code>; <code>safe_soil/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx</code>; <code>safe_soil/Termite_monitoring_maliau.xlsx</code></td>
+<td>8 sites, 0.1-94.3 km</td>
+<td>near grid, regional</td>
+<td>2012-01 to 2019-02</td>
+<td>in run</td>
+<td>observed</td>
+</tr>
+<tr>
+<td>specific_heat_air</td>
+<td>J kg⁻¹ K⁻¹</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>stomatal_conductance</td>
+<td>mol m⁻² s⁻¹</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>subsurface_flow</td>
+<td>mm</td>
+<td>Medium-High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>subsurface_runoff_routed_plus_local</td>
+<td>mm</td>
+<td>High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>subsurface_stormflow</td>
+<td>mm</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>surface_runoff</td>
+<td>mm</td>
+<td>High</td>
+<td><code>hydrology_literature_values.csv</code></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>literature</td>
+</tr>
+<tr>
+<td>surface_runoff_routed_plus_local</td>
+<td>mm</td>
+<td>High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>total_runoff</td>
+<td>mm</td>
+<td>Very High</td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-10 to 2013-08</td>
+<td>in run</td>
+<td>observed</td>
+</tr>
+<tr>
+<td>vertical_flow</td>
+<td>mm per time step (currently day)</td>
+<td>Medium-High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+</tr>
+<tr>
+<td>precipitation</td>
+<td>mm</td>
+<td></td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code>; <code>safe_hydro/SEARPP_compiled_climate_data_2025.xlsx</code>; <code>hydrology_literature_values.csv</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-11 to 2013-08</td>
+<td>in run</td>
+<td>observed + literature</td>
+</tr>
+<tr>
+<td>quickflow</td>
+<td>mm</td>
+<td></td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-10 to 2013-08</td>
+<td>in run</td>
+<td>observed</td>
+</tr>
+<tr>
+<td>baseflow_index</td>
+<td>fraction</td>
+<td></td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code>; <code>hydrology_literature_values.csv</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-10 to 2013-08</td>
+<td>in run</td>
+<td>observed + literature</td>
+</tr>
+<tr>
+<td>specific_discharge</td>
+<td>m³ s⁻¹ km⁻²</td>
+<td></td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-10 to 2013-08</td>
+<td>in run</td>
+<td>observed</td>
+</tr>
+<tr>
+<td>runoff_ratio</td>
+<td>fraction</td>
+<td></td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-11 to 2013-08</td>
+<td>in run</td>
+<td>observed</td>
+</tr>
+<tr>
+<td>transpiration</td>
+<td>mm</td>
+<td></td>
+<td><code>hydrology_literature_values.csv</code></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>literature</td>
+</tr>
+<tr>
+<td>evapotranspiration</td>
+<td>mm</td>
+<td></td>
+<td><code>safe_hydro/streamflow/PF/</code>, <code>safe_hydro/streamflow/VJR/</code>; <code>hydrology_literature_values.csv</code></td>
+<td>2 sites, 64.5-94.4 km</td>
+<td>regional</td>
+<td>2011-11 to 2013-08</td>
+<td>in run</td>
+<td>observed + literature</td>
+</tr>
+<tr>
+<td>saturated_hydraulic_conductivity</td>
+<td>m s⁻¹</td>
+<td></td>
+<td><code>hydrology_literature_values.csv</code></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>literature</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<!-- tracker:end -->
+
+<h2 id="7-next-steps">7. Next steps</h2>
+<ol>
+<li>Confirm the meaning of "% of pore space" in the soil respiration dataset
+   and the probe depth of the termite survey.</li>
+<li>Extract the Danum matric potential values (Newbery and Lingenfelder 2022).</li>
+<li>Look for a continuous soil moisture record and a river gauge at Maliau.</li>
+</ol>
+<p>Points to keep in mind when comparing: 2010-2013 is spin-up in current runs and
+overlaps the stream records; the probes measure 0-12 cm, the upper half of the
+VE top layer; the stream gauges are 64-94 km from the grid and drain larger
+catchments, so compare monthly totals and specific discharge, not storm peaks.
+VE splits the monthly rainfall at random over the days of the month (wet and
+dry days drawn with a fixed seed), so daily and storm-scale values from VE do
+not match real days; use monthly values only. Compare sums with sums (runoff,
+rainfall, fluxes) and means with means (discharge rate, soil moisture).</p>
+<h2 id="8-references">8. References</h2>
+<p>The journal
+articles were checked on the publisher and university repository pages.
+Published values in <code>hydrology_literature_values.csv</code> carry their own citation
+and DOI in each row.</p>
+<p>Ashton, L., Griffiths, H., Parr, C., Evans, T., Eggleton, P., &amp; Vairappan, C.
+(2019). Termite abundance and ecosystem processes in Maliau Basin, 2015-2016
+[HMTF] [Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.3265746">https://doi.org/10.5281/zenodo.3265746</a></p>
+<p>Drewer, J., Kuling, H. J., Sentian, J., &amp; Skiba, U. (2019a). Soil greenhouse
+gas fluxes along transects from oil palm to riparian forests in the SAFE
+landscape [Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.3258079">https://doi.org/10.5281/zenodo.3258079</a></p>
+<p>Drewer, J., Leduning, M., Sentian, J., &amp; Skiba, U. (2019b). Soil greenhouse gas
+fluxes and associated parameters from forest and oil palm in the SAFE landscape
+[Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.3258117">https://doi.org/10.5281/zenodo.3258117</a></p>
+<p>Drewer, J., Leduning, M., Zhao, J., Gubry-Rangin, C., &amp; Skiba, U. (2020).
+Linking potential greenhouse gas and nitric oxide fluxes to soil microbial
+communities in incubation experiments with soil from the SAFE landscape
+[Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.3897394">https://doi.org/10.5281/zenodo.3897394</a></p>
+<p>Elias, D., Robinson, S., Both, S., Goodall, T., Majalap-Lee, N., Ostle, N., &amp;
+McNamara, N. (2020). Soil and litter chemistry, soil microbial communities and
+litter decomposition from tropical forest and oil palm [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.3929632">https://doi.org/10.5281/zenodo.3929632</a></p>
+<p>Nainar, A., Tanaka, N., Bidin, K., Annammala, K. V., Ewers, R. M., Reynolds,
+G., &amp; Walsh, R. P. D. (2018). Hydrological dynamics of tropical streams on a
+gradient of land-use disturbance and recovery: A multi-catchment experiment.
+<em>Journal of Hydrology</em>, 566, 581-594.
+<a href="https://doi.org/10.1016/j.jhydrol.2018.09.022">https://doi.org/10.1016/j.jhydrol.2018.09.022</a></p>
+<p>Nainar, A., Walsh, R. P. D., Bidin, K., Tanaka, N., Annammala, K. V.,
+Letchumanan, U., Ewers, R. M., &amp; Reynolds, G. (2022). Baseflow persistence and
+magnitude in oil palm, logged and primary tropical rainforest catchments in
+Malaysian Borneo: Implications for water management under climate change.
+<em>Water</em>, 14(22), 3791. <a href="https://doi.org/10.3390/w14223791">https://doi.org/10.3390/w14223791</a></p>
+<p>Nottingham, A., Cheeseman, A., Riutta, T., Doughty, C., Telford, E., Huasco,
+W. H., Svátek, M., Kvasnica, J., Majalap, N., Malhi, Y., Meir, P., &amp; Teh, Y. A.
+(2021). Large contribution of recent photosynthate to soil respiration in
+tropical dipterocarp forest revealed by girdling [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.5519572">https://doi.org/10.5281/zenodo.5519572</a></p>
+<p>O'Brien, M., Hanapi, J., Reynolds, G., &amp; Walsh, R. (2026). Danum/Malua compiled
+climate data 1985 to 2025 (Version 5.0) [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.18159592">https://doi.org/10.5281/zenodo.18159592</a></p>
+<p>Orme, C. D. L., Riutta, T., Fraser, A., Mackintosh, E., Vollans, M., Graves,
+K., Roxby, G., Baynham, G., Noble, C., Adzhar, R., MacLean, C., Martin, S.,
+McKinlay, A., Poznansky, F., Prairie, A., Brasington, E., &amp; Wiederkehr, F.
+(2019). Daily cycles in soil carbon flux [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.3247592">https://doi.org/10.5281/zenodo.3247592</a></p>
+<p>Riutta, T., Ewers, R. M., Malhi, Y., Majalap, N., &amp; Khoon, K. L. (2021). Total
+and partitioned soil respiration and below-ground carbon budget in SAFE
+intensive carbon plots [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.4542881">https://doi.org/10.5281/zenodo.4542881</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

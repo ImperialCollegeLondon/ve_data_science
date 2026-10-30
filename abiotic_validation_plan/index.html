@@ -1,0 +1,2768 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://imperialcollegelondon.github.io/ve_data_science/abiotic_validation_plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Abiotic validation plan - The VE Data Science repo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#abiotic-validation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The VE Data Science repo" class="md-header__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The VE Data Science repo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Abiotic validation plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ImperialCollegeLondon/ve_data_science" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The VE Data Science repo" class="md-nav__button md-logo" aria-label="The VE Data Science repo" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    The VE Data Science repo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ImperialCollegeLondon/ve_data_science" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Background
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Background
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/study_sites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Study sites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenarios
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/data_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../background/repository_tour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository tour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uv_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python with uv
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../renv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R with renv
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../using_globus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data with Globus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git and GitHub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uploading_r_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uploading an R script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../what_are_those_odd_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/documenting_your_work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documenting your work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Soil and litter
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Soil and litter
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/soil/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/soil/file_tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Abiotic and hydrology
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Abiotic and hydrology
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/abiotic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensitivity_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sensitivity analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animals
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Animals
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/animal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../animal_model_validation_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animal validation plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plants
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plants
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/plant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plant_validation_tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plant validation tracker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shared workflows
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Shared workflows
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AI-assisted-parameterisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI-assisted parameterisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derived_variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derived variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ve_input_data_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VE input-data compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-ve-scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The VE scenario
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-variables-and-data-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Variables and data needed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-available-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Available data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Available data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-microclimate-loggers-microclimate1319csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Microclimate loggers (Microclimate1319.csv)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-safe-flux-tower" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 SAFE flux tower
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-soil-plots-in-primary-forest-safe_soil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Soil plots in primary forest (safe_soil/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-processing-to-ve-units-and-monthly-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Processing to VE units and monthly values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-validation-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Validation tracker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="abiotic-validation-plan">Abiotic validation plan</h1>
+<p>For each VE abiotic variable we find observations or published values, convert
+them to the VE unit and the VE monthly time step, record how close they are to
+the VE grid in space and time, for comparing them with the model output for
+the same cells and months.</p>
+<p>This plan gives an overview of that process for the abiotic and abiotic simple
+modules at Maliau: the variables to validate and the data they need or still
+lack (<a href="#3-variables-and-data-needed">Section 3</a>), the data in hand
+(<a href="#4-available-data">Section 4</a>), how the data are processed
+(<a href="#5-processing-to-ve-units-and-monthly-values">Section 5</a>) and the status of
+each variable (<a href="#6-validation-tracker">Section 6</a>).</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data/primary/validation/maliau_variables_summary.xlsx</code> (globus)</td>
+<td>VE variables with unit and validation priority (<code>output_variables</code>) and model constants (<code>model_constats</code>)</td>
+</tr>
+<tr>
+<td><code>data/primary/validation/dataset/</code> (globus)</td>
+<td>The raw data from <a href="https://zenodo.org/communities/safe/about">SAFE</a> Zenodo: <code>safe_abiotic/</code> (microclimate loggers, flux tower meteorology and eddy covariance) and <code>safe_soil/</code> (soil temperature and moisture surveys; primary forest plots only are used)</td>
+</tr>
+<tr>
+<td><code>data/primary/validation/abiotic/abiotic_literature_values.csv</code> (globus)</td>
+<td>Published values and ranges, one row per value, with citation, DOI and <code>status</code></td>
+</tr>
+<tr>
+<td><code>data/primary/validation/abiotic/abiotic_sources.toml</code> (globus)</td>
+<td>Where each dataset is, its columns, units, quality limits, coordinates, citation and screening record</td>
+</tr>
+<tr>
+<td><code>analysis/abiotic/validation/abiotic_validation_data.py</code> (github)</td>
+<td>Python script that reads, cleans and converts the data, generates <code>abiotic_validation_data.xlsx</code> and writes the tracker in Section 6</td>
+</tr>
+<tr>
+<td><code>data/derived/validation/abiotic/abiotic_validation_data.xlsx</code> (globus)</td>
+<td>Processed data: daily and monthly values, the long table <code>validation_long</code> and the <code>variable_registry</code> (with the data needed or lacking per variable)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<h2 id="1-workflow">1. Workflow</h2>
+<!-- markdownlint-disable MD013 -->
+
+<pre class="mermaid"><code>flowchart LR
+  A["Variables&lt;br/&gt;maliau_variables_summary.xlsx"] --&gt; B["Data&lt;br/&gt;dataset folder, literature"]
+  B --&gt; C["Describe sources&lt;br/&gt;abiotic_sources.toml"]
+  C --&gt; D["Process&lt;br/&gt;abiotic_validation_data.py"]
+  D --&gt; E["validation_long&lt;br/&gt;workbook"]</code></pre>
+<!-- markdownlint-enable MD013 -->
+
+<ol>
+<li><strong>Variables:</strong> list the VE abiotic outputs and their priority
+   (<a href="#3-variables-and-data-needed">Section 3</a>).</li>
+<li><strong>Data:</strong> find observations and literature values and decide which to use
+   (<a href="#4-available-data">Section 4</a>); screening in the validation database.</li>
+<li><strong>Describe sources:</strong> record file, columns, units, quality limits and DOI in
+   <code>abiotic_sources.toml</code>; the schema in the validation database.</li>
+<li><strong>Process:</strong> quality control, conversion to VE units and monthly values
+   (<a href="#5-processing-to-ve-units-and-monthly-values">Section 5</a>); building the
+   validation database.</li>
+</ol>
+<h2 id="2-the-ve-scenario">2. The VE scenario</h2>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scenario</td>
+<td><code>maliau_2</code>, 10 x 10 cells of 100 m (1 km²), from <code>data/derived/site/maliau/maliau_grid_definition.toml</code></td>
+</tr>
+<tr>
+<td>Run period and time step</td>
+<td>2010-01 to 2020-12, monthly</td>
+</tr>
+<tr>
+<td>Vertical layers</td>
+<td>Above canopy (2 m above the canopy top, <code>above_canopy_height_offset</code>), up to 10 canopy layers (<code>canopy_layers</code>), surface layer at 0.1 m (<code>surface_layer_height</code>), topsoil at 0.25 m and subsoil at 1 m depth (<code>soil_layers</code>); abiotic simple anchors its within-canopy profiles at <code>measurement_height</code> (1.5 m)</td>
+</tr>
+<tr>
+<td>Forcing</td>
+<td>ERA5-Land monthly, the same for every cell</td>
+</tr>
+<tr>
+<td>Latitude</td>
+<td><code>latitude</code> in the abiotic configuration sets the day length; its default (0.0, in <code>model_constats</code>) should be set to Maliau (about 4.7° N)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>Times are stored in UTC and days and months are local (Asia/Kuching, UTC+8),
+as in the validation database.</p>
+<h2 id="3-variables-and-data-needed">3. Variables and data needed</h2>
+<p>Variables and units are from the <code>output_variables</code> sheet of
+<code>maliau_variables_summary.xlsx</code>, with their priority in the <code>classification</code>,
+<code>validation_priority</code> and <code>spin_up_sensitive</code> columns. <em>Direct</em> means compared
+with observations of the same quantity, <em>derived</em> through a quantity in the
+second table, and <em>literature</em> with published values only. <em>VE output</em> is
+how the model reports the variable each month (read from the model code). The
+abiotic model builds one 24-hour day from the monthly forcing (a sine curve for
+temperature, shortwave radiation spread over the daylight hours) and reports
+the mean of that day; abiotic simple gives one value per month from the
+forcing and leaf area index, with no daily cycle. Fluxes come only from the
+abiotic model. <em>Data needed / lacking</em> is what is still missing to complete
+the validation of the variable; the same text is in the tracker
+(<a href="#6-validation-tracker">Section 6</a>) and in <code>DATA_NEEDED</code> in the script.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>VE variable</th>
+<th>VE unit</th>
+<th>VE output</th>
+<th>Priority</th>
+<th>How validated</th>
+<th>Data needed / lacking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>air_temperature</td>
+<td>°C</td>
+<td>per air layer</td>
+<td>Very High</td>
+<td>direct</td>
+<td>A vertical profile through the canopy in old-growth forest at Maliau (the loggers are at 1.5 m only)</td>
+</tr>
+<tr>
+<td>latent_heat_flux</td>
+<td>W m⁻²</td>
+<td>per canopy layer, surface layer and topsoil; abiotic only</td>
+<td>Very High</td>
+<td>derived (above-canopy sum), SAFE flux tower eddy covariance</td>
+<td>Eddy covariance over old-growth forest (the SAFE tower is in logged forest, 70 km away); more valid months (9 pass the quality rule)</td>
+</tr>
+<tr>
+<td>net_radiation</td>
+<td>W m⁻²</td>
+<td>abiotic: per canopy layer, surface layer (its understorey vegetation is solved like a canopy layer) and topsoil, absorbed shortwave plus absorbed longwave minus emitted longwave; abiotic simple: canopy layers, surface and topsoil, absorbed shortwave minus emitted longwave only (no longwave absorption)</td>
+<td>Very High</td>
+<td>derived (above-canopy sum), SAFE flux tower</td>
+<td>Incoming shortwave and longwave to check the ERA5-Land forcing; net radiation below the canopy and at the soil surface</td>
+</tr>
+<tr>
+<td>vapour_pressure_deficit</td>
+<td>kPa</td>
+<td>per air layer</td>
+<td>High</td>
+<td>direct (from temperature and humidity)</td>
+<td>A vertical profile, as air_temperature</td>
+</tr>
+<tr>
+<td>sensible_heat_flux</td>
+<td>W m⁻²</td>
+<td>per canopy layer, surface layer and topsoil; abiotic only</td>
+<td>High</td>
+<td>derived (above-canopy sum), SAFE flux tower eddy covariance</td>
+<td>Eddy covariance over old-growth forest (the SAFE tower is in logged forest, 70 km away)</td>
+</tr>
+<tr>
+<td>canopy_temperature</td>
+<td>°C</td>
+<td>per canopy layer; abiotic simple copies air temperature</td>
+<td>High</td>
+<td>-</td>
+<td>Leaf or canopy surface temperature (thermal camera, infrared thermometer or leaf thermocouples) in old-growth forest</td>
+</tr>
+<tr>
+<td>soil_temperature</td>
+<td>°C</td>
+<td>per soil layer</td>
+<td>High</td>
+<td>direct (primary forest soil plots at 10-12 cm: Car_Bel and Car_Ser at Maliau, Car_D1 and Car_D2 at Danum; SAFE flux tower at 5, 10 and 20 cm)</td>
+<td>Soil temperature at 0.25-1 m to match the VE soil layers, and continuous records; old-growth spot readings at 10-12 cm are in hand (Car_Bel, Car_Ser at Maliau)</td>
+</tr>
+<tr>
+<td>soil_moisture</td>
+<td>mm</td>
+<td>top soil layer; a hydrology output that the abiotic model reads (soil heat capacity and conductivity)</td>
+<td>Very High</td>
+<td>input check (primary forest soil plots, 0-12 cm; θ × 250 mm)</td>
+<td>Continuous soil moisture in old-growth forest at Maliau (the surveys are spot visits), and at 0.25-1 m to match the VE soil layers</td>
+</tr>
+<tr>
+<td>aerodynamic_resistance_canopy</td>
+<td>s m⁻¹</td>
+<td>per canopy layer; abiotic only</td>
+<td>High</td>
+<td>derived above the canopy; literature</td>
+<td>In hand but not yet derived: wind speed and friction velocity (u.) in <code>SAFE_EC_byYear.xlsx</code> give r = u / u.² above the canopy; within-canopy values from literature</td>
+</tr>
+<tr>
+<td>relative_humidity</td>
+<td>%</td>
+<td>per air layer</td>
+<td>High</td>
+<td>direct</td>
+<td>A check of the unlabelled loggers that read above 100 %; a vertical profile, as air_temperature</td>
+</tr>
+<tr>
+<td>vapour_pressure</td>
+<td>kPa</td>
+<td>per air layer</td>
+<td>Medium</td>
+<td>direct (from temperature and humidity)</td>
+<td>A vertical profile, as air_temperature</td>
+</tr>
+<tr>
+<td>wind_speed</td>
+<td>m s⁻¹</td>
+<td>one profile per month, no daily cycle</td>
+<td>Medium</td>
+<td>direct above the canopy (SAFE flux tower, 52 m)</td>
+<td>Wind speed at several heights within and below the canopy; only the 52 m value above the canopy is in hand</td>
+</tr>
+<tr>
+<td>ground_heat_flux</td>
+<td>W m⁻²</td>
+<td>at the soil surface; abiotic only</td>
+<td>Medium</td>
+<td>literature</td>
+<td>Soil heat flux plates (about 5-8 cm deep) in old-growth forest; none in hand</td>
+</tr>
+<tr>
+<td>diurnal_temperature_range</td>
+<td>°C</td>
+<td>per layer; abiotic: maximum − minimum of the modelled day; abiotic simple: the forcing value copied to every layer</td>
+<td>Medium</td>
+<td>direct (monthly mean of daily maximum − minimum)</td>
+<td>In hand but not yet mapped: daily maximum and minimum from the loggers and the flux tower</td>
+</tr>
+<tr>
+<td>absorbed_longwave_radiation, longwave_emission</td>
+<td>W m⁻²</td>
+<td>per layer; abiotic only</td>
+<td>Medium</td>
+<td>literature</td>
+<td>Upward and downward longwave radiation above and below the canopy (four-component radiometer); the tower measures net radiation only</td>
+</tr>
+<tr>
+<td>vapour_pressure_deficit_ref, vapour_pressure_ref</td>
+<td>kPa</td>
+<td>from the forcing, for every month at the start</td>
+<td>Medium, Low</td>
+<td>direct (SAFE flux tower, above canopy at 50 m); checks the forcing</td>
+<td>None: flux tower values at 50 m in hand</td>
+</tr>
+<tr>
+<td>atmospheric_pressure, atmospheric_co2</td>
+<td>kPa, ppm</td>
+<td>forcing value copied to every layer</td>
+<td>Low</td>
+<td>input check (SAFE flux tower pressure and CO2)</td>
+<td>Pressure: none (flux tower barometer in hand). CO2: in hand but not yet read (<code>co2_mole_fraction</code> in <code>SAFE_EC_byYear.xlsx</code>)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p><code>condensation</code>, <code>density_air</code>, <code>latent_heat_vapourisation</code> and
+<code>specific_heat_air</code> need no field data: they follow standard physical formulas
+and are checked by unit tests.</p>
+<p><em>Derived variables</em> combine VE outputs, or observations, so that they match
+each other. They are candidates for
+<code>data/derived/validation/derived_variables.toml</code> (step 5 of the validation
+database).</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Derived variable</th>
+<th>Formula</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>vapour_pressure (observed)</td>
+<td>$e_a = e_s(T)\,RH / 100$, $e_s(T) = 0.6112 \exp(17.62\,T / (T + 243.12))$, the Magnus equation the VE uses (pyrealm <code>calc_vp_sat</code>, default coefficients of Sonntag 1990)</td>
+<td>kPa</td>
+</tr>
+<tr>
+<td>vapour_pressure_deficit (observed)</td>
+<td>$VPD = e_s(T) - e_a$</td>
+<td>kPa</td>
+</tr>
+<tr>
+<td>latent_heat_flux from evapotranspiration</td>
+<td>$LE = ET \cdot \lambda$ / seconds per period (as <code>calculate_latent_heat_flux</code> in the VE), with $\lambda = 1.91846 \times 10^6\,(T_K / (T_K - 33.91))^2$ J kg⁻¹ (Henderson-Sellers 1984, as the VE; about 2.44 MJ kg⁻¹ at 25 °C); the evapotranspiration values of the <a href="../hydrology_validation_plan/">hydrology plan</a> also check LE</td>
+<td>W m⁻²</td>
+</tr>
+<tr>
+<td>energy balance closure</td>
+<td>$G = R_n + LE + H$ with the VE signs (see the sign convention below the table: $R_n$ positive when the surface gains energy, $LE$ and $H$ negative from the surface to the air, $G$ positive into the soil); in the VE the topsoil $G$ is this residual</td>
+<td>W m⁻²</td>
+</tr>
+<tr>
+<td>diurnal_temperature_range (observed)</td>
+<td>monthly mean of daily maximum − daily minimum air temperature</td>
+<td>°C</td>
+</tr>
+<tr>
+<td>above-canopy net_radiation, latent_heat_flux, sensible_heat_flux</td>
+<td>sum of the VE profile over the canopy layers, surface layer and topsoil, compared with the flux tower; the VE stores LE and H as negative from the surface to the air, so the tower LE and H change sign (<code>obs_in_ve_unit</code>)</td>
+<td>W m⁻²</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p><em>Sign convention of the energy balance.</em> The plan uses the VE signs for each
+term of the energy balance:</p>
+<ul>
+<li><strong>$R_n$ (net radiation)</strong> is positive when the surface gains energy, that is,
+  it absorbs more radiation from the sun and sky than it emits.</li>
+<li><strong>$LE$ (latent heat flux)</strong> and <strong>$H$ (sensible heat flux)</strong> are negative
+  when heat leaves the surface (soil or leaves) and goes into the air, and
+  positive when heat goes from the air to the surface.</li>
+<li><strong>$G$ (ground heat flux)</strong> is positive when heat goes down into the soil.</li>
+</ul>
+<p>With these signs the balance is $G = R_n + LE + H$: the soil receives the
+radiation energy the surface gains ($R_n$), less the energy used to evaporate
+water ($LE$) and warm the air ($H$). The VE computes the topsoil $G$ this way,
+as the residual. The SAFE flux tower reports $LE$ and $H$ as positive from the
+surface to the air, so <code>obs_in_ve_unit</code> holds them with the VE sign.</p>
+<p><em>Inputs and constants</em> the same data can check: the ERA5-Land forcing (air
+temperature, relative humidity, pressure and wind against the flux tower above
+the canopy); <code>surface_albedo</code> and <code>leaf_albedo</code>; the soil constants marked as
+placeholders in the code (<code>soil_porosity</code>, <code>soil_thermal_conductivity_dry</code>,
+<code>soil_thermal_conductivity_saturated</code>) through soil temperature at 5, 10 and
+20 cm; and the leaf area index gradients in <code>AbioticSimpleBounds</code> (from
+Hardwick et al. 2015) through the loggers. Values are in the <code>model_constats</code>
+sheet.</p>
+<p><em>Model inputs</em> that the comparison also needs, beyond the validation data:
+leaf area index and canopy height for the <code>maliau_2</code> cells (they set the VE
+layers and drive the abiotic simple gradients), <code>latitude</code> set to Maliau, and
+the logger and sensor heights to pick the matching VE layer.</p>
+<h2 id="4-available-data">4. Available data</h2>
+<p>One row per dataset, as recorded in <code>abiotic_sources.toml</code>: each source there
+has a screening record (<code>record_id</code>, <code>doi</code>, decision and reason) and its
+metadata, in the format of the validation database. <em>Zenodo</em> is the dataset
+record; <em>DOI</em> is the paper or other repository describing the same data.
+Citations and DOIs come from
+<code>readme.txt</code> in the dataset folder (<code>data/primary/validation/dataset/</code>); the
+full references are in <a href="#8-references">Section 8</a>. Values, sites and periods are
+in the workbook (<code>sources</code>, <code>sites</code> sheets) and in the tracker.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Dataset (file name)</th>
+<th>Folder</th>
+<th>Citation</th>
+<th>Zenodo</th>
+<th>DOI (paper or other repository)</th>
+<th>VE variable</th>
+<th>Screening</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Microclimate1319.csv</code></td>
+<td><code>safe_abiotic/</code></td>
+<td>Hardwick et al. (2024)</td>
+<td><a href="https://doi.org/10.5281/zenodo.12751374">10.5281/zenodo.12751374</a></td>
+<td>none</td>
+<td>air_temperature, relative_humidity, vapour_pressure, vapour_pressure_deficit</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>SAFE_FluxTower_MetData_2012-2017 .xlsx</code></td>
+<td><code>safe_abiotic/</code></td>
+<td>Riutta et al. (2020)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3888375">10.5281/zenodo.3888375</a></td>
+<td>none</td>
+<td>net_radiation, air_temperature and relative_humidity above the canopy, atmospheric_pressure, soil_temperature (also soil moisture and rainfall for hydrology)</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>SAFE_EC_byYear.xlsx</code></td>
+<td><code>safe_abiotic/</code></td>
+<td>Mills et al. (2022)</td>
+<td><a href="https://doi.org/10.5281/zenodo.7307447">10.5281/zenodo.7307447</a></td>
+<td>none</td>
+<td>latent_heat_flux, sensible_heat_flux, wind_speed, vapour_pressure_deficit above the canopy (also evapotranspiration for hydrology)</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Riutta et al. (2021)</td>
+<td><a href="https://doi.org/10.5281/zenodo.4542881">10.5281/zenodo.4542881</a></td>
+<td>none</td>
+<td>soil_temperature (10 cm), soil_moisture (0-12 cm); old-growth plots and total-respiration collars only</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>Carbon_corrected_slopes.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Orme et al. (2019)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3247592">10.5281/zenodo.3247592</a></td>
+<td>none</td>
+<td>soil_temperature (12 cm), soil_moisture (0-12 cm); Belian plot at Maliau, total collars only</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>Termite_monitoring_maliau.xlsx</code></td>
+<td><code>safe_soil/</code></td>
+<td>Ashton et al. (2019)</td>
+<td><a href="https://doi.org/10.5281/zenodo.3265746">10.5281/zenodo.3265746</a></td>
+<td><a href="https://doi.org/10.5285/1e9993ae-add7-497a-b54b-745b0fc6a7ca">10.5285/1e9993ae-add7-497a-b54b-745b0fc6a7ca</a> (EIDC)</td>
+<td>soil_moisture; control plots at Maliau only</td>
+<td>proceed</td>
+</tr>
+<tr>
+<td><code>abiotic_literature_values.csv</code></td>
+<td><code>data/primary/validation/abiotic/</code></td>
+<td>per row</td>
+<td>per row</td>
+<td>per row (<code>doi</code>)</td>
+<td>air_temperature, vapour_pressure_deficit, latent_heat_flux, net_radiation, sensible_heat_flux, soil_temperature</td>
+<td>all rows <code>to_extract</code> or <code>to_find</code></td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>The other <code>safe_soil/</code> files (<code>BALI_Nottingham_Girdling_Data_2021_rev .xlsx</code>,
+<code>1_HJ_river_water_riparian.xlsx</code>, <code>3_GHG_jdrewer.xlsx</code>,
+<code>Lab_experiment_Melissa_corrected.xlsx</code>, <code>SAFE_Dataset.xlsx</code>) are screened out
+(<code>exclude</code> in <code>abiotic_sources.toml</code>): they hold no primary forest plots, or no
+field dates.</p>
+<p><strong>Plot types and which are comparable to <code>maliau_2</code>.</strong> The <code>maliau_2</code> grid
+is old-growth (primary) forest at Maliau, so only primary forest plots are
+comparable to it. The workbook gives every site a <code>habitat</code> and a
+<code>comparable_to_maliau_2</code> column (in <code>sites</code> and <code>validation_long</code>):</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Plot code</th>
+<th>Habitat</th>
+<th>Comparable to <code>maliau_2</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OG1-OG3 (Maliau)</td>
+<td>old-growth (primary) forest</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Car_Bel, Car_Ser (Maliau); termite control plots CC, DC, GC, KC (Maliau)</td>
+<td>old-growth (primary) forest</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Car_D1, Car_D2 (Danum Valley)</td>
+<td>old-growth (primary) forest, 94 km away</td>
+<td>yes (regional)</td>
+</tr>
+<tr>
+<td>VJR (SAFE)</td>
+<td>Virgin Jungle Reserve: near-primary forest (resembles primary forest, not fully primary)</td>
+<td>yes (regional)</td>
+</tr>
+<tr>
+<td>A-F (SAFE)</td>
+<td>salvage-logged forest</td>
+<td>no</td>
+</tr>
+<tr>
+<td>LFE (SAFE)</td>
+<td>twice-logged forest</td>
+<td>no</td>
+</tr>
+<tr>
+<td>LF1-LF3 (SAFE)</td>
+<td>logged forest</td>
+<td>no</td>
+</tr>
+<tr>
+<td>RP (SAFE)</td>
+<td>riparian plots</td>
+<td>no</td>
+</tr>
+<tr>
+<td>OP1-OP3 (SAFE)</td>
+<td>oil palm</td>
+<td>no</td>
+</tr>
+<tr>
+<td>SAFE flux tower</td>
+<td>logged forest</td>
+<td>no (the only flux data; regional check)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>Literature candidates: Hardwick et al. (2015) and Jucker et al. (2018) for
+air temperature and VPD by habitat at SAFE and Maliau; Kumagai et al. (2005)
+and Kume et al. (2011) for the energy balance at Lambir, as a second check on
+the SAFE flux tower.</p>
+<h3 id="41-microclimate-loggers-microclimate1319csv">4.1 Microclimate loggers (<code>Microclimate1319.csv</code>)</h3>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Loggers</td>
+<td>Lascar, iButton and unlabelled loggers; hourly air temperature (°C) and relative humidity (%), 2013-2019</td>
+</tr>
+<tr>
+<td>Columns</td>
+<td><code>Plot</code>, <code>time</code> (UTC), <code>Temp</code>, <code>RH</code>, <code>DewTemp</code>, <code>LoggerType</code>, <code>LoggerID</code></td>
+</tr>
+<tr>
+<td>Plots</td>
+<td>Old-growth forest at Maliau (OG1-OG3, comparable to <code>maliau_2</code>); at SAFE: salvage-logged forest (A-F), twice-logged forest (LFE), logged forest (LF1-LF3), Virgin Jungle Reserve (VJR, near-primary), riparian (RP) and oil palm (OP1-OP3); see the plot type table above</td>
+</tr>
+<tr>
+<td>Location</td>
+<td>Coordinates from <code>data/primary/site/gazetteer.geojson</code>; the seven OG2 plots are inside the <code>maliau_2</code> grid, OG1 and OG3 within 1.4 km of it, the SAFE plots 53-81 km away (oil palm and riparian 53-73 km, forest 63-81 km)</td>
+</tr>
+<tr>
+<td>Logger height</td>
+<td>1 m above ground (Zenodo record 12751374)</td>
+</tr>
+<tr>
+<td>Caveat</td>
+<td>RH from the unlabelled loggers often exceeds 100 %; check whether they should be kept for humidity and VPD</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<h3 id="42-safe-flux-tower">4.2 SAFE flux tower</h3>
+<p>Both files come from the same tower (SAFE Project dataset 113) and are read in
+local time (UTC+8).</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th><code>SAFE_FluxTower_MetData_2012-2017 .xlsx</code></th>
+<th><code>SAFE_EC_byYear.xlsx</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Location</td>
+<td>Flux tower in the SAFE landscape (4.7173 N, 117.6032 E), about 70 km from the <code>maliau_2</code> grid (regional); canopy about 25 m high</td>
+<td>Same tower</td>
+</tr>
+<tr>
+<td>Period and step</td>
+<td>2012-03 to 2017-12, 30 min (60 min below the canopy until 2012-11-02)</td>
+<td>2012-08 to 2018-11, 30 min; no 2016 sheet</td>
+</tr>
+<tr>
+<td>Sheets</td>
+<td><code>data_above canopy</code> (50 m): air temperature, RH, PAR, net radiation, rainfall, pressure; <code>data_below canopy</code>: PAR at 1 m, soil water content and soil temperature at 5, 10 and 20 cm</td>
+<td><code>Raw_data_2012_2013</code> to <code>Raw_data_2018</code>: EddyPro output at 52 m (LE, H, CO2 and H2O fluxes with quality flags, ET, air temperature, RH, VPD, wind speed, friction velocity); <code>Daily_fluxes</code>: daily NEE, ecosystem respiration and GPP</td>
+</tr>
+<tr>
+<td>Caveats</td>
+<td>Above-canopy power gap 2014-02-17 to 2014-06-17; rain gauge has false zeros and some false high values; the 10 cm soil water sensor failed 2015-05-26 and read higher after its replacement on 2015-09-10</td>
+<td>Same 2014 power gap; quality flags run from 0 (best) to 5 (worst) (Göckede et al. 2006), threshold to agree; <code>-9999</code> means missing; some time stamps repeat in 2017 and 2018</td>
+</tr>
+<tr>
+<td>Not used for abiotic</td>
+<td>PAR, logger battery and box temperature</td>
+<td>CO2 fluxes, NEE, GPP and respiration (candidates for the plant validation)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<h3 id="43-soil-plots-in-primary-forest-safe_soil">4.3 Soil plots in primary forest (<code>safe_soil/</code>)</h3>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plots</td>
+<td>Car_Bel (0.1 km from the grid) and Car_Ser (1.1 km) at Maliau, Car_D1 and Car_D2 at Danum Valley (94 km); termite control plots CC, DC, GC and KC at Maliau (0.1-0.5 km)</td>
+</tr>
+<tr>
+<td>Measurements</td>
+<td>Spot visits with handheld probes: soil temperature at 10 cm (Riutta) or 12 cm (Orme); volumetric soil moisture over 0-12 cm (Hydrosense or 12 cm probe; termite plots: Delta-T HH2, depth not stated)</td>
+</tr>
+<tr>
+<td>Periods</td>
+<td>Riutta: about monthly visits, 2012-01 to 2018-07 (Maliau) and 2015-03 to 2018-03 (Danum); Orme: four days in 2019-02; Ashton: 2016-03 (El Niño drought) and 2016-10</td>
+</tr>
+<tr>
+<td>Kept</td>
+<td>Old-growth plots and total-respiration collars (Riutta); total collars, subplots averaged to Car_Bel (Orme); control plots (Ashton). Logged forest, oil palm, trenched and termite suppression plots are dropped</td>
+</tr>
+<tr>
+<td>Caveats</td>
+<td>Spot readings, not continuous records; the probes sample the upper 10-12 cm of the 0-25 cm VE top soil layer; the termite plots read about 2 % soil moisture in the 2016-03 drought, to check</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<h2 id="5-processing-to-ve-units-and-monthly-values">5. Processing to VE units and monthly values</h2>
+<p>The script <code>abiotic_validation_data.py</code> does every step below; each
+quality-control step is logged in the workbook's <code>qc_log</code> sheet; the settings
+(gaps, completeness, quality flag) are in the script's settings section.
+Files are under the dataset folder (<code>data/primary/validation/dataset/</code>)
+unless the path is given in full.</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Files processed</th>
+<th>Steps to a monthly value</th>
+<th>Conversion to the VE unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Air temperature (loggers)</td>
+<td><code>safe_abiotic/Microclimate1319.csv</code></td>
+<td>Remove embedded header rows; values outside 10-45 °C set missing; mean per plot and local hour; fill gaps up to 3 hours; daily mean, maximum and minimum from days with at least 20 hours; monthly mean from months with at least 20 complete days</td>
+<td>°C, no conversion</td>
+</tr>
+<tr>
+<td>Relative humidity (loggers)</td>
+<td><code>safe_abiotic/Microclimate1319.csv</code></td>
+<td>Values from 100 % to 130 % capped at 100 %; then as air temperature</td>
+<td>%, no conversion</td>
+</tr>
+<tr>
+<td>Vapour pressure and VPD</td>
+<td><code>safe_abiotic/Microclimate1319.csv</code></td>
+<td>Calculated hourly from temperature and RH (Section 3), then as air temperature</td>
+<td>kPa, no conversion</td>
+</tr>
+<tr>
+<td>Flux tower meteorology</td>
+<td><code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code> (sheets <code>data_above canopy</code>, <code>data_below canopy</code>)</td>
+<td>Values outside limits set missing (air temperature 10-45 °C, pressure 900-1100 mbar, net radiation, soil temperature 15-40 °C); half-hours to hourly means; gaps up to 3 hours filled; daily and monthly means with the logger rules, per variable; vapour pressure and VPD above the canopy from temperature and RH</td>
+<td>Net radiation × −1 (the file counts energy to the atmosphere as positive), W m⁻²; pressure mbar / 10 = kPa; soil temperature at 5, 10 and 20 cm, °C</td>
+</tr>
+<tr>
+<td>Eddy covariance</td>
+<td><code>safe_abiotic/SAFE_EC_byYear.xlsx</code> (sheets <code>Raw_data_2012_2013</code> to <code>Raw_data_2018</code>)</td>
+<td><code>-9999</code> set missing and repeated time stamps dropped; LE and H kept when their quality flag is at most 3 (<code>flux_qc_max</code>, to agree) and within −200 to 1000 W m⁻²; LE from 2012-12 to 2013-02 dropped (midday LE near 0 W m⁻² while H is normal: the water vapour signal failed); monthly value = mean of the month's mean diurnal course, only when every hour of the day has at least 2 valid half-hours</td>
+<td>LE, H W m⁻² and wind speed m s⁻¹, no conversion</td>
+</tr>
+<tr>
+<td>Soil temperature and soil moisture (primary forest plots)</td>
+<td><code>safe_soil/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx</code>, <code>safe_soil/Carbon_corrected_slopes.xlsx</code>, <code>safe_soil/Termite_monitoring_maliau.xlsx</code></td>
+<td>Keep primary forest rows (<code>[sources.keep]</code>); soil temperature outside 10-45 °C and soil moisture outside 0-100 % set missing; monthly value = mean of all readings per plot and month (<code>visit_mean</code>)</td>
+<td>Soil temperature °C, no conversion; soil moisture % / 100 = θ (m³ m⁻³), VE value θ × 250 mm</td>
+</tr>
+<tr>
+<td>Literature</td>
+<td><code>data/primary/validation/abiotic/abiotic_literature_values.csv</code></td>
+<td>Only <code>extracted</code> rows; a range becomes two rows</td>
+<td>Annual values against the mean of monthly VE values; latent heat flux from evapotranspiration as in Section 3</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>Checks of the flux tower values (2026-10-13): VPD calculated from the 50 m
+temperature and RH matches the eddy covariance VPD (median 0.36 kPa for both);
+LE matches the ET column × 2.45 MJ kg⁻¹; the energy balance closure
+(LE + H) / Rn with the tower signs, or −(LE + H) / Rn with the VE signs, is
+0.55-0.82 per month, usual for tropical forest towers; the
+net radiation in the file is negative at midday, which confirms the sign
+reversal. The eddy covariance air pressure is about 100.7 kPa against 97.4 kPa
+from the barometer, so pressure comes from the barometer only.</p>
+<p>Every row is then classed by its distance to the grid and its period:</p>
+<!-- markdownlint-disable MD013 -->
+
+<table>
+<thead>
+<tr>
+<th>Match</th>
+<th>Classes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spatial</td>
+<td>inside the maliau_2 grid (match); within 100 km of it (partial); further away (no match)</td>
+</tr>
+<tr>
+<td>Temporal</td>
+<td>in run (match); in run but needs daily output, such as mean daily maxima, or partly in run (partial); outside run (no match)</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<p>The result is the <code>validation_long</code> sheet in
+<code>data/derived/validation/abiotic/abiotic_validation_data.xlsx</code>: one row per
+observation in the columns of the validation database (location, time window,
+original and converted value), plus the value in VE terms (<code>ve_variable</code>, <code>ve_unit</code>,
+<code>obs_in_ve_unit</code>, the observed value in the VE unit, not model output), where
+to read the VE value (<code>ve_compare_at</code>: the grid mean for every abiotic
+variable) and the match classes.</p>
+<h2 id="6-validation-tracker">6. Validation tracker</h2>
+<!-- tracker:start -->
+<!-- Generated by abiotic_validation_data.py; do not edit this block. -->
+
+<p>Every VE value is predicted for 2010-01 to 2020-12 on the maliau_2 grid
+(maliau_2: 10 x 10 cells of 100 m) at monthly time steps.
+Data files are under the dataset folder (<code>data/primary/validation/dataset/</code>);
+the literature values are in <code>abiotic_literature_values.csv</code>. Distances are
+from the sites to the edge of the grid; the match classes are explained in
+<a href="#5-processing-to-ve-units-and-monthly-values">Section 5</a>. Citations, every
+site, sensor heights and the row counts are in the <code>variable_registry</code> sheet of
+the workbook. <em>Data needed / lacking</em> is what is still missing to complete
+the validation of each variable (<code>DATA_NEEDED</code> in the script).</p>
+<!-- markdownlint-disable MD013 -->
+
+<p>Status counts (per variable): observed 13, no data yet 11.</p>
+<table>
+<thead>
+<tr>
+<th>VE variable</th>
+<th>modules</th>
+<th>VE unit</th>
+<th>priority</th>
+<th>data</th>
+<th>sites (distance to grid)</th>
+<th>spatial match</th>
+<th>period</th>
+<th>temporal match</th>
+<th>status</th>
+<th>data needed / lacking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>absorbed_longwave_radiation</td>
+<td>abiotic</td>
+<td>W m⁻²</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>Upward and downward longwave radiation above and below the canopy (four-component radiometer); the tower measures net radiation only</td>
+</tr>
+<tr>
+<td>aerodynamic_resistance_canopy</td>
+<td>abiotic</td>
+<td>s m⁻¹</td>
+<td>High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>In hand but not yet derived: wind speed and friction velocity (u.) in SAFE_EC_byYear.xlsx give r = u / u.^2 above the canopy; within-canopy values from literature</td>
+</tr>
+<tr>
+<td>air_temperature</td>
+<td>abiotic, abiotic_simple</td>
+<td>°C</td>
+<td>Very High</td>
+<td><code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code>; <code>safe_abiotic/Microclimate1319.csv</code>; <code>abiotic_literature_values.csv</code> (to extract)</td>
+<td>155 sites, 0.0-81.4 km</td>
+<td>inside grid; regional</td>
+<td>2012-04 to 2019-12</td>
+<td>in run; in run, needs daily</td>
+<td>observed</td>
+<td>A vertical profile through the canopy in old-growth forest at Maliau (the loggers are at 1 m only)</td>
+</tr>
+<tr>
+<td>atmospheric_co2</td>
+<td>abiotic, abiotic_simple</td>
+<td>ppm</td>
+<td>Low</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>In hand but not yet read: co2_mole_fraction (ppm) in SAFE_EC_byYear.xlsx; a forcing check only</td>
+</tr>
+<tr>
+<td>atmospheric_pressure</td>
+<td>abiotic, abiotic_simple</td>
+<td>kPa</td>
+<td>Low</td>
+<td><code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code></td>
+<td>1 site, 70.4 km</td>
+<td>regional</td>
+<td>2012-04 to 2017-12</td>
+<td>in run</td>
+<td>observed</td>
+<td>None for a forcing check (flux tower barometer in hand); a barometer at Maliau's elevation would be better</td>
+</tr>
+<tr>
+<td>canopy_temperature</td>
+<td>abiotic, abiotic_simple</td>
+<td>°C</td>
+<td>High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>Leaf or canopy surface temperature (thermal camera, infrared thermometer or leaf thermocouples) in old-growth forest</td>
+</tr>
+<tr>
+<td>condensation</td>
+<td>abiotic</td>
+<td>mm</td>
+<td>Low</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>None: follows from physical formulas, checked by unit tests</td>
+</tr>
+<tr>
+<td>density_air</td>
+<td>abiotic</td>
+<td>kg m⁻³</td>
+<td>Low</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>None: standard formula, checked by unit tests</td>
+</tr>
+<tr>
+<td>diurnal_temperature_range</td>
+<td>abiotic, abiotic_simple</td>
+<td>°C</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>In hand but not yet mapped: daily maximum and minimum from the loggers and the flux tower</td>
+</tr>
+<tr>
+<td>ground_heat_flux</td>
+<td>abiotic</td>
+<td>W m⁻²</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>Soil heat flux plates (about 5-8 cm deep) in old-growth forest; none in hand</td>
+</tr>
+<tr>
+<td>latent_heat_flux</td>
+<td>abiotic</td>
+<td>W m⁻²</td>
+<td>Very High</td>
+<td><code>safe_abiotic/SAFE_EC_byYear.xlsx</code>; <code>abiotic_literature_values.csv</code> (to extract)</td>
+<td>1 site, 70.4 km</td>
+<td>regional</td>
+<td>2013-10 to 2017-04</td>
+<td>in run</td>
+<td>observed</td>
+<td>Eddy covariance over old-growth forest (the SAFE tower is in logged forest, 70 km away); more valid months (9 pass the quality rule)</td>
+</tr>
+<tr>
+<td>latent_heat_vapourisation</td>
+<td>abiotic</td>
+<td>kJ kg⁻¹</td>
+<td>Low</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>None: standard formula, checked by unit tests</td>
+</tr>
+<tr>
+<td>longwave_emission</td>
+<td>abiotic</td>
+<td>W m⁻²</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>Upward longwave radiation (radiometer) or canopy surface temperature; none in hand</td>
+</tr>
+<tr>
+<td>net_radiation</td>
+<td>abiotic, abiotic_simple</td>
+<td>W m⁻²</td>
+<td>Very High</td>
+<td><code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code>; <code>abiotic_literature_values.csv</code> (to extract)</td>
+<td>1 site, 70.4 km</td>
+<td>regional</td>
+<td>2012-04 to 2017-12</td>
+<td>in run</td>
+<td>observed</td>
+<td>Incoming shortwave and longwave to check the ERA5-Land forcing; net radiation below the canopy and at the soil surface</td>
+</tr>
+<tr>
+<td>relative_humidity</td>
+<td>abiotic, abiotic_simple</td>
+<td>%</td>
+<td>High</td>
+<td><code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code>; <code>safe_abiotic/Microclimate1319.csv</code></td>
+<td>135 sites, 0.0-81.0 km</td>
+<td>inside grid; regional</td>
+<td>2012-04 to 2019-12</td>
+<td>in run</td>
+<td>observed</td>
+<td>A check of the unlabelled loggers that read above 100 %; a vertical profile, as air_temperature</td>
+</tr>
+<tr>
+<td>sensible_heat_flux</td>
+<td>abiotic</td>
+<td>W m⁻²</td>
+<td>High</td>
+<td><code>safe_abiotic/SAFE_EC_byYear.xlsx</code>; <code>abiotic_literature_values.csv</code> (to extract)</td>
+<td>1 site, 70.4 km</td>
+<td>regional</td>
+<td>2012-08 to 2017-08</td>
+<td>in run</td>
+<td>observed</td>
+<td>Eddy covariance over old-growth forest (the SAFE tower is in logged forest, 70 km away)</td>
+</tr>
+<tr>
+<td>soil_moisture</td>
+<td>hydrology (abiotic input)</td>
+<td>mm</td>
+<td>Very High</td>
+<td><code>safe_soil/Carbon_corrected_slopes.xlsx</code>; <code>safe_soil/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx</code>; <code>safe_soil/Termite_monitoring_maliau.xlsx</code></td>
+<td>8 sites, 0.1-94.3 km</td>
+<td>regional</td>
+<td>2012-01 to 2019-02</td>
+<td>in run</td>
+<td>observed</td>
+<td>Continuous soil moisture in old-growth forest at Maliau (the surveys are spot visits), and at 0.25-1 m to match the VE soil layers</td>
+</tr>
+<tr>
+<td>soil_temperature</td>
+<td>abiotic, abiotic_simple</td>
+<td>°C</td>
+<td>High</td>
+<td><code>safe_soil/Carbon_corrected_slopes.xlsx</code>; <code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code>; <code>safe_soil/SAFE_SoilRespiration_Data_SAFEdatabase_update_2021-01-11.xlsx</code>; <code>abiotic_literature_values.csv</code> (no source yet)</td>
+<td>5 sites, 0.1-94.3 km</td>
+<td>regional</td>
+<td>2012-02 to 2019-02</td>
+<td>in run</td>
+<td>observed</td>
+<td>Soil temperature at 0.25-1 m to match the VE soil layers, and continuous records; old-growth spot readings at 10-12 cm are in hand (Car_Bel, Car_Ser at Maliau)</td>
+</tr>
+<tr>
+<td>specific_heat_air</td>
+<td>abiotic</td>
+<td>J kg⁻¹ K⁻¹</td>
+<td>Low</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>no data yet</td>
+<td>None: standard formula, checked by unit tests</td>
+</tr>
+<tr>
+<td>vapour_pressure</td>
+<td>abiotic, abiotic_simple</td>
+<td>kPa</td>
+<td>Medium</td>
+<td><code>safe_abiotic/Microclimate1319.csv</code></td>
+<td>134 sites, 0.0-81.0 km</td>
+<td>inside grid; regional</td>
+<td>2013-05 to 2019-12</td>
+<td>in run</td>
+<td>observed</td>
+<td>A vertical profile, as air_temperature</td>
+</tr>
+<tr>
+<td>vapour_pressure_deficit</td>
+<td>abiotic, abiotic_simple</td>
+<td>kPa</td>
+<td>High</td>
+<td><code>safe_abiotic/Microclimate1319.csv</code>; <code>abiotic_literature_values.csv</code> (to extract)</td>
+<td>134 sites, 0.0-81.0 km</td>
+<td>inside grid; regional</td>
+<td>2013-05 to 2019-12</td>
+<td>in run; in run, needs daily</td>
+<td>observed</td>
+<td>A vertical profile, as air_temperature</td>
+</tr>
+<tr>
+<td>vapour_pressure_deficit_ref</td>
+<td>abiotic, abiotic_simple</td>
+<td>kPa</td>
+<td>Medium</td>
+<td><code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code></td>
+<td>1 site, 70.4 km</td>
+<td>regional</td>
+<td>2012-04 to 2017-12</td>
+<td>in run</td>
+<td>observed</td>
+<td>None: flux tower values at 50 m in hand; this variable comes from the ERA5-Land forcing, so it checks the forcing</td>
+</tr>
+<tr>
+<td>vapour_pressure_ref</td>
+<td>abiotic, abiotic_simple</td>
+<td>kPa</td>
+<td>Low</td>
+<td><code>safe_abiotic/SAFE_FluxTower_MetData_2012-2017 .xlsx</code></td>
+<td>1 site, 70.4 km</td>
+<td>regional</td>
+<td>2012-04 to 2017-12</td>
+<td>in run</td>
+<td>observed</td>
+<td>None: flux tower values at 50 m in hand; this variable comes from the ERA5-Land forcing, so it checks the forcing</td>
+</tr>
+<tr>
+<td>wind_speed</td>
+<td>abiotic, abiotic_simple</td>
+<td>m s⁻¹</td>
+<td>Medium</td>
+<td><code>safe_abiotic/SAFE_EC_byYear.xlsx</code></td>
+<td>1 site, 70.4 km</td>
+<td>regional</td>
+<td>2012-08 to 2017-08</td>
+<td>in run</td>
+<td>observed</td>
+<td>Wind speed at several heights within and below the canopy; only the 52 m value above the canopy is in hand</td>
+</tr>
+</tbody>
+</table>
+<!-- markdownlint-enable MD013 -->
+
+<!-- tracker:end -->
+
+<h2 id="7-next-steps">7. Next steps</h2>
+<ol>
+<li>Choose the VE layer to compare with the loggers (1 m above ground).</li>
+<li>Extract the <code>to_extract</code> literature values.</li>
+<li>Agree the eddy covariance quality flag threshold (<code>flux_qc_max</code>, now 3).
+   Few months pass the diurnal-course rule: 9 for latent heat flux, 23 for
+   sensible heat flux and 26 for wind speed.</li>
+<li>Collect or derive the data in the <em>data needed / lacking</em> column. Three
+   gaps can be closed with data already in hand: diurnal_temperature_range
+   (logger and tower daily maxima and minima), atmospheric_co2
+   (<code>co2_mole_fraction</code>) and aerodynamic_resistance_canopy above the canopy
+   (wind speed and friction velocity in <code>SAFE_EC_byYear.xlsx</code>).</li>
+<li>Check the termite control plots' soil moisture of about 2 % in the 2016-03
+   drought.</li>
+</ol>
+<p>Points to agree on before comparing:</p>
+<ul>
+<li><strong>Where on the grid:</strong> every cell gets the same ERA5-Land forcing, so
+  differences between cells come only from the land surface. Proposed: the
+  grid mean against the mean of the Maliau old-growth loggers as the main
+  target, the cells holding the OG2 plots as a check, and the spread across
+  cells against the spread across plots as a test of spatial variation.</li>
+<li><strong>Which layer:</strong> the loggers are 1-1.5 m above the ground, and the VE has no
+  layer at 1 m: the surface layer is at 0.1 m and the lowest canopy layer
+  depends on the canopy. Proposed: the surface layer, with the lowest canopy
+  layer as a check; not the reference height 2 m above the canopy.</li>
+<li><strong>Which model:</strong> compare abiotic and abiotic simple in the same way?</li>
+<li>The logger period (2013-2019) and the flux tower period (2012-2018) are
+  inside the run (2010-2020); the SAFE plots and the flux tower are regional
+  checks only.</li>
+<li><strong>Monthly means of one modelled day:</strong> the VE value is the mean of one
+  24-hour day built from the monthly forcing, so compare it with the mean of
+  the month's mean diurnal course (as the script does for the flux tower),
+  not with single days.</li>
+<li><strong>Flux tower height:</strong> the tower measures 25-27 m above the canopy, higher
+  than the VE reference height (2 m above the canopy), so above-canopy air
+  temperature, humidity and wind are a range check only.</li>
+</ul>
+<p>Possible model issues found while reading the code (inferred from the code,
+not yet tested; to raise with the VE developers before reading the results):</p>
+<ul>
+<li><strong>Day length:</strong> the daily cycle uses
+  12 + 4 cos((month − 1) π / 6) cos(latitude) hours, which at Maliau gives
+  about 16 hours in January and 8 hours in July instead of about 12 hours all
+  year.</li>
+<li><strong>Shortwave radiation in the modelled day:</strong> fixed in the current model code
+  (the hourly weights are now multiplied by 24, so the day's mean equals the
+  monthly mean).</li>
+<li><strong>Diurnal temperature range:</strong> the forcing range is used as the amplitude of
+  the temperature sine curve, so the modelled day spans twice that range.</li>
+<li><strong>abiotic simple net radiation</strong> has no incoming longwave term, and its
+  longwave emission is calculated from the temperature in °C, not kelvin
+  (<code>calculate_longwave_emission</code> expects kelvin; the abiotic model adds
+  273.15), so the emission is close to 0 W m⁻² and net radiation is close to
+  the absorbed shortwave.</li>
+</ul>
+<h2 id="8-references">8. References</h2>
+<p>Dataset citations follow <code>readme.txt</code> in the dataset folder. Published values
+in <code>abiotic_literature_values.csv</code> carry their own citation and DOI in each
+row.</p>
+<p>Hardwick, S., Nilus, R., &amp; Ewers, R. (2024). Forest microclimate data from 2nd
+order sites (Version v2) [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.12751374">https://doi.org/10.5281/zenodo.12751374</a></p>
+<p>Ashton, L., Griffiths, H., Parr, C., Evans, T., Eggleton, P., &amp; Vairappan, C.
+(2019). Termite abundance and ecosystem processes in Maliau Basin, 2015-2016
+[HMTF] [Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.3265746">https://doi.org/10.5281/zenodo.3265746</a></p>
+<p>Hardwick, S. R. et al. (2015). The relationship between leaf area index and
+microclimate in tropical forest and oil palm plantation: forest disturbance
+drives changes in microclimate. <em>Agricultural and Forest Meteorology</em>, 201,
+187-195. <a href="https://doi.org/10.1016/j.agrformet.2014.11.010">https://doi.org/10.1016/j.agrformet.2014.11.010</a></p>
+<p>Henderson-Sellers, B. (1984). A new formula for latent heat of vaporization of
+water as a function of temperature. <em>Quarterly Journal of the Royal
+Meteorological Society</em>, 110, 1186-1190.
+<a href="https://doi.org/10.1002/qj.49711046626">https://doi.org/10.1002/qj.49711046626</a></p>
+<p>Jucker, T. et al. (2018). Canopy structure and topography jointly constrain the
+microclimate of human-modified tropical landscapes. <em>Global Change Biology</em>, 24,
+5243-5258. <a href="https://doi.org/10.1111/gcb.14415">https://doi.org/10.1111/gcb.14415</a></p>
+<p>Kumagai, T. et al. (2005). Annual water balance and seasonality of
+evapotranspiration in a Bornean tropical rainforest. <em>Agricultural and Forest
+Meteorology</em>, 128, 81-92. <a href="https://doi.org/10.1016/j.agrformet.2004.08.006">https://doi.org/10.1016/j.agrformet.2004.08.006</a></p>
+<p>Kume, T. et al. (2011). Ten-year evapotranspiration estimates in a Bornean
+tropical rainforest. <em>Agricultural and Forest Meteorology</em>, 151, 1183-1192.
+<a href="https://doi.org/10.1016/j.agrformet.2011.04.005">https://doi.org/10.1016/j.agrformet.2011.04.005</a></p>
+<p>Mills, M., Riutta, T., Malhi, Y., Ewers, R. M., &amp; Majalap, N. (2022). Eddy
+covariance SAFE Flux Tower [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.7307447">https://doi.org/10.5281/zenodo.7307447</a></p>
+<p>Orme, C. D. L., Riutta, T., Fraser, A., et al. (2019). Daily cycles in soil
+carbon flux [Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.3247592">https://doi.org/10.5281/zenodo.3247592</a></p>
+<p>Riutta, T., Ewers, R. M., Malhi, Y., Majalap, N., &amp; Khoon, K. L. (2021). Total
+and partitioned soil respiration and below-ground carbon budget in SAFE
+intensive carbon plots [Dataset]. Zenodo.
+<a href="https://doi.org/10.5281/zenodo.4542881">https://doi.org/10.5281/zenodo.4542881</a></p>
+<p>Riutta, T., Malhi, Y., Ewers, R. M., &amp; Majalap, N. (2020). Microclimate at SAFE
+Flux Tower [Dataset]. Zenodo. <a href="https://doi.org/10.5281/zenodo.3888375">https://doi.org/10.5281/zenodo.3888375</a></p>
+<p>Sonntag, D. (1990). Important new values of the physical constants of 1986,
+vapour pressure formulations based on the ITS-90, and psychrometer formulae.
+<em>Zeitschrift für Meteorologie</em>, 40(5), 340-344.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>
