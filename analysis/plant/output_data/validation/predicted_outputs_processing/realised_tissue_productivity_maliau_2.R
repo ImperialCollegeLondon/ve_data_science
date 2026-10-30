@@ -2,7 +2,7 @@
 #| title: realised_tissue_productivity_maliau_2
 #|
 #| description: |
-#|   Calculates realised stem, foliage and root carbon
+#|   Calculates realised stem, foliage, root and reproductive carbon
 #|   productivity from Virtual Ecosystem plant cohort output for the Maliau 2
 #|   scenario. Cohort-level biomasses are multiplied by cohort individuals,
 #|   summed to cell-level carbon stocks, and differenced between consecutive
@@ -18,7 +18,7 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: plants_cohort_data.csv
@@ -41,11 +41,11 @@
 #|   - name: realised_tissue_productivity_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: |
-#|       Realised stem, foliage and root carbon productivity in
+#|       Realised stem, foliage, root and reproductive carbon productivity in
 #|       Mg C ha-1 year-1, with one row per cell and timestep, plus a pooled
 #|       mean and standard deviation across all cells and timesteps within
-#|       the selected period. The mean/sd/`selected_period` columns are `NA`
-#|       for timesteps outside the selected period. The standard deviation
+#|       each variable's selected period. The mean/sd/selected-period columns
+#|       are `NA` outside their respective periods. The standard deviation
 #|       describes variability across cells and intervals, not prediction
 #|       uncertainty.
 #|     variables:
@@ -71,11 +71,26 @@
 #|         type: integer
 #|         units: dimensionless
 #|         description: Interval-ending simulation timestep index.
-#|       - name: selected_period
+#|       - name: stem_c_productivity_selected_period
 #|         type: character
 #|         units: dimensionless
 #|         description: |
-#|           Month-based period used for calculating pooled mean/sd.
+#|           Month-based period used for pooled stem productivity mean/sd.
+#|       - name: foliage_c_productivity_selected_period
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Month-based period used for pooled foliage productivity mean/sd.
+#|       - name: root_c_productivity_selected_period
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Month-based period used for pooled root productivity mean/sd.
+#|       - name: reproductive_c_productivity_selected_period
+#|         type: character
+#|         units: dimensionless
+#|         description: |
+#|           Month-based period used for pooled reproductive productivity mean/sd.
 #|       - name: units
 #|         type: character
 #|         units: dimensionless
@@ -153,6 +168,33 @@
 #|         description: |
 #|           Standard deviation of root carbon productivity pooled across all
 #|           cells and timesteps in the selected period. NA outside that period.
+#|       - name: reproductive_c_productivity
+#|         type: numeric
+#|         units: Mg C ha-1 year-1
+#|         spatial_extent: Single cell (cell_id).
+#|         temporal_extent: Single interval ending at time/time_index.
+#|         description: |
+#|           Interval realised reproductive carbon productivity (fruit and seed)
+#|           for each cell.
+#|       - name: reproductive_c_productivity_mean
+#|         type: numeric
+#|         units: Mg C ha-1 year-1
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+#|         description: |
+#|           Mean reproductive carbon productivity pooled across all cells and
+#|           timesteps in the selected period. NA outside that period.
+#|       - name: reproductive_c_productivity_sd
+#|         type: numeric
+#|         units: Mg C ha-1 year-1
+#|         spatial_extent: Pooled across all cells.
+#|         temporal_extent: |
+#|           Pooled across all timesteps from start month 2011-08 to end month 2018-07.
+#|         description: |
+#|           Standard deviation of reproductive carbon productivity pooled
+#|           across all cells and timesteps in the selected period. NA outside
+#|           that period.
 #|
 #| package_dependencies:
 #|   - data.table
@@ -169,8 +211,9 @@
 #|   comparison value.
 #|   Each tissue's period is loaded at runtime from its own corresponding
 #|   variable in master_observed_data_processing_metadata.yml (stem ->
-#|   WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP), so they
-#|   always match the observed dataset's declared periods without manual syncing.
+#|   WoodyNPP_Stem, foliage -> CanopyNPP_Leaf, root -> FineRootNPP,
+#|   reproductive -> CanopyNPP_Reproductive), so they always match the
+#|   observed dataset's declared periods without manual syncing.
 #| ---
 
 library(data.table)
@@ -222,6 +265,12 @@ update_interval_in_days <- ureg(update_interval)$to("days")$magnitude
 # Read only the columns needed for the productivity calculations to reduce
 # memory pressure when this large scenario file is loaded into R. Using
 # data.table::fread(select = ...) avoids a large header-only pass over the CSV.
+
+column_names <- names(
+  data.table::fread(plants_cohort_data_path, nrows = 0)
+)
+print(column_names)
+
 required_columns <- c(
   "cell_x",
   "cell_y",
@@ -230,7 +279,9 @@ required_columns <- c(
   "whole_crown_gpp",
   "stem_C_biomass",
   "foliage_C_biomass",
-  "root_C_biomass"
+  "root_C_biomass",
+  "fruit_C_biomass",
+  "seed_C_biomass"
 )
 plants_cohort_data <- data.table::fread(
   plants_cohort_data_path,
@@ -282,7 +333,14 @@ if (!file.exists(observed_metadata_file)) {
   )
 }
 observed_metadata <- yaml::yaml.load_file(observed_metadata_file)
-observed_variables <- observed_metadata$scripts[[1]]$output_files[[1]]$variables
+names(observed_metadata$scripts) <- sapply(
+  observed_metadata$scripts,
+  `[[`,
+  "script_path"
+)
+observed_variables <- observed_metadata$scripts[[
+  "carbon_balance_components_maliau.R"
+]]$output_files[[1]]$variables
 
 get_observed_period <- function(variable_name) {
   matches <- Filter(
@@ -304,6 +362,7 @@ get_observed_period <- function(variable_name) {
 stem_period <- get_observed_period("WoodyNPP_Stem")
 foliage_period <- get_observed_period("CanopyNPP_Leaf")
 root_period <- get_observed_period("FineRootNPP")
+reproductive_period <- get_observed_period("CanopyNPP_Reproductive")
 
 standardised_stem_c_productivity <- calculate_ve_realised_tissue_productivity(
   plants_cohort_data = plants_cohort_data,
@@ -336,21 +395,46 @@ standardised_root_c_productivity <- calculate_ve_realised_tissue_productivity(
   end_date = root_period$end_date
 )
 
-# Merge the data together
+# For reproductive C biomass we combine fruit_C_biomass and seed_C_biomass
+plants_cohort_data$reproductive_C_biomass <-
+  plants_cohort_data$fruit_C_biomass + plants_cohort_data$seed_C_biomass
 
-standardised_data <- merge(
-  standardised_stem_c_productivity,
-  standardised_foliage_c_productivity,
-  by = c("cell_id", "time", "time_index", "selected_period", "units"),
-  all = TRUE,
-  sort = FALSE
+standardised_reproductive_c_productivity <-
+  calculate_ve_realised_tissue_productivity(
+    plants_cohort_data = plants_cohort_data,
+    input_variable = "reproductive_C_biomass",
+    output_variable = "reproductive_c_productivity",
+    cell_area_ha = cell_area_ha,
+    update_interval_in_days = update_interval_in_days,
+    start_date = reproductive_period$start_date,
+    end_date = reproductive_period$end_date
+  )
+
+# Keep each tissue's validation period separate while combining cell/timestep
+# values, since periods are declared per observed variable.
+standardised_outputs <- list(
+  stem_c_productivity = standardised_stem_c_productivity,
+  foliage_c_productivity = standardised_foliage_c_productivity,
+  root_c_productivity = standardised_root_c_productivity,
+  reproductive_c_productivity = standardised_reproductive_c_productivity
 )
-standardised_data <- merge(
-  standardised_data,
-  standardised_root_c_productivity,
-  by = c("cell_id", "time", "time_index", "selected_period", "units"),
-  all = TRUE,
-  sort = FALSE
+for (variable_name in names(standardised_outputs)) {
+  names(standardised_outputs[[variable_name]])[
+    names(standardised_outputs[[variable_name]]) == "selected_period"
+  ] <- paste0(variable_name, "_selected_period")
+}
+
+standardised_data <- Reduce(
+  function(x, y) {
+    merge(
+      x,
+      y,
+      by = c("cell_id", "time", "time_index", "units"),
+      all = TRUE,
+      sort = FALSE
+    )
+  },
+  standardised_outputs
 )
 standardised_data <- merge(
   standardised_data,

@@ -26,7 +26,7 @@
 #|
 #| author: Hao Ran Lai
 #|
-#| status: final
+#| status: deprecated
 #|
 #| input_files:
 #|   - name: model_config.py
@@ -86,8 +86,11 @@
 #|   jedi and tomli_w installed, and a clone of the virtual_ecosystem repository
 #|   as a sibling directory of ve_data_science.
 #|
-#|   Re-run whenever the analysed virtual_ecosystem commit changes. The commit
-#|   hash is recorded in the output metadata.
+#|   For VE-version refreshes, use
+#|   .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py:
+#|   it checks source cleanliness and compares a staged inventory before
+#|   replacing the maintained TOML. This exploratory script overwrites its
+#|   output directly; it is not the maintained inventory.
 #| ---
 
 library(tidyverse)
@@ -145,7 +148,7 @@ progress_update <- function(completed, total, path) {
 ve_constants <-
   cu$get_constant_references(
     target_paths = as.list(ve_config_files),
-    out_path = "data/derived/soil/llm/ve_constant_usage.toml",
+    out_path = "data/derived/soil/llm/ve_constant_usage_exploratory.toml",
     project_root = ve_project_root,
     include_tests = FALSE,
     progress_callback = progress_update

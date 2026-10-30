@@ -177,6 +177,15 @@ def _configuration_classes(module_name: str) -> dict[str, list[str]]:
             continue
         if candidate.__module__ != module_name:
             continue
+        if (
+            module_name == "virtual_ecosystem.core.configuration"
+            and candidate.__name__
+            not in {
+                "ModelConfigurationRoot",
+                "DisturbanceConfigurationRoot",
+            }
+        ):
+            continue
 
         classes[attribute_name] = [base.__name__ for base in candidate.__bases__]
 

@@ -1,7 +1,42 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-10-16'
+generated_on: '2026-10-28'
 scripts:
+- script_path: gpp_and_npp_comparison_maliau_2.R
+  title: gpp_and_npp_comparison_maliau_2
+  description: |
+    Compares standardised Virtual Ecosystem GPP and NPP predictions with
+    field observations for Maliau scenario 2. Variables are loaded from
+    ../variable_mapping/gpp_and_npp_mapping_maliau_2.yml.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: carbon_balance_components_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Cleaned SAFE carbon-balance observations for Maliau plots.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: Variable-specific observed measurement periods.
+  - name: gpp_and_npp_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: Standardised Maliau 2 plant GPP and NPP outputs.
+  - name: gpp_and_npp_mapping_maliau_2.yml
+    path: analysis/plant/output_data/validation/variable_mapping
+    description: Observed and predicted variable mappings.
+  output_files:
+  - name: gpp_and_npp_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      One row per observed plot and mapped variable, including observed SE,
+      pooled model SD, spatial/temporal extents, and aggregation statuses.
+  package_dependencies: yaml
+  usage_notes: |
+    Run from this script's directory. Variables are defined in the mapping
+    YAML. Observed values are per plot and period-averaged; predictions are
+    pooled across cells and timesteps in each variable's selected period.
+    Both datasets use Mg C ha-1 year-1. Predicted SD describes pooled
+    cell-timestep variability, not prediction uncertainty.
 - script_path: realised_tissue_productivity_comparison_maliau_2.R
   title: realised_tissue_productivity_comparison_maliau_2
   description: |
@@ -11,7 +46,7 @@ scripts:
     ../variable_mapping/realised_tissue_productivity_mapping_maliau_2.yml.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: carbon_balance_components_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
@@ -37,6 +72,118 @@ scripts:
     YAML; no changes are required to this script.
     Observed values are per plot and period-averaged; predicted values are
     pooled across cells and timesteps in the observed period.
+- script_path: reproductive_turnover_comparison_maliau_2.R
+  title: reproductive_turnover_comparison_maliau_2
+  description: |
+    Compares the cell-level Virtual Ecosystem reproductive turnover
+    prediction with field observations for Maliau scenario 2. The mapping
+    uses the cell-total mean and SD, not the PFT-specific turnover column.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: carbon_balance_components_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Cleaned SAFE carbon-balance observations for Maliau plots.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: Variable-specific observed measurement periods.
+  - name: reproductive_turnover_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: Standardised reproductive turnover by cell and PFT.
+  - name: reproductive_turnover_mapping_maliau_2.yml
+    path: analysis/plant/output_data/validation/variable_mapping
+    description: Observed and cell-total predicted variable mapping.
+  output_files:
+  - name: reproductive_turnover_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      One row per observed plot and mapped variable, including observed SE,
+      pooled cell-total model SD, spatial/temporal extents, and aggregation
+      statuses.
+  package_dependencies: yaml
+  usage_notes: |
+    Run from this script's directory. The mapping uses the cell-total mean
+    and SD; PFT-specific predictions are not compared individually.
+    Observed values are per plot and period-averaged; predictions are pooled
+    across unique cells and timesteps in the selected period. Both datasets
+    use Mg C ha-1 year-1. Predicted SD describes pooled cell-timestep
+    variability, not prediction uncertainty. The output column
+    predicted_spatial_sd retains the existing comparison-table convention.
+- script_path: symbiote_allocation_comparison_maliau_2.R
+  title: symbiote_allocation_comparison_maliau_2
+  description: |
+    Compares the cell-level Virtual Ecosystem symbiote allocation prediction
+    with the observed allocation derived from total NPP with and without
+    mycorrhiza for Maliau scenario 2.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: carbon_balance_components_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Observed carbon-balance components and derived symbiote allocation.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: Variable-specific observed measurement periods.
+  - name: symbiote_allocation_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: Standardised symbiote allocation by cell and timestep.
+  - name: symbiote_allocation_mapping_maliau_2.yml
+    path: analysis/plant/output_data/validation/variable_mapping
+    description: Observed and predicted symbiote-allocation mapping.
+  output_files:
+  - name: symbiote_allocation_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      One row per observed plot and mapped variable, including observed SE,
+      pooled cell-total model SD, spatial/temporal extents, and aggregation
+      statuses. Observed SE is NA because it is unavailable for the derived
+      allocation value.
+  package_dependencies: yaml
+  usage_notes: |
+    Run from this script's directory. Observed allocation is calculated as
+    TotalNPP_WithMycorrhiza minus TotalNPP_WithoutMycorrhiza. Observed values
+    are per plot and period-averaged; predictions are pooled across unique
+    cells and timesteps in the selected period. Both use Mg C ha-1 year-1.
+    Predicted SD describes pooled cell-timestep variability, not prediction
+    uncertainty. The observed SE is unavailable and recorded as NA.
+- script_path: respiration_and_turnover_comparison_maliau_2.R
+  title: respiration_and_turnover_comparison_maliau_2
+  description: |
+    Compares standardised Virtual Ecosystem plant respiration and turnover
+    predictions with field observations for Maliau scenario 2. Variables
+    are loaded from respiration_and_turnover_mapping_maliau_2.yml.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: carbon_balance_components_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Cleaned SAFE carbon-balance observations for Maliau plots.
+  - name: master_observed_data_processing_metadata.yml
+    path: analysis/plant/output_data/validation/metadata
+    description: Variable-specific observed measurement periods.
+  - name: respiration_and_turnover_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: Standardised Maliau 2 plant respiration and turnover outputs.
+  - name: respiration_and_turnover_mapping_maliau_2.yml
+    path: analysis/plant/output_data/validation/variable_mapping
+    description: Observed and predicted variable mappings.
+  output_files:
+  - name: respiration_and_turnover_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      One row per observed plot and mapped variable, including observed SE,
+      pooled model SD, spatial/temporal extents, and aggregation statuses.
+  package_dependencies: yaml
+  usage_notes: |
+    Run from this script's directory. Variables are defined in the mapping
+    YAML. Observed values are per plot and period-averaged; predictions are
+    pooled across cells and timesteps in each variable's selected period.
+    Both datasets use Mg C ha-1 year-1. Predicted SD describes pooled
+    cell-timestep variability, not prediction uncertainty. The output column
+    predicted_spatial_sd retains the existing comparison-table convention.
 - script_path: tree_standing_carbon_mass_comparison_maliau_2.R
   title: tree_standing_carbon_mass_comparison_maliau_2
   description: |
@@ -46,7 +193,7 @@ scripts:
     and one actual census date.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
-  status: wip
+  status: final
   input_files:
   - name: tree_standing_carbon_mass_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing

@@ -1,0 +1,51 @@
+{
+  "flagged_publishers": {
+    "MDPI": {
+      "weight_multiplier": 0.5,
+      "flag": "High-volume open-access publisher; scrutinize editorial/review rigour and special issue proliferation.",
+      "journals": ["*"]
+    },
+    "Hindawi": {
+      "weight_multiplier": 0.1,
+      "flag": "History of special issue paper-mill retractions; verify peer review authenticity.",
+      "journals": ["*"]
+    },
+    "OMICS Publishing Group": {
+      "weight_multiplier": 0.1,
+      "flag": "Known predatory publisher; high exclusion risk.",
+      "journals": ["*"]
+    },
+    "Baishideng Publishing Group": {
+      "weight_multiplier": 0.5,
+      "flag": "Scrutinize quality control and editorial review standards.",
+      "journals": ["*"]
+    },
+    "Frontiers": {
+      "weight_multiplier": 0.85,
+      "flag": "High-volume OA publisher; check specific section review quality and retractions.",
+      "journals": ["*"]
+    }
+  },
+  "trusted_repositories": [
+    "arXiv",
+    "bioRxiv",
+    "medRxiv",
+    "JSTOR",
+    "PubMed",
+    "ScienceDirect",
+    "Springer",
+    "Wiley",
+    "Oxford University Press",
+    "Cambridge University Press",
+    "Nature Portfolio",
+    "PLOS",
+    "Royal Society",
+    "NAS",
+    "BioMed Central"
+  ],
+  "scoring_weights": {
+    "relevance_weight": 0.50,
+    "citation_tier_weight": 0.30,
+    "recency_weight": 0.20
+  }
+}
