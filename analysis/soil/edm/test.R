@@ -35,10 +35,9 @@ test_df <-
   filter(str_detect(var_fullname, "soil")) |>
   pivot_wider(names_from = var_fullname, values_from = value) |>
   select(where(~ length(unique(.x)) > 1L)) |>
-  dplyr::mutate(dplyr::across(-time_index, ~ as.numeric(scale(.x))))
+  mutate(across(-time_index, ~ as.numeric(scale(.x))))
 
 targets <- paste(names(test_df[, -1]), collapse = " ")
-
 
 rho_E <- EmbedDimension(
   dataFrame = test_df,
@@ -55,6 +54,8 @@ smap_test <- SMap(
   pred = "101 132",
   columns = targets,
   target = targets,
-  E = 4,
+  E = 3,
   embedded = TRUE
 )
+
+matplot(smap_test$coefficients[-1, ])
