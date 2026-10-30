@@ -151,6 +151,12 @@ classify_temporal_bounds <- function(
 #' @param spatiotemporal_join_class Join class label used to choose matching
 #'   logic.
 #'
+#' @details Variables with a non-missing `spatial_scope` column are aggregate
+#'   landscape- or territory-level series. They are matched by time without
+#'   filtering to the observation coordinates. Other variables are filtered to
+#'   the cell containing the observation when it is spatially within the
+#'   scenario.
+#'
 #' @returns Named numeric vector with `value_VE_q05`, `value_VE_q50`, and
 #'   `value_VE_q95`.
 
@@ -170,6 +176,14 @@ join_ve_outputs_per_row <- function(
     value_VE_q95 = NA_real_
   )
 
+  # flag indicating whether the matched variable data has a spatial scope
+  matched_variable_data <-
+    ve_data |>
+    dplyr::filter(var_canonical == !!var_canonical)
+  has_spatial_scope <- "spatial_scope" %in%
+    names(matched_variable_data) &&
+    any(!is.na(matched_variable_data$spatial_scope))
+
   # function to summarise/aggregate VE outputs
   # currently it is median and the lower/upper quantiles; this can be changed
   # later
@@ -186,8 +200,8 @@ join_ve_outputs_per_row <- function(
   # nearest VE timestamps. For point observations (time_end is NA), match only
   # time_start. This ensures we aggregate VE values over the matched simulation
   # interval, not just a single timepoint.
-  ve_dates <- ve_data |>
-    dplyr::filter(var_canonical == !!var_canonical) |>
+  ve_dates <-
+    matched_variable_data |>
     dplyr::pull(date) |>
     unique() |>
     sort()
@@ -224,22 +238,30 @@ join_ve_outputs_per_row <- function(
   switch(
     spatiotemporal_join_class,
     "spatial_within_temporal_within" = {
-      ve_data |>
+      matched_data <-
+        matched_variable_data |>
         dplyr::filter(
-          var_canonical == !!var_canonical,
           date >= ve_interval_start,
-          date <= ve_interval_end,
-          lat_min <= latitude & latitude <= lat_max,
-          lon_min <= longitude & longitude <= lon_max
-        ) |>
+          date <= ve_interval_end
+        )
+      # If the variable has a spatial scope, filter VE outputs to those
+      # within the observation's spatial bounds
+      if (!has_spatial_scope) {
+        matched_data <-
+          matched_data |>
+          dplyr::filter(
+            lat_min <= latitude & latitude <= lat_max,
+            lon_min <= longitude & longitude <= lon_max
+          )
+      }
+      matched_data |>
         summarise_ve_outputs()
     },
     "spatial_within_temporal_outside" = empty_quantiles,
     "spatial_within_temporal_partial" = empty_quantiles,
     "spatial_outside_temporal_within" = {
-      ve_data |>
+      matched_variable_data |>
         dplyr::filter(
-          var_canonical == !!var_canonical,
           date >= ve_interval_start,
           date <= ve_interval_end
         ) |>
@@ -265,6 +287,8 @@ join_ve_outputs_per_row <- function(
 #'   `var_canonical`, `time_start`, `time_end`, `latitude`, and `longitude`.
 #' @param zarr_path Path to VE model outputs in a Zarr store.
 #' @param config_path Path to a compiled VE configuration TOML.
+#' @param cohort_data_path Optional path to the animal cohort CSV for the model
+#'   run. When supplied, FG landscape densities are calculated and included.
 #'
 #' @details
 #' Temporal matching uses nearest-neighbor interval semantics:
@@ -280,7 +304,9 @@ join_ve_outputs_per_row <- function(
 #' Spatiotemporal join classes then determine spatial filtering:
 #' \itemize{
 #'   \item `spatial_within_temporal_within`: aggregate within the matched time
-#'         interval, then filter to cells containing the observation coordinates.
+#'         interval. Cell-level variables are filtered to cells containing the
+#'         observation coordinates; variables with `spatial_scope` are matched
+#'         as landscape- or territory-level series without coordinate filtering.
 #'   \item `spatial_outside_temporal_within`: aggregate within the matched time
 #'         interval across all cells (temporal matching only, no spatial filter).
 #'   \item Other classes are not yet implemented and currently return `NA` quantiles by design. There will be a warning to the user.
@@ -311,7 +337,12 @@ join_ve_outputs_per_row <- function(
 #' )
 #' }
 
-join_ve_outputs <- function(validation_database, zarr_path, config_path) {
+join_ve_outputs <- function(
+  validation_database,
+  zarr_path,
+  config_path,
+  cohort_data_path = NULL
+) {
   scenario_def <- read_scenario_definition(config_path)
 
   # Half-cell offset used to convert grid centroids to grid bounds.
@@ -366,24 +397,64 @@ join_ve_outputs <- function(validation_database, zarr_path, config_path) {
     pizzarr::zarr_open(zarr_path)$get_item("outputs")$get_store()$listdir(
       "outputs"
     )
-  data_variables <-
-    get_data_variables(
-      zarr_path,
-      group = "outputs",
-      variables = base::intersect(vars_target, vars_ve_output)
-    ) |>
-    reshape2::melt() |>
-    dplyr::rename(var_canonical = L1)
+  # Identify the direct data variables that are present in both the
+  #   validation database and the VE outputs.
+  vars_direct <- base::intersect(vars_target, vars_ve_output)
+  # Store them in tibble
+  data_variables <- tibble::tibble()
+  if (length(vars_direct) > 0L) {
+    data_variables <-
+      get_data_variables(
+        zarr_path,
+        group = "outputs",
+        variables = vars_direct
+      ) |>
+      reshape2::melt() |>
+      dplyr::rename(var_canonical = L1)
+  }
 
   # Derived variables, calculated from direct data variables.
-  derived_variables <-
+  all_derived_variables <-
     get_derived_variables(
       zarr_path,
       config_path,
-      group = "outputs"
-    ) |>
+      group = "outputs",
+      cohort_data_path = cohort_data_path
+    )
+  # Separate derived variables into those with/without a spatial scope
+  has_spatial_scope <- purrr::map_lgl(
+    all_derived_variables,
+    function(variable) {
+      "spatial_scope" %in% names(dimnames(variable))
+    }
+  )
+  fg_density_arrays <- all_derived_variables[has_spatial_scope]
+  cell_derived_arrays <- all_derived_variables[!has_spatial_scope]
+  # Melt the cell-derived arrays into a long format for further processing
+  derived_variables <- cell_derived_arrays |>
     reshape2::melt() |>
     dplyr::rename(var_canonical = L1)
+  # Process the density arrays if any exist
+  if (length(fg_density_arrays) > 0L) {
+    fg_density_variables <-
+      purrr::imap_dfr(
+        fg_density_arrays,
+        function(variable, variable_name) {
+          variable |>
+            reshape2::melt() |>
+            dplyr::mutate(
+              var_canonical = variable_name,
+              time_index = as.integer(time_index)
+            )
+        }
+      )
+    # Combine the density variables with the cell-derived variables
+    derived_variables <-
+      dplyr::bind_rows(
+        derived_variables,
+        fg_density_variables
+      )
+  }
 
   ve_variables <-
     dplyr::bind_rows(data_variables, derived_variables) |>
