@@ -1,7 +1,25 @@
 title: master_variable_mapping_metadata
 generated_by: analysis/plant/output_data/validation/variable_mapping/master_variable_mapping.R
-generated_on: '2026-10-16'
+generated_on: '2026-10-28'
 mappings:
+- mapping_path: gpp_and_npp_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: GPP_WithMycorrhiza
+      se_variable: SE_GPP_WithMycorrhiza
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/gpp_and_npp_maliau_2.csv
+      variable: gpp_mean
+      sd_variable: gpp_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: TotalNPP_WithMycorrhiza
+      se_variable: SE_TotalNPP_WithMycorrhiza
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/gpp_and_npp_maliau_2.csv
+      variable: npp_mean
+      sd_variable: npp_sd
 - mapping_path: realised_tissue_productivity_mapping_maliau_2.yml
   variable_mappings:
   - observed:
@@ -28,6 +46,66 @@ mappings:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
       variable: root_c_productivity_mean
       sd_variable: root_c_productivity_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: CanopyNPP_Reproductive
+      se_variable: SE_CanopyNPP_Reproductive
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/realised_tissue_productivity_maliau_2.csv
+      variable: reproductive_c_productivity_mean
+      sd_variable: reproductive_c_productivity_sd
+- mapping_path: reproductive_turnover_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: CanopyNPP_Reproductive
+      se_variable: SE_CanopyNPP_Reproductive
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/reproductive_turnover_maliau_2.csv
+      variable: reproductive_turnover_cell_mean
+      sd_variable: reproductive_turnover_cell_sd
+- mapping_path: respiration_and_turnover_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: R_Stem
+      se_variable: SE_R_Stem
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/respiration_and_turnover_maliau_2.csv
+      variable: stem_respiration_mean
+      sd_variable: stem_respiration_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: R_Leaf
+      se_variable: SE_R_Leaf
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/respiration_and_turnover_maliau_2.csv
+      variable: foliage_respiration_mean
+      sd_variable: foliage_respiration_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: R_FineRoots
+      se_variable: SE_R_FineRoots
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/respiration_and_turnover_maliau_2.csv
+      variable: fine_root_respiration_mean
+      sd_variable: fine_root_respiration_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: WoodyNPP_BranchTurnover
+      se_variable: SE_WoodyNPP_BranchTurnover
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/respiration_and_turnover_maliau_2.csv
+      variable: branch_turnover_mean
+      sd_variable: branch_turnover_sd
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: CanopyNPP_Leaf
+      se_variable: SE_CanopyNPP_Leaf
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/respiration_and_turnover_maliau_2.csv
+      variable: foliage_turnover_mean
+      sd_variable: foliage_turnover_sd
 - mapping_path: tree_standing_carbon_mass_mapping_maliau_2.yml
   variable_mappings:
   - observed:
@@ -70,3 +148,13 @@ mappings:
       variable: foliage_c_mass_kg_ha
       sd_variable: ~
       date_variable: timestep_end_date
+- mapping_path: symbiote_allocation_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.csv
+      variable: SymbioteAllocation
+      se_variable: SE_SymbioteAllocation
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/symbiote_allocation_maliau_2.csv
+      variable: symbiote_allocation_mean
+      sd_variable: symbiote_allocation_sd

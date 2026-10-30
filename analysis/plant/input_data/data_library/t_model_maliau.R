@@ -272,34 +272,34 @@
 #|         assumptions: "A daily literature respiration value is multiplied by 365 to obtain an annual rate, which is applied uniformly across PFTs."
 #|       - name: resp_f
 #|         type: numeric
-#|         units: year-1
+#|         units: fraction
 #|         description: |
 #|           Leaf specific maintenance respiration rate.
 #|         references:
-#|           - citation: "Yan and Zhao (2007)"
-#|             doi: "http://dx.doi.org/10.1016/S1872-2032(07)60056-0"
-#|             url: "https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub"
+#|           - citation: "Li et al. (2014)"
+#|             doi: "https://doi.org/10.5194/bg-11-6711-2014"
+#|             url: "https://bg.copernicus.org/articles/11/6711/2014/"
 #|             origin: null
 #|             biome: null
-#|             vegetation_type: "rain forest tree"
+#|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "A daily literature respiration value is multiplied by 365 to obtain an annual rate, which is applied uniformly across PFTs."
+#|         assumptions: "Value set at 10% of total GPP"
 #|       - name: resp_s
 #|         type: numeric
 #|         units: year-1
 #|         description: |
 #|           Wood specific maintenance respiration rate.
 #|         references:
-#|           - citation: "Yan and Zhao (2007)"
-#|             doi: "http://dx.doi.org/10.1016/S1872-2032(07)60056-0"
-#|             url: "https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub"
+#|           - citation: "Li et al. (2014)"
+#|             doi: "https://doi.org/10.5194/bg-11-6711-2014"
+#|             url: "https://bg.copernicus.org/articles/11/6711/2014/"
 #|             origin: null
 #|             biome: null
-#|             vegetation_type: "rain forest tree"
+#|             vegetation_type: null
 #|             site_condition: null
 #|             date: null
-#|         assumptions: "A daily literature respiration value is multiplied by 365 to obtain an annual rate, which is applied uniformly across PFTs."
+#|         assumptions: null
 #|       - name: resp_rt
 #|         type: numeric
 #|         units: year-1
@@ -1675,15 +1675,15 @@ summary$turnover_fine_root <- mean(c(1.50, 1.79))
 summary$respiration_fine_root <- (1.5 * 10^-3) * 365
 
 # Leaf specific respiration
-# Same approach and data used as for fine root specific respiration
+# Set to 0.1 (10% of GPP) based on Li et al. (2014)
+# https://doi.org/10.5194/bg-11-6711-2014
 
-summary$respiration_leaf <- (2.0 * 10^-3) * 365
+summary$respiration_leaf <- 0.1
 
 # Wood specific respiration
-# We no longer use the same approach and data as for fine root and leaf specific
-# respiration based on Yan and Zhao (2007)
-# summary$respiration_wood <- (1.0 * 10^-3) * 365
-# Instead, we use the same value used by Li et al. (2014)
+# Use the same value used by Li et al. (2014)
+# https://doi.org/10.5194/bg-11-6711-2014
+
 summary$respiration_wood <- 0.044
 
 # Reproductive organ respiration

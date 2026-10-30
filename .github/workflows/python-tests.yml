@@ -5,12 +5,16 @@ on:
   push:
     branches: [main]
     paths:
-      - "tools/python/**"
-      - ".github/workflows/python-tests.yml"
+      - 'tools/python/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/python-tests.yml'
   pull_request:
     paths:
-      - "tools/python/**"
-      - ".github/workflows/python-tests.yml"
+      - 'tools/python/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/python-tests.yml'
 
 jobs:
   test:
@@ -21,27 +25,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.12"
+          python-version: '3.12'
+          enable-cache: true
 
-      # TODO(#384): move this workflow to uv once the repo migration is complete.
-      # For now, keep pip-based install to avoid blocking current CI.
-      - name: Placeholder for uv migration
-        run: |
-          echo "::warning::TODO(#384): replace pip install steps with uv sync / uv run after migration."
-
-      # Temporary pip path; refer to r-tests.yml strategy after uv migration (see #384).
-      - name: Install test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install matplotlib numpy pandas pytest ruff
+      - name: Install Python dependencies
+        run: uv sync --frozen
 
       - name: Lint tools/python
         run: |
-          ruff check tools/python
-          ruff format --check tools/python
+          uv run --no-sync ruff check tools/python
+          uv run --no-sync ruff format --check tools/python
 
       - name: Run pytest
-        run: pytest -c tools/python/pyproject.toml tools/python/tests
+        run:
+          uv run --no-sync --with pytest python -m pytest -c
+          tools/python/pyproject.toml tools/python/tests
