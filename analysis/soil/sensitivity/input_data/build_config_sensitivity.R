@@ -10,7 +10,10 @@ plant_constants_path <- file.path(
   project_root,
   "data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv"
 )
-config_dir <- file.path(project_root, "data/sensitivity/soil_litter_inputs/config")
+config_dir <- file.path(
+  project_root,
+  "data/sensitivity/soil_litter_inputs/config"
+)
 
 required_inputs <- c(grid_definition_path, plant_constants_path)
 missing_inputs <- required_inputs[!file.exists(required_inputs)]
@@ -47,8 +50,7 @@ plants <- list(
 )
 
 animal <- list(
-  functional_group_definitions_path =
-    "../data/animal_functional_groups_Maliau_level3.csv",
+  functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv",
   cohort_data_export = list(enabled = FALSE)
 )
 
