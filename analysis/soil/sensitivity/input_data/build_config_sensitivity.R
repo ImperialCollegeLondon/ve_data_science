@@ -1,120 +1,82 @@
 library(tidyverse)
-library(toml)
 source("tools/R/R/build_config.R")
-source("tools/R/R/collect_data_paths.R")
 
-shared_repo_dir <- file.path(
-  "../../projects/virtual_rainforest/live/ve_data_science"
-)
+project_root <- here::here()
 grid_definition_path <- file.path(
-  shared_repo_dir,
+  project_root,
   "data/derived/site/maliau/maliau_grid_definition.toml"
 )
 plant_constants_path <- file.path(
-  shared_repo_dir,
-  "data/derived/plant/csv_plant_input_data/plant_constants_Maliau_50x50.csv"
+  project_root,
+  "data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv"
 )
-config_dir <- "data/sensitivity/soil_litter_inputs/config"
+config_dir <- file.path(project_root, "data/sensitivity/soil_litter_inputs/config")
 
-required_inputs <- c(
-  grid_definition_path,
-  plant_constants_path
+required_inputs <- c(grid_definition_path, plant_constants_path)
+missing_inputs <- required_inputs[!file.exists(required_inputs)]
+if (length(missing_inputs) > 0) {
+  stop(sprintf(
+    "Required input file(s) do not exist: %s",
+    paste(missing_inputs, collapse = ", ")
+  ))
+}
+
+maliau_core <-
+  toml::read_toml(grid_definition_path) |>
+  pluck("Scenario", "maliau_1", "core")
+
+variable_groups <- build_variable_groups(
+  plants_path = "../data/plant_input_data_Maliau_50x50_mean.nc",
+  climate_path = "../data/era5_maliau_2010_2020_100m_mean.nc",
+  elevation_path = "../data/elevation_maliau_2010_2020_100m_mean.nc",
+  soil_path = "$SOIL_LITTER_DATA",
+  litter_path = "$SOIL_LITTER_DATA"
 )
-walk(required_inputs, \(path) {
-  if (!file.exists(path)) {
-    stop(sprintf("Required file does not exist: %s", path))
-  }
-})
 
-
-# Define config values -----------------------------------
-
-# core values
-core <-
-  read_toml(grid_definition_path) |>
-  pluck("Scenario") |>
-  pluck("maliau_1") |>
-  pluck("core")
-# values for core.grid
 core_grid <-
-  core$grid |>
-  # modify values
+  maliau_core$grid |>
+  discard_at("grid_type") |>
   list_modify(cell_nx = 1, cell_ny = 1)
-# values for core.timing
-core_timing <- core$timing
 
-# input data paths for core.data.variable
-# the soil and litter data paths are placeholder environment variables
-# that will be specified in the HPC job array script later
-data_paths <- collect_data_paths(
-  plants = "../data/plant_input_data_Maliau_50x50_mean.nc",
-  climate = "../data/era5_maliau_2010_2020_100m_mean.nc",
-  elevation = "../data/elevation_maliau_2010_2020_100m_mean.nc",
-  soil = "$SOIL_LITTER_DATA",
-  litter = "$SOIL_LITTER_DATA"
-)
-
-# new values for plants.constants
-plants_contants <- read.csv(plant_constants_path)
-
-
-# Set up a list of new values --------------------------------------------
-# These new values reflect the Maliau scenarios
-
-# core config
-core_config <- list(
-  grid = core_grid,
-  timing = core_timing,
-  data = list(variable = data_paths)
-)
-
-# plants config
-plants_config <- list(
+plants <- list(
   cohort_data_path = "../data/plant_cohort_data_Maliau_50x50.csv",
   pft_definitions_path = "../data/plant_pft_definitions_Maliau_50x50.csv",
-  constants = as.list(plants_contants)
+  constants = read_csv(plant_constants_path, show_col_types = FALSE) |>
+    slice(1) |>
+    as.list()
 )
 
-# animal config
-animal_config <- list(
-  functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv",
+animal <- list(
+  functional_group_definitions_path =
+    "../data/animal_functional_groups_Maliau_level3.csv",
   cohort_data_export = list(enabled = FALSE)
 )
 
-
-# Build configuration files ----------------------------------------------
-if (!dir.exists(config_dir)) {
-  dir.create(config_dir, recursive = TRUE)
-} else {
-  message("All good, config directory already exists.")
-}
-
-build_config(
-  requested_modules = c(
-    "core",
-    "abiotic_simple",
-    "hydrology",
-    "plants",
-    "animal",
-    "soil",
-    "litter"
+config_lines <- c(
+  render_comment("Core settings"),
+  render_module("core"),
+  render_table("core.grid", core_grid),
+  render_table("core.timing", maliau_core$timing),
+  render_array_tables(
+    "core.data.variable",
+    variable_groups$abiotic_simple
   ),
-  core = core_config,
-  plants = plants_config,
-  animal = animal_config,
-  path = config_dir
+  render_module("abiotic_simple"),
+  render_array_tables("core.data.variable", variable_groups$hydrology),
+  render_module("hydrology"),
+  render_module("animal", animal),
+  render_table("animal.cohort_data_export", animal$cohort_data_export),
+  render_module("plants", plants),
+  render_array_tables("core.data.variable", variable_groups$plants),
+  render_table("plants.constants", plants$constants),
+  render_module("soil"),
+  render_array_tables("core.data.variable", variable_groups$soil),
+  render_module("litter"),
+  render_array_tables("core.data.variable", variable_groups$litter)
 )
 
-expected_config_files <- c(
-  "ve_run.toml",
-  "core_config.toml",
-  "plants_config.toml",
-  "animal_config.toml"
-)
-missing_config_files <- setdiff(expected_config_files, list.files(config_dir))
-if (length(missing_config_files) > 0) {
-  stop(sprintf(
-    "Missing expected config file(s): %s",
-    paste(missing_config_files, collapse = ", ")
-  ))
+build_config(config_lines, config_dir, "config.toml")
+
+if (!file.exists(file.path(config_dir, "config.toml"))) {
+  stop("Compiled Virtual Ecosystem config was not created.")
 }

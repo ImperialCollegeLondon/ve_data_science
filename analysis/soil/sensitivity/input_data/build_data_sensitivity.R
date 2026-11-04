@@ -35,9 +35,9 @@
 #|     - mirai
 #|
 #| source_files:
-#|     - tools/R/convert_array_to_nc.R
-#|     - tools/R/get_data_variables.R
-#|     - tools/R/summarise_spatial.R
+#|     - tools/R/R/convert_array.R
+#|     - tools/R/R/get_ve_variables.R
+#|     - tools/R/R/summarise_spatial.R
 #|
 #| usage_notes: |
 #|   Any known issues or bugs? Future plans for script/extensions or improvements
@@ -56,14 +56,11 @@ source("tools/R/R/summarise_spatial.R")
 
 
 # constants and paths
-shared_repo_dir <- file.path(
-  "../../projects/virtual_rainforest/live/ve_data_science"
-)
-in_dir <- file.path(shared_repo_dir, "data/scenarios/maliau/maliau_1/data")
-out_dir <- "data/sensitivity/soil_litter_inputs/data"
-out_config_dir <- "data/sensitivity/soil_litter_inputs/config"
+project_root <- here::here()
+in_dir <- file.path(project_root, "data/scenarios/maliau/maliau_1/data")
+out_dir <- file.path(project_root, "data/sensitivity/soil_litter_inputs/data")
 grid_definition_path <- file.path(
-  shared_repo_dir,
+  project_root,
   "data/derived/site/maliau/maliau_grid_definition.toml"
 )
 soil_input_path <- file.path(in_dir, "soil_maliau.nc")
@@ -95,9 +92,6 @@ purrr::walk(required_inputs, require_path)
 
 if (!dir.exists(out_dir)) {
   dir.create(out_dir, recursive = TRUE)
-}
-if (!dir.exists(out_config_dir)) {
-  dir.create(out_config_dir, recursive = TRUE)
 }
 
 # sensitivity analysis settings
@@ -200,6 +194,7 @@ if (nrow(mat) != expected_sobol_rows) {
     nrow(mat)
   ))
 }
+writeLines(as.character(nrow(mat)), file.path(out_dir, "n_scenarios.txt"))
 
 # convert to dataframe, and then combine CNP into triplet columns
 

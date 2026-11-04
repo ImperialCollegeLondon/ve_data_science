@@ -12,115 +12,231 @@ knitr:
     echo: false
     message: false
     dpi: 300
-abstract: Placeholder
+abstract: |
+  TODO: State the question, system, Sobol design, and main result.
 ---
 
 ```{r}
 #| label: load-libraries
 library(tidyverse)
 library(sensobol)
-library(tidync)
 library(arrow)
 library(here)
-```
 
+source("tools/R/R/get_ve_variables.R")
+source("tools/R/R/tidy_continuous_data.R")
+```
 
 ```{r}
 #| label: crop-hook
-# create a hook named crop that is associated with the knitr::hook_pdfcrop()
-# function so we can use crop: true in a code chunk to call it and crop the
-# displayed graph.
 knitr::knit_hooks$set(crop = knitr::hook_pdfcrop)
 ```
+
 # Introduction
 
+TODO: Explain why initial soil and litter states may affect Virtual Ecosystem
+trajectories and identify the ecological or modelling decision this analysis
+will inform.
+
+The analysis estimates **global Sobol sensitivity indices**. It varies the
+selected inputs simultaneously across their specified ranges; it is not a
+local or Morris screening analysis.
+
+## Research questions
+
+- Which sampled soil and litter initial-state variables explain the most
+  variation in the selected model outputs?
+- How much of that influence is attributable to interactions, as indicated by
+  the difference between first-order and total-order indices?
+- TODO: Add a hypothesis and identify the intended users of the result.
 
 # Methods
 
+## Scope and fixed inputs
 
-# Results & Discussion
+The current scope is soil and litter initial states with the Maliau site data.
+Climate variables are treated as prescribed forcings, not sampled initial
+states, because their future values are specified over time. Other modules are
+held fixed; where their data vary spatially, the preparation script currently
+uses spatial means. Plant input data are spatially constant in this dataset.
 
+TODO: Confirm whether elevation remains fixed and document why the selected
+soil and litter states are the only sampled inputs.
 
+## Input bounds and Sobol design
+
+The current draft uses the minimum and maximum observed values in the source
+soil and litter arrays as uniform bounds, then rescales a quasi-random Sobol
+design to those bounds. The variables are sampled independently.
+
+TODO: Confirm that observed extrema are defensible bounds, that independent
+sampling is appropriate, and whether any compositional or stoichiometric
+constraints must be preserved. Record the base sample size, seed, estimator,
+and any convergence or bootstrap checks here.
 
 ```{r}
 #| label: read-sobol-matrix
-sobol_mat <- read_rds(
-  here("data/scenarios/sensitivity_soil_litter/data/sobol_matrix.rds")
+project_root <- here::here()
+sobol_matrix_path <- file.path(
+  project_root,
+  "data/sensitivity/soil_litter_inputs/data/sobol_matrix.rds"
 )
+sobol_mat <- readRDS(sobol_matrix_path)
 pars <- colnames(sobol_mat)
 n_samples <- nrow(sobol_mat) / (length(pars) + 2)
+
+if (n_samples != as.integer(n_samples)) {
+  stop("Sobol matrix row count is inconsistent with its parameter count.")
+}
+n_samples <- as.integer(n_samples)
+
+# TODO: Confirm the output index and matching run-truncation threshold.
+analysis_time_index <- 24
 ```
 
+## Model runs and output processing
 
+Each Sobol row becomes one single-cell VE run. The PBS array selects the
+matching generated soil/litter NetCDF input; VE is run from the project `uv`
+lock using the latest pinned PyPI release. The run outputs are Zarr stores and
+are tidied with the shared Zarr helpers before sensitivity indices are
+calculated. The current runner truncates the model after update 24 to avoid
+computing beyond the selected output index.
+
+TODO: Confirm whether update 24 is the intended endpoint or only a diagnostic
+time. Keep the report's `analysis_time_index` and the runner's truncation
+threshold in sync. Record the VE version and any failed or repeated runs before
+interpreting the indices.
+
+From the repository root, restore the R environment once, then run the
+preparation, model, and post-processing stages in order:
+
+```bash
+Rscript -e "renv::restore()"
+qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
+bash analysis/soil/sensitivity/input_data/submit_ve_array.sh
+qsub analysis/soil/sensitivity/input_data/post_process_outputs.sh
+```
+
+The submit script syncs the locked Python environment before submission, derives
+the array size from the generated Sobol matrix, and refuses to reuse an output
+directory. The per-run directory name follows the current HPC array convention
+(`array_subJob_<index>`); each job selects its input data file from the same
+one-based array index.
+
+## Output definition and aggregation
+
+The current code uses each output variable at one selected time index. The
+model configuration reduces the grid to one cell, so no spatial aggregation is
+currently applied to the output.
+
+TODO: Specify the output variables and units, the time point or summary period,
+and the spatial aggregation to use if the grid is expanded. Explain why those
+outputs represent the scientific question.
+
+## Sobol index calculation
+
+First-order (`Si`) and total-order (`Ti`) indices are calculated for each
+eligible output. Total-order indices include interactions with other inputs;
+pairwise second-order indices are not currently requested.
 
 ```{r}
 #| label: read-merged-data
 #| cache: true
-merged <-
-  open_dataset(
-    here(
-      "data/scenarios/sensitivity_soil_litter/out/all_continuous_data_merged.parquet"
-    )
-  ) |>
-  filter(time_index == 24) |>
-  collect()
+merged_path <- file.path(
+  project_root,
+  "data/sensitivity/soil_litter_inputs/out/all_continuous_data_merged.parquet"
+)
+merged <- open_dataset(merged_path) |> collect()
 ```
-
-
 
 ```{r}
 #| label: calc-sobol-indices
 #| cache: true
-#| dependson: "merged"
-Y_vars <- unique(merged$variable) |> setdiff(c("timestamp"))
-forcings <-
-  sens <- map(
-    Y_vars,
-    \(Y_var) {
-      Y <-
-        merged |>
-        filter(variable == Y_var) |>
-        mutate(scenario = as.numeric(scenario)) |>
-        right_join(
-          data.frame(scenario = seq_len(nrow(sobol_mat))),
-          by = join_by(scenario)
-        ) |>
-        arrange(scenario) |>
-        pull(value)
-      sobol_indices(Y = Y, N = n_samples, params = pars) |>
-        pluck("results") |>
-        as.data.frame() |>
-        mutate(Y_var = Y_var)
+#| dependson: ["read-merged-data", "read-sobol-matrix"]
+Y_vars <- unique(merged$variable) |>
+  setdiff(c("timestamp", "x", "y"))
+
+sobol_results <- map(
+  Y_vars,
+  \(Y_var) {
+    output_data <-
+      merged |>
+      filter(
+        variable == Y_var,
+        time_index == analysis_time_index
+      ) |>
+      select(scenario, value) |>
+      arrange(scenario)
+
+    if (nrow(output_data) != nrow(sobol_mat) ||
+      anyDuplicated(output_data$scenario) > 0) {
+      stop(sprintf(
+        "Expected one output per Sobol scenario for %s.",
+        Y_var
+      ))
+    }
+
+    Y <- output_data$value
+    if (anyNA(Y)) {
+      stop(sprintf("Output %s contains missing values.", Y_var))
+    }
+    if (any(!is.finite(Y))) {
+      stop(sprintf("Output %s contains non-finite values.", Y_var))
+    }
+    if (var(Y) == 0) {
+      message("Skipping output with no variation: ", Y_var)
+      return(NULL)
+    }
+
+    sobol_indices(Y = Y, N = n_samples, params = pars)
+  }
+)
+names(sobol_results) <- Y_vars
+
+sens <-
+  imap(
+    sobol_results,
+    \(result, Y_var) {
+      if (is.null(result)) {
+        return(NULL)
+      }
+
+      as_tibble(result$results) |> mutate(Y_var = Y_var)
     }
   ) |>
-    list_rbind() |>
-    group_by(Y_var) |>
-    # remove in-development or problematic output variables with NA values or
-    # zero variation
-    filter(!is.na(original), var(original) != 0) |>
-    # "normalise" sobol indices for comparative visualisation
-    # mutate(original_s = original / sd(original)) |>
-    ungroup()
+  list_rbind()
 ```
 
-Overall sensitivity analysis results
+TODO: Decide whether first- and total-order indices are sufficient, or whether
+the additional run cost of second-order indices is justified. Add uncertainty
+intervals and a convergence assessment before treating small rankings as
+meaningful.
+
+# Results
+
+TODO: Summarise the model-output variation across the Sobol ensemble. Report
+the indices and uncertainty, rather than only ranking variables.
+
+## Overall sensitivity
 
 ```{r}
 #| label: fig-overall
-#| dependson: "sens"
-#| fig-cap: "Placeholder."
+#| dependson: "calc-sobol-indices"
+#| fig-cap: "Placeholder: total-order Sobol indices for each output."
 #| column: screen
 #| crop: true
 sens_total <- sens |> filter(sensitivity == "Ti")
+
 sens_total |>
   ggplot() +
   geom_raster(aes(y = parameters, x = Y_var, fill = original)) +
   scale_fill_viridis_c(
     option = "cividis",
     transform = "sqrt",
-    name = "Sensitivity"
+    name = "Total-order index"
   ) +
-  labs(x = "Output variables", y = "Input variables") +
+  labs(x = "Output variable", y = "Input variable") +
   coord_fixed(expand = FALSE) +
   theme_minimal() +
   theme(
@@ -130,53 +246,59 @@ sens_total |>
   )
 ```
 
-Compare most and least sensitive pairs
+## Per-output Sobol plot
+
+`sensobol` provides a `plot.sensobol` method that displays first- and
+total-order indices. Choose an output after reviewing the overall results.
 
 ```{r}
-sens_min_max <-
-  sens_total |>
-  filter(original == min(original) | original == max(original))
-
-foo <-
-  open_dataset(
-    here(
-      "data/scenarios/sensitivity_soil_litter/out/all_continuous_data_merged.parquet"
-    )
-  ) |>
-  filter(
-    time_index == 24,
-    variable %in%
-      c("litter_pool_above_metabolic_cnp_C", "animal_bacteria_consumption")
-  ) |>
-  collect() |>
-  pivot_wider(names_from = "variable", values_from = "value")
+#| label: fig-sobol-detail
+#| eval: false
+#| fig-cap: "Placeholder: first- and total-order indices for one output."
+selected_output <- "TODO: choose an output variable"
+plot(sobol_results[[selected_output]], order = "first")
 ```
 
-Experimental phase diagram
+## Interpretation prompts
 
-```{r}
-with(foo, plot(litter_pool_above_metabolic_cnp_C, animal_bacteria_consumption))
-```
+- Which inputs consistently have the largest total-order indices?
+- Where do total-order indices substantially exceed first-order indices?
+- Are rankings stable across outputs and the chosen time point?
+- TODO: Distinguish model sensitivity from uncertainty in the input bounds.
 
+# Discussion
 
-Look at histogram
+TODO: Interpret the results against the research questions and state what they
+do not establish. Discuss the influence of fixed modules, uniform bounds,
+input dependence, output selection, and the single-cell setup.
 
+TODO: Lyapunov exponents were raised as a possible follow-up for trajectory
+divergence or convergence. Keep that analysis separate from these Sobol
+variance-based indices.
 
-```{r}
-sens |>
-  filter(sensitivity == "Ti") |>
-  ggplot() +
-  geom_histogram(aes(original))
-```
+# Decisions and assumptions to resolve
 
-Which factor is dominating this uncertainty?
+| Topic | Draft assumption | Decision or evidence to add |
+| --- | --- | --- |
+| Scope | Soil and litter initial states only | Confirm whether elevation or other states are in scope |
+| Bounds | Spatial minima and maxima define uniform ranges | Justify bounds and any constraints or correlations |
+| Other modules | Fixed at prepared values, including spatial means | Confirm whether this changes the interpretation |
+| Model output | One output per variable at time index 24 | Choose outputs, units, and a scientifically meaningful time summary |
+| Spatial scale | One-cell runs; no output aggregation | Define the aggregation if the grid becomes spatial |
+| Indices | First- and total-order Sobol indices | Decide whether second-order indices and uncertainty intervals are needed |
+| Sampling | Current base size and seed in the generator script | Assess convergence and record the final run count |
+| Runtime | Latest PyPI VE release from `uv.lock` | Record the release and ensure all array jobs used the same lock |
 
-Are there a few dominating factors or is the uncertainty originating from several factors?
+# References
 
-Do the factors act singularly or in combination with one another?
+TODO: Add the sources used to justify the input bounds, output choices, and
+interpretation.
 
-
-# Reference
-
-
-# Appendix
+- Sobol, I. M. (2001). Global sensitivity indices for nonlinear mathematical
+  models and their Monte Carlo estimates. *Mathematics and Computers in
+  Simulation*, 55(1–3), 271–280.
+- Puy, A., Iooss, B., and colleagues (2022). Toward sensobol 2.0: Advancing the
+- Puy, A., Lo Piano, S., Saltelli, A., and Levin, S. A. (2022). *sensobol: An R
+  Package to Compute Variance-Based Sensitivity Indices*. *Journal of
+  Statistical Software*, 102(5), 1-37.
+  https://doi.org/10.18637/jss.v102.i05

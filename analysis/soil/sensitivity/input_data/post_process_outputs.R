@@ -1,84 +1,99 @@
 library(mirai)
 library(tidyverse)
 library(arrow)
+source("tools/R/R/get_ve_variables.R")
+source("tools/R/R/tidy_continuous_data.R")
 
-out_path <- "data/scenarios/sensitivity_soil_litter/out"
+project_root <- here::here()
+out_path <- file.path(project_root, "data/sensitivity/soil_litter_inputs/out")
+sobol_path <- file.path(
+  project_root,
+  "data/sensitivity/soil_litter_inputs/data/sobol_matrix.rds"
+)
+merged_output_path <- file.path(out_path, "all_continuous_data_merged.parquet")
 parallel_daemons <- 128
-expected_scenarios <- 4800
-continuous_output_filename <- "all_continuous_data.nc"
-merged_output_filename <- "all_continuous_data_merged.parquet"
 
 if (!dir.exists(out_path)) {
   stop(sprintf("Output path does not exist: %s", out_path))
 }
-if (!file.exists("tools/R/get_data_variables.R")) {
-  stop("Required helper script is missing: tools/R/get_data_variables.R")
+if (!file.exists(sobol_path)) {
+  stop(sprintf("Sobol matrix does not exist: %s", sobol_path))
 }
 
-out_files <- list.files(
-  out_path,
-  pattern = continuous_output_filename,
-  recursive = TRUE
-)
-if (length(out_files) == 0) {
-  stop("No model output files found for post-processing.")
-}
-if (length(out_files) != expected_scenarios) {
+expected_scenarios <- nrow(readRDS(sobol_path))
+zarr_paths <- list.dirs(out_path, recursive = TRUE, full.names = TRUE)
+zarr_paths <- zarr_paths[basename(zarr_paths) == "model_data.zarr"]
+if (length(zarr_paths) != expected_scenarios) {
   stop(sprintf(
-    "Output file count mismatch: expected %s, got %s",
+    "Zarr output count mismatch: expected %s, got %s",
     expected_scenarios,
-    length(out_files)
+    length(zarr_paths)
   ))
+}
+
+scenario_ids <- as.integer(sub(
+  "^array_subJob_",
+  "",
+  basename(dirname(zarr_paths))
+))
+if (anyNA(scenario_ids) || anyDuplicated(scenario_ids)) {
+  stop("Zarr output directories must have unique array_subJob_<index> names.")
+}
+if (!setequal(scenario_ids, seq_len(expected_scenarios))) {
+  stop("Zarr output directories do not match the Sobol scenario indices.")
+}
+
+first_output <- get_data_variables(zarr_paths[[1]], group = "outputs")
+output_variables <- names(first_output)[
+  purrr::map_lgl(
+    first_output,
+    \(x) "time_index" %in% names(dimnames(x))
+  )
+] |>
+  setdiff(c("timestamp", "time_index", "x", "y"))
+if (length(output_variables) == 0) {
+  stop("No time-varying state variables found in the Zarr outputs.")
 }
 
 daemons(parallel_daemons)
 merged <- map(
-  out_files,
+  zarr_paths,
   in_parallel(
-    \(out_file) {
+    \(zarr_path) {
       require(tidyverse)
-      require(reshape2)
-      require(tidync)
-      source("tools/R/get_data_variables.R")
+      source("tools/R/R/get_ve_variables.R")
+      source("tools/R/R/tidy_continuous_data.R")
 
-      tidync(file.path(out_path, out_file)) |>
-        get_data_variables() |>
-        melt() |>
+      tidy_continuous_data(
+        path = zarr_path,
+        variables = output_variables
+      ) |>
         mutate(
-          scenario = sub("/.*", "", out_file),
-          value = as.numeric(value)
+          scenario = as.integer(sub(
+            "^array_subJob_",
+            "",
+            basename(dirname(zarr_path))
+          ))
         ) |>
-        filter(!is.na(value)) |>
         unite(
           "variable",
-          L1,
+          variable,
           element,
           layers,
           groundwater_layers,
           pft,
           na.rm = TRUE,
           remove = TRUE
-        ) |>
-        select(-cell_id)
+        )
     },
-    out_path = out_path
+    output_variables = output_variables
   )
 ) |>
   list_rbind()
 daemons(0)
 
-if (!"scenario" %in% names(merged)) {
-  stop("Merged output is missing required scenario column.")
+if (!setequal(unique(merged$scenario), seq_len(expected_scenarios))) {
+  stop("Merged Zarr data are missing one or more Sobol scenarios.")
 }
 
-expected_scenarios <- as.character(seq_len(expected_scenarios))
-actual_scenarios <- unique(merged$scenario)
-missing_scenarios <- setdiff(expected_scenarios, actual_scenarios)
-if (length(missing_scenarios) > 0) {
-  stop(sprintf(
-    "Merged output is missing scenario(s): %s",
-    paste(missing_scenarios, collapse = ", ")
-  ))
-}
-
-write_parquet(merged, file.path(out_path, merged_output_filename))
+write_parquet(merged, merged_output_path)
