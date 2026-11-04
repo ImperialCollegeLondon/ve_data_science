@@ -13,14 +13,17 @@ description: |
     2. Defines the VE target grid from the site configuration.
     3. Downloads ERA5-Land monthly averaged climate variables (2010-2020) from the
        Copernicus Climate Data Store (CDS).
-    4. Downloads ERA5-Land hourly 2 m air temperature for calculating monthly
-       diurnal temperature range (DTR).
+    4. Downloads ERA5-Land hourly 2 m air temperature and 10 m u and v wind
+       components for calculating monthly diurnal temperature range (DTR)
+       and monthly mean wind speed.
     5. Processes the climate data by:
          - Calculating monthly diurnal temperature range.
+         - Calculating monthly mean wind speed from hourly wind speed.
          - Converting ERA5-Land variables to VE units.
          - Calculating relative humidity.
          - Selecting the climate variables required by the VE model.
-    6. Interpolates the monthly climate variables and monthly DTR separately onto
+    6. Interpolates the monthly climate variables, monthly DTR and monthly
+       wind speed separately onto
        the VE target grid using bilinear interpolation, with any
        remaining missing values filled using nearest-neighbour interpolation.
     7. Creates the climate input dataset using VE-standard
@@ -41,9 +44,13 @@ description: |
        by the VE.
 
 Notes:
-    - Monthly climate variables and hourly air temperature are downloaded
-      separately because monthly diurnal temperature range is derived from the
-      hourly dataset.
+    - Monthly climate variables and hourly variables are downloaded
+      separately because monthly diurnal temperature range and monthly mean
+      wind speed are derived from the hourly dataset.
+    - Wind speed is calculated from hourly u and v components before monthly
+      averaging. Calculating it from monthly mean components would
+      underestimate the mean wind speed because wind direction varies within
+      each month.
     - Monthly climate variables and monthly DTR are interpolated separately
       because they originate from different ERA5-Land products with different
       spatial coordinate definitions.
@@ -72,12 +79,12 @@ output_files:
       ERA5-Land monthly averaged climate variables downloaded from the
       Copernicus Climate Data Store.
 
-  - name: era5_hourly_t2m_<start_year>_<end_year>_<scenario>.nc
+  - name: era5_hourly_<start_year>_<end_year>_<scenario>.nc
     path: data/primary/abiotic/era5_land
     description: |
-      ERA5-Land hourly 2 m air temperature downloaded from the Copernicus
-      Climate Data Store and used to calculate monthly diurnal temperature
-      range.
+      ERA5-Land hourly 2 m air temperature and 10 m u and v wind components
+      downloaded from the Copernicus Climate Data Store and used to calculate
+      monthly diurnal temperature range and monthly mean wind speed.
 
   - name: era5_<scenario>_<start_year>_<end_year>.nc
     path: data/derived/abiotic/era5_land
@@ -85,6 +92,33 @@ output_files:
       Final VE climate input dataset containing all required
       climate variables interpolated onto the Virtual Ecosystem grid and saved
       as a compressed NetCDF file for use by the VE Abiotic model.
+
+imported_files:
+  - name: cdsapi_downloader.py
+    path: tools/python/src/ve_data_tools/cdsapi_downloader.py
+    description: |
+      Downloads monthly and hourly ERA5-Land data, merges NetCDF files from CDS
+      ZIP archives, and checks that requested hourly variables are present.
+  - name: climate_tools.py
+    path: tools/python/src/ve_data_tools/climate_tools.py
+    description: |
+      Derives climate variables, converts units, interpolates onto the target
+      grid, and prepares VE variable names, time structure, and metadata.
+  - name: read_site_config.py
+    path: tools/python/src/ve_data_tools/read_site_config.py
+    description: |
+      Reads the selected scenario's grid settings and simulation timing from
+      the site configuration.
+  - name: build_target_grid.py
+    path: tools/python/src/ve_data_tools/build_target_grid.py
+    description: |
+      Builds the target grid used to interpolate climate variables for the
+      selected scenario.
+  - name: write_dataset.py
+    path: tools/python/src/ve_data_tools/write_dataset.py
+    description: |
+      Saves the processed climate forcing dataset as compressed NetCDF for
+      use in VE simulations.
 
 package_dependencies:
   - pathlib
@@ -104,8 +138,7 @@ usage_notes: |
 
     2. Run the script:
 
-uv run python analysis/abiotic/era5_climate_data/maliau_climate_data_processing_
-script.py
+    uv run analysis/abiotic/era5_climate_data/maliau_climate_data_processing_script.py
 
   Preconditions:
     - A valid CDS API configuration is available at ~/.cdsapirc.
@@ -175,7 +208,7 @@ from ve_data_tools import climate_tools as ct  # noqa: E402
 
 # Select  scenario (e.g., " maliau_1", "maliau_2") defined in the site
 # configuration TOML file (e.g.,"maliau_grid_definition.toml").
-scenario_name = "maliau_1"
+scenario_name = "maliau_2"
 # NOTE:
 # Modify the scenario name defined in the site-specific
 # configuration TOML file to prepare climate data for a
@@ -265,11 +298,11 @@ monthly_file = (
     primary_data_dir / f"era5_monthly_{start_year}_{end_year}_{scenario_name}.nc"
 )
 
-# Define filename for the downloaded ERA5-Land
-# hourly 2m air temperature used to calculate monthly diurnal temperature
-# range (dtr).
+# Define filename for the downloaded ERA5-Land hourly 2m air temperature
+# and 10 m u and v wind components used to calculate monthly diurnal
+# temperature range (dtr) and monthly mean wind speed.
 hourly_file = (
-    primary_data_dir / f"era5_hourly_t2m_{start_year}_{end_year}_{scenario_name}.nc"
+    primary_data_dir / f"era5_hourly_{start_year}_{end_year}_{scenario_name}.nc"
 )
 
 
@@ -302,8 +335,9 @@ era5_ds = cds.cdsapi_era5_monthly_downloader(
     outfile=monthly_file,
 )
 
-# Download hourly 2m air temperature ERA5-Land data.
-hourly_ds = cds.cdsapi_era5_hourly_temperature_downloader(
+# Download hourly 2m air temperature and 10 m u and v wind
+# components ERA5-Land data.
+hourly_ds = cds.cdsapi_era5_hourly_downloader(
     start_date=start_date,
     end_date=end_date,
     bbox=bbox,
@@ -321,6 +355,7 @@ hourly_ds = cds.cdsapi_era5_hourly_temperature_downloader(
 print("\nProcessing climate variables...")
 
 monthly_dtr = ct.calculate_monthly_dtr(hourly_ds)
+monthly_wind_speed = ct.calculate_monthly_wind_speed(hourly_ds)
 
 era5_ds = ct.convert_units(era5_ds)
 era5_ds = ct.calculate_relative_humidity(era5_ds)
@@ -357,6 +392,11 @@ interpolated = ct.interpolate_dataset(
 
 interpolated["dtr"] = ct.interpolate_variable(
     monthly_dtr,
+    target_grid,
+)
+
+interpolated["wind_speed"] = ct.interpolate_variable(
+    monthly_wind_speed,
     target_grid,
 )
 

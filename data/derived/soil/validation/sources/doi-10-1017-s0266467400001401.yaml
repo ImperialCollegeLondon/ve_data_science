@@ -1,0 +1,19 @@
+schema_version: 1
+record_id: doi-10-1017-s0266467400001401
+doi: 10.1017/s0266467400001401
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Soil keyword is about sampling design, but contains termite functional groups.
+  screened_at: '2026-09-18T01:48:45Z'
+metadata:
+  title: Termite assemblages in two distinct montane forest types at 1000 m elevation
+    in the Maliau Basin, Sabah
+  authors: Jones, David T.
+  year: 2000
+  journal: Journal of Tropical Ecology
+  publisher: Cambridge University Press (CUP)
+  url: http://dx.doi.org/10.1017/s0266467400001401
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T01:48:14Z'

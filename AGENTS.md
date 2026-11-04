@@ -16,8 +16,8 @@ repository is not a Python package (`package-mode = false` in
 ## Tech stack and key config
 
 Python dependencies and QA tooling are configured in
-[pyproject.toml](pyproject.toml). R package requirements are tracked lightly in
-[r_requirements.R](r_requirements.R). Pre-commit hooks are configured in
+[pyproject.toml](pyproject.toml). R dependencies are configured in
+[renv.lock](renv.lock). Pre-commit hooks are configured in
 [.pre-commit-config.yaml](.pre-commit-config.yaml). Documentation build settings
 are in [mkdocs.yml](mkdocs.yml).
 

@@ -24,9 +24,12 @@
 #|     - tidync
 #|     - purrr
 #|     - dplyr
+#|     - here
 #|     - stringr
 #|     - toml
 #|     - cli
+#|     - readr
+#|     - reticulate
 #|
 #| usage_notes: |
 #|     See individual function documentation below for details and examples.
@@ -105,13 +108,20 @@ get_data_variables <- function(
     \(variable) {
       tmp_zarr <- ve_vars$get_item(variable)
       out_array <- tmp_zarr$as.array()
+      if (inherits(out_array, "integer64")) {
+        out_array <- array(as.numeric(out_array), dim = dim(out_array))
+      }
       dimnames_names <-
         tmp_zarr$get_attrs()$to_list()$`_ARRAY_DIMENSIONS` |>
         unlist()
       dimnames <-
         dimnames_names |>
         purrr::map(\(name) {
-          ve_vars$get_item(name)$as.array()
+          coordinate <- ve_vars$get_item(name)$as.array()
+          if (inherits(coordinate, "integer64")) {
+            coordinate <- as.character(coordinate)
+          }
+          coordinate
         })
       names(dimnames) <- dimnames_names
       dimnames(out_array) <- dimnames
@@ -193,23 +203,30 @@ get_data_variables_nc <- function(tidync, variables = NULL) {
 #' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config_path Path to the exported full VE configuration TOML file.
 #' @param ... Additional arguments passed to \code{get_data_variables()}.
+#' @param cohort_data_path Optional path to the animal cohort CSV for the model
+#'   run. When supplied, FG population-density arrays are appended.
 #' @return A named list with derived variables.
 #'
 #' @examples
 #' \dontrun{
 #'   zarr_path <- "data/scenarios/maliau/maliau_2/out/model_data.zarr"
 #'   config_path <-
-#'     "data/scenarios/maliau/maliau_2/out/ve_full_model_configuration.toml"
+#'     "data/scenarios/maliau/maliau_2/out/compiled_configuration.toml"
 #'   get_derived_variables(zarr_path, config_path)
 #' }
 #'
 #' @export
 
-get_derived_variables <- function(zarr_path, config_path, ...) {
+get_derived_variables <- function(
+  zarr_path,
+  config_path,
+  ...,
+  cohort_data_path = NULL
+) {
   config <- toml::read_toml(config_path)
 
   # first collect the derived variables that are returned as a single array
-  list(
+  derived_variables <- list(
     total_soil_c_per_volume = get_total_soil_c_per_volume(zarr_path),
     total_soil_c_per_mass = get_total_soil_c_per_mass(zarr_path, config),
     total_soil_c_per_area = get_total_soil_c_per_area(zarr_path, config),
@@ -218,12 +235,117 @@ get_derived_variables <- function(zarr_path, config_path, ...) {
     total_soil_n_per_area = get_total_soil_n_per_area(zarr_path, config),
     total_soil_p_per_volume = get_total_soil_p_per_volume(zarr_path, config),
     total_soil_p_per_mass = get_total_soil_p_per_mass(zarr_path, config),
-    total_soil_p_per_area = get_total_soil_p_per_area(zarr_path, config)
+    total_soil_p_per_area = get_total_soil_p_per_area(zarr_path, config),
+    soil_n_pool_ammonium_per_mass = get_soil_n_pool_ammonium_per_mass(
+      zarr_path,
+      config
+    ),
+    soil_n_pool_nitrate_per_mass = get_soil_n_pool_nitrate_per_mass(
+      zarr_path,
+      config
+    ),
+    soil_p_pool_labile_per_mass = get_soil_p_pool_labile_per_mass(
+      zarr_path,
+      config
+    ),
+    soil_n_pool_inorganic_per_volume = get_soil_n_pool_inorganic_per_volume(
+      zarr_path,
+      config
+    ),
+    soil_n_pool_inorganic_per_area = get_soil_n_pool_inorganic_per_area(
+      zarr_path,
+      config
+    ),
+    soil_respiration_CO2_molar = get_soil_respiration_CO2_molar(zarr_path),
+    soil_respiration_CO2_mass = get_soil_respiration_CO2_mass(zarr_path),
+    soil_nitrous_oxide_emission_N2O_mass = get_soil_nitrous_oxide_emission_N2O_mass(
+      zarr_path
+    )
   ) |>
     # then collect the derived variables that are returned as a list of arrays
-    append(
-      get_soil_np_pool_microbial(zarr_path, config)
+    append(get_soil_np_pool_microbial(zarr_path, config))
+
+  if (!is.null(cohort_data_path)) {
+    derived_variables <- append(
+      derived_variables,
+      get_fg_population_density(
+        cohort_data_path = cohort_data_path,
+        config = config
+      )
     )
+  }
+
+  derived_variables
+}
+
+
+#' Calculate functional-group population density from animal cohort output
+#'
+#' Wraps the Python density calculator and labels each FG series with its
+#' canonical variable name for validation matching.
+#'
+#' @param cohort_data_path Path to the animal cohort CSV for the model run.
+#' @param config A parsed VE configuration containing grid settings.
+#' @param density_unit Unit used by the Python calculator: `m2`, `ha`, or `km2`.
+#' @param density_scope Area used by the Python calculator: `landscape` or
+#'   `territory`.
+#' @param complexity_level Functional-group level used in canonical names.
+#' @param territory_column Cohort CSV column containing territory cell lists.
+#'
+#' @returns A named list of arrays, one per functional group. Each array has
+#'   `spatial_scope` and `time_index` dimensions and uses the matching canonical
+#'   variable name.
+#'
+#' @export
+
+get_fg_population_density <- function(
+  cohort_data_path,
+  config,
+  density_unit = "km2",
+  density_scope = "landscape",
+  complexity_level = 5L,
+  territory_column = "territory"
+) {
+  grid <- config$core$grid
+  cohort_df <- readr::read_csv(cohort_data_path, show_col_types = FALSE)
+
+  density_tool <- reticulate::import_from_path(
+    "ve_data_tools.fg_population_density",
+    path = here::here("tools", "python", "src"),
+    convert = FALSE
+  )
+  density_df <- density_tool$calculate_fg_population_density(
+    cohort_df = cohort_df,
+    cell_size = sqrt(grid$cell_area),
+    n_cells_x = as.integer(grid$cell_nx),
+    n_cells_y = as.integer(grid$cell_ny),
+    density_unit = density_unit,
+    density_scope = density_scope,
+    territory_column = territory_column
+  ) |>
+    reticulate::py_to_r()
+
+  density_groups <- split(density_df, density_df$functional_group)
+
+  density_arrays <- purrr::map(density_groups, function(group_data) {
+    group_data <- group_data[order(group_data$time_index), , drop = FALSE]
+    array(
+      as.numeric(group_data$population_density),
+      dim = c(1L, nrow(group_data)),
+      dimnames = list(
+        spatial_scope = density_scope,
+        time_index = as.character(group_data$time_index)
+      )
+    )
+  })
+  names(density_arrays) <- paste0(
+    "density_",
+    names(density_groups),
+    "_L",
+    complexity_level
+  )
+
+  density_arrays
 }
 
 #' Compute total soil carbon per volume
@@ -541,4 +663,628 @@ get_total_soil_p_per_mass <- function(zarr_path, config) {
 get_total_soil_p_per_area <- function(zarr_path, config) {
   total_soil_p_per_volume <- get_total_soil_p_per_volume(zarr_path, config)
   convert_volume_to_area_basis(total_soil_p_per_volume, config)
+}
+
+#' Calculate soil ammonium pool per mass
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil ammonium pool per mass.
+#' @export
+
+get_soil_n_pool_ammonium_per_mass <- function(zarr_path, config) {
+  soil_n_pool_ammonium_per_volume <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_n_pool_ammonium"
+  )
+  convert_volume_to_mass_basis(
+    soil_n_pool_ammonium_per_volume$soil_n_pool_ammonium,
+    config
+  )
+}
+
+#' Calculate soil nitrate pool per mass
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil nitrate pool per mass.
+#' @export
+
+get_soil_n_pool_nitrate_per_mass <- function(zarr_path, config) {
+  soil_n_pool_nitrate_per_volume <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_n_pool_nitrate"
+  )
+  convert_volume_to_mass_basis(
+    soil_n_pool_nitrate_per_volume$soil_n_pool_nitrate,
+    config
+  )
+}
+
+
+#' Calculate soil labile phosphorus pool per mass
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of soil labile phosphorus pool per mass.
+#' @export
+
+get_soil_p_pool_labile_per_mass <- function(zarr_path, config) {
+  soil_p_pool_labile <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_p_pool_labile"
+  )
+  convert_volume_to_mass_basis(
+    soil_p_pool_labile$soil_p_pool_labile,
+    config
+  )
+}
+
+#' Calculate inorganic soil nitrogen per volume
+#'
+#' Sum the ammonium and nitrate pools on a volume basis.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of inorganic soil nitrogen per volume.
+#' @export
+
+get_soil_n_pool_inorganic_per_volume <- function(zarr_path, config) {
+  soil_n_pool_inorganic_per_volume <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = c("soil_n_pool_nitrate", "soil_n_pool_ammonium")
+  )
+  with(
+    soil_n_pool_inorganic_per_volume,
+    soil_n_pool_nitrate + soil_n_pool_ammonium
+  )
+}
+
+#' Calculate inorganic soil nitrogen per area
+#'
+#' Convert inorganic soil nitrogen per volume to an area basis.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @param config A list of VE configuration read from the exported full
+#' configuration TOML file.
+#' @return Array of inorganic soil nitrogen per area.
+#' @export
+
+get_soil_n_pool_inorganic_per_area <- function(zarr_path, config) {
+  soil_n_pool_inorganic_per_volume <-
+    get_soil_n_pool_inorganic_per_volume(
+      zarr_path,
+      config
+    )
+  convert_volume_to_area_basis(soil_n_pool_inorganic_per_volume, config)
+}
+
+#' Calculate soil respiration in CO2 molar basis
+#'
+#' Convert soil respiration from kg{C} m-2 day-1 to mol{CO2} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' configuration TOML file. Unused; kept for a consistent interface.
+#' @return Array of soil respiration in mol CO2 m-2 day-1.
+#' @export
+
+get_soil_respiration_CO2_molar <- function(zarr_path) {
+  soil_respiration <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_respiration"
+  )
+  # 1 mol CO2 per mol C; molar mass of C is 12.011 g/mol
+  soil_respiration$soil_respiration * 1000 / 12.011
+}
+
+
+#' Calculate soil respiration in CO2 mass basis
+#'
+#' Convert soil respiration from kg{C} m-2 day-1 to kg{CO2} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @return Array of soil respiration in kg CO2 m-2 day-1.
+#' @export
+
+get_soil_respiration_CO2_mass <- function(zarr_path) {
+  soil_respiration <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_respiration"
+  )
+  # Molar masses: CO2 = 44.009 g/mol, C = 12.011 g/mol
+  soil_respiration$soil_respiration * 44.009 / 12.011
+}
+
+
+#' Calculate soil nitrous oxide emission in N2O mass basis
+#'
+#' Convert soil nitrous oxide emission from kg{N} m-2 day-1 to
+#' kg{N2O} m-2 day-1.
+#'
+#' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
+#' @return Array of soil nitrous oxide emission in kg N2O m-2 day-1.
+#' @export
+
+get_soil_nitrous_oxide_emission_N2O_mass <- function(zarr_path) {
+  soil_n2o <- get_data_variables(
+    zarr_path,
+    group = "outputs",
+    variables = "soil_nitrous_oxide_emission"
+  )
+  # Molar masses: N2O = 44.013 g/mol (2 N), N = 14.007 g/mol
+  soil_n2o$soil_nitrous_oxide_emission * 44.013 / (2 * 14.007)
+}
+
+
+#' Calculate productivity from VE realised tissue biomass outputs
+#'
+#' A named realised tissue biomass per individual is multiplied by cohort
+#' individuals, aggregated to cell-level biomass, and converted to an annual
+#' area-normalised productivity rate between consecutive simulation timesteps.
+#' This rate is returned for every cell and timestep (`output_variable`),
+#' alongside a single pooled mean and standard deviation of that rate across
+#' all cells and timesteps within the requested `start_date`-`end_date`
+#' period, matching the spatial and temporal extent of a validation estimate
+#' (e.g. one Maliau-wide annual rate for a given period).
+#'
+#' The earliest regular timestep for each cell has no preceding regular
+#' timestep to calculate a rate from, so its `output_variable` value is `NA`.
+#' Initialisation rows are excluded from this calculation.
+#'
+#' `start_date` and `end_date` are matched by month. Both boundary months must
+#' be present in the available interval dates, and only intervals fully within
+#' that month range are pooled for the summary mean and standard deviation. If
+#' both are `NULL` (the default), the entire simulation period is pooled.
+#'
+#' @param plants_cohort_data A data frame of VE `plants_cohort_data.csv`
+#'   output containing the required columns.
+#' @param input_variable Name of the per-individual realised tissue biomass
+#'   column. Values must be in kg C, kg N, or kg P.
+#' @param output_variable Name for the calculated productivity column.
+#' @param cell_area_ha Area represented by each cell in hectares. This must be
+#'   supplied explicitly.
+#' @param update_interval_in_days The duration of each timestep in days.
+#' @param start_date Start of the period to pool the summary mean over.
+#'   Matched by month. If `NULL` (default), pooling starts at the earliest
+#'   interval with a valid rate.
+#' @param end_date End of the period to pool the summary mean over. Matched by
+#'   month. If `NULL` (default), pooling ends at the latest available output.
+#'
+#' @returns A data frame with one row per cell and timestep, containing the
+#'   annual area-normalised productivity rate for that interval
+#'   (`output_variable`, `NA` for `time_index = 0`), plus columns for the
+#'   mean and standard deviation of that rate pooled across all cells and
+#'   timesteps within the requested period, and a `selected_period` label.
+#'   These three columns are `NA` for timesteps outside the requested period,
+#'   so it is clear which timesteps were pooled to calculate them. `units` is
+#'   populated for every row. The standard deviation describes variability
+#'   across cells and intervals, not prediction uncertainty.
+#'
+#' @export
+
+calculate_ve_realised_tissue_productivity <- function(
+  plants_cohort_data,
+  input_variable,
+  output_variable,
+  cell_area_ha,
+  update_interval_in_days,
+  start_date = NULL,
+  end_date = NULL
+) {
+  # These columns identify the cohort biomass, individuals, state marker, and
+  # timesteps needed to calculate the annual area-normalised change.
+  required_columns <- c(
+    "cell_id",
+    "time",
+    "time_index",
+    "n_individuals",
+    "whole_crown_gpp",
+    input_variable
+  )
+
+  missing_columns <- setdiff(required_columns, names(plants_cohort_data))
+  if (length(missing_columns) > 0) {
+    cli::cli_abort(
+      "Missing required columns: {.val {missing_columns}}"
+    )
+  }
+
+  if (
+    !is.numeric(cell_area_ha) ||
+      length(cell_area_ha) != 1 ||
+      !is.finite(cell_area_ha) ||
+      cell_area_ha <= 0
+  ) {
+    cli::cli_abort("cell_area_ha must be one positive finite number.")
+  }
+
+  if (
+    !is.numeric(update_interval_in_days) ||
+      length(update_interval_in_days) != 1 ||
+      !is.finite(update_interval_in_days) ||
+      update_interval_in_days <= 0
+  ) {
+    cli::cli_abort(
+      "update_interval_in_days must be one positive finite number."
+    )
+  }
+
+  if (xor(is.null(start_date), is.null(end_date))) {
+    cli::cli_abort("start_date and end_date must be supplied together.")
+  }
+
+  if (!is.null(start_date)) {
+    start_date <- as.Date(start_date)
+    end_date <- as.Date(end_date)
+    if (
+      length(start_date) != 1 ||
+        length(end_date) != 1 ||
+        is.na(start_date) ||
+        is.na(end_date) ||
+        start_date > end_date
+    ) {
+      cli::cli_abort(
+        "start_date and end_date must each be one valid ordered date in
+        {.val YYYY-MM-DD} format (the day is required to parse the date, but
+        is otherwise ignored, since matching is done by month)."
+      )
+    }
+  }
+
+  tissue_element <- toupper(sub(
+    ".*_([cCpPnN])_biomass$",
+    "\\1",
+    input_variable
+  ))
+  if (!tissue_element %in% c("C", "N", "P")) {
+    cli::cli_abort(
+      "input_variable must identify a C, N, or P biomass column."
+    )
+  }
+  output_units <- paste0("Mg ", tissue_element, " ha-1 year-1")
+
+  # Convert the source columns to the types used by the calculation.
+  cohort_data <- data.frame(
+    cell_id = plants_cohort_data$cell_id,
+    time = as.Date(plants_cohort_data$time),
+    time_index = as.numeric(plants_cohort_data$time_index),
+    n_individuals = as.numeric(plants_cohort_data$n_individuals),
+    tissue_biomass = as.numeric(plants_cohort_data[[input_variable]]),
+    stringsAsFactors = FALSE
+  )
+
+  if (anyNA(cohort_data$time)) {
+    cli::cli_abort(
+      "The time column contains values that cannot be parsed as dates."
+    )
+  }
+
+  # Some input rows are duplicates without a computed whole_crown_gpp; these
+  # are excluded so they are not double-counted in the cell-level aggregate.
+  regular_rows <- !is.na(plants_cohort_data$whole_crown_gpp)
+  if (!any(regular_rows)) {
+    cli::cli_abort(
+      "No regular output rows with computed whole_crown_gpp were found."
+    )
+  }
+
+  # Convert per-individual tissue biomass to cohort-level biomass.
+  cohort_data$tissue_biomass_kg <-
+    cohort_data$tissue_biomass * cohort_data$n_individuals
+
+  # Aggregate cohorts to cell-level model states.
+  cell_tissue_biomass <- aggregate(
+    tissue_biomass_kg ~ cell_id + time + time_index,
+    data = cohort_data[regular_rows, , drop = FALSE],
+    FUN = sum,
+    na.rm = TRUE
+  )
+
+  # Calculate interval productivity as the simple change since the previous
+  # timestep, using plain sequential differences so each step can be
+  # verified by inspection. The first timestep (time_index = 0) has no prior
+  # state, so its rate is NA.
+
+  # Ensure the data are ordered and columns are numeric
+  cell_tissue_biomass$tissue_biomass_kg <- as.numeric(
+    cell_tissue_biomass$tissue_biomass_kg
+  )
+
+  cell_data <- split(cell_tissue_biomass, cell_tissue_biomass$cell_id)
+  cell_tissue_biomass <- lapply(cell_data, function(cell_data) {
+    cell_data <- cell_data[order(cell_data$time), , drop = FALSE]
+    if (nrow(cell_data) < 2) {
+      cli::cli_abort(
+        "At least two regular timesteps are required to calculate productivity."
+      )
+    }
+    cell_data$interval_start_time <- c(
+      NA,
+      head(cell_data$time, -1)
+    )
+    interval_years <- as.numeric(update_interval_in_days / 365.25)
+    biomass_change_kg <- as.numeric(c(NA, diff(cell_data$tissue_biomass_kg)))
+    cell_data[[output_variable]] <- as.numeric(
+      biomass_change_kg / 1000 / interval_years / cell_area_ha
+    )
+
+    return(cell_data)
+  })
+  cell_tissue_biomass <- do.call(rbind, cell_tissue_biomass)
+
+  # Pool the interval rate across all cells and timesteps within the
+  # requested period, matched by month, into a single summary comparable to
+  # the validation data's spatial and temporal extent.
+
+  # Ensure time columns are explicitly Date objects before formatting
+  cell_tissue_biomass$time <- as.Date(
+    cell_tissue_biomass$time,
+    origin = "1970-01-01"
+  )
+  cell_tissue_biomass$interval_start_time <- as.Date(
+    cell_tissue_biomass$interval_start_time,
+    origin = "1970-01-01"
+  )
+
+  combined_times <- unique(c(
+    cell_tissue_biomass$interval_start_time,
+    cell_tissue_biomass$time
+  ))
+
+  available_months <- format(
+    combined_times[!is.na(combined_times)],
+    "%Y-%m"
+  )
+  available_months <- available_months[!is.na(available_months)]
+
+  if (is.null(start_date)) {
+    start_month <- min(available_months)
+    end_month <- max(available_months)
+  } else {
+    start_month <- format(as.Date(start_date), "%Y-%m")
+    end_month <- format(as.Date(end_date), "%Y-%m")
+    if (
+      !start_month %in% available_months || !end_month %in% available_months
+    ) {
+      cli::cli_abort(
+        "The requested start_date or end_date is outside the available output months."
+      )
+    }
+  }
+
+  period_rows <-
+    !is.na(cell_tissue_biomass$interval_start_time) &
+    format(cell_tissue_biomass$interval_start_time, "%Y-%m") >= start_month &
+    format(cell_tissue_biomass$time, "%Y-%m") <= end_month
+
+  if (!any(period_rows)) {
+    cli::cli_abort("No output intervals fall within the requested period.")
+  }
+
+  period_values <- as.numeric(cell_tissue_biomass[[output_variable]][
+    period_rows
+  ])
+
+  result <- cell_tissue_biomass[,
+    c("cell_id", "time", "time_index", output_variable),
+    drop = FALSE
+  ]
+
+  # Force types
+  result$cell_id <- as.integer(result$cell_id)
+  result[[output_variable]] <- as.numeric(result[[output_variable]])
+
+  # Mark the mean/sd as NA outside the requested period so it is clear which
+  # timesteps were pooled to calculate them.
+  period_mean <- as.numeric(mean(period_values, na.rm = TRUE))
+  period_sd <- if (sum(!is.na(period_values)) > 1) {
+    as.numeric(stats::sd(period_values, na.rm = TRUE))
+  } else {
+    NA_real_
+  }
+
+  result[[paste0(output_variable, "_mean")]] <- as.numeric(NA_real_)
+  result[[paste0(output_variable, "_mean")]][period_rows] <- period_mean
+
+  result[[paste0(output_variable, "_sd")]] <- as.numeric(NA_real_)
+  result[[paste0(output_variable, "_sd")]][period_rows] <- period_sd
+
+  result$selected_period <- as.character(NA_character_)
+  result$selected_period[period_rows] <- as.character(paste(
+    start_month,
+    end_month,
+    sep = " to "
+  ))
+  result$units <- as.character(output_units)
+
+  # Ensure it is a standard data frame and drop any attributes
+  result <- as.data.frame(result)
+
+  return(result)
+}
+
+#' Standardise VE cohort carbon output
+#'
+#' Per-individual carbon masses are multiplied by cohort abundance, summed
+#' within each cell and timestep, then normalised by cell area and annualised
+#' using the timestep duration to give Mg C ha-1 year-1.
+#' Rows with NA value for whole_crown_gpp are excluded since these are
+#' initialisation rows.
+#'
+#' @param plants_cohort_data A data frame containing cell_id, time,
+#'   time_index, n_individuals, whole_crown_gpp, and the input variable(s).
+#' @param input_variable Name of the per-individual carbon mass column,
+#'   representing the per-individual carbon mass per timestep.
+#' @param output_variable Name for the standardised output column.
+#' @param input_mass_unit Mass unit of the input carbon values: "g" or "kg".
+#' @param cell_area_ha Area represented by each cell in hectares.
+#' @param update_interval_in_days Duration of each timestep in days.
+#' @param start_date Start of the summary period, as a date. Both dates
+#'   must be supplied together, or both NULL for the entire output period.
+#' @param end_date End of the summary period. Selection uses the recorded
+#'   timestep's month, including both boundary months. Both boundary months
+#'   must be present in the regular output.
+#'
+#' @returns A data frame with one row per cell and timestep, containing
+#'   cell_id, time, time_index, the standardised carbon mass, and units. The
+#'   <output_variable>_mean and <output_variable>_sd columns contain the
+#'   mean and sample standard deviation pooled across all cell-timestep
+#'   values in the selected period. These and selected_period are NA
+#'   outside that period. A valid first timestep is retained; SD is NA
+#'   when the period contains only one value.
+#'
+#' @export
+standardise_ve_cohort_carbon_output <- function(
+  plants_cohort_data,
+  input_variable,
+  output_variable,
+  input_mass_unit,
+  cell_area_ha,
+  update_interval_in_days,
+  start_date = NULL,
+  end_date = NULL
+) {
+  required_columns <- c(
+    "cell_id",
+    "time",
+    "time_index",
+    "n_individuals",
+    "whole_crown_gpp",
+    input_variable
+  )
+  missing_columns <- setdiff(required_columns, names(plants_cohort_data))
+  if (length(missing_columns) > 0) {
+    cli::cli_abort("Missing required columns: {.val {missing_columns}}")
+  }
+
+  if (
+    length(input_mass_unit) != 1 ||
+      is.na(input_mass_unit) ||
+      !input_mass_unit %in% c("g", "kg")
+  ) {
+    cli::cli_abort('input_mass_unit must be "g" or "kg".')
+  }
+  if (
+    !is.numeric(cell_area_ha) ||
+      length(cell_area_ha) != 1 ||
+      !is.finite(cell_area_ha) ||
+      cell_area_ha <= 0
+  ) {
+    cli::cli_abort("cell_area_ha must be one positive finite number.")
+  }
+  if (
+    !is.numeric(update_interval_in_days) ||
+      length(update_interval_in_days) != 1 ||
+      !is.finite(update_interval_in_days) ||
+      update_interval_in_days <= 0
+  ) {
+    cli::cli_abort(
+      "update_interval_in_days must be one positive finite number."
+    )
+  }
+  if (xor(is.null(start_date), is.null(end_date))) {
+    cli::cli_abort("start_date and end_date must be supplied together.")
+  }
+  if (!is.null(start_date)) {
+    start_date <- as.Date(start_date)
+    end_date <- as.Date(end_date)
+    if (
+      length(start_date) != 1 ||
+        length(end_date) != 1 ||
+        is.na(start_date) ||
+        is.na(end_date) ||
+        start_date > end_date
+    ) {
+      cli::cli_abort(
+        "start_date and end_date must each be one valid ordered date."
+      )
+    }
+  }
+
+  regular_rows <- !is.na(plants_cohort_data$whole_crown_gpp)
+  if (!any(regular_rows)) {
+    cli::cli_abort(
+      "No regular output rows with computed whole_crown_gpp were found."
+    )
+  }
+  cohort_data <- as.data.frame(plants_cohort_data)[
+    regular_rows,
+    required_columns,
+    drop = FALSE
+  ]
+  cohort_data$time <- as.Date(cohort_data$time)
+  if (
+    anyNA(cohort_data$cell_id) ||
+      anyNA(cohort_data$time) ||
+      anyNA(cohort_data$time_index)
+  ) {
+    cli::cli_abort("Cell and timestep identifiers must not be missing.")
+  }
+  if (
+    !is.numeric(cohort_data[[input_variable]]) ||
+      any(!is.finite(cohort_data[[input_variable]])) ||
+      !is.numeric(cohort_data$n_individuals) ||
+      any(!is.finite(cohort_data$n_individuals)) ||
+      any(cohort_data$n_individuals < 0)
+  ) {
+    cli::cli_abort(
+      "Carbon values and abundances must be finite numbers;
+      abundances must be non-negative."
+    )
+  }
+
+  cohort_data$cohort_carbon_mass <- cohort_data[[input_variable]] *
+    cohort_data$n_individuals
+  result <- aggregate(
+    cohort_carbon_mass ~ cell_id + time + time_index,
+    data = cohort_data,
+    FUN = sum
+  )
+  result <- result[order(result$cell_id, result$time), , drop = FALSE]
+  mass_per_mg <- if (input_mass_unit == "g") 1e6 else 1e3
+  result[[output_variable]] <- result$cohort_carbon_mass /
+    mass_per_mg /
+    cell_area_ha *
+    (365.25 / update_interval_in_days)
+  result$cohort_carbon_mass <- NULL
+
+  output_months <- format(result$time, "%Y-%m")
+  if (is.null(start_date)) {
+    start_month <- min(output_months)
+    end_month <- max(output_months)
+  } else {
+    start_month <- format(start_date, "%Y-%m")
+    end_month <- format(end_date, "%Y-%m")
+    if (!start_month %in% output_months || !end_month %in% output_months) {
+      cli::cli_abort(
+        "The requested start_date or end_date is outside the available output months."
+      )
+    }
+  }
+  period_rows <- output_months >= start_month & output_months <= end_month
+  period_values <- result[[output_variable]][period_rows]
+  result[[paste0(output_variable, "_mean")]] <- NA_real_
+  result[[paste0(output_variable, "_mean")]][period_rows] <- mean(period_values)
+  result[[paste0(output_variable, "_sd")]] <- NA_real_
+  result[[paste0(output_variable, "_sd")]][period_rows] <-
+    stats::sd(period_values)
+  result$selected_period <- NA_character_
+  result$selected_period[period_rows] <- paste(
+    start_month,
+    end_month,
+    sep = " to "
+  )
+  result$units <- "Mg C ha-1 year-1"
+  rownames(result) <- NULL
+  return(result)
 }

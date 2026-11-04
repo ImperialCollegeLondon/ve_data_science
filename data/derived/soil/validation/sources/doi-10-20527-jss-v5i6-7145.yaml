@@ -1,0 +1,22 @@
+schema_version: 1
+record_id: doi-10-20527-jss-v5i6-7145
+doi: 10.20527/jss.v5i6.7145
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: Maliau keyword is an Indonesian site with the same name.
+  screened_at: '2026-09-18T05:54:37Z'
+metadata:
+  title: ANALISIS TINGKAT KEKRITISAN LAHAN DI SUB DAS MALIAU KECAMATAN DUSUN SELATAN
+    KABUPATEN BARITO SELATAN
+  authors:
+  - Irianti, Rizky
+  - Yamani, Ahmad
+  - Susilawati, Susilawati
+  year: 2022
+  journal: Jurnal Sylva Scienteae
+  publisher: Center for Journal Management and Publication, Lambung Mangkurat University
+  url: http://dx.doi.org/10.20527/jss.v5i6.7145
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T05:54:17Z'

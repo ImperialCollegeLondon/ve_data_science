@@ -392,8 +392,7 @@ source("analysis/soil/ammonium_nitrate/model.R")
 # simulation purpose (they have the same fixed effects)
 flux_forest_idx <- which(flux$landuse == "forest")[1]
 
-# simulate ammonium and nitrate
-# 1 mg N cm-3 = 1 kg N m-3 so no conversion needed
+# simulate ammonium and nitrate (already in kg{N} m-3)
 ammonium_sim <- as.numeric(
   glmmTMB:::simulate.glmmTMB(mod_ammonium, nsim = n_sim)[flux_forest_idx, ]
 )
@@ -411,18 +410,21 @@ dat <-
 
 
 # Fungal fruiting body biomass:
-# fungal_fruiting_bodies
+# fungal_fruiting_bodies_cnp
 source("analysis/soil/sporocarp_biomass/sporocarp_biomass.R")
 
-# simulate and add directly to dataset
+# simulate sporocarp biomass, then convert to CNP nutrients and add to dataset
+fungal_fruiting_bodies_biomass <-
+  rnorm(n_sim, sporocarp_biomass_mean, sporocarp_biomass_sd)
 dat <-
   dat |>
   mutate(
-    fungal_fruiting_bodies = rnorm(
-      n_sim,
-      sporocarp_biomass_mean,
-      sporocarp_biomass_sd
-    )
+    fungal_fruiting_body_c = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$C,
+    fungal_fruiting_body_n = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$N,
+    fungal_fruiting_body_p = fungal_fruiting_bodies_biomass *
+      sporocarp_stoich$P
   )
 
 
@@ -510,6 +512,14 @@ dat <-
         soil_c_pool_necromass,
         soil_n_pool_necromass,
         soil_p_pool_necromass
+      ),
+      c
+    ),
+    fungal_fruiting_bodies_cnp = pmap(
+      list(
+        fungal_fruiting_body_c,
+        fungal_fruiting_body_n,
+        fungal_fruiting_body_p
       ),
       c
     ),

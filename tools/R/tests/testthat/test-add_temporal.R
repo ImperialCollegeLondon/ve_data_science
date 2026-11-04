@@ -142,7 +142,13 @@ test_that("a mid-day timestamp still widens to a clean granule boundary", {
 
   out <- add_temporal(
     test_data("2015-03-14 08:30:00"[c(1, 1)]),
-    make_source(temporal = list(date_column = "sampled", precision = "day"))
+    make_source(
+      temporal = list(
+        date_column = "sampled",
+        timezone = "UTC",
+        precision = "day"
+      )
+    )
   )
 
   expect_equal(format(out$time_start[1], "%Y-%m-%d %H:%M"), "2015-03-14 08:30")
@@ -187,7 +193,7 @@ test_that("ISO dates are still parsed without a declared format", {
 
   out <- add_temporal(
     test_data(),
-    make_source(temporal = list(date_column = "sampled"))
+    make_source(temporal = list(date_column = "sampled", timezone = "UTC"))
   )
 
   expect_equal(
@@ -246,6 +252,7 @@ test_that("a blanket campaign window is applied to every row", {
     test_data(),
     make_source(
       temporal = list(
+        timezone = "UTC",
         same_for_all_rows = list(
           start = "2011-01-01",
           end = "2014-12-01",
@@ -272,6 +279,7 @@ test_that("a per-row start/end pair is stored half-open", {
     dat,
     make_source(
       temporal = list(
+        timezone = "UTC",
         start_column = "s",
         end_column = "e",
         precision = "day"

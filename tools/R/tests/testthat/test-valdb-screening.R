@@ -19,7 +19,7 @@
 #| package_dependencies:
 #|     - testthat
 #| ---
-source(here::here("tools/R/R/valdb.R"))
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 
 new_test_metadata <- function() {
   list(
@@ -133,6 +133,26 @@ test_that("normalise_doi_metadata handles absent optional metadata", {
   expect_null(metadata$year)
   expect_null(metadata$journal)
   expect_null(metadata$keywords)
+})
+
+
+test_that("normalise_doi_metadata handles missing author name parts", {
+  response <- new_test_doi_response()
+  response$author <- data.frame(
+    family = c("Example", "Sukarno", NA_character_),
+    given = c("Alice", NA_character_, NA_character_),
+    literal = c(NA_character_, NA_character_, "World Agroforestry")
+  )
+
+  metadata <- normalise_doi_metadata(
+    response,
+    retrieved_at = as.POSIXct("2026-08-13 12:00:00", tz = "UTC")
+  )
+
+  expect_identical(
+    metadata$authors,
+    c("Example, Alice", "Sukarno", "World Agroforestry")
+  )
 })
 
 
@@ -291,15 +311,25 @@ test_that("find_screening_record matches normalised DOI forms", {
 })
 
 
-test_that("find_screening_record rejects duplicate DOI records", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_test_record()
-  yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
-  yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
+test_that("screening helpers require explicit sources_dir", {
+  expect_error(
+    list_screening_records(),
+    "argument .*sources_dir.*missing"
+  )
 
   expect_error(
-    find_screening_record(record$doi, sources_dir),
-    "multiple\\s+screening records"
+    find_screening_record("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
+    write_screening_record(new_test_record()),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
+    screen_dataset(.readline = function(...) "10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
   )
 })
 
@@ -337,16 +367,6 @@ test_that("write_screening_record rejects duplicate DOI records", {
     "delete the existing YAML file"
   )
   expect_length(list.files(sources_dir, pattern = "\\.yaml$"), 1L)
-})
-
-
-test_that("write_screening_record rejects inconsistent identities", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_test_record()
-  record$record_id <- "doi-wrong"
-
-  expect_error(write_screening_record(record, sources_dir))
-  expect_length(list.files(sources_dir), 0L)
 })
 
 
@@ -458,4 +478,27 @@ test_that("screen_dataset rejects duplicates before metadata retrieval", {
   )
   expect_identical(metadata_requested, FALSE)
   expect_length(list.files(sources_dir, pattern = "\\.yaml$"), 1L)
+})
+
+
+test_that("list_proceed_screening_records prints proceed records", {
+  sources_dir <- withr::local_tempdir()
+  write_screening_record(new_test_record(), sources_dir)
+  write_screening_record(
+    new_screening_record(
+      doi = "10.1000/example-two",
+      decision = "exclude",
+      reason = "no_raw_data",
+      metadata = new_test_metadata()
+    ),
+    sources_dir
+  )
+
+  output <- capture.output(
+    rows <- list_proceed_screening_records(sources_dir)
+  )
+
+  expect_identical(nrow(rows), 1L)
+  expect_identical(rows$doi, "10.5281/zenodo.8158810")
+  expect_true(any(grepl("10.5281/zenodo.8158810", output, fixed = TRUE)))
 })

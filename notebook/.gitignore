@@ -1,0 +1,3 @@
+# Paired Jupyter notebooks: commit the jupytext .md source instead
+*.ipynb
+.ipynb_checkpoints/

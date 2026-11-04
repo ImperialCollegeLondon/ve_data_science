@@ -20,7 +20,26 @@
 #|     - withr
 #|     - yaml
 #| ---
-source(here::here("tools/R/R/valdb.R"))
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
+
+new_builder_test_schema <- function(doi) {
+  dataset <- new_schema_template()
+  dataset$source_id <- paste0("source_", stringr::str_extract(doi, "[^/]+$"))
+  dataset$data_file <- paste0(
+    "data/primary/soil/",
+    dataset$source_id,
+    "/data.csv"
+  )
+  dataset$variables <- list(
+    soil_carbon = list(
+      var_canonical = "soil_c_pool_lmwc",
+      unit = "kg m-3",
+      description = NULL
+    )
+  )
+  dataset$dedup_key <- "sample_id"
+  dataset
+}
 
 
 new_builder_test_record <- function(
@@ -44,21 +63,7 @@ new_builder_test_record <- function(
     return(record)
   }
 
-  record <- c(record, new_schema_template())
-  record$source_id <- paste0("source_", stringr::str_extract(doi, "[^/]+$"))
-  record$data_file <- paste0(
-    "data/primary/soil/",
-    record$source_id,
-    "/data.csv"
-  )
-  record$variables <- list(
-    soil_carbon = list(
-      var_canonical = "soil_c_pool_lmwc",
-      unit = "kg m-3",
-      description = NULL
-    )
-  )
-  record$dedup_key <- "sample_id"
+  record$datasets <- list(new_builder_test_schema(doi))
   record
 }
 
@@ -80,10 +85,13 @@ test_that("list_build_sources discovers completed schemas deterministically", {
 
   result <- list_build_sources(sources_dir)
 
-  expect_identical(names(result), sort(c(first$record_id, second$record_id)))
+  expect_identical(
+    names(result),
+    sort(c(first$datasets[[1]]$source_id, second$datasets[[1]]$source_id))
+  )
   expect_identical(
     unname(purrr::map_chr(result, "source_id")),
-    c(first$source_id, second$source_id)
+    sort(c(first$datasets[[1]]$source_id, second$datasets[[1]]$source_id))
   )
 })
 
@@ -97,16 +105,14 @@ test_that("list_build_sources ignores screening-only records", {
 
   result <- list_build_sources(sources_dir)
 
-  expect_named(result, complete$record_id)
+  expect_named(result, complete$datasets[[1]]$source_id)
 })
 
 
 test_that("list_build_sources warns and skips draft schemas", {
   sources_dir <- withr::local_tempdir()
-  draft <- c(
-    new_builder_test_record("10.1000/draft", schema = FALSE),
-    new_schema_template()
-  )
+  draft <- new_builder_test_record("10.1000/draft", schema = FALSE)
+  draft$datasets <- list(new_schema_template())
   complete <- new_builder_test_record("10.1000/complete")
   draft_path <- write_builder_test_record(draft, sources_dir)
   write_builder_test_record(complete, sources_dir)
@@ -116,7 +122,7 @@ test_that("list_build_sources warns and skips draft schemas", {
     basename(draft_path),
     fixed = TRUE
   )
-  expect_named(result, complete$record_id)
+  expect_named(result, complete$datasets[[1]]$source_id)
 })
 
 
@@ -134,10 +140,8 @@ test_that("list_build_sources errors when only screening records exist", {
 
 test_that("list_build_sources errors when only draft schemas exist", {
   sources_dir <- withr::local_tempdir()
-  draft <- c(
-    new_builder_test_record("10.1000/draft", schema = FALSE),
-    new_schema_template()
-  )
+  draft <- new_builder_test_record("10.1000/draft", schema = FALSE)
+  draft$datasets <- list(new_schema_template())
   write_builder_test_record(draft, sources_dir)
 
   expect_warning(
@@ -153,7 +157,8 @@ test_that("list_build_sources errors when only draft schemas exist", {
 test_that("list_build_sources recognises partial schemas as drafts", {
   sources_dir <- withr::local_tempdir()
   partial <- new_builder_test_record("10.1000/partial", schema = FALSE)
-  partial$data_file <- "data/primary/soil/partial/data.csv"
+  partial$datasets <- list(new_schema_template())
+  partial$datasets[[1]]$data_file <- "data/primary/soil/partial/data.csv"
   complete <- new_builder_test_record("10.1000/complete")
   partial_path <- write_builder_test_record(partial, sources_dir)
   write_builder_test_record(complete, sources_dir)
@@ -163,7 +168,7 @@ test_that("list_build_sources recognises partial schemas as drafts", {
     basename(partial_path),
     fixed = TRUE
   )
-  expect_named(result, complete$record_id)
+  expect_named(result, complete$datasets[[1]]$source_id)
 })
 
 
@@ -191,26 +196,46 @@ test_that("list_build_sources reports malformed YAML with its path", {
 })
 
 
-test_that("list_build_sources rejects duplicate DOI records", {
+test_that("list_build_sources flattens nested multi-dataset records", {
   sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record("10.1000/duplicate")
-  write_builder_test_record(record, sources_dir, "first.yaml")
-  write_builder_test_record(record, sources_dir, "second.yaml")
+  record <- new_builder_test_record("10.1000/nested")
+  second_dataset <- new_schema_template()
+  second_dataset$source_id <- "source_nested_b"
+  second_dataset$data_file <- "data/primary/soil/source_nested_b/data.csv"
+  second_dataset$variables <- list(
+    soil_nitrogen = list(
+      var_canonical = "total_soil_n_per_mass",
+      unit = "%",
+      description = NULL
+    )
+  )
+  second_dataset$dedup_key <- "sample_id"
+  record$datasets[[2]] <- second_dataset
+  write_builder_test_record(record, sources_dir)
 
-  expect_error(list_build_sources(sources_dir))
+  result <- list_build_sources(sources_dir)
+
+  expect_identical(
+    names(result),
+    c(record$datasets[[1]]$source_id, second_dataset$source_id)
+  )
+  expect_identical(result[[1]]$record_id, record$record_id)
+  expect_identical(result[[2]]$record_id, record$record_id)
+  expect_identical(result[[1]]$dataset_index, 1L)
+  expect_identical(result[[2]]$dataset_index, 2L)
 })
 
 
-test_that("list_build_sources rejects schemas without a proceed decision", {
+test_that("list_build_sources reads nested single-dataset records", {
   sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record("10.1000/excluded", decision = "exclude")
-  path <- write_builder_test_record(record, sources_dir)
+  record <- new_builder_test_record("10.1000/nested-single")
+  write_builder_test_record(record, sources_dir)
 
-  expect_error(
-    list_build_sources(sources_dir),
-    basename(path),
-    fixed = TRUE
-  )
+  result <- list_build_sources(sources_dir)
+
+  expect_named(result, record$datasets[[1]]$source_id)
+  expect_identical(result[[1]]$source_id, record$datasets[[1]]$source_id)
+  expect_identical(result[[1]]$record_id, record$record_id)
 })
 
 
@@ -218,7 +243,7 @@ test_that("validate_source_schema checks required fields and source files", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
   readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
-  source <- new_builder_test_record("10.1000/valid")
+  source <- new_builder_test_schema("10.1000/valid")
   source$data_file <- data_path
   schema_path <- file.path(directory, "source.yaml")
 
@@ -241,7 +266,7 @@ test_that("validate_source_schema checks scalar fields and collections", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
   readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
-  source <- new_builder_test_record("10.1000/valid")
+  source <- new_builder_test_schema("10.1000/valid")
   source$data_file <- data_path
   schema_path <- file.path(directory, "source.yaml")
 
@@ -273,14 +298,48 @@ test_that("validate_source_schema checks scalar fields and collections", {
 })
 
 
+test_that("validate_source_schema checks optional provenance fields", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  raw_path <- file.path(directory, "raw.csv")
+  script_path <- file.path(directory, "preprocess_script")
+  readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
+  file.create(raw_path, script_path)
+  source <- new_builder_test_schema("10.1000/valid")
+  source$data_file <- data_path
+  schema_path <- file.path(directory, "source.yaml")
+
+  provided <- source
+  provided$data_file_original <- raw_path
+  provided$preprocess_script <- script_path
+  expect_no_error(validate_source_schema(provided, schema_path))
+
+  missing_script <- provided
+  missing_script$preprocess_script <- file.path(directory, "missing_script")
+  expect_error(
+    validate_source_schema(missing_script, schema_path),
+    "preprocess_script"
+  )
+
+  blank_original <- provided
+  blank_original$data_file_original <- ""
+  expect_error(
+    validate_source_schema(blank_original, schema_path),
+    "data_file_original"
+  )
+})
+
+
 test_that("validate_build_sources rejects duplicate source IDs", {
   directory <- withr::local_tempdir()
   data_path <- file.path(directory, "data.csv")
   readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
-  first <- new_builder_test_record("10.1000/first")
-  second <- new_builder_test_record("10.1000/second")
+  first <- new_builder_test_schema("10.1000/first")
+  second <- new_builder_test_schema("10.1000/second")
   first$data_file <- data_path
   second$data_file <- data_path
+  first$schema_path <- file.path(directory, "first.yaml")
+  second$schema_path <- file.path(directory, "second.yaml")
   second$source_id <- first$source_id
 
   expect_error(
@@ -291,7 +350,7 @@ test_that("validate_build_sources rejects duplicate source IDs", {
 
 
 test_that("prepare_source_data rejects missing deduplication columns", {
-  source <- new_builder_test_record("10.1000/missing-key")
+  source <- new_builder_test_schema("10.1000/missing-key")
   data <- tibble::tibble(soil_carbon = 2)
 
   expect_error(prepare_source_data(data, source), "sample_id")
@@ -299,7 +358,7 @@ test_that("prepare_source_data rejects missing deduplication columns", {
 
 
 test_that("prepare_source_data warns and skips missing measurements", {
-  source <- new_builder_test_record("10.1000/missing-measurement")
+  source <- new_builder_test_schema("10.1000/missing-measurement")
   source$variables$soil_nitrogen <- source$variables$soil_carbon
   data <- tibble::tibble(sample_id = 1:2, soil_carbon = c(2, 3))
 
@@ -313,7 +372,7 @@ test_that("prepare_source_data warns and skips missing measurements", {
 
 
 test_that("prepare_source_data skips sources without measurements", {
-  source <- new_builder_test_record("10.1000/no-measurements")
+  source <- new_builder_test_schema("10.1000/no-measurements")
   data <- tibble::tibble(sample_id = 1:2)
 
   expect_warning(
@@ -325,7 +384,7 @@ test_that("prepare_source_data skips sources without measurements", {
 
 
 test_that("prepare_source_data rejects missing and duplicate keys", {
-  source <- new_builder_test_record("10.1000/invalid-keys")
+  source <- new_builder_test_schema("10.1000/invalid-keys")
 
   missing <- tibble::tibble(
     sample_id = c("a", NA_character_),
@@ -342,7 +401,7 @@ test_that("prepare_source_data rejects missing and duplicate keys", {
 
 
 test_that("add_observation_id rejects concatenation collisions", {
-  source <- new_builder_test_record("10.1000/collision")
+  source <- new_builder_test_schema("10.1000/collision")
   source$dedup_key <- c("plot", "sample")
   data <- tibble::tibble(
     plot = c("a_b", "a"),
@@ -471,14 +530,14 @@ test_that("configured spatial and temporal values survive a database build", {
     data_path
   )
   source <- new_builder_test_record("10.1000/spatiotemporal")
-  source$data_file <- data_path
-  source$variables$soil_carbon$var_canonical <- "known_variable"
-  source$variables$soil_carbon$unit <- "kg"
-  source$coordinates$same_for_all_rows <- list(
+  source$datasets[[1]]$data_file <- data_path
+  source$datasets[[1]]$variables$soil_carbon$var_canonical <- "known_variable"
+  source$datasets[[1]]$variables$soil_carbon$unit <- "kg"
+  source$datasets[[1]]$coordinates$same_for_all_rows <- list(
     latitude = 4.74,
     longitude = 116.97
   )
-  source$temporal$same_for_all_rows <- list(
+  source$datasets[[1]]$temporal$same_for_all_rows <- list(
     start = "2011-01-01",
     end = "2011-12-31",
     precision = "day",
@@ -506,7 +565,6 @@ test_that("configured spatial and temporal values survive a database build", {
   )
 
   build_validation_database(
-    config_dir = directory,
     sources_dir = sources_dir,
     db_path = db_path
   )
@@ -520,11 +578,11 @@ test_that("configured spatial and temporal values survive a database build", {
     c("same_for_all_rows", "same_for_all_rows")
   )
   expect_equal(
-    format(result$time_start, "%Y-%m-%d", tz = "UTC"),
+    format(result$time_start, "%Y-%m-%d", tz = "Asia/Kuching"),
     c("2011-01-01", "2011-01-01")
   )
   expect_equal(
-    format(result$time_end, "%Y-%m-%d", tz = "UTC"),
+    format(result$time_end, "%Y-%m-%d", tz = "Asia/Kuching"),
     c("2012-01-01", "2012-01-01")
   )
   expect_identical(result$time_precision, c("day", "day"))
@@ -546,7 +604,7 @@ test_that("harmonisation retains unknown canonical mappings", {
     tibble::tibble(sample_id = c("a", "b"), unknown = c(2, 3)),
     data_path
   )
-  source <- new_builder_test_record("10.1000/unknown")
+  source <- new_builder_test_schema("10.1000/unknown")
   source$data_file <- data_path
   source$variables <- list(
     unknown = list(

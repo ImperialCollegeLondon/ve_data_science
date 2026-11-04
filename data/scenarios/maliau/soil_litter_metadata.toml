@@ -210,13 +210,13 @@ source = "Imai et al. (2012) https://jtfs.frim.gov.my/jtfs/article/view/472"
 source_type = "Lowland tropical rainforest of Deramakot, Borneo"
 comment = "We mapped Imai et al. (2012) field-measured phosphorous pools to VE pools based on nomenclature in Gijsman et al. (1996; Fig. 2) https://doi.org/10.2134/agronj1996.00021962003600060008x."
 
-[soil.fungal_fruiting_bodies]
-unit = "kg C m^-2"
-description = "Density of fungal fruiting bodies growing from the litter and soil"
+[soil.fungal_fruiting_bodies_cnp]
+unit = "kg m^-2"
+description = "Density (of carbon, nitrogen and phosphorous) of fungal fruiting bodies growing from the soil"
 script_path = "analysis/soil/sporocarp_biomass/sporocarp_biomass.R"
 source = "Alday et al. (2017) https://doi.org/10.1038/srep45824"
 source_type = "Mediterranean Scots Pine (P. sylvestris) forest stands"
-comment = "This is a very crude estimation of sporocarp biomass for the initialisation of Maliau scenario. It had been extremely hard to find reliable value from tropical forests, so I had to rely on a Mediterranean study(!) by Alday et al. (2017). The author did not share data, and their main figure was hard to extract data from (data point obscured by regression lines). We took the reported maximum biomass in the main text; using the max value from a Mediterranean study is somewhat justifiable for our tropical rainforest scenario because the former has a much drier climate than the latter, so I assume that their maximum would approximate our mean."
+comment = "This is a very crude estimation of sporocarp biomass for the initialisation of Maliau scenario. It had been extremely hard to find reliable value from tropical forests, so I had to rely on a Mediterranean study(!) by Alday et al. (2017). The author did not share data, and their main figure was hard to extract data from (data point obscured by regression lines). We took the reported maximum biomass in the main text; using the max value from a Mediterranean study is somewhat justifiable for our tropical rainforest scenario because the former has a much drier climate than the latter, so I assume that their maximum would approximate our mean. Sporocarp CNP stoichiometry was taken from Kranabetter et al. (2018), which is a dataset covering only saprotrophic and EM fungi, but I think they are good enough for us at this stage. There are not a lot of stoichiometry specifically for the fruiting body in the literature. The dataset was also from the temperate zone."
 
 # Litter variables
 

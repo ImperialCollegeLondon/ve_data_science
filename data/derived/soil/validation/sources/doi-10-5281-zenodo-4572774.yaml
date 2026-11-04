@@ -1,0 +1,40 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-4572774
+doi: 10.5281/zenodo.4572774
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains forest carbon data. Carbon is plant but not soil related.
+  screened_at: '2026-09-18T06:09:25Z'
+metadata:
+  title: 'Data accompanying Milodowski et al. (Journal of Applied Ecology, 2021):
+    "The impact of logging on vertical canopy structure across a gradient of tropical
+    forest degradation intensity in Borneo"'
+  authors:
+  - Milodowski, David T.
+  - Coomes, David A.
+  - Swinfield, Tom W.
+  - Jucker, Tommaso
+  - Riutta, Terhi
+  - Malhi, Yadvinder
+  - Svátek, Martin
+  - Kvasnica, Jakub
+  - Nilus, Reuben
+  - Burslem, David F.R.P.
+  - Ewers, Robert M
+  - Teh, Yit A.
+  - Williams, Mathew
+  year: 2021
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/4572774
+  keywords:
+  - LiDAR
+  - SAFE
+  - Maliau Basin
+  - Danum Valley
+  - point cloud
+  - tree crowns
+  - canopy structure
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:08:28Z'

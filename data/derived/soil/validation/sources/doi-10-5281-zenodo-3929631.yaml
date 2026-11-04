@@ -1,0 +1,62 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3929631
+doi: 10.5281/zenodo.3929631
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Used in various microbial and litter input data analyses, but there are leftover
+    soil variables such as soil_N, _C and _P worth validating. Also contains leaf
+    nutrients.
+  screened_at: '2026-08-17T03:01:58Z'
+metadata:
+  title: Soil and litter chemistry, soil microbial communities and litter decomposition
+    from tropical forest and oil palm
+  authors:
+  - Elias, Dafydd
+  - Robinson, Samuel
+  - Both, Sabine
+  - Goodall, Tim
+  - Majalap-Lee, Noreen
+  - Ostle, Nick
+  - McNamara, Niall
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3929631
+  keywords:
+  - soil
+  - soil microbial communities
+  - PLFA
+  - litter decomposition
+  - litter
+  - functional dissimilarity
+  provider: doi_content_search
+  retrieved_at: '2026-08-17T03:01:49Z'
+datasets:
+- source_id: elias_2020
+  data_file: data/primary/soil/elias_2020/SAFE_Dataset.csv
+  skip_rows: 9
+  variables:
+    soil_N:
+      var_canonical: total_soil_n_per_mass
+      unit: g g^-1
+      description: Total soil nitrogen concentration
+    soil_C:
+      var_canonical: total_soil_c_per_mass
+      unit: g g^-1
+      description: Total soil carbon concentration
+    soil_P:
+      var_canonical: total_soil_p_per_mass
+      unit: ug g^-1
+      description: Total soil phosphorous concentration
+  dedup_key: location_name
+  coordinates:
+    from_file: data/primary/soil/elias_2020/locations.csv
+  temporal:
+    format: '%d/%m/%Y'
+    timezone: Asia/Kuching
+    same_for_all_rows:
+      start: 01/10/2014
+      end: 01/09/2018
+      precision: day
+      note: Start and end dates specified in the Summary sheet of the original file.

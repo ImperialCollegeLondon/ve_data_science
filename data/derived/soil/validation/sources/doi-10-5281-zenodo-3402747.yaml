@@ -1,0 +1,29 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3402747
+doi: 10.5281/zenodo.3402747
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains plant functional traits. Carbon keyword is plant but not soil variables.
+  screened_at: '2026-09-18T06:04:50Z'
+metadata:
+  title: Branch wood chemistry of tree species in old-growth and selectively logged
+    forest
+  authors:
+  - Both, Sabine
+  - Burslem, David F. R. P.
+  - Malhi, Yadvinder
+  - Majalap, Noreen
+  - Salinas, Norma
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3402747
+  keywords:
+  - trees
+  - branch wood chemistry
+  - functional traits
+  - old-growth forest
+  - selectively logged forest
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:04:21Z'

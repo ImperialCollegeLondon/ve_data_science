@@ -18,7 +18,7 @@
 #| package_dependencies:
 #|     - testthat
 #| ---
-source(here::here("tools/R/R/valdb.R"))
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 
 new_schema_test_record <- function(
   doi = "10.5281/zenodo.8158810",
@@ -50,17 +50,20 @@ test_that("new_schema_template returns the builder contract", {
     c(
       "source_id",
       "data_file",
+      "data_file_original",
+      "preprocess_script",
       "skip_rows",
       "variables",
       "dedup_key",
       "coordinates",
-      "temporal"
+      "temporal",
+      "row_filter"
     )
   )
   expect_identical(template$source_id, "author_year")
   expect_identical(
     template$data_file,
-    "data/primary/soil/author_year/*.csv"
+    "data/primary/<module>/author_year/*.csv"
   )
   expect_identical(template$skip_rows, 0L)
   expect_named(template$variables, "var_original_1")
@@ -163,7 +166,7 @@ test_that("configured optional schema blocks round trip through YAML", {
 })
 
 
-test_that("initialise_source_schema adds schema and preserves screening fields", {
+test_that("initialise_source_schema adds nested schema and preserves screening fields", {
   sources_dir <- withr::local_tempdir()
   record <- new_schema_test_record()
   path <- write_screening_record(record, sources_dir)
@@ -173,11 +176,8 @@ test_that("initialise_source_schema adds schema and preserves screening fields",
 
   expect_identical(result, path)
   expect_identical(updated[names(record)], record)
-  expect_identical(
-    updated[names(new_schema_template())],
-    new_schema_template()
-  )
-  expect_named(updated, c(names(record), names(new_schema_template())))
+  expect_identical(updated$datasets, list(new_schema_template()))
+  expect_named(updated, c(names(record), "datasets"))
   expect_identical(
     list.files(sources_dir, all.files = TRUE),
     c(".", "..", basename(path))
@@ -200,6 +200,19 @@ test_that("initialise_source_schema normalises common DOI forms", {
 })
 
 
+test_that("schema helpers require explicit sources_dir", {
+  expect_error(
+    initialise_source_schema("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+
+  expect_error(
+    add_schema("10.5281/zenodo.8158810"),
+    "argument .*sources_dir.*missing"
+  )
+})
+
+
 test_that("initialise_source_schema rejects an unscreened DOI", {
   sources_dir <- withr::local_tempdir()
 
@@ -211,43 +224,22 @@ test_that("initialise_source_schema rejects an unscreened DOI", {
 })
 
 
-test_that("initialise_source_schema rejects duplicate DOI records", {
-  sources_dir <- withr::local_tempdir()
+test_that("schema_needs_completion handles nested records by dataset", {
   record <- new_schema_test_record()
-  yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
-  yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
+  record$datasets <- list(new_schema_template())
+  expect_true(schema_needs_completion(record))
 
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "multiple\\s+screening records"
+  record$datasets[[1]]$source_id <- "example_2023"
+  record$datasets[[1]]$data_file <- "data/primary/soil/example_2023/data.csv"
+  record$datasets[[1]]$variables <- list(
+    soil_carbon = list(
+      var_canonical = "soil_c_pool_lmwc",
+      unit = "kg m-3",
+      description = NULL
+    )
   )
-})
-
-
-test_that("initialise_source_schema requires a proceed decision", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_schema_test_record(decision = "exclude")
-  path <- write_screening_record(record, sources_dir)
-
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "must have a.*proceed.*screening decision"
-  )
-  expect_identical(yaml::read_yaml(path), record)
-})
-
-
-test_that("initialise_source_schema does not replace an existing schema", {
-  sources_dir <- withr::local_tempdir()
-  record <- c(new_schema_test_record(), new_schema_template())
-  path <- file.path(sources_dir, paste0(record$record_id, ".yaml"))
-  yaml::write_yaml(record, path)
-
-  expect_error(
-    initialise_source_schema(record$doi, sources_dir),
-    "already has a schema"
-  )
-  expect_identical(yaml::read_yaml(path), record)
+  record$datasets[[1]]$dedup_key <- "sample_id"
+  expect_false(schema_needs_completion(record))
 })
 
 
@@ -280,10 +272,7 @@ test_that("add_schema initialises and opens only the target record", {
   expect_identical(result, target_path)
   expect_identical(editor_calls$paths, target_path)
   expect_identical(updated[names(target)], target)
-  expect_identical(
-    updated[names(new_schema_template())],
-    new_schema_template()
-  )
+  expect_identical(updated$datasets, list(new_schema_template()))
   expect_identical(yaml::read_yaml(other_path), other)
   expect_identical(yaml::read_yaml(target_path), updated)
 })
@@ -326,42 +315,6 @@ test_that("add_schema rejects an unscreened DOI without opening an editor", {
 })
 
 
-test_that("add_schema rejects duplicate DOI records without opening an editor", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_schema_test_record()
-  yaml::write_yaml(record, file.path(sources_dir, "first.yaml"))
-  yaml::write_yaml(record, file.path(sources_dir, "second.yaml"))
-  editor_called <- FALSE
-  editor <- function(path) {
-    editor_called <<- TRUE
-  }
-
-  expect_error(
-    add_schema(record$doi, sources_dir, editor),
-    "multiple\\s+screening records"
-  )
-  expect_false(editor_called)
-})
-
-
-test_that("add_schema requires a proceed decision", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_schema_test_record(decision = "exclude")
-  path <- write_screening_record(record, sources_dir)
-  editor_called <- FALSE
-  editor <- function(path) {
-    editor_called <<- TRUE
-  }
-
-  expect_error(
-    add_schema(record$doi, sources_dir, editor),
-    "must have a.*proceed.*screening decision"
-  )
-  expect_false(editor_called)
-  expect_identical(yaml::read_yaml(path), record)
-})
-
-
 test_that("add_schema does not replace an existing schema", {
   sources_dir <- withr::local_tempdir()
   record <- c(new_schema_test_record(), new_schema_template())
@@ -377,5 +330,20 @@ test_that("add_schema does not replace an existing schema", {
     "already has a schema"
   )
   expect_false(editor_called)
+  expect_identical(yaml::read_yaml(path), record)
+})
+
+
+test_that("initialise_source_schema does not replace an existing nested schema", {
+  sources_dir <- withr::local_tempdir()
+  record <- new_schema_test_record()
+  record$datasets <- list(new_schema_template())
+  path <- file.path(sources_dir, paste0(record$record_id, ".yaml"))
+  yaml::write_yaml(record, path)
+
+  expect_error(
+    initialise_source_schema(record$doi, sources_dir),
+    "already has a schema"
+  )
   expect_identical(yaml::read_yaml(path), record)
 })

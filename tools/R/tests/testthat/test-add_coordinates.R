@@ -199,6 +199,138 @@ test_that("a multi-column dedup key must name the location column", {
 })
 
 
+test_that("coordinates are read directly from data columns", {
+  test_dat <- tibble::tibble(
+    location_name = c("plot_a", "plot_b"),
+    soil_N = c(1, 2),
+    Latitude = c(4.71, 4.72),
+    Longitude = c(117.61, 117.62)
+  )
+
+  source_dat <- make_source(
+    withr::local_tempdir(),
+    coordinates = list(
+      latitude_column = "Latitude",
+      longitude_column = "Longitude",
+      from_file = NA,
+      match_data_column = NA
+    )
+  )
+
+  out <- add_coordinates(test_dat, source_dat)
+
+  expect_equal(nrow(out), 2)
+  expect_equal(out$latitude, c(4.71, 4.72))
+  expect_equal(out$longitude, c(117.61, 117.62))
+  expect_true(all(is.na(out$location_type)))
+  expect_equal(out$coordinate_source, c("data_columns", "data_columns"))
+})
+
+
+test_that("coordinates read from data columns with non-default names", {
+  test_dat <- tibble::tibble(
+    location_name = c("plot_a", "plot_b"),
+    soil_N = c(1, 2),
+    lat_dd = c(4.71, 4.72),
+    lon_dd = c(117.61, 117.62)
+  )
+
+  source_dat <- make_source(
+    withr::local_tempdir(),
+    coordinates = list(
+      latitude_column = "lat_dd",
+      longitude_column = "lon_dd",
+      from_file = NA,
+      match_data_column = NA
+    )
+  )
+
+  out <- add_coordinates(test_dat, source_dat)
+
+  expect_equal(out$latitude, c(4.71, 4.72))
+  expect_equal(out$longitude, c(117.61, 117.62))
+  expect_equal(out$coordinate_source, c("data_columns", "data_columns"))
+})
+
+
+test_that("missing coordinates in data columns are flagged, not dropped", {
+  test_dat <- tibble::tibble(
+    location_name = c("plot_a", "plot_b"),
+    soil_N = c(1, 2),
+    Latitude = c(NA, 4.72),
+    Longitude = c(117.61, 117.62)
+  )
+
+  source_dat <- make_source(
+    withr::local_tempdir(),
+    coordinates = list(
+      latitude_column = "Latitude",
+      longitude_column = "Longitude",
+      from_file = NA,
+      match_data_column = NA
+    )
+  )
+
+  expect_warning(
+    out <- add_coordinates(test_dat, source_dat),
+    "1 of 2 rows"
+  )
+  expect_equal(nrow(out), 2)
+  expect_equal(out$coordinate_source, c("missing", "data_columns"))
+  expect_true(is.na(out$latitude[1]))
+})
+
+
+test_that("out-of-range coordinates from data columns abort", {
+  test_dat <- tibble::tibble(
+    location_name = c("plot_a", "plot_b"),
+    soil_N = c(1, 2),
+    Latitude = c(4.71, 117.62), # swapped or invalid latitude
+    Longitude = c(117.61, 4.72)
+  )
+
+  source_dat <- make_source(
+    withr::local_tempdir(),
+    coordinates = list(
+      latitude_column = "Latitude",
+      longitude_column = "Longitude",
+      from_file = NA,
+      match_data_column = NA
+    )
+  )
+
+  expect_error(add_coordinates(test_dat, source_dat))
+})
+
+
+test_that("data columns coordinates take precedence over locations file lookup", {
+  dir <- withr::local_tempdir()
+  write_locations(dir)
+
+  test_dat <- tibble::tibble(
+    location_name = c("plot_a", "plot_b"),
+    soil_N = c(1, 2),
+    Latitude = c(5.0, 5.1), # different from locations file
+    Longitude = c(118.0, 118.1)
+  )
+
+  source_dat <- make_source(
+    dir,
+    coordinates = list(
+      latitude_column = "Latitude",
+      longitude_column = "Longitude"
+    )
+  )
+
+  out <- add_coordinates(test_dat, source_dat)
+
+  # Should use data columns, not locations file
+  expect_equal(out$latitude, c(5.0, 5.1))
+  expect_equal(out$longitude, c(118.0, 118.1))
+  expect_equal(out$coordinate_source, c("data_columns", "data_columns"))
+})
+
+
 test_that("a missing locations file warns and yields missing coordinates", {
   dir <- withr::local_tempdir()
 

@@ -57,7 +57,11 @@ library(pizzarr)
 source(here("tools/R/R/convert_df_to_nc.R"))
 source(here("tools/R/R/get_ve_variables.R"))
 source(here("tools/R/R/convert_array.R"))
-source(here("tools/R/R/valdb.R"))
+
+# Load valdb module components (split into three focused modules)
+source(here("tools/R/R/valdb_screening.R"))
+source(here("tools/R/R/valdb_build.R"))
+source(here("tools/R/R/valdb_join_ve.R"))
 
 
 # Mock data --------------------------------------------------------------
@@ -151,6 +155,16 @@ mock_arrays <- list(
   ),
   soil_p_pool_secondary = array(
     13:16,
+    dim = c(2, 3),
+    dimnames = list(time_index = time_index, cell_id = cell_id)
+  ),
+  soil_respiration = array(
+    14:17,
+    dim = c(2, 3),
+    dimnames = list(time_index = time_index, cell_id = cell_id)
+  ),
+  soil_nitrous_oxide_emission = array(
+    15:18,
     dim = c(2, 3),
     dimnames = list(time_index = time_index, cell_id = cell_id)
   )

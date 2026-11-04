@@ -1,0 +1,31 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3247601
+doi: 10.5281/zenodo.3247601
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains plant function traits. Carbon keyword is plant variables, not soil
+    and litter.
+  screened_at: '2026-09-18T06:03:43Z'
+metadata:
+  title: Community-weighted mean traits in old-growth and selectively logged forest
+  authors:
+  - Both, Sabine
+  - Burslem, David F. R. P.
+  - Riutta, Terhi
+  - Malhi, Yadvinder
+  - Majalap, Noreen
+  - Teh, Yit Arn,
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3247601
+  keywords:
+  - Community-weighted mean traits
+  - functional traits
+  - trees
+  - old-growth forest
+  - selectively logged forest
+  - SAFE project
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:02:59Z'

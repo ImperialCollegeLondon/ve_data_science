@@ -1,0 +1,29 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3402751
+doi: 10.5281/zenodo.3402751
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains plant functional traits. Wood keyword is plant but not soil (dead
+    wood) related.
+  screened_at: '2026-09-18T06:07:36Z'
+metadata:
+  title: Anatomical wood traits of tree species in old-growth and selectively logged
+    forest
+  authors:
+  - Both, Sabine
+  - Jotan, Palasiah
+  - Maycock, Colin
+  - Burslem, David F. R. P.
+  year: 2021
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3402751
+  keywords:
+  - wood traits
+  - anatomical traits
+  - trees
+  - old-growth forest
+  - selectively logged forest
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:07:14Z'

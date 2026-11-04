@@ -1,0 +1,23 @@
+schema_version: 1
+record_id: doi-10-1016-j-cub-2019-01-012
+doi: 10.1016/j.cub.2019.01.012
+screening:
+  decision: exclude
+  reason: duplicate_source
+  notes: Probably the same source as the SAFE dataset on https://zenodo.org/records/3265746
+  screened_at: '2026-09-18T01:53:26Z'
+metadata:
+  title: Termites can decompose more than half of deadwood in tropical rainforest
+  authors:
+  - Griffiths, Hannah M.
+  - Ashton, Louise A.
+  - Evans, Theodore A.
+  - Parr, Catherine L.
+  - Eggleton, Paul
+  year: 2019
+  journal: Current Biology
+  publisher: Elsevier BV
+  url: http://dx.doi.org/10.1016/j.cub.2019.01.012
+  keywords: ~
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T01:53:02Z'

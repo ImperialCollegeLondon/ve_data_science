@@ -14,31 +14,49 @@
 *.RData
 
 # Primary data
-data/primary
+data/primary/*
+!data/primary/site/
+!data/primary/site/gazetteer.geojson
 
 # Derived data
+data/derived/plant/**/*.csv
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/necromass/li_et_al_2023.csv
-data/derived/soil/llm/soil_constant_usage.toml
+data/derived/soil/llm/ve_constant_usage_exploratory.toml
+data/derived/soil/llm/soil_code_chunks.jsonl
+data/derived/soil/llm/soil_constant_literature_values.csv
+data/derived/soil/llm/full_text
+data/derived/soil/llm/full_text/**
+!data/derived/soil/llm/full_text/
+!data/derived/soil/llm/full_text/README.md
+data/derived/soil/llm/*csv
 data/derived/litter/stock/litter_stock.csv
 *.duckdb
 analysis/troubleshoot/cnp_ratios/*png
 *.parquet
 data/derived/plant/csv_plant_input_data
 data/sensitivity/soil_litter_inputs
+data/derived/soil/spatial_model
+data/derived/soil/fungi_stoichiometry/sporocarp_CNP.csv
+data/derived/soil/validation/literature_search/results.csv
+data/derived/soil/validation/datasets/nottingham_2021/*.csv
 
 # MkDocs build output
-site/
+/site/
 
-# Scenario files, except the change_log.txt file
-# ignore the directory's contents (/*), not the directory itself — otherwise
-# the ! negation for the file won't work (git can't un-ignore files inside an
-# ignored directory).
-data/scenarios/*/*/*
+# Scenario files: ignore everything under each scenario folder by default.
+# We use `/**` so Git keeps the folders visible, then we can make exceptions
+# with `!` for specific files we do want to track (for example change logs or
+# one config file). If the folder itself were ignored, those exceptions would
+# not work.
+data/scenarios/*/*/*/**
 !data/scenarios/maliau/*/change_log.txt
+!data/scenarios/maliau/maliau_2/config/config.toml
+data/scenarios/runtime_per_cell
 
 # troubleshoot files
 analysis/troubleshoot/zarr_test/ve_example
+analysis/troubleshoot/inorganic_n_too_high/*.png
 
 # Notebooks
 /.quarto/
@@ -69,6 +87,9 @@ analysis/soil/issue_tracker/*.html
 # RStudio files
 .Rproj.user/
 *.Rproj
+
+# renv files
+.Rprofile
 
 # produced vignettes
 vignettes/*.html
@@ -588,3 +609,9 @@ analysis/**/*.html
 
 # AI files
 .posit/assistant/
+
+# Example directory
+ve_example/
+
+# temporary directory
+tmp/

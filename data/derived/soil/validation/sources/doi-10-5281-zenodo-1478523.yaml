@@ -1,0 +1,31 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1478523
+doi: 10.5281/zenodo.1478523
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains lots of animal abundance data. Not sure why the soil-litter-microbe-carbon
+    query resulted in this.
+  screened_at: '2026-09-18T06:29:45Z'
+metadata:
+  title: Core SAFE project small mammal trapping data
+  authors:
+  - Heon, S
+  - Chapman, Philip M.
+  - Wearn, Oliver R
+  - Berhard, Henry
+  - Ewers, Robert M
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1478523
+  keywords:
+  - Small mammals
+  - Muridae
+  - Tupaiidae
+  - Sciuridae
+  - Logged forest
+  - Primary forest
+  - Oil palm
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:28:57Z'

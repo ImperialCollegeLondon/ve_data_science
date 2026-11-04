@@ -1,0 +1,46 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1216039
+doi: 10.5281/zenodo.1216039
+screening:
+  decision: defer
+  reason: outside_module_scope
+  notes: Contains seedling demography and herbivory. Not sure why the soil-litter-microbe-carbon
+    query resulted in this.
+  screened_at: '2026-09-18T06:28:13Z'
+metadata:
+  title: Spatial aggregation and seedling survival of the Borneo Ironwood (Eusideroxylon
+    zwageri)
+  authors:
+  - Qie, Lan
+  - Ewers, Rob
+  - Brisbane, Jeanelle
+  - Elsy, Alexander
+  - Ettinger, Maisie
+  - Kwasnicka, Magdalena
+  - Majcher, Bartosz
+  - Ow, Siew Ngim
+  - Peel, Anna
+  - Robertson, Alasdair
+  - Sawyer, Amber
+  - Sebastianelli, Matteo
+  - Stumvoll, Ashley
+  - Sulivan, Joseph
+  - Vigus, Hannah
+  - Lui, Yan Nin
+  - Duan, Muying
+  - Pounsin, Grace
+  - Nilus, Reuben
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1216039
+  keywords:
+  - Borneo
+  - Ironwood
+  - Belian
+  - seedling
+  - herbivory
+  - spatial aggregation
+  - tree plot
+  provider: doi_content_search
+  retrieved_at: '2026-09-18T06:27:31Z'

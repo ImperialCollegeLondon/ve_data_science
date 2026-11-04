@@ -19,11 +19,11 @@ As a brief overview, this involves setting up the following tools:
 * **Python**. Obviously, we use Python for running the `virtual_ecosystem` but it may also
   be used within this repository for analyses and we also require it to run some QA
   tools.
-* **Poetry**. This is a Python package manager that we use to manage a shared set of
-  Python packages used across the project.
-* **R**. We will be using R extensively for analysis and data visualisation. At the
-  moment, we are managing package use and versioning with a simple list of packages.
-  This is currently very light touch and we may use something stricter in the future.
+* **uv**. This is a Python package and environment manager. We use it to install the
+  correct Python version and a shared set of Python packages used across the project.
+* **R**. We will be using R extensively for analysis and data visualisation. The R
+  packages used by the automated checks are recorded with `renv`, but you do not need
+  to use `renv` on your own machine.
 * **pre-commit**. This is a QA tool - we have a set of configured checks that run
   whenever you try and `git commit` some changes to the repo. If the changes fail any of
   the checks, then you will have to fix them and try again. Sometimes, the QA checks can
