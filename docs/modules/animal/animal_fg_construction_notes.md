@@ -213,7 +213,7 @@ Values were taken from empirical datasets that matches species present in Maliau
 
 ### Open questions
 
-1. Nick's suggested incorportating this in the model instead of doing it manually or separate script.
+1. Nick's suggested incorportating this in the model instead of doing it manually or separate script. See https://github.com/ImperialCollegeLondon/virtual_ecosystem/issues/1833
 
 ## 6. Body size
 
