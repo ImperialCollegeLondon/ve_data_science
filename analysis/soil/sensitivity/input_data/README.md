@@ -91,35 +91,7 @@ The preparation scripts read these inputs:
 | `data/derived/plant/input_data/scenarios/maliau_2/` | `plant_constants_maliau_2.csv` |
 | `data/derived/site/maliau/` | `maliau_grid_definition.toml`, tracked in Git |
 
-Use the input versions compatible with this branch and the VE release in
-`uv.lock`. Record the data provenance, the data-science commit, and the VE
-version with the run. The shared data can change independently of Git. Some
-required inputs are not tracked in Git and may not be available through
-Globus. Verify each source with the data owner; do not assume the shared RDS
-copy contains every required file.
-
 ## 1. Stage input data
-
-1. Prepare new large input files locally as needed. For files available through
-   Globus, transfer agreed files from the local collection to the corresponding
-   shared RDS paths. Coordinate replacements with the team and preserve a
-   backup before replacing shared data. Agree a source and staging route with
-   the data owner for other files.
-2. If colleagues update shared files, transfer relevant files from the shared
-   collection to your local collection when available there. Wait for the
-   Globus transfer to succeed before using them; obtain other files from their
-   data owner through the agreed channel.
-3. Copy required inputs to the same relative paths in the personal HPC
-   checkout. Use the shared RDS copy only for files confirmed to be present;
-   stage other inputs from their confirmed source.
-
-Do not transfer the whole shared checkout over the personal checkout: tracked
-files and branch-specific configurations can differ. The
-[scenario version guide](https://github.com/ImperialCollegeLondon/ve_data_science/blob/453bc756244ca8be65b5a7aed634737fadb9d8a2/docs/managing_scenario_versions.md)
-is a working document; this workflow does not assume its proposed version
-folders.
-
-### Copy from shared RDS to the personal checkout
 
 `git pull` first. Git supplies the Maliau grid definition; the command below
 copies the other nine non-Git inputs from shared RDS. Confirm all nine source
@@ -144,34 +116,9 @@ data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv
 EOF
 ```
 
-The command copies files, not moves: source files remain on RDS. It skips
-existing destination files and does not delete other files. Existing files are
-not checked against RDS; verify their versions before using them. To replace
-one, first move the local file aside, then run the command again. Stop if rsync
-reports an error. Do not stage inputs while jobs use them.
-
-`build_data_and_config.sh` currently **does not sync data**. It only runs the
-two R preparation scripts against files already in the personal checkout. A
-future opt-in staging step can automate the copy, but it needs explicit source
-selection, overwrite protection, provenance, and failure checks first.
-
 ## 2. Prepare inputs and configuration on CX3
 
-Check the selected branch and commit in the personal checkout:
-
-```bash
-cd ~/ve_data_science
-git status --short --branch
-git rev-parse HEAD
-```
-
-Complete the R setup above. Check that the selected input versions and available
-storage are appropriate before submitting the preparation job.
-
-**Do not reuse an old generated input directory without reviewing it.** The
-generator writes into `data/sensitivity/soil_litter_inputs/data/` and can
-overwrite files. Move existing data and configuration aside before a new design
-to preserve the previous run. Do not move files while jobs use them.
+Run:
 
 ```bash
 qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
