@@ -2,6 +2,7 @@
 #PBS -l select=1:ncpus=1:mem=4gb
 #PBS -l walltime=1:00:00
 #PBS -j oe
+#PBS -o analysis/soil/sensitivity/input_data/pbs_logs/
 
 set -euo pipefail
 
@@ -35,7 +36,6 @@ if [ -e "${OUTDIR}" ]; then
 fi
 
 mkdir -p "${OUTDIR}"
-exec > "${OUTDIR}/pbs.log" 2>&1
 
 # Preserve Zarr output; the generic HPC runner converts it to NetCDF and removes
 # the store after each run.

@@ -113,6 +113,7 @@ preparation, model, and post-processing stages in order:
 
 ```bash
 Rscript -e "renv::restore()"
+mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
 bash analysis/soil/sensitivity/input_data/submit_ve_array.sh
 qsub analysis/soil/sensitivity/input_data/post_process_outputs.sh

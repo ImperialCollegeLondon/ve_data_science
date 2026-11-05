@@ -26,5 +26,6 @@ fi
 
 # Install the locked PyPI VE release once before the array starts.
 uv sync --locked
+mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 qsub -J "1-${N_RUNS}%${MAX_CONCURRENT_JOBS}" \
   analysis/soil/sensitivity/input_data/ve.sh

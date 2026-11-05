@@ -2,6 +2,7 @@
 #PBS -l select=1:ncpus=64:mem=64gb
 #PBS -l walltime=0:30:00
 #PBS -j oe
+#PBS -o analysis/soil/sensitivity/input_data/pbs_logs/
 
 set -euo pipefail
 
@@ -22,4 +23,5 @@ Rscript analysis/soil/sensitivity/input_data/build_config_sensitivity.R
 # submit this from the ve_data_science root directory with:
 # cd ve_data_science
 # Ensure the project R packages from renv.lock are restored first.
+# mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 # qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
