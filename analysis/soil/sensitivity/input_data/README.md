@@ -1,29 +1,38 @@
 # Soil and litter input sensitivity analysis
 
-This workflow generates a Sobol design, runs Virtual Ecosystem (VE) on CX3,
-and prepares the output for [sensitivity.qmd](sensitivity.qmd). Each Sobol row
-is one single-cell scenario. Soil and litter initial states vary. Other inputs
-are fixed or prescribed.
+This workflow generates a Sobol design, runs Virtual Ecosystem (VE) on the HPC,
+and prepares the output for the report
+[sensitivity.qmd](sensitivity.qmd).
 
 Run the commands below from the **root of a personal HPC checkout** of
 `ve_data_science`, for example `~/ve_data_science`. Paths below are relative to
 that root unless stated otherwise. See
 [HPC setup](../../../../docs/hpc_setup.md) for access and checkout instructions.
 
+## Connect to CX3 using SSH
+
+Use SSH to access the CX3 cluster. You will be asked for your password.
+
+```bash
+ssh userid@login.cx3.hpc.imperial.ac.uk
+```
+
 ## Data locations and prerequisites
 
-Globus provides access to files on the Research Data Store (RDS). It does not
-store a separate copy. The shared checkout is at
-`/rds/general/project/virtual_rainforest/live/ve_data_science/`. Keep that
-checkout on `main` and do not run this analysis there. The personal checkout
-holds the branch, its input copies, and its generated outputs.
+On the HPC, `cd` to your personal directory and `git clone` the repo if you have
+not done so.
 
 You need CX3 and shared RDS access, PBS, `uv`, R, and the project's R packages.
-The PBS jobs must find `Rscript` and `uv` on their compute-node `PATH`. Restore
-the R environment from `renv.lock`, and make sure that its packages are
-available to the jobs. The Zarr post-processing code also needs `pizzarr`.
-See [uv setup](../../../../docs/uv_setup.md) and
-[Globus instructions](../../../../docs/using_globus.md).
+The PBS jobs must find `Rscript` and `uv` on their compute-node `PATH`.
+
+One-time setup in your personal checkout:
+
+1. Python environment: run `uv sync`. Repeat `uv sync` only after
+   `pyproject.toml` or `uv.lock` changes. See
+   [uv setup](../../../../docs/uv_setup.md).
+2. R packages: run `renv::restore()` from the checkout root. Repeat it only
+   after `renv.lock` changes. The Zarr post-processing code also needs
+   `pizzarr`. See [R with renv](../../../../docs/renv.md).
 
 The preparation scripts read these inputs:
 
@@ -36,8 +45,8 @@ The preparation scripts read these inputs:
 Use the input versions compatible with this branch and the VE release in
 `uv.lock`. Record the data provenance, the data-science commit, and the VE
 version with the run. The shared data can change independently of Git. Some
-required files are neither tracked in Git nor available through Globus; verify
-each source with the data owner before staging. Do not assume the shared RDS
+required inputs are not tracked in Git and may not be available through
+Globus. Verify each source with the data owner; do not assume the shared RDS
 copy contains every required file.
 
 ## 1. Stage input data
@@ -45,70 +54,52 @@ copy contains every required file.
 1. Prepare new large input files locally as needed. For files available through
    Globus, transfer agreed files from the local collection to the corresponding
    shared RDS paths. Coordinate replacements with the team and preserve a
-   backup before replacing shared data. For other files, agree a source and
-   staging route with the data owner.
+   backup before replacing shared data. Agree a source and staging route with
+   the data owner for other files.
 2. If colleagues update shared files, transfer relevant files from the shared
-   collection to your local collection when they are available there. Wait for
-   the Globus transfer to succeed before using them; obtain other files from
-   their data owner through the agreed channel.
-3. Copy each required input to the same relative path in the personal HPC
-   checkout. This HPC copy is separate from the local transfer. Use the shared
-   RDS copy only for files confirmed to be present there; obtain other files
-   from their data owner through the agreed channel.
+   collection to your local collection when available there. Wait for the
+   Globus transfer to succeed before using them; obtain other files from their
+   data owner through the agreed channel.
+3. Copy required inputs to the same relative paths in the personal HPC
+   checkout. Use the shared RDS copy only for files confirmed to be present;
+   stage other inputs from their confirmed source.
 
-For files available through Globus, select the source folder and open its
-parent folder at the destination. Review the transfer and its completion
-status in Globus. Do not transfer the whole shared checkout over the personal
-checkout: tracked files and branch-specific configurations can differ. The
+Do not transfer the whole shared checkout over the personal checkout: tracked
+files and branch-specific configurations can differ. The
 [scenario version guide](https://github.com/ImperialCollegeLondon/ve_data_science/blob/453bc756244ca8be65b5a7aed634737fadb9d8a2/docs/managing_scenario_versions.md)
-is a working document. This workflow does not assume its proposed version
+is a working document; this workflow does not assume its proposed version
 folders.
 
 ### Copy from shared RDS to the personal checkout
 
-The example below copies the nine non-Git inputs listed above only when all
-nine have been confirmed at the shared paths. It compares file contents,
-preserves replaced personal files in a backup directory, and does not delete
-files absent from the source. It does not update the Git-tracked grid
-definition. Check that every source exists and agrees with the selected input
-version before copying. If any file is unavailable there, stage it separately
-from its confirmed source and remove it from `INPUTS`. Do not run this example
-if any relevant source, destination, or parent path is a symbolic link. The
-shared paths and permissions must be accessible from CX3. Use Bash and `rsync`
-for these commands.
+`git pull` first. Git supplies the Maliau grid definition; the command below
+copies the other nine non-Git inputs from shared RDS. Confirm all nine source
+files are present and match the selected dataset and VE version in `uv.lock`.
+If any input is unavailable through Globus or absent from shared RDS, do not
+run this all-file command; obtain and stage that input from its data owner.
 
-From the personal checkout root, set the source list and preview the copy:
+Run this command from the root of the personal checkout:
 
 ```bash
-SHARED=/rds/general/project/virtual_rainforest/live/ve_data_science
-BACKUP="$HOME/ve-data-sync-backups/$(date +%Y%m%d-%H%M%S)"
-INPUTS=(
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/soil_maliau.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/litter_maliau.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_2.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2.csv"
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level5.csv"
-  "$SHARED/./data/scenarios/maliau/maliau_2/data/plant_pft_definitions_maliau_2.csv"
-  "$SHARED/./data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv"
-)
-rsync -rtcin --relative --backup --backup-dir="$BACKUP" "${INPUTS[@]}" ./
+rsync -tv --ignore-existing --files-from=- \
+  /rds/general/project/virtual_rainforest/live/ve_data_science/ ./ <<'EOF'
+data/scenarios/maliau/maliau_2/data/soil_maliau.nc
+data/scenarios/maliau/maliau_2/data/litter_maliau.nc
+data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc
+data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc
+data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_2.nc
+data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2.csv
+data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level5.csv
+data/scenarios/maliau/maliau_2/data/plant_pft_definitions_maliau_2.csv
+data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv
+EOF
 ```
 
-Review the file list and any errors. Stop if a source file is missing, a path is
-unexpected, or the backup directory already exists. Then copy the files:
-
-```bash
-mkdir -p "$BACKUP" && \
-  rsync -rtci --relative --backup --backup-dir="$BACKUP" "${INPUTS[@]}" ./
-```
-
-Repeat the preview and investigate any remaining differences or errors. Keep the
-backup until the copied inputs are verified. For large files, checksum
-comparison and copying can be intensive. Use a compute job if required by
-cluster policy. Do not change inputs while preparation or array jobs are
-running.
+The command copies files, not moves: source files remain on RDS. It skips
+existing destination files and does not delete other files. Existing files are
+not checked against RDS; verify their versions before using them. To replace
+one, first move the local file aside, then run the command again. Stop if rsync
+reports an error. Do not stage inputs while jobs use them.
 
 `build_data_and_config.sh` currently **does not sync data**. It only runs the
 two R preparation scripts against files already in the personal checkout. A
@@ -117,7 +108,7 @@ selection, overwrite protection, provenance, and failure checks first.
 
 ## 2. Prepare inputs and configuration on CX3
 
-Check out the intended branch in the personal checkout and record its commit:
+Check the selected branch and commit in the personal checkout:
 
 ```bash
 cd ~/ve_data_science
@@ -125,7 +116,8 @@ git status --short --branch
 git rev-parse HEAD
 ```
 
-Restore the R environment according to [renv guidance](../../../../docs/renv.md)
+Restore the R environment according to
+[renv guidance](../../../../docs/renv.md)
 and local HPC policy. The restore can need network access and package
 compilation. The project ignores `.Rprofile`, so make sure that batch R sessions
 activate the restored library. Check that the selected input versions and
@@ -164,10 +156,10 @@ bash analysis/soil/sensitivity/input_data/submit_ve_array.sh
 
 The submitter runs `uv sync --locked` and submits one PBS array task per
 scenario, with at most 100 tasks running concurrently. Save the array job ID.
-Each task runs [ve.sh](ve.sh), selects its one-based input index, and requests
-one CPU, 4 GB, and one hour. The task runs the locked PyPI VE release and stops
-at update 24. The report currently selects time index 24. Confirm that this
-endpoint is appropriate for the analysis.
+Each task runs [ve.sh](ve.sh), selects its
+one-based input index, and requests one CPU, 4 GB, and one hour. The task runs
+the locked PyPI VE release and stops at update 24. The report currently selects
+time index 24. Confirm that this endpoint is appropriate for the analysis.
 
 Keep the checkout, `uv.lock`, and shared `.venv` unchanged until every task
 finishes. Another `uv sync` can change the environment used by running tasks.
@@ -196,7 +188,8 @@ matrix and one `model_data.zarr` per scenario. It checks scenario indices and
 writes
 `data/sensitivity/soil_litter_inputs/out/all_continuous_data_merged.parquet`.
 Inspect the PBS output and exit status before using the Parquet file. Then
-render [sensitivity.qmd](sensitivity.qmd) from the repository root:
+render [sensitivity.qmd](sensitivity.qmd)
+from the repository root:
 
 ```bash
 quarto render analysis/soil/sensitivity/input_data/sensitivity.qmd --execute-dir .
