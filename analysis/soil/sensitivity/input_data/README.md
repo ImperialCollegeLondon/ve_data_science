@@ -35,38 +35,47 @@ The preparation scripts read these inputs:
 
 Use the input versions compatible with this branch and the VE release in
 `uv.lock`. Record the data provenance, the data-science commit, and the VE
-version with the run. The shared data can change independently of Git.
+version with the run. The shared data can change independently of Git. Some
+required files are neither tracked in Git nor available through Globus; verify
+each source with the data owner before staging. Do not assume the shared RDS
+copy contains every required file.
 
 ## 1. Stage input data
 
-1. Prepare new large input files locally as needed. Transfer agreed files from
-   the local Globus collection to the corresponding shared RDS paths. Coordinate
-   replacements with the team and preserve a backup before replacing shared
-   data.
-2. If colleagues update shared files, transfer the relevant files from the
-   shared collection to your local collection for local work. Wait for the
-   Globus transfer to succeed before using those files.
-3. Copy the required shared input files to the same relative paths in the
-   personal HPC checkout. This HPC copy is separate from the local transfer.
-   Globus exposes the shared RDS files, so an HPC copy can read them directly.
+1. Prepare new large input files locally as needed. For files available through
+   Globus, transfer agreed files from the local collection to the corresponding
+   shared RDS paths. Coordinate replacements with the team and preserve a
+   backup before replacing shared data. For other files, agree a source and
+   staging route with the data owner.
+2. If colleagues update shared files, transfer relevant files from the shared
+   collection to your local collection when they are available there. Wait for
+   the Globus transfer to succeed before using them; obtain other files from
+   their data owner through the agreed channel.
+3. Copy each required input to the same relative path in the personal HPC
+   checkout. This HPC copy is separate from the local transfer. Use the shared
+   RDS copy only for files confirmed to be present there; obtain other files
+   from their data owner through the agreed channel.
 
-For a Globus folder transfer, select the source folder and open its parent
-folder at the destination. Review the transfer and its completion status in
-Globus. Do not transfer the whole shared checkout over the personal checkout:
-tracked files and branch-specific configurations can differ. The
+For files available through Globus, select the source folder and open its
+parent folder at the destination. Review the transfer and its completion
+status in Globus. Do not transfer the whole shared checkout over the personal
+checkout: tracked files and branch-specific configurations can differ. The
 [scenario version guide](https://github.com/ImperialCollegeLondon/ve_data_science/blob/453bc756244ca8be65b5a7aed634737fadb9d8a2/docs/managing_scenario_versions.md)
 is a working document. This workflow does not assume its proposed version
 folders.
 
 ### Copy from shared RDS to the personal checkout
 
-The example below copies only the nine non-Git inputs listed above. It compares
-file contents, preserves replaced personal files in a backup directory, and
-does not delete files absent from the source. It does not update the Git-tracked
-grid definition. Check the source files and destination paths first. Do not run
-it if any relevant source, destination, or parent path is a symbolic link.
-Agree the source version before copying. The shared paths and permissions must
-be accessible from CX3. Use Bash and `rsync` for these commands.
+The example below copies the nine non-Git inputs listed above only when all
+nine have been confirmed at the shared paths. It compares file contents,
+preserves replaced personal files in a backup directory, and does not delete
+files absent from the source. It does not update the Git-tracked grid
+definition. Check that every source exists and agrees with the selected input
+version before copying. If any file is unavailable there, stage it separately
+from its confirmed source and remove it from `INPUTS`. Do not run this example
+if any relevant source, destination, or parent path is a symbolic link. The
+shared paths and permissions must be accessible from CX3. Use Bash and `rsync`
+for these commands.
 
 From the personal checkout root, set the source list and preview the copy:
 
