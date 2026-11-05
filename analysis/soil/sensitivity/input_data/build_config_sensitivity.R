@@ -26,12 +26,12 @@ if (length(missing_inputs) > 0) {
 
 maliau_core <-
   toml::read_toml(grid_definition_path) |>
-  pluck("Scenario", "maliau_1", "core")
+  pluck("Scenario", "maliau_2", "core")
 
 variable_groups <- build_variable_groups(
-  plants_path = "../data/plant_input_data_Maliau_50x50_mean.nc",
-  climate_path = "../data/era5_maliau_2010_2020_100m_mean.nc",
-  elevation_path = "../data/elevation_maliau_2010_2020_100m_mean.nc",
+  plants_path = "../data/plant_input_data_maliau_2_mean.nc",
+  climate_path = "../data/era5_maliau_10x10_2010_2020_mean.nc",
+  elevation_path = "../data/elevation_maliau_10x10_mean.nc",
   soil_path = "$SOIL_LITTER_DATA",
   litter_path = "$SOIL_LITTER_DATA"
 )
@@ -42,15 +42,15 @@ core_grid <-
   list_modify(cell_nx = 1, cell_ny = 1)
 
 plants <- list(
-  cohort_data_path = "../data/plant_cohort_data_Maliau_50x50.csv",
-  pft_definitions_path = "../data/plant_pft_definitions_Maliau_50x50.csv",
+  cohort_data_path = "../data/cohort_data_1_cm_maliau_2.csv",
+  pft_definitions_path = "../data/plant_pft_definitions_maliau_2.csv",
   constants = read_csv(plant_constants_path, show_col_types = FALSE) |>
     slice(1) |>
     as.list()
 )
 
 animal <- list(
-  functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level3.csv",
+  functional_group_definitions_path = "../data/animal_functional_groups_Maliau_level5.csv",
   cohort_data_export = list(enabled = FALSE)
 )
 

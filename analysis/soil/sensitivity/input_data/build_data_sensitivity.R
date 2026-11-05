@@ -57,7 +57,7 @@ source("tools/R/R/summarise_spatial.R")
 
 # constants and paths
 project_root <- here::here()
-in_dir <- file.path(project_root, "data/scenarios/maliau/maliau_1/data")
+in_dir <- file.path(project_root, "data/scenarios/maliau/maliau_2/data")
 out_dir <- file.path(project_root, "data/sensitivity/soil_litter_inputs/data")
 grid_definition_path <- file.path(
   project_root,
@@ -65,12 +65,12 @@ grid_definition_path <- file.path(
 )
 soil_input_path <- file.path(in_dir, "soil_maliau.nc")
 litter_input_path <- file.path(in_dir, "litter_maliau.nc")
-elevation_input_path <- file.path(in_dir, "elevation_maliau_2010_2020_100m.nc")
-climate_input_path <- file.path(in_dir, "era5_maliau_2010_2020_100m.nc")
-plant_input_path <- file.path(in_dir, "plant_input_data_Maliau_50x50.nc")
+elevation_input_path <- file.path(in_dir, "elevation_maliau_10x10.nc")
+climate_input_path <- file.path(in_dir, "era5_maliau_10x10_2010_2020.nc")
+plant_input_path <- file.path(in_dir, "plant_input_data_maliau_2.nc")
 plant_cohort_input_path <- file.path(
   in_dir,
-  "plant_cohort_data_Maliau_50x50.csv"
+  "cohort_data_1_cm_maliau_2.csv"
 )
 
 require_path <- function(path) {
@@ -102,10 +102,10 @@ parallel_daemons <- 64
 
 # Maliau input data -------------------------------------------------------
 # the site definition
-maliau_1 <-
+maliau_2 <-
   read_toml(grid_definition_path) |>
   pluck("Scenario") |>
-  pluck("maliau_1")
+  pluck("maliau_2")
 
 # soil and litter input data for the maliau_2 scenario
 dat_maliau <- list(
@@ -261,8 +261,8 @@ sobol_df <-
 # so we convert the Sobol matrix to a list of single-grid variable arrays,
 # which will be further converted to netCDF input data
 dimnames <- list(
-  x = maliau_1$cell_x_centres[1],
-  y = maliau_1$cell_y_centres[1],
+  x = maliau_2$cell_x_centres[1],
+  y = maliau_2$cell_y_centres[1],
   element = c("C", "N", "P")
 )
 
@@ -345,7 +345,7 @@ tidync(elevation_input_path) |>
   get_data_variables_nc() |>
   summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
-    filename = file.path(out_dir, "elevation_maliau_2010_2020_100m_mean.nc")
+    filename = file.path(out_dir, "elevation_maliau_10x10_mean.nc")
   )
 
 # Climate / abiotic data
@@ -361,7 +361,7 @@ clim_dat |>
   # put valid_time back before converting back to netCDF
   list_assign(valid_time = clim_dat$valid_time) |>
   convert_array_to_nc(
-    filename = file.path(out_dir, "era5_maliau_2010_2020_100m_mean.nc")
+    filename = file.path(out_dir, "era5_maliau_10x10_2010_2020_mean.nc")
   )
 
 # Plant data
@@ -369,7 +369,7 @@ tidync(plant_input_path) |>
   get_data_variables_nc() |>
   summarise_spatial(FUN = mean) |>
   convert_array_to_nc(
-    filename = file.path(out_dir, "plant_input_data_Maliau_50x50_mean.nc")
+    filename = file.path(out_dir, "plant_input_data_maliau_2_mean.nc")
   )
 
 # Plant cohorts
@@ -385,13 +385,13 @@ plant_cohort <-
   mutate(plant_cohorts_cell_id = 0)
 write_csv(
   plant_cohort,
-  file.path(out_dir, "plant_cohort_data_Maliau_50x50.csv")
+  file.path(out_dir, "cohort_data_1_cm_maliau_2.csv")
 )
 
 # Copy over other data that do not need to be modified
 files_to_copy <- c(
-  "animal_functional_groups_Maliau_level3.csv",
-  "plant_pft_definitions_Maliau_50x50.csv"
+  "animal_functional_groups_Maliau_level5.csv",
+  "plant_pft_definitions_maliau_2.csv"
 )
 copy_ok <- file.copy(
   file.path(in_dir, files_to_copy),

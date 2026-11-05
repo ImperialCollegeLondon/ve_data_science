@@ -29,7 +29,7 @@ The preparation scripts read these inputs:
 
 | Relative path | Required files |
 | --- | --- |
-| `data/scenarios/maliau/maliau_1/data/` | `soil_maliau.nc`, `litter_maliau.nc`, `elevation_maliau_2010_2020_100m.nc`, `era5_maliau_2010_2020_100m.nc`, `plant_input_data_Maliau_50x50.nc`, `plant_cohort_data_Maliau_50x50.csv`, `animal_functional_groups_Maliau_level3.csv`, `plant_pft_definitions_Maliau_50x50.csv` |
+| `data/scenarios/maliau/maliau_2/data/` | `soil_maliau.nc`, `litter_maliau.nc`, `elevation_maliau_10x10.nc`, `era5_maliau_10x10_2010_2020.nc`, `plant_input_data_maliau_2.nc`, `cohort_data_1_cm_maliau_2.csv`, `animal_functional_groups_Maliau_level5.csv`, `plant_pft_definitions_maliau_2.csv` |
 | `data/derived/plant/input_data/scenarios/maliau_2/` | `plant_constants_maliau_2.csv` |
 | `data/derived/site/maliau/` | `maliau_grid_definition.toml`, tracked in Git |
 
@@ -74,14 +74,14 @@ From the personal checkout root, set the source list and preview the copy:
 SHARED=/rds/general/project/virtual_rainforest/live/ve_data_science
 BACKUP="$HOME/ve-data-sync-backups/$(date +%Y%m%d-%H%M%S)"
 INPUTS=(
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/soil_maliau.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/litter_maliau.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/elevation_maliau_2010_2020_100m.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/era5_maliau_2010_2020_100m.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/plant_input_data_Maliau_50x50.nc"
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/plant_cohort_data_Maliau_50x50.csv"
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/animal_functional_groups_Maliau_level3.csv"
-  "$SHARED/./data/scenarios/maliau/maliau_1/data/plant_pft_definitions_Maliau_50x50.csv"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/soil_maliau.nc"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/litter_maliau.nc"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/plant_input_data_maliau_2.nc"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2.csv"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level5.csv"
+  "$SHARED/./data/scenarios/maliau/maliau_2/data/plant_pft_definitions_maliau_2.csv"
   "$SHARED/./data/derived/plant/input_data/scenarios/maliau_2/plant_constants_maliau_2.csv"
 )
 rsync -rtcin --relative --backup --backup-dir="$BACKUP" "${INPUTS[@]}" ./
