@@ -63,14 +63,20 @@ Git ignores `.Rprofile`, so configure it in each checkout. This activates the
 project R library; you must still load the R module in each job. See
 [R with renv](../../../../docs/renv.md).
 
+Create the PBS log directory in the remote checkout before submitting any jobs.
+PBS joins stderr to stdout and writes each job's output there after it finishes.
+The directory is ignored by Git. Keep it until all jobs have finished.
+
 Submit the package restore from the checkout root as a PBS job:
 
 ```bash
+mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 qsub <<'EOF'
 #!/bin/bash
 #PBS -l select=1:ncpus=1:mem=8gb
 #PBS -l walltime=2:00:00
 #PBS -j oe
+#PBS -o analysis/soil/sensitivity/input_data/pbs_logs/
 set -euo pipefail
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR is required}"
 module load tools/prod
@@ -157,6 +163,7 @@ EOF
 Run:
 
 ```bash
+mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
 ```
 
@@ -194,10 +201,12 @@ finishes. Another `uv sync` can change the environment used by running tasks.
 Monitor the array with `qstat -u "$USER"` and inspect completed job status with
 `qstat -x -f <job_id>`. Each task writes to
 `data/sensitivity/soil_litter_inputs/out/array_subJob_<index>/`, including
-`model_data.zarr`, `pbs.log`, and `logfile.log`. Errors before the task creates
-its directory appear in the PBS output instead. Check task exit statuses and
-logs, not only the presence of a Zarr directory. Preserve partial outputs when
-investigating failed tasks. An existing task directory prevents a retry.
+`model_data.zarr` and the VE log `logfile.log`. Joined PBS stdout and stderr,
+including early errors, are written per task to
+`analysis/soil/sensitivity/input_data/pbs_logs/` after the task finishes. Check
+task exit statuses and logs, not only the presence of a Zarr directory. Preserve
+partial outputs when investigating failed tasks. An existing task directory
+prevents a retry.
 
 The generic HPC runner converts and removes Zarr output. Do not substitute it
 for this runner without adapting the post-processing step.
@@ -207,6 +216,7 @@ for this runner without adapting the post-processing step.
 Wait until all array tasks succeed before submitting post-processing:
 
 ```bash
+mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 qsub analysis/soil/sensitivity/input_data/post_process_outputs.sh
 ```
 
