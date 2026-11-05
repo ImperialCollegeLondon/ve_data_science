@@ -1,0 +1,397 @@
+"""title: Calculate functional group population biomass over time.
+
+description: |
+  Calculate functional group population biomass from Virtual Ecosystem
+  animal cohort output.
+
+virtual_ecosystem_module:
+  - Animal
+
+author:
+  - Siti Nor Baizurah
+
+status: wip
+
+input_files:
+  - name: animal_cohort_data.csv
+    path: user-defined
+    description: |
+      Cohort-level animal output containing time_index, functional_group,
+      individuals, mass_carbon, mass_nitrogen, and mass_phosphorus.
+      Territory calculations additionally require a territory column.
+
+output_files:
+  - name: Functional group population biomass table
+    path: user-defined
+    description: |
+      Total biomass and biomass density by functional group and timestep.
+  - name: Functional group biomass density plot
+    path: user-defined
+    description: |
+      Biomass density through time for each functional group.
+
+package_dependencies:
+  - pandas
+  - matplotlib
+
+usage_notes: |
+  Load the cohort dataframe separately and pass it to the calculation
+  and plotting functions.
+
+  Individual mass is calculated as the sum of the exported carbon, nitrogen,
+  and phosphorus mass components. In Virtual Ecosystem, these components
+  represent the cohort's current body mass and are reported in kilograms.
+
+  Biomass density can be calculated using either the full simulation
+  landscape area or the combined unique territory area associated with
+  each functional group.
+"""
+
+
+import math
+from numbers import Real
+
+import matplotlib.pyplot as plt
+import pandas as pd
+from ve_data_tools.animal_population_utils import (
+    check_grid_dimensions,
+    check_required_columns,
+    get_area_conversion,
+    get_unit_label,
+    parse_territory_cells,
+)
+
+
+def _validate_positive_number(
+    value: Real | None,
+    name: str,
+) -> None:
+    """Check that a numeric value is finite and greater than zero."""
+    if value is None:
+        return
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValueError(f"{name} must be numeric.")
+    if not math.isfinite(float(value)):
+        raise ValueError(f"{name} must be finite.")
+    if value <= 0:
+        raise ValueError(f"{name} must be greater than zero.")
+
+
+def _validate_positive_integer(
+    value: int | None,
+    name: str,
+) -> None:
+    """Check that a grid dimension is a positive integer."""
+    if value is None:
+        return
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{name} must be a positive integer.")
+    if value <= 0:
+        raise ValueError(f"{name} must be a positive integer.")
+
+
+def _check_numeric_finite_nonnegative(
+    dataframe: pd.DataFrame,
+    columns: list[str],
+) -> None:
+    """Check that selected columns are numeric, finite, and non-negative."""
+    for column in columns:
+        if pd.api.types.is_bool_dtype(dataframe[column]):
+            raise ValueError(f"The {column} column must be numeric, not boolean.")
+        if not pd.api.types.is_numeric_dtype(dataframe[column]):
+            raise ValueError(f"The {column} column must be numeric.")
+        if dataframe[column].isna().any():
+            raise ValueError(f"The {column} column contains missing values.")
+        if not dataframe[column].map(math.isfinite).all():
+            raise ValueError(f"The {column} column contains non-finite values.")
+        if (dataframe[column] < 0).any():
+            raise ValueError(f"The {column} column contains negative values.")
+
+
+def _resolve_landscape_area_m2(
+    total_area_m2: float | None,
+    cell_size: float | None,
+    n_cells_x: int | None,
+    n_cells_y: int | None,
+) -> float:
+    """Resolve the total landscape area in square metres."""
+    grid_values = (cell_size, n_cells_x, n_cells_y)
+    grid_values_provided = [value is not None for value in grid_values]
+
+    if total_area_m2 is not None and any(grid_values_provided):
+        raise ValueError(
+            "Provide either total_area_m2 or cell_size with n_cells_x and "
+            "n_cells_y, not both."
+        )
+
+    if total_area_m2 is not None:
+        _validate_positive_number(total_area_m2, "total_area_m2")
+        return float(total_area_m2)
+
+    if not all(grid_values_provided):
+        raise ValueError(
+            "For landscape biomass density, provide either total_area_m2 "
+            "or all of cell_size, n_cells_x, and n_cells_y."
+        )
+
+    _validate_positive_number(cell_size, "cell_size")
+    _validate_positive_integer(n_cells_x, "n_cells_x")
+    _validate_positive_integer(n_cells_y, "n_cells_y")
+
+    return float(cell_size**2 * n_cells_x * n_cells_y)
+
+
+def calculate_fg_population_biomass(
+    cohort_df: pd.DataFrame,
+    cell_size: float | None = None,
+    n_cells_x: int | None = None,
+    n_cells_y: int | None = None,
+    total_area_m2: float | None = None,
+    density_unit: str = "km2",
+    density_scope: str = "landscape",
+    territory_column: str = "territory",
+) -> pd.DataFrame:
+    """Calculate functional group population biomass over time.
+
+    Args:
+        cohort_df: Cohort-level Virtual Ecosystem animal output.
+        cell_size: Grid-cell side length in metres.
+        n_cells_x: Number of grid cells along the x dimension.
+        n_cells_y: Number of grid cells along the y dimension.
+        total_area_m2: Total landscape area in square metres.
+        density_unit: Area unit for biomass density.
+        density_scope: Area used for density calculation. Either
+            "landscape" or "territory".
+        territory_column: Column containing cohort territory cell IDs.
+
+    Returns:
+        Biomass and biomass density by functional group and timestep.
+
+    Raises:
+        ValueError: If required data or area information is missing or invalid.
+    """
+    if density_scope not in {"landscape", "territory"}:
+        raise ValueError(
+            "density_scope must be either 'landscape' or 'territory'."
+        )
+
+    area_conversion = get_area_conversion(density_unit)
+
+    required_columns = {
+        "time_index",
+        "functional_group",
+        "individuals",
+        "mass_carbon",
+        "mass_nitrogen",
+        "mass_phosphorus",
+    }
+    if density_scope == "territory":
+        required_columns.add(territory_column)
+
+    check_required_columns(
+        dataframe=cohort_df,
+        required_columns=required_columns,
+    )
+
+    if cohort_df.empty:
+        raise ValueError("Input dataframe is empty.")
+
+    grouping_columns = ["time_index", "functional_group"]
+    if cohort_df[grouping_columns].isna().any().any():
+        raise ValueError(
+            "The time_index and functional_group columns must not contain "
+            "missing values."
+        )
+
+    _check_numeric_finite_nonnegative(
+        dataframe=cohort_df,
+        columns=[
+            "individuals",
+            "mass_carbon",
+            "mass_nitrogen",
+            "mass_phosphorus",
+        ],
+    )
+
+    if density_scope == "landscape":
+        landscape_area_m2 = _resolve_landscape_area_m2(
+            total_area_m2=total_area_m2,
+            cell_size=cell_size,
+            n_cells_x=n_cells_x,
+            n_cells_y=n_cells_y,
+        )
+
+        if n_cells_x is not None and n_cells_y is not None:
+            check_grid_dimensions(
+                cohort_df=cohort_df,
+                n_cells_x=n_cells_x,
+                n_cells_y=n_cells_y,
+            )
+
+    else:
+        if total_area_m2 is not None:
+            raise ValueError(
+                "total_area_m2 is not used for territory biomass density."
+            )
+
+        if cell_size is None:
+            raise ValueError(
+                "cell_size is required for territory biomass density."
+            )
+        _validate_positive_number(cell_size, "cell_size")
+
+        if (n_cells_x is None) != (n_cells_y is None):
+            raise ValueError(
+                "For territory density, provide both n_cells_x and n_cells_y "
+                "or neither."
+            )
+
+        if n_cells_x is not None and n_cells_y is not None:
+            _validate_positive_integer(n_cells_x, "n_cells_x")
+            _validate_positive_integer(n_cells_y, "n_cells_y")
+            check_grid_dimensions(
+                cohort_df=cohort_df,
+                n_cells_x=n_cells_x,
+                n_cells_y=n_cells_y,
+            )
+
+    data = cohort_df.copy()
+
+    data["individual_mass"] = (
+        data["mass_carbon"]
+        + data["mass_nitrogen"]
+        + data["mass_phosphorus"]
+    )
+    data["cohort_biomass"] = data["individual_mass"] * data["individuals"]
+
+    biomass_df = (
+        data.groupby(
+            ["time_index", "functional_group"],
+            as_index=False,
+        )["cohort_biomass"]
+        .sum()
+        .rename(columns={"cohort_biomass": "total_biomass"})
+    )
+
+    if density_scope == "landscape":
+        biomass_df["area_m2"] = landscape_area_m2
+    else:
+        territory_df = data.copy()
+        territory_df["_territory_cells"] = territory_df[
+            territory_column
+        ].apply(parse_territory_cells)
+
+        territory_cells_df = (
+            territory_df.groupby(
+                ["time_index", "functional_group"]
+            )["_territory_cells"]
+            .apply(lambda territories: len(set().union(*territories)))
+            .reset_index(name="territory_cells")
+        )
+
+        biomass_df = biomass_df.merge(
+            territory_cells_df,
+            on=["time_index", "functional_group"],
+            how="left",
+        )
+
+        biomass_df["area_m2"] = biomass_df["territory_cells"] * cell_size**2
+
+        zero_area_groups = biomass_df.loc[
+            biomass_df["territory_cells"] == 0,
+            ["time_index", "functional_group"],
+        ]
+
+        if not zero_area_groups.empty:
+            affected_groups = "; ".join(
+                f"time_index={row.time_index}, "
+                f"functional_group={row.functional_group}"
+                for row in zero_area_groups.itertuples(index=False)
+            )
+            raise ValueError(
+                "Territory biomass density cannot be calculated because "
+                f"no territory cells were found for: {affected_groups}."
+            )
+
+    area_in_selected_unit = biomass_df["area_m2"] / area_conversion
+    biomass_df["biomass_density"] = (
+        biomass_df["total_biomass"] / area_in_selected_unit
+    )
+
+    biomass_df["mass_unit"] = "kg"
+    biomass_df["density_scope"] = density_scope
+    biomass_df["density_unit"] = density_unit
+
+    return biomass_df.sort_values(
+        ["functional_group", "time_index"]
+    ).reset_index(drop=True)
+
+
+def plot_fg_population_biomass(
+    biomass_df: pd.DataFrame,
+    density_unit: str = "km2",
+    density_scope: str = "landscape",
+    output_path: str | None = None,
+) -> None:
+    """Plot functional group biomass density over time.
+
+    Args:
+        biomass_df: Output from ``calculate_fg_population_biomass``.
+        density_unit: Area unit used for biomass density.
+        density_scope: Density scope used in the calculation.
+        output_path: Optional path for saving the plot.
+
+    Raises:
+        ValueError: If required columns are missing or inputs are invalid.
+    """
+    if density_scope not in {"landscape", "territory"}:
+        raise ValueError(
+            "density_scope must be either 'landscape' or 'territory'."
+        )
+
+    unit_label = get_unit_label(density_unit)
+
+    check_required_columns(
+        dataframe=biomass_df,
+        required_columns={
+            "time_index",
+            "functional_group",
+            "biomass_density",
+        },
+    )
+
+    if biomass_df.empty:
+        raise ValueError("Biomass dataframe is empty.")
+
+    figure, axis = plt.subplots()
+
+    for functional_group, group_data in biomass_df.groupby(
+        "functional_group"
+    ):
+        group_data = group_data.sort_values("time_index")
+        axis.plot(
+            group_data["time_index"],
+            group_data["biomass_density"],
+            label=functional_group,
+        )
+
+    scope_labels = {
+        "landscape": "Landscape",
+        "territory": "Territory",
+    }
+
+    axis.set_xlabel("Time step")
+    axis.set_ylabel(f"Biomass density (kg/{unit_label})")
+    axis.set_title(
+        f"{scope_labels[density_scope]} functional group "
+        "biomass density over time"
+    )
+    axis.legend()
+
+    figure.tight_layout()
+
+    if output_path is not None:
+        figure.savefig(output_path, dpi=150)
+        print(f"Plot saved to {output_path}")
+
+    plt.show()
