@@ -2,12 +2,12 @@
 
 This workflow generates a Sobol design, runs Virtual Ecosystem (VE) on the HPC,
 and prepares the output for the report
-[sensitivity.qmd](analysis/soil/sensitivity/input_data/sensitivity.qmd).
+[sensitivity.qmd](sensitivity.qmd).
 
 Run the commands below from the **root of a personal HPC checkout** of
 `ve_data_science`, for example `~/ve_data_science`. Paths below are relative to
 that root unless stated otherwise. See
-[HPC setup](docs/hpc_setup.md) for access and checkout instructions.
+[HPC setup](../../../../docs/hpc_setup.md) for access and checkout instructions.
 
 ## Connect to CX3 using SSH
 
@@ -26,30 +26,44 @@ One-time setup in your personal checkout:
 
 1. Python environment: run `uv sync`. Repeat `uv sync` only after
    `pyproject.toml` or `uv.lock` changes. See
-   [uv setup](docs/uv_setup.md).
+   [uv setup](../../../../docs/uv_setup.md).
 2. Set up R and its packages as described below.
 
 ### Set up R on CX3
 
-CX3 provides R as a module; you do not need to install R yourself. Check the
-module and follow any prerequisite instructions it reports:
+CX3 provides R through its module system. Follow the
+[Imperial R guide](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/applications/guides/R/)
+to inspect the production software stack:
 
 ```bash
+module load tools/prod
+module spider R
 module spider R/4.6.1-gfbf-2026.1
-module load R/4.6.1-gfbf-2026.1
-R
 ```
 
-The current `renv.lock` records R 4.6.0. R 4.6.1 is the closest available
-version. Then run:
+Confirm that the module is available and note any prerequisite module loads
+reported by `module spider`. The current `renv.lock` records R 4.6.0; the
+example below uses R 4.6.1.
+
+From the checkout root, open `.Rprofile` with a text editor. This command opens
+the existing file, or creates it when you save if it does not exist:
+
+```bash
+nano .Rprofile
+```
+
+Keep any existing contents. Add this line if it is not already present:
 
 ```r
 source("renv/activate.R")
 ```
 
-Git ignores `.Rprofile`, so this setup is local to the checkout. Submit the
-package restore from the checkout root as a PBS job. Add any prerequisite module
-loads reported by `module spider` before the R module load:
+In nano, press **Ctrl+O**, then **Enter** to save. Press **Ctrl+X** to exit.
+Git ignores `.Rprofile`, so configure it in each checkout. This activates the
+project R library; you must still load the R module in each job. See
+[R with renv](../../../../docs/renv.md).
+
+Submit the package restore from the checkout root as a PBS job:
 
 ```bash
 qsub <<'EOF'
@@ -59,29 +73,51 @@ qsub <<'EOF'
 #PBS -j oe
 set -euo pipefail
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR is required}"
+module load tools/prod
 module load R/4.6.1-gfbf-2026.1
-Rscript -e 'renv::restore(prompt = FALSE); renv::status(); .libPaths()'
+Rscript --version
+Rscript -e 'renv::restore(prompt = FALSE); renv::status()'
+Rscript -e '
+  print(.libPaths())
+  packages <- c("tidyverse", "sensobol", "tidync", "RNetCDF", "toml",
+                "mirai", "arrow", "pizzarr", "here")
+  stopifnot(all(vapply(packages, requireNamespace, logical(1), quietly = TRUE)))
+  print(vapply(packages, find.package, character(1)))
+'
 EOF
 ```
 
 Save the job ID and check its exit status with `qstat -x -f <job_id>`. Inspect
-the PBS output for restore errors, package status, and library paths. The
-restore may need network access, compilation, system libraries, or more time.
-It includes `pizzarr`, which post-processing needs. Repeat the restore when
-`renv.lock` changes or the library needs repair; do not run it during jobs that
-use the library. See [R with renv](docs/renv.md).
+the PBS output for restore errors, package status, R version, library paths, and
+package locations. Confirm that the project library is active and contains the
+required packages. A successful package load alone does not prove that the
+locked versions are in use. Resolve any discrepancies reported by
+`renv::status()` before proceeding.
 
-Before submitting the preparation or post-processing jobs, add the same module
-loads to `build_data_and_config.sh` and `post_process_outputs.sh`, before their
-`Rscript` checks. These scripts do not currently load R. To check the runtime,
-also add these commands after the checks and before the analysis scripts:
+The restore runs on a compute node to avoid heavy work on login nodes. It may
+need network access, compilation, system libraries, or more time. `pizzarr`,
+needed for post-processing, may require Rust and OpenSSL when built from source.
+Check compute-node access and missing dependencies if restore fails. Repeat the
+restore when `renv.lock` changes or the library needs repair; do not run it
+during jobs that use the library.
+
+Before submitting the preparation or post-processing jobs, add the same
+`tools/prod`, prerequisite, and R module loads to `build_data_and_config.sh` and
+`post_process_outputs.sh`, before their `Rscript` checks. These scripts do not
+currently load R. To check the runtime, also add these commands after the
+checks and before the analysis scripts:
 
 ```bash
 Rscript --version
-Rscript -e '.libPaths()'
+Rscript -e 'print(.libPaths())'
 ```
 
 Inspect each job's PBS output to confirm the R version and project library.
+Keep the checkout, `.Rprofile`, and R library unchanged while jobs use them.
+The preparation and post-processing scripts use 64 and 128 R workers,
+respectively, matching their current PBS CPU requests. If you change a request,
+adjust its worker count to match, and check that threaded libraries do not
+oversubscribe the allocation.
 
 The preparation scripts read these inputs:
 
@@ -102,7 +138,7 @@ run this all-file command; obtain and stage that input from its data owner.
 Run this command from the root of the personal checkout:
 
 ```bash
-rsync -tv --ignore-existing --files-from=- \
+rsync -tv --files-from=- \
   /rds/general/project/virtual_rainforest/live/ve_data_science/ ./ <<'EOF'
 data/scenarios/maliau/maliau_2/data/soil_maliau.nc
 data/scenarios/maliau/maliau_2/data/litter_maliau.nc
@@ -124,10 +160,9 @@ Run:
 qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
 ```
 
-The job requests 64 CPUs, 64 GB, and 30 minutes. It writes the Sobol matrix,
-`n_scenarios.txt`, numbered NetCDF inputs, fixed inputs, and
-`data/sensitivity/soil_litter_inputs/config/config.toml`. The current design
-uses base sample size 100 and seed 777.
+The job writes the Sobol matrix, `n_scenarios.txt`, numbered NetCDF inputs,
+fixed inputs, and `data/sensitivity/soil_litter_inputs/config/config.toml`. The
+current design uses base sample size 100 and seed 777.
 
 Wait for the preparation job to finish successfully before proceeding. Inspect
 its PBS output and exit status, for example with `qstat -x -f <job_id>`. Check
@@ -148,7 +183,7 @@ bash analysis/soil/sensitivity/input_data/submit_ve_array.sh
 
 The submitter runs `uv sync --locked` and submits one PBS array task per
 scenario, with at most 100 tasks running concurrently. Save the array job ID.
-Each task runs [ve.sh](analysis/soil/sensitivity/input_data/ve.sh), selects its
+Each task runs [ve.sh](ve.sh), selects its
 one-based input index, and requests one CPU, 4 GB, and one hour. The task runs
 the locked PyPI VE release and stops at update 24. The report currently selects
 time index 24. Confirm that this endpoint is appropriate for the analysis.
@@ -180,7 +215,7 @@ matrix and one `model_data.zarr` per scenario. It checks scenario indices and
 writes
 `data/sensitivity/soil_litter_inputs/out/all_continuous_data_merged.parquet`.
 Inspect the PBS output and exit status before using the Parquet file. Then
-render [sensitivity.qmd](analysis/soil/sensitivity/input_data/sensitivity.qmd)
+render [sensitivity.qmd](sensitivity.qmd)
 from the repository root:
 
 ```bash
