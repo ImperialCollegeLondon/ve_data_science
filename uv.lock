@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
@@ -45,7 +45,7 @@ version = "4.15.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "idna" },
-    { name = "typing-extensions", marker = "python_full_version < '3.15'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.15' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/d2/f4d173e22df740bc37b1db102b386ba719b66e95b0f0d751f556b387e6d2/anyio-4.15.1.tar.gz", hash = "sha256:9f28306018cbd6d329e64a36d58256edff76dd996fe423bc957326e578b82a94", size = 276966, upload-time = "2026-09-05T10:42:39.44Z" }
 wheels = [
@@ -282,7 +282,7 @@ name = "cffi"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -1115,7 +1115,7 @@ name = "ipykernel"
 version = "7.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "appnope", marker = "sys_platform == 'darwin'" },
+    { name = "appnope", marker = "sys_platform == 'darwin' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "comm" },
     { name = "debugpy" },
     { name = "ipython" },
@@ -1138,13 +1138,13 @@ name = "ipython"
 version = "9.18.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "ipython-pygments-lexers" },
     { name = "jedi" },
     { name = "matplotlib-inline" },
-    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'win32' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (sys_platform == 'win32' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'win32' and extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "prompt-toolkit" },
-    { name = "psutil", marker = "sys_platform != 'android' and sys_platform != 'cygwin' and sys_platform != 'emscripten'" },
+    { name = "psutil", marker = "(sys_platform != 'android' and sys_platform != 'cygwin' and sys_platform != 'emscripten') or (sys_platform == 'android' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (sys_platform == 'android' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'android' and extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'cygwin' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (sys_platform == 'cygwin' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'cygwin' and extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "pygments" },
     { name = "stack-data" },
     { name = "traitlets" },
@@ -1350,7 +1350,7 @@ dependencies = [
     { name = "nbformat" },
     { name = "packaging" },
     { name = "prometheus-client" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "pyzmq" },
     { name = "send2trash" },
     { name = "terminado" },
@@ -1368,7 +1368,7 @@ name = "jupyter-server-terminals"
 version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "terminado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f4/a7/bcd0a9b0cbba88986fe944aaaf91bfda603e5a50bda8ed15123f381a3b2f/jupyter_server_terminals-0.5.4.tar.gz", hash = "sha256:bbda128ed41d0be9020349f9f1f2a4ab9952a73ed5f5ac9f1419794761fb87f5", size = 31770, upload-time = "2026-01-14T16:53:20.213Z" }
@@ -1405,7 +1405,7 @@ name = "jupyterlab-myst"
 version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "jupyter-server", marker = "sys_platform != 'emscripten'" },
+    { name = "jupyter-server", marker = "sys_platform != 'emscripten' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9c/a8/204e388b3b2117cd8daf635a6f54fe54dcb50742b006b1365f8782825808/jupyterlab_myst-2.7.0.tar.gz", hash = "sha256:c4e4b4b12da5a31ec6926d34ae7721f542892317011656a86f4e8fa0fbe7f367", size = 13012449, upload-time = "2026-06-17T22:39:13.786Z" }
 wheels = [
@@ -2348,7 +2348,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "python-dateutil" },
-    { name = "tzdata", marker = "sys_platform == 'emscripten' or sys_platform == 'win32'" },
+    { name = "tzdata", marker = "sys_platform == 'emscripten' or sys_platform == 'win32' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/55/b1/a10c0d1a7e3ce44eb42635771004aa503e3b9ddde0bd39c524dda65f7eff/pandas-3.1.0.tar.gz", hash = "sha256:ecb9b2d8a817b1e1ba1fdb90c0abe9eab31b4fdf2562b7a56b86ac66ace17e49", size = 5933421, upload-time = "2026-10-22T11:57:03.087Z" }
 wheels = [
@@ -2439,7 +2439,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess" },
+    { name = "ptyprocess", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'emscripten' and extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'win32' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (sys_platform == 'win32' and extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (sys_platform == 'win32' and extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -2930,7 +2930,7 @@ name = "pytest"
 version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
@@ -3055,7 +3055,7 @@ name = "pyzmq"
 version = "27.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "implementation_name == 'pypy'" },
+    { name = "cffi", marker = "implementation_name == 'pypy' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e7/8d/5b3d5631c2f4b4b8862f64cd0c9eb777b5710eeb5125b4be8dd0a200a4c0/pyzmq-27.2.0.tar.gz", hash = "sha256:54d4259d1bfae24ecdb5ca79f7acc2eac6c286a02d6a0ae617797cb45f0726d3", size = 292316, upload-time = "2026-08-20T19:08:21.19Z" }
 wheels = [
@@ -3228,7 +3228,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "rpds-py" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/22/f5/df4e9027acead3ecc63e50fe1e36aca1523e1719559c499951bb4b53188f/referencing-0.37.0.tar.gz", hash = "sha256:44aefc3142c5b842538163acb373e24cce6632bd54bdb01b21ad5863489f50d8", size = 78036, upload-time = "2025-10-13T15:30:48.871Z" }
 wheels = [
@@ -3760,8 +3760,8 @@ name = "terminado"
 version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "os_name != 'nt'" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "ptyprocess", marker = "os_name != 'nt' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "tornado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
@@ -3863,7 +3863,7 @@ name = "tqdm"
 version = "4.70.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0d/ea/b2a5bd54b28a324dae8211928b2d730b6547500342c7e6c6dea08bd0a485/tqdm-4.70.1.tar.gz", hash = "sha256:cefd0eca11b2a37a3aee776544d4f4ae913f02688135b5556b8788dfa474afc4", size = 171846, upload-time = "2026-09-11T07:25:16.601Z" }
 wheels = [
@@ -4024,7 +4024,7 @@ name = "tzlocal"
 version = "5.4.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "tzdata", marker = "sys_platform == 'win32'" },
+    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d8/89/2bd035df331499589fc92e59375c17c6cea6a500453b2c5f6a6ec9572825/tzlocal-5.4.5.tar.gz", hash = "sha256:ba976898bad27945178c9ca25c222c19e322b30c10342b9f40b46714f70d2d5f", size = 31483, upload-time = "2026-10-22T09:09:26.38Z" }
 wheels = [
@@ -4065,7 +4065,6 @@ wheels = [
 name = "ve-data-science"
 version = "0.1.0"
 source = { virtual = "." }
-default-groups = []
 dependencies = [
     { name = "cdsapi" },
     { name = "cftime" },
@@ -4093,16 +4092,16 @@ dependencies = [
     { name = "trafilatura" },
     { name = "tree-sitter-language-pack" },
     { name = "types-pyyaml" },
-    { name = "virtual-ecosystem", version = "0.2.2", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git?rev=72f8724629ee8fbbddadac460a2c2abd6c483f68#72f8724629ee8fbbddadac460a2c2abd6c483f68" }, marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
+    { name = "virtual-ecosystem", version = "0.2.2", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git?rev=72f8724629ee8fbbddadac460a2c2abd6c483f68#72f8724629ee8fbbddadac460a2c2abd6c483f68" }, marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "virtual-ecosystem", version = "0.2.3", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra != 'group-15-ve-data-science-dev-pinned' and extra != 'group-15-ve-data-science-dev-pr1889')" },
-    { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#85d5c625343a3731f6afd6ce8c1a8a337496c5a0" }, marker = "extra == 'group-15-ve-data-science-dev' or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#8cee05a29dc16c3343cdd181bc6b0a4e80d7cbe8" }, marker = "extra == 'group-15-ve-data-science-dev' or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git?rev=2febd6bd0732eeda6f70f7aa413e40b560d74c54#2febd6bd0732eeda6f70f7aa413e40b560d74c54" }, marker = "extra == 'group-15-ve-data-science-dev-pinned' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
     { name = "xarray", extra = ["io"] },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#85d5c625343a3731f6afd6ce8c1a8a337496c5a0" } },
+    { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#8cee05a29dc16c3343cdd181bc6b0a4e80d7cbe8" } },
 ]
 dev-pinned = [
     { name = "virtual-ecosystem", version = "0.2.3", source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git?rev=2febd6bd0732eeda6f70f7aa413e40b560d74c54#2febd6bd0732eeda6f70f7aa413e40b560d74c54" } },
@@ -4164,22 +4163,22 @@ resolution-markers = [
     "python_full_version < '3.13' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "bottleneck", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "dask", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "dpath", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "netcdf4", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "numpy", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "openpyxl", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "pint", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "pydantic", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "pyrealm", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "scipy", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "shapely", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "tomli-w", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "tqdm", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "types-tabulate", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "xarray", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
-    { name = "zarr", marker = "extra == 'group-15-ve-data-science-dev-pr1889' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned')" },
+    { name = "bottleneck", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "dask", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "dpath", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "netcdf4", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "numpy", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "openpyxl", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "pint", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "pydantic", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "pyrealm", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "scipy", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "shapely", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "tomli-w", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "tqdm", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "types-tabulate", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "xarray", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
+    { name = "zarr", marker = "(extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra != 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra != 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 
 [[package]]
@@ -4223,7 +4222,7 @@ wheels = [
 [[package]]
 name = "virtual-ecosystem"
 version = "0.2.3"
-source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#85d5c625343a3731f6afd6ce8c1a8a337496c5a0" }
+source = { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git#8cee05a29dc16c3343cdd181bc6b0a4e80d7cbe8" }
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform == 'emscripten'",
@@ -4363,7 +4362,7 @@ name = "webob"
 version = "1.8.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "legacy-cgi", marker = "python_full_version >= '3.13'" },
+    { name = "legacy-cgi", marker = "python_full_version >= '3.13' or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pinned') or (extra == 'group-15-ve-data-science-dev' and extra == 'group-15-ve-data-science-dev-pr1889') or (extra == 'group-15-ve-data-science-dev-pinned' and extra == 'group-15-ve-data-science-dev-pr1889')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e6/92/9329872e36be90e25ba616ac6e9ee8c1be4326a1ea3fdffcdabd0eb48efb/webob-1.8.11.tar.gz", hash = "sha256:aa8c27231070b135c025e567a9cd7eda03f4df71352ffaac740cb6a75f0f81a5", size = 286047, upload-time = "2026-08-02T06:26:26.063Z" }
 wheels = [
