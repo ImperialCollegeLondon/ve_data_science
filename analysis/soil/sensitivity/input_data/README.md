@@ -80,6 +80,7 @@ qsub <<'EOF'
 set -euo pipefail
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR is required}"
 module load tools/prod
+module load libuv/1.52.1-GCCcore-14.3.0
 module load R/4.6.1-gfbf-2026.1
 Rscript --version
 Rscript -e 'renv::restore(prompt = FALSE); renv::status()'
