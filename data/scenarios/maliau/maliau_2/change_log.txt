@@ -2,59 +2,37 @@
 
 2026-11-06
 - Module: Soil
-- Author: <fill in>
-- Status: Staged files are present locally; Globus upload details <confirm>.
-  Test completion/result <confirm>; not promoted.
+- Author: Hao Ran Lai
 - Files changed through Globus:
   - data/scenarios/maliau/maliau_2/data/pr1958/example_microbial_groups.csv
   - data/scenarios/maliau/maliau_2/data/pr1958/example_enzyme_parameters.csv
   - data/scenarios/maliau/maliau_2/config/pr1958/animal_config.toml
   - data/scenarios/maliau/maliau_2/config/pr1958/soil_config.toml
 - Changes made:
-  - Staged the two upstream example CSVs without scientific reparameterisation.
+  - Staged the two upstream example CSVs from VE examples.
   - Staged individual animal and soil configs; the soil config points to the
     staged CSVs under data/pr1958/.
-  - No data/main migration or promotion to the active config/data paths.
-  - The combined config and retired builder remain untouched.
 - Provenance:
   - Source repository: ImperialCollegeLondon/virtual_ecosystem
   - CSV source commit: cee8edd7f648f0aadb91c2e132e39b2b4d6db44e
   - Source files:
     - virtual_ecosystem/example_data/data/example_microbial_groups.csv
     - virtual_ecosystem/example_data/data/example_enzyme_parameters.csv
-  - Parameter rationale at the same source commit:
-    virtual_ecosystem/example_data/generation_scripts/microbial_parametrisation_example.py
   - Local staged CSV SHA-256 checksums:
     - example_enzyme_parameters.csv:
       e74b8fc0f39d9c974dd7bdf8fea9afbeead91d27d40ee187e7dc1c169e2d2319
     - example_microbial_groups.csv:
       f8607ab135d2c491739c846768152b66e5f7b645d74ce5a8a4e1fed1cbd18d80
-  - Actual Globus staging locations: <fill in>
+  - Actual Globus staging locations: data/scenarios/maliau/maliau_2/data/pr1958
 - Test:
-  - VE dev-pinned commit: <confirm actual commit used>
-  - ve_data_science branch/revision: <fill in>
-  - Command: <record exact command and options>
-  - Staged individual configs: config/pr1958/animal_config.toml and
-    config/pr1958/soil_config.toml
-  - Soil CSV paths: ../../data/pr1958/example_microbial_groups.csv and
-    ../../data/pr1958/example_enzyme_parameters.csv
+  - Command: analysis/soil/pr_test/ve_run.sh
   - Log and outputs: data/scenarios/maliau/maliau_2/out/pr1958/
-  - Outcome/completion: <confirm>
-  - Reproduced by/date: <fill in>
-  - The compiled configuration currently records an 11-year run, not the
-    planned three-month smoke test; confirm whether the smoke test is still
-    required.
-  - CSV source and test commits differ: <verify input compatibility; record result>
-- Promotion:
-  - Upstream merged revision/retest result: <fill in>
-  - Promotion date and active data/individual config destinations: <fill in>
-  - Staging retention/cleanup decision: <fill in>
+  - Outcome/completion: Maliau 2 scenario run completed.
+  - Reproduced by/date: 6/11/2026
 - References:
   - Issue #765
+  - PR #767
   - ImperialCollegeLondon/virtual_ecosystem#1958
-  - PR #760 (working guidance, not repository-wide policy)
-- Scope:
-  - maliau_2 only; maliau_1 remains behind and is not validated here.
 
 2026-10-20
 - Module: Animals
