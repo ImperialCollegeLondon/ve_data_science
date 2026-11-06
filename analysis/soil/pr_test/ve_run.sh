@@ -3,18 +3,17 @@
 set -euo pipefail
 
 scenario_dir=data/scenarios/maliau/maliau_2
-config_dir="$scenario_dir/config/pr1958"
+config_dir="$scenario_dir/config"
 out_dir="$scenario_dir/out/pr1958"
 
 # Replace filenames with the staged individual configs; do not add combined TOML.
 config_files=(
-  "$config_dir/core_config.toml"
   "$config_dir/data_config.toml"
   "$config_dir/abiotic_simple_config.toml"
   "$config_dir/hydrology_config.toml"
-  "$config_dir/animal_config.toml"
+  "$config_dir/pr1958/animal_config.toml"
   "$config_dir/plant_config.toml"
-  "$config_dir/soil_config.toml"
+  "$config_dir/pr1958/soil_config.toml"
   "$config_dir/litter_config.toml"
 )
 
@@ -31,9 +30,7 @@ if [[ -e "$out_dir" ]]; then
 fi
 
 mkdir -p "$out_dir"
-uv run --locked --group dev-pinned ve_run \
+uv run --group dev-pinned ve_run \
   "${config_files[@]}" \
-  -c 'core.timing.update_interval="1 month"' \
-  -c 'core.timing.run_length="3 months"' \
   -o "$out_dir" \
   --logfile "$out_dir/logfile.log"
