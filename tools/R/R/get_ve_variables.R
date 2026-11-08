@@ -24,9 +24,12 @@
 #|     - tidync
 #|     - purrr
 #|     - dplyr
+#|     - here
 #|     - stringr
 #|     - toml
 #|     - cli
+#|     - readr
+#|     - reticulate
 #|
 #| usage_notes: |
 #|     See individual function documentation below for details and examples.
@@ -105,13 +108,20 @@ get_data_variables <- function(
     \(variable) {
       tmp_zarr <- ve_vars$get_item(variable)
       out_array <- tmp_zarr$as.array()
+      if (inherits(out_array, "integer64")) {
+        out_array <- array(as.numeric(out_array), dim = dim(out_array))
+      }
       dimnames_names <-
         tmp_zarr$get_attrs()$to_list()$`_ARRAY_DIMENSIONS` |>
         unlist()
       dimnames <-
         dimnames_names |>
         purrr::map(\(name) {
-          ve_vars$get_item(name)$as.array()
+          coordinate <- ve_vars$get_item(name)$as.array()
+          if (inherits(coordinate, "integer64")) {
+            coordinate <- as.character(coordinate)
+          }
+          coordinate
         })
       names(dimnames) <- dimnames_names
       dimnames(out_array) <- dimnames
@@ -193,6 +203,8 @@ get_data_variables_nc <- function(tidync, variables = NULL) {
 #' @param zarr_path Path to a Virtual Ecosystem Zarr output dataset.
 #' @param config_path Path to the exported full VE configuration TOML file.
 #' @param ... Additional arguments passed to \code{get_data_variables()}.
+#' @param cohort_data_path Optional path to the animal cohort CSV for the model
+#'   run. When supplied, FG population-density arrays are appended.
 #' @return A named list with derived variables.
 #'
 #' @examples
@@ -205,11 +217,16 @@ get_data_variables_nc <- function(tidync, variables = NULL) {
 #'
 #' @export
 
-get_derived_variables <- function(zarr_path, config_path, ...) {
+get_derived_variables <- function(
+  zarr_path,
+  config_path,
+  ...,
+  cohort_data_path = NULL
+) {
   config <- toml::read_toml(config_path)
 
   # first collect the derived variables that are returned as a single array
-  list(
+  derived_variables <- list(
     total_soil_c_per_volume = get_total_soil_c_per_volume(zarr_path),
     total_soil_c_per_mass = get_total_soil_c_per_mass(zarr_path, config),
     total_soil_c_per_area = get_total_soil_c_per_area(zarr_path, config),
@@ -246,9 +263,89 @@ get_derived_variables <- function(zarr_path, config_path, ...) {
     )
   ) |>
     # then collect the derived variables that are returned as a list of arrays
-    append(
-      get_soil_np_pool_microbial(zarr_path, config)
+    append(get_soil_np_pool_microbial(zarr_path, config))
+
+  if (!is.null(cohort_data_path)) {
+    derived_variables <- append(
+      derived_variables,
+      get_fg_population_density(
+        cohort_data_path = cohort_data_path,
+        config = config
+      )
     )
+  }
+
+  derived_variables
+}
+
+
+#' Calculate functional-group population density from animal cohort output
+#'
+#' Wraps the Python density calculator and labels each FG series with its
+#' canonical variable name for validation matching.
+#'
+#' @param cohort_data_path Path to the animal cohort CSV for the model run.
+#' @param config A parsed VE configuration containing grid settings.
+#' @param density_unit Unit used by the Python calculator: `m2`, `ha`, or `km2`.
+#' @param density_scope Area used by the Python calculator: `landscape` or
+#'   `territory`.
+#' @param complexity_level Functional-group level used in canonical names.
+#' @param territory_column Cohort CSV column containing territory cell lists.
+#'
+#' @returns A named list of arrays, one per functional group. Each array has
+#'   `spatial_scope` and `time_index` dimensions and uses the matching canonical
+#'   variable name.
+#'
+#' @export
+
+get_fg_population_density <- function(
+  cohort_data_path,
+  config,
+  density_unit = "km2",
+  density_scope = "landscape",
+  complexity_level = 5L,
+  territory_column = "territory"
+) {
+  grid <- config$core$grid
+  cohort_df <- readr::read_csv(cohort_data_path, show_col_types = FALSE)
+
+  density_tool <- reticulate::import_from_path(
+    "ve_data_tools.fg_population_density",
+    path = here::here("tools", "python", "src"),
+    convert = FALSE
+  )
+  density_df <- density_tool$calculate_fg_population_density(
+    cohort_df = cohort_df,
+    cell_size = sqrt(grid$cell_area),
+    n_cells_x = as.integer(grid$cell_nx),
+    n_cells_y = as.integer(grid$cell_ny),
+    density_unit = density_unit,
+    density_scope = density_scope,
+    territory_column = territory_column
+  ) |>
+    reticulate::py_to_r()
+
+  density_groups <- split(density_df, density_df$functional_group)
+
+  density_arrays <- purrr::map(density_groups, function(group_data) {
+    group_data <- group_data[order(group_data$time_index), , drop = FALSE]
+    array(
+      as.numeric(group_data$population_density),
+      dim = c(1L, nrow(group_data)),
+      dimnames = list(
+        spatial_scope = density_scope,
+        time_index = as.character(group_data$time_index)
+      )
+    )
+  })
+  names(density_arrays) <- paste0(
+    "density_",
+    names(density_groups),
+    "_L",
+    complexity_level
+  )
+
+  density_arrays
 }
 
 #' Compute total soil carbon per volume
