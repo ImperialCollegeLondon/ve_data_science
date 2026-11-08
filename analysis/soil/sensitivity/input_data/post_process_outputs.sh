@@ -11,6 +11,7 @@ cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR is required}"
 
 module load tools/prod
 module load R/4.6.1-gfbf-2026.1
+module load netCDF/4.10.0-gompi-2026.1
 
 OUT_ROOT="data/sensitivity/soil_litter_inputs/out"
 if [ ! -d "${OUT_ROOT}" ]; then

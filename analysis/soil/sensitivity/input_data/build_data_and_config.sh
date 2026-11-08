@@ -11,6 +11,7 @@ cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR is required}"
 
 module load tools/prod
 module load R/4.6.1-gfbf-2026.1
+module load netCDF/4.10.0-gompi-2026.1
 
 if ! command -v Rscript >/dev/null 2>&1; then
   echo "Rscript is unavailable; load the project's R environment before submitting."

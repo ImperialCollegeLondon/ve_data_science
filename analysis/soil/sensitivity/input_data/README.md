@@ -39,11 +39,31 @@ to inspect the production software stack:
 module load tools/prod
 module spider R
 module spider R/4.6.1-gfbf-2026.1
+module spider CMake/3.31.11-GCCcore-15.2.0
+module spider netCDF/4.10.0-gompi-2026.1
 ```
 
 Confirm that the module is available and note any prerequisite module loads
 reported by `module spider`. The current `renv.lock` records R 4.6.0; the
 example below uses R 4.6.1.
+
+Source installs need **CMake** (`nloptr`, `RcppParallel`) and the **NetCDF C
+development library** (`ncdf4`, `RNetCDF`). R packages do not supply these system
+dependencies. Select CMake and netCDF modules compatible with the R module's
+compiler stack, including any prerequisites reported by `module spider`.
+Do not mix a GCCcore-14.3.0 prerequisite with the GCC-15.2.0 stack shown in the
+failed build log unless the module system explicitly requires it.
+
+The restore below uses `CMake/3.31.11-GCCcore-15.2.0` and
+`netCDF/4.10.0-gompi-2026.1`. CMake matches the GCC 15.2.0 compiler
+and avoids CMake 4 compatibility changes in older package build scripts.
+NetCDF matches R's 2026.1 toolchain generation. Confirm prerequisites
+with the commands above. If loading NetCDF swaps R's compiler or MPI
+stack, resolve the module conflict before restoring.
+
+If no compatible NetCDF development module exists, ask RCS to provide one.
+Downloading the R packages manually will not fix missing `nc-config` or
+`netcdf.h`.
 
 From the checkout root, open `.Rprofile` with a text editor. This command opens
 the existing file, or creates it when you save if it does not exist:
@@ -73,17 +93,39 @@ Submit the package restore from the checkout root as a PBS job:
 mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 qsub <<'EOF'
 #!/bin/bash
-#PBS -l select=1:ncpus=1:mem=8gb
-#PBS -l walltime=2:00:00
+#PBS -l select=1:ncpus=4:mem=32gb
+#PBS -l walltime=24:00:00
 #PBS -j oe
 #PBS -o analysis/soil/sensitivity/input_data/pbs_logs/
 set -euo pipefail
 cd "${PBS_O_WORKDIR:?PBS_O_WORKDIR is required}"
 module load tools/prod
-module load libuv/1.52.1-GCCcore-14.3.0
 module load R/4.6.1-gfbf-2026.1
+module load CMake/3.31.11-GCCcore-15.2.0
+module load netCDF/4.10.0-gompi-2026.1
+module list
+for tool in Rscript cmake nc-config pkg-config; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "Missing build tool: $tool; check the loaded modules." >&2
+    exit 1
+  fi
+done
+cmake --version
+nc-config --all
+if ! pkg-config --exists netcdf; then
+  echo "NetCDF development files are not visible to pkg-config." >&2
+  exit 1
+fi
+export RENV_CONFIG_INSTALL_JOBS=1
+export MAKEFLAGS=-j4
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
 Rscript --version
-Rscript -e 'renv::restore(prompt = FALSE); renv::status()'
+Rscript -e '
+  options(renv.install.timeout = 20 * 60 * 60, Ncpus = 1L)
+  renv::restore(prompt = FALSE)
+  renv::status()
+'
 Rscript -e '
   print(.libPaths())
   packages <- c("tidyverse", "sensobol", "tidync", "RNetCDF", "toml",
@@ -101,18 +143,37 @@ required packages. A successful package load alone does not prove that the
 locked versions are in use. Resolve any discrepancies reported by
 `renv::status()` before proceeding.
 
-The restore runs on a compute node to avoid heavy work on login nodes. It may
-need network access, compilation, system libraries, or more time. `pizzarr`,
-needed for post-processing, may require Rust and OpenSSL when built from source.
-Check compute-node access and missing dependencies if restore fails. Repeat the
-restore when `renv.lock` changes or the library needs repair; do not run it
-during jobs that use the library.
+The restore runs on a compute node to avoid heavy work on login nodes. The
+full lockfile includes expensive source builds, not just the packages used by
+this workflow. The example gives the restore more memory and walltime, installs
+one package at a time, and limits compilation to its four allocated CPUs.
+For renv 1.2.3, `renv.install.timeout` controls the worker-phase deadline
+(default one hour), not the download timeout or PBS walltime. The 20-hour
+deadline leaves headroom within the 24-hour allocation; adjust both if needed.
+`options(timeout = ...)` alone does not fix `worker process timed out`.
 
-Before submitting the preparation or post-processing jobs, add the same
-`tools/prod`, prerequisite, and R module loads to `build_data_and_config.sh` and
-`post_process_outputs.sh`, before their `Rscript` checks. These scripts do not
-currently load R. To check the runtime, also add these commands after the
-checks and before the analysis scripts:
+Fix the earliest configuration or compilation error before investigating the
+long list of `dependency failed` messages. In the reported failure,
+`ncdf4`/`RNetCDF` lack NetCDF development files, and
+`nloptr`/`RcppParallel` lack CMake. `duckdb`, `stringi`, `Matrix`, and
+`geometries` hit the worker deadline; that message alone does not establish a
+missing library or broken package. Resubmit the restore after fixing the module
+environment. Keep `renv.lock` and the cache; do not replace locked versions with
+current CRAN packages or take a new snapshot to hide an incomplete restore.
+
+The restore may need network access, compilation, system libraries, or more
+time. `pizzarr`, needed for post-processing, may require Rust and OpenSSL when
+built from source. Check compute-node access and missing dependencies if
+restore fails. Repeat the restore when `renv.lock` changes or the library needs
+repair; do not run it during jobs that use the library.
+
+The preparation and post-processing scripts load R and the selected netCDF
+module, because compiled packages can require its shared libraries at runtime.
+Both scripts use `netCDF/4.10.0-gompi-2026.1`, matching the restore. Add any
+prerequisites reported by `module spider` before the module loads in both
+scripts. CMake is only needed
+for the restore. To check the runtime, also add these commands after the
+`Rscript` checks and before the analysis scripts:
 
 ```bash
 Rscript --version
