@@ -46,6 +46,31 @@ On macOS or Linux, use `unset OPENALEX_EMAIL` instead.
 If you cannot provide an address, stop before searching. Do not switch to
 OpenAlex MCP tools or another search integration.
 
+### GitHub Actions-based Copilot cloud sessions
+
+After `.github/workflows/copilot-setup-steps.yml` is merged to the default
+branch, a Copilot cloud session running on GitHub Actions installs the locked
+`dev-pinned` Python dependencies and checks out the same VE commit as a sibling
+`virtual_ecosystem` repository. The setup checks the installed package's Git
+provenance and the source checkout before the agent starts. It uses the
+repository's `.python-version` and does not install the optional R tools.
+
+Set `OPENALEX_EMAIL` as an Agents variable in repository **Settings → Secrets
+and variables → Agents**. Values previously configured in the Actions
+`copilot` environment are migrated to Agents settings by GitHub. See
+[GitHub's agent variables guide](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/configure-secrets-and-variables).
+The setup workflow does not test OpenAlex access or include a contact address.
+Copilot's network policy must permit the OpenAlex API and any authorised
+full-text hosts needed by a search.
+
+The setup follows the `dev-pinned` commit in `pyproject.toml` and `uv.lock`;
+changing that pin requires a matching lockfile update. Use `uv run --no-sync`
+for skill commands so they retain the prepared dependency group. As with local
+work, compare the inventory's recorded VE commit and refresh it when needed;
+the setup does not refresh it or perform a literature search. Setup-step
+failures are shown in the session log, but GitHub may still start the agent.
+The workflow applies to GitHub Actions sessions, not cloud sandboxes.
+
 In an assistant that supports repository skills, ask it to use
 [`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md).
 Name the constants or parameter families you want reviewed. For example:

@@ -1,0 +1,76 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/copilot-setup-steps.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          enable-cache: true
+
+      - name: Install locked Python dependencies
+        run: uv sync --locked --group dev-pinned
+
+      - name: Check out matching Virtual Ecosystem source
+        shell: bash
+        run: |
+          set -euo pipefail
+          ve_revision="$(uv run --no-sync python -c '
+          import json
+          import re
+          import tomllib
+          from importlib.metadata import distribution
+          from pathlib import Path
+
+          project = tomllib.loads(Path("pyproject.toml").read_text())
+          sources = project["tool"]["uv"]["sources"]["virtual-ecosystem"]
+          source, = (item for item in sources if item.get("group") == "dev-pinned")
+          url = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git"
+          revision = source["rev"]
+          if source["git"] != url or not re.fullmatch(r"[0-9a-f]{40}", revision):
+              raise ValueError("dev-pinned must select a full VE commit from the expected repository")
+          installed = json.loads(distribution("virtual-ecosystem").read_text("direct_url.json"))
+          if installed["url"] != url or installed["vcs_info"]["commit_id"] != revision:
+              raise ValueError("Installed VE does not match the dev-pinned source")
+          print(revision)
+          ')"
+          ve_root="$(dirname "$GITHUB_WORKSPACE")/virtual_ecosystem"
+          if [[ -e "$ve_root" ]]; then
+            echo "VE source checkout already exists: $ve_root" >&2
+            exit 1
+          fi
+          git init -q "$ve_root"
+          git -C "$ve_root" remote add origin \
+            https://github.com/ImperialCollegeLondon/virtual_ecosystem.git
+          git -C "$ve_root" fetch --quiet --depth 1 origin "$ve_revision"
+          git -C "$ve_root" checkout --quiet --detach FETCH_HEAD
+          test "$(git -C "$ve_root" rev-parse HEAD)" = "$ve_revision"
+          PYTHONPATH="$ve_root" uv run --no-sync python -c '
+          from pathlib import Path
+          from virtual_ecosystem.core import configuration
+          import os
+
+          if not Path(configuration.__file__).resolve().is_relative_to(
+              Path(os.environ["PYTHONPATH"]).resolve()
+          ):
+              raise ValueError("VE configuration was not imported from the source checkout")
+          '
+          echo "Prepared VE source at $ve_revision"
