@@ -1,97 +1,120 @@
 # Soil and litter input sensitivity analysis
 
-This workflow generates a Sobol design, runs Virtual Ecosystem (VE) on the HPC,
-and prepares the output for the report
-[sensitivity.qmd](sensitivity.qmd).
+This workflow generates a Sobol design, runs Virtual Ecosystem (VE) on CX3,
+and prepares outputs for [sensitivity.qmd](sensitivity.qmd). This setup covers
+only the scripts in this directory and the helper functions they call. It does
+not restore the repository-wide R environment or require `renv` or `uvr`.
 
-Run the commands below from the **root of a personal HPC checkout** of
-`ve_data_science`, for example `~/ve_data_science`. Paths below are relative to
-that root unless stated otherwise. See
-[HPC setup](../../../../docs/hpc_setup.md) for access and checkout instructions.
+Run commands from the **root of a personal HPC checkout** of `ve_data_science`,
+not from this directory. See [HPC setup](../../../../docs/hpc_setup.md) for
+access and checkout instructions.
 
-## Connect to CX3 using SSH
-
-Use SSH to access the CX3 cluster. You will be asked for your password.
+## Connect and prepare the checkout
 
 ```bash
 ssh userid@login.cx3.hpc.imperial.ac.uk
 ```
 
-## Data locations and prerequisites
+Clone the repository into your personal HPC directory if needed. From the
+checkout root, prepare Python and the PBS log directory:
 
-On the HPC, `cd` to your personal directory and `git clone` the repo if you have
-not done so.
+```bash
+uv sync --locked
+mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
+```
 
-One-time setup in your personal checkout:
+Python uses the repository's existing `uv.lock`. Do not change `.venv` while
+array jobs use it. See [uv setup](../../../../docs/uv_setup.md).
 
-1. Python environment: run `uv sync`. Repeat `uv sync` only after
-   `pyproject.toml` or `uv.lock` changes. See
-   [uv setup](../../../../docs/uv_setup.md).
-2. Set up R and its packages as described below.
+## Set up R on CX3
 
-### Set up R on CX3
+Use a separate user library for this workflow. These exports bypass an existing
+project `.Rprofile` that activates `renv`, without deleting it or changing other
+projects. They also bypass user `.Renviron` settings; pass any required settings
+through shell environment variables instead.
 
-CX3 provides R through its module system. Follow the
-[Imperial R guide](https://icl-rcs-user-guide.readthedocs.io/en/latest/hpc/applications/guides/R/)
-to inspect the production software stack:
+```bash
+export R_LIBS_USER="$HOME/R/ve-soil-inputs/4.6"
+export R_PROFILE_USER=/dev/null
+export R_ENVIRON_USER=/dev/null
+mkdir -p "$R_LIBS_USER"
+```
+
+Repeat these exports in each new shell before submitting R jobs. The `qsub -v`
+commands below explicitly pass them to the jobs. Use the same library and R
+module for installation, preparation, and post-processing. Do not install or
+update packages while jobs use this library.
+
+### Packages needed by this workflow
+
+| Stage | Direct R packages, including called helpers |
+| --- | --- |
+| Prepare data and configuration | `tidyverse`, `sensobol`, `tidync`, `RNetCDF`, `toml`, `tomledit`, `mirai`, `here`, `reshape2`, `cli` |
+| Post-process Zarr outputs | `tidyverse`, `mirai`, `arrow`, `pizzarr`, `here`, `reshape2`, `cli` |
+| Render report | `tidyverse`, `sensobol`, `arrow`, `here`, `knitr`, `rmarkdown`; Quarto executable |
+
+Install only these packages and their required dependencies, not their optional
+`Suggests` or every package in `renv.lock`. The scripts currently load
+`tidyverse`, so its imported packages remain necessary. Spatial packages such
+as `sf`, `terra`, and `tmap` are not required by this workflow. Neither are
+`brms`, `rstan`, or the dependencies of unrelated analyses. The Zarr reader
+used here is `pizzarr`; the helper's animal-specific `reticulate` code is not
+called by these scripts.
+
+This user-library recipe installs available repository versions, **not the
+versions in `renv.lock`**. Record package versions in the installation log and
+keep the library unchanged for an analysis. A fresh installation may resolve
+different versions; this is scoped setup, not a replacement reproducibility
+system for the whole repository.
+
+### Build environment
+
+The existing R jobs load `R/4.6.1-gfbf-2026.1` and
+`netCDF/4.10.0-gompi-2026.1`. Confirm their availability before installing:
 
 ```bash
 module load tools/prod
-module spider R
 module spider R/4.6.1-gfbf-2026.1
-module spider CMake/3.31.11-GCCcore-15.2.0
 module spider netCDF/4.10.0-gompi-2026.1
+module spider CMake/3.31.11-GCCcore-15.2.0
+module spider Rust
+module spider UDUNITS
+module spider OpenSSL
+module spider HarfBuzz
+module spider FriBidi
+module spider Pandoc
 ```
 
-Confirm that the module is available and note any prerequisite module loads
-reported by `module spider`. The current `renv.lock` records R 4.6.0; the
-example below uses R 4.6.1.
+The additional names are discovery queries, not verified module versions.
+Select versions compatible with R's compiler stack and follow prerequisites
+reported by `module spider`. Add their versioned loads to the installation job
+below before `module list`. Some libraries may already come with R or NetCDF.
+Only source builds that lack these dependencies need additional modules:
 
-Source installs need **CMake** (`nloptr`, `RcppParallel`) and the **NetCDF C
-development library** (`ncdf4`, `RNetCDF`). R packages do not supply these system
-dependencies. Select CMake and netCDF modules compatible with the R module's
-compiler stack, including any prerequisites reported by `module spider`.
-Do not mix a GCCcore-14.3.0 prerequisite with the GCC-15.2.0 stack shown in the
-failed build log unless the module system explicitly requires it.
+| Dependency | Purpose |
+| --- | --- |
+| CMake >= 3.26 and C++20 compiler | Build Arrow locally; CMake also builds bundled libuv for `fs` |
+| NetCDF C and UDUNITS-2 development libraries | `ncdf4`, `RNetCDF`, `tidync` |
+| Rust >= 1.91, Cargo, OpenSSL development library | `pizzarr`; Rust and Cargo also build `tomledit` |
+| HarfBuzz, FriBidi, Fontconfig, FreeType | `textshaping`, `systemfonts`, `ragg`, imported by `tidyverse` |
+| PNG, JPEG, TIFF, WebP development libraries | `ragg` and its image support |
+| libcurl and libxml2 development libraries | `curl`, `xml2`, imported by `tidyverse` |
+| Pandoc | `reprex`, imported by `tidyverse`; report rendering uses Quarto |
 
-The restore below uses `CMake/3.31.11-GCCcore-15.2.0` and
-`netCDF/4.10.0-gompi-2026.1`. CMake matches the GCC 15.2.0 compiler
-and avoids CMake 4 compatibility changes in older package build scripts.
-NetCDF matches R's 2026.1 toolchain generation. Confirm prerequisites
-with the commands above. If loading NetCDF swaps R's compiler or MPI
-stack, resolve the module conflict before restoring.
+If a required compatible development library is unavailable, ask RCS to provide
+it. Installing fewer R packages does not eliminate native dependencies of the
+packages actually used. Do not install Ubuntu system packages on CX3, mix
+compiler generations, or replace system glibc.
 
-If no compatible NetCDF development module exists, ask RCS to provide one.
-Downloading the R packages manually will not fix missing `nc-config` or
-`netcdf.h`.
+### Install once on a compute node
 
-From the checkout root, open `.Rprofile` with a text editor. This command opens
-the existing file, or creates it when you save if it does not exist:
+Add any missing module loads identified above to this job before submitting.
+The example keeps the R and NetCDF versions used by the existing job scripts.
+It builds Arrow's C++ library locally to avoid the reported glibc-symbol
+mismatch, and bundles static libuv for `fs`. Parquet remains enabled.
 
 ```bash
-nano .Rprofile
-```
-
-Keep any existing contents. Add this line if it is not already present:
-
-```r
-source("renv/activate.R")
-```
-
-In nano, press **Ctrl+O**, then **Enter** to save. Press **Ctrl+X** to exit.
-Git ignores `.Rprofile`, so configure it in each checkout. This activates the
-project R library; you must still load the R module in each job. See
-[R with renv](../../../../docs/renv.md).
-
-Create the PBS log directory in the remote checkout before submitting any jobs.
-PBS joins stderr to stdout and writes each job's output there after it finishes.
-The directory is ignored by Git. Keep it until all jobs have finished.
-
-Submit the package restore from the checkout root as a PBS job:
-
-```bash
-mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
-qsub <<'EOF'
+qsub -v R_LIBS_USER,R_PROFILE_USER,R_ENVIRON_USER <<'EOF'
 #!/bin/bash
 #PBS -l select=1:ncpus=4:mem=32gb
 #PBS -l walltime=24:00:00
@@ -104,106 +127,87 @@ module load R/4.6.1-gfbf-2026.1
 module load CMake/3.31.11-GCCcore-15.2.0
 module load netCDF/4.10.0-gompi-2026.1
 module list
-for tool in Rscript cmake nc-config pkg-config; do
+for tool in Rscript cmake nc-config pkg-config rustc cargo; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     echo "Missing build tool: $tool; check the loaded modules." >&2
     exit 1
   fi
 done
-cmake --version
 nc-config --all
-if ! pkg-config --exists netcdf; then
-  echo "NetCDF development files are not visible to pkg-config." >&2
-  exit 1
-fi
-export RENV_CONFIG_INSTALL_JOBS=1
+cmake --version
+rustc --version
+cargo --version
+for library in netcdf udunits2 openssl; do
+  if ! pkg-config --exists "$library"; then
+    echo "Missing development metadata: $library; check the loaded modules." >&2
+    exit 1
+  fi
+done
 export MAKEFLAGS=-j4
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
+export LIBARROW_BINARY=false
+export LIBARROW_BUILD=true
+export ARROW_USE_PKG_CONFIG=false
+export ARROW_PARQUET=ON
+export USE_BUNDLED_LIBUV=1
 Rscript --version
 Rscript -e '
-  options(renv.install.timeout = 20 * 60 * 60, Ncpus = 1L)
-  renv::restore(prompt = FALSE)
-  renv::status()
+  rust_version <- strsplit(system2("rustc", "--version", stdout = TRUE), " ")[[1]][2]
+  stopifnot(numeric_version(rust_version) >= numeric_version("1.91"))
+  packages <- c("tidyverse", "sensobol", "tidync", "RNetCDF", "toml",
+                "tomledit", "mirai", "here", "reshape2", "cli", "arrow",
+                "pizzarr", "knitr", "rmarkdown")
+  install.packages(
+    packages,
+    lib = Sys.getenv("R_LIBS_USER"),
+    repos = c(CRAN = "https://cloud.r-project.org",
+              zarr = "https://zarr-developers.r-universe.dev"),
+    dependencies = c("Depends", "Imports", "LinkingTo"),
+    Ncpus = 1L,
+    type = "source"
+  )
 '
 Rscript -e '
-  print(.libPaths())
   packages <- c("tidyverse", "sensobol", "tidync", "RNetCDF", "toml",
-                "mirai", "arrow", "pizzarr", "here")
-  stopifnot(all(vapply(packages, requireNamespace, logical(1), quietly = TRUE)))
+                "tomledit", "mirai", "here", "reshape2", "cli", "arrow",
+                "pizzarr", "knitr", "rmarkdown")
+  for (package in packages) library(package, character.only = TRUE)
+  stopifnot(packageVersion("purrr") >= numeric_version("1.1.0"))
+  print(.libPaths())
   print(vapply(packages, find.package, character(1)))
+  print(vapply(packages, function(x) as.character(packageVersion(x)), character(1)))
+  test_file <- tempfile(fileext = ".parquet")
+  arrow::write_parquet(data.frame(value = 1L), test_file)
+  stopifnot(identical(
+    as.data.frame(arrow::read_parquet(test_file)), data.frame(value = 1L)
+  ))
+  unlink(test_file)
+  print(sessionInfo())
 '
 EOF
 ```
 
-Save the job ID and check its exit status with `qstat -x -f <job_id>`. Inspect
-the PBS output for restore errors, package status, R version, library paths, and
-package locations. Confirm that the project library is active and contains the
-required packages. A successful package load alone does not prove that the
-locked versions are in use. Resolve any discrepancies reported by
-`renv::status()` before proceeding.
-
-The restore runs on a compute node to avoid heavy work on login nodes. The
-full lockfile includes expensive source builds, not just the packages used by
-this workflow. The example gives the restore more memory and walltime, installs
-one package at a time, and limits compilation to its four allocated CPUs.
-For renv 1.2.3, `renv.install.timeout` controls the worker-phase deadline
-(default one hour), not the download timeout or PBS walltime. The 20-hour
-deadline leaves headroom within the 24-hour allocation; adjust both if needed.
-`options(timeout = ...)` alone does not fix `worker process timed out`.
-
-Fix the earliest configuration or compilation error before investigating the
-long list of `dependency failed` messages. In the reported failure,
-`ncdf4`/`RNetCDF` lack NetCDF development files, and
-`nloptr`/`RcppParallel` lack CMake. `duckdb`, `stringi`, `Matrix`, and
-`geometries` hit the worker deadline; that message alone does not establish a
-missing library or broken package. Resubmit the restore after fixing the module
-environment. Keep `renv.lock` and the cache; do not replace locked versions with
-current CRAN packages or take a new snapshot to hide an incomplete restore.
-
-The restore may need network access, compilation, system libraries, or more
-time. `pizzarr`, needed for post-processing, may require Rust and OpenSSL when
-built from source. Check compute-node access and missing dependencies if
-restore fails. Repeat the restore when `renv.lock` changes or the library needs
-repair; do not run it during jobs that use the library.
-
-The preparation and post-processing scripts load R and the selected netCDF
-module, because compiled packages can require its shared libraries at runtime.
-Both scripts use `netCDF/4.10.0-gompi-2026.1`, matching the restore. Add any
-prerequisites reported by `module spider` before the module loads in both
-scripts. CMake is only needed
-for the restore. To check the runtime, also add these commands after the
-`Rscript` checks and before the analysis scripts:
-
-```bash
-Rscript --version
-Rscript -e 'print(.libPaths())'
-```
-
-Inspect each job's PBS output to confirm the R version and project library.
-Keep the checkout, `.Rprofile`, and R library unchanged while jobs use them.
-The preparation and post-processing scripts use 64 and 128 R workers,
-respectively, matching their current PBS CPU requests. If you change a request,
-adjust its worker count to match, and check that threaded libraries do not
-oversubscribe the allocation.
-
-The preparation scripts read these inputs:
-
-| Relative path | Required files |
-| --- | --- |
-| `data/scenarios/maliau/maliau_2/data/` | `soil_maliau.nc`, `litter_maliau.nc`, `elevation_maliau_10x10.nc`, `era5_maliau_10x10_2010_2020.nc`, `plant_input_data_maliau_2.nc`, `cohort_data_1_cm_maliau_2.csv`, `animal_functional_groups_Maliau_level5.csv`, `plant_pft_definitions_maliau_2.csv` |
-| `data/derived/plant/input_data/scenarios/maliau_2/` | `plant_constants_maliau_2.csv` |
-| `data/derived/site/maliau/` | `maliau_grid_definition.toml`, tracked in Git |
+Wait for installation to finish. Save the job ID, inspect the PBS log, and check
+`qstat -x -f <job_id>` for a successful exit status. The second R process fails
+if any required package cannot load, even if `install.packages()` only warned
+about installation failures. Confirm package locations use the workflow
+library or compatible module-provided libraries, not the old `renv` cache.
+Keep the version log with the analysis. If installation fails, fix the first
+build error rather than installing unrelated packages from the full lockfile.
 
 ## 1. Stage input data
 
-`git pull` first. Git supplies the Maliau grid definition; the command below
-copies the other nine non-Git inputs from shared RDS. Confirm all nine source
-files are present and match the selected dataset and VE version in `uv.lock`.
-If any input is unavailable through Globus or absent from shared RDS, do not
-run this all-file command; obtain and stage that input from its data owner.
+The scripts use Maliau inputs under `data/scenarios/maliau/maliau_2/data/`, plant
+constants under `data/derived/plant/input_data/scenarios/maliau_2/`, and the
+Git-tracked grid definition
+`data/derived/site/maliau/maliau_grid_definition.toml`.
 
-Run this command from the root of the personal checkout:
+`git pull` first. Git supplies the grid definition; the command below copies
+the other nine non-Git inputs from shared RDS. Confirm all nine source files
+are present and match the selected dataset and VE version in `uv.lock`. If an
+input is unavailable through Globus or absent from shared RDS, obtain it from
+its data owner before running this all-file command.
 
 ```bash
 rsync -tv --files-from=- \
@@ -222,28 +226,35 @@ EOF
 
 ## 2. Prepare inputs and configuration on CX3
 
-Run:
+From a shell with the R library exports set, submit:
 
 ```bash
-mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
-qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
+qsub -v R_LIBS_USER,R_PROFILE_USER,R_ENVIRON_USER \
+  analysis/soil/sensitivity/input_data/build_data_and_config.sh
 ```
 
-The job writes the Sobol matrix, `n_scenarios.txt`, numbered NetCDF inputs,
-fixed inputs, and `data/sensitivity/soil_litter_inputs/config/config.toml`. The
-current design uses base sample size 100 and seed 777.
+If installed packages need shared libraries from extra modules, add the same
+runtime module loads to `build_data_and_config.sh` and
+`post_process_outputs.sh`. Build tools such as CMake and Cargo are not needed
+for ordinary package loading. The scripts' old comments about restoring
+`renv.lock` do not apply to this scoped setup.
 
-Wait for the preparation job to finish successfully before proceeding. Inspect
-its PBS output and exit status, for example with `qstat -x -f <job_id>`. Check
-that the scenario count, generated files, and configuration exist. The count
-file alone does not establish that preparation completed.
+The job writes the Sobol matrix, `n_scenarios.txt`, numbered NetCDF inputs,
+fixed inputs, and `data/sensitivity/soil_litter_inputs/config/config.toml`.
+The current design uses base sample size 100 and seed 777. Its 64 R workers
+match the PBS CPU request; adjust both together if changing resources.
+
+Wait for successful completion before submitting VE. Inspect the PBS log and
+exit status with `qstat -x -f <job_id>`. Check the scenario count, generated
+files, and configuration. The count file alone does not prove preparation
+completed. Keep the checkout and R library unchanged while jobs use them.
 
 ## 3. Submit the VE array
 
-Before submission, check storage space and file-count quota. Each run preserves
-a Zarr store, which can contain many files. `out/` must not exist: the submitter
-refuses to reuse it. Move an old output directory aside only after all jobs that
-use it have stopped. Keep its matching inputs and Sobol matrix with it.
+Check storage space and file-count quota. Each run preserves a Zarr store,
+which can contain many files. `out/` must not exist: the submitter refuses to
+reuse it. Move old output aside only after its jobs stop, and preserve its
+matching inputs and Sobol matrix.
 
 ```bash
 quota
@@ -252,48 +263,47 @@ bash analysis/soil/sensitivity/input_data/submit_ve_array.sh
 
 The submitter runs `uv sync --locked` and submits one PBS array task per
 scenario, with at most 100 tasks running concurrently. Save the array job ID.
-Each task runs [ve.sh](ve.sh), selects its
-one-based input index, and requests one CPU, 4 GB, and one hour. The task runs
-the locked PyPI VE release and stops at update 24. The report currently selects
-time index 24. Confirm that this endpoint is appropriate for the analysis.
+Each task runs [ve.sh](ve.sh), selects its one-based input index, and requests
+one CPU, 4 GB, and one hour. The task runs the locked PyPI VE release and stops
+at update 24. The report currently selects time index 24; confirm that this
+endpoint is appropriate for the analysis.
 
-Keep the checkout, `uv.lock`, and shared `.venv` unchanged until every task
-finishes. Another `uv sync` can change the environment used by running tasks.
-
-Monitor the array with `qstat -u "$USER"` and inspect completed job status with
+Keep the checkout, `uv.lock`, and `.venv` unchanged until every task finishes.
+Monitor with `qstat -u "$USER"` and inspect completed status with
 `qstat -x -f <job_id>`. Each task writes to
 `data/sensitivity/soil_litter_inputs/out/array_subJob_<index>/`, including
-`model_data.zarr` and the VE log `logfile.log`. Joined PBS stdout and stderr,
-including early errors, are written per task to
-`analysis/soil/sensitivity/input_data/pbs_logs/` after the task finishes. Check
-task exit statuses and logs, not only the presence of a Zarr directory. Preserve
-partial outputs when investigating failed tasks. An existing task directory
-prevents a retry.
+`model_data.zarr` and `logfile.log`. Joined PBS stdout and stderr appear under
+`analysis/soil/sensitivity/input_data/pbs_logs/` after tasks finish. Check exit
+statuses and logs, not only the presence of a Zarr directory. Preserve partial
+outputs when investigating failures; an existing task directory prevents retry.
 
 The generic HPC runner converts and removes Zarr output. Do not substitute it
-for this runner without adapting the post-processing step.
+for this runner without adapting post-processing.
 
 ## 4. Post-process and analyse
 
-Wait until all array tasks succeed before submitting post-processing:
+Wait until every array task succeeds. From a shell with the R library exports
+set, submit:
 
 ```bash
-mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
-qsub analysis/soil/sensitivity/input_data/post_process_outputs.sh
+qsub -v R_LIBS_USER,R_PROFILE_USER,R_ENVIRON_USER \
+  analysis/soil/sensitivity/input_data/post_process_outputs.sh
 ```
 
-The job requests 128 CPUs, 512 GB, and 12 hours. It requires the matching Sobol
-matrix and one `model_data.zarr` per scenario. It checks scenario indices and
-writes
+The job requests 128 CPUs, 512 GB, and 12 hours, matching its 128 R workers.
+It requires the matching Sobol matrix and one `model_data.zarr` per scenario.
+It checks scenario indices and writes
 `data/sensitivity/soil_litter_inputs/out/all_continuous_data_merged.parquet`.
-Inspect the PBS output and exit status before using the Parquet file. Then
-render [sensitivity.qmd](sensitivity.qmd)
-from the repository root:
+Inspect the PBS log and exit status before using the Parquet file.
+
+Render the report on a machine with Quarto and the report packages installed,
+from the repository root. On CX3, keep the R library exports set and use a
+compute allocation rather than running the analysis on a login node:
 
 ```bash
 quarto render analysis/soil/sensitivity/input_data/sensitivity.qmd --execute-dir .
 ```
 
-Use the job sequence in this README rather than submitting the report's example
-commands without waiting. The report contains unresolved scientific choices,
+Use this README's sequence rather than the report's older full-restore and
+submission examples. The report contains unresolved scientific choices,
 including the endpoint, input bounds, and uncertainty assessment.
