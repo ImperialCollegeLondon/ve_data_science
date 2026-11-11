@@ -3,6 +3,13 @@
 Lai, Hao Ran
 2026-11-11
 
+``` r
+library(tidyverse)
+library(here)
+library(arrow)
+library(ggrepel)
+```
+
 I explored this topic to investigate the feasibility of pairwise
 correlation between state variables as an emergent validation target
 (inspired by Dietze’s *Ecological Forecasting*). Variable correlation
@@ -16,69 +23,63 @@ unresolved code. These led to quirky correlations due to near-static
 variables and distinct spinup vs. post-spinup correlations. It’ll become
 clearer if you read the figures below.
 
+So I don’t think any of these will make it into the near-term validation
+deliveries, but some findings may benefit long-term thinking.
+
+NB: I will be printing VE settings and version at the *bottom* of
+reports from now on.
+
 ## Is between-variable correlations stationary?
 
 ``` r
-library(tidyverse)
-
-here::i_am("analysis/soil/validation/reports/correlation_emergent.qmd")
-
-source(here::here("tools/R/R/summarise_ve_config.R"))
-scenario <- "maliau_2"
-if (dir.exists(scenario)) {
-  out_dir <- scenario
-} else if (dir.exists(here::here(scenario))) {
-  out_dir <- here::here(scenario)
-} else {
-  scenario_dirs <- list.dirs(
-    here::here("data/scenarios"),
-    recursive = TRUE,
-    full.names = TRUE
-  )
-  scenario_dirs <- scenario_dirs[basename(scenario_dirs) == scenario]
-  if (length(scenario_dirs) != 1L) {
-    stop("Supply a scenario name with one match or a full output path.")
-  }
-  out_dir <- file.path(scenario_dirs, "out")
-}
-
+i_am("analysis/soil/validation/reports/correlation_emergent.qmd")
+source(here("tools/R/R/summarise_ve_config.R"))
+out_dir <- here("data/scenarios/maliau/maliau_2/out")
 config_path <- file.path(out_dir, "compiled_configuration.toml")
 log_path <- file.path(out_dir, "logfile.log")
 if (!all(file.exists(c(config_path, log_path)))) {
   stop("The selected output directory must contain both run files.")
 }
-
-correlations_path <- here::here(
+correlations_path <- here(
   "data/derived/soil/validation/emergent/correlations.parquet"
+)
+states_path <- here(
+  "data/derived/soil/validation/emergent/states.parquet"
 )
 ```
 
 ``` r
-source(here::here("tools/R/R/valdb_build.R"))
-source(here::here("tools/R/R/get_ve_variables.R"))
-source(here::here("tools/R/R/tidy_continuous_data.R"))
+if (!file.exists(states_path)) {
+  source(here("tools/R/R/valdb_build.R"))
+  source(here("tools/R/R/get_ve_variables.R"))
+  source(here("tools/R/R/tidy_continuous_data.R"))
 
-data_vars <- names(build_data_variables_table(variables_derived = NULL))
+  data_vars <- names(build_data_variables_table(variables_derived = NULL))
 
-states <-
-  tidy_continuous_data(
-    here::here("data/scenarios/maliau/maliau_2/out/model_data.zarr"),
-    variables = NULL,
-    initial = TRUE
-  ) |>
-  filter(variable %in% data_vars) |>
-  mutate(value = as.numeric(value)) |>
-  unite(
-    "full_name",
-    variable,
-    layers,
-    pft,
-    element,
-    community_id,
-    functional_group_id,
-    groundwater_layers,
-    na.rm = TRUE
-  )
+  states <-
+    tidy_continuous_data(
+      here("data/scenarios/maliau/maliau_2/out/model_data.zarr"),
+      variables = NULL,
+      initial = TRUE
+    ) |>
+    filter(variable %in% data_vars) |>
+    mutate(value = as.numeric(value)) |>
+    unite(
+      "full_name",
+      variable,
+      layers,
+      pft,
+      element,
+      community_id,
+      functional_group_id,
+      groundwater_layers,
+      na.rm = TRUE
+    )
+
+  write_parquet(states, states_path)
+}
+
+states <- read_parquet(states_path)
 
 if (!file.exists(correlations_path)) {
   # Calculate each time step separately to track changing correlations.
@@ -116,24 +117,11 @@ if (!file.exists(correlations_path)) {
 
   correlations |>
     filter(!is.na(correlation)) |>
-    arrow::write_parquet(correlations_path)
+    write_parquet(correlations_path)
 }
+
+correlations <- read_parquet(correlations_path)
 ```
-
-``` r
-correlations <- arrow::read_parquet(correlations_path)
-
-correlations |>
-  filter(
-    full_name_1 == "soil_cnp_pool_maom_C",
-    full_name_2 == "soil_cnp_pool_maom_N"
-  ) |>
-  ggplot() +
-  geom_line(aes(timestamp, correlation)) +
-  theme_minimal()
-```
-
-![](plot-maom-cn-correlation-1.png)
 
 ``` r
 corr_sd <-
@@ -147,34 +135,6 @@ corr_sd_top_bottom <-
     slice_min(corr_sd, order_by = corr_sd, n = 10, with_ties = FALSE) |>
       mutate(panel = "Lowest correlation SD")
   )
-
-corr_sd_top_bottom
-```
-
-```text
-# A tibble: 20 × 4
-   full_name_1                       full_name_2                  corr_sd panel 
-   <fct>                             <fct>                          <dbl> <chr> 
- 1 dissolved_ammonium                soil_moisture_12               0.754 Highe…
- 2 soil_moisture_12                  soil_n_pool_ammonium           0.754 Highe…
- 3 aerodynamic_resistance_soil       soil_ammonia_volatilisation    0.708 Highe…
- 4 soil_ammonia_volatilisation       wind_speed_11                  0.708 Highe…
- 5 fallen_fruit_decay_cnp_C          soil_ammonia_volatilisation    0.704 Highe…
- 6 fallen_fruit_decay_cnp_N          soil_ammonia_volatilisation    0.704 Highe…
- 7 fallen_fruit_decay_cnp_P          soil_ammonia_volatilisation    0.704 Highe…
- 8 litter_pool_above_metabolic_cnp_N soil_ammonia_volatilisation    0.703 Highe…
- 9 litter_pool_above_metabolic_cnp_C soil_ammonia_volatilisation    0.702 Highe…
-10 litter_pool_above_metabolic_cnp_P soil_ammonia_volatilisation    0.702 Highe…
-11 atmospheric_pressure_0            atmospheric_pressure_1         0     Lowes…
-12 atmospheric_pressure_0            atmospheric_pressure_11        0     Lowes…
-13 atmospheric_pressure_1            atmospheric_pressure_11        0     Lowes…
-14 vapour_pressure_deficit_0         vapour_pressure_deficit_1      0     Lowes…
-15 vapour_pressure_deficit_0         vapour_pressure_deficit_ref    0     Lowes…
-16 vapour_pressure_deficit_1         vapour_pressure_deficit_ref    0     Lowes…
-17 vapour_pressure_0                 vapour_pressure_ref            0     Lowes…
-18 fallen_fruit_cnp_emergent_C       fallen_fruit_cnp_emergent_N    0     Lowes…
-19 fallen_fruit_cnp_overstory_C      fallen_fruit_cnp_overstory_N   0     Lowes…
-20 fallen_fruit_cnp_pioneer_C        fallen_fruit_cnp_pioneer_N     0     Lowes…
 ```
 
 ``` r
@@ -193,7 +153,7 @@ correlation_labels <-
 correlation_series |>
   ggplot(aes(timestamp, correlation, colour = pair)) +
   geom_line() +
-  ggrepel::geom_text_repel(
+  geom_text_repel(
     data = correlation_labels,
     aes(label = pair),
     direction = "y",
@@ -211,26 +171,6 @@ correlation_series |>
 ```
 
 ![](plot-extreme-correlation-series-1.png)
-
-View the same correlation series separately for each variable pair. Each
-panel uses its own y-axis range to show changes within the pair.
-
-``` r
-correlation_series |>
-  ggplot(aes(timestamp, correlation, colour = pair)) +
-  geom_line() +
-  facet_wrap(
-    ~pair,
-    ncol = 2,
-    scales = "free_y",
-    labeller = label_wrap_gen(width = 55)
-  ) +
-  labs(x = "Timestamp", y = "Spearman correlation") +
-  theme_minimal() +
-  theme(legend.position = "none")
-```
-
-![](plot-correlation-series-by-pair-1.png)
 
 ``` r
 phase_data <-
