@@ -1,0 +1,75 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/copilot-setup-steps.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          enable-cache: true
+
+      - name: Install locked Python dependencies with the released VE
+        run: uv sync --locked
+
+      - name: Check out matching Virtual Ecosystem release source
+        shell: bash
+        run: |
+          set -euo pipefail
+          ve_version="$(uv run --no-sync python -c '
+          from importlib.metadata import version
+          print(version("virtual-ecosystem"))
+          ')"
+          ve_root="$(dirname "$GITHUB_WORKSPACE")/virtual_ecosystem"
+          if [[ -e "$ve_root" ]]; then
+            echo "VE source checkout already exists: $ve_root" >&2
+            exit 1
+          fi
+          git init -q "$ve_root"
+          git -C "$ve_root" remote add origin \
+            https://github.com/ImperialCollegeLondon/virtual_ecosystem.git
+          # VE release tags carry a date suffix, e.g. v0.2.3_2026_10_12.
+          mapfile -t tags < <(git -C "$ve_root" ls-remote --tags --refs origin \
+            "refs/tags/v${ve_version}_*" | cut -f2)
+          if [[ ${#tags[@]} -ne 1 ]]; then
+            echo "Expected one VE tag for $ve_version, found: ${tags[*]:-none}" >&2
+            exit 1
+          fi
+          git -C "$ve_root" fetch --quiet --depth 1 origin "${tags[0]}"
+          git -C "$ve_root" checkout --quiet --detach FETCH_HEAD
+          VE_ROOT="$ve_root" uv run --no-sync python -c '
+          import hashlib
+          import os
+          from pathlib import Path
+
+          import virtual_ecosystem
+
+          def digests(root):
+              return {
+                  path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in root.rglob("*.py")
+              }
+
+          installed = Path(virtual_ecosystem.__file__).parent
+          source = Path(os.environ["VE_ROOT"], "virtual_ecosystem")
+          if digests(installed) != digests(source):
+              raise ValueError("Installed VE release does not match the tagged source")
+          '
+          echo "Prepared VE $ve_version source at ${tags[0]} ($(git -C "$ve_root" rev-parse HEAD))"
