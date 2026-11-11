@@ -26,31 +26,16 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install locked Python dependencies
-        run: uv sync --locked --group dev-pinned
+      - name: Install locked Python dependencies with the released VE
+        run: uv sync --locked
 
-      - name: Check out matching Virtual Ecosystem source
+      - name: Check out matching Virtual Ecosystem release source
         shell: bash
         run: |
           set -euo pipefail
-          ve_revision="$(uv run --no-sync python -c '
-          import json
-          import re
-          import tomllib
-          from importlib.metadata import distribution
-          from pathlib import Path
-
-          project = tomllib.loads(Path("pyproject.toml").read_text())
-          sources = project["tool"]["uv"]["sources"]["virtual-ecosystem"]
-          source, = (item for item in sources if item.get("group") == "dev-pinned")
-          url = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git"
-          revision = source["rev"]
-          if source["git"] != url or not re.fullmatch(r"[0-9a-f]{40}", revision):
-              raise ValueError("dev-pinned must select a full VE commit from the expected repository")
-          installed = json.loads(distribution("virtual-ecosystem").read_text("direct_url.json"))
-          if installed["url"] != url or installed["vcs_info"]["commit_id"] != revision:
-              raise ValueError("Installed VE does not match the dev-pinned source")
-          print(revision)
+          ve_version="$(uv run --no-sync python -c '
+          from importlib.metadata import version
+          print(version("virtual-ecosystem"))
           ')"
           ve_root="$(dirname "$GITHUB_WORKSPACE")/virtual_ecosystem"
           if [[ -e "$ve_root" ]]; then
@@ -60,17 +45,31 @@ jobs:
           git init -q "$ve_root"
           git -C "$ve_root" remote add origin \
             https://github.com/ImperialCollegeLondon/virtual_ecosystem.git
-          git -C "$ve_root" fetch --quiet --depth 1 origin "$ve_revision"
+          # VE release tags carry a date suffix, e.g. v0.2.3_2026_10_12.
+          mapfile -t tags < <(git -C "$ve_root" ls-remote --tags --refs origin \
+            "refs/tags/v${ve_version}_*" | cut -f2)
+          if [[ ${#tags[@]} -ne 1 ]]; then
+            echo "Expected one VE tag for $ve_version, found: ${tags[*]:-none}" >&2
+            exit 1
+          fi
+          git -C "$ve_root" fetch --quiet --depth 1 origin "${tags[0]}"
           git -C "$ve_root" checkout --quiet --detach FETCH_HEAD
-          test "$(git -C "$ve_root" rev-parse HEAD)" = "$ve_revision"
-          PYTHONPATH="$ve_root" uv run --no-sync python -c '
-          from pathlib import Path
-          from virtual_ecosystem.core import configuration
+          VE_ROOT="$ve_root" uv run --no-sync python -c '
+          import hashlib
           import os
+          from pathlib import Path
 
-          if not Path(configuration.__file__).resolve().is_relative_to(
-              Path(os.environ["PYTHONPATH"]).resolve()
-          ):
-              raise ValueError("VE configuration was not imported from the source checkout")
+          import virtual_ecosystem
+
+          def digests(root):
+              return {
+                  path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in root.rglob("*.py")
+              }
+
+          installed = Path(virtual_ecosystem.__file__).parent
+          source = Path(os.environ["VE_ROOT"], "virtual_ecosystem")
+          if digests(installed) != digests(source):
+              raise ValueError("Installed VE release does not match the tagged source")
           '
-          echo "Prepared VE source at $ve_revision"
+          echo "Prepared VE $ve_version source at ${tags[0]} ($(git -C "$ve_root" rev-parse HEAD))"

@@ -25,32 +25,49 @@ def response(data, error=None):
     return result
 
 
-def test_missing_email_points_to_setup(monkeypatch, tmp_path):
-    """A missing contact address reports where to find exact setup steps."""
-    monkeypatch.delenv("OPENALEX_EMAIL", raising=False)
+def access(monkeypatch, tmp_path, env_file="", **settings):
+    """Resolve OpenAlex access with only the given process and .env settings."""
+    for name in ("OPENALEX_API_KEY", "OPENALEX_EMAIL"):
+        monkeypatch.delenv(name, raising=False)
+    for name, value in settings.items():
+        monkeypatch.setenv(name, value)
+    (tmp_path / ".env").write_text(env_file)
     with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
-        with pytest.raises(ValueError, match="Configure OpenAlex"):
-            helper.get_openalex_email()
+        return helper.openalex_access()
 
 
-def test_skill_local_email_without_process_variable(monkeypatch, tmp_path):
-    """The skill-local file works regardless of the working directory."""
-    monkeypatch.delenv("OPENALEX_EMAIL", raising=False)
-    env_file = tmp_path / ".env"
-    env_file.write_text("# local settings\nOPENALEX_EMAIL=local@example.org\n")
-    monkeypatch.chdir(tmp_path / "..")
+def test_access_prefers_key_then_email_then_keyless(monkeypatch, tmp_path):
+    """Use the API key when available; fall back to email, then keyless."""
+    assert access(
+        monkeypatch, tmp_path, OPENALEX_API_KEY="k", OPENALEX_EMAIL="a@b.org"
+    ) == ("api_key", {"Authorization": "Bearer k"})
+    approach, headers = access(monkeypatch, tmp_path, OPENALEX_EMAIL="a@b.org")
+    assert approach == "email" and "a@b.org" in headers["User-Agent"]
+    assert access(monkeypatch, tmp_path) == ("keyless", {})
 
-    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
-        assert helper.get_openalex_email() == "local@example.org"
+
+def test_skill_local_env_and_process_precedence(monkeypatch, tmp_path):
+    """The skill-local .env works; a process setting overrides it."""
+    env_file = "# local settings\nOPENALEX_API_KEY=local\n"
+    assert access(monkeypatch, tmp_path, env_file)[1]["Authorization"] == (
+        "Bearer local"
+    )
+    assert access(monkeypatch, tmp_path, env_file, OPENALEX_API_KEY="process")[1][
+        "Authorization"
+    ] == ("Bearer process")
 
 
-def test_process_email_takes_precedence(monkeypatch, tmp_path):
-    """An explicit process setting overrides the skill-local file."""
-    monkeypatch.setenv("OPENALEX_EMAIL", "process@example.org")
-    (tmp_path / ".env").write_text("OPENALEX_EMAIL=local@example.org\n")
+def test_credentials_stay_out_of_request_url(monkeypatch):
+    """HTTP errors include the URL, so credentials must only travel in headers."""
+    monkeypatch.setenv("OPENALEX_API_KEY", "secret-key")
+    monkeypatch.setenv("OPENALEX_EMAIL", "researcher@example.org")
+    with patch.object(
+        helper.requests, "get", return_value=response({"results": []})
+    ) as request:
+        helper.search_openalex("parameter")
 
-    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
-        assert helper.get_openalex_email() == "process@example.org"
+    sent = repr(request.call_args.args) + repr(request.call_args.kwargs["params"])
+    assert "secret-key" not in sent and "researcher@example.org" not in sent
 
 
 def test_zero_results_are_success(monkeypatch):

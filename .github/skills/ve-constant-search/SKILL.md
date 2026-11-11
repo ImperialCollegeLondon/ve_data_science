@@ -72,11 +72,14 @@ Start with the default limit; increase it only when screening shows inadequate
 coverage. Output omits each work's full reference list; use bounded snowball
 citation searches for promising leads.
 
-The helper reads `OPENALEX_EMAIL` from the process environment, then from an
-ignored `.env` beside this `SKILL.md`. If absent, ask the user to follow
-"Configure OpenAlex" in `docs/AI-assisted-parameterisation.md`; include the
-relevant setup command. Do not choose an address or create credentials. Wait
-for confirmed setup before searching. Record the exact query and date. Helper
+The helper uses `OPENALEX_API_KEY` if set, else `OPENALEX_EMAIL`, else keyless
+access; each is read from the process environment, then from an ignored `.env`
+beside this `SKILL.md`. It prints the approach used (`api_key`, `email` or
+`keyless`) on stderr; report it to the user and record it in the search log's
+`notes`. Never print, log or echo the key or address. Keyless access has a smaller
+budget; if searches hit rate limits, ask the user to follow "Configure
+OpenAlex" in `docs/AI-assisted-parameterisation.md`. Do not choose an address
+or create credentials. Record the exact query and date. Helper
 results are candidates, not screened or verified evidence. On API failure, log
 the error; retry with the same helper or stop and report it. Never treat failure
 as zero results or `no_evidence`.
