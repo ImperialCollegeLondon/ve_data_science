@@ -17,9 +17,11 @@ package_dependencies:
   - requests
 usage_notes: |
   Run search "QUERY" or snowball --id W... from the repository root with
-  uv. Set OPENALEX_EMAIL in the process environment or in the skill's .env.
-  The process environment takes precedence. Results go to stdout;
-  network, HTTP, and JSON errors propagate rather than becoming empty results.
+  uv. Access uses OPENALEX_API_KEY if set, else OPENALEX_EMAIL, else keyless.
+  Each is read from the process environment, then the skill's .env. The
+  access approach is reported on stderr; the key and email are never printed.
+  Results go to stdout; network, HTTP, and JSON errors propagate rather than
+  becoming empty results.
   This script neither downloads full text nor changes the repository.
 ---
 """  # noqa: D205, D400, D415
@@ -27,30 +29,39 @@ usage_notes: |
 import argparse
 import json
 import os
+import sys
 from pathlib import Path
 
 import requests
 
 
-def get_openalex_email():
-    """Return the user-provided contact address or fail before searching."""
-    email = os.environ.get("OPENALEX_EMAIL", "").strip()
-    if email:
-        return email
+def read_setting(name):
+    """Return a setting from the process environment, then the skill's .env."""
+    value = os.environ.get(name, "").strip()
+    if value:
+        return value
 
     env_file = Path(__file__).resolve().parents[1] / ".env"
     if env_file.is_file():
         for line in env_file.read_text(encoding="utf-8-sig").splitlines():
             key, separator, value = line.strip().partition("=")
-            if separator and key.strip() == "OPENALEX_EMAIL":
-                email = value.strip().strip("\"'")
-                if email:
-                    return email
+            if separator and key.strip() == name:
+                value = value.strip().strip("\"'")
+                if value:
+                    return value
+    return ""
 
-    raise ValueError(
-        "OPENALEX_EMAIL is unset. Follow the 'Configure OpenAlex' steps in "
-        "docs/AI-assisted-parameterisation.md and retry."
-    )
+
+def openalex_access():
+    """Return the access approach and headers: API key, then email, then keyless.
+
+    Credentials go in headers, not the URL, so HTTP error messages cannot leak them.
+    """
+    if key := read_setting("OPENALEX_API_KEY"):
+        return "api_key", {"Authorization": f"Bearer {key}"}
+    if email := read_setting("OPENALEX_EMAIL"):
+        return "email", {"User-Agent": f"ve-constant-search (mailto:{email})"}
+    return "keyless", {}
 
 
 def reconstruct_openalex_abstract(inverted_index):
@@ -67,11 +78,11 @@ def reconstruct_openalex_abstract(inverted_index):
 
 def request_openalex(path, params):
     """Get OpenAlex JSON; propagate HTTP, network and invalid JSON errors."""
-    email = get_openalex_email()
+    _, headers = openalex_access()
     response = requests.get(
         f"https://api.openalex.org/works{path}",
-        headers={"User-Agent": f"ve-constant-search (mailto:{email})"},
-        params={**params, "mailto": email},
+        headers=headers,
+        params=params,
         timeout=15,
     )
     response.raise_for_status()
@@ -157,6 +168,7 @@ def main():
     snowball.add_argument("--doi", default="")
     snowball.add_argument("--limit", type=int, default=10)
     args = parser.parse_args()
+    print(f"OpenAlex access: {openalex_access()[0]}", file=sys.stderr)
     if args.command == "search":
         papers = search_openalex(args.query, args.limit)
         result = {"query": args.query, "count": len(papers), "papers": papers}
