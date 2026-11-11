@@ -47,7 +47,41 @@ deliveries, but some findings may benefit long-term thinking.
 NB: I will be printing VE settings and version at the *bottom* of reports from
 now on.
 
+This report addresses
+[Issue #776](https://github.com/ImperialCollegeLondon/ve_data_science/issues/776).
+
 ## Is between-variable correlations stationary?
+
+First I wanted to know if the correlation between any two state variables $X_1$
+and $X_2$ change over simulation time steps. This helps to set expectation on
+whether these correlations (or covariances) are universal or local emergent
+properties. Jacob helpfully pointed out that these correlations are probably
+non-stationary:
+
+> ...these types of validation targets breakdown in extreme scenarios. e.g. even
+> in the soil temperature microbial activity case (which is a strong correlation
+> as there's a direct mechanical link) we would expect the correlation to break
+> down in El Niño droughts (because the soil becomes both hot and dry), which
+> should occur a couple of times in our Maliau simulation period.
+> 
+> There's a similar problem with soil C and N. Generally the ratio of these two
+> is a good heuristic for characterising soils. So we would expect them to be
+> correlated, provided the soil doesn't change much. This probably makes it a
+> viable validation target for the Maliau simulation (2010--2020), but not for
+> longer simulations (because of climate change) or at SAFE (where there is a
+> massive logging event mid simulation).
+
+I agree, but let's take a look. The code below is long but basically it:
+
+1. Extract initial and continuous data variables from a VE run
+2. Compute pairwise correlation between variables across grids
+   *for each time step*
+3. Select the top-10 and bottom-10 pairs by temporal variability in correlation
+   (showing all pairs would give illegible plot)
+
+I opted for Spearman's correlation because many data variables are skewed and
+fat-tailed. Spearman's correlation is rank-ordered and less prone to extreme
+values.
 
 ```text {r}
 #| label: setup
@@ -196,10 +230,19 @@ correlation_series |>
   theme(legend.position = "none")
 ```
 
+Immediately I see something unexpected. I expected many pairwise correlations to
+be stably fluctuating around a mean, and some showing direction drift over time.
+On one hand, for the low-variability ten, we see them having constant Spearman's
+correlation (constant at 1; but this is a property of Spearman's correlation not
+because we are correlating two static or perfectly correlated variables.) On the
+other hand, the top-variability pairs not only exhibited lots of change but such
+a change spanned -1 to 1. This flipping behaviour prompted me to take a closer
+look at the actual scatter plots.
+
 ```text {r}
 #| label: plot-paired-state-values
 #| fig-width: 14
-#| fig-height: 20
+#| fig-height: 34
 
 phase_data <-
   correlation_series |>
@@ -217,18 +260,48 @@ phase_data <-
     by = c("full_name_2", "timestamp", "cell_id")
   )
 
-phase_data |>
-  ggplot(aes(value_1, value_2, colour = timestamp)) +
-  geom_point(alpha = 0.3, size = 0.5) +
-  facet_wrap(
-    ~pair,
-    ncol = 5,
-    scales = "free",
-    labeller = label_wrap_gen(width = 55)
-  ) +
-  labs(x = "full_name_1 value", y = "full_name_2 value", colour = "Timestamp") +
-  theme_minimal()
+phase_plots <-
+  phase_data |>
+  group_split(pair) |>
+  map(\(pair_data) {
+    ggplot(pair_data, aes(value_1, value_2, colour = timestamp)) +
+      geom_point(alpha = 0.3, size = 0.5) +
+      scale_colour_viridis_c() +
+      labs(
+        x = first(pair_data$full_name_1),
+        y = first(pair_data$full_name_2),
+        colour = "Timestamp"
+      ) +
+      theme_minimal() +
+      theme(axis.title = element_text(size = 8))
+  })
+
+patchwork::wrap_plots(phase_plots, ncol = 4, guides = "collect") &
+  theme(legend.position = "bottom")
 ```
+
+In the phase diagram, each point is a grid--time datum, coloured by time step.
+In many of the phase panels, the initial conditions were uncorrelated (fuzzy
+cloud) but the variable pairs converged to usually both having low values.
+There, quirky but possibly biologically-meaningless cloud can give either very
+positive or very negative correlations.
+
+A lot of these are plant (and hence litter) related variables. The plants are
+still dying off in the recent and latest simulation. Until the plant module is
+ironed out, I'm afraid this direction is not worth our time.
+
+## Extra note on dimensionality
+
+If we can meaningfully extract information from state-variable correlations, it
+may lead to a useful exploration of ecosystem dimensionality. For example, how
+many dimensions do we need to describe an ecosystem? Does this dimensionality
+change with productivity or latitude or network complexity? Do disturbance
+reduce dimensionality? Are high-dimensional ecosystem more stable or resilient?
+
+I certainly expect an ecosystem's dimensionality to be much lower than its total
+number of components or state variables. Thinking along this line can be helpful
+for calibration (which suffers from high dimensionality, but perhaps
+unnecessarily).
 
 ## Virtual Ecosystem configuration
 
