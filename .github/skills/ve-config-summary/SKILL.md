@@ -97,25 +97,20 @@ manually transcribe its summary.
    IRdisplay::display_markdown(summary_markdown)
    ```
 
-   For a Python-kernel notebook with an existing `rpy2` Jupyter extension,
-   source the helper and define the paths in the R session, then export the
-   captured text and display it in a Python cell:
+   **Jupyter with a Python kernel** — prefer a static Markdown cell; no R
+   kernel or Python-R bridge is needed. If `Rscript` is available in the
+   agent's execution environment, run the helper there with the selected
+   configuration and log paths, capture its Markdown output, and insert that
+   text verbatim as a Markdown cell. Do not manually reconstruct the summary.
+   If `Rscript` is unavailable to the agent, but is installed only on the
+   user's machine, ask the user to run the helper locally or provide the
+   generated text; do not claim that the agent ran it.
 
-   ```r
-   %%R -o summary_markdown
-   summary_markdown <- paste(
-     capture.output(summarise_ve_config(config_path, log_path, dev = FALSE)),
-     collapse = "\n"
-   )
-   ```
+   This Jupyter content is a snapshot, not a live calculation. Regenerate it
+   when the scenario's configuration or log changes. Use an R kernel or an
+   already-configured Python-R bridge only when the user specifically needs
+   the summary to be generated during notebook execution.
 
-   ```python
-   from IPython.display import Markdown, display
-
-   display(Markdown(summary_markdown))
-   ```
-
-   Do not add a new R bridge solely for this summary.
    The helper writes with `cat()` and returns the text invisibly, so use the
    format-specific approach above rather than relying on automatic value
    display.
