@@ -162,14 +162,6 @@ loads every required package and checks a Parquet write/read round trip; these
 checks must complete successfully even if `install.packages()` only warns
 about installation failures.
 
-Confirm package locations use the default user library or compatible
-module-provided libraries, not a `renv` cache. Keep the module list and R
-version log with the analysis. Keep the R library unchanged while workflow
-jobs use it.
-
-[arrow-build]: https://github.com/apache/arrow/blob/apache-arrow-26.0.1/r/inst/build_arrow_static.sh
-[uriparser-memory]: https://github.com/uriparser/uriparser/blob/uriparser-1.0.2/src/UriMemory.c
-
 ## 1. Stage input data
 
 The scripts use Maliau inputs under `data/scenarios/maliau/maliau_2/data/`,
