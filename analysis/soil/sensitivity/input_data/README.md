@@ -82,9 +82,21 @@ with R or NetCDF.
 ### Install once on a compute node
 
 Add any missing module loads identified above to this job before submitting.
-The example keeps the R and NetCDF versions used by the existing job scripts.
-It builds Arrow's C++ library locally to avoid the reported glibc-symbol
-mismatch, and bundles static libuv for `fs`. Parquet remains enabled.
+The example uses the same R and NetCDF versions as the workflow jobs and
+installs all required R packages into the default user library.
+
+Arrow's C++ library is built locally for compatibility with CX3's system
+libraries, with Parquet enabled. The CMake override selects bundled
+`uriparser`'s overflow-checked `realloc` fallback, avoiding dependence on
+`reallocarray` declaration visibility in system headers. The `fs` package uses
+bundled static libuv. Keep these build settings inside the submitted job,
+before `Rscript`; they are not required in the ordinary workflow jobs.
+
+The override is supported by
+[Arrow 26.0.1's build script][arrow-build] and uses the existing
+[uriparser 1.0.2 allocation fallback][uriparser-memory]. This configuration
+still requires verification on CX3 through the package-load and Parquet checks
+included below.
 
 ```bash
 qsub <<'EOF'
@@ -111,6 +123,7 @@ export LIBARROW_BINARY=false
 export LIBARROW_BUILD=true
 export ARROW_USE_PKG_CONFIG=false
 export ARROW_PARQUET=ON
+export EXTRA_CMAKE_FLAGS="${EXTRA_CMAKE_FLAGS:-} -DHAVE_REALLOCARRAY:BOOL=OFF"
 export USE_BUNDLED_LIBUV=1
 Rscript -e '
   lib <- path.expand(Sys.getenv("R_LIBS_USER"))
@@ -143,13 +156,19 @@ Rscript -e '
 EOF
 ```
 
-Wait for installation to finish. Save the job ID, inspect the PBS log, and check
-`qstat -x -f <job_id>` for a successful exit status. The package-load check fails
-if any required package cannot load, even if `install.packages()` only warned
-about installation failures. Confirm package locations use the default user
-library or compatible module-provided libraries, not the old `renv` cache.
-Keep the version log with the analysis. If installation fails, fix the first
-build error rather than installing unrelated packages from the full lockfile.
+Save the job ID and wait for installation to finish. Inspect the PBS log and
+require `Exit_status = 0` from `qstat -x -f <job_id>` before proceeding. The job
+loads every required package and checks a Parquet write/read round trip; these
+checks must complete successfully even if `install.packages()` only warns
+about installation failures.
+
+Confirm package locations use the default user library or compatible
+module-provided libraries, not a `renv` cache. Keep the module list and R
+version log with the analysis. Keep the R library unchanged while workflow
+jobs use it.
+
+[arrow-build]: https://github.com/apache/arrow/blob/apache-arrow-26.0.1/r/inst/build_arrow_static.sh
+[uriparser-memory]: https://github.com/uriparser/uriparser/blob/uriparser-1.0.2/src/UriMemory.c
 
 ## 1. Stage input data
 
