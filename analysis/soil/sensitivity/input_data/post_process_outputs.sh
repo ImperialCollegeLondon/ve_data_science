@@ -26,6 +26,6 @@ fi
 Rscript analysis/soil/sensitivity/input_data/post_process_outputs.R
 
 # submit this from the ve_data_science root directory with:
-# Ensure the project R packages from renv.lock are restored first.
+# Install the scoped R packages as described in README.md first.
 # mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 # qsub analysis/soil/sensitivity/input_data/post_process_outputs.sh

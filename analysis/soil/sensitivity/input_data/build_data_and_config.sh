@@ -23,6 +23,6 @@ Rscript analysis/soil/sensitivity/input_data/build_config_sensitivity.R
 
 # submit this from the ve_data_science root directory with:
 # cd ve_data_science
-# Ensure the project R packages from renv.lock are restored first.
+# Install the scoped R packages as described in README.md first.
 # mkdir -p analysis/soil/sensitivity/input_data/pbs_logs
 # qsub analysis/soil/sensitivity/input_data/build_data_and_config.sh
