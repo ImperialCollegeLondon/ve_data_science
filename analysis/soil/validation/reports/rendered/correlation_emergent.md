@@ -3,6 +3,19 @@
 Lai, Hao Ran
 2026-11-11
 
+I explored this topic to investigate the feasibility of pairwise
+correlation between state variables as an emergent validation target
+(inspired by Dietze’s *Ecological Forecasting*). Variable correlation
+tells us about process coupling, joint responses and dimensionality of
+ecosystem. The dimensionality aspect is something that I’ve been
+pursuing for a while.
+
+However, this quickly turned into an ugly exercise, mainly because a lot
+of the state variables in VE are deterministic, placeholder or have
+unresolved code. These led to quirky correlations due to near-static
+variables and distinct spinup vs. post-spinup correlations. It’ll become
+clearer if you read the figures below.
+
 ## Is between-variable correlations stationary?
 
 ``` r
@@ -10,14 +23,35 @@ library(tidyverse)
 
 here::i_am("analysis/soil/validation/reports/correlation_emergent.qmd")
 
+source(here::here("tools/R/R/summarise_ve_config.R"))
+scenario <- "maliau_2"
+if (dir.exists(scenario)) {
+  out_dir <- scenario
+} else if (dir.exists(here::here(scenario))) {
+  out_dir <- here::here(scenario)
+} else {
+  scenario_dirs <- list.dirs(
+    here::here("data/scenarios"),
+    recursive = TRUE,
+    full.names = TRUE
+  )
+  scenario_dirs <- scenario_dirs[basename(scenario_dirs) == scenario]
+  if (length(scenario_dirs) != 1L) {
+    stop("Supply a scenario name with one match or a full output path.")
+  }
+  out_dir <- file.path(scenario_dirs, "out")
+}
+
+config_path <- file.path(out_dir, "compiled_configuration.toml")
+log_path <- file.path(out_dir, "logfile.log")
+if (!all(file.exists(c(config_path, log_path)))) {
+  stop("The selected output directory must contain both run files.")
+}
+
 correlations_path <- here::here(
   "data/derived/soil/validation/emergent/correlations.parquet"
 )
 ```
-
-Load states for plotting on every render. Generate correlations only
-when the saved Parquet file is missing; delete the file before running
-to regenerate them.
 
 ``` r
 source(here::here("tools/R/R/valdb_build.R"))
@@ -47,6 +81,7 @@ states <-
   )
 
 if (!file.exists(correlations_path)) {
+  # Calculate each time step separately to track changing correlations.
   correlations <-
     states |>
     group_by(timestamp) |>
@@ -63,6 +98,7 @@ if (!file.exists(correlations_path)) {
         method = "spearman",
         use = "pairwise.complete.obs"
       )
+      # Pairwise sample sizes vary when different variables have missing cells.
       pairwise_n <- crossprod(!is.na(values))
 
       as.data.frame(as.table(correlation)) |>
@@ -84,8 +120,6 @@ if (!file.exists(correlations_path)) {
 }
 ```
 
-Load saved correlations for plotting without repeating the calculation.
-
 ``` r
 correlations <- arrow::read_parquet(correlations_path)
 
@@ -99,7 +133,7 @@ correlations |>
   theme_minimal()
 ```
 
-![](unnamed-chunk-3-1.png)
+![](plot-maom-cn-correlation-1.png)
 
 ``` r
 corr_sd <-
@@ -176,7 +210,7 @@ correlation_series |>
   theme(legend.position = "none")
 ```
 
-![](unnamed-chunk-5-1.png)
+![](plot-extreme-correlation-series-1.png)
 
 View the same correlation series separately for each variable pair. Each
 panel uses its own y-axis range to show changes within the pair.
@@ -196,10 +230,7 @@ correlation_series |>
   theme(legend.position = "none")
 ```
 
-![](unnamed-chunk-6-1.png)
-
-Plot raw paired values for each variable pair, matching by cell and
-timestamp.
+![](plot-correlation-series-by-pair-1.png)
 
 ``` r
 phase_data <-
@@ -231,6 +262,24 @@ phase_data |>
   theme_minimal()
 ```
 
-![](unnamed-chunk-7-1.png)
+![](plot-paired-state-values-1.png)
 
-Dimensionality
+## Virtual Ecosystem configuration
+
+- **VE version**: v0.2.3
+- **Models**: AbioticSimple, Hydrology, Animal, Plants, Soil, Litter
+- **Grid**: 10 x 10 cells
+- **Resolution**: 100 m
+- **Extent (bbox)**: xmin: 495559.3 ymin: 524298.8 xmax: 496559.3 ymax:
+  525298.8
+- **Time period**: start 2010-01-01, length 11 years, update interval 1
+  month
+- **Input files**:
+  - `era5_maliau_10x10_2010_2020.nc`
+  - `elevation_maliau_10x10.nc`
+  - `plant_input_data_maliau_2.nc`
+  - `soil_maliau.nc`
+  - `litter_maliau.nc`
+  - `animal_functional_groups_Maliau_level3.csv`
+  - `plant_pft_definitions_maliau_2.csv`
+  - `cohort_data_1_cm_maliau_2.csv`
