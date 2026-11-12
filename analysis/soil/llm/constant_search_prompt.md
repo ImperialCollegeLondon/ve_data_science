@@ -21,22 +21,28 @@ and rules; this prompt only adds task framing.
 - Starting-point references from the issue: {{SEED_REFERENCES}}
 - Constant-specific hints (optional): {{HINTS}}  (e.g. what the model
   equation does with the constant, likely confusable quantities)
+- Results and search log directory: {{OUTPUT_DIR}} (default data/derived/llm/)
 
 ## Setup
 1. Create a new branch `issue-{{ISSUE_NUMBER}}-{{SHORT_NAME}}` from main.
 2. Run `uv sync`. Report which OpenAlex access mode the helper uses.
-3. Ground the constant in the skill's inventory (units, functional form,
-   reference sites). If a sibling VE clone is missing, say so and note that the
-   inventory commit could not be compared.
+3. Verify that the sibling VE Git clone exists and check its commit and source
+   status. If it is missing or unverifiable, stop and ask me to restore or
+   provide it before grounding or proposing results. Ground the constant in the
+   skill's inventory and VE source (units, functional form, reference sites).
 
 ## Work
 - Search with the skill's OpenAlex helper only; start from the issue's seed
-  references (look them up by DOI and use `snowball`), then run 3-6 distinct
-  queries. Log every query, including failures, in the search log.
+  references, then run 3-6 distinct queries. DOI text search is fuzzy: verify
+  matches, and use `snowball --doi` for seed citations. It does not return the
+  seed's full metadata; exact DOI metadata lookup is not yet available. Log
+  every query, including failures, in the search log.
 - Screen abstracts for the exact process, organism group, units and model form.
-- Get authorised full text only through the skill's download helper. If the
-  network blocks publishers or full text is inaccessible, log it and continue;
-  do not look elsewhere.
+- Before retrieving full text, check each relevant publisher host with a bounded
+  HTTPS request to its specific seed or candidate URL. Log the outcome. If a
+  host is unreachable or access fails, ask me to supply an authorised PDF;
+  continue with other accessible candidates. An HTTP response alone does not
+  prove full-text access. Follow the skill's access and retention rules.
 - Extract a value only from verified full text, with quote, location, units and
   a reproducible conversion. Never use the default, an abstract or pooled
   groups as evidence. Do not reanalyse or digitise data without my approval.
@@ -44,7 +50,7 @@ and rules; this prompt only adds task framing.
   analysis/soil/llm/reports/).
 
 ## Outputs (commit separately from any skill/prompt edits)
-- Search log and values CSV in `{{OUTPUT_DIR}}` (default `analysis/soil/llm/`),
+- Search log and values CSV in `{{OUTPUT_DIR}}` (default `data/derived/llm/`),
   named `<module>_constant_literature_values.csv` and
   `<module>_constant_search_log.csv`. One values row per constant-group source,
   or per group with `no_evidence`.
@@ -91,7 +97,7 @@ Target
   inventory records no reference sites for the microbial constant, so confirm
   the functional form in VE source/docs. Turnover time (1/rate) from isotope
   growth studies is not the same as maintenance turnover.
-Output dir: analysis/soil/llm/
+Output dir: data/derived/llm/
 ```
 
 (The remaining sections are the unchanged template text.)
@@ -100,3 +106,4 @@ Output dir: analysis/soil/llm/
 
 - v1 (issue #198): initial template.
 - v2: require pushing and verifying the branch on GitHub.
+- v3: require a VE checkout, publisher pre-flight and configurable output.
