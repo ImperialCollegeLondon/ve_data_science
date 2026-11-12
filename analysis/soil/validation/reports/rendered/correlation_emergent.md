@@ -1,7 +1,7 @@
 # Correlations between VE data variables over simulation time steps
 
 Lai, Hao Ran
-2026-11-11
+2026-11-12
 
 ``` r
 library(tidyverse)
@@ -268,6 +268,12 @@ A lot of these are plant (and hence litter) related variables. The
 plants are still dying off in the recent and latest simulation. Until
 the plant module is ironed out, I’m afraid this direction is not worth
 our time.
+
+Important note from Jacob: some variables are directly derived from
+others, e.g., vapour_pressure = maliau_downscaling_factor $/times$
+vapour_pressure_reference. This would give perfect correlations.
+Currently we do not have a handy metadata that list which are derived
+vs. not.
 
 ## Extra note on dimensionality
 
