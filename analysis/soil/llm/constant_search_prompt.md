@@ -22,13 +22,16 @@ and rules; this prompt only adds task framing.
 - Constant-specific hints (optional): {{HINTS}}  (e.g. what the model
   equation does with the constant, likely confusable quantities)
 - Results and search log directory: {{OUTPUT_DIR}} (default data/derived/llm/)
-- Integration/base branch: {{BASE_BRANCH}} (pilot: constant-search-microbial-pilot)
+- Integration/base branch: {{BASE_BRANCH}} (default: constant-search-microbial-pilot)
 
 ## Setup
-1. Fetch the GitHub remote and create a new testing branch
-   `issue-{{ISSUE_NUMBER}}-{{SHORT_NAME}}` from `origin/{{BASE_BRANCH}}`.
-   If that testing branch already exists, use a unique round suffix.
-   Target any testing pull request at `{{BASE_BRANCH}}`, not main.
+1. For every experiment, explicitly fetch the latest integration branch:
+   git fetch origin refs/heads/{{BASE_BRANCH}}:refs/remotes/origin/{{BASE_BRANCH}}
+   A plain git fetch may fetch only main in a restricted checkout.
+   Create a fresh testing branch `issue-{{ISSUE_NUMBER}}-{{SHORT_NAME}}`
+   from `origin/{{BASE_BRANCH}}`; never reuse an older experiment branch.
+   Use a unique experiment or round suffix when needed. Stop if fetching fails.
+   Target every testing pull request back at `{{BASE_BRANCH}}`, not main.
 2. Run `uv sync`. Report which OpenAlex access mode the helper uses.
 3. Verify that the sibling VE Git clone exists and check its commit and source
    status. If it is missing or unverifiable, stop and ask me to restore or
@@ -112,9 +115,12 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 - Integration/base branch: constant-search-microbial-pilot
 
 ## Setup
-1. Fetch origin and create a new issue-198-microbial-turnover-rate testing branch
-   from origin/constant-search-microbial-pilot. Use a unique round suffix if that
-   branch exists. Target any testing PR at constant-search-microbial-pilot,
+1. For every experiment, fetch the latest pilot explicitly:
+   git fetch origin refs/heads/constant-search-microbial-pilot:refs/remotes/origin/constant-search-microbial-pilot
+   Stop if fetching fails. Create a fresh issue-198-microbial-turnover-rate
+   testing branch from origin/constant-search-microbial-pilot, using a unique
+   experiment or round suffix when needed; never reuse an older experiment
+   branch. Target every testing PR back at constant-search-microbial-pilot,
    not main.
 2. Run uv sync. Report the OpenAlex helper's access mode without credentials.
 3. Require the sibling virtual_ecosystem Git checkout. If it is missing or
@@ -167,3 +173,4 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 - v3: require a VE checkout, publisher pre-flight and configurable output.
 - v4: base testing branches on the pilot integration branch, not main.
 - v5: complete the pilot example and adapt low-yield queries within the budget.
+- v6: fetch the latest pilot explicitly and use a fresh branch for every experiment.
