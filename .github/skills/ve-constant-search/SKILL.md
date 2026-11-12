@@ -112,6 +112,58 @@ not a value. Track no-DOI and inaccessible papers so `no_evidence` describes the
 search coverage, not universal absence. Follow references when coverage is thin.
 Do not infer study quality from citation count or publisher alone.
 
+### Private PDF intake (optional)
+
+Accept authorised user-supplied PDFs as candidates without requiring an OpenAlex
+match first. The user may supply uploads or grant folder access in a cloud
+session, or set `PDF_DIR` to a folder when working locally. `PDF_DIR` is an
+optional, session-specific input, not a committed machine path. Without supplied
+PDFs, continue the existing discovery and retrieval workflow.
+
+Verify that the uploads can actually be read by this session, or that the
+supplied folder exists and is readable, before claiming access. Cloud folder
+access works only if the host makes that folder available to the cloud agent;
+a folder on the user's computer is not automatically transferred or mounted.
+If access is unavailable, ask for an upload, session-accessible folder or local
+session with access. Do not assume that Git checkout, branch changes or a new
+environment restore private files. Recheck access in each new session.
+
+Keep private PDFs outside Git, with their original names and contents unchanged.
+Never stage, commit, push or publish them, or move them without permission.
+Do not require the user to rename files or create a manifest. For the supplied
+files relevant to this search, generate or refresh a private `pdf_inventory.csv`
+outside the repository, in user-approved private storage or session artifacts.
+If the PDF folder is read-only, use session artifacts rather than writing into
+it. Do not copy the library into the repository.
+
+Record original filename, SHA-256, title, authors, year, DOI, supplied source URL
+(if known), identity status and intake date. Identify the paper from its title
+page, front matter or publisher metadata inside the PDF; do not mistake DOIs
+in its reference list for the paper's DOI. Use the checksum to recognise
+unchanged files and distinguish versions or duplicates, not as proof of
+scientific validity. Leave missing fields empty and mark ambiguous identities
+for review. Ask the user to resolve ambiguous matches; never invent a DOI,
+source URL, access date or citation from a filename. Keep access credentials
+and signed download links out of the inventory and research outputs.
+
+Use available PDF-reading tools to inspect methods, equations and tables, not
+just metadata. If text extraction fails or the PDF is scanned, report the
+limitation and ask for a readable copy or approval for OCR; do not treat a
+failed read as evidence that no values exist. A user-supplied PDF still requires
+identity, access/retention-rights and scientific verification. No publisher
+reachability check is needed to read an already accessible supplied PDF;
+pre-flight below applies when retrieving remote full text.
+
+Record intake and screening in the research log with `source=user_supplied_pdf`.
+Use a non-sensitive filename or checksum as the source locator; keep private
+absolute paths, extracted full text and the private inventory out of committed
+outputs and issue/PR comments. Retain only permissible citation metadata,
+findings, source locations and brief evidence quotations in research outputs.
+If retention rights for the required quotation are unclear, ask before saving
+research results. User-supplied files do not bypass the evidence review gate.
+
+### Remote full-text retrieval
+
 Get authorized full text for screened candidates. The sole `webfetch` exception
 is a specific article or PDF URL from the helper or user; do not use it to
 discover papers or follow links to new candidates. After checking access and

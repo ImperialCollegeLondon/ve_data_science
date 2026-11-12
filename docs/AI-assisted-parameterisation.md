@@ -185,6 +185,34 @@ shows connectivity, not full-text access. If the host is unreachable or access
 fails, ask the user for an authorised PDF and continue with other accessible
 candidates. Verify access and retention rights for supplied PDFs.
 
+### Supply private PDFs
+
+You can use your existing filenames; no renaming or hand-written manifest is
+required. Keep the PDF folder private and outside Git. When working locally,
+give the agent its path as the optional `PDF_DIR`. In a cloud session, upload
+the PDFs or grant folder access using the host's supported controls. The agent
+must verify that it can read the supplied files: granting a local app folder
+access does not automatically make that folder readable in a cloud workspace.
+If necessary, upload the files into private cloud storage accessible to that
+session. A new environment or Git checkout does not restore private PDF access.
+
+The agent leaves PDFs unchanged and generates or refreshes a private
+`pdf_inventory.csv` containing original filenames, checksums and citation
+identities. It uses private storage you approve or session artifacts, including
+when your folder is read-only. You do not need to maintain that inventory.
+Citation identities come from the paper's front matter, not DOIs in its
+reference list; uncertain matches are raised for your review.
+
+PDFs, private inventories, extracted full text and private absolute paths must
+not be staged, committed, pushed or published in issue/PR comments. Research
+outputs can retain permissible citation metadata, findings, source locations
+and brief evidence quotations after review of retention rights. Supplied PDFs
+can be read without publisher connectivity, but still require full scientific
+verification. Unreadable/scanned PDFs trigger a request for a readable copy or
+approval for OCR, not an invented value or a claim that evidence is absent.
+
+### Verify candidate evidence
+
 For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table
 location. Compare the original measurement's units, conditions, organism or
