@@ -22,9 +22,13 @@ and rules; this prompt only adds task framing.
 - Constant-specific hints (optional): {{HINTS}}  (e.g. what the model
   equation does with the constant, likely confusable quantities)
 - Results and search log directory: {{OUTPUT_DIR}} (default data/derived/llm/)
+- Integration/base branch: {{BASE_BRANCH}} (pilot: constant-search-microbial-pilot)
 
 ## Setup
-1. Create a new branch `issue-{{ISSUE_NUMBER}}-{{SHORT_NAME}}` from main.
+1. Fetch the GitHub remote and create a new testing branch
+   `issue-{{ISSUE_NUMBER}}-{{SHORT_NAME}}` from `origin/{{BASE_BRANCH}}`.
+   If that testing branch already exists, use a unique round suffix.
+   Target any testing pull request at `{{BASE_BRANCH}}`, not main.
 2. Run `uv sync`. Report which OpenAlex access mode the helper uses.
 3. Verify that the sibling VE Git clone exists and check its commit and source
    status. If it is missing or unverifiable, stop and ask me to restore or
@@ -98,6 +102,7 @@ Target
   the functional form in VE source/docs. Turnover time (1/rate) from isotope
   growth studies is not the same as maintenance turnover.
 Output dir: data/derived/llm/
+Base branch: constant-search-microbial-pilot
 ```
 
 (The remaining sections are the unchanged template text.)
@@ -107,3 +112,4 @@ Output dir: data/derived/llm/
 - v1 (issue #198): initial template.
 - v2: require pushing and verifying the branch on GitHub.
 - v3: require a VE checkout, publisher pre-flight and configurable output.
+- v4: base testing branches on the pilot integration branch, not main.
