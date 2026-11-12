@@ -53,6 +53,9 @@ and rules; this prompt only adds task framing.
   human step for each unresolved group, and post that as a comment on the issue.
 - Post a comment on issue #{{ISSUE_NUMBER}} with: task summary, findings,
   decision points, and prompt/skill improvement suggestions.
+- Commit changes separately by task and intent, then push the branch to the
+  GitHub remote. Verify the remote branch points to the committed HEAD.
+  If the push fails, report the failure rather than claiming completion.
 
 ## Ask me (use the ask_user tool) when
 - the group split, units or functional form is ambiguous;
@@ -96,3 +99,4 @@ Output dir: analysis/soil/llm/
 ## Change log
 
 - v1 (issue #198): initial template.
+- v2: require pushing and verifying the branch on GitHub.
