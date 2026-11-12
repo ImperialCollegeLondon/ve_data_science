@@ -23,6 +23,7 @@ and rules; this prompt only adds task framing.
   equation does with the constant, likely confusable quantities)
 - Results and search log directory: {{OUTPUT_DIR}} (default data/derived/llm/)
 - Integration/base branch: {{BASE_BRANCH}} (default: constant-search-microbial-pilot)
+- Optional private PDF folder or uploads: {{PDF_DIR}} (or "not supplied")
 
 ## Setup
 1. For every experiment, explicitly fetch the latest integration branch:
@@ -39,6 +40,11 @@ and rules; this prompt only adds task framing.
    skill's inventory and VE source (units, functional form, reference sites).
 
 ## Work
+- If PDFs are supplied, use the skill's private PDF intake. Verify that this
+  session can read uploads or the specified folder; local folder access is not
+  automatically available to a cloud agent. Keep original filenames and generate
+  the inventory privately; do not require manual renaming or a manifest.
+  Never commit PDFs, private inventories, full-text extracts or private paths.
 - Search with the skill's OpenAlex helper only; start from the issue's seed
   references, then run 3-6 distinct queries. DOI text search is fuzzy: verify
   matches, and use `snowball --doi` for seed citations. It does not return the
@@ -113,6 +119,8 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
   identify this biomass-loss coefficient. Do not convert them into it.
 - Results and search log directory: data/derived/llm/
 - Integration/base branch: constant-search-microbial-pilot
+- Optional private PDF folder or uploads: not supplied; accept a folder or
+  uploads when provided and verify access in this session.
 
 ## Setup
 1. For every experiment, fetch the latest pilot explicitly:
@@ -130,6 +138,11 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
    Review the inventory refresh dry run before applying a required refresh.
 
 ## Work
+- Use the skill's private PDF intake if I provide uploads or a folder. Confirm
+  session access, keep filenames unchanged and generate the citation inventory
+  outside Git. Do not require a manual manifest or commit PDFs, private
+  inventories, full-text extracts or private paths. Supplied PDFs still need
+  scientific verification, but not publisher connectivity to read them.
 - Use only the skill's OpenAlex helper for discovery. Start with the three DOI
   seeds above, then run 3-6 distinct queries. DOI text search is fuzzy: compare
   returned DOIs. Use snowball --doi for citation lookup; it does not return seed
@@ -174,3 +187,4 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 - v4: base testing branches on the pilot integration branch, not main.
 - v5: complete the pilot example and adapt low-yield queries within the budget.
 - v6: fetch the latest pilot explicitly and use a fresh branch for every experiment.
+- v7: accept optional private PDFs through verified local or cloud session access.
