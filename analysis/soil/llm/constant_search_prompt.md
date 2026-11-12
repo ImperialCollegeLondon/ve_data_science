@@ -41,6 +41,9 @@ and rules; this prompt only adds task framing.
   matches, and use `snowball --doi` for seed citations. It does not return the
   seed's full metadata; exact DOI metadata lookup is not yet available. Log
   every query, including failures, in the search log.
+- If a query mostly returns unrelated papers, shorten or refocus the next query
+  within that budget. Record what changed and why; do not repeat low-yield
+  searches unchanged.
 - Screen abstracts for the exact process, organism group, units and model form.
 - Before retrieving full text, check each relevant publisher host with a bounded
   HTTPS request to its specific seed or candidate URL. Log the outcome. If a
@@ -84,28 +87,78 @@ and what extra instruction would have removed the guess.
 
 ```text
 Use the `ve-constant-search` skill (.github/skills/ve-constant-search/SKILL.md)
-to address GitHub issue #198: "Microbial `turnover_rate`". ...
+to address GitHub issue #198: "Microbial `turnover_rate`".
 
-Target
+Read the issue and its comments first. Follow the skill's workflow and rules.
+Growth/community turnover is not maintenance turnover; do not use that proxy.
+
+## Target
 - Constant (qualified_name):
   virtual_ecosystem.models.soil.model_config.SoilMicrobialGroup.turnover_rate
 - Groups needing separate evidence: bacteria, saprotrophic fungi, arbuscular
   mycorrhiza, ectomycorrhiza
-- Current VE default and source: 0.005 day^-1 ("Microbial maintenance turnover
-  rate at reference temperature"); taken from Fatichi et al. (2019) Global
-  Biogeochemical Cycles
+- Current VE default and source: 0.005 day^-1 at 12 degrees Celsius. The issue
+  attributes the default to Fatichi et al. (2019), Global Biogeochemical Cycles,
+  DOI 10.1029/2018GB006077. Verify the original paper; the default is not evidence.
 - Starting-point references from the issue:
   https://onlinelibrary.wiley.com/doi/epdf/10.1111/gcb.15550 (their `tau`
   parameter); https://doi.org/10.1111/ele.70278
-- Constant-specific hints: not the enzyme `SoilEnzymeClass.turnover_rate`; the
-  inventory records no reference sites for the microbial constant, so confirm
-  the functional form in VE source/docs. Turnover time (1/rate) from isotope
-  growth studies is not the same as maintenance turnover.
-Output dir: data/derived/llm/
-Base branch: constant-search-microbial-pilot
-```
+- Constant-specific hints: not SoilEnzymeClass.turnover_rate. In VE 0.2.3,
+  calculate_maintenance_biomass_synthesis applies the rate to microbial biomass
+  with an Arrhenius temperature factor. Confirm this in the checked-out version.
+  Growth/community turnover and maintenance respiration do not by themselves
+  identify this biomass-loss coefficient. Do not convert them into it.
+- Results and search log directory: data/derived/llm/
+- Integration/base branch: constant-search-microbial-pilot
 
-(The remaining sections are the unchanged template text.)
+## Setup
+1. Fetch origin and create a new issue-198-microbial-turnover-rate testing branch
+   from origin/constant-search-microbial-pilot. Use a unique round suffix if that
+   branch exists. Target any testing PR at constant-search-microbial-pilot,
+   not main.
+2. Run uv sync. Report the OpenAlex helper's access mode without credentials.
+3. Require the sibling virtual_ecosystem Git checkout. If it is missing or
+   unverifiable, stop and ask me to restore or provide it. Verify the commit,
+   source status and match with the installed package. Ground this constant
+   using the selected inventory record and narrow VE source/doc ranges.
+   Review the inventory refresh dry run before applying a required refresh.
+
+## Work
+- Use only the skill's OpenAlex helper for discovery. Start with the three DOI
+  seeds above, then run 3-6 distinct queries. DOI text search is fuzzy: compare
+  returned DOIs. Use snowball --doi for citation lookup; it does not return seed
+  metadata. Log every request, failure, candidate and screening decision.
+- Screen the exact process, groups, units, temperature and model form. If long
+  queries return unrelated papers, shorten/refocus the next query within the
+  same budget and record why.
+- Before full-text retrieval, check each relevant publisher host with a bounded
+  HTTPS request to the specific seed/candidate URL. Log the outcome. If blocked,
+  ask me for authorised PDFs and continue with other accessible candidates.
+  An HTTP response alone does not establish full-text access.
+- Follow the skill's access and retention rules. Extract only from verified
+  full text, with quotation, location, original units and reproducible
+  conversion. Do not reanalyse, digitise or pool groups without approval.
+- Check existing soil analyses for leads, not evidence; preserve historical
+  files and do not repeat earlier proxy suggestions rejected in the issue.
+
+## Outputs and review
+- Discuss findings and gaps before writing research results. With my approval,
+  save soil_constant_literature_values.csv and soil_constant_search_log.csv
+  under data/derived/llm/. Preserve unrelated constants and prior runs.
+  Keep the reusable prompt under analysis/soil/llm/.
+- If values are found, present proposals with units, sources, confidence and
+  limits. If none are found, say so and identify each group's best lead,
+  blocker, next human step and coverage limits. Never fill numerical evidence
+  fields from defaults or abstracts.
+- Record task summary, findings, decisions and prompt/skill performance on
+  issue #198. Explain which steps were easy/hard and what needs improvement.
+- Ask with ask_user before changing scientific criteria, using any other proxy,
+  reanalysing data or applying a proposed prompt/skill improvement.
+- Commit research, inventory, prompt and skill changes separately by intent.
+  Push the testing branch, verify the remote HEAD and report any push failure.
+  Do not merge into main. Use constant-search-microbial-pilot as the integration
+  target for iterative results.
+```
 
 ## Change log
 
@@ -113,3 +166,4 @@ Base branch: constant-search-microbial-pilot
 - v2: require pushing and verifying the branch on GitHub.
 - v3: require a VE checkout, publisher pre-flight and configurable output.
 - v4: base testing branches on the pilot integration branch, not main.
+- v5: complete the pilot example and adapt low-yield queries within the budget.
