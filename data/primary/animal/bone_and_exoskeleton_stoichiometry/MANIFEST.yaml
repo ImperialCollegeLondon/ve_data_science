@@ -1,0 +1,10 @@
+directory: data/primary/animal/bone_and_exoskeleton_stoichiometry
+files:
+- md5: null
+  name: Bone_and_exoskeleton_stoichio.xlsx
+  script: null
+  url: null
+- md5: null
+  name: Allometry_scaling_in_animals.xlsx
+  script: null
+  url: null

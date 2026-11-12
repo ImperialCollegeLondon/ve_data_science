@@ -1,0 +1,10 @@
+directory: data/derived/plant/traits_data
+files:
+- md5: null
+  name: plant_stoichiometry.csv
+  script: null
+  url: null
+- md5: null
+  name: t_model_parameters.csv
+  script: null
+  url: null
