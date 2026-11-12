@@ -63,7 +63,7 @@ non-stationary:
 > as there's a direct mechanical link) we would expect the correlation to break
 > down in El Niño droughts (because the soil becomes both hot and dry), which
 > should occur a couple of times in our Maliau simulation period.
-> 
+>
 > There's a similar problem with soil C and N. Generally the ratio of these two
 > is a good heuristic for characterising soils. So we would expect them to be
 > correlated, provided the soil doesn't change much. This probably makes it a

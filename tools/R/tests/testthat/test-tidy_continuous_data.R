@@ -46,7 +46,10 @@ make_tidy_continuous_fixture <- function(path, time_metadata = TRUE) {
     dimnames = variable_dims
   )
   write_array(
-    outputs, "vapour_pressure_ref", output_series, names(variable_dims)
+    outputs,
+    "vapour_pressure_ref",
+    output_series,
+    names(variable_dims)
   )
   write_array(
     outputs,
@@ -76,16 +79,26 @@ make_tidy_continuous_fixture <- function(path, time_metadata = TRUE) {
   output_time$get_attrs()$set_item("units", "days since 1999-12-31")
   output_time$get_attrs()$set_item("calendar", "proleptic_gregorian")
 
-  write_array(init, "vapour_pressure_ref", array(
-    1:4,
-    dim = c(2, 2),
-    dimnames = variable_dims
-  ), names(variable_dims))
-  write_array(init, "vapour_pressure_deficit_ref", array(
-    101:104,
-    dim = c(2, 2),
-    dimnames = variable_dims
-  ), names(variable_dims))
+  write_array(
+    init,
+    "vapour_pressure_ref",
+    array(
+      1:4,
+      dim = c(2, 2),
+      dimnames = variable_dims
+    ),
+    names(variable_dims)
+  )
+  write_array(
+    init,
+    "vapour_pressure_deficit_ref",
+    array(
+      101:104,
+      dim = c(2, 2),
+      dimnames = variable_dims
+    ),
+    names(variable_dims)
+  )
   write_array(init, "timeless_state", c(101, 102), "cell_id")
   write_array(init, "extra_state", extra_output, names(extra_dims))
   write_array(
