@@ -10,7 +10,19 @@ workspace for the version under review, rather than a remote branch. For user
 setup, review and approval, see `docs/AI-assisted-parameterisation.md`. Treat
 every result as an unverified proposal.
 
+Choose an output directory for results and search logs; default to
+`data/derived/llm/` unless the user specifies another project-relative
+directory. Keep reusable prompts separately under `analysis/soil/llm/`.
+
 ## 1. Ground the selected constants
+
+Require a sibling `virtual_ecosystem` Git checkout for the VE version under
+review. Verify its HEAD and Python source status before grounding; an installed
+package alone cannot establish the checkout commit. If the checkout is missing
+or cannot be verified, stop and ask the user to restore or provide it before
+grounding or proposing results. In GitHub Actions-based Copilot sessions, check
+the setup log for failures; the agent may start even if setup failed. Ensure the
+installed VE package matches the checkout before refreshing the inventory.
 
 Start with one or a few user-selected configuration constants, identified by
 **qualified_name** (`module.Class.attribute`). If the user names a module,
@@ -72,6 +84,12 @@ Start with the default limit; increase it only when screening shows inadequate
 coverage. Output omits each work's full reference list; use bounded snowball
 citation searches for promising leads.
 
+Searching for a DOI with `search "DOI"` is a fuzzy text search, not an exact
+lookup: compare returned DOIs and do not infer that a seed is absent if it is
+not returned. `snowball --doi "DOI"` resolves a seed DOI for citation searches,
+but returns the seed ID and citation candidates, not the seed's full metadata.
+An exact `--doi` seed-metadata lookup mode would help; it is not implemented.
+
 The helper uses `OPENALEX_API_KEY` if set, else `OPENALEX_EMAIL`, else keyless
 access; each is read from the process environment, then from an ignored `.env`
 beside this `SKILL.md`. It prints the approach used (`api_key`, `email` or
@@ -98,7 +116,20 @@ Get authorized full text for screened candidates. The sole `webfetch` exception
 is a specific article or PDF URL from the helper or user; do not use it to
 discover papers or follow links to new candidates. After checking access and
 retention rights, optionally download a specific HTTPS PDF URL from either
-source. From the repository root, run:
+source.
+
+Before attempting full-text retrieval, check reachability of each relevant
+publisher host using a bounded HTTPS request to a specific seed or candidate
+URL, for example `curl --head --max-time 15 "ARTICLE_URL"`. Record the URL,
+date and outcome in the search log. A DNS, connection or timeout error is not
+evidence that the paper is absent. An HTTP response establishes connectivity
+only; redirects, access restrictions or a successful HEAD response do not
+verify that the full text is accessible. If a host is unreachable or access
+fails, log the gap and ask the user to supply an authorised PDF. Continue with
+other accessible candidates, but do not claim verification for the blocked
+paper. Check access and retention rights for user-supplied PDFs too.
+
+For an authorised PDF URL, run from the repository root:
 
 ```bash
 uv run --no-sync python \
@@ -162,7 +193,8 @@ modelling analogies only as questions for human review; keep them out of
 ## 4. Deliver results
 
 Discuss evidence and unresolved gaps with the user before writing a research
-result. With approval, write results under `data/derived/llm/`, grouped by VE
+result. With approval, write results under the chosen output directory
+(`data/derived/llm/` by default), grouped by VE
 module: `<module>_constant_literature_values.csv`. For soil, create this CSV
 from `assets/soil_constant_literature_values.csv` if it does not exist. The
 existing `data/derived/soil/llm/soil_constant_literature_values.csv` contains

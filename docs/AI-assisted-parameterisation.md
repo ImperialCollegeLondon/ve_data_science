@@ -9,7 +9,9 @@ VE. A model default or an abstract alone is not evidence for a new value.
 
 1. Open a workspace containing this repository and a sibling
    `virtual_ecosystem` repository. Use the VE version whose constants you want
-   to assess; record its commit and any relevant uncommitted changes.
+   to assess; record its commit and any relevant uncommitted changes. If the
+   sibling checkout is missing or unverifiable, restore it before grounding;
+   an installed package alone does not establish the checkout commit.
 2. Run `uv sync` from the repository root to install the Python dependencies
    declared in `pyproject.toml`, including `jedi`, `tomli-w` and `requests`.
    See [Python with uv](uv_setup.md). For the optional R documentation lookup,
@@ -154,6 +156,11 @@ update historical reports. Do not assume a local full-text library exists.
 
 Use only the Python helper for OpenAlex discovery and citation lookup. Do not
 use `webfetch` or general web search for literature discovery or screening.
+`search "DOI"` is a fuzzy search, so verify returned DOIs and do not treat a
+missing match as proof that the paper is absent. `snowball --doi "DOI"` resolves
+the seed for citation searches, but returns its ID and citations rather than
+its full metadata. A dedicated exact DOI metadata lookup would help seed
+searches; the helper does not yet provide one.
 For screened candidates, `webfetch` is permitted only to open a specific
 full-text article or PDF URL identified by the helper or supplied by the user;
 do not use it to search for additional papers. For a PDF URL, check access and
@@ -170,7 +177,13 @@ user. Create the output directory first. Keep PDFs outside the repository unless
 retention there is permitted. The tool rejects redirects and non-PDF responses,
 never overwrites files, and saves a `.pdf.json` provenance record beside the
 PDF. A saved PDF still needs manual full-text review. If full text is
-inaccessible, record that gap instead of searching elsewhere.
+inaccessible, record that gap instead of searching elsewhere. Before retrieving
+full text, check each relevant publisher host using a bounded HTTPS request to
+the specific seed or candidate URL, such as
+`curl --head --max-time 15 "ARTICLE_URL"`. Record the outcome. An HTTP response
+shows connectivity, not full-text access. If the host is unreachable or access
+fails, ask the user for an authorised PDF and continue with other accessible
+candidates. Verify access and retention rights for supplied PDFs.
 
 For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table
@@ -195,8 +208,10 @@ Discuss proposed values, exclusions and gaps before authorising changes. The
 assistant must ask before it uses proxies or changes inclusion criteria. It must
 also ask before it makes a consequential scientific judgment. After your
 approval, it writes results under `data/derived/llm/`, with one CSV per VE
-module: `<module>_constant_literature_values.csv`. For soil, create this CSV
-from the blank template for new searches. An older soil CSV exists at
+module: `<module>_constant_literature_values.csv`. This is the default output
+directory; a user may specify another project-relative directory for results
+and search logs. Reusable prompts stay under `analysis/soil/llm/`. For soil,
+create this CSV from the blank template for new searches. An older soil CSV exists at
 [`data/derived/soil/llm/soil_constant_literature_values.csv`](../data/derived/soil/llm/soil_constant_literature_values.csv).
 That file contains historical results and is not the output path for new
 searches. Do not copy its rows into a new CSV without approval. Rows for other

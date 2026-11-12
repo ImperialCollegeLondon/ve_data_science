@@ -7,7 +7,8 @@ with `../scripts/refresh_constant_metadata.py` after checking the VE commit.
 ## Evidence templates
 
 `soil_constant_literature_values.csv` is an empty template, not an evidence set.
-Write new module results under `data/derived/llm/` as
+Write new module results in the user-selected output directory (default
+`data/derived/llm/`) as
 `<module>_constant_literature_values.csv` (for example,
 `soil_constant_literature_values.csv`). The existing
 `data/derived/soil/llm/soil_constant_literature_values.csv` contains historical
