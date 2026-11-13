@@ -12,6 +12,7 @@
 *.txt
 *.rds
 *.RData
+/.github/skills/ve-constant-search/sources/**/*.[pP][dD][fF]
 
 # Primary data
 data/primary/*
