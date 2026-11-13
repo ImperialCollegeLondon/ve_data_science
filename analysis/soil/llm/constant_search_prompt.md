@@ -33,6 +33,9 @@ and rules; this prompt only adds task framing.
    from `origin/{{BASE_BRANCH}}`; never reuse an older experiment branch.
    Use a unique experiment or round suffix when needed. Stop if fetching fails.
    Target every testing pull request back at `{{BASE_BRANCH}}`, not main.
+   Pass `{{BASE_BRANCH}}` explicitly when creating the PR, even if workspace
+   metadata names main. Never substitute the repository default. Verify the
+   created PR's base branch matches `{{BASE_BRANCH}}` before reporting success.
 2. Run `uv sync`. Report which OpenAlex access mode the helper uses.
 3. Verify that the sibling VE Git clone exists and check its commit and source
    status. If it is missing or unverifiable, stop and ask me to restore or
@@ -130,6 +133,9 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
    experiment or round suffix when needed; never reuse an older experiment
    branch. Target every testing PR back at constant-search-microbial-pilot,
    not main.
+   Pass constant-search-microbial-pilot explicitly when creating the PR, even
+   if workspace metadata names main. Never substitute the repository default.
+   Verify the created PR's base branch is constant-search-microbial-pilot.
 2. Run uv sync. Report the OpenAlex helper's access mode without credentials.
 3. Require the sibling virtual_ecosystem Git checkout. If it is missing or
    unverifiable, stop and ask me to restore or provide it. Verify the commit,
@@ -188,3 +194,4 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 - v5: complete the pilot example and adapt low-yield queries within the budget.
 - v6: fetch the latest pilot explicitly and use a fresh branch for every experiment.
 - v7: accept optional private PDFs through verified local or cloud session access.
+- v8: preserve and verify the pilot PR target despite workspace default metadata.
