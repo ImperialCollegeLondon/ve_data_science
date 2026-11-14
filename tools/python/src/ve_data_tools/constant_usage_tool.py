@@ -2,11 +2,12 @@
 title: Constant usage inventory tool.
 
 description: |
-  Builds a structured inventory of configuration constant declarations and
-  reference sites across Virtual Ecosystem Python sources.
+  Builds a structured inventory of configuration and validated trait input
+  declarations and reference sites across Virtual Ecosystem Python sources.
 
-  The design combines runtime discovery of ``Configuration`` subclasses with AST
-  context analysis and Jedi reference resolution. This combination is used
+  The design combines runtime discovery of ``Configuration`` subclasses and
+  validated trait dataclasses with AST context and Jedi reference resolution.
+  This combination is used
   because introspection identifies true declaring classes, AST preserves local
   usage semantics without execution, and Jedi links cross-file references
   through imports.
@@ -27,8 +28,8 @@ input_files:
   - name: Target Python source files in the VE modules
     path: Provided via ``target_paths`` relative to ``project_root``
     description: |
-      Python modules containing ``Configuration`` subclasses and declared
-      constants to analyze.
+      Python modules containing configuration classes or validated trait
+      dataclasses and declared input parameters to analyze.
 
 output_files:
   - name: Constant usage inventory
@@ -62,7 +63,7 @@ import importlib
 import sys
 import textwrap
 from collections.abc import Callable
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -70,6 +71,7 @@ from typing import Any
 import jedi
 import tomli_w
 from provenance import project_provenance
+from pydantic.dataclasses import is_pydantic_dataclass
 
 # A frozenset is an immutable set. Membership tests such as ``name in ...`` are
 # fast, and no later code can change this fixed group of decorator names.
@@ -120,6 +122,8 @@ class ConstantRecord:
         type_annotation: Source expression for the type annotation.
         file: Project-relative file path where the constant is declared.
         line: One-based declaration line number.
+        required: Whether the validated field requires an input value.
+        input_kind: Configuration setting or validated trait-table input.
         referenced_in: Collected reference sites for this constant.
 
     """
@@ -135,6 +139,8 @@ class ConstantRecord:
     type_annotation: str
     file: str
     line: int
+    required: bool = False
+    input_kind: str = "configuration"
     referenced_in: list[ConstantReference] = field(default_factory=list)
 
 
@@ -153,15 +159,15 @@ def _module_name_from_path(relative_path: Path) -> str:
 
 
 def _configuration_classes(module_name: str) -> dict[str, list[str]]:
-    """Find configuration subclasses defined directly in a module.
+    """Find configuration classes and validated trait dataclasses in a module.
 
     Args:
         module_name: Dotted module name importable from ``sys.path``.
 
     Returns:
         Mapping from class name to a list of immediate base class names for
-        classes that subclass ``Configuration`` (including indirect inheritance)
-        and are defined in ``module_name``.
+        Configuration subclasses and Pydantic dataclasses defined in the module.
+        Ordinary runtime dataclasses are not parameter schemas.
 
     """
     from virtual_ecosystem.core.configuration import Configuration
@@ -173,7 +179,11 @@ def _configuration_classes(module_name: str) -> dict[str, list[str]]:
         candidate = getattr(module, attribute_name)
         if not isinstance(candidate, type):
             continue
-        if not issubclass(candidate, Configuration) or candidate is Configuration:
+        if candidate is Configuration:
+            continue
+        if not issubclass(candidate, Configuration) and not is_pydantic_dataclass(
+            candidate
+        ):
             continue
         if candidate.__module__ != module_name:
             continue
@@ -691,8 +701,8 @@ def get_constant_references(
     Flow:
         1. Normalize input paths and initialize output and analysis context.
         2. Build one Jedi project and shared AST/Jedi caches for reuse.
-        3. For each target module, discover ``Configuration`` subclasses and
-           collect annotated class attributes as candidate constants.
+        3. Discover configuration classes and validated trait dataclasses.
+           Collect declared input fields, excluding dataclass internals.
         4. Resolve references for each constant, classify usage at each site,
            and record caller/consumer docstring context in shared tables.
         5. Assemble metadata, functions, and constants into the output
@@ -772,12 +782,26 @@ def get_constant_references(
             if class_node is None:
                 continue
 
+            declaring_class = getattr(importlib.import_module(module_name), class_name)
+            trait_dataclass = is_pydantic_dataclass(declaring_class)
+            input_fields = (
+                {item.name for item in fields(declaring_class) if item.init}
+                if trait_dataclass
+                else None
+            )
+            validated_fields = (
+                declaring_class.__pydantic_fields__
+                if trait_dataclass
+                else declaring_class.model_fields
+            )
             attributes = _declared_attributes(class_node, "")
             body_index = {
                 id(statement): index for index, statement in enumerate(class_node.body)
             }
 
             for attribute_name, statement in attributes:
+                if input_fields is not None and attribute_name not in input_fields:
+                    continue
                 key = f"{module_name}.{class_name}.{attribute_name}"
                 if key in records:
                     raise KeyError(f"Duplicate constant key: {key}")
@@ -785,6 +809,14 @@ def get_constant_references(
                 target = statement.target
                 docstring = _attribute_docstring(class_node, body_index[id(statement)])
                 default = ast.unparse(statement.value) if statement.value else ""
+                validated_field = validated_fields.get(attribute_name)
+                required = (
+                    validated_field.is_required()
+                    if validated_field is not None
+                    else False
+                )
+                if required:
+                    default = ""
 
                 record = ConstantRecord(
                     name=attribute_name,
@@ -798,6 +830,8 @@ def get_constant_references(
                     type_annotation=ast.unparse(statement.annotation),
                     file=str(full_path.relative_to(project_root).as_posix()),
                     line=target.lineno,
+                    required=required,
+                    input_kind="trait_table" if trait_dataclass else "configuration",
                 )
 
                 references = script.get_references(

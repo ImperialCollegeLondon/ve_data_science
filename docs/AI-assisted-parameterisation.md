@@ -12,7 +12,10 @@ VE. A model default or an abstract alone is not evidence for a new value.
    to assess; record its commit and any relevant uncommitted changes. If the
    sibling checkout is missing or unverifiable, restore it before grounding;
    an installed package alone does not establish the checkout commit.
-2. Run `uv sync` from the repository root to install the Python dependencies
+2. For the microbial pilot, run `uv sync --locked --group dev-pinned` from the
+   repository root. This installs the reviewed post-VE-PR-1958 source, not the
+   0.2.3 release with the older configuration schema. For other workflows,
+   `uv sync` installs the default released environment. Both install dependencies
    declared in `pyproject.toml`, including `jedi`, `tomli-w` and `requests`.
    See [Python with uv](uv_setup.md). For the optional R documentation lookup,
    run `renv::restore()` from the repository root to install the packages in
@@ -63,13 +66,21 @@ configured for an OpenAlex MCP server is not passed to the helper; set it as
 
 ### GitHub Actions-based Copilot cloud sessions
 
-After `.github/workflows/copilot-setup-steps.yml` is merged to the default
-branch, a Copilot cloud session running on GitHub Actions installs the locked
-Python dependencies with the released `virtual-ecosystem` from PyPI. It checks
-out the matching release tag as a sibling `virtual_ecosystem` repository and
+The microbial pilot's `.github/workflows/copilot-setup-steps.yml` installs the
+locked `dev-pinned` VE and checks out the exact `dev-pinned` revision from
+`pyproject.toml` as a sibling `virtual_ecosystem` repository. It
 checks that its Python source is identical to the installed package before the
 agent starts. It uses the repository's `.python-version` and does not install
 the optional R tools.
+
+**Pilot-only limitation:** GitHub's automatic agent setup uses the default
+branch workflow, not an unmerged pilot workflow. Until promotion is explicitly
+authorised, start from `constant-search-microbial-pilot` and run its setup
+locally/in the session, or manually dispatch the workflow at the pilot ref.
+A manual dispatch tests setup but does not prepare another agent's environment.
+Do not assume that a session on a pilot feature branch has the pinned VE.
+Verify the actual environment and clone in every session. Do not merge into
+`main` to work around this limitation.
 
 In repository **Settings → Secrets and variables → Agents**, add
 `OPENALEX_API_KEY` as a secret, or `OPENALEX_EMAIL` as a variable. Values
@@ -80,9 +91,12 @@ The setup workflow does not test OpenAlex access.
 Copilot's network policy must permit the OpenAlex API and any authorised
 full-text hosts needed by a search.
 
-The setup follows the `virtual-ecosystem` release locked in `uv.lock`. To move
-to a newer release, run `uv lock --upgrade-package virtual-ecosystem` and
-commit the lockfile. Use `uv run --no-sync`
+The current pilot pin is VE `6c3132f46e06fa83b9133aa2c4d2adbd60cf21ad`.
+To change the reviewed revision, update the existing `dev-pinned` source in
+`pyproject.toml`, run `uv lock` and `uv sync --locked --group dev-pinned`,
+and prepare a matching clean clone. Commit the manifest, lockfile and reviewed
+inventory together. Do not replace the pin with floating VE `main`.
+Use `uv run --no-sync`
 for skill commands so they retain the prepared environment. As with local
 work, compare the inventory's recorded VE commit and refresh it when needed;
 the setup does not refresh it or perform a literature search. Setup-step
@@ -131,10 +145,22 @@ The assistant uses
 to match selected constants to declarations, reference sites, functions and
 VE commit. This generated inventory covers declared configuration attributes
 across VE modules, including shared model and disturbance settings. It excludes
-hardcoded numeric literals and external trait tables. Reference resolution is
+hardcoded numeric literals and other external trait tables, but includes the
+validated soil microbial/enzyme CSV input schemas. Reference resolution is
 best-effort. Review the VE declaration and reference sites directly for each
 selected constant. Resolve ambiguous units or functional forms before accepting
 an interpretation.
+
+VE PR 1958 moved microbial parameters to
+`virtual_ecosystem.models.soil.microbial_groups.SoilMicrobe`. Its 22 CSV
+fields comprise two identifiers and 20 numeric inputs; internal/computed
+fields are not inputs. `enzyme_production_pom` and `enzyme_production_maom`
+replace the old dictionary input. Required inputs have no class default:
+group-specific example CSV values are model context only. The inventory
+retains required/default status, example hashes and units separately.
+Aliases help locate old names; historical research rows retain their original
+names and model commit. No historical estimate is automatically revalidated.
+When reference discovery is empty, inspect the field's runtime consumer.
 
 When the local VE commit changes, run the inventory dry run from this repository
 root with a clean VE package source tree:
@@ -225,7 +251,7 @@ verify a value. Citation counts do not establish measurement quality.
 
 For soil microbial groups, seek separate evidence for bacteria, saprotrophic
 fungi, arbuscular mycorrhiza and ectomycorrhiza; soil enzymes need separate
-bacterial and fungal evidence. For other modules, check their applicable
+bacterial/fungal and POM/MAOM evidence. For other modules, check their applicable
 categories and measurement conditions. Missing groups remain gaps; do not
 fill them with pooled measurements. A `no_evidence` result describes the
 limits of this search, not proof that no literature exists.
@@ -266,3 +292,36 @@ repository root. It only returns candidates; it does not verify full text.
 Before using any proposal in VE, verify it against the cited source and the
 recorded VE commit. This workflow does not update VE configuration or
 historical parameterisation reports automatically.
+
+### Check approved pilot records
+
+New trait evidence uses the explicit `group` and `source_location` columns.
+With approval, add those columns to an older active CSV, leaving them blank
+on historical rows and preserving every original field value. Required
+trait inputs have no `model_default`. Use the inventory's `model_unit`
+spelling. A matching source in the log must have `search_status=success` and
+`full_text_status=verified`; retain its DOI, or a matching source URL/checksum
+in the rationale for no-DOI sources.
+
+After approval and writing the new rows, run from the repository root:
+
+```bash
+uv run --no-sync python \
+  .github/skills/ve-constant-search/scripts/validate_constant_results.py \
+  --values data/derived/llm/soil_constant_literature_values.csv \
+  --log data/derived/llm/soil_constant_search_log.csv \
+  --qualified-name virtual_ecosystem.models.soil.microbial_groups.SoilMicrobe.turnover_rate
+```
+
+For a new iteration, also pass `--baseline-values` and `--baseline-log`
+copies from the explicitly fetched pilot, stored outside Git. Baseline rows
+remain unchanged even if their names or commits predate the current schema.
+The validator checks new rows and explicit approved replacements, not old
+rows retained in the baseline. Append by default; `--replace-approved` is
+only for qualified names whose replacement the user explicitly approved.
+The search log remains append-only.
+
+Passing this check means the records are structurally traceable, not that the
+scientific interpretation is correct or the user has approved the parameters.
+Reviewed evidence gaps can be PR-ready; failed infrastructure is blocked work.
+All iteration PRs target `constant-search-microbial-pilot`, never `main`.
