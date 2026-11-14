@@ -17,12 +17,23 @@ directory. Keep reusable prompts separately under `analysis/soil/llm/`.
 ## 1. Ground the selected constants
 
 Require a sibling `virtual_ecosystem` Git checkout for the VE version under
-review. Verify its HEAD and Python source status before grounding; an installed
+review (or another explicit clone passed with `--ve-root`). Verify its HEAD
+and Python source status before grounding; an installed
 package alone cannot establish the checkout commit. If the checkout is missing
 or cannot be verified, stop and ask the user to restore or provide it before
 grounding or proposing results. In GitHub Actions-based Copilot sessions, check
 the setup log for failures; the agent may start even if setup failed. Ensure the
 installed VE package matches the checkout before refreshing the inventory.
+
+For the microbial pilot, prepare `uv sync --locked --group dev-pinned`.
+The reviewed VE pin is in `pyproject.toml`; do not substitute the released
+package or floating VE `main`. Use `uv run --no-sync` thereafter. All pilot
+branches and PRs target `constant-search-microbial-pilot`, never `main`.
+Automatic cloud setup may still supply main's older release checkout. Do not
+switch a shared or user-owned clone to fix that mismatch. With appropriate
+setup authorisation, prepare a clean session-isolated clone at the reviewed
+pin in ignored `tmp/` and pass its path with `--ve-root`; otherwise request
+restoration. Check installed source against that clone before continuing.
 
 Start with one or a few user-selected configuration constants, identified by
 **qualified_name** (`module.Class.attribute`). If the user names a module,
@@ -35,8 +46,9 @@ estimates; exclude identifiers or labels such as `name`, `taxonomic_group` and
 Search `assets/ve_constant_usage.toml` for each exact `qualified_name`. Read
 only its constant record, the inventory metadata and any `functions` entries
 named by that record. Do not read the full inventory into the conversation. The
-inventory includes shared model and disturbance settings, but excludes hardcoded
-literals and external trait tables; reference lookup is best-effort. Compare
+inventory includes shared model and disturbance settings and the validated
+soil microbial/enzyme trait-table inputs. Other external trait tables and
+hardcoded literals remain excluded; reference lookup is best-effort. Compare
 `project_commit` with local VE HEAD and check uncommitted Python source changes.
 If the VE commit changed, run
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`
@@ -48,9 +60,24 @@ declarations and references directly; the commit does not describe local
 changes. Check provenance and relevant files if commits outside VE package
 source could affect imports. Leave literature assets unchanged when VE changes.
 
+After VE PR 1958, microbial targets use
+`virtual_ecosystem.models.soil.microbial_groups.SoilMicrobe.<attribute>`;
+enzyme targets use `SoilEnzyme` in that module. The inventory's `aliases` map
+old names for lookup only: never rename historical research rows or change
+their recorded commit. `enzyme_production` now has two input fields,
+`enzyme_production_pom` and `enzyme_production_maom`.
+
 Inspect each selected constant's declaration, docstring, default, type and
 recorded reference sites. Read narrow line ranges around those locations, not
-whole source files. Read a `functions` consumer docstring only when its recorded
+whole source files. A `required = true` record has no default: leave
+`model_default` empty. Its group-specific `example_values`, example-file hash
+and `model_unit` provide model context, not evidence or fallback estimates.
+Do not treat `Field(ge=..., le=...)` as a default. Exclude `enzyme_classes`,
+`synthesis_nutrient_ratios` and computed properties from searches.
+When references are empty or only show validation, follow the selected runtime
+field directly into its consumer (for example `uptake.py` or `pools.py`).
+Empty reference lists do not establish non-use. Read a `functions` consumer
+docstring only when its recorded
 reference forwards or applies the constant. Establish units and functional form
 from VE source. For broader context, optionally query the
 VE documentation store from the repository root with
@@ -215,9 +242,10 @@ its page/table location, identify original value and units, show the conversion
 factor and calculation to the model's units, and check measurement conditions
 (relevant habitat, temperature, taxa and method). Do not map an incompatible
 response function or an aggregate measurement to a group-specific parameter. For
-soil examples, `SoilMicrobialGroup` needs separate evidence for bacteria,
-saprotrophic fungi, arbuscular mycorrhiza and ectomycorrhiza; `SoilEnzymeClass`
-needs separate bacterial and fungal evidence. For other VE modules, identify the
+soil examples, `SoilMicrobe` needs separate evidence for bacteria,
+saprotrophic fungi, arbuscular mycorrhiza and ectomycorrhiza; `SoilEnzyme`
+needs separate evidence for each bacterial/fungal and POM/MAOM combination.
+For other VE modules, identify the
 applicable groups and conditions from the selected constant's source. Report
 unsupported groups as gaps; never fill by pooling. Keep materially different
 sources as separate rows; report ranges only where justified. Confidence: high
@@ -244,6 +272,14 @@ modelling analogies only as questions for human review; keep them out of
 
 ## 4. Deliver results
 
+Respect structural group constraints: bacterial reproductive allocation and
+non-mycorrhizal symbiotic nutrient-transfer fractions must be zero. Those
+structural zeros are not empirical discoveries. `reference_temperature` is a
+centring convention shared by thermal responses; temperature normalisation
+requires compatible response evidence and user approval, not a guessed global
+temperature. Do not conflate microbial maintenance biomass loss with growth
+turnover or maintenance respiration.
+
 Discuss evidence and unresolved gaps with the user before writing a research
 result. With approval, write results under the chosen output directory
 (`data/derived/llm/` by default), grouped by VE
@@ -257,9 +293,16 @@ a per-parameter search/screening log beside the module CSV. Preserve prior rows:
 append or replace only user-approved qualified names; do not overwrite other
 constants. Each row represents one constant-source pair (or a documented
 `no_evidence` outcome). Populate `qualified_name`, `ve_commit`, `retrieved_at`
-(UTC), `status`, `rationale`, and evidence fields; `name` and `model_default`
-come from the TOML. For source-group-specific values, identify the group in
-`rationale` and `measurement_conditions`. Leave unsupported citation and
+(UTC), `status`, `rationale`, and evidence fields; `name` comes from the TOML.
+Leave `model_default` empty for required inputs, and never populate it from
+example values. For new trait rows, use the explicit `group` column with the
+inventory's group identifier, also describing the group in
+`rationale` and `measurement_conditions`. `source_location` records the
+full-text page/table/equation for each `value_found`. With approval, extend an
+older active CSV with these two columns, leaving them blank on historical
+rows; preserve all original field values and VE commits. Do not reinterpret
+historical rows just to make them pass the current-version validator.
+Leave unsupported citation and
 numerical fields empty. Keep `suggested_value` numeric; if only a range is
 supported, fill `value_low` and `value_high` without inventing a point estimate.
 For conversions, record original units, multiplier and calculation in
@@ -272,6 +315,24 @@ its blocker and the recommended next human step in `rationale`; keep candidate
 IDs and screening detail in the search log. Existing first- and second-pass
 reports describe historical results in the older soil CSV; they do not read the
 new output. Do not silently rewrite their conclusions.
+
+Check approved new rows with `scripts/validate_constant_results.py`, passing
+`--values`, `--log` and each `--qualified-name`. Use the inventory's canonical
+`model_unit` spelling. A matching full-text log entry must have
+`search_status=success` and `full_text_status=verified`, with a matching DOI,
+or a source URL/checksum retained in the result rationale for no-DOI sources.
+Pass `--baseline-values` and `--baseline-log` copies from the fetched pilot to
+verify prior-row preservation. These baseline copies belong in ignored
+temporary/session storage. Append by default; `--replace-approved` permits
+replacement only of qualified names explicitly approved by the user. Logs
+remain append-only. This validates record structure and provenance links, not
+the scientific interpretation or user approval.
+
+An infrastructure failure is blocked work, not a successful `no_evidence`
+search. A reviewed, bounded evidence gap can be PR-ready without being an
+approved parameter. Keep research, inventory and skill/prompt changes in
+separate commits. Report proposed prompt improvements and wait for approval
+before applying them during a research run.
 
 Stop once the chosen constants are assessed and any user-approved output is
 checked. In the first user-facing response, lead with **Files touched**: list

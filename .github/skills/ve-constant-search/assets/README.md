@@ -1,8 +1,20 @@
 # Skill assets
 
-`ve_constant_usage.toml` is the generated, all-module VE configuration
-inventory used for model grounding. It is not literature evidence. Refresh it
+`ve_constant_usage.toml` is the generated, all-module VE configuration and
+validated soil trait-input inventory used for model grounding. It is not
+literature evidence. Refresh it
 with `../scripts/refresh_constant_metadata.py` after checking the VE commit.
+
+For the microbial pilot use `uv sync --locked --group dev-pinned`; the
+installed source must match the reviewed clone. Schema version 2 includes
+`SoilMicrobe` CSV inputs (22 fields) and `SoilEnzyme` inputs. Internal,
+`InitVar` and computed dataclass fields are excluded. Each record distinguishes
+`required` inputs from defaults. `example_values` are keyed by microbial group
+or enzyme source/substrate, with `example_file` and `example_sha256` provenance.
+They are neither class defaults nor empirical evidence. `model_unit` is the
+unit spelling from the declaration docstring. `aliases` map old qualified
+names for lookup, including the one-to-two enzyme-allocation split; they do
+not authorise historical-row migration.
 
 ## Evidence templates
 
@@ -45,6 +57,7 @@ read is not itself verified evidence for a constant.
 | Fields | Meaning |
 | --- | --- |
 | `qualified_name`, `name`, `model_default`, `ve_commit` | From the selected TOML record and VE metadata; default is model context, not evidence. |
+| `group`, `source_location` | Explicit trait group identifier and full-text page/table/equation location for new rows. Leave these blank on unchanged historical rows when extending an older CSV. |
 | `retrieved_at`, `status`, `rationale` | UTC timestamp, `value_found` or `no_evidence`, and decision including remaining gaps. |
 | `suggested_value`, `value_low`, `value_high`, `unit` | Numeric point estimate or defensible bounds, and model units. Leave unsupported values blank. |
 | `original_value`, `original_unit`, `conversion_factor`, `conversion_notes` | Published measurement and reproducible conversion to model units. |
@@ -54,3 +67,17 @@ read is not itself verified evidence for a constant.
 Every `value_found` needs verified source text and model-compatible units and
 form. `no_evidence` means no defensible value within the documented search,
 not that no study exists. Keep separate rows for materially different sources.
+
+Required inputs have an empty `model_default`; never copy an example value into
+that column. New evidence rows use `model_unit` spelling, and their matching
+full-text log entry uses `full_text_status=verified` and
+`search_status=success`. Preserve a matching DOI, or a source URL or
+`sha256=<64 lowercase hex characters>` in the rationale and log for no-DOI
+sources. Failed searches do not establish `no_evidence`.
+
+Run `../scripts/validate_constant_results.py` with result/log paths and selected
+qualified names after approval. Optional baseline files check preservation;
+`--replace-approved` is only for explicit user-approved replacements. The
+validator checks new or approved replacement rows, leaving baseline historical
+rows unchanged even when their names or VE commits are obsolete. It checks
+record integrity, not scientific correctness.
