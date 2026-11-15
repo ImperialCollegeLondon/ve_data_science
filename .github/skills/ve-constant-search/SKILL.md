@@ -162,8 +162,11 @@ session, or set `PDF_DIR` to a folder when working locally. `PDF_DIR` is an
 optional, session-specific input, not a committed machine path. Without supplied
 PDFs, continue the existing discovery and retrieval workflow.
 
-Verify that the uploads can actually be read by this session, or that the
-supplied folder exists and is readable, before claiming access. Cloud folder
+Resolve a supplied repository-relative folder against the source checkout,
+not the skill installation or a different worktree. Verify the requested files
+are readable and check for an existing `manifest.csv` during the same intake.
+If files are absent, check an already established source checkout before
+requesting another upload; avoid scanning unrelated directories. Cloud folder
 access works only if the host makes that folder available to the cloud agent;
 a folder on the user's computer is not automatically transferred or mounted.
 If access is unavailable, ask for an upload, session-accessible folder or local
@@ -177,6 +180,24 @@ files relevant to this search, generate or refresh a private `pdf_inventory.csv`
 outside the repository, in user-approved private storage or session artifacts.
 If the PDF folder is read-only, use session artifacts rather than writing into
 it. Do not copy the library into the repository.
+
+Reconcile an existing source `manifest.csv` as well as the private inventory;
+updating one does not update the other. Preserve its schema, row order and
+unrelated records. Append missing supplied PDFs after verifying their identity,
+SHA-256 and any schema-required page count. Review changed-file identities
+before updating hashes and retain a version-change note privately. A tracked
+manifest may retain permitted citation metadata, non-sensitive filenames and
+checksums, not private paths or inventory-only fields. Keep unknown fields
+empty. Use the journal issue year for a numeric `year` column and retain any
+different online year in the private inventory. If the manifest is read-only,
+record pending entries privately and report that it remains unreconciled.
+
+Before reporting intake complete, check CSV parsing, duplicate filenames,
+hashes against accessible files and preservation of existing records. Account
+for each supplied file as already recorded, added, unresolved or outside the
+manifest's schema; report counts and blockers. Keep dataset archives separate
+from a PDF-only manifest and identify their intake status explicitly. Source
+registration is not approval of scientific results.
 
 Record original filename, SHA-256, title, authors, year, DOI, supplied source URL
 (if known), identity status and intake date. Identify the paper from its title

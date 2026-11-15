@@ -179,9 +179,12 @@ is approved. Read live upstream decisions at launch and before readiness.
 ## Work
 - If PDFs are supplied, use the skill's private PDF intake. Verify that this
   session can read uploads or the specified folder; local folder access is not
-  automatically available to a cloud agent. Keep original filenames and generate
-  the inventory privately; do not require manual renaming or a manifest.
-  Never commit PDFs, private inventories, full-text extracts or private paths.
+  automatically available to a cloud agent. Follow its source-location and
+  existing-manifest reconciliation steps, including the intake completeness
+  check. Keep original filenames and generate the inventory privately; the
+  user need not rename files or create a manifest. Only permitted source
+  metadata belongs in a tracked manifest; keep PDFs, private inventories,
+  full-text extracts and private paths out of Git.
 - Search with the skill's OpenAlex helper only; start from the issue's seed
   references, then run 3-6 distinct queries. DOI text search is fuzzy: verify
   matches, and use `snowball --doi` for seed citations. It does not return the

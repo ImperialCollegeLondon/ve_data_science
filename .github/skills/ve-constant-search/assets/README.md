@@ -38,9 +38,11 @@ historical search log.
 
 For user-supplied PDFs, the agent creates a separate private `pdf_inventory.csv`;
 it is not a required user input and must not be committed. Keep original
-filenames, checksums and verified citation identities there. In the research
-log, use `source=user_supplied_pdf`, record the intake date and screening
-decision, and identify the supplied file using a non-sensitive filename or
+filenames, checksums and verified citation identities there. Follow the skill's
+**Private PDF intake** steps to reconcile any existing source `manifest.csv`
+separately; the private inventory does not replace it. In the research log, use
+`source=user_supplied_pdf`, record the intake date and screening decision, and
+identify the supplied file using a non-sensitive filename or
 checksum in `notes`. Leave unknown DOI and source URL fields empty; do not put
 private absolute paths or extracted full text in committed CSVs. A successful
 read is not itself verified evidence for a constant.
