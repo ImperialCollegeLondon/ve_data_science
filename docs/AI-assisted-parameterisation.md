@@ -1,9 +1,44 @@
 # AI-assisted parameterisation
 
-The `ve-constant-search` skill helps find published values for Virtual Ecosystem
-(VE) configuration constants in any module, one or a few at a time. It produces
-**proposals for human review**, not validated parameters or automatic changes to
-VE. A model default or an abstract alone is not evidence for a new value.
+The `ve-constant-search` skill narrows the literature for Virtual Ecosystem (VE)
+configuration constants to a short, verified reading set per constant, then
+hands the next steps to you. It produces **proposals for human review**, not
+validated parameters or automatic changes to VE. A model default or an abstract
+alone is not evidence for a new value. Analyses that need your time, such as
+re-fitting, digitising, pooling or deciding on proxies, are handed off rather
+than done by the agent.
+
+## How a batch works
+
+Work in batches of a few issues so each step needs your attention only once:
+
+1. **Search.** Ask, for example, "Use ve-constant-search on #309 and #308".
+   The agent searches, reads open-access papers and updates one card per
+   issue. It ends with one list of paywalled PDFs for the whole batch, posted
+   on the umbrella issue (for soil microbes, #215).
+2. **Fetch.** Download those PDFs in one sitting into a private folder outside
+   Git (or upload them to the session). No renaming or manifest is needed.
+3. **Follow up.** Tell the agent "PDFs ready in `<folder>`". It reads them,
+   finishes each card and gives you the next steps per issue. If any values
+   are reported directly, it lists them as numbered rows; reply "save 1, 3" or
+   "save none".
+
+Each issue card is a single comment, edited in place. Its status matrix shows
+every constant and group as `value`, `analysis` (you need to judge or analyse
+something), `waiting PDF`, `gap` or `n/a`. Read the card, not the comment
+history. Reply under the card to give decisions or extra sources for the next
+phase.
+
+```mermaid
+flowchart LR
+    A[Search batch] --> B[Cards + one PDF list]
+    B --> C[You fetch PDFs]
+    C --> D[Follow up batch]
+    D --> E[Cards handed off + next steps]
+    E --> F{Rows to save?}
+    F -- "save n" --> G[Append CSV, validate, one PR]
+    F -- none --> H[Done: you continue the analysis]
+```
 
 ## Before you start
 
@@ -104,38 +139,12 @@ failures are shown in the session log, but GitHub may still start the agent.
 The workflow applies to GitHub Actions sessions, not cloud sandboxes.
 
 In an assistant that supports repository skills, ask it to use
-[`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md).
-Name the constants or parameter families you want reviewed. For example:
-
-> Use ve-constant-search to review published values for the soil microbial
-> turnover constants in this workspace. Show the search and source evidence,
-> units, conversions and gaps before proposing any CSV changes.
-
-Select one or a few qualified names (`module.Class.attribute`). If you name a
-module, class or family, agree on a small subset before searching. The example
-above is a soil-specific request, not the default scope.
+[`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md)
+on a few issues or qualified names (`module.Class.attribute`), as in
+[How a batch works](#how-a-batch-works). If you name a module, class or family,
+agree on a small subset before searching.
 
 ## Review the evidence
-
-The workflow has a review step before it saves results:
-
-```mermaid
-flowchart TD
-    A[Select one or a few constants] --> B[Check VE source and inventory]
-    B --> C{Units and model form clear?}
-    C -- No --> D[Ask for clarification]
-    D --> B
-    C -- Yes --> E[Search and log candidates]
-    E --> F{Eligible full-text evidence?}
-    F -- Yes --> G[Check values, units and conditions]
-    F -- No --> H[Record the evidence gap]
-    G --> I[Discuss proposals and gaps]
-    H --> I
-    I --> J{User approves results?}
-    J -- No --> K[Stop without changing results]
-    J -- Yes --> L[Write module CSV and search log]
-    L --> M[Check saved values against source and VE commit]
-```
 
 The search does not change VE configuration. A failed search cannot support a
 `no_evidence` result.
@@ -203,13 +212,8 @@ user. Create the output directory first. Keep PDFs outside the repository unless
 retention there is permitted. The tool rejects redirects and non-PDF responses,
 never overwrites files, and saves a `.pdf.json` provenance record beside the
 PDF. A saved PDF still needs manual full-text review. If full text is
-inaccessible, record that gap instead of searching elsewhere. Before retrieving
-full text, check each relevant publisher host using a bounded HTTPS request to
-the specific seed or candidate URL, such as
-`curl --head --max-time 15 "ARTICLE_URL"`. Record the outcome. An HTTP response
-shows connectivity, not full-text access. If the host is unreachable or access
-fails, ask the user for an authorised PDF and continue with other accessible
-candidates. Verify access and retention rights for supplied PDFs.
+inaccessible, the paper goes on the batch PDF list instead of being searched
+for elsewhere. Verify access and retention rights for supplied PDFs.
 
 ### Supply private PDFs
 
@@ -222,14 +226,11 @@ access does not automatically make that folder readable in a cloud workspace.
 If necessary, upload the files into private cloud storage accessible to that
 session. A new environment or Git checkout does not restore private PDF access.
 
-The agent leaves PDFs unchanged and generates or refreshes a private
-`pdf_inventory.csv` containing original filenames, checksums and citation
-identities. It uses private storage you approve or session artifacts, including
-when your folder is read-only. You do not need to maintain that inventory.
-Citation identities come from the paper's front matter, not DOIs in its
-reference list; uncertain matches are raised for your review.
+The agent leaves PDFs unchanged and matches each one to the batch PDF list
+using the paper's front matter, not DOIs in its reference list. Unmatched or
+uncertain files are reported for your review.
 
-PDFs, private inventories, extracted full text and private absolute paths must
+PDFs, extracted full text and private absolute paths must
 not be staged, committed, pushed or published in issue/PR comments. Research
 outputs can retain permissible citation metadata, findings, source locations
 and brief evidence quotations after review of retention rights. Supplied PDFs
@@ -243,9 +244,10 @@ For each candidate, expect a recorded search query and date, screened and
 excluded sources, and a traceable full-text quotation with a page or table
 location. Compare the original measurement's units, conditions, organism or
 enzyme source, and response function with the model. Check every conversion to
-model units. If a value requires re-fitting, digitising, pooling or other
-reanalysis, record it as a gap rather than a verified value; ask for approval
-before doing that reanalysis. Only use full text you are allowed to access and
+model units. If a value requires re-fitting, digitising, pooling, a proxy or
+other reanalysis, the card marks it `analysis` and the hand-off describes the
+task for you; the agent does not perform it. Only use full text you are
+allowed to access and
 retain; an inaccessible paper, search failure or abstract-only result cannot
 verify a value. Citation counts do not establish measurement quality.
 
@@ -259,8 +261,8 @@ limits of this search, not proof that no literature exists.
 ## Approve and retain results
 
 Discuss proposed values, exclusions and gaps before authorising changes. The
-assistant must ask before it uses proxies or changes inclusion criteria. It must
-also ask before it makes a consequential scientific judgment. After your
+assistant never uses proxies or changes inclusion criteria itself; those become
+`analysis` cells for you. After your
 approval, it writes results under `data/derived/llm/`, with one CSV per VE
 module: `<module>_constant_literature_values.csv`. This is the default output
 directory; a user may specify another project-relative directory for results

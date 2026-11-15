@@ -1,250 +1,206 @@
 ---
 name: ve-constant-search
-description: Find and review published values for one or a few Virtual Ecosystem (VE) configuration constants in any module. Use for parameter literature searches, evidence appraisal, or proposing values from full text.
+description: Batch literature search for Virtual Ecosystem (VE) configuration constants. Narrows each constant to a short, verified reading set, collects paywalled PDFs into one batch list, follows up once PDFs are supplied, then hands off with next steps. Use for parameter literature searches across one or several issues.
 ---
 
 # VE constant search
 
-Work in `ve_data_science`; use the Virtual Ecosystem source available in the
-workspace for the version under review, rather than a remote branch. For user
-setup, review and approval, see `docs/AI-assisted-parameterisation.md`. Treat
-every result as an unverified proposal.
+Purpose: lead a human to **a small, verified set of sources** for each selected
+constant, then stop. Values are a by-product when a full text reports them
+directly. Anything needing a scientific judgement, recalculation, digitising,
+pooling or other analysis is **handed off**, not done here.
 
-Choose an output directory for results and search logs; default to
-`data/derived/llm/` unless the user specifies another project-relative
-directory. Keep reusable prompts separately under `analysis/soil/llm/`.
+User setup (environment, OpenAlex key, private PDFs) is in
+`docs/AI-assisted-parameterisation.md`. Treat every result as a proposal.
 
-## 1. Ground the selected constants
+## The batch workflow
 
-Require a sibling `virtual_ecosystem` Git checkout for the VE version under
-review (or another explicit clone passed with `--ve-root`). Verify its HEAD
-and Python source status before grounding; an installed
-package alone cannot establish the checkout commit. If the checkout is missing
-or cannot be verified, stop and ask the user to restore or provide it before
-grounding or proposing results. In GitHub Actions-based Copilot sessions, check
-the setup log for failures; the agent may start even if setup failed. Ensure the
-installed VE package matches the checkout before refreshing the inventory.
+The user works in batches. Each phase covers every issue in the batch in one
+session and ends with **one short batch summary** in chat.
 
-Prefer the released VE version on PyPI for ordinary work. VE develops rapidly,
-and the microbial configuration needed for this pilot is expected in a
-near-future release; to proceed now, the pilot uses a reviewed development
-commit. Return to a suitable release once it is available and verified.
+| Phase | User says | Agent does | Ends with |
+| --- | --- | --- | --- |
+| 1. Search | "Search #309 #308" (or qualified names) | Ground, search, screen, read open-access full text | Cards updated; one batch PDF list |
+| 2. Fetch | (human only) | Nothing | PDFs saved in one private folder |
+| 3. Follow up | "PDFs are ready in `<folder>`" | Match PDFs to waiting issues, read them, finish each card | Cards `handed off`; batch next steps |
 
-For the microbial pilot, prepare `uv sync --locked --group dev-pinned`.
-The reviewed VE pin is in `pyproject.toml`; do not substitute the released
-package or floating VE `main`. Use `uv run --no-sync` thereafter. All pilot
-branches and PRs target `constant-search-microbial-pilot`, never `main`.
-Automatic cloud setup may still supply main's older release checkout. Do not
-switch a shared or user-owned clone to fix that mismatch. With appropriate
-setup authorisation, prepare a clean session-isolated clone at the reviewed
-pin in ignored `tmp/` and pass its path with `--ve-root`; otherwise request
-restoration. Check installed source against that clone before continuing.
+A batch is small: about 2–5 issues. Do not expand scope beyond the named
+issues or constants. If the user names a module or class, agree on a few
+qualified names first.
 
-For concurrent microbial experiments, use the serialized shared-file integration
-contract in `analysis/soil/llm/constant_search_prompt.md` (v10.1 or its approved
-successor). The user provisionally accepted it, subject to near-future changes;
-it must be integrated before use. This does not approve individual launches or
-research outcomes. A proposed contract or passing validation is not human approval.
-Read live decisions at launch and again before PR readiness and integration.
-Do not silently migrate historical rows when the contract changes.
+### Durable state: one card per issue
 
-Start with one or a few user-selected configuration constants, identified by
-**qualified_name** (`module.Class.attribute`). If the user names a module,
-class, or parameter family instead, identify matching names and agree on a
-small subset before searching. Do not default to every constant in a class or
-module. Check that selected attributes represent parameters needing empirical
-estimates; exclude identifiers or labels such as `name`, `taxonomic_group` and
-`source` from literature searches.
+Each issue has **one** skill card: a single comment written with
+`assets/handoff_template.md` and **edited in place** in later phases
+(`gh api -X PATCH repos/{owner}/{repo}/issues/comments/{id} -F body=@card.md`).
+Find it by its `<!-- ve-constant-search:card -->` marker. Never post a second
+status comment; GitHub keeps the edit history. Do not register runs, write
+drift analyses or post progress comments.
 
-Search `assets/ve_constant_usage.toml` for each exact `qualified_name`. Read
-only its constant record, the inventory metadata and any `functions` entries
-named by that record. Do not read the full inventory into the conversation. The
-inventory includes configuration declarations across VE modules, shared model
-and disturbance settings, and soil microbial/enzyme table inputs. The latter
-are group-specific inputs that moved out of configuration, not global defaults.
-Other external trait tables, including plant and animal traits, and hardcoded
-literals remain excluded; reference lookup is best-effort. Compare
-`project_commit` with local VE HEAD and check uncommitted Python source changes.
-If the VE commit changed, run
-`uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`
-from the repository root after `uv sync` (installs `jedi`, `tomli-w` and
-`virtual-ecosystem`), with a sibling VE clone. Review added, removed and changed
-record names; then run with `--apply`. The dry run leaves the asset intact, and
-the script refuses dirty VE package source. If source is dirty, inspect selected
-declarations and references directly; the commit does not describe local
-changes. Check provenance and relevant files if commits outside VE package
-source could affect imports. Leave literature assets unchanged when VE changes.
+The card's centre is a **status matrix**: one row per group (one row if the
+constant is not group-specific), one column per constant. Each cell is one of:
 
-After VE PR 1958, microbial targets use
-`virtual_ecosystem.models.soil.microbial_groups.SoilMicrobe.<attribute>`;
-enzyme targets use `SoilEnzyme` in that module. The inventory's `aliases` map
-old names for lookup only: never rename historical research rows or change
-their recorded commit. `enzyme_production` now has two input fields,
-`enzyme_production_pom` and `enzyme_production_maom`.
+| Cell | Meaning |
+| --- | --- |
+| `value` | Verified full text reports it directly; at most a unit conversion is needed |
+| `analysis` | A relevant source exists, but a human must judge or analyse (state what) |
+| `waiting PDF` | The best source is not accessible; it is on the batch PDF list |
+| `gap` | No eligible source within this search's budget |
+| `n/a` | Structurally zero or not applicable in VE source |
 
-Inspect each selected constant's declaration, docstring, default, type and
-recorded reference sites. Read narrow line ranges around those locations, not
-whole source files. A `required = true` record has no default: leave
-`model_default` empty. Its group-specific `example_values`, example-file hash
-and `model_unit` provide model context, not evidence or fallback estimates.
-Do not treat `Field(ge=..., le=...)` as a default. Exclude `enzyme_classes`,
-`synthesis_nutrient_ratios` and computed properties from searches.
-When references are empty or only show validation, follow the selected runtime
-field directly into its consumer (for example `uptake.py` or `pools.py`).
-Empty reference lists do not establish non-use. Read a `functions` consumer
-docstring only when its recorded
-reference forwards or applies the constant. Establish units and functional form
-from VE source. For broader context, optionally query the
-VE documentation store from the repository root with
-`Rscript .github/skills/ve-constant-search/scripts/search_ve_docs.R "QUERY"`
-(requires R and `renv::restore()` from the repository root for `ragnar` and
-`DBI`). This read-only BM25 lookup needs no embedding credentials. It checks
-the store's VE commit and Markdown checksums against the sibling VE clone.
-Older stores lack provenance and are rejected; rebuild with
-`analysis/soil/llm/rag_ve.R` when appropriate (`tidyverse` from `renv.lock` and
-Azure embedding credentials required). If the store is missing, stale or
-unavailable, use local VE docs. The inventory, defaults and VE docs provide
-model context, never empirical evidence. If units, functional form or a
-forwarded reference remain ambiguous, ask the user before proposing values.
+The batch PDF list is one comment on the umbrella issue the user names (for
+soil microbes, #215), marked `<!-- ve-constant-search:pdf-list -->` and edited
+in place each batch. It is derived from the cards' `waiting PDF` sources,
+deduplicated, with the issues that need each PDF. It is also shown in chat.
 
-## 2. Discover and screen literature
+## Phase 1: Search
 
-From the repository root, after `uv sync` (installs `requests`), search each
-constant or small related group with:
+For each issue in the batch:
+
+1. **Read the issue** body, its existing card (if any) and human comments after
+   the card. Take seeds, exclusions and group definitions from there; human
+   replies after the card override it.
+2. **Ground** each qualified name (`module.Class.attribute`) in VE source; see
+   [Grounding](#grounding). Exclude identifiers such as `name` or `source`.
+3. **Search** with the [OpenAlex helper](#openalex-helper). Screen abstracts
+   for the exact measured quantity, organism or group, units, conditions and
+   model form. Abstracts only nominate candidates.
+4. **Read open-access full text** ([download](#open-access-pdfs)) and
+   classify each matrix cell.
+5. **Choose the reading set**: at most **five** sources per issue, ranked by
+   relevance and feasibility, not citation count. A reading-set source without
+   accessible full text makes its cells `waiting PDF`.
+6. **Write or update the card.**
+
+Budget per issue: 3–6 distinct queries and at most one snowball round
+(`--limit 6`) on the best seed. Stop early when the reading set is clear. Ask
+before widening the budget.
+
+Then update the batch PDF list and give the batch summary.
+
+## Phase 3: Follow up
+
+1. Find waiting issues from the PDF-list comment (or the issues the user
+   names). Re-read each card and any human replies after it.
+2. Check that the folder or uploads are readable in this session. Identify each
+   PDF from its title page or front matter, never from a DOI in its reference
+   list, and match it to the list. Leave files unrenamed, unchanged and outside
+   Git. Report unmatched or unreadable files; do not guess.
+3. Read methods, tables and figures; reclassify the waiting cells. Do not
+   search again unless a full text names a clearly better primary source; then
+   add at most that one source.
+4. **Hand off** each issue: set the card status to `handed off` and fill its
+   Next steps. Cells still waiting because no file was supplied become
+   `gap (no access)`.
+5. Update the PDF list (remove supplied entries) and give the batch summary.
+
+### Next steps (hand-off)
+
+For each `analysis` cell, write one line: the human task and the source to use,
+for example "Decide whether leaf-litter culture bacteria represent soil
+bacteria; [Mouginot et al. (2014)](https://doi.org/10.1016/j.soilbio.2014.05.011)
+reports 3.94 g C/g N." For a `gap`, give the best lead or say none is known.
+Post-search analyses (re-fitting, digitising, pooling, proxy studies,
+reanalysing datasets) are out of scope: describe them, do not start them.
+Suggest a follow-up issue only if the user asks.
+
+## Saving results (optional, end of Phase 3)
+
+Only `value` cells can become CSV rows. List the proposed rows in chat as one
+numbered batch; the user replies, for example, "save 1, 3" or "save none".
+Never write rows without that reply. If approved:
+
+- Append to `data/derived/llm/<module>_constant_literature_values.csv` and
+  `data/derived/llm/<module>_constant_search_log.csv`, using
+  `assets/README.md` as the field guide. Never alter existing rows.
+- Run `scripts/validate_constant_results.py` with `--values`, `--log` and each
+  `--qualified-name` (baseline options are described in that README).
+- Open one PR for the batch against `constant-search-microbial-pilot` (or the
+  branch the user names), listing the issues it covers.
+
+Without approval nothing is committed; the cards are the deliverable.
+
+## Batch summary (chat)
+
+This is the only thing the user must read. Keep it to one screen:
+
+```markdown
+**Batch #309, #308: search done**
+
+| Issue | value | analysis | waiting PDF | gap |
+| --- | --- | --- | --- | --- |
+| #309 Microbial stoichiometry | 0 | 2 | 4 | 2 |
+
+**PDFs to fetch (3).** Save them in one private folder, then say "PDFs ready".
+
+1. [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632): #309
+2. ...
+```
+
+In Phase 3, replace the PDF list with **Next steps** per issue and, if any, the
+numbered rows proposed for saving. Link every source title to its DOI or
+canonical URL. Leave run details, commits, queries and process narration in
+the card's collapsed agent record.
+
+## Rules
+
+- Ask the user only when blocked on access or when VE units or functional form
+  are ambiguous. Scientific judgements (proxies, habitat transfer, a unit basis
+  inferred from data, pooling, temperature normalisation, inclusion criteria)
+  become `analysis` cells; do not ask about them mid-batch.
+- Evidence is verified full text only: cite the exact sentence or table and
+  its page, original value and units, and the conversion to model units.
+  Abstracts, model defaults, example inputs and VE docs are never evidence.
+- Keep groups separate; never fill one group from another or from pooled
+  measurements. `SoilMicrobe`: bacteria, saprotrophic fungi, arbuscular
+  mycorrhiza, ectomycorrhiza. `SoilEnzyme`: each bacterial/fungal and POM/MAOM
+  combination. Fruiting bodies are not vegetative biomass. Maintenance biomass
+  loss is not growth turnover or maintenance respiration.
+- A search or access failure is blocked work, never a `gap`.
+- Private PDFs, extracted text, private paths and credentials never enter Git,
+  issues or PRs. Quote briefly, and only where retention rights allow.
+- Do not edit this skill, its prompt or the inventory during a batch; list
+  proposed improvements in the batch summary instead.
+
+## Tools
+
+### Grounding
+
+Verify a sibling `virtual_ecosystem` checkout (or a clone passed with
+`--ve-root`) at the reviewed commit with clean Python source. For the microbial
+pilot, run `uv sync --locked --group dev-pinned`, then use `uv run --no-sync`.
+If the checkout is missing or does not match, stop and ask.
+
+Search `assets/ve_constant_usage.toml` for each exact `qualified_name`; do not
+read the whole file. If its `project_commit` differs from VE HEAD, dry-run
+`scripts/refresh_constant_metadata.py`, review the changes, then rerun with
+`--apply`. Read narrow line ranges around the declaration and reference sites;
+when references are empty, follow the field into its runtime consumer. A
+`required = true` record has no default, and its `example_values` are context
+only. Establish units and functional form from source. Optional VE-docs
+context: `Rscript .github/skills/ve-constant-search/scripts/search_ve_docs.R
+"QUERY"`.
+
+### OpenAlex helper
 
 ```bash
 uv run --no-sync python \
   .github/skills/ve-constant-search/scripts/openalex_search.py search "QUERY"
+uv run --no-sync python \
+  .github/skills/ve-constant-search/scripts/openalex_search.py \
+  snowball --doi "DOI" --limit 6
 ```
 
-Use only this helper for OpenAlex searches and citation lookup
-(`snowball --id W...`). Do not
-use OpenAlex MCP tools, `webfetch` or general web search to discover or screen
-papers. The helper returns at most eight candidates by default, with title,
-authors, year, DOI, abstract, open-access PDF URL, journal and OpenAlex ID.
-Start with the default limit; increase it only when screening shows inadequate
-coverage. Output omits each work's full reference list; use bounded snowball
-citation searches for promising leads.
+Use only this helper for discovery and citation lookup: no OpenAlex MCP tools,
+web search or `webfetch` discovery. `search "DOI"` is fuzzy, so compare the
+returned DOIs. The helper reads `OPENALEX_API_KEY`, else `OPENALEX_EMAIL`, else
+runs keyless, from the environment or a `.env` beside this file. Record the
+mode it prints, never the credential.
 
-Searching for a DOI with `search "DOI"` is a fuzzy text search, not an exact
-lookup: compare returned DOIs and do not infer that a seed is absent if it is
-not returned. `snowball --doi "DOI"` resolves a seed DOI for citation searches,
-but returns the seed ID and citation candidates, not the seed's full metadata.
-An exact `--doi` seed-metadata lookup mode would help; it is not implemented.
+### Open-access PDFs
 
-The helper uses `OPENALEX_API_KEY` if set, else `OPENALEX_EMAIL`, else keyless
-access; each is read from the process environment, then from an ignored `.env`
-beside this `SKILL.md`. It prints the approach used (`api_key`, `email` or
-`keyless`) on stderr; report it to the user and record it in the search log's
-`notes`. Never print, log or echo the key or address. Keyless access has a smaller
-budget; if searches hit rate limits, ask the user to follow "Configure
-OpenAlex" in `docs/AI-assisted-parameterisation.md`. Do not choose an address
-or create credentials. Record the exact query and date. Helper
-results are candidates, not screened or verified evidence. On API failure, log
-the error; retry with the same helper or stop and report it. Never treat failure
-as zero results or `no_evidence`.
-
-Keep a per-parameter search/screening log beside the resulting CSV. Start from
-`assets/constant_search_log.csv` and its `assets/README.md` field guide; record
-query, date, success or failure, counts screened and excluded, reasons, and
-DOI/OpenAlex ID for each candidate.
-Screen abstracts for the exact measured process, organism/enzyme source, units,
-conditions and compatible model form; an abstract only identifies candidates,
-not a value. Track no-DOI and inaccessible papers so `no_evidence` describes the
-search coverage, not universal absence. Follow references when coverage is thin.
-Do not infer study quality from citation count or publisher alone.
-
-### Private PDF intake (optional)
-
-Accept authorised user-supplied PDFs as candidates without requiring an OpenAlex
-match first. The user may supply uploads or grant folder access in a cloud
-session, or set `PDF_DIR` to a folder when working locally. `PDF_DIR` is an
-optional, session-specific input, not a committed machine path. Without supplied
-PDFs, continue the existing discovery and retrieval workflow.
-
-Resolve a supplied repository-relative folder against the source checkout,
-not the skill installation or a different worktree. Verify the requested files
-are readable and check for an existing `manifest.csv` during the same intake.
-If files are absent, check an already established source checkout before
-requesting another upload; avoid scanning unrelated directories. Cloud folder
-access works only if the host makes that folder available to the cloud agent;
-a folder on the user's computer is not automatically transferred or mounted.
-If access is unavailable, ask for an upload, session-accessible folder or local
-session with access. Do not assume that Git checkout, branch changes or a new
-environment restore private files. Recheck access in each new session.
-
-Keep private PDFs outside Git, with their original names and contents unchanged.
-Never stage, commit, push or publish them, or move them without permission.
-Do not require the user to rename files or create a manifest. For the supplied
-files relevant to this search, generate or refresh a private `pdf_inventory.csv`
-outside the repository, in user-approved private storage or session artifacts.
-If the PDF folder is read-only, use session artifacts rather than writing into
-it. Do not copy the library into the repository.
-
-Reconcile an existing source `manifest.csv` as well as the private inventory;
-updating one does not update the other. Preserve its schema, row order and
-unrelated records. Append missing supplied PDFs after verifying their identity,
-SHA-256 and any schema-required page count. Review changed-file identities
-before updating hashes and retain a version-change note privately. A tracked
-manifest may retain permitted citation metadata, non-sensitive filenames and
-checksums, not private paths or inventory-only fields. Keep unknown fields
-empty. Use the journal issue year for a numeric `year` column and retain any
-different online year in the private inventory. If the manifest is read-only,
-record pending entries privately and report that it remains unreconciled.
-
-Before reporting intake complete, check CSV parsing, duplicate filenames,
-hashes against accessible files and preservation of existing records. Account
-for each supplied file as already recorded, added, unresolved or outside the
-manifest's schema; report counts and blockers. Keep dataset archives separate
-from a PDF-only manifest and identify their intake status explicitly. Source
-registration is not approval of scientific results.
-
-Record original filename, SHA-256, title, authors, year, DOI, supplied source URL
-(if known), identity status and intake date. Identify the paper from its title
-page, front matter or publisher metadata inside the PDF; do not mistake DOIs
-in its reference list for the paper's DOI. Use the checksum to recognise
-unchanged files and distinguish versions or duplicates, not as proof of
-scientific validity. Leave missing fields empty and mark ambiguous identities
-for review. Ask the user to resolve ambiguous matches; never invent a DOI,
-source URL, access date or citation from a filename. Keep access credentials
-and signed download links out of the inventory and research outputs.
-
-Use available PDF-reading tools to inspect methods, equations and tables, not
-just metadata. If text extraction fails or the PDF is scanned, report the
-limitation and ask for a readable copy or approval for OCR; do not treat a
-failed read as evidence that no values exist. A user-supplied PDF still requires
-identity, access/retention-rights and scientific verification. No publisher
-reachability check is needed to read an already accessible supplied PDF;
-pre-flight below applies when retrieving remote full text.
-
-Record intake and screening in the research log with `source=user_supplied_pdf`.
-Use a non-sensitive filename or checksum as the source locator; keep private
-absolute paths, extracted full text and the private inventory out of committed
-outputs and issue/PR comments. Retain only permissible citation metadata,
-findings, source locations and brief evidence quotations in research outputs.
-If retention rights for the required quotation are unclear, ask before saving
-research results. User-supplied files do not bypass the evidence review gate.
-
-### Remote full-text retrieval
-
-Get authorized full text for screened candidates. The sole `webfetch` exception
-is a specific article or PDF URL from the helper or user; do not use it to
-discover papers or follow links to new candidates. After checking access and
-retention rights, optionally download a specific HTTPS PDF URL from either
-source.
-
-Before attempting full-text retrieval, check reachability of each relevant
-publisher host using a bounded HTTPS request to a specific seed or candidate
-URL, for example `curl --head --max-time 15 "ARTICLE_URL"`. Record the URL,
-date and outcome in the search log. A DNS, connection or timeout error is not
-evidence that the paper is absent. An HTTP response establishes connectivity
-only; redirects, access restrictions or a successful HEAD response do not
-verify that the full text is accessible. If a host is unreachable or access
-fails, log the gap and ask the user to supply an authorised PDF. Continue with
-other accessible candidates, but do not claim verification for the blocked
-paper. Check access and retention rights for user-supplied PDFs too.
-
-For an authorised PDF URL, run from the repository root:
+`webfetch` may open only a specific article or PDF URL returned by the helper.
+Download open-access PDFs into a private folder outside Git:
 
 ```bash
 uv run --no-sync python \
@@ -252,154 +208,4 @@ uv run --no-sync python \
   "PDF_URL" "OUTPUT.pdf" --doi "DOI"
 ```
 
-Create the output directory first; keep PDFs outside
-the repository unless copying is permitted. The helper rejects redirects, HTML
-and non-PDF responses, preserves existing files, and writes `.pdf.json` with
-source URL, DOI, UTC time, HTTP status, SHA-256 and download outcome. It neither
-finds alternate URLs nor verifies scientific content. If full text is
-inaccessible, log the gap; do not search elsewhere. Retain source URL and DOI,
-inspect tables and methods, and keep stable provenance. Do not assume a local
-OpenAlex full-text library exists or covers the constants. Check sharing rights
-before copying restricted text into the repository. Neither cached PDFs nor
-abstracts count as verified evidence.
-
-## 3. Extract and verify
-
-Distinguish unit conversion from reanalysis. Check whether the reported
-measurement identifies the model parameter at the required scale, aggregation
-and functional form. If extracting a parameter requires re-fitting, digitising,
-pooling or other reanalysis of study data, record the paper as relevant but not
-extractable under this workflow. Explain what reanalysis would be needed; do not
-report a `value_found` or perform that reanalysis without the user's explicit
-approval.
-
-For each proposed value, cite the exact full-text sentence or table entry and
-its page/table location, identify original value and units, show the conversion
-factor and calculation to the model's units, and check measurement conditions
-(relevant habitat, temperature, taxa and method). Do not map an incompatible
-response function or an aggregate measurement to a group-specific parameter. For
-soil examples, `SoilMicrobe` needs separate evidence for bacteria,
-saprotrophic fungi, arbuscular mycorrhiza and ectomycorrhiza; `SoilEnzyme`
-needs separate evidence for each bacterial/fungal and POM/MAOM combination.
-For other VE modules, identify the
-applicable groups and conditions from the selected constant's source. Report
-unsupported groups as gaps; never fill by pooling. Keep materially different
-sources as separate rows; report ranges only where justified. Confidence: high
-for direct comparable measurements, medium for supported conversion or
-moderately different conditions, low for indirect analogy (not a verified exact
-value).
-
-Use `no_evidence` when no eligible full text supports a defensible value or
-conversion. Name the gap: search coverage, inaccessible text, missing
-measurement, unresolved units, functional-form mismatch or required reanalysis.
-Relevant but non-extractable studies are gaps, not proof that research is
-absent. Check existing empirical citations and analyses in this repo as leads.
-Verify original full text before calling an existing estimate or new finding
-`value_found`; never use a model default as evidence. Ask the user before
-changing inclusion criteria, using proxies or making a consequential scientific
-judgment.
-
-For each unresolved constant, name the best paper or existing analysis, its DOI
-or local path, what it measures, the blocker and the next human step (such as
-obtaining full text, checking a cited dataset or fitting the model form). Rank
-leads by relevance and feasibility, not citation count. Suggest guesses or
-modelling analogies only as questions for human review; keep them out of
-`value_found` and numeric CSV fields without user approval.
-
-Write every issue registration, status update and PR description with
-`assets/handoff_template.md`: a short human brief that opens with
-`## Needed from the user` (or `None`), then a collapsed agent record holding the
-full run state. When resuming, read the latest agent record before acting.
-Whenever listing a literature lead, link its descriptive title or author/year
-text to its DOI resolver or canonical source URL. Never leave a DOI or URL
-unlinked; if no stable link is known, state that clearly instead of inventing
-one.
-
-## 4. Deliver results
-
-Respect structural group constraints: bacterial reproductive allocation and
-non-mycorrhizal symbiotic nutrient-transfer fractions must be zero. Those
-structural zeros are not empirical discoveries. `reference_temperature` is a
-centring convention shared by thermal responses; temperature normalisation
-requires compatible response evidence and user approval, not a guessed global
-temperature. Do not conflate microbial maintenance biomass loss with growth
-turnover or maintenance respiration.
-
-Discuss evidence and unresolved gaps with the user before writing a research
-result. With approval, write results under the chosen output directory
-(`data/derived/llm/` by default), grouped by VE
-module: `<module>_constant_literature_values.csv`. For soil, create this CSV
-from `assets/soil_constant_literature_values.csv` if it does not exist. The
-existing `data/derived/soil/llm/soil_constant_literature_values.csv` contains
-historical results. Do not copy its rows into a new CSV without approval. Do not
-silently rewrite the historical file. Use `assets/README.md`
-as the field guide. CSV headers may differ in order: match columns by name. Keep
-a per-parameter search/screening log beside the module CSV. Preserve prior rows:
-append or replace only user-approved qualified names; do not overwrite other
-constants. Each row represents one constant-source pair (or a documented
-`no_evidence` outcome). Populate `qualified_name`, `ve_commit`, `retrieved_at`
-(UTC), `status`, `rationale`, and evidence fields; `name` comes from the TOML.
-Leave `model_default` empty for required inputs, and never populate it from
-example values. For new trait rows, use the explicit `group` column with the
-inventory's group identifier, also describing the group in
-`rationale` and `measurement_conditions`. `source_location` records the
-full-text page/table/equation for each `value_found`. With approval, extend an
-older active CSV with these two columns, leaving them blank on historical
-rows; preserve all original field values and VE commits. Do not reinterpret
-historical rows just to make them pass the current-version validator.
-Leave unsupported citation and
-numerical fields empty. Keep `suggested_value` numeric; if only a range is
-supported, fill `value_low` and `value_high` without inventing a point estimate.
-For conversions, record original units, multiplier and calculation in
-`conversion_notes`. Cite DOI when available, and locate retained source text in
-`rationale` or `conversion_notes` if there is no DOI. Check that each
-`value_found` row has a traceable full-text quote and source, matches the
-recorded model commit and units, and does not merely repeat the default. Flag
-remaining gaps for human review. For `no_evidence`, put the strongest lead,
-its blocker and the recommended next human step in `rationale`; keep candidate
-IDs and screening detail in the search log. Existing first- and second-pass
-reports describe historical results in the older soil CSV; they do not read the
-new output. Do not silently rewrite their conclusions.
-
-Check approved new rows with `scripts/validate_constant_results.py`, passing
-`--values`, `--log` and each `--qualified-name`. Use the inventory's canonical
-`model_unit` spelling. A matching full-text log entry must have
-`search_status=success` and `full_text_status=verified`, with a matching DOI,
-or a source URL/checksum retained in the result rationale for no-DOI sources.
-Pass `--baseline-values` and `--baseline-log` copies from the fetched pilot to
-verify prior-row preservation. These baseline copies belong in ignored
-temporary/session storage. Append by default; `--replace-approved` permits
-replacement only of qualified names explicitly approved by the user. Logs
-remain append-only. This validates record structure and provenance links, not
-the scientific interpretation or user approval.
-
-An infrastructure failure is blocked work, not a successful `no_evidence`
-search. A reviewed, bounded evidence gap can be PR-ready without being an
-approved parameter. Keep research, inventory and skill/prompt changes in
-separate commits. Report proposed prompt improvements and wait for approval
-before applying them during a research run.
-
-Stop once the chosen constants are assessed and any user-approved output is
-checked. In the first user-facing response, lead with **Files touched**: list
-each created or modified file and its purpose, or state "No files changed."
-Then state **Actions taken**: constants checked, searches attempted, sources
-screened and full texts verified. Distinguish completed actions from actions
-blocked or awaiting approval.
-
-If defensible values were found, summarise each constant's proposed value or
-range, units, source, confidence and important limits. State that values remain
-proposals pending user review.
-
-If no defensible value was found, say so explicitly. For each unresolved
-constant, identify the best lead and what worked, the blocker and what did not
-work, and the next actionable step and who must take it. Flag approaches
-unlikely to help or likely to be dead ends, with reasons; do not present an
-untried approach as a demonstrated dead end. State when no useful next step is
-known. Use `## Needed from the user` for required user actions, including the
-specific files or decision, affected groups/parameters and session-accessible
-delivery method. Link every listed literature lead through its DOI or canonical
-source URL.
-
-Report `value_found` and `no_evidence` counts, sources screened and remaining
-coverage limits. Say whether the next action is with the user, the agent after
-approval or access, or neither.
+If a PDF cannot be fetched or read, its source goes on the batch PDF list.

@@ -1,6 +1,12 @@
 <!-- markdownlint-disable MD013 -->
 # Reusable prompt: VE constant literature search
 
+> **Superseded for routine searches (v11).** The skill now runs as a batch
+> workflow: "search #309 #308", then "PDFs ready in `<folder>`". It keeps one
+> card per issue and one PDF list instead of run registrations, drift records
+> and per-run PRs. Use the template below only for concurrent per-issue
+> agents; its handoff now follows the skill's card format.
+
 Copy the prompt below into a new agent session, replace every `{{PLACEHOLDER}}`,
 and delete the "Constant-specific hints" lines you do not need. Placeholders and
 the instructions in them are the only parts meant to change between issues.
