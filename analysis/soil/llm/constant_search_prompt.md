@@ -11,6 +11,100 @@ contain its task contract in the body and a fully filled launch comment; do not
 leave unresolved placeholders in issue prompts. Read the latest approved
 launch comment and retain earlier decisions and exclusions.
 
+## Microbial pilot concurrency and decision contract (v10.1)
+
+The user [provisionally accepted this contract](https://github.com/ImperialCollegeLondon/ve_data_science/issues/790#issuecomment-6888410694)
+on 2026-11-15. Its decisions are subject to near-future changes. The contract is
+not integrated until merged into `constant-search-microbial-pilot`; provisional
+acceptance does not approve individual launches or scientific outcomes. Do not
+launch an experiment based only on an unmerged PR or a proposed issue comment.
+Read #215, #789, #790, #791, the family issue and linked decisions and follow-ups
+at launch and again before claiming PR readiness and before integration. Record
+links, approval status, pilot commit, VE pin, prompt/skill version and the exact
+decision baseline.
+If any decision, source pin or shared contract changes, record the old and new
+state, source, affected runs, proposed adjustment, owner, approval status and
+superseded reference in a dated issue comment or PR description. Assess
+already-running and completed PRs explicitly. Block only affected scopes until
+the responsible human decides; never silently change scientific criteria or
+migrate historical evidence.
+
+### Output and integration policy
+
+The provisional policy retains the existing shared soil CSVs
+and serializes integration rather than introducing a new output schema or
+consolidation layout. Independent branches may search concurrently, but their
+shared-file edits will conflict. A human integration owner admits only one
+search PR to integration at a time; a GitHub merge queue or CI alone does not
+establish that ownership. Record the owner and current PR in #215 before
+integration, and release it after merging or blocking. Do not auto-merge.
+Competing workflow proposals require an explicit human integration decision;
+research PRs must not change the skill, prompt, inventory or validator.
+
+1. Before work, register a unique run ID, owner/session, family issue, exact
+   field/group scope, pilot commit, decision baseline, branch, status and PR
+   link (initially `not yet opened`) in the family issue and link it in #215.
+   Check for overlapping active runs; proceed only with explicit
+   comparison/replication intent for overlaps. A run uses its own app-managed
+   branch and private files. Use `running`, `awaiting decision`, `blocked`,
+   `follow-up` or `complete` honestly; a PR never closes a family or phase.
+2. With explicit human approval for each research output, append to
+   `data/derived/llm/soil_constant_literature_values.csv` and
+   `data/derived/llm/soil_constant_search_log.csv`. Put the run ID in each
+   new result's `rationale` and each new log row's `notes`; preserve all prior
+   values and the complete log prefix. The existing values CSV lacks `group`
+   and `source_location`: extend its header only after explicit approval and
+   keep those fields blank on historical rows. Do not replace historical rows
+   or change their VE commits. Private PDFs and inventories stay outside Git.
+3. Before readiness and again when admitted for integration, fetch the pilot,
+   reread decisions and assess drift. Save the latest pilot's two CSVs as
+   baseline files in private session storage. Rebase or otherwise reconcile
+   the run against that fetched commit without losing other runs. Preserve
+   every baseline result row and the log's exact baseline prefix, then append
+   this run's approved rows and log entries. Never resolve a conflict by
+   choosing one branch's entire file. If scope, evidence or approval changed,
+   pause the affected run for a human decision.
+4. Run the existing validator against **the latest pilot baseline**, selecting
+   every qualified name added by this run. For each selected name add a
+   `--qualified-name` argument:
+
+   ```bash
+   uv run --no-sync python .github/skills/ve-constant-search/scripts/validate_constant_results.py \
+     --values data/derived/llm/soil_constant_literature_values.csv \
+     --log data/derived/llm/soil_constant_search_log.csv \
+     --baseline-values "$BASELINE_VALUES" --baseline-log "$BASELINE_LOG" \
+     --qualified-name "$QUALIFIED_NAME"
+   ```
+
+   These shell variables refer to the private baseline copies and the selected
+   name for this run, not placeholder text in a launch comment. Validation
+   checks record structure and preservation, not scientific approval. Do not
+   use `--replace-approved` without specific human replacement approval.
+5. Immediately before merging, verify the pilot still equals the validated
+   baseline. If it moved, repeat the decision check, reconciliation and
+   validation. The human reviewer decides whether to merge. The next PR repeats
+   this process against the new pilot. If no permissible artifact exists,
+   report the blocker on the issue instead of opening an empty PR.
+
+Each PR must report run identity, decision baseline and drift, outcome counts,
+verified full texts, gaps, best leads, unresolved decisions and next owner/action.
+Create or reuse focused follow-ups for human decisions, access, reanalysis or
+workflow defects; link the family, run, PR and #791, state the affected scope,
+decision owner and completion criteria, and link the decision in #215. A
+structurally valid record is not an approved parameter.
+
+### Validation scenarios for reviewers
+
+- Two runs based on the same pilot, either disjoint fields or overlapping
+  field/group comparison runs: integrate A first, then reconcile B onto A and
+  validate B against A's results and log. Both accepted runs and the original
+  baseline must remain. Repeat with the order reversed.
+- If an approved upstream criterion changes while B is running, B's owner
+  records the old and new decision and affected scope, pauses B, and requests
+  an impact decision. A completed PR is assessed explicitly, not rewritten.
+  Unaffected runs may proceed. A proposal or newer agent comment is not
+  approval; do not infer a decision from closure or passing CI.
+
 ## Prompt template
 
 ```text
@@ -18,6 +112,10 @@ Use the `ve-constant-search` skill (.github/skills/ve-constant-search/SKILL.md)
 to address GitHub issue #{{ISSUE_NUMBER}}: "{{ISSUE_TITLE}}". Read the issue
 first (`gh issue view {{ISSUE_NUMBER}} --comments`). Follow the skill's workflow
 and rules; this prompt only adds task framing.
+Use the provisionally accepted microbial pilot concurrency and decision contract
+above, subject to near-future changes.
+Do not start until the contract is integrated and this filled launch comment
+is approved. Read live upstream decisions at launch and before readiness.
 
 ## Target
 - Constant (qualified_name): {{QUALIFIED_NAME}}
@@ -239,3 +337,7 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 - v8: preserve and verify the pilot PR target despite workspace default metadata.
 - v9: pin post-1958 VE, ground required trait inputs and group-specific examples,
   preserve historical evidence, validate new rows and respect app worktree branches.
+- v10 (proposed): register concurrent runs, serialize shared-file integration,
+  recheck live decisions and validate against the latest pilot baseline.
+- v10.1: record provisional user acceptance, subject to near-future changes;
+  retain integration and individual approval gates.
