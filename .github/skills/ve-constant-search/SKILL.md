@@ -25,6 +25,11 @@ grounding or proposing results. In GitHub Actions-based Copilot sessions, check
 the setup log for failures; the agent may start even if setup failed. Ensure the
 installed VE package matches the checkout before refreshing the inventory.
 
+Prefer the released VE version on PyPI for ordinary work. VE develops rapidly,
+and the microbial configuration needed for this pilot is expected in a
+near-future release; to proceed now, the pilot uses a reviewed development
+commit. Return to a suitable release once it is available and verified.
+
 For the microbial pilot, prepare `uv sync --locked --group dev-pinned`.
 The reviewed VE pin is in `pyproject.toml`; do not substitute the released
 package or floating VE `main`. Use `uv run --no-sync` thereafter. All pilot
@@ -46,9 +51,11 @@ estimates; exclude identifiers or labels such as `name`, `taxonomic_group` and
 Search `assets/ve_constant_usage.toml` for each exact `qualified_name`. Read
 only its constant record, the inventory metadata and any `functions` entries
 named by that record. Do not read the full inventory into the conversation. The
-inventory includes shared model and disturbance settings and the validated
-soil microbial/enzyme trait-table inputs. Other external trait tables and
-hardcoded literals remain excluded; reference lookup is best-effort. Compare
+inventory includes configuration declarations across VE modules, shared model
+and disturbance settings, and soil microbial/enzyme table inputs. The latter
+are group-specific inputs that moved out of configuration, not global defaults.
+Other external trait tables, including plant and animal traits, and hardcoded
+literals remain excluded; reference lookup is best-effort. Compare
 `project_commit` with local VE HEAD and check uncommitted Python source changes.
 If the VE commit changed, run
 `uv run --no-sync python .github/skills/ve-constant-search/scripts/refresh_constant_metadata.py`

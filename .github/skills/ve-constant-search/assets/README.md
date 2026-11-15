@@ -1,15 +1,19 @@
 # Skill assets
 
-`ve_constant_usage.toml` is the generated, all-module VE configuration and
-validated soil trait-input inventory used for model grounding. It is not
-literature evidence. Refresh it
-with `../scripts/refresh_constant_metadata.py` after checking the VE commit.
+`ve_constant_usage.toml` inventories configuration declarations across VE
+modules, including shared settings. It also includes the soil microbial and
+enzyme inputs described below; it is not a comprehensive inventory of plant,
+animal or other external trait tables. This all-module inventory is model
+grounding, not literature evidence. Refresh it with
+`../scripts/refresh_constant_metadata.py` after checking the VE commit.
 
 For the microbial pilot use `uv sync --locked --group dev-pinned`; the
 installed source must match the reviewed clone. Schema version 2 includes
-`SoilMicrobe` CSV inputs (22 fields) and `SoilEnzyme` inputs. Internal,
-`InitVar` and computed dataclass fields are excluded. Each record distinguishes
-`required` inputs from defaults. `example_values` are keyed by microbial group
+`SoilMicrobe` CSV inputs (22 fields) and `SoilEnzyme` inputs. These are
+group-specific table inputs, rather than global configuration defaults; other
+modules also have traits but their external trait tables are not covered here.
+Internal, `InitVar` and computed dataclass fields are excluded. Each record
+distinguishes `required` inputs from defaults. `example_values` are keyed by microbial
 or enzyme source/substrate, with `example_file` and `example_sha256` provenance.
 They are neither class defaults nor empirical evidence. `model_unit` is the
 unit spelling from the declaration docstring. `aliases` map old qualified

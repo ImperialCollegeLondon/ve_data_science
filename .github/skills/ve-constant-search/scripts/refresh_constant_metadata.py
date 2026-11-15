@@ -2,16 +2,19 @@
 title: Refresh the Virtual Ecosystem constant inventory
 
 description: |
-  Stage a configuration and validated trait inventory from a clean VE clone,
-  compare qualified names with the maintained TOML, and replace it only with
-  --apply. A matching commit and current schema leave the asset unchanged.
+  Stage an all-module configuration inventory and soil microbial/enzyme table
+  inputs from a clean VE clone. These group-specific inputs are included because
+  they moved out of configuration; other modules also have traits but their
+  external trait tables are not scanned. Compare qualified names with the
+  maintained TOML and replace it only with --apply. A matching commit and current
+  schema leave the asset unchanged.
 
 virtual_ecosystem_module: All
 status: final
 input_files:
   - name: Virtual Ecosystem Python package
     path: ../virtual_ecosystem/virtual_ecosystem/
-    description: Configuration and validated trait input declarations and uses.
+    description: Configuration and soil microbial/enzyme input declarations and uses.
   - name: ve_constant_usage.toml
     path: .github/skills/ve-constant-search/assets/
     description: Current inventory and recorded VE commit.
