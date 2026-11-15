@@ -48,13 +48,9 @@ research PRs must not change the skill, prompt, inventory or validator.
    comparison/replication intent for overlaps. A run uses its own app-managed
    branch and private files. Use `running`, `awaiting decision`, `blocked`,
    `follow-up` or `complete` honestly; a PR never closes a family or phase.
-   In each registration or status update and PR description, include
-   `## Needed from the user`: list exact files or decisions, affected scope,
-   how the user can provide them accessibly to this session, and who must act.
-   Write `None` when no user action is pending; avoid vague "next step" wording.
-   Link every listed literature lead's descriptive title or author/year to its
-   DOI resolver or canonical source URL. Never leave a DOI or URL unlinked; if
-   no stable link is known, say so rather than inventing one.
+   Write each registration, status update and PR description with the skill's
+   `assets/handoff_template.md`: human brief first, full agent record folded
+   below it.
 2. With explicit human approval for each research output, append to
    `data/derived/llm/soil_constant_literature_values.csv` and
    `data/derived/llm/soil_constant_search_log.csv`. Put the run ID in each
@@ -93,10 +89,9 @@ research PRs must not change the skill, prompt, inventory or validator.
    this process against the new pilot. If no permissible artifact exists,
    report the blocker on the issue instead of opening an empty PR.
 
-Each PR must report run identity, decision baseline and drift, outcome counts,
-verified full texts, gaps, best leads, unresolved decisions and next owner/action.
-Link every literature lead's descriptive text to its DOI resolver or canonical
-source URL, and state required user actions under `## Needed from the user`.
+Each PR's agent record carries run identity, decision baseline and drift,
+outcome counts, verified full texts, gaps, best leads, unresolved decisions and
+next owner/action; its human brief carries only decisions and the outcome.
 Create or reuse focused follow-ups for human decisions, access, reanalysis or
 workflow defects; link the family, run, PR and #791, state the affected scope,
 decision owner and completion criteria, and link the decision in #215. A
@@ -198,14 +193,10 @@ is approved. Read live upstream decisions at launch and before readiness.
   `<module>_constant_search_log.csv`. One values row per constant-group source,
   or per group with `no_evidence`.
 - If values are found: report them as proposals with confidence and limits.
-- If no value is found: per the skill, name the best lead, blocker and next
-  human step for each unresolved group, link each lead by DOI or canonical
-  source URL, and post that as a comment on the issue. Put any requested user
-  action under `## Needed from the user`; specify the exact material or
-  decision, affected scope, session-accessible delivery method and owner.
-  Write `None` when no user action is pending.
-- Post a comment on issue #{{ISSUE_NUMBER}} with: task summary, findings,
-  decision points, and prompt/skill improvement suggestions.
+- Post a comment on issue #{{ISSUE_NUMBER}} using the skill's
+  `assets/handoff_template.md`. Requested user actions and decisions go in the
+  human brief; findings, gaps with best leads, blockers and prompt/skill
+  reflection go in the agent record.
 - Discuss evidence before saving it. Require human approval for output rows.
   For new traits, retain explicit group and full-text source_location columns;
   add them to an older active CSV only with approval, leaving historical fields
@@ -227,7 +218,7 @@ is approved. Read live upstream decisions at launch and before readiness.
   and wait for my decision before applying it. Keep prompt and skill edits in
   separate commits.
 
-## Prompt-improvement reflection (end of task)
+## Prompt-improvement reflection (end of task, in the agent record)
 State which steps were easy and which were hard (for example: seed lookup,
 group mapping, access to full text, unit conversion), what you had to guess,
 and what extra instruction would have removed the guess.
@@ -358,3 +349,6 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 - v10.2: make required user actions explicit in issue/PR handoffs and require
   linked DOI or canonical source URLs for literature leads; no scientific
   criteria or approval gates changed.
+- v10.3: split issue/PR handoffs into a short human brief and a collapsed agent
+  record via the skill's `assets/handoff_template.md`; no content requirement
+  dropped and no scientific criteria or approval gates changed.
