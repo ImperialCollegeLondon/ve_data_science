@@ -124,6 +124,6 @@ conflicts = [
 [tool.uv.sources]
 virtual-ecosystem = [
   { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", group = "dev" },
-  { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", rev = "2febd6bd0732eeda6f70f7aa413e40b560d74c54", group = "dev-pinned" },
+  { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", rev = "6c3132f46e06fa83b9133aa2c4d2adbd60cf21ad", group = "dev-pinned" },
   { git = "https://github.com/ImperialCollegeLondon/virtual_ecosystem.git", rev = "72f8724629ee8fbbddadac460a2c2abd6c483f68", group = "dev-PR1889" },
 ]

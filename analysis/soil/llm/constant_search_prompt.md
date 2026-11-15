@@ -5,6 +5,12 @@ Copy the prompt below into a new agent session, replace every `{{PLACEHOLDER}}`,
 and delete the "Constant-specific hints" lines you do not need. Placeholders and
 the instructions in them are the only parts meant to change between issues.
 
+This pilot stays on `constant-search-microbial-pilot`; do not promote any
+iteration to `main`. Set `{{BASE_BRANCH}}` to that pilot branch. An issue should
+contain its task contract in the body and a fully filled launch comment; do not
+leave unresolved placeholders in issue prompts. Read the latest approved
+launch comment and retain earlier decisions and exclusions.
+
 ## Prompt template
 
 ```text
@@ -17,7 +23,9 @@ and rules; this prompt only adds task framing.
 - Constant (qualified_name): {{QUALIFIED_NAME}}
 - Groups needing separate evidence: {{GROUPS}}  (e.g. bacteria, saprotrophic
   fungi, arbuscular mycorrhiza, ectomycorrhiza; or "none")
-- Current VE default and source: {{DEFAULT_AND_SOURCE}}
+- Required/default status and group-specific example context: {{DEFAULT_AND_SOURCE}}
+- VE revision: the reviewed `dev-pinned` commit in pyproject.toml, currently
+  6c3132f46e06fa83b9133aa2c4d2adbd60cf21ad. Do not use floating VE main.
 - Starting-point references from the issue: {{SEED_REFERENCES}}
 - Constant-specific hints (optional): {{HINTS}}  (e.g. what the model
   equation does with the constant, likely confusable quantities)
@@ -29,18 +37,27 @@ and rules; this prompt only adds task framing.
 1. For every experiment, explicitly fetch the latest integration branch:
    git fetch origin refs/heads/{{BASE_BRANCH}}:refs/remotes/origin/{{BASE_BRANCH}}
    A plain git fetch may fetch only main in a restricted checkout.
-   Create a fresh testing branch `issue-{{ISSUE_NUMBER}}-{{SHORT_NAME}}`
-   from `origin/{{BASE_BRANCH}}`; never reuse an older experiment branch.
-   Use a unique experiment or round suffix when needed. Stop if fetching fails.
+   Use a fresh session based on origin/{{BASE_BRANCH}}. In an app-managed
+   worktree, keep its dedicated branch; do not create or rename extra branches.
+   If a clean new session starts from another base, align its branch to the
+   pilot before editing, without merging main. Stop if existing work would be
+   lost or fetching fails. In a standalone checkout, create a fresh testing
+   branch with an issue/round-specific name from origin/{{BASE_BRANCH}}.
    Target every testing pull request back at `{{BASE_BRANCH}}`, not main.
    Pass `{{BASE_BRANCH}}` explicitly when creating the PR, even if workspace
    metadata names main. Never substitute the repository default. Verify the
    created PR's base branch matches `{{BASE_BRANCH}}` before reporting success.
-2. Run `uv sync`. Report which OpenAlex access mode the helper uses.
-3. Verify that the sibling VE Git clone exists and check its commit and source
+2. Run `uv sync --locked --group dev-pinned`; use uv run --no-sync afterward.
+   Report OpenAlex access mode only when the helper is actually exercised.
+   Automatic cloud setup may still use main's released VE; verify this session.
+3. Verify a sibling VE Git clone, or a session-isolated clone passed explicitly
+   with --ve-root, and check its commit and source
    status. If it is missing or unverifiable, stop and ask me to restore or
    provide it before grounding or proposing results. Ground the constant in the
    skill's inventory and VE source (units, functional form, reference sites).
+   Follow runtime consumers directly when inventory references are empty.
+   Required inputs have no model default; examples are not evidence. Old
+   qualified-name aliases do not authorise changing historical result rows.
 
 ## Work
 - If PDFs are supplied, use the skill's private PDF intake. Verify that this
@@ -78,6 +95,16 @@ and rules; this prompt only adds task framing.
   human step for each unresolved group, and post that as a comment on the issue.
 - Post a comment on issue #{{ISSUE_NUMBER}} with: task summary, findings,
   decision points, and prompt/skill improvement suggestions.
+- Discuss evidence before saving it. Require human approval for output rows.
+  For new traits, retain explicit group and full-text source_location columns;
+  add them to an older active CSV only with approval, leaving historical fields
+  and VE commits unchanged. Run validate_constant_results.py with selected
+  names and baseline result/log files from the fetched pilot. Logs are
+  append-only; replacement requires explicit approval. Do not rewrite history
+  to make obsolete rows pass current-version validation.
+- A verified record can be PR-ready without being an approved parameter.
+  Infrastructure failures are blocked work, not evidence gaps. Record the
+  decision owner, next action and limits; do not force a numerical outcome.
 - Commit changes separately by task and intent, then push the branch to the
   GitHub remote. Verify the remote branch points to the committed HEAD.
   If the push fails, report the failure rather than claiming completion.
@@ -106,16 +133,19 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 
 ## Target
 - Constant (qualified_name):
-  virtual_ecosystem.models.soil.model_config.SoilMicrobialGroup.turnover_rate
+  virtual_ecosystem.models.soil.microbial_groups.SoilMicrobe.turnover_rate
 - Groups needing separate evidence: bacteria, saprotrophic fungi, arbuscular
   mycorrhiza, ectomycorrhiza
-- Current VE default and source: 0.005 day^-1 at 12 degrees Celsius. The issue
-  attributes the default to Fatichi et al. (2019), Global Biogeochemical Cycles,
-  DOI 10.1029/2018GB006077. Verify the original paper; the default is not evidence.
+- Required input: no model default. At the reviewed dev-pinned VE commit
+  6c3132f46e06fa83b9133aa2c4d2adbd60cf21ad, example_microbial_groups.csv uses
+  bacteria 0.005, saprotrophic fungi 0.002, AM and ECM 0.0012 day^-1, all at
+  12 degrees Celsius. Examples are model context, not empirical estimates.
+  The old issue attributes the earlier default to Fatichi et al. (2019),
+  DOI 10.1029/2018GB006077; verify the original paper before using it as evidence.
 - Starting-point references from the issue:
   https://onlinelibrary.wiley.com/doi/epdf/10.1111/gcb.15550 (their `tau`
   parameter); https://doi.org/10.1111/ele.70278
-- Constant-specific hints: not SoilEnzymeClass.turnover_rate. In VE 0.2.3,
+- Constant-specific hints: not SoilEnzyme.turnover_rate. In the reviewed VE,
   calculate_maintenance_biomass_synthesis applies the rate to microbial biomass
   with an Arrhenius temperature factor. Confirm this in the checked-out version.
   Growth/community turnover and maintenance respiration do not by themselves
@@ -128,20 +158,24 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 ## Setup
 1. For every experiment, fetch the latest pilot explicitly:
    git fetch origin refs/heads/constant-search-microbial-pilot:refs/remotes/origin/constant-search-microbial-pilot
-   Stop if fetching fails. Create a fresh issue-198-microbial-turnover-rate
-   testing branch from origin/constant-search-microbial-pilot, using a unique
-   experiment or round suffix when needed; never reuse an older experiment
-   branch. Target every testing PR back at constant-search-microbial-pilot,
+   Stop if fetching fails. Use a fresh session based on the fetched pilot.
+   Keep the app-managed session branch; do not create/rename extra branches.
+   Align a clean new session to the pilot before editing; do not merge main.
+   If existing work is at risk, stop. For standalone checkouts, use a fresh
+   issue/round-specific testing branch. Target every PR at the pilot,
    not main.
    Pass constant-search-microbial-pilot explicitly when creating the PR, even
    if workspace metadata names main. Never substitute the repository default.
    Verify the created PR's base branch is constant-search-microbial-pilot.
-2. Run uv sync. Report the OpenAlex helper's access mode without credentials.
-3. Require the sibling virtual_ecosystem Git checkout. If it is missing or
+2. Run uv sync --locked --group dev-pinned; use uv run --no-sync afterward.
+   Report the helper's access mode only if OpenAlex is exercised.
+3. Require a matching clean virtual_ecosystem Git checkout. An explicit
+   session-isolated clone is allowed with --ve-root. If missing or
    unverifiable, stop and ask me to restore or provide it. Verify the commit,
    source status and match with the installed package. Ground this constant
    using the selected inventory record and narrow VE source/doc ranges.
    Review the inventory refresh dry run before applying a required refresh.
+   Follow pools.py's runtime consumer if reference discovery is empty.
 
 ## Work
 - Use the skill's private PDF intake if I provide uploads or a folder. Confirm
@@ -149,8 +183,12 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
   outside Git. Do not require a manual manifest or commit PDFs, private
   inventories, full-text extracts or private paths. Supplied PDFs still need
   scientific verification, but not publisher connectivity to read them.
-- Use only the skill's OpenAlex helper for discovery. Start with the three DOI
-  seeds above, then run 3-6 distinct queries. DOI text search is fuzzy: compare
+- Resume the blockers documented in #198 and merged pilot PR #784: Behera's
+  bacterial coefficient needs experimental-temperature and transferability
+  review; fungal groups need additional primary texts. Do not repeat the broad
+  searches or treat the earlier six-PDF review as a new discovery run.
+- If new discovery is justified, use only the skill's OpenAlex helper. Start
+  with the DOI seeds, then run 3-6 distinct queries. DOI text search is fuzzy: compare
   returned DOIs. Use snowball --doi for citation lookup; it does not return seed
   metadata. Log every request, failure, candidate and screening decision.
 - Screen the exact process, groups, units, temperature and model form. If long
@@ -171,6 +209,10 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
   save soil_constant_literature_values.csv and soil_constant_search_log.csv
   under data/derived/llm/. Preserve unrelated constants and prior runs.
   Keep the reusable prompt under analysis/soil/llm/.
+  New rows use explicit group and source_location; required model_default is
+  blank. Preserve legacy rows and their old qualified names/commits. Run
+  validate_constant_results.py with the selected new name and baseline files;
+  its structural checks do not replace scientific review.
 - If values are found, present proposals with units, sources, confidence and
   limits. If none are found, say so and identify each group's best lead,
   blocker, next human step and coverage limits. Never fill numerical evidence
@@ -195,3 +237,5 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
 - v6: fetch the latest pilot explicitly and use a fresh branch for every experiment.
 - v7: accept optional private PDFs through verified local or cloud session access.
 - v8: preserve and verify the pilot PR target despite workspace default metadata.
+- v9: pin post-1958 VE, ground required trait inputs and group-specific examples,
+  preserve historical evidence, validate new rows and respect app worktree branches.
