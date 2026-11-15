@@ -285,11 +285,10 @@ leads by relevance and feasibility, not citation count. Suggest guesses or
 modelling analogies only as questions for human review; keep them out of
 `value_found` and numeric CSV fields without user approval.
 
-In every issue registration or status update and every PR description, make any
-required user action explicit under `## Needed from the user`. Name the exact
-files or decision needed, affected scope, how to provide them (for example,
-session-readable uploads or a session-accessible folder), and who must act.
-Write `None` when no user action is pending; do not rely on a vague "next step".
+Write every issue registration, status update and PR description with
+`assets/handoff_template.md`: a short human brief that opens with
+`## Needed from the user` (or `None`), then a collapsed agent record holding the
+full run state. When resuming, read the latest agent record before acting.
 Whenever listing a literature lead, link its descriptive title or author/year
 text to its DOI resolver or canonical source URL. Never leave a DOI or URL
 unlinked; if no stable link is known, state that clearly instead of inventing
