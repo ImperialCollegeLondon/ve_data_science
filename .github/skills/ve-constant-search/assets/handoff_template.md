@@ -21,9 +21,11 @@ the human replies after it; a reply such as "approve D1" refers to that record.
   "Reply `approve D1`, `reject D1` or give an alternative"). Name the exact
   files or decision, affected scope and a session-accessible delivery method.
   Write `None` when no user action is pending.
-- Follow with `## Outcome`: at most five bullets in plain language. Lead with
-  `value_found` / `no_evidence` counts and the headline finding with units and
-  a linked source. Mention blockers only if they change what the reader does.
+- Follow with `## Outcome`: at most five bullets in plain language. For
+  research runs, lead with `value_found` / `no_evidence` counts and the
+  headline finding with units and a linked source. For other posts, such as
+  workflow or instruction edits, lead with the behaviour change and where to
+  review it. Mention blockers only if they change what the reader does.
 - Then a one-line `**Status:**` (`running`, `awaiting decision`, `blocked`,
   `follow-up` or `complete`) and next owner.
 - Link every literature lead's descriptive title or author/year text to its
