@@ -45,6 +45,11 @@ checksum in `notes`. Leave unknown DOI and source URL fields empty; do not put
 private absolute paths or extracted full text in committed CSVs. A successful
 read is not itself verified evidence for a constant.
 
+## Handoff template
+
+`handoff_template.md` defines the two-layer layout for issue comments and PR
+descriptions: a short human brief and a collapsed agent record.
+
 ## Search log fields
 
 | Fields | Meaning |
