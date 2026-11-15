@@ -2,6 +2,7 @@
 
 import csv
 import importlib.util
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -255,3 +256,87 @@ def test_concurrent_snapshots_require_latest_baseline(
         first_log["notes"],
         second_log["notes"],
     ]
+
+
+@pytest.mark.parametrize("overlap", [False, True], ids=["disjoint", "comparison"])
+def test_real_branch_conflicts_reconcile_against_integrated_run(
+    evidence, tmp_path, overlap
+):
+    """Resolve conflicting synthetic Git branches against the integrated snapshot."""
+    row, log, _, _ = evidence
+    repo = tmp_path / "synthetic-repo"
+    repo.mkdir()
+
+    def git(*args, check=True):
+        return subprocess.run(
+            ["git", "-C", str(repo), *args],
+            check=check,
+            capture_output=True,
+            text=True,
+        )
+
+    git("init", "-b", "base")
+    git("config", "user.name", "Synthetic test")
+    git("config", "user.email", "synthetic@example.invalid")
+    values, logs = repo / "values.csv", repo / "log.csv"
+    old_row = {**row, "ve_commit": "historical", "rationale": "Historical result"}
+    old_log = {**log, "ve_commit": "historical", "notes": "Historical log"}
+    write_csv(values, [old_row])
+    write_csv(logs, [old_log])
+    git("add", "values.csv", "log.csv")
+    git("commit", "-m", "Synthetic baseline")
+
+    other_name = NAME if overlap else NAME.replace("c_n_ratio", "c_p_ratio")
+    first = {**row, "rationale": "Run A", "doi": "10.0000/a"}
+    first_log = {**log, "notes": "Run A", "doi": "10.0000/a"}
+    second = {
+        **row,
+        "qualified_name": other_name,
+        "name": other_name.rsplit(".", 1)[-1],
+        "rationale": "Run B",
+        "doi": "10.0000/b",
+    }
+    second_log = {
+        **log,
+        "qualified_name": other_name,
+        "notes": "Run B",
+        "doi": "10.0000/b",
+    }
+    for branch, result, entry in [
+        ("run-a", first, first_log),
+        ("run-b", second, second_log),
+    ]:
+        git("switch", "-c", branch, "base")
+        write_csv(values, [old_row, result])
+        write_csv(logs, [old_log, entry])
+        git("add", "values.csv", "log.csv")
+        git("commit", "-m", f"Synthetic {branch}")
+
+    git("switch", "base")
+    git("merge", "--ff-only", "run-a")
+    baseline_values = tmp_path / "integrated-values.csv"
+    baseline_log = tmp_path / "integrated-log.csv"
+    baseline_values.write_bytes(values.read_bytes())
+    baseline_log.write_bytes(logs.read_bytes())
+    merge = git("merge", "--no-commit", "--no-ff", "run-b", check=False)
+    assert merge.returncode != 0
+    assert set(git("diff", "--name-only", "--diff-filter=U").stdout.splitlines()) == {
+        "values.csv",
+        "log.csv",
+    }
+    write_csv(values, [old_row, first, second])
+    write_csv(logs, [old_log, first_log, second_log])
+    assert (
+        validator.validate_results(
+            values,
+            logs,
+            {other_name},
+            baseline_values=baseline_values,
+            baseline_log=baseline_log,
+        )
+        == 1
+    )
+    git("add", "values.csv", "log.csv")
+    git("commit", "-m", "Resolve synthetic concurrent runs")
+    assert len(validator.read_rows(values)) == 3
+    assert len(validator.read_rows(logs)) == 3
