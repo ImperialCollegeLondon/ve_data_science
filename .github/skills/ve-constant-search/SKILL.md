@@ -40,6 +40,12 @@ setup authorisation, prepare a clean session-isolated clone at the reviewed
 pin in ignored `tmp/` and pass its path with `--ve-root`; otherwise request
 restoration. Check installed source against that clone before continuing.
 
+For concurrent microbial experiments, use the serialized shared-file integration
+contract in `analysis/soil/llm/constant_search_prompt.md` (v10 or its approved
+successor). A proposed contract or passing validation is not human approval.
+Read live decisions at launch and again before PR readiness and integration.
+Do not silently migrate historical rows when the contract changes.
+
 Start with one or a few user-selected configuration constants, identified by
 **qualified_name** (`module.Class.attribute`). If the user names a module,
 class, or parameter family instead, identify matching names and agree on a
