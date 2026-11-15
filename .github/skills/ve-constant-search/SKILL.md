@@ -41,8 +41,10 @@ pin in ignored `tmp/` and pass its path with `--ve-root`; otherwise request
 restoration. Check installed source against that clone before continuing.
 
 For concurrent microbial experiments, use the serialized shared-file integration
-contract in `analysis/soil/llm/constant_search_prompt.md` (v10 or its approved
-successor). A proposed contract or passing validation is not human approval.
+contract in `analysis/soil/llm/constant_search_prompt.md` (v10.1 or its approved
+successor). The user provisionally accepted it, subject to near-future changes;
+it must be integrated before use. This does not approve individual launches or
+research outcomes. A proposed contract or passing validation is not human approval.
 Read live decisions at launch and again before PR readiness and integration.
 Do not silently migrate historical rows when the contract changes.
 

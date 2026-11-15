@@ -11,14 +11,17 @@ contain its task contract in the body and a fully filled launch comment; do not
 leave unresolved placeholders in issue prompts. Read the latest approved
 launch comment and retain earlier decisions and exclusions.
 
-## Microbial pilot concurrency and decision contract (v10)
+## Microbial pilot concurrency and decision contract (v10.1)
 
-This contract is a proposal until a human approves it and it is merged into
-`constant-search-microbial-pilot`. Do not launch an experiment based only on
-an unmerged PR or a proposed issue comment. Read #215, #789, #790, #791, the
-family issue and linked decisions and follow-ups at launch and again before
-claiming PR readiness and before integration. Record links, approval status,
-pilot commit, VE pin, prompt/skill version and the exact decision baseline.
+The user [provisionally accepted this contract](https://github.com/ImperialCollegeLondon/ve_data_science/issues/790#issuecomment-6888410694)
+on 2026-11-15. Its decisions are subject to near-future changes. The contract is
+not integrated until merged into `constant-search-microbial-pilot`; provisional
+acceptance does not approve individual launches or scientific outcomes. Do not
+launch an experiment based only on an unmerged PR or a proposed issue comment.
+Read #215, #789, #790, #791, the family issue and linked decisions and follow-ups
+at launch and again before claiming PR readiness and before integration. Record
+links, approval status, pilot commit, VE pin, prompt/skill version and the exact
+decision baseline.
 If any decision, source pin or shared contract changes, record the old and new
 state, source, affected runs, proposed adjustment, owner, approval status and
 superseded reference in a dated issue comment or PR description. Assess
@@ -28,7 +31,7 @@ migrate historical evidence.
 
 ### Output and integration policy
 
-The proposed smallest compatible policy retains the existing shared soil CSVs
+The provisional policy retains the existing shared soil CSVs
 and serializes integration rather than introducing a new output schema or
 consolidation layout. Independent branches may search concurrently, but their
 shared-file edits will conflict. A human integration owner admits only one
@@ -109,9 +112,10 @@ Use the `ve-constant-search` skill (.github/skills/ve-constant-search/SKILL.md)
 to address GitHub issue #{{ISSUE_NUMBER}}: "{{ISSUE_TITLE}}". Read the issue
 first (`gh issue view {{ISSUE_NUMBER}} --comments`). Follow the skill's workflow
 and rules; this prompt only adds task framing.
-Use the approved microbial pilot concurrency and decision contract above.
-Do not start until that contract and this filled launch comment are approved
-and integrated. Read live upstream decisions at launch and before readiness.
+Use the provisionally accepted microbial pilot concurrency and decision contract
+above, subject to near-future changes.
+Do not start until the contract is integrated and this filled launch comment
+is approved. Read live upstream decisions at launch and before readiness.
 
 ## Target
 - Constant (qualified_name): {{QUALIFIED_NAME}}
@@ -335,3 +339,5 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
   preserve historical evidence, validate new rows and respect app worktree branches.
 - v10 (proposed): register concurrent runs, serialize shared-file integration,
   recheck live decisions and validate against the latest pilot baseline.
+- v10.1: record provisional user acceptance, subject to near-future changes;
+  retain integration and individual approval gates.
