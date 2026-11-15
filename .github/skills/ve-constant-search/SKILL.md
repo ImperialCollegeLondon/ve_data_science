@@ -285,6 +285,16 @@ leads by relevance and feasibility, not citation count. Suggest guesses or
 modelling analogies only as questions for human review; keep them out of
 `value_found` and numeric CSV fields without user approval.
 
+In every issue registration or status update and every PR description, make any
+required user action explicit under `## Needed from the user`. Name the exact
+files or decision needed, affected scope, how to provide them (for example,
+session-readable uploads or a session-accessible folder), and who must act.
+Write `None` when no user action is pending; do not rely on a vague "next step".
+Whenever listing a literature lead, link its descriptive title or author/year
+text to its DOI resolver or canonical source URL. Never leave a DOI or URL
+unlinked; if no stable link is known, state that clearly instead of inventing
+one.
+
 ## 4. Deliver results
 
 Respect structural group constraints: bacterial reproductive allocation and
@@ -365,7 +375,10 @@ constant, identify the best lead and what worked, the blocker and what did not
 work, and the next actionable step and who must take it. Flag approaches
 unlikely to help or likely to be dead ends, with reasons; do not present an
 untried approach as a demonstrated dead end. State when no useful next step is
-known.
+known. Use `## Needed from the user` for required user actions, including the
+specific files or decision, affected groups/parameters and session-accessible
+delivery method. Link every listed literature lead through its DOI or canonical
+source URL.
 
 Report `value_found` and `no_evidence` counts, sources screened and remaining
 coverage limits. Say whether the next action is with the user, the agent after
