@@ -11,6 +11,21 @@ contain its task contract in the body and a fully filled launch comment; do not
 leave unresolved placeholders in issue prompts. Read the latest approved
 launch comment and retain earlier decisions and exclusions.
 
+### Skill and prompt edit jobs
+
+For jobs that change this prompt, the skill or other workflow files (not
+research runs), branch in this order:
+
+1. Fetch and check out the latest pilot:
+   `git fetch origin constant-search-microbial-pilot main`, then start from
+   `origin/constant-search-microbial-pilot`.
+2. Merge `origin/main` into it so workflow edits build on current shared
+   tooling. Stop and ask on conflicts.
+3. Create a new descriptively named branch from that result, open the PR with
+   `--base constant-search-microbial-pilot`, and verify the PR base.
+
+Research runs follow the template's Setup instead and do not merge main.
+
 ## Microbial pilot concurrency and decision contract (v10.1)
 
 The user [provisionally accepted this contract](https://github.com/ImperialCollegeLondon/ve_data_science/issues/790#issuecomment-6888410694)
@@ -351,4 +366,5 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
   criteria or approval gates changed.
 - v10.3: split issue/PR handoffs into a short human brief and a collapsed agent
   record via the skill's `assets/handoff_template.md`; no content requirement
-  dropped and no scientific criteria or approval gates changed.
+  dropped and no scientific criteria or approval gates changed. Skill/prompt
+  edit jobs branch from the pilot after merging main and target the pilot.
