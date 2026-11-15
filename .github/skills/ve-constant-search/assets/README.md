@@ -36,21 +36,20 @@ is also empty. Copy it beside the module results and keep one row per
 search/candidate (or one row for an empty or failed search). Never rewrite a
 historical search log.
 
-For user-supplied PDFs, the agent creates a separate private `pdf_inventory.csv`;
-it is not a required user input and must not be committed. Keep original
-filenames, checksums and verified citation identities there. Follow the skill's
-**Private PDF intake** steps to reconcile any existing source `manifest.csv`
-separately; the private inventory does not replace it. In the research log, use
-`source=user_supplied_pdf`, record the intake date and screening decision, and
-identify the supplied file using a non-sensitive filename or
-checksum in `notes`. Leave unknown DOI and source URL fields empty; do not put
+For user-supplied PDFs, no inventory or manifest is required from the user. When
+saving approved rows, use `source=user_supplied_pdf` in the research log, record
+the intake date and screening decision, and identify the supplied file using a
+non-sensitive filename or checksum in `notes`. `../sources/manifest.csv` is a
+historical record of earlier supplied PDFs; append to it only if the user asks.
+Leave unknown DOI and source URL fields empty; do not put
 private absolute paths or extracted full text in committed CSVs. A successful
 read is not itself verified evidence for a constant.
 
-## Handoff template
+## Card and PDF-list templates
 
-`handoff_template.md` defines the two-layer layout for issue comments and PR
-descriptions: a short human brief and a collapsed agent record.
+`handoff_template.md` defines the two comments the skill maintains, each edited
+in place: one card per issue (status matrix, reading set, next steps and a
+collapsed agent record) and one batch PDF list on the umbrella issue.
 
 ## Search log fields
 
