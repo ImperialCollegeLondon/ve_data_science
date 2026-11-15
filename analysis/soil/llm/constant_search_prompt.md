@@ -48,6 +48,13 @@ research PRs must not change the skill, prompt, inventory or validator.
    comparison/replication intent for overlaps. A run uses its own app-managed
    branch and private files. Use `running`, `awaiting decision`, `blocked`,
    `follow-up` or `complete` honestly; a PR never closes a family or phase.
+   In each registration or status update and PR description, include
+   `## Needed from the user`: list exact files or decisions, affected scope,
+   how the user can provide them accessibly to this session, and who must act.
+   Write `None` when no user action is pending; avoid vague "next step" wording.
+   Link every listed literature lead's descriptive title or author/year to its
+   DOI resolver or canonical source URL. Never leave a DOI or URL unlinked; if
+   no stable link is known, say so rather than inventing one.
 2. With explicit human approval for each research output, append to
    `data/derived/llm/soil_constant_literature_values.csv` and
    `data/derived/llm/soil_constant_search_log.csv`. Put the run ID in each
@@ -88,6 +95,8 @@ research PRs must not change the skill, prompt, inventory or validator.
 
 Each PR must report run identity, decision baseline and drift, outcome counts,
 verified full texts, gaps, best leads, unresolved decisions and next owner/action.
+Link every literature lead's descriptive text to its DOI resolver or canonical
+source URL, and state required user actions under `## Needed from the user`.
 Create or reuse focused follow-ups for human decisions, access, reanalysis or
 workflow defects; link the family, run, PR and #791, state the affected scope,
 decision owner and completion criteria, and link the decision in #215. A
@@ -190,7 +199,11 @@ is approved. Read live upstream decisions at launch and before readiness.
   or per group with `no_evidence`.
 - If values are found: report them as proposals with confidence and limits.
 - If no value is found: per the skill, name the best lead, blocker and next
-  human step for each unresolved group, and post that as a comment on the issue.
+  human step for each unresolved group, link each lead by DOI or canonical
+  source URL, and post that as a comment on the issue. Put any requested user
+  action under `## Needed from the user`; specify the exact material or
+  decision, affected scope, session-accessible delivery method and owner.
+  Write `None` when no user action is pending.
 - Post a comment on issue #{{ISSUE_NUMBER}} with: task summary, findings,
   decision points, and prompt/skill improvement suggestions.
 - Discuss evidence before saving it. Require human approval for output rows.
@@ -238,11 +251,12 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
   6c3132f46e06fa83b9133aa2c4d2adbd60cf21ad, example_microbial_groups.csv uses
   bacteria 0.005, saprotrophic fungi 0.002, AM and ECM 0.0012 day^-1, all at
   12 degrees Celsius. Examples are model context, not empirical estimates.
-  The old issue attributes the earlier default to Fatichi et al. (2019),
-  DOI 10.1029/2018GB006077; verify the original paper before using it as evidence.
+  The old issue attributes the earlier default to [Fatichi et al. (2019), DOI
+  10.1029/2018GB006077](https://doi.org/10.1029/2018GB006077); verify the
+  original paper before using it as evidence.
 - Starting-point references from the issue:
-  https://onlinelibrary.wiley.com/doi/epdf/10.1111/gcb.15550 (their `tau`
-  parameter); https://doi.org/10.1111/ele.70278
+  [Wiley full text for the `tau` parameter](https://onlinelibrary.wiley.com/doi/epdf/10.1111/gcb.15550);
+  [El et al. (2025), DOI 10.1111/ele.70278](https://doi.org/10.1111/ele.70278)
 - Constant-specific hints: not SoilEnzyme.turnover_rate. In the reviewed VE,
   calculate_maintenance_biomass_synthesis applies the rate to microbial biomass
   with an Arrhenius temperature factor. Confirm this in the checked-out version.
@@ -341,3 +355,6 @@ Growth/community turnover is not maintenance turnover; do not use that proxy.
   recheck live decisions and validate against the latest pilot baseline.
 - v10.1: record provisional user acceptance, subject to near-future changes;
   retain integration and individual approval gates.
+- v10.2: make required user actions explicit in issue/PR handoffs and require
+  linked DOI or canonical source URLs for literature leads; no scientific
+  criteria or approval gates changed.
