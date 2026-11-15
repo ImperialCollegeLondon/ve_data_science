@@ -11,7 +11,7 @@ contain its task contract in the body and a fully filled launch comment; do not
 leave unresolved placeholders in issue prompts. Read the latest approved
 launch comment and retain earlier decisions and exclusions.
 
-### Skill and prompt edit jobs
+## Skill and prompt edit jobs
 
 For jobs that change this prompt, the skill or other workflow files (not
 research runs), branch in this order:
