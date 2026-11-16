@@ -6,8 +6,11 @@
 #|     dataset into a long-format tibble. Spatial (x, y) and temporal
 #|     (timestamp) coordinates are joined onto each observation. Optionally,
 #|     timeless initial-state values can be prepended with a time_index of -1.
-#|     Time-varying initial arrays retain their time_index and use the matching
-#|     initial time coordinate, converted to the output timestamp units.
+#|     Time-varying initial arrays retain the init group's time_index and use
+#|     its stored time coordinate, converted to the output timestamp units.
+#|     Indices are local to each group, not a shared simulation timeline.
+#|     Stored timestamps are not corrected for rounding; reconstruct precise
+#|     output times separately from output indices and the configured timing.
 #|     The function is designed for use in downstream visualisation and
 #|     sensitivity analysis workflows.
 #|
@@ -61,13 +64,22 @@
 #'   Variables found only in `"init"` appear only in initial rows.
 #' @param initial Logical. If `TRUE`, initial-state values from the `"init"`
 #'   group are prepended to the output. Timeless arrays use `time_index = -1`
-#'   and `timestamp = -1`; time-varying arrays retain their `time_index` and
-#'   use the corresponding initial time coordinate, converted to the output
-#'   timestamp units.
+#'   and `timestamp = -1`; time-varying arrays retain the init group's
+#'   `time_index` and use its stored time coordinate, converted to the output
+#'   timestamp units. Equal indices in init and outputs need not denote the
+#'   same date.
 #'
 #' @returns A long-format tibble with columns `variable`, `value`, `cell_id`,
 #'   `x`, `y`, `time_index`, and `timestamp`. Additional array dimensions,
 #'   such as `layers`, `element`, and `pft`, are retained when present.
+#'
+#' @details
+#'   This function preserves stored time coordinates; it does not reconstruct
+#'   simulation time or correct rounding in stored timestamps. For precise
+#'   output times, use the output `time_index`, configured update interval,
+#'   and appropriate start-time offset for the output recording convention.
+#'   Do not apply that output-time mapping to time-varying initial inputs:
+#'   their indices refer to their own source time coordinate.
 
 tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
   if (initial && !is.null(variables)) {

@@ -40,7 +40,7 @@ to set expectation on whether these correlations (or covariances) are
 universal or local emergent properties. Jacob helpfully pointed out that
 these correlations are probably non-stationary:
 
-> …these types of validation targets breakdown in extreme scenarios.
+> …these types of validation targets break down in extreme scenarios.
 > e.g. even in the soil temperature microbial activity case (which is a
 > strong correlation as there’s a direct mechanical link) we would
 > expect the correlation to break down in El Niño droughts (because the
@@ -57,11 +57,11 @@ these correlations are probably non-stationary:
 
 I agree, but let’s take a look. The code below is long but basically it:
 
-1. Extract initial and continuous data variables from a VE run
-2. Compute pairwise correlation between variables across grids *for
+1. Extracts initial and continuous data variables from a VE run
+2. Computes pairwise correlation between variables across grids *for
    each time step*
-3. Select the top-10 and bottom-10 pairs by temporal variability in
-   correlation (showing all pairs would give illegible plot)
+3. Selects the top-10 and bottom-10 pairs by temporal variability in
+   correlation (showing all pairs would give an illegible plot)
 
 I opted for Spearman’s correlation because many data variables are
 skewed and fat-tailed. Spearman’s correlation is rank-ordered and less
