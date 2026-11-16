@@ -30,6 +30,21 @@ Or run `renv::restore()`.
 
 Restart your R session afterwards.
 
+## Restoring on CX3
+
+Restore on a compute node, with system development libraries loaded before
+starting R. Missing `nc-config` or `netcdf.h` requires a compatible NetCDF C
+development module. `nloptr` and `RcppParallel` source builds also require CMake.
+Manually downloading R packages does not supply these dependencies.
+
+See the [soil sensitivity restore recipe](../analysis/soil/sensitivity/input_data/README.md#set-up-r-on-cx3)
+for module discovery, build-tool checks, PBS resources, and install concurrency.
+With renv 1.2.3, `options(renv.install.timeout = ...)` sets the worker-phase
+deadline; R's download `timeout` option does not address
+`worker process timed out`. Keep the worker deadline below the PBS walltime.
+Fix root build failures before retrying dependent packages, and preserve the
+lockfile rather than snapshotting an incomplete environment.
+
 ## Notes
 
 - The `pizzarr` package uses r-universe build. I have found that a force rebuild
