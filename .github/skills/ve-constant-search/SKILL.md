@@ -86,13 +86,21 @@ Then update the batch PDF list and give the batch summary.
    PDF from its title page or front matter, never from a DOI in its reference
    list, and match it to the list. Leave files unrenamed, unchanged and outside
    Git. Report unmatched or unreadable files; do not guess.
-3. Read methods, tables and figures; reclassify the waiting cells. Do not
+3. Compare matched PDFs by SHA-256 with `sources/manifest.csv`. If any are
+   missing, ask once per batch whether to add them to this Git-tracked file.
+   Identify the PDFs and explain that it records their original filenames
+   (not paths), hashes, citation metadata and page counts. Only after explicit
+   approval, append one row per new hash using the existing columns, leaving
+   unknown metadata blank and preserving existing rows. If declined, leave the
+   file unchanged and continue. Ask regardless of whether any value rows are
+   proposed; manifest approval does not authorise saving results.
+4. Read methods, tables and figures; reclassify the waiting cells. Do not
    search again unless a full text names a clearly better primary source; then
    add at most that one source.
-4. **Hand off** each issue: set the card status to `handed off` and fill its
+5. **Hand off** each issue: set the card status to `handed off` and fill its
    Next steps. Cells still waiting because no file was supplied become
    `gap (no access)`.
-5. Update the PDF list (remove supplied entries) and give the batch summary.
+6. Update the PDF list (remove supplied entries) and give the batch summary.
 
 ### Next steps (hand-off)
 
@@ -106,9 +114,9 @@ Suggest a follow-up issue only if the user asks.
 
 ## Saving results (optional, end of Phase 3)
 
-Only `value` cells can become CSV rows. List the proposed rows in chat as one
-numbered batch; the user replies, for example, "save 1, 3" or "save none".
-Never write rows without that reply. If approved:
+Only `value` cells can become result CSV rows. List the proposed rows in chat
+as one numbered batch; the user replies, for example, "save 1, 3" or
+"save none". Never write result rows without that reply. If approved:
 
 - Append to `data/derived/llm/<module>_constant_literature_values.csv` and
   `data/derived/llm/<module>_constant_search_log.csv`, using
@@ -118,11 +126,11 @@ Never write rows without that reply. If approved:
 - Open one PR for the batch against `constant-search-microbial-pilot` (or the
   branch the user names), listing the issues it covers.
 
-Without approval nothing is committed; the cards are the deliverable.
+Without result approval, do not write result rows or commit changes.
 
 ## Batch summary (chat)
 
-This is the only thing the user must read. Keep it to one screen:
+Keep the hand-off summary to one screen:
 
 ```markdown
 **Batch #309, #308: search done**
@@ -144,10 +152,11 @@ the card's collapsed agent record.
 
 ## Rules
 
-- Ask the user only when blocked on access or when VE units or functional form
-  are ambiguous. Scientific judgements (proxies, habitat transfer, a unit basis
-  inferred from data, pooling, temperature normalisation, inclusion criteria)
-  become `analysis` cells; do not ask about them mid-batch.
+- Ask the user only when access is blocked, when VE units or functional form
+  are ambiguous, before widening the search budget, or for the approvals
+  described above. Scientific judgements (proxies, habitat transfer, a unit
+  basis inferred from data, pooling, temperature normalisation, inclusion
+  criteria) become `analysis` cells; do not ask about them mid-batch.
 - Evidence is verified full text only: cite the exact sentence or table and
   its page, original value and units, and the conversion to model units.
   Abstracts, model defaults, example inputs and VE docs are never evidence.
@@ -159,8 +168,8 @@ the card's collapsed agent record.
 - A search or access failure is blocked work, never a `gap`.
 - Private PDFs, extracted text, private paths and credentials never enter Git,
   issues or PRs. Quote briefly, and only where retention rights allow.
-- Do not edit this skill, its prompt or the inventory during a batch; list
-  proposed improvements in the batch summary instead.
+- Do not edit this skill, its prompt or the VE usage inventory during a batch;
+  list proposed improvements in the batch summary instead.
 
 ## Tools
 
