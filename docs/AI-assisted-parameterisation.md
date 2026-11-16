@@ -17,7 +17,8 @@ Work in batches of a few issues so each step needs your attention only once:
    issue. It ends with one list of paywalled PDFs for the whole batch, posted
    on the umbrella issue (for soil microbes, #215).
 2. **Fetch.** Download those PDFs in one sitting into a private folder outside
-   Git (or upload them to the session). No renaming or manifest is needed.
+   Git (or upload them to the session). No renaming or hand-written manifest is
+   needed.
 3. **Follow up.** Tell the agent "PDFs ready in `<folder>`". It reads them,
    finishes each card and gives you the next steps per issue. If any values
    are reported directly, it lists them as numbered rows; reply "save 1, 3" or
@@ -228,7 +229,11 @@ session. A new environment or Git checkout does not restore private PDF access.
 
 The agent leaves PDFs unchanged and matches each one to the batch PDF list
 using the paper's front matter, not DOIs in its reference list. Unmatched or
-uncertain files are reported for your review.
+uncertain files are reported for your review. When matched PDFs are not yet in
+the manifest, the agent asks once whether to add them to the Git-tracked
+`.github/skills/ve-constant-search/sources/manifest.csv`. It records original
+filenames, hashes, citation metadata and page counts. This choice is separate
+from saving result rows.
 
 PDFs, extracted full text and private absolute paths must
 not be staged, committed, pushed or published in issue/PR comments. Research
