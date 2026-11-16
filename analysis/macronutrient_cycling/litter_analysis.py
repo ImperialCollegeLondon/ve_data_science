@@ -64,19 +64,26 @@ INPUT_POOLS = [
     "litter_pool_below_metabolic_cnp",
     "litter_pool_below_structural_cnp",
 ]
-# Flows that are first generated on model initialisation
-FLOW_GENERATED_ON_INIT = [
-    "stem_turnover_cnp",
-    "root_turnover_cnp",
-    "foliage_turnover_cnp",
-    "subcanopy_vegetation_litter_cnp",
-    "subcanopy_seedbank_litter_cnp",
+
+# Flows driven by animal consumption of litter
+ANIMAL_LITTER_CONSUMPTION = [
     "litter_consumed_above_metabolic_cnp",
     "litter_consumed_above_structural_cnp",
     "litter_consumed_woody_cnp",
     "litter_consumed_below_metabolic_cnp",
     "litter_consumed_below_structural_cnp",
 ]
+
+# Flows that are first generated on model initialisation
+FLOW_GENERATED_ON_INIT = [
+    *ANIMAL_LITTER_CONSUMPTION,
+    "stem_turnover_cnp",
+    "root_turnover_cnp",
+    "foliage_turnover_cnp",
+    "subcanopy_vegetation_litter_cnp",
+    "subcanopy_seedbank_litter_cnp",
+]
+
 # Flows that are first generated on model update
 FLOW_GENERATED_ON_UPDATE = [
     "herbivory_waste_above_cnp",
@@ -104,7 +111,8 @@ def load_litter_nodes(
     Returns:
         An xarray Dataset containing variables corresponding to each node of the
         litter macronutrient cycles. These consist both of the litter pool
-        stocks as well as the
+        stocks, the respiration by litter layer and the flows to and from other
+        models.
 
     """
     with (
@@ -121,6 +129,38 @@ def load_litter_nodes(
         litter_nodes = xr.concat([initial_nodes, continuous_nodes], dim="time_index")
 
         # All these nodes are by definition nodes
-        litter_nodes = litter_nodes.assign_coords(category="node")
+        for var in litter_nodes.data_vars:
+            litter_nodes[var].attrs["category"] = "node"
 
         return litter_nodes
+
+
+def define_litter_consumption_flows(litter_cycles: xr.Dataset) -> xr.Dataset:
+    """Add animal consumption flows to the litter data.
+
+    This function is straightforward as litter consumption flow are explicitly
+    linked to specific litter pools, and the entire process happens within a
+    time step.
+
+    Args:
+        litter_cycles: Data structure containing the macronutrient cycles within
+            the litter model.
+
+    Returns:
+        The data array containing the litter model macronutrient cycles with the
+        animal consumption links populated.
+
+    """
+
+    for animal_consumption in ANIMAL_LITTER_CONSUMPTION:
+        # Find corresponding litter pool
+        pool_name = animal_consumption.replace("consumed", "pool")
+
+        # From this construct the flow variable name
+        flow_variable = f"{pool_name}_→_{animal_consumption}"
+
+        # Add the consumption flow as a flow variable
+        litter_cycles[flow_variable] = litter_cycles[animal_consumption]
+        litter_cycles.attrs["category"] = "link"
+
+    return litter_cycles
