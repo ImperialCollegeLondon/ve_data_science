@@ -1,6 +1,6 @@
 ---
 name: ve-constant-search
-description: Batch literature search for Virtual Ecosystem (VE) configuration constants. Narrows each constant to a short, verified reading set, collects paywalled PDFs into one batch list, follows up once PDFs are supplied, then hands off with next steps. Use for parameter literature searches across one or several issues.
+description: Search Virtual Ecosystem (VE) configuration constants, follow up supplied PDFs and reconcile issue status. Use for parameter literature searches, PDF follow-ups or refreshing their issue cards and umbrella index.
 ---
 
 # VE constant search
@@ -15,14 +15,15 @@ User setup (environment, OpenAlex key, private PDFs) is in
 
 ## The batch workflow
 
-The user works in batches. Each phase covers every issue in the batch in one
-session and ends with **one short batch summary** in chat.
+The user works in batches. Each phase covers every issue in the batch when
+access permits and ends with **one short batch summary** in chat. Checkpoint
+unfinished work and report blockers rather than claiming completion.
 
 | Phase | User says | Agent does | Ends with |
 | --- | --- | --- | --- |
 | 1. Search | "Search #309 #308" (or qualified names) | Ground, search, screen, read open-access full text | Cards updated; one batch PDF list |
 | 2. Fetch | (human only) | Nothing | PDFs saved in one private folder |
-| 3. Follow up | "PDFs are ready in `<folder>`" | Match PDFs to waiting issues, read them, finish each card | Cards `handed off`; batch next steps |
+| 3. Follow up | "PDFs are ready in `<folder>`" | Match PDFs to issues, checkpoint receipt, then review | Cards handed off or explicitly pending; batch next steps |
 
 A batch is small: about 2–5 issues. Do not expand scope beyond the named
 issues or constants. If the user names a module or class, agree on a few
@@ -37,6 +38,9 @@ Find it by its `<!-- ve-constant-search:card -->` marker. Never post a second
 status comment; GitHub keeps the edit history. Do not register runs, write
 drift analyses or post progress comments.
 
+Use this skill for current workflow mechanics when an older issue launch prompt
+conflicts. Preserve issue-specific evidence criteria and human decisions.
+
 The card's centre is a **status matrix**: one row per group (one row if the
 constant is not group-specific), one column per constant. Each cell is one of:
 
@@ -44,14 +48,43 @@ constant is not group-specific), one column per constant. Each cell is one of:
 | --- | --- |
 | `value` | Verified full text reports it directly; at most a unit conversion is needed |
 | `analysis` | A relevant source exists, but a human must judge or analyse (state what) |
-| `waiting PDF` | The best source is not accessible; it is on the batch PDF list |
+| `review pending` | A needed PDF was received and identified but not scientifically reviewed |
+| `waiting PDF` | A needed source is not accessible; it is on the shared PDF list |
 | `gap` | No eligible source within this search's budget |
+| `gap (no access)` | The user chose to finish without an inaccessible source; not evidence of absence |
 | `n/a` | Structurally zero or not applicable in VE source |
 
-The batch PDF list is one comment on the umbrella issue the user names (for
-soil microbes, #215), marked `<!-- ve-constant-search:pdf-list -->` and edited
-in place each batch. It is derived from the cards' `waiting PDF` sources,
-deduplicated, with the issues that need each PDF. It is also shown in chat.
+Use card status `searching` during discovery; otherwise use `review pending`
+while any needed received source still needs review, `waiting for PDFs` when
+only unavailable sources remain, and `handed off` only when neither remains.
+Label each needed source in the reading set `review pending` or `waiting PDF`
+as appropriate. If a cell has both, show `review pending` and retain the
+missing source on the PDF list. Receipt is not verified evidence; recheck
+private-file access when resuming a later session.
+
+The shared PDF list is one comment on the umbrella issue the user names (for
+soil microbes, #215), marked `<!-- ve-constant-search:pdf-list -->`. Derive it
+from the cards' source-level `waiting PDF` labels, deduplicated with the
+issues that still need each PDF. Show the current batch's requests in chat.
+
+### Reconcile issue state
+
+After each card change, update the affected issue/source pairs in the shared
+PDF list and the corresponding rows of any maintained umbrella readiness
+index. Preserve outstanding pairs from other batches, including other issues
+needing the same paper. Edit identifiable workflow-owned current status
+summaries in place; for an older conflicting workflow status comment, add a
+supersession pointer to the current card only when its origin and edit
+permission are clear. Preserve historical evidence, other people's comments
+and human decisions. Report stale links that cannot safely be edited.
+
+When agents run concurrently, only the coordinator edits shared cards, list
+and index, serially. Re-read their live content and human replies before
+editing; reconcile concurrent changes instead of overwriting them. Before
+reporting a phase complete or blocked, re-read the affected cards, list and
+index. Check source labels against actual receipt and review, issue/source
+pairs against the list, and index counts against the matrices. Report any
+failed update and its link rather than claiming the issues are refreshed.
 
 ## Phase 1: Search
 
@@ -68,39 +101,60 @@ For each issue in the batch:
 4. **Read open-access full text** ([download](#open-access-pdfs)) and
    classify each matrix cell.
 5. **Choose the reading set**: at most **five** sources per issue, ranked by
-   relevance and feasibility, not citation count. A reading-set source without
-   accessible full text makes its cells `waiting PDF`.
+   relevance and feasibility, not citation count. Label a needed source
+   without accessible full text `waiting PDF` and classify its cells as above.
 6. **Write or update the card.**
 
 Budget per issue: 3–6 distinct queries and at most one snowball round
 (`--limit 6`) on the best seed. Stop early when the reading set is clear. Ask
 before widening the budget.
 
-Then update the batch PDF list and give the batch summary.
+Then reconcile issue state and give the batch summary.
 
 ## Phase 3: Follow up
 
-1. Find waiting issues from the PDF-list comment (or the issues the user
-   names). Re-read each card and any human replies after it.
+1. Find the named issues from their cards or the umbrella's PDF list and
+   readiness index. If an umbrella is named, inspect its linked family cards
+   for `waiting PDF` and `review pending` even if the index or list is stale.
+   Follow up the user-selected scope or supplied sources, without starting
+   unrelated searches. Re-read each card and any human replies after it.
 2. Check that the folder or uploads are readable in this session. Identify each
    PDF from its title page or front matter, never from a DOI in its reference
-   list, and match it to the list. Leave files unrenamed, unchanged and outside
-   Git. Report unmatched or unreadable files; do not guess.
-3. Compare matched PDFs by SHA-256 with `sources/manifest.csv`. If any are
+   list, and match it to the relevant cards. Leave files unrenamed, unchanged
+   and outside Git. Report unmatched or unreadable files; do not guess. If a
+   previously received, unreviewed PDF is no longer readable, mark its source
+   `waiting PDF`, update affected cells and restore its issue/source pair to
+   the list.
+3. Before asking for manifest approval or reading the papers, checkpoint each
+   matched, unreviewed source and its unresolved cells as `review pending` in
+   the existing card, replacing its `waiting PDF` label. Preserve assessed
+   results and human decisions. Keep missing sources `waiting PDF`, then
+   reconcile the shared list and umbrella index. This checkpoint is not a
+   scientific assessment or hand-off.
+4. Compare matched PDFs by SHA-256 with `sources/manifest.csv`. If any are
    missing, ask once per batch whether to add them to this Git-tracked file.
    Identify the PDFs and explain that it records their original filenames
    (not paths), hashes, citation metadata and page counts. Only after explicit
    approval, append one row per new hash using the existing columns, leaving
    unknown metadata blank and preserving existing rows. If declined, leave the
    file unchanged and continue. Ask regardless of whether any value rows are
-   proposed; manifest approval does not authorise saving results.
-4. Read methods, tables and figures; reclassify the waiting cells. Do not
-   search again unless a full text names a clearly better primary source; then
-   add at most that one source.
-5. **Hand off** each issue: set the card status to `handed off` and fill its
-   Next steps. Cells still waiting because no file was supplied become
-   `gap (no access)`.
-6. Update the PDF list (remove supplied entries) and give the batch summary.
+   proposed; manifest approval does not authorise saving results or end the
+   follow-up. Report whether an update is uncommitted, committed locally or
+   pushed, including the branch when pushed; verify before claiming either.
+5. Read methods, tables and figures. Remove `review pending` from each
+   assessed source, reclassify the affected cells and reconcile each card as
+   its review finishes. Do not search again unless a full text names a clearly
+   better primary source; then add at most that one source. If a matched PDF
+   cannot be read sufficiently, mark its source `waiting PDF`, restore its
+   issue/source pair to the list and report the need for a readable copy or
+   OCR; do not treat the failure as an evidence gap.
+6. If the user explicitly chooses to finish without an inaccessible source,
+   remove that issue/source pair from the list. Use `gap (no access)` only for
+   cells with no supported result or remaining source to review; preserve
+   results supported by other sources. Keep other missing sources `waiting PDF`
+   and unfinished reviews `review pending`. **Hand off** an issue only when
+   every needed source has been reviewed or explicitly waived; fill its Next
+   steps. Reconcile and verify issue state, then give the batch summary.
 
 ### Next steps (hand-off)
 
@@ -135,9 +189,9 @@ Keep the hand-off summary to one screen:
 ```markdown
 **Batch #309, #308: search done**
 
-| Issue | value | analysis | waiting PDF | gap |
-| --- | --- | --- | --- | --- |
-| #309 Microbial stoichiometry | 0 | 2 | 4 | 2 |
+| Issue | value | analysis | review pending | waiting PDF | gap |
+| --- | --- | --- | --- | --- | --- |
+| #309 Microbial stoichiometry | 0 | 2 | 0 | 4 | 2 |
 
 **PDFs to fetch (3).** Save them in one private folder, then say "PDFs ready".
 
@@ -145,10 +199,10 @@ Keep the hand-off summary to one screen:
 2. ...
 ```
 
-In Phase 3, replace the PDF list with **Next steps** per issue and, if any, the
-numbered rows proposed for saving. Link every source title to its DOI or
-canonical URL. Leave run details, commits, queries and process narration in
-the card's collapsed agent record.
+In Phase 3, report **Next steps** per issue, remaining PDF requests, and, if
+any, the numbered rows proposed for saving. Link every source title to its DOI
+or canonical URL. Leave run details, commits, queries and process narration
+in the card's collapsed agent record.
 
 ## Rules
 
@@ -165,7 +219,8 @@ the card's collapsed agent record.
   mycorrhiza, ectomycorrhiza. `SoilEnzyme`: each bacterial/fungal and POM/MAOM
   combination. Fruiting bodies are not vegetative biomass. Maintenance biomass
   loss is not growth turnover or maintenance respiration.
-- A search or access failure is blocked work, never a `gap`.
+- A search or access failure is blocked work, not evidence of absence. Use
+  `gap (no access)` only when the user explicitly closes the affected scope.
 - Private PDFs, extracted text, private paths and credentials never enter Git,
   issues or PRs. Quote briefly, and only where retention rights allow.
 - Do not edit this skill, its prompt or the VE usage inventory during a batch;

@@ -23,9 +23,11 @@ example value or abstract as empirical evidence.
 ## Follow up on PDFs
 
 ```text
-Use the ve-constant-search skill to follow up the waiting issues in the batch.
-The PDFs are available in my uploaded files or the private folder I provide.
-Update the cards and give me one short summary of the next steps.
+Use the ve-constant-search skill to follow up issues waiting for PDFs or
+full-text review in the batch. The PDFs are available in my uploaded files
+or the private folder I provide. Reconcile the cards, PDF list and affected
+umbrella readiness index, and give me one short summary of the next steps
+and any unfinished reviews.
 ```
 
 The folder must be readable by the agent's session. Match files by their front
@@ -38,9 +40,10 @@ permission to perform that work or save a value.
 The user may ask independent agents to work concurrently. Assign each an
 explicit, non-overlapping issue scope unless the user requests a comparison.
 Each agent returns its findings to a coordinator; only the coordinator edits
-the shared issue cards and batch PDF list, serially, after rereading the latest
-versions and human replies. Do not overwrite another agent's results or a
-human decision. Search agents do not edit the skill, prompt or inventory.
+the shared issue cards, PDF list and umbrella readiness index, serially, after
+rereading the latest versions and human replies. Do not overwrite another
+agent's results or a human decision. Search agents do not edit the skill,
+prompt or inventory.
 
 Saving results is optional and requires the user's approval of the exact rows.
 Use one PR for an approved batch, not one per search. Before preparing or
@@ -65,6 +68,6 @@ the latest pilot and `main`, start from the pilot, and merge `origin/main` befor
 branching. Resolve conflicts with the user. Open the workflow PR against
 `constant-search-microbial-pilot` and verify its base.
 
-Earlier launch prompts and concurrency decisions remain historical records in
-the issues and Git history. Do not treat this draft workflow as integrated
-until its pilot PR is approved and merged.
+PR #798 integrated the batch workflow. Earlier launch prompts and concurrency
+decisions remain historical records; use the current skill for workflow
+mechanics while preserving issue-specific criteria and human decisions.

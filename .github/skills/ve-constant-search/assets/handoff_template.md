@@ -6,9 +6,9 @@ A human should take in either one in under a minute.
 
 ## Issue card
 
-One per issue. Status is `searching`, `waiting for PDFs` or `handed off`. Keep
-the visible part to the matrix, the reading set and (when handed off) the next
-steps. Everything else goes in the collapsed agent record.
+One per issue. Status is `searching`, `review pending`, `waiting for PDFs` or
+`handed off`. Keep the visible part to the matrix, the reading set and (when
+handed off) the next steps. Everything else goes in the collapsed agent record.
 
 ```markdown
 <!-- ve-constant-search:card -->
@@ -44,17 +44,21 @@ _Filled when handed off: one line per `analysis` cell (human task + source), bes
 
 Rules:
 
-- Matrix cells use only `value`, `analysis`, `waiting PDF`, `gap`,
-  `gap (no access)` or `n/a`. A `value` cell may add the converted value and
-  units, e.g. `value: 3.9 g/g`.
+- Matrix cells use only `value`, `analysis`, `review pending`, `waiting PDF`,
+  `gap`, `gap (no access)` or `n/a`. A `value` cell may add the converted
+  value and units, e.g. `value: 3.9 g/g`. Receipt alone is `review pending`,
+  not verified evidence; a later session must recheck private-file access.
 - At most five reading-set sources. Link each title to its DOI or canonical URL.
+- Label needed sources `review pending` or `waiting PDF`. If a cell has both,
+  show `review pending`; the PDF list still includes its missing sources.
 - No run IDs, commits, query lists or drift notes in the visible part.
 - Human replies after the card are inputs for the next phase.
 
 ## Batch PDF list
 
-One per umbrella issue, replaced each batch. Lists only sources whose full text
-the agent could not access, deduplicated across issues.
+One per umbrella issue, edited in place. List only needed sources whose full
+text is unavailable, deduplicated across issues; preserve outstanding
+issue/source pairs from other batches.
 
 ```markdown
 <!-- ve-constant-search:pdf-list -->
