@@ -20,23 +20,29 @@ Work in batches of a few issues so each step needs your attention only once:
    Git (or upload them to the session). No renaming or hand-written manifest is
    needed.
 3. **Follow up.** Tell the agent "PDFs ready in `<folder>`". It reads them,
-   finishes each card and gives you the next steps per issue. If any values
-   are reported directly, it lists them as numbered rows; reply "save 1, 3" or
-   "save none".
+   updates the cards and umbrella readiness index, and gives you the next
+   steps per issue. If any values are reported directly, it lists them as
+   numbered rows; reply "save 1, 3" or "save none".
 
 Each issue card is a single comment, edited in place. Its status matrix shows
 every constant and group as `value`, `analysis` (you need to judge or analyse
-something), `waiting PDF`, `gap` or `n/a`. Read the card, not the comment
-history. Reply under the card to give decisions or extra sources for the next
-phase.
+something), `review pending`, `waiting PDF`, `gap`, `gap (no access)` or
+`n/a`. `review pending` means a PDF was received but not yet assessed, not
+that it supports a value. A later session must recheck access to private
+files. Missing PDFs remain on the shared list until supplied or you choose to
+finish without them. Read the card, not the comment history; reply under it
+to give decisions or extra sources for the next phase.
 
 ```mermaid
 flowchart LR
     A[Search batch] --> B[Cards + one PDF list]
     B --> C[You fetch PDFs]
     C --> D[Follow up batch]
-    D --> E[Cards handed off + next steps]
-    E --> F{Rows to save?}
+    D --> E{Sources reviewed or waived?}
+    E -- no --> I[Review pending or waiting for PDFs]
+    I --> D
+    E -- yes --> J[Cards handed off + next steps]
+    J --> F{Rows to save?}
     F -- "save n" --> G[Append CSV, validate, one PR]
     F -- none --> H[Done: you continue the analysis]
 ```
