@@ -8,11 +8,15 @@ on:
       - 'pyproject.toml'
       - 'uv.lock'
       - '.python-version'
+      - 'renv.lock'
+      - 'renv/activate.R'
+      - 'renv/settings.json'
+      - '.Rprofile'
 
 jobs:
   copilot-setup-steps:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 59
     permissions:
       contents: read
     steps:
@@ -71,4 +75,64 @@ jobs:
           if digests(installed) != digests(source):
               raise ValueError("Installed VE does not match the pinned source")
           '
-          echo "Prepared pinned VE source at $ve_commit"
+          echo "Prepared VE $ve_version source at ${tags[0]} ($(git -C "$ve_root" rev-parse HEAD))"
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - name: Install system dependencies for R packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            gdal-bin \
+            libabsl-dev \
+            libclang-dev \
+            libcurl4-openssl-dev \
+            libfftw3-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libgdal-dev \
+            libgeos-dev \
+            libicu-dev \
+            libnetcdf-dev \
+            libnode-dev \
+            libpng-dev \
+            libproj-dev \
+            libssl-dev \
+            libtbb-dev \
+            libudunits2-dev \
+            libx11-dev \
+            libzmq3-dev \
+            make \
+            pandoc
+
+      - name: Restore locked R dependencies
+        uses: r-lib/actions/setup-renv@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2
+        with:
+          cache-version: 1
+        env:
+          RENV_INSTALL_TEST_LOAD: 'FALSE'
+
+      - name: Configure reticulate Python
+        run:
+          echo "RETICULATE_PYTHON=$GITHUB_WORKSPACE/.venv/bin/python" >>
+          "$GITHUB_ENV"
+
+      - name: Verify R and Python integration
+        shell: Rscript {0}
+        run: |
+          print(R.version.string)
+          for (package in c("here", "testthat", "reticulate")) {
+            if (!requireNamespace(package, quietly = TRUE)) {
+              stop("Missing R package: ", package)
+            }
+          }
+          python <- reticulate::py_config()$python
+          stopifnot(
+            normalizePath(python) ==
+              normalizePath(Sys.getenv("RETICULATE_PYTHON"))
+          )
