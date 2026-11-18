@@ -1,12 +1,13 @@
 """
 ---
-title: Analyse litter stocks and flows.
+title: Build a litter macronutrient network.
 
 description: |
   Load carbon, nitrogen, and phosphorus litter stocks and flows from Virtual
-  Ecosystem simulation output. Partition litter inputs into metabolic and
-  structural pools, derive decay, mineralisation, and respiration losses from
-  stock balances, and compare calculated rates with recorded outputs.
+  Ecosystem simulation output. Partition plant and herbivore matter inputs into
+  metabolic and structural litter pools, derive litter decay,
+  mineralisation, and respiration losses from stock balances, and combine the
+  stocks and links into one xarray network Dataset.
 
 virtual_ecosystem_module: Litter
 
@@ -16,41 +17,34 @@ status: wip
 
 input_files:
   - name: Virtual Ecosystem simulation output
-    path: model_data.nc in the simulation output directory
+    path: NetCDF file supplied to generate_litter_network
     description: |
-      Simulation output with litter stocks and flows in its outputs group and
-      litter input lignin variables in its init and outputs groups.
-  - name: Compiled simulation configuration
-    path: compiled_configuration.toml in the simulation output directory
+      Simulation data from the inputs, init, and outputs NetCDF groups.
+      It provides litter pool stocks, litter input flows, lignin proportions,
+      animal consumption flows, and litter mineralisation and respiration nodes.
+  - name: Litter and core configurations
+    path: LitterConfiguration and CoreConfiguration objects
     description: |
-      Simulation configuration used for grid cell area, update interval, and
-      litter-process parameters.
+      Litter constants control pool splitting and carbon use efficiency.
+      Core grid configuration provides cell area for stock-balance calculations.
 
 output_files: []
 
 imported_files: []
 
 package_dependencies:
-  - matplotlib
-  - numpy
-  - pint
   - pathlib
   - virtual-ecosystem
   - xarray
 
 usage_notes: |
-  Call analyse_litter with the simulation output directory and its compiled
-  configuration to receive stocks, flows, and derived diagnostics in an
-  xarray Dataset. The plotting helper compares stock-balance expected outflows
-  with mapped outgoing flows for all litter pools or one selected pool at a
-  timestep. Analysis variables include a source dimension: values read from
-  the output are labelled simulation_output, while calculated values,
-  including litter-pool splits from Virtual Ecosystem functions, are labelled
-  inferred.
+  Call generate_litter_network with the simulation NetCDF path and the litter
+  and core configuration objects to return the complete litter macronutrient
+  network. The result marks litter stocks and recorded flows as nodes and
+  inferred plant-input splits, animal consumption flows, decay losses,
+  mineralisation, and respiration as links.
 ---
 """  # noqa: D212, D205
-
-# TODO - ONCE I'M DONE ASK COPILOT TO UPDATE THE ABOVE BASED ON THE UPDATED CODE
 
 from pathlib import Path
 
