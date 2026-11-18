@@ -55,6 +55,11 @@ usage_notes: |
 from pathlib import Path
 
 import xarray as xr
+from virtual_ecosystem.models.litter.inputs import (
+    find_nutrient_split_between_litter_pools,
+    split_pool_into_metabolic_and_structural_litter,
+)
+from virtual_ecosystem.models.litter.model_config import LitterConstants
 
 # Litter pools specified in input data
 INPUT_POOLS = [
@@ -74,20 +79,64 @@ ANIMAL_LITTER_CONSUMPTION = [
     "litter_consumed_below_structural_cnp",
 ]
 
+PLANT_INPUTS = [
+    {"name": "stem_turnover_cnp", "strata": None, "lignin": None},
+    {
+        "name": "root_turnover_cnp",
+        "strata": "below",
+        "lignin": {"variable_name": "root_lignin", "source": "init"},
+    },
+    {
+        "name": "foliage_turnover_cnp",
+        "strata": "above",
+        "lignin": {"variable_name": "senesced_leaf_lignin", "source": "init"},
+    },
+    {
+        "name": "subcanopy_vegetation_litter_cnp",
+        "strata": "above",
+        "lignin": {
+            "variable_name": "subcanopy_vegetation_litter_lignin",
+            "source": "init",
+        },
+    },
+    {
+        "name": "subcanopy_seedbank_litter_cnp",
+        "strata": "above",
+        "lignin": {
+            "variable_name": "subcanopy_seedbank_litter_lignin",
+            "source": "init",
+        },
+    },
+]
+
 # Flows that are first generated on model initialisation
 FLOW_GENERATED_ON_INIT = [
     *ANIMAL_LITTER_CONSUMPTION,
-    "stem_turnover_cnp",
-    "root_turnover_cnp",
-    "foliage_turnover_cnp",
-    "subcanopy_vegetation_litter_cnp",
-    "subcanopy_seedbank_litter_cnp",
+    *[input["name"] for input in PLANT_INPUTS],
 ]
 
+# Flows from plant matter inputs due to herbivory
+HERBIVORE_INPUTS = [
+    {
+        "name": "herbivory_waste_above_cnp",
+        "strata": "above",
+        "lignin": {
+            "variable_name": "herbivory_waste_above_lignin",
+            "source": "outputs",
+        },
+    },
+    {
+        "name": "herbivory_waste_below_cnp",
+        "strata": "below",
+        "lignin": {
+            "variable_name": "herbivory_waste_below_lignin",
+            "source": "outputs",
+        },
+    },
+]
 # Flows that are first generated on model update
 FLOW_GENERATED_ON_UPDATE = [
-    "herbivory_waste_above_cnp",
-    "herbivory_waste_below_cnp",
+    *[input["name"] for input in HERBIVORE_INPUTS],
     "litter_mineralisation_rate_cnp",
     "above_ground_litter_respiration",
     "below_ground_litter_respiration",
@@ -136,9 +185,9 @@ def load_litter_nodes(
 
 
 def define_litter_consumption_flows(litter_cycles: xr.Dataset) -> xr.Dataset:
-    """Add animal consumption flows to the litter data.
+    """Add animal consumption flows as links in the litter cycle data.
 
-    This function is straightforward as litter consumption flow are explicitly
+    This function is straightforward as litter consumption flows are explicitly
     linked to specific litter pools, and the entire process happens within a
     time step.
 
@@ -161,6 +210,134 @@ def define_litter_consumption_flows(litter_cycles: xr.Dataset) -> xr.Dataset:
 
         # Add the consumption flow as a flow variable
         litter_cycles[flow_variable] = litter_cycles[animal_consumption]
-        litter_cycles.attrs["category"] = "link"
+        litter_cycles[flow_variable].attrs["category"] = "link"
+
+    return litter_cycles
+
+
+def define_plant_matter_input_flows(
+    litter_cycles: xr.Dataset, litter_constants: LitterConstants, model_data_path: Path
+) -> xr.Dataset:
+    """Add plant matter input flows as links in the litter cycle data.
+
+    This function has to calculate how plant input flows are split between
+    litter pools. The only input this doesn't need to be done for is the dead
+    wood inputs. These calculations are performed by importing the relevant
+    functionality from `virtual_ecosystem`.
+
+    Args:
+        litter_cycles: Data structure containing the macronutrient cycles within
+            the litter model.
+        litter_constants: Set of constants used by the litter model.
+        model_data_path: Path to simulation's netcdf output file.
+
+    Returns:
+        The data array containing the litter model macronutrient cycles with the
+        plant matter input links populated.
+
+    """
+
+    # Wood input needs special handling as it only flows to a single pool
+    wood_input = "stem_turnover_cnp"
+    wood_flow_variable = f"{wood_input}_→_litter_pool_woody_cnp"
+    litter_cycles[wood_flow_variable] = litter_cycles[wood_input]
+    litter_cycles[wood_flow_variable].attrs["category"] = "link"
+
+    # As wood has already been handled it is removed from the list of input
+    # streams
+    input_streams = [
+        item for item in PLANT_INPUTS + HERBIVORE_INPUTS if item["name"] != wood_input
+    ]
+    for input_stream in input_streams:
+        # Need to find lignin proportion of the input as this effects the split
+        # between pools
+        lignin_proportion = xr.open_dataset(
+            model_data_path, group=input_stream["lignin"]["source"]
+        )[input_stream["lignin"]["variable_name"]]
+
+        # The lignin proportions of the herbivore consumption inputs vary over
+        # time, but lack a value for the initial timestep (time_index = -1). We
+        # therefore reindex to add NaN values for the initial timestep, so that
+        # the lengths of the different variables match.
+        if input_stream["lignin"]["source"] == "outputs":
+            lignin_proportion = lignin_proportion.reindex(
+                time_index=[-1, *lignin_proportion.time_index.values]
+            )
+
+        # Store input stream name as a variable as it gets reused
+        input_stream_name = input_stream["name"]
+
+        # Some inputs have a pft dimension which the litter model sums over
+        if "pft" in litter_cycles[input_stream_name].dims:
+            input_masses = litter_cycles[input_stream_name].sum(dim="pft")
+        else:
+            input_masses = litter_cycles[input_stream_name]
+
+        # Fraction of input that goes to the metabolic pool can now be found
+        metabolic_fraction = split_pool_into_metabolic_and_structural_litter(
+            input_masses=input_masses,
+            lignin_proportion=lignin_proportion.to_numpy(),
+            max_metabolic_fraction=litter_constants.max_metabolic_fraction_of_input,
+            split_sensitivity_nitrogen=litter_constants.metabolic_split_nitrogen_sensitivity,
+            split_sensitivity_phosphorus=litter_constants.metabolic_split_phosphorus_sensitivity,
+        )
+
+        # Split input masses by element
+        total_carbon_input = input_masses.sel(element="C")
+        total_nitrogen_input = input_masses.sel(element="N")
+        total_phosphorus_input = input_masses.sel(element="P")
+
+        # And from this the split of nitrogen and phosphorus between pools
+        metabolic_nitrogen, structural_nitrogen = (
+            find_nutrient_split_between_litter_pools(
+                input_carbon_rate=total_carbon_input,
+                input_nutrient_rate=total_nitrogen_input,
+                metabolic_split=metabolic_fraction,
+                meta_to_struct_nutrient_ratio=litter_constants.metabolic_to_structural_n_ratio,
+            )
+        )
+
+        metabolic_phosphorus, structural_phosphorus = (
+            find_nutrient_split_between_litter_pools(
+                input_carbon_rate=total_carbon_input,
+                input_nutrient_rate=total_phosphorus_input,
+                metabolic_split=metabolic_fraction,
+                meta_to_struct_nutrient_ratio=litter_constants.metabolic_to_structural_p_ratio,
+            )
+        )
+
+        # Make variable names for the link variables
+        strata = input_stream["strata"]
+        meta_flow_variable = f"{input_stream_name}_→_litter_pool_{strata}_metabolic_cnp"
+        struct_flow_variable = (
+            f"{input_stream_name}_→_litter_pool_{strata}_structural_cnp"
+        )
+
+        litter_cycles[meta_flow_variable] = xr.concat(
+            [
+                metabolic_fraction * total_carbon_input,
+                metabolic_nitrogen,
+                metabolic_phosphorus,
+            ],
+            dim=xr.IndexVariable("element", ["C", "N", "P"]),
+        )
+        litter_cycles[meta_flow_variable].attrs["category"] = "link"
+        litter_cycles[meta_flow_variable].attrs["description"] = (
+            f"C, N and P flow from {input_stream_name} to the {strata} metabolic litter"
+            " pool"
+        )
+        litter_cycles[struct_flow_variable] = xr.concat(
+            [
+                (1 - metabolic_fraction) * total_carbon_input,
+                structural_nitrogen,
+                structural_phosphorus,
+            ],
+            dim=xr.IndexVariable("element", ["C", "N", "P"]),
+        )
+        litter_cycles[struct_flow_variable].attrs["category"] = "link"
+        litter_cycles[struct_flow_variable].attrs["description"] = (
+            f"C, N and P flow from {input_stream_name} to the {strata} structural "
+            "litter pool"
+        )
 
     return litter_cycles
