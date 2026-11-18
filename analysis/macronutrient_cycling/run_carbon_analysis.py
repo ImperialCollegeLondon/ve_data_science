@@ -45,93 +45,39 @@ usage_notes: |
   --simulation-output /path/to/simulation/output --time-index -1
   Use --node to plot one litter pool instead of all pools. The output image is
   saved as litter_outflows.png in the supplied simulation output directory.
+  The analysis dataset includes a source dimension distinguishing simulation
+  output from inferred quantities, including litter-pool splits calculated
+  with Virtual Ecosystem functions.
 ---
 """  # noqa: D212, D205
 
 from __future__ import annotations
 
-import argparse
-import tomllib
 from pathlib import Path
-from typing import Any
 
-from analyse_litter import (
-    LITTER_STOCKS,
-    analyse_litter,
-    plot_expected_vs_actual_node_outflows,
+from litter_analysis import generate_litter_network
+from virtual_ecosystem.core.config_builder import (
+    ConfigurationLoader,
+    generate_configuration,
 )
+from virtual_ecosystem.core.model_config import CoreConfiguration
+from virtual_ecosystem.models.litter.model_config import LitterConfiguration
 
+# TODO - Hard coding path for testing, address this later
+data_dir = Path("/Users/jc2017/Desktop/litter_nutrient_cycling/maliau_2/out")
 
-def parse_args() -> argparse.Namespace:
-    """Parse and validate the simulation output directory and its files."""
-    parser = argparse.ArgumentParser(
-        description="Run carbon analysis on Virtual Ecosystem simulation output."
-    )
-    parser.add_argument(
-        "--simulation-output",
-        type=Path,
-        required=True,
-        help="Path to a directory containing model_data.nc.",
-    )
-    parser.add_argument(
-        "--time-index",
-        type=int,
-        default=-1,
-        help="Timestep index to plot; defaults to the latest timestep.",
-    )
-    parser.add_argument(
-        "--node",
-        choices=LITTER_STOCKS,
-        help="Litter pool to plot; defaults to plotting all litter pools.",
-    )
-    args = parser.parse_args()
-    simulation_output = args.simulation_output.expanduser().resolve()
+model_data_path = data_dir / "model_data.nc"
 
-    if not simulation_output.is_dir():
-        parser.error(f"simulation output directory does not exist: {simulation_output}")
+simulation_configuration = data_dir / "compiled_configuration.toml"
 
-    model_data_path = simulation_output / "model_data.nc"
-    if not model_data_path.is_file():
-        parser.error(
-            f"simulation output does not contain model_data.nc: {model_data_path}"
-        )
+# Load in configuration from simulation, and extract relevant litter part
+config_data = ConfigurationLoader(cfg_paths=simulation_configuration)
+full_config = generate_configuration(config_data.data)
+litter_config = full_config.get_subconfiguration("litter", LitterConfiguration)
+core_config = full_config.get_subconfiguration("core", CoreConfiguration)
 
-    configuration_path = simulation_output / "compiled_configuration.toml"
-    if not configuration_path.is_file():
-        parser.error(
-            "simulation output does not contain compiled_configuration.toml: "
-            f"{configuration_path}"
-        )
-
-    args.simulation_output = simulation_output
-    return args
-
-
-def load_simulation_configuration(simulation_output: Path) -> dict[str, Any]:
-    """Load the compiled simulation configuration.
-
-    Args:
-        simulation_output: Directory containing compiled_configuration.toml.
-
-    Returns:
-        The full simulation configuration.
-
-    """
-    configuration_path = simulation_output / "compiled_configuration.toml"
-    with configuration_path.open("rb") as configuration_file:
-        return tomllib.load(configuration_file)
-
-
-args = parse_args()
-print(f"Simulation output folder: {args.simulation_output}")
-simulation_configuration = load_simulation_configuration(args.simulation_output)
-litter_data = analyse_litter(args.simulation_output, simulation_configuration)
-outflow_plot_path = args.simulation_output / "litter_outflows.png"
-plot_expected_vs_actual_node_outflows(
-    litter_data=litter_data,
-    cell_area=simulation_configuration["core"]["grid"]["cell_area"],
-    time_index=args.time_index,
-    node_name=args.node,
-    output_path=outflow_plot_path,
+litter_cycles = generate_litter_network(
+    model_data_path=model_data_path,
+    litter_config=litter_config,
+    core_config=core_config,
 )
-print(f"Litter outflow comparison saved to: {outflow_plot_path}")
