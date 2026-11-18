@@ -55,11 +55,15 @@ usage_notes: |
 from pathlib import Path
 
 import xarray as xr
+from virtual_ecosystem.core.model_config import CoreConfiguration
 from virtual_ecosystem.models.litter.inputs import (
     find_nutrient_split_between_litter_pools,
     split_pool_into_metabolic_and_structural_litter,
 )
-from virtual_ecosystem.models.litter.model_config import LitterConstants
+from virtual_ecosystem.models.litter.model_config import (
+    LitterConfiguration,
+    LitterConstants,
+)
 
 # Litter pools specified in input data
 INPUT_POOLS = [
@@ -240,7 +244,7 @@ def define_plant_matter_input_flows(
     # Wood input needs special handling as it only flows to a single pool
     wood_input = "stem_turnover_cnp"
     wood_flow_variable = f"{wood_input}_→_litter_pool_woody_cnp"
-    litter_cycles[wood_flow_variable] = litter_cycles[wood_input]
+    litter_cycles[wood_flow_variable] = litter_cycles[wood_input].sum(dim="pft")
     litter_cycles[wood_flow_variable].attrs["category"] = "link"
 
     # As wood has already been handled it is removed from the list of input
@@ -339,5 +343,148 @@ def define_plant_matter_input_flows(
             f"C, N and P flow from {input_stream_name} to the {strata} structural "
             "litter pool"
         )
+
+    return litter_cycles
+
+
+def calculate_litter_decay_losses(
+    litter_cycles: xr.DataArray,
+    cell_area: float,
+    litter_constants: LitterConstants,
+) -> xr.DataArray:
+    """Calculate the decay from each litter pool and its expected destination.
+
+    The changes in the litter pools that are already accounted for (i.e. plant
+    inputs and animal consumption) are summed, and then subtracted from the
+    change in pools between time steps. The remainder is taken to be the pool
+    decay rate. The destination of this decay is then determined using
+
+    Args:
+        litter_cycles: Data structure containing the macronutrient cycles within
+            the litter model.
+        cell_area: The area of the grid cells used in the simulation [m2].
+        litter_constants: Set of constants used by the litter model.
+
+    Returns:
+        The data array containing the litter model macronutrient cycles with the
+        litter pool decay links populated.
+
+    """
+
+    # Extract per pool carbon use efficiencies from the litter constants +
+    # define strata
+    pool_specific_details = {
+        "litter_pool_above_metabolic_cnp": {
+            "cue": litter_constants.cue_metabolic,
+            "strata": "above",
+        },
+        "litter_pool_above_structural_cnp": {
+            "cue": litter_constants.cue_structural_above_ground,
+            "strata": "above",
+        },
+        "litter_pool_woody_cnp": {"cue": litter_constants.cue_woody, "strata": "above"},
+        "litter_pool_below_metabolic_cnp": {
+            "cue": litter_constants.cue_metabolic,
+            "strata": "below",
+        },
+        "litter_pool_below_structural_cnp": {
+            "cue": litter_constants.cue_structural_below_ground,
+            "strata": "below",
+        },
+    }
+
+    for litter_pool in INPUT_POOLS:
+        # Find all variables that are inputs to the pool in question
+        inputs_streams = [
+            var for var in litter_cycles.data_vars if var.endswith(f"_→_{litter_pool}")
+        ]
+
+        total_pool_inputs = sum(
+            litter_cycles[inputs_stream] for inputs_stream in inputs_streams
+        )
+
+        # Next step is to subtract the consumption from the total input (divide
+        # by cell area so that units match that of the litter pool)
+        animal_consumption_flow = litter_pool.replace("pool", "consumed")
+        non_decay_pool_changes = (
+            total_pool_inputs - litter_cycles[animal_consumption_flow]
+        ) / cell_area
+
+        # Now calculate implied decay by calculating the change in the litter stock
+        # that isn't accounted for
+        change_in_pool = (
+            litter_cycles[litter_pool].shift(time_index=1) - litter_cycles[litter_pool]
+        )
+        decay_loss = change_in_pool - non_decay_pool_changes
+
+        # Extract pool specific details
+        cue = pool_specific_details[litter_pool]["cue"]
+        strata = pool_specific_details[litter_pool]["strata"]
+
+        # Respiration and mineralisation are then trivial to calculate
+        respiration_flow = f"{litter_pool}_→_{strata}_ground_litter_respiration"
+        litter_cycles[respiration_flow] = (1 - cue) * decay_loss.sel(element="C")
+        litter_cycles[respiration_flow].attrs["description"] = (
+            f"C respiration from {litter_pool}, goes to {strata}-ground litter "
+            "respiration."
+        )
+        litter_cycles[respiration_flow].attrs["category"] = "link"
+        litter_cycles[respiration_flow].attrs["unit"] = "kg m-2"
+
+        mineralisation_flow = f"{litter_pool}_→_litter_mineralisation_rate_cnp"
+        litter_cycles[mineralisation_flow] = xr.concat(
+            [
+                cue * decay_loss.sel(element="C"),
+                decay_loss.sel(element="N"),
+                decay_loss.sel(element="P"),
+            ],
+            dim=xr.IndexVariable("element", ["C", "N", "P"]),
+        )
+        litter_cycles[mineralisation_flow].attrs["description"] = (
+            f"C, N and P mineralisation from {litter_pool}"
+        )
+        litter_cycles[mineralisation_flow].attrs["category"] = "link"
+        litter_cycles[mineralisation_flow].attrs["unit"] = "kg m-2"
+
+    return litter_cycles
+
+
+def generate_litter_network(
+    model_data_path: Path,
+    litter_config: LitterConfiguration,
+    core_config: CoreConfiguration,
+) -> xr.DataArray:
+    """Generate the full macronutrient cycling network for the litter model.
+
+    This function loads in the litter model variables from the data object in as
+    nodes. The flows between these nodes are then inferred, using functionality
+    imported from the `virtual_ecosystem`, and add to the same object to obtain
+    a complete representation of the litter model macronutrient cycles.
+
+    Args:
+        model_data_path: Path to simulation's netcdf output file.
+        litter_config: Complete configuration of the litter model.
+        core_config: Complete configuration of the virtual ecosystem simulation core.
+
+    Returns:
+        A data array containing a complete representation of the litter model
+        macronutrient cycles.
+
+    """
+    litter_nodes = load_litter_nodes(model_data_path=model_data_path)
+
+    litter_cycles = define_litter_consumption_flows(litter_nodes)
+
+    litter_cycles = define_plant_matter_input_flows(
+        litter_cycles=litter_cycles,
+        litter_constants=litter_config.constants,
+        model_data_path=model_data_path,
+    )
+
+    litter_cycles = calculate_litter_decay_losses(
+        litter_cycles=litter_cycles,
+        cell_area=core_config.grid.cell_area,
+        litter_constants=litter_config.constants,
+    )
 
     return litter_cycles
