@@ -1,14 +1,18 @@
 # Managing Scenario Data and Configuration Versions
 
-This guide describes the workflow for managing scenario data and configuration versions
-within the VE Data Science repo. The guide is split up into 3 parts:
+This document describes the workflow for managing scenario data and configuration versions
+within the VE Data Science repo. The document is split up into 3 parts:
+
+Part 0:
+
+- overview of file structures on the RDS and HPC
 
 Part 1:
 
 - Globus scenario folder structure
 - how to manage scenario data files
 - how to manage scenario config files
-- how to add/update the "GitHub" config files on Globus
+- how to add/update the "GitHub" changelog file on Globus
 
 Part 2:
 
@@ -17,6 +21,43 @@ Part 2:
 Part 3:
 
 - how to make a scenario data+config version backup
+
+## Part 0: Overview of file structures on the RDS and HPC
+
+It is important to have a good understanding of the way in which data files and code
+are structured on the Research Data Store (RDS) in order to maintain our core data files
+and run VE simulations on HPC. In particular, you need to understand the differences
+between the **project** directory and your **home** directory.
+
+### The project directory
+
+The path `/rds/general/project/virtual_rainforest/live/ve_data_science/` is the path to
+our central data and code store on the RDS. The shared VE files through the GLOBUS
+system are **these exact files**: GLOBUS simply provides authentication and file
+download/upload tools around the files.
+As well as containing all of the data files that are managed outside of Git, the
+project root directory is also a Git clone of the `ve_data_science` repository. This
+means that the code files in the directory and that are visible through GLOBUS will be
+the most recent `git pull` on the checked out branch. In order to ensure that a single
+consistent set of files is provided through GLOBUS, it is important that the repository
+clone at `/rds/general/project/virtual_rainforest/live/ve_data_science/`:
+
+1. is always left on the `main` branch, and
+2. is regularly updated to the most recent changes (mainly relevant for the changelog
+  file, see later).
+
+### Your home directory
+
+If you are working with running the [VE on the HPC](./hpc_setup.md) then you will set up
+a **completely separate clone** of the `ve_data_science` repository in your home
+directory at:
+
+`/rds/general/user/your_user_name/home`
+
+Any scripts and configuration you run will need to point to the data files in the
+project directory. In general you are likely to be using an official VE release or the
+most recent code in `main`, but - within this clone on your own home directory - you
+can also switch branches to run alternative code.
 
 ## Part 1: Globus scenario folder structure and managing data/config files
 
@@ -28,57 +69,66 @@ Here, `maliau_2` is the name of the scenario, and contains the following folders
 - `data`
 - `config`
 
-The `data` folder contains the input data needed to run the scenario. The data files in
-the `data` folder are actively maintained but NOT through GitHub. Instead, they are
-kept up to date by uploading (and updating when needed) the required input data files
-through the Globus sync system.
+The `data` folder contains the input data needed to run the scenario.
+Within this `data` folder:
 
-**Note that this section of the guide will need to be updated if we add the main data
-files to a `maliau_2/data/main` folder (see Part 2).**
+- `data/main` contains the data that works with the latest `main` branch of the VE code
+- `data/release_0_2_3` contains the data that works with the latest VE release
+- `data/pr1958` contains the data that works with VE PR 1958
+
+The data files in the `data` folder are actively maintained and kept up to date by
+uploading (and updating when needed) the required input data files through the Globus
+sync system.
 
 The `config` folder contains the configuration files that can be used with the scenario
-data. You can choose to either use the individual model configuration files, or the
-compiled version (named `config.toml`). All config files in the `config`
-folder are actively maintained through GitHub and are kept up to date with the latest
-`main` version of the VE code.
+data. We provide model-specific config files as this gives the greatest flexibility,
+but nothing is stopping you from merging these together into one compiled file for
+personal use on your local machine.
+
+Within this `config` folder:
+
+- `config/main` contains the config files that work with the latest `main` branch
+  of the VE code
+- `config/release_0_2_3` contains the config files that work with the latest VE release
+- `config/pr1958` contains the config files that work with VE PR 1958
+
+The config files in the `config` folder are also maintained through the Globus sync
+system.
+
+Thus, anyone with access to the Globus files can download scenario config and data
+files that are up to date with the latest `main` version of the VE code.
 
 The `maliau_2` folder also contains the `change_log.txt` file. This file is used to
-document any changes made to the config and data folders, and is maintained through
-GitHub. This means that when you have made changes locally, you need to document these
-changes in the `change_log.txt` file and push the changes to GitHub to merge them into
-the VE Data Science repo's main branch through a pull request.
+document any changes made to the (untracked) config and data folders for this scenario,
+and is maintained through GitHub. This means that when you have made changes locally,
+you need to document these changes in the `change_log.txt` file and push the changes to
+GitHub to merge them into the VE Data Science repo's main branch through a PR.
 
-### How to add/update the "GitHub" config files on Globus
+It is important to add sufficient details in the changelog description about the
+changes made to either the data and/or config files because these files are not tracked
+on GitHub. Note that there currently is not a way to prevent conflicts when updating
+the data and/or config files on Globus. However, because people generally only focus
+on model-specific data files, and because we have opted for individual model-specific
+config files, the odds of conflicts occurring are expected to be low (but not zero).
 
-The Globus folder structure matches the VE Data Science repo data folder structure.
-However, changes to the `config` files and `change_log.txt` file on GitHub do not
-automatically show up in Globus. This is because files on Globus are stored on the
-Research Data Storage (RDS) on the High Performance Computer (HPC). This setup isn't
-that different from e.g. your local hard drive on your local pc. Having said that,
-there are 2 ways to add/update "GitHub" files on Globus, with the second option being
-the preferred and safer choice.
+Please note that the safest way to access to latest version of the `change_log.txt`
+file is to go to the VE Data Science repo and access it there.
 
-Assuming the changes have already been merged into the `main` branch of the VE Data
-Science repo, the first option is to use `git pull` on your local pc to get the
-latest version of the respective file (e.g., an updated config file), and to then
-upload this file to Globus through the sync system. For new files that are not present
-in Globus yet this should be fine in general. For files already present in Globus,
-this approach means that your upload would overwrite/replace the existing file with
-the new file. The main reason why this approach is not preferred is because two people
-could in theory try to upload two different versions of the same file, and only one
-will be preserved, being the latest upload. Because of this, it is hard to do version
-control and there is no way to detect/solve conflicts.
+### How to add/update the "GitHub" changelog file on Globus
 
-The second, preferred, approach, is to update the GitHub files on Globus by accessing
-the HPC, then use `git pull` to update the `main` branch. Since these changes are
-pulled from GitHub directly, there is no possibility of a conflict and the respective
-file will always be the latest GitHub version, which is what we want in this case.
-To access the HPC, please follow the instructions below. Additional details can also be
-found here: <https://imperialcollegelondon.github.io/ve_data_science/hpc_setup/>.
+As mentioned in Part 0 of this document, the Globus folder structure matches the VE
+Data Science repo data folder structure. However, changes to the `change_log.txt` file
+on GitHub do not automatically show up in Globus.
 
-Please note that this guide only focuses on how to manage the `config` files and
-`change_log.txt` file, and does not focus on using the HPC to run specific analyses
-or using different branches (for additional things to consider, see the link above).
+You can add/update the `change_log.txt` file on Globus by accessing the HPC, then use
+`git pull` to update the `main` branch. Since these changes are pulled from GitHub
+directly, there is no possibility of a conflict and the respective file will always be
+the latest GitHub version of the `change_log.txt` file. Please always use the method
+above to add/update the `change_log.txt` file on Globus, and not the Globus sync system
+as this latter would simply overwrite the existing file without guarantee that it is
+actually the latest GitHub version.
+
+To access the HPC, please follow the instructions below.
 
 ```bash
 ssh username@login.cx3.hpc.imperial.ac.uk
@@ -87,22 +137,19 @@ git checkout main
 git pull origin
 ```
 
-Once you have pulled the changes from GitHub to the `main` branch on the HPC, Globus
-will contain the changes. In other words, the files you see on Globus are the files
-on the current branch on the HPC. For this reason, it is preferred to keep the HPC on
-the `main` branch as much as possible. It is good practice to keep the `main` branch
-on the HPC up to date as much as possible, because then the "GitHub" files on Globus
-and the actual files on GitHub will remain in sync. Therefore, whenever you merge
-changes into the `main` branch on the VE Data Science repo, it is preferred to also
-update the HPC `main` branch.
+Please note that this current document only focuses on how to add/update the
+`change_log.txt` file, and does not focus on using the HPC to run specific analyses
+or using different branches. For more details on HPC use, see the link below:
+<https://imperialcollegelondon.github.io/ve_data_science/hpc_setup/>.
 
-This, combined with keeping the HPC on the `main` branch,, means that anyone with access
-to the Globus files can download scenario config and data files that are up to date with
-the latest `main` version of the VE code.
+Please note that it is not recommended to assume that the Globus `change_log.txt` file
+is always up to date, as it is possible that the Globus version has not been updated to
+the latest GitHub version yet. Hence, as mentioned earlier, we recommend to access the
+`change_log.txt` file through the VE Data Science repo.
 
 ## Part 2: How to add additional data+config versions
 
-The second part of this guide focuses on how to add additional data+config versions
+The second part of this document focuses on how to add additional data+config versions
 to Globus. An example of when this is needed is when a particular PR in the VE repo has
 changed the VE code, causing a change in the required inputs. In such case, using the
 data and config files in `maliau_2/data/main` with the VE PR version would cause the
@@ -124,49 +171,32 @@ GitHub branching works:
 3. Replace main Globus files with the new files when the VE PR is merged.
 4. Delete the "branch" folder (currently undecided when this should happen).
 
-More specifically, let's say VE PR 1889 has made some changes to the VE code and this
+More specifically, let's say VE PR 1958 has made some changes to the VE code and this
 VE version now needs slightly different input data and config files. The workflow would
 be as follows:
 
 - `maliau_2/data/main` is the "main branch".
-- Create a new folder (e.g. `maliau_2/data/pr1889`), which represents the "PR branch"
+- Create a new folder (e.g. `maliau_2/data/pr1958`), which represents the "PR branch"
   with matching PR number from the VE repo.
-- Copy the main data files in `maliau_2/data/main` to `maliau_2/data/pr1889`
-- Generate the new input data files, based on the requirements by the VE PR.
-- Test the VE PR version with the new input data (for notes on testing a specific VE PR
-  version, see below).
-- If the VE PR version fails the test run, resolve the VE code and/or update the files
-  locally again, then repeat the test.
-- After the test is succesfull, replace the files in Globus in `maliau_2/data/pr1889`,
-  only replace the files that need changing (i.e., those that required changes).
-- Add a new copy of the config files in Globus to `maliau_2/data/pr1889` so that the
-  config files are available in case someone else wants to do more testing. It shouldn't
-  matter if these config files are individual module-specific files or a compiled version.
-- Please add the specific VE repo commit used for testing right above the
-  `# Core settings` section, for example:
-
-  ```toml
-  # Commit used for testing: 72f8724629ee8fbbddadac460a2c2abd6c483f68
-
-  # Core settings
-  [core]
-  ```
-
-- Then add these new config files to GitHub by pushing the changes from your local pc
-  and merging them into `main` through a pull request.
-- Then access the HPC, use `git pull` to pull the changes from GitHub and update the
-  `main` branch on the HPC, causing the Globus files to be updated (see Part 1).
+- Copy the existing data files from `maliau_2/data/main` to `maliau_2/data/pr1958`.
+- Delete the outdated file that needs to be replaced in `maliau_2/data/pr1958`.
+- Generate the new input data file in `maliau_2/data/pr1958`.
+- Test the VE PR version with the new input data. If the VE PR version fails the test,
+  resolve the VE code and/or update the files, then repeat the test.
+- After the test is succesfull, sync the files to Globus in `maliau_2/data/pr1958`
+- Also add the new (model-specific) config files to Globus in `maliau_2/config/pr1958`.
+- Document the addition of the new folders and files in the `change_log.txt` file and
+  add these changes to the VE Data Science repo through a PR. Please add sufficient
+  details to the changelog description.
 
 At this point, the new data and config files have been succesfully added to Globus.
 However, once the VE repo PR has been merged, the now "outdated" main files in
-`maliau_2/data/main` need to be replaced with the ones from `maliau_2/data/pr1889`.
+`maliau_2/data/main` need to be replaced with the ones from `maliau_2/data/pr1958`.
 Note that this will usually only involve changing one file. Please leave the files
 that you didn't change alone, and record the change in the `change_log.txt` file.
 You will also need to update the config settings once the VE PR has been merged into
-`main`, so update the config file, change the `change_log.txt` file, and push these
-changes to GitHub. Then access the HPC, use `git pull` to pull the changes from
-GitHub and update the `main` branch on the HPC, causing the Globus files to be
-updated (see Part 1).
+`main`, so replace the respective model-specific config file in `maliau_2/config/main`
+with the new one in `maliau_2/config/pr1958`.
 
 It is worth pointing out that once the "outdated" main files in `maliau_2/data/main`
 have been replaced with an updated version, the "outdated" files are considered gone.
@@ -175,7 +205,7 @@ but maintaining each of these "outdated" versions is not a priority. The reason 
 this is that we think that nobody will be interested in running an outdated `main`
 version of VE (that is not an official release). Having said that, we will focus on
 keeping data+config versions for each new release, which we will discuss in Part 3 of
-the guide.
+this document.
 
 ### Notes on testing a specific VE PR version
 
@@ -185,79 +215,54 @@ sufficient to check whether the new VE PR version gets past configuration.
 
 Note that the purpose of testing here is just to verify if we can get past the
 configuration and initialisation stages. It can be possible that the simulation still
-crashes at later timesteps, but avoiding that type of errors is not within the scope of
+crashes at later timesteps, but avoiding that type of error is not within the scope of
 what we're testing for here.
 
-To pin and run a VE PR, add a dedicated dependency group in `pyproject.toml`, pinned to
-the VE PR commit. For example, for PR 1889 the group is named `dev-pr1889` and points
-to commit `72f8724629ee8fbbddadac460a2c2abd6c483f68`:
+To pin and run a VE PR, change the dedicated `dev-pinned` dependency group in
+`pyproject.toml`, pinned to the VE PR commit. Note that it is generally a good idea to
+use a commit that already has main merged into the PR branch, and that represents a
+state of the PR branch that is ready for testing.
 
-```toml
-dev-pr1889 = [
-    "virtual-ecosystem @ git+https://github.com/ImperialCollegeLondon/virtual_ecosystem.git@72f8724629ee8fbbddadac460a2c2abd6c483f68"
-]
-```
-
-Note that it is generally a good idea to use a commit that already has main merged into
-the PR branch, and that represents a state of the PR branch that is ready for testing.
-It may be that additional commits are added to this PR branch, in which case we could
-decide to update the specific commit. At the moment this is not required. Also note
-that we could update the commit to the final commit of the PR right before it is merged
-into main. This would be useful to maintain a consistent approach for re-use later on.
-This is also not required at the moment.
-
-Also note that it is possible to add an entire branch instead of a specific commit.
-The benefit is that this makes it easier to update `uv` but the downside is that
-changes to the branch may be "hidden". The branch aproach also stops working once
-the VE PR is merged, as the branch is automatically deleted. Hence manual selection
-of which specific commit to use is preferred over the branch approach.
-
-Because `dev`, `dev-pinned`, and `dev-pr1889` provide different Git revisions of the
-same package, declare the groups mutually exclusive in `[tool.uv].conflicts`. Keep the
-existing `dev`/`dev-pinned` pair and add the two PR group pairs:
-
-```toml
-conflicts = [
-  [{ group = "dev" }, { group = "dev-pinned" }],
-  [{ group = "dev" }, { group = "dev-pr1889" }],
-  [{ group = "dev-pinned" }, { group = "dev-pr1889" }],
-]
-```
-
-From the repository root, sync the group. This resolves dependencies, updates
-`uv.lock` if needed, and installs the selected group:
+Then, from the repository root, sync the group. This resolves dependencies, updates
+`uv.lock` if needed, and updates the `dev-pinned` group:
 
 ```powershell
-uv sync --group dev-pr1889
+uv sync --group dev-pinned
 ```
 
 When running VE, select the group explicitly because dependency groups are not selected
 by default:
 
 ```powershell
-uv run --group dev-pr1889 ve_run <scenario config files> --out <output directory>
+uv run --group dev-pinned ve_run <scenario config files> --out <output directory>
 ```
+
+Note that we intentionally do not require logging the specific commit used for testing.
+The commit will be stored under the `dev-pinned` group, but this may be overwritten in
+the future when another VE PR requires testing with new data. We assume the VE PR
+number is sufficient to track down the specific commit in case additional testing is
+required in the future (which is unlikely once the VE PR is merged).
 
 ## Part 3: How to make a scenario data+config version backup
 
-The third part of this guide focuses on how to create a backup of the main data and
-config files prior to whenever a new VE version is released.
+The third part of this document focuses on how to create a backup of the main data and
+config files prior to a new VE version being released.
 
 The idea is that this backup provides a set of data and config files that can be used
 at any point in time, separately from more recent `main` VE versions. This backup would
-consist of a copy of the main data files (e.g., those in `maliau_2/data/main`), as well
-as a copy of the main config files in `maliau_2/config`.
+consist of a copy of the main data files (i.e., those in `maliau_2/data/main`), as well
+as a copy of the main config files in `maliau_2/config/main`.
 
 Hence, whenever a new VE version is about to be released, the main data files in
 `maliau_2/data/main` should be double checked to make sure that they work with the
 current latest `main` VE version. Once this has been verified, those files should be
-copied to a new folder (e.g., `maliau_2/data/v0.2.3`, being the archive folder for VE
-version 0.2.3), along with a copy of the `maliau_2/config` files. The new VE version
-(i.e., in this example 0.2.3) can then be released, and the backup data and config
-files can then be used for this VE version. Similar to Part 2, the new config files and
-changes to the changelog should then be pushed to GitHub, and Globus should be updated
-by accessing the HPC and using `git pull`. Following this sequence should avoid any
-mismatches between a new VE release and the corresponding data and config files backup.
+copied to a new folder (e.g., `maliau_2/data/release_0_2_3`, being the archive folder
+for VE version 0.2.3). Also place a copy of the config files from `maliau_2/config/main`
+in `maliau_2/config/release_0_2_3`. The new VE version (in this example 0.2.3) can then
+be released, and the backup data and config files can then be used for this VE version.
+Similar to Part 2, record the changes in the changelog and pushed them to GitHub
+through a VE Data Science repo PR. Following this sequence should avoid any mismatches
+between a new VE release and the corresponding data and config files backup.
 
 Note that there are plans to use Zenodo for dataset releases, which supports versioning.
 At the moment this is not part of the workflow.
