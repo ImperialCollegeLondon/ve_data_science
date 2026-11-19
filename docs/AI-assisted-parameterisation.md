@@ -17,34 +17,75 @@ VE. A model default or an abstract alone is not evidence for a new value.
    `renv.lock`, including `ragnar` and `DBI`. Rebuilding the documentation store
    also needs `tidyverse` from that lockfile. Local renv use is otherwise
    optional; see [R with renv](renv.md).
-3. Configure `OPENALEX_EMAIL` with your own contact address. See the commands
-   below. The address identifies API traffic to OpenAlex; it is not a password
-   or API key.
+3. Optionally configure OpenAlex access. See the commands below. Without
+   credentials, the helper still searches with OpenAlex's smaller keyless
+   budget.
 
 ### Configure OpenAlex
 
-For repo-local setup, create `.github/skills/ve-constant-search/.env` with:
+The helper chooses the first available approach and reports it (`api_key`,
+`email` or `keyless`) on stderr. It never prints the key or address.
+
+1. `OPENALEX_API_KEY`: your free OpenAlex API key, from
+   [Settings → API key](https://openalex.org/settings/api-key). It gives a
+   larger daily budget. Treat it as a secret.
+2. `OPENALEX_EMAIL`: your own contact address, used only when no key is set.
+3. Keyless: used when neither is set.
+
+For repo-local setup, create `.github/skills/ve-constant-search/.env` with
+either or both lines:
 
 ```dotenv
+OPENALEX_API_KEY=your-key
 OPENALEX_EMAIL=you@example.org
 ```
 
-Replace `you@example.org` with your address. The file is ignored by Git. The
+Replace the placeholders with your own values. The file is ignored by Git. The
 helper reads it relative to its own location, regardless of the working
 directory. No Positron restart is needed. It does not read R `.Renviron` files.
 
-An existing `OPENALEX_EMAIL` in the process environment takes precedence over
-the `.env` file. To use the repo-local address instead, remove the user-level
-variable and restart Positron, or unset it in the terminal running the helper:
+An existing variable in the process environment takes precedence over the same
+name in the `.env` file. To use the repo-local value instead, remove the
+user-level variable and restart Positron, or unset it in the terminal running
+the helper:
 
 ```powershell
-Remove-Item Env:OPENALEX_EMAIL
+Remove-Item Env:OPENALEX_API_KEY
 ```
 
-On macOS or Linux, use `unset OPENALEX_EMAIL` instead.
+On macOS or Linux, use `unset OPENALEX_API_KEY` instead.
 
-If you cannot provide an address, stop before searching. Do not switch to
-OpenAlex MCP tools or another search integration.
+Do not switch to OpenAlex MCP tools or another search integration. An API key
+configured for an OpenAlex MCP server is not passed to the helper; set it as
+`OPENALEX_API_KEY` as well.
+
+### GitHub Actions-based Copilot cloud sessions
+
+After `.github/workflows/copilot-setup-steps.yml` is merged to the default
+branch, a Copilot cloud session running on GitHub Actions installs the locked
+Python dependencies with the released `virtual-ecosystem` from PyPI. It checks
+out the matching release tag as a sibling `virtual_ecosystem` repository and
+checks that its Python source is identical to the installed package before the
+agent starts. It uses the repository's `.python-version` and does not install
+the optional R tools.
+
+In repository **Settings → Secrets and variables → Agents**, add
+`OPENALEX_API_KEY` as a secret, or `OPENALEX_EMAIL` as a variable. Values
+previously configured in the Actions `copilot` environment are migrated to
+Agents settings by GitHub. See
+[GitHub's agent variables guide](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/configure-secrets-and-variables).
+The setup workflow does not test OpenAlex access.
+Copilot's network policy must permit the OpenAlex API and any authorised
+full-text hosts needed by a search.
+
+The setup follows the `virtual-ecosystem` release locked in `uv.lock`. To move
+to a newer release, run `uv lock --upgrade-package virtual-ecosystem` and
+commit the lockfile. Use `uv run --no-sync`
+for skill commands so they retain the prepared environment. As with local
+work, compare the inventory's recorded VE commit and refresh it when needed;
+the setup does not refresh it or perform a literature search. Setup-step
+failures are shown in the session log, but GitHub may still start the agent.
+The workflow applies to GitHub Actions sessions, not cloud sandboxes.
 
 In an assistant that supports repository skills, ask it to use
 [`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md).
