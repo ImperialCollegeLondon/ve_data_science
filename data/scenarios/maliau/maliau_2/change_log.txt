@@ -1,5 +1,22 @@
 # Change log of maliau_2 scenario input data and config
 
+2026-11-20
+- Module: Soil, Litter
+- Author: Hao Ran Lai
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/main/example_enzyme_parameters.csv
+  - data/scenarios/maliau/maliau_2/data/main/example_microbial_groups.csv
+  - data/scenarios/maliau/maliau_2/data/main/litter_maliau.nc
+  - data/scenarios/maliau/maliau_2/data/main/soil_maliau.nc
+  - data/scenarios/maliau/maliau_2/config/main/data_config.toml
+  - data/scenarios/maliau/maliau_2/config/main/litter_config.toml
+  - data/scenarios/maliau/maliau_2/config/main/soil_config.toml
+- Changes made:
+  - Soil and litter input data from the root folder and the pr1958 folder moved to the new main folder.
+  - Ditto the above for soil, litter and data config TOML files (the data config involves soil AND other modules so I moved them all together)
+- References:
+  - PR #760
+
 2026-11-06
 - Module: Soil
 - Author: Hao Ran Lai
