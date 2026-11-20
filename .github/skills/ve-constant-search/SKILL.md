@@ -29,6 +29,13 @@ existing issue body and card. Include the issue link in chat. If needed, look
 up the name in the inventory to disambiguate it before issue creation. If it
 maps to multiple VE constants, ask which one the user means.
 Do not create a separate issue for an explicitly selected existing issue.
+Add the `constant` label to the selected issue, whether reused or newly created:
+
+```bash
+gh issue edit ISSUE --add-label constant
+```
+
+If adding the label fails, report the blocker rather than proceeding without it.
 
 Use `gh` from the repository root. Search broadly enough to catch qualified
 names and aliases, then inspect each plausible result:
