@@ -24,11 +24,11 @@ and (when handed off) the next steps. Everything else goes in the collapsed agen
 ### Reading set
 
 1. [Mouginot et al. (2014)](https://doi.org/10.1016/j.soilbio.2014.05.011): bacterial and fungal culture C:N:P (Table 1); leaf-litter isolates.
-2. [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632): saprotrophic mycelia across N/P supply. **Waiting PDF.**
+2. [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632) ([Open-access PDF](PDF_URL)): saprotrophic mycelia across N/P supply. **Waiting PDF.**
 
 ### PDFs to fetch
 
-- [ ] [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632)
+- [ ] [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632) · [Open-access PDF](PDF_URL)
 
 Save PDFs locally in `.github/skills/ve-constant-search/sources/`. In a new
 chat, say: "Use ve-constant-search to follow up #123; PDFs are ready."
@@ -58,6 +58,8 @@ Rules:
   value and units, e.g. `value: 3.9 g/g`. Receipt alone is `review pending`,
   not verified evidence; a later session must recheck private-file access.
 - At most five reading-set sources. Link each title to its DOI or canonical URL.
+- If OpenAlex supplies a distinct `pdf_url`, add a separately labelled
+  `Open-access PDF` link. Do not label an article page as a PDF.
 - Label needed sources `review pending` or `waiting PDF`. If a cell has both,
   show `review pending`; the PDF list still includes its missing sources.
 - No run IDs, commits, query lists or drift notes in the visible part.
@@ -75,7 +77,7 @@ issue/source pairs from other batches.
 
 Save locally in `.github/skills/ve-constant-search/sources/`, keeping original names. Follow up in a new chat with the relevant issue number.
 
-- [ ] [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632): #309
+- [ ] [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632) · [Open-access PDF](PDF_URL): #309
 - [ ] [Author (year)](https://doi.org/...): #308, #309
 ```
 

@@ -23,8 +23,9 @@ than done by the agent.
    updates the card with evidence and clear next steps. If files are missing,
    unreadable or inaccessible in the new session, the card remains pending.
 
-The skill ends with the issue hand-off. Saving result CSVs, updating the PDF
-manifest, creating a PR and further analysis are separate tasks.
+The skill ends with the issue hand-off. It maintains the tracked PDF manifest
+while keeping PDFs ignored. Saving result CSVs, creating a PR and further
+analysis are separate tasks.
 
 Each issue card is a single comment, edited in place. Its status matrix shows
 every constant and group as `value`, `analysis` (you need to judge or analyse
@@ -50,22 +51,22 @@ flowchart LR
 
 ## Before you start
 
-1. Open a workspace containing this repository and a sibling
-   `virtual_ecosystem` repository. Use the VE version whose constants you want
-   to assess; record its commit and any relevant uncommitted changes. If the
-   sibling checkout is missing, the agent can clone the official repository at
-   the reviewed commit. It must not overwrite or switch an existing dirty or
-   mismatched checkout. An installed package alone does not establish the commit.
+1. Open a workspace containing this repository and a sibling `virtual_ecosystem`
+   repository. Use the VE version whose constants you want to assess; record its
+   commit and any relevant uncommitted changes. If the sibling checkout is
+   missing, the agent can clone the official repository at the reviewed commit.
+   It must not overwrite or switch an existing dirty or mismatched checkout. An
+   installed package alone does not establish the commit.
 2. For the microbial pilot, run `uv sync --locked --group dev-pinned` from the
    repository root. This installs the reviewed post-VE-PR-1958 source, not the
    0.2.3 release with the older configuration schema. For other workflows,
-   `uv sync` installs the default released environment. Both install dependencies
-   declared in `pyproject.toml`, including `jedi`, `tomli-w` and `requests`.
-   See [Python with uv](uv_setup.md). For the optional R documentation lookup,
-   run `renv::restore()` from the repository root to install the packages in
-   `renv.lock`, including `ragnar` and `DBI`. Rebuilding the documentation store
-   also needs `tidyverse` from that lockfile. Local renv use is otherwise
-   optional; see [R with renv](renv.md).
+   `uv sync` installs the default released environment. Both install
+   dependencies declared in `pyproject.toml`, including `jedi`, `tomli-w` and
+   `requests`. See [Python with uv](uv_setup.md). For the optional R
+   documentation lookup, run `renv::restore()` from the repository root to
+   install the packages in `renv.lock`, including `ragnar` and `DBI`. Rebuilding
+   the documentation store also needs `tidyverse` from that lockfile. Local renv
+   use is otherwise optional; see [R with renv](renv.md).
 3. Configure `OPENALEX_API_KEY` as described below. The skill requires the
    helper to report `api_key` mode; it stops if the key is missing or fails.
 
@@ -159,8 +160,8 @@ The workflow applies to GitHub Actions sessions, not cloud sandboxes.
 In an assistant that supports repository skills, ask it to use
 [`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md)
 on a few issues or qualified names (`module.Class.attribute`), as in
-[How a search works](#how-a-search-works). If you name a module, class or family,
-agree on a small subset before searching.
+[How a search works](#how-a-search-works). If you name a module, class or
+family, agree on a small subset before searching.
 
 ## Review the evidence
 
@@ -248,8 +249,10 @@ session. A new environment or Git checkout does not restore private PDF access.
 
 The agent leaves PDFs unchanged and matches each one to the issue PDF requests
 using the paper's front matter, not DOIs in its reference list. Unmatched or
-uncertain files are reported for your review. The skill does not update the
-Git-tracked PDF manifest or result files. Those are separate tasks if requested.
+uncertain files are reported for your review. It maintains the Git-tracked
+`sources/manifest.csv` by SHA-256, original filename, citation metadata and page
+count. The PDFs and downloader sidecars remain ignored. The skill does not
+update result files; that is a separate task if requested.
 
 PDFs, extracted full text and private absolute paths must
 not be staged, committed, pushed or published in issue/PR comments. Research
@@ -274,9 +277,9 @@ verify a value. Citation counts do not establish measurement quality.
 
 For soil microbial groups, seek separate evidence for bacteria, saprotrophic
 fungi, arbuscular mycorrhiza and ectomycorrhiza; soil enzymes need separate
-bacterial/fungal and POM/MAOM evidence. For other modules, check their applicable
-categories and measurement conditions. Missing groups remain gaps; do not
-fill them with pooled measurements. A `no_evidence` result describes the
+bacterial/fungal and POM/MAOM evidence. For other modules, check their
+applicable categories and measurement conditions. Missing groups remain gaps; do
+not fill them with pooled measurements. A `no_evidence` result describes the
 limits of this search, not proof that no literature exists.
 
 ## Approve and retain results separately
@@ -286,12 +289,12 @@ constant-search skill hand-off.
 
 Discuss proposed values, exclusions and gaps before authorising changes. The
 assistant never uses proxies or changes inclusion criteria itself; those become
-`analysis` cells for you. After your
-approval, it writes results under `data/derived/llm/`, with one CSV per VE
-module: `<module>_constant_literature_values.csv`. This is the default output
-directory; a user may specify another project-relative directory for results
-and search logs. Reusable prompts stay under `analysis/soil/llm/`. For soil,
-create this CSV from the blank template for new searches. An older soil CSV exists at
+`analysis` cells for you. After your approval, it writes results under
+`data/derived/llm/`, with one CSV per VE module:
+`<module>_constant_literature_values.csv`. This is the default output directory;
+a user may specify another project-relative directory for results and search
+logs. Reusable prompts stay under `analysis/soil/llm/`. For soil, create this
+CSV from the blank template for new searches. An older soil CSV exists at
 [`data/derived/soil/llm/soil_constant_literature_values.csv`](../data/derived/soil/llm/soil_constant_literature_values.csv).
 That file contains historical results and is not the output path for new
 searches. Do not copy its rows into a new CSV without approval. Rows for other

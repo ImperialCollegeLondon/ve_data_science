@@ -30,6 +30,38 @@ up the name in the inventory to disambiguate it before issue creation. If it
 maps to multiple VE constants, ask which one the user means.
 Do not create a separate issue for an explicitly selected existing issue.
 
+Use `gh` from the repository root. Search broadly enough to catch qualified
+names and aliases, then inspect each plausible result:
+
+```bash
+gh issue list --state all --search 'CONSTANT in:title,body' \
+  --limit 30 --json number,title,state,url,body
+gh issue view ISSUE --comments
+```
+
+When no issue matches, create one. Put the requested constant and qualified
+name in `issue.md`; do not overwrite an existing issue body:
+
+```bash
+gh issue create --title 'Search VE constant: CONSTANT' --body-file issue.md
+```
+
+If the selected issue has no marked card, create one from
+`assets/handoff_template.md` immediately. Put only the card in `card.md`, with
+status `searching` and no invented matrix outcomes:
+
+```bash
+gh api repos/{owner}/{repo}/issues/ISSUE/comments -F body=@card.md
+gh api --paginate repos/{owner}/{repo}/issues/ISSUE/comments \
+  --jq '.[] | select(.body | contains("<!-- ve-constant-search:card -->")) |
+    [.id, .html_url] | @tsv'
+```
+
+**Hard gate:** do not start grounding or literature discovery until both the
+issue URL and exactly one card comment ID are known. If issue access, creation
+or card creation fails, stop and report that blocker. Never replace durable
+issue state with a chat-only report.
+
 A later chat can say "Use ve-constant-search to follow up #123; PDFs are ready".
 Read the live issue, card and human replies; use
 `.github/skills/ve-constant-search/sources/` as the default local PDF folder.
@@ -57,6 +89,13 @@ Each issue has **one** skill card: a single comment written with
 Find it by its `<!-- ve-constant-search:card -->` marker. Never post a second
 status comment; GitHub keeps the edit history. Do not register runs, write
 drift analyses or post progress comments.
+
+After creating or editing a card, fetch that comment again and verify its
+marker, status, matrix and PDF requests before continuing:
+
+```bash
+gh api repos/{owner}/{repo}/issues/comments/CARD_COMMENT_ID
+```
 
 Use this skill for current workflow mechanics when an older issue launch prompt
 conflicts. Preserve issue-specific evidence criteria and human decisions.
@@ -102,11 +141,12 @@ and human decisions. Report stale links that cannot safely be edited.
 
 When agents run concurrently, only the coordinator edits shared cards and any
 maintained list and index, serially. Re-read their live content and human
-replies before editing; reconcile concurrent changes instead of overwriting them. Before
-reporting a phase complete or blocked, re-read the affected cards and any
-maintained list and index. Check source labels against actual receipt and
-review, issue/source pairs against any list, and index counts against matrices.
-Report any failed update and its link rather than claiming the issues are refreshed.
+replies before editing; reconcile concurrent changes instead of overwriting
+them. Before reporting a phase complete or blocked, re-read the affected cards
+and any maintained list and index. Check source labels against actual receipt
+and review, issue/source pairs against any list, and index counts against
+matrices. Report any failed update and its link rather than claiming the issues
+are refreshed.
 
 ## Phase 1: Search
 
@@ -148,40 +188,49 @@ Then reconcile issue state and give the batch summary.
    previously received, unreviewed PDF is no longer readable, mark its source
    `waiting PDF`, update affected cells and restore the request on the card
    and any maintained shared list.
-3. Before reading the papers, checkpoint each matched, unreviewed source and
+3. Reconcile matched PDFs with `sources/manifest.csv`. Keep one row per SHA-256
+   using the existing columns. Append missing hashes with the original filename,
+   title-page citation metadata and page count; preserve every existing row.
+   This manifest is tracked, but the PDFs and downloader sidecars remain
+   ignored. Do not record private paths or extracted text. Report duplicate
+   hashes or metadata conflicts instead of guessing.
+4. Before reading the papers, checkpoint each matched, unreviewed source and
    its unresolved cells as `review pending` in
    the existing card, replacing its `waiting PDF` label. Preserve assessed
    results and human decisions. Keep missing sources `waiting PDF`, then
    reconcile any maintained shared list and umbrella index. This checkpoint is
    not a scientific assessment or hand-off.
-4. Read methods, tables and figures. Remove `review pending` from each
+5. Read methods, tables and figures. Remove `review pending` from each
    assessed source, reclassify the affected cells and reconcile each card as
    its review finishes. Do not search again unless a full text names a clearly
    better primary source; then add at most that one source. If a matched PDF
    cannot be read sufficiently, mark its source `waiting PDF`, restore its
    request on the card and any shared list, and report the need for a readable
    copy or OCR; do not treat the failure as an evidence gap.
-5. If the user explicitly chooses to finish without an inaccessible source,
+6. If the user explicitly chooses to finish without an inaccessible source,
    remove its request from the card and any shared list. Use `gap (no access)`
-   only for cells with no supported result or remaining source to review; preserve
-   results supported by other sources. Keep other missing sources `waiting PDF`
-   and unfinished reviews `review pending`. **Hand off** an issue only when
-   every needed source has been reviewed or explicitly waived; fill its Next
-   steps. Reconcile and verify issue state, then give the batch summary.
+   only for cells with no supported result or remaining source to review;
+   preserve results supported by other sources. Keep other missing sources
+   `waiting PDF` and unfinished reviews `review pending`. **Hand off** an issue
+   only when every needed source has been reviewed or explicitly waived; fill
+   its Next steps. Reconcile and verify issue state, then give the batch
+   summary.
 
 ### Next steps (hand-off)
 
 For each `analysis` cell, write one line: the human task and the source to use,
 for example "Decide whether leaf-litter culture bacteria represent soil
-bacteria; [Mouginot et al. (2014)](https://doi.org/10.1016/j.soilbio.2014.05.011)
-reports 3.94 g C/g N." For a `gap`, give the best lead or say none is known.
-Post-search analyses (re-fitting, digitising, pooling, proxy studies,
-reanalysing datasets) are out of scope: describe them, do not start them.
-Suggest a follow-up issue only if the user asks.
+bacteria;
+[Mouginot et al. (2014)](https://doi.org/10.1016/j.soilbio.2014.05.011) reports
+3.94 g C/g N." For a `gap`, give the best lead or say none is known. Post-search
+analyses (re-fitting, digitising, pooling, proxy studies, reanalysing datasets)
+are out of scope: describe them, do not start them. Suggest a follow-up issue
+only if the user asks.
 
-The skill ends with the issue hand-off. Do not write result CSVs, update the
-PDF manifest, create a PR or perform downstream analysis as part of this
-workflow. These are separate tasks if explicitly requested.
+The skill ends with the issue hand-off. Do not write result CSVs, create a PR
+or perform downstream analysis as part of this workflow. These are separate
+tasks if explicitly requested. Maintaining `sources/manifest.csv` for matched
+PDFs is part of Phase 3, not a result-saving task.
 
 ## Batch summary (chat)
 
@@ -196,14 +245,30 @@ Keep the hand-off summary to one screen:
 
 **PDFs to fetch (3).** Save them in the ignored local `sources/` folder.
 
-1. [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632): #309
+1. [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632) ·
+   [Open-access PDF](PDF_URL): #309
 2. ...
 ```
 
 Link each issue and give a copyable follow-up prompt with its issue number.
 In Phase 3, report **Next steps** per issue and remaining PDF requests. Link
-every source title to its DOI or canonical URL. Leave run details, commits,
-queries and process narration in the card's collapsed agent record.
+every source title to its DOI or canonical article URL. When OpenAlex supplies
+a distinct `pdf_url`, also label and link it as `Open-access PDF`; never present
+an article page as a direct download. Leave run details, commits, queries and
+process narration in the card's collapsed agent record.
+
+Before sending the summary, verify all of these. A missing item means the phase
+is blocked, not done:
+
+- each issue number links to its live issue;
+- each live card was reread after its final update;
+- status is `waiting for PDFs`, `review pending` or `handed off`;
+- every unavailable needed source is `waiting PDF` and appears under **PDFs to
+  fetch** with an article link and, when known, a direct PDF link;
+- the ignored `sources/` save location and a copyable follow-up prompt
+  containing the issue number appear in both the card and chat; and
+- no failed search or retrieval is reported as `gap`, `no_evidence` or
+  completion.
 
 ## Rules
 
@@ -222,8 +287,9 @@ queries and process narration in the card's collapsed agent record.
   loss is not growth turnover or maintenance respiration.
 - A search or access failure is blocked work, not evidence of absence. Use
   `gap (no access)` only when the user explicitly closes the affected scope.
-- Private PDFs, extracted text, private absolute paths and credentials never enter Git,
-  issues or PRs. Quote briefly, and only where retention rights allow.
+- Private PDFs, extracted text, private absolute paths and credentials never
+  enter Git, issues or PRs. Quote briefly, and only where retention rights
+  allow.
 - Do not edit this skill or its prompt during a search; list proposed
   improvements in the batch summary instead. Refresh the generated inventory
   when needed as described below.
@@ -277,8 +343,10 @@ the mode, never the credential.
 ### Open-access PDFs
 
 `webfetch` may open only a specific article or PDF URL returned by the helper.
-Download permitted open-access PDFs into a private folder outside the
-repository. The helper also writes a provenance sidecar that is not ignored:
+Download permitted open-access PDFs into the Git-ignored
+`.github/skills/ve-constant-search/sources/` folder by default, or another
+private folder supplied by the user. The helper writes a provenance sidecar
+beside the PDF; both are ignored in the default folder:
 
 ```bash
 uv run --no-sync python \
@@ -286,4 +354,5 @@ uv run --no-sync python \
   "PDF_URL" "OUTPUT.pdf" --doi "DOI"
 ```
 
-If a PDF cannot be fetched or read, its source goes on the issue card's PDF list.
+If a PDF cannot be fetched or read, its source goes on the issue card's PDF
+list.

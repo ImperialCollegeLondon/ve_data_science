@@ -7,18 +7,18 @@ animal or other external trait tables. This all-module inventory is model
 grounding, not literature evidence. Refresh it with
 `../scripts/refresh_constant_metadata.py` after checking the VE commit.
 
-For the microbial pilot use `uv sync --locked --group dev-pinned`; the
-installed source must match the reviewed clone. Schema version 2 includes
-`SoilMicrobe` CSV inputs (22 fields) and `SoilEnzyme` inputs. These are
-group-specific table inputs, rather than global configuration defaults; other
-modules also have traits but their external trait tables are not covered here.
-Internal, `InitVar` and computed dataclass fields are excluded. Each record
-distinguishes `required` inputs from defaults. `example_values` are keyed by microbial
-or enzyme source/substrate, with `example_file` and `example_sha256` provenance.
-They are neither class defaults nor empirical evidence. `model_unit` is the
-unit spelling from the declaration docstring. `aliases` map old qualified
-names for lookup, including the one-to-two enzyme-allocation split; they do
-not authorise historical-row migration.
+For the microbial pilot use `uv sync --locked --group dev-pinned`; the installed
+source must match the reviewed clone. Schema version 2 includes `SoilMicrobe`
+CSV inputs (22 fields) and `SoilEnzyme` inputs. These are group-specific table
+inputs, rather than global configuration defaults; other modules also have
+traits but their external trait tables are not covered here. Internal, `InitVar`
+and computed dataclass fields are excluded. Each record distinguishes `required`
+inputs from defaults. `example_values` are keyed by microbial or enzyme
+source/substrate, with `example_file` and `example_sha256` provenance. They are
+neither class defaults nor empirical evidence. `model_unit` is the unit spelling
+from the declaration docstring. `aliases` map old qualified names for lookup,
+including the one-to-two enzyme-allocation split; they do not authorise
+historical-row migration.
 
 ## Evidence templates
 
@@ -37,13 +37,17 @@ search/candidate (or one row for an empty or failed search). Never rewrite a
 historical search log.
 
 For user-supplied PDFs, the user does not need to prepare an inventory or
-manifest. The skill does not update `../sources/manifest.csv` or write result
-rows; these are separate tasks if explicitly requested. For a separate approved
-results task, use `source=user_supplied_pdf` in the research log, record the
-intake date and screening decision, and identify the supplied file using a
-non-sensitive filename or checksum in `notes`. Leave unknown DOI and source URL
-fields empty; do not put private absolute paths or extracted full text in
-committed CSVs. A successful read is not itself verified evidence for a constant.
+manifest. During follow-up, the skill reconciles matched PDFs with
+`../sources/manifest.csv`, appending one row for each new SHA-256 while
+preserving existing rows. Record the original filename, title-page citation
+metadata and page count. Report duplicate hashes or conflicting metadata; do not
+guess. The manifest is tracked, but PDFs and downloader sidecars in `sources/`
+are ignored. Never record private paths or extracted text. The skill does not
+write result rows without a separate approved task. For that task, use
+`source=user_supplied_pdf` in the research log, record the intake date and
+screening decision, and identify the supplied file using a non-sensitive
+filename or checksum in `notes`. Leave unknown DOI and source URL fields empty.
+A successful read is not itself verified evidence for a constant.
 
 ## Card and PDF-list templates
 
