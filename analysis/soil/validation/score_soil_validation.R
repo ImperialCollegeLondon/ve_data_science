@@ -59,7 +59,7 @@ validation_database <-
 # TODO: Compare with yardstick on the same observations, including log1p.
 # log1p scores do not make variables with different units or scales comparable.
 
-scores <-
+univariate_scores <-
   as_forecast_point(
     validation_database,
     observed = "value_canonical",
@@ -67,7 +67,7 @@ scores <-
   ) |>
   score()
 
-summarise_scores(scores, by = "var_canonical")
+summarise_scores(univariate_scores, by = "var_canonical")
 
 # Pilot multivariate point forecasts -------------------------------------
 
