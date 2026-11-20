@@ -8,8 +8,12 @@
   - data/scenarios/maliau/maliau_2/data/main/example_microbial_groups.csv
   - data/scenarios/maliau/maliau_2/data/main/litter_maliau.nc
   - data/scenarios/maliau/maliau_2/data/main/soil_maliau.nc
+  - data/scenarios/maliau/maliau_2/config/main/data_config.toml
+  - data/scenarios/maliau/maliau_2/config/main/litter_config.toml
+  - data/scenarios/maliau/maliau_2/config/main/soil_config.toml
 - Changes made:
-  - Soil and litter input data from the root folder and the pr1958 folder moved to the new main folder
+  - Soil and litter input data from the root folder and the pr1958 folder moved to the new main folder.
+  - Ditto the above for soil, litter and data config TOML files (the data config involves soil AND other modules so I moved them all together)
 - References:
   - PR #760
 
