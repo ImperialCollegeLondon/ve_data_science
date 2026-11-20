@@ -62,10 +62,14 @@ validation_database <-
 univariate_scores <-
   as_forecast_point(
     validation_database,
+    forecast_unit = c("dataset", "ID", "var_canonical"),
     observed = "value_canonical",
     predicted = "value_VE_q50"
   ) |>
   score()
+
+univariate_scores |>
+  add_relative_skill(compare = "var_canonical", metric = "ae_point")
 
 summarise_scores(univariate_scores, by = "var_canonical")
 
