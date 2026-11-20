@@ -26,7 +26,7 @@
 #|
 #| output_files:
 #|   - name: litter_maliau.nc
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: The subset litter input data
 #|
 #| source_files:
@@ -78,7 +78,7 @@ ncout <- subset_nc(
   ll_y = ll_y,
   ur_x = ur_x,
   ur_y = ur_y,
-  filename = "data/scenarios/maliau/maliau_2/data/litter_maliau.nc",
+  filename = "data/scenarios/maliau/maliau_2/data/main/litter_maliau.nc",
   description = "Litter data for the Maliau 2 scenario",
   close.nc = FALSE
 )
