@@ -87,9 +87,3 @@ multivariate_scores <-
   score()
 
 summarise_scores(multivariate_scores)
-
-# Prepare for sample-based evaluation -------------------------------------
-
-# TODO: Define a long-table contract with target and comparator IDs, sample_id,
-# observed and predicted. Preserve sample IDs across all joint components.
-# Matched cells, timestamps and marginal quantiles are not stochastic replicates.
