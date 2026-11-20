@@ -66,12 +66,16 @@ univariate_scores <-
     observed = "value_canonical",
     predicted = "value_VE_q50"
   ) |>
+  transform_forecasts(offset = 1) |>
   score()
 
+# Use `c("dataset", "ID", "var_canonical")` as the observation-target key.
+# `ID` comes from source keys, which are unique only within each dataset.
+# `var_canonical` distinguishes measured targets; `dataset` prevents ID
+# collisions across datasets.
 univariate_scores |>
-  add_relative_skill(compare = "var_canonical", metric = "ae_point")
-
-summarise_scores(univariate_scores, by = "var_canonical")
+  add_relative_skill(compare = "var_canonical", metric = "ae_point") |>
+  summarise_scores(by = "var_canonical")
 
 # Pilot multivariate point forecasts -------------------------------------
 
