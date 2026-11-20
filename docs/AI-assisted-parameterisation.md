@@ -8,43 +8,44 @@ alone is not evidence for a new value. Analyses that need your time, such as
 re-fitting, digitising, pooling or deciding on proxies, are handed off rather
 than done by the agent.
 
-## How a batch works
+## How a search works
 
-Work in batches of a few issues so each step needs your attention only once:
+1. **Search.** Ask "Use ve-constant-search to search for `<constant>`". The
+   agent checks existing issues, reuses a clear match or creates an issue,
+   grounds the constant and searches OpenAlex. The issue card links the papers
+   it needs you to fetch and provides a prompt for the next chat. You can also
+   name existing issues or request a small batch.
+2. **Fetch.** Download requested PDFs into the Git-ignored local folder
+   `.github/skills/ve-constant-search/sources/`, or provide another private
+   folder or session uploads. No renaming or hand-written manifest is needed.
+3. **Follow up.** Start a new chat and say "Use ve-constant-search to follow up
+   #123; PDFs are ready". The agent reads the issue and accessible PDFs, then
+   updates the card with evidence and clear next steps. If files are missing,
+   unreadable or inaccessible in the new session, the card remains pending.
 
-1. **Search.** Ask, for example, "Use ve-constant-search on #309 and #308".
-   The agent searches, reads open-access papers and updates one card per
-   issue. It ends with one list of paywalled PDFs for the whole batch, posted
-   on the umbrella issue (for soil microbes, #215).
-2. **Fetch.** Download those PDFs in one sitting into a private folder outside
-   Git (or upload them to the session). No renaming or hand-written manifest is
-   needed.
-3. **Follow up.** Tell the agent "PDFs ready in `<folder>`". It reads them,
-   updates the cards and umbrella readiness index, and gives you the next
-   steps per issue. If any values are reported directly, it lists them as
-   numbered rows; reply "save 1, 3" or "save none".
+The skill ends with the issue hand-off. Saving result CSVs, updating the PDF
+manifest, creating a PR and further analysis are separate tasks.
 
 Each issue card is a single comment, edited in place. Its status matrix shows
 every constant and group as `value`, `analysis` (you need to judge or analyse
 something), `review pending`, `waiting PDF`, `gap`, `gap (no access)` or
 `n/a`. `review pending` means a PDF was received but not yet assessed, not
 that it supports a value. A later session must recheck access to private
-files. Missing PDFs remain on the shared list until supplied or you choose to
-finish without them. Read the card, not the comment history; reply under it
-to give decisions or extra sources for the next phase.
+files. Missing PDFs remain on the issue card until supplied or you choose to
+finish without them. An umbrella PDF list is maintained only when requested.
+Read the card, not the comment history; reply under it to give decisions or
+extra sources for the next phase.
 
 ```mermaid
 flowchart LR
-    A[Search batch] --> B[Cards + one PDF list]
+    A[Search constant] --> B[Issue card + PDF requests]
     B --> C[You fetch PDFs]
     C --> D[Follow up batch]
     D --> E{Sources reviewed or waived?}
     E -- no --> I[Review pending or waiting for PDFs]
     I --> D
     E -- yes --> J[Cards handed off + next steps]
-    J --> F{Rows to save?}
-    F -- "save n" --> G[Append CSV, validate, one PR]
-    F -- none --> H[Done: you continue the analysis]
+    J --> H[Done: you continue the analysis]
 ```
 
 ## Before you start
@@ -52,8 +53,9 @@ flowchart LR
 1. Open a workspace containing this repository and a sibling
    `virtual_ecosystem` repository. Use the VE version whose constants you want
    to assess; record its commit and any relevant uncommitted changes. If the
-   sibling checkout is missing or unverifiable, restore it before grounding;
-   an installed package alone does not establish the checkout commit.
+   sibling checkout is missing, the agent can clone the official repository at
+   the reviewed commit. It must not overwrite or switch an existing dirty or
+   mismatched checkout. An installed package alone does not establish the commit.
 2. For the microbial pilot, run `uv sync --locked --group dev-pinned` from the
    repository root. This installs the reviewed post-VE-PR-1958 source, not the
    0.2.3 release with the older configuration schema. For other workflows,
@@ -64,14 +66,14 @@ flowchart LR
    `renv.lock`, including `ragnar` and `DBI`. Rebuilding the documentation store
    also needs `tidyverse` from that lockfile. Local renv use is otherwise
    optional; see [R with renv](renv.md).
-3. Optionally configure OpenAlex access. See the commands below. Without
-   credentials, the helper still searches with OpenAlex's smaller keyless
-   budget.
+3. Configure `OPENALEX_API_KEY` as described below. The skill requires the
+   helper to report `api_key` mode; it stops if the key is missing or fails.
 
 ### Configure OpenAlex
 
-The helper chooses the first available approach and reports it (`api_key`,
-`email` or `keyless`) on stderr. It never prints the key or address.
+The helper reports its access mode (`api_key`, `email` or `keyless`) on
+stderr. It never prints the key or address. The skill requires `api_key` mode;
+email and keyless modes are supported by the helper but not by this workflow.
 
 1. `OPENALEX_API_KEY`: your free OpenAlex API key, from
    [Settings → API key](https://openalex.org/settings/api-key). It gives a
@@ -148,7 +150,7 @@ The workflow applies to GitHub Actions sessions, not cloud sandboxes.
 In an assistant that supports repository skills, ask it to use
 [`ve-constant-search`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/SKILL.md)
 on a few issues or qualified names (`module.Class.attribute`), as in
-[How a batch works](#how-a-batch-works). If you name a module, class or family,
+[How a search works](#how-a-search-works). If you name a module, class or family,
 agree on a small subset before searching.
 
 ## Review the evidence
@@ -215,31 +217,30 @@ uv run --no-sync python \
 ```
 
 Use a specific HTTPS PDF URL returned by the OpenAlex helper or supplied by the
-user. Create the output directory first. Keep PDFs outside the repository unless
-retention there is permitted. The tool rejects redirects and non-PDF responses,
-never overwrites files, and saves a `.pdf.json` provenance record beside the
-PDF. A saved PDF still needs manual full-text review. If full text is
-inaccessible, the paper goes on the batch PDF list instead of being searched
-for elsewhere. Verify access and retention rights for supplied PDFs.
+user. Create the output directory outside the repository first. Keep PDFs
+only when retention is permitted. The tool rejects redirects and non-PDF
+responses, never overwrites files, and saves a `.pdf.json` provenance record
+beside the PDF; this sidecar is not ignored by Git. A saved PDF still needs
+manual full-text review. If full text is inaccessible, the paper goes on the
+issue card's PDF list instead of being searched for elsewhere. Verify access and
+retention rights for supplied PDFs.
 
 ### Supply private PDFs
 
 You can use your existing filenames; no renaming or hand-written manifest is
-required. Keep the PDF folder private and outside Git. When working locally,
-give the agent its path as the optional `PDF_DIR`. In a cloud session, upload
-the PDFs or grant folder access using the host's supported controls. The agent
-must verify that it can read the supplied files: granting a local app folder
+required. Keep the PDF folder private and outside Git tracking. The default
+local folder is `.github/skills/ve-constant-search/sources/`; you may give the
+agent another private folder. In a cloud session, upload the PDFs or grant
+folder access using the host's supported controls. The agent must verify that it
+can read the supplied files: granting a local app folder
 access does not automatically make that folder readable in a cloud workspace.
 If necessary, upload the files into private cloud storage accessible to that
 session. A new environment or Git checkout does not restore private PDF access.
 
-The agent leaves PDFs unchanged and matches each one to the batch PDF list
+The agent leaves PDFs unchanged and matches each one to the issue PDF requests
 using the paper's front matter, not DOIs in its reference list. Unmatched or
-uncertain files are reported for your review. When matched PDFs are not yet in
-the manifest, the agent asks once whether to add them to the Git-tracked
-`.github/skills/ve-constant-search/sources/manifest.csv`. It records original
-filenames, hashes, citation metadata and page counts. This choice is separate
-from saving result rows.
+uncertain files are reported for your review. The skill does not update the
+Git-tracked PDF manifest or result files. Those are separate tasks if requested.
 
 PDFs, extracted full text and private absolute paths must
 not be staged, committed, pushed or published in issue/PR comments. Research
@@ -269,7 +270,10 @@ categories and measurement conditions. Missing groups remain gaps; do not
 fill them with pooled measurements. A `no_evidence` result describes the
 limits of this search, not proof that no literature exists.
 
-## Approve and retain results
+## Approve and retain results separately
+
+The following describes a separate, explicitly requested task, not part of the
+constant-search skill hand-off.
 
 Discuss proposed values, exclusions and gaps before authorising changes. The
 assistant never uses proxies or changes inclusion criteria itself; those become

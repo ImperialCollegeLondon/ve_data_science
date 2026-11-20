@@ -37,19 +37,19 @@ search/candidate (or one row for an empty or failed search). Never rewrite a
 historical search log.
 
 For user-supplied PDFs, the user does not need to prepare an inventory or
-manifest. When saving approved rows, use `source=user_supplied_pdf` in the
-research log, record the intake date and screening decision, and identify the
-supplied file using a non-sensitive filename or checksum in `notes`. For the
-optional `../sources/manifest.csv` update, follow Phase 3 in `../SKILL.md`.
-Leave unknown DOI and source URL fields empty; do not put private absolute
-paths or extracted full text in committed CSVs. A successful read is not itself
-verified evidence for a constant.
+manifest. The skill does not update `../sources/manifest.csv` or write result
+rows; these are separate tasks if explicitly requested. For a separate approved
+results task, use `source=user_supplied_pdf` in the research log, record the
+intake date and screening decision, and identify the supplied file using a
+non-sensitive filename or checksum in `notes`. Leave unknown DOI and source URL
+fields empty; do not put private absolute paths or extracted full text in
+committed CSVs. A successful read is not itself verified evidence for a constant.
 
 ## Card and PDF-list templates
 
 `handoff_template.md` defines the two comments the skill maintains, each edited
-in place: one card per issue (status matrix, reading set, next steps and a
-collapsed agent record) and one batch PDF list on the umbrella issue.
+in place: one card per issue (status matrix, reading set, PDF requests, next
+steps and a collapsed agent record) and an optional umbrella PDF list.
 
 ## Search log fields
 

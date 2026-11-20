@@ -1,14 +1,14 @@
 <!-- markdownlint-disable MD013 MD033 MD041 -->
 # Issue card and batch PDF list
 
-Two templates. Each is one GitHub comment, **edited in place** in later phases.
-A human should take in either one in under a minute.
+The issue card is one GitHub comment, **edited in place** in later phases.
+The optional umbrella list is a separate comment. Keep both easy to skim.
 
 ## Issue card
 
 One per issue. Status is `searching`, `review pending`, `waiting for PDFs` or
-`handed off`. Keep the visible part to the matrix, the reading set and (when
-handed off) the next steps. Everything else goes in the collapsed agent record.
+`handed off`. Keep the visible part to the matrix, the reading set, PDF requests
+and (when handed off) the next steps. Everything else goes in the collapsed agent record.
 
 ```markdown
 <!-- ve-constant-search:card -->
@@ -25,6 +25,13 @@ handed off) the next steps. Everything else goes in the collapsed agent record.
 
 1. [Mouginot et al. (2014)](https://doi.org/10.1016/j.soilbio.2014.05.011): bacterial and fungal culture C:N:P (Table 1); leaf-litter isolates.
 2. [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632): saprotrophic mycelia across N/P supply. **Waiting PDF.**
+
+### PDFs to fetch
+
+- [ ] [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632)
+
+Save PDFs locally in `.github/skills/ve-constant-search/sources/`. In a new
+chat, say: "Use ve-constant-search to follow up #123; PDFs are ready."
 
 ### Next steps
 
@@ -44,6 +51,8 @@ _Filled when handed off: one line per `analysis` cell (human task + source), bes
 
 Rules:
 
+- When first created, a `searching` card may show the requested scope without
+  a matrix; do not mark unsearched cells as gaps.
 - Matrix cells use only `value`, `analysis`, `review pending`, `waiting PDF`,
   `gap`, `gap (no access)` or `n/a`. A `value` cell may add the converted
   value and units, e.g. `value: 3.9 g/g`. Receipt alone is `review pending`,
@@ -64,10 +73,10 @@ issue/source pairs from other batches.
 <!-- ve-constant-search:pdf-list -->
 ## PDFs to fetch (batch updated YYYY-MM-DD)
 
-Save into one private folder (keep the original names), then tell Copilot "PDFs ready in <folder>".
+Save locally in `.github/skills/ve-constant-search/sources/`, keeping original names. Follow up in a new chat with the relevant issue number.
 
 - [ ] [Camenzind et al. (2021)](https://doi.org/10.1111/ele.13632): #309
 - [ ] [Author (year)](https://doi.org/...): #308, #309
 ```
 
-Keep private paths, PDFs, extracts and credentials out of both templates.
+Keep private absolute paths, PDFs, extracts and credentials out of both templates.
