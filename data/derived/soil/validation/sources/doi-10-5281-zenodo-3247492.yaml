@@ -1,0 +1,28 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3247492
+doi: 10.5281/zenodo.3247492
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: ''
+  screened_at: '2026-11-18T08:42:27Z'
+metadata:
+  title: Dung beetle community and dung removal data 2011
+  authors:
+  - Slade, Eleanor M.
+  - Bush, Emma
+  - Mann, Darren J.
+  - Chung, Arthur. Y.C.
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3247492
+  keywords:
+  - Dung beetle
+  - Dung removal
+  - Ecosystem functioning
+  - Biodiversity
+  - Insects
+  - Arthropods
+  provider: doi_content_search
+  retrieved_at: '2026-11-18T08:42:09Z'
