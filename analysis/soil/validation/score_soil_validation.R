@@ -77,6 +77,17 @@ summarise_scores(univariate_scores, by = "var_canonical")
 # TODO: Score a justified joint vector with the variogram score alongside
 # univariate metrics; the variogram alone misses a common additive bias.
 
+multivariate_scores <-
+  as_forecast_multivariate_point(
+    validation_database,
+    joint_across = "module", # placeholder
+    observed = "value_canonical",
+    predicted = "value_VE_q50"
+  ) |>
+  score()
+
+summarise_scores(multivariate_scores)
+
 # Prepare for sample-based evaluation -------------------------------------
 
 # TODO: Define a long-table contract with target and comparator IDs, sample_id,
