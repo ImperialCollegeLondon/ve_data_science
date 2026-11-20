@@ -75,7 +75,7 @@ jobs:
           if digests(installed) != digests(source):
               raise ValueError("Installed VE does not match the pinned source")
           '
-          echo "Prepared VE $ve_version source at ${tags[0]} ($(git -C "$ve_root" rev-parse HEAD))"
+          echo "Prepared VE source at $ve_commit"
 
       - name: Set up R
         uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2

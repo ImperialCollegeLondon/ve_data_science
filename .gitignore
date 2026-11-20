@@ -13,7 +13,6 @@
 *.rds
 *.RData
 *.[zZ][iI][pP]
-/.github/skills/ve-constant-search/sources/**/*.[pP][dD][fF]
 
 # Primary data
 data/primary/*
@@ -40,6 +39,9 @@ data/derived/soil/spatial_model
 data/derived/soil/fungi_stoichiometry/sporocarp_CNP.csv
 data/derived/soil/validation/literature_search/results.csv
 data/derived/soil/validation/datasets/nottingham_2021/*.csv
+
+/.github/skills/ve-constant-search/sources/**
+!/.github/skills/ve-constant-search/sources/manifest.csv
 
 # MkDocs build output
 /site/

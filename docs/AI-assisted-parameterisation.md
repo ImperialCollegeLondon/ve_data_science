@@ -72,8 +72,10 @@ flowchart LR
 ### Configure OpenAlex
 
 The helper reports its access mode (`api_key`, `email` or `keyless`) on
-stderr. It never prints the key or address. The skill requires `api_key` mode;
-email and keyless modes are supported by the helper but not by this workflow.
+stderr. It never prints the key or address. OpenAlex requires the API key as a
+query parameter; the helper sanitises request errors to avoid exposing it. Do
+not copy request URLs from HTTP logs. The skill requires `api_key` mode; email
+and keyless modes are supported by the helper but not by this workflow.
 
 1. `OPENALEX_API_KEY`: your free OpenAlex API key, from
    [Settings → API key](https://openalex.org/settings/api-key). It gives a
@@ -134,6 +136,13 @@ Agents settings by GitHub. See
 The setup workflow does not test OpenAlex access.
 Copilot's network policy must permit the OpenAlex API and any authorised
 full-text hosts needed by a search.
+
+Issue tracking also needs repository issue access: the cloud agent must be able
+to read issues and create or edit issue comments. This is separate from the
+setup workflow's Actions permissions and the OpenAlex secret. Confirm the
+agent's repository access in the host settings before starting; if issue
+operations are unavailable, report the blocker instead of switching to a
+personal access token or continuing without durable issue state.
 
 The current pilot pin is VE `6c3132f46e06fa83b9133aa2c4d2adbd60cf21ad`.
 To change the reviewed revision, update the existing `dev-pinned` source in
