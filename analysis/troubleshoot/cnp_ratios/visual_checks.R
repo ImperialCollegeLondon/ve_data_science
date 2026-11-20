@@ -18,12 +18,12 @@
 #|
 #| input_files:
 #|   - name: soil_maliau.nc
-#|     path: data/scenarios/maliau/maliau_2/data/soil_maliau.nc
+#|     path: data/scenarios/maliau/maliau_2/data/main/soil_maliau.nc
 #|     description: |
 #|       Soil pool NetCDF data used to extract C, N, and P values for selected
 #|       soil CNP pool variables.
 #|   - name: litter_maliau.nc
-#|     path: data/scenarios/maliau/maliau_2/data/litter_maliau.nc
+#|     path: data/scenarios/maliau/maliau_2/data/main/litter_maliau.nc
 #|     description: |
 #|       Litter pool NetCDF data used to extract C, N, and P values for selected
 #|       litter CNP pool variables.
@@ -61,8 +61,8 @@ library(tidyverse)
 library(tidync)
 
 # Open NetCDF sources for soil and litter pools
-soil <- tidync("data/scenarios/maliau/maliau_2/data/soil_maliau.nc")
-litter <- tidync("data/scenarios/maliau/maliau_2/data/litter_maliau.nc")
+soil <- tidync("data/scenarios/maliau/maliau_2/data/main/soil_maliau.nc")
+litter <- tidync("data/scenarios/maliau/maliau_2/data/main/litter_maliau.nc")
 
 # Variables to inspect across both sources
 vars <- c(

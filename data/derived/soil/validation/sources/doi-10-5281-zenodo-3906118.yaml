@@ -1,0 +1,29 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3906118
+doi: 10.5281/zenodo.3906118
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: ''
+  screened_at: '2026-11-18T08:40:37Z'
+metadata:
+  title: Dung beetle community and dung removal data 2015
+  authors:
+  - Slade, Eleanor M.
+  - Milne, Sol
+  - Chung, Arthur. Y.C.
+  - Williamson, Joseph
+  - Parrett, Jonathan
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3906118
+  keywords:
+  - Dung beetle
+  - Dung removal
+  - Ecosystem functioning
+  - Biodiversity
+  - Insects
+  - Arthropods
+  provider: doi_content_search
+  retrieved_at: '2026-11-18T08:40:30Z'
