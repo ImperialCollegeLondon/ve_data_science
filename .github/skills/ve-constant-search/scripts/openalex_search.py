@@ -18,7 +18,7 @@ package_dependencies:
 usage_notes: |
   Run search "QUERY" or snowball --id W... from the repository root with
   uv. Access uses OPENALEX_API_KEY if set, else OPENALEX_EMAIL, else keyless.
-  Each is read from the process environment, then the skill's .env. The
+  Each is read from the process environment, then the user's .Renviron. The
   access approach is reported on stderr; the key and email are never printed.
   Results go to stdout; request failures are reported without credential-bearing
   URLs, and JSON errors propagate rather than becoming empty results.
@@ -36,14 +36,20 @@ import requests
 
 
 def read_setting(name):
-    """Return a setting from the process environment, then the skill's .env."""
+    """Return a setting from the process environment, then user .Renviron."""
     value = os.environ.get(name, "").strip()
     if value:
         return value
 
-    env_file = Path(__file__).resolve().parents[1] / ".env"
-    if env_file.is_file():
-        for line in env_file.read_text(encoding="utf-8-sig").splitlines():
+    home = Path.home()
+    renviron_files = [home / ".Renviron"]
+    if os.name == "nt":
+        renviron_files.insert(0, home / "Documents" / ".Renviron")
+
+    for renviron_file in renviron_files:
+        if not renviron_file.is_file():
+            continue
+        for line in renviron_file.read_text(encoding="utf-8-sig").splitlines():
             key, separator, value = line.strip().partition("=")
             if separator and key.strip() == name:
                 value = value.strip().strip("\"'")

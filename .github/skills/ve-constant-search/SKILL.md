@@ -341,7 +341,7 @@ uv run --no-sync python \
 Use only this helper for discovery and citation lookup: no OpenAlex MCP tools,
 web search or `webfetch` discovery. `search "DOI"` is fuzzy, so compare the
 returned DOIs. The helper reads `OPENALEX_API_KEY`, else `OPENALEX_EMAIL`, else
-runs keyless, from the environment or a `.env` beside this file. This workflow
+runs keyless, from the environment or the user's `.Renviron`. This workflow
 requires `api_key` mode: verify the printed mode on every helper invocation,
 and stop and ask the user to configure `OPENALEX_API_KEY` if it is missing or
 authentication fails. Do not use email or keyless results as a fallback. Record

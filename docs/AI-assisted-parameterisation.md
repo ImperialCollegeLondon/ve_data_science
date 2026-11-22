@@ -84,22 +84,21 @@ and keyless modes are supported by the helper but not by this workflow.
 2. `OPENALEX_EMAIL`: your own contact address, used only when no key is set.
 3. Keyless: used when neither is set.
 
-For repo-local setup, create `.github/skills/ve-constant-search/.env` with
-either or both lines:
+Store either or both values in your user-level `.Renviron`. Open it with
+`usethis::edit_r_environ()` or create it at `~/.Renviron`, then add:
 
 ```dotenv
 OPENALEX_API_KEY=your-key
 OPENALEX_EMAIL=you@example.org
 ```
 
-Replace the placeholders with your own values. The file is ignored by Git. The
-helper reads it relative to its own location, regardless of the working
-directory. No Positron restart is needed. It does not read R `.Renviron` files.
+Replace the placeholders with your own values, save the file, then restart
+Positron so new R and terminal sessions load them. On Windows, R normally uses
+`Documents/.Renviron`; the helper checks that location and the user home.
 
 An existing variable in the process environment takes precedence over the same
-name in the `.env` file. To use the repo-local value instead, remove the
-user-level variable and restart Positron, or unset it in the terminal running
-the helper:
+name in `.Renviron`. To use the `.Renviron` value instead, unset the variable in
+the terminal running the helper:
 
 ```powershell
 Remove-Item Env:OPENALEX_API_KEY
