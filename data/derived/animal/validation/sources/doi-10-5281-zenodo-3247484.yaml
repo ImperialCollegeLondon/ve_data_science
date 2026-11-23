@@ -1,0 +1,31 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3247484
+doi: 10.5281/zenodo.3247484
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: A slightly confusing dataset which reports ant attendance to baits. “Ant
+    Attendance”” has abundance of ants to bait card in 5 minute interval. “Ant_ID”  sheet
+    has abundannce of different species in SAFE fragment blocks. Will need to look
+    into this later.
+  screened_at: '2026-11-23T09:51:01Z'
+metadata:
+  title: How does forest conversion and fragmentation affect ant communities and the
+    ecosystem processes that they mediate?
+  authors:
+  - Fayle, Tom M
+  - Yusah, Kalsum M
+  - Ewers, Robert M
+  - Boyle, Michael J. W.
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3247484
+  keywords:
+  - Ants
+  - Foraging
+  - Bait removal
+  - SAFE project
+  - Formicidae
+  provider: doi_content_search
+  retrieved_at: '2026-11-23T09:35:40Z'

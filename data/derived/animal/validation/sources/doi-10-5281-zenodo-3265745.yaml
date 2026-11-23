@@ -4,14 +4,20 @@ doi: 10.5281/zenodo.3265745
 screening:
   decision: proceed
   reason: relevant_validation_data
-  notes: This is a different dataset from Sarah Luke and March. The sheet “Leaf_litter_invertebrates”
-    which has 1m^2 quadrat for every 7m along a 100m transect. Location coordinates
+  notes: Dataset includes 1) leaf litter invert density and 2) termite feeding activity.
+    (1) The “Leaf_litter_invertebrates” sheet is different from Sarah Luke and March's data,
+    it has 1m^2 quadrat for every 7m along a 100m transect. Location coordinates
     only known for each transect so to process this dataset, we would combine abundance/density
     from all 15 quadrats to compare with model output density. Lots of invert genera
     are represented here – are the functional groups fully represented? I think yes.
     If not,  predicted and observed should be converted to min-max (0-1) to account
     for missing groups. We will only use control groups as termite suspensions (Termite
     in datasheet) are the groups that exclude ground termites.
+    (2) The “Termite_feeding_activity”  sheet provides data on termite attack on TPRs
+    (Toilet Paper Rolls). Termite attack are scored on a 0-5 scale,  where 0 is untouched and 5
+    is completely eaten. Cumulative attacks/consumptions are recorded for every month. If we
+    assume 0 as min and 5 as max, we can scale our mass flow of “wood” resource to a min-max
+    scale and compare monthly cosumption?
   screened_at: '2026-11-20T08:04:22Z'
 metadata:
   title: Termite abundance and ecosystem processes in Maliau Basin, 2015-2016 [HMTF]

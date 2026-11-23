@@ -1,0 +1,25 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1303009
+doi: 10.5281/zenodo.1303009
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: This dataset records the number of leaf litter weight but also number of
+    adult, tadpoles and spawns in the leaf litter in SAFE, but no Maliau. No metadata
+    on how leaf litter is collected. If a quadrat size is known, we could use it to
+    estimate leaf litter frog density in SAFE.
+  screened_at: '2026-11-23T07:55:51Z'
+metadata:
+  title: Leaf Litter Amphibian Communities
+  authors: Faruk, Aisyah
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1303009
+  keywords:
+  - frog
+  - amphibian
+  - community composition
+  - tadpole
+  provider: doi_content_search
+  retrieved_at: '2026-11-23T07:54:10Z'

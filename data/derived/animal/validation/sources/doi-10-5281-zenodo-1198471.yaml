@@ -1,0 +1,29 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1198471
+doi: 10.5281/zenodo.1198471
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: This dataset has twig-nesting ant community colony  data. They examined the
+    number of twigs in 1m^2 sub-plot quadrat to look for number of colonies (a colony
+    has at least one queen, or at least two workers with brood). One way to use this
+    data is to assume an average number of ants per colony, ideally in different genera.
+    Using that average, we can multiply it by the number of colonies to get abundance
+    and hence density.
+  screened_at: '2026-11-23T08:14:51Z'
+metadata:
+  title: Microclimate Change, Forest Disturbance And Twig-Dwelling Ants
+  authors: Lane Shaw, Isolde
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198471
+  keywords:
+  - twig-nesting ant
+  - colonisation
+  - termite
+  - microclimate
+  - soil temperature
+  - Ctmax
+  provider: doi_content_search
+  retrieved_at: '2026-11-23T08:14:40Z'

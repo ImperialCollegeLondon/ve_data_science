@@ -4,11 +4,16 @@ doi: 10.5281/zenodo.3981221
 screening:
   decision: exclude
   reason: no_relevant_variables
-  notes: Dataset includes leaf herbivory which measured area of leaf eaten in control
+  notes: Dataset includes 1) leaf herbivory which measured area of leaf eaten in control
     (no cage) and treatment (with cage, vertebrate exclusion). Leaf area loss measured
     in area (m^2). To compare with model output which is mass flow, we need to convert
     leaf area to mass, which is not possible without a reliable way of knowing leaf
     mass per area (LMA).
+    Dataset also includes 2) insect predation through visual observation
+    of number of attacks on artificial caterpillars. To compare number of predation events
+    with model output, we have to make many assumptions (including whether these numbers are
+    representative of all predation events or always result in predation) and conversions to
+    estimate mass consumed by predators.
   screened_at: '2026-11-20T07:16:02Z'
 metadata:
   title: Effects of habitat modification on a tritrophic cascade in a lowland tropical

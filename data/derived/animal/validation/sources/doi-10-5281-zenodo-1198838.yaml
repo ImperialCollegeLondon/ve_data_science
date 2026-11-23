@@ -1,0 +1,29 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1198838
+doi: 10.5281/zenodo.1198838
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Dataset includes soil-living ant abundance in soil pit that was 12x12cm wide
+    and 10cm deep. We can then separate the ant taxa into different functional group,
+    here particularly their diet (check SAFE_template for trophic trait) as we know
+    they are soil living inverts. We calculate its density and scale to 0-1 min-max
+    to compare with density from our model output. The workflow will be similar to
+    the coleoptera data sheet from Maliau Quantitative Inventory.
+  screened_at: '2026-11-23T09:26:19Z'
+metadata:
+  title: Abundance And Morphometrics Of Ant Genera
+  authors:
+  - Bishop, Tom
+  - Ewers, Rob
+  year: 2018
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198838
+  keywords:
+  - ants
+  - functional diversity
+  - morphometrics
+  - soil communities
+  provider: doi_content_search
+  retrieved_at: '2026-11-23T09:26:09Z'

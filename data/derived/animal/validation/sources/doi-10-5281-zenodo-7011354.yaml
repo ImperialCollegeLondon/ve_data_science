@@ -1,0 +1,33 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-7011354
+doi: 10.5281/zenodo.7011354
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: The dataset includes sweep netting abundance data of mostly grasshoppers
+    (Acrididae, Tetrigidae), crickets (gryllidae) and dragonflies (orthoptera). Sweep
+    netting is not a relaible way of getting absolute density.
+  screened_at: '2026-11-23T06:09:59Z'
+metadata:
+  title: The effects of habitat modification on the distribution and feeding ecology
+    of Orthoptera 2015
+  authors:
+  - Hardwick, Jane
+  - Kinneen, Lois
+  - Maunsell, Sarah
+  - Stork, Nigel
+  - Yusah, Kalsum Mohd
+  - Kitching, Roger
+  year: 2022
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/7011354
+  keywords:
+  - Orthoptera
+  - Forest conversion
+  - Deforestation
+  - Palm oil
+  - Species composition
+  - Insect communities
+  provider: doi_content_search
+  retrieved_at: '2026-11-23T06:09:02Z'
