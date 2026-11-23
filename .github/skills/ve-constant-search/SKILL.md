@@ -279,6 +279,9 @@ is blocked, not done:
 
 ## Rules
 
+- When writing GitHub issue or pull request text, keep each prose paragraph on
+  one line. Use line breaks only when required by Markdown structure, such as
+  headings, lists, tables or code blocks.
 - Ask the user when duplicate issue selection, constant identity, access, VE
   units or functional form is ambiguous, or before widening the search budget.
   Scientific judgements (proxies, habitat transfer, a unit
