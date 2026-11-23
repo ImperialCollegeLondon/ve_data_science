@@ -173,6 +173,16 @@ def load_litter_nodes(
 
         # Then find values for nodes through the simulation and concatenate
         continuous_nodes = outputs[NODES]
+
+        # Remove pft dimension from initial variables where outputs don't have
+        # it as this screws up concatenation
+        for var in initial_nodes.data_vars:
+            if (
+                "pft" in initial_nodes[var].dims
+                and "pft" not in continuous_nodes[var].dims
+            ):
+                initial_nodes[var] = initial_nodes[var].isel(pft=0, drop=True)
+
         litter_nodes = xr.concat([initial_nodes, continuous_nodes], dim="time_index")
 
         # All these nodes are by definition nodes
@@ -238,7 +248,7 @@ def define_plant_matter_input_flows(
     # Wood input needs special handling as it only flows to a single pool
     wood_input = "stem_turnover_cnp"
     wood_flow_variable = f"{wood_input}_→_litter_pool_woody_cnp"
-    litter_cycles[wood_flow_variable] = litter_cycles[wood_input].sum(dim="pft")
+    litter_cycles[wood_flow_variable] = litter_cycles[wood_input]
     litter_cycles[wood_flow_variable].attrs["category"] = "link"
 
     # As wood has already been handled it is removed from the list of input
@@ -406,10 +416,10 @@ def calculate_litter_decay_losses(
 
         # Now calculate implied decay by calculating the change in the litter stock
         # that isn't accounted for
-        change_in_pool = (
-            litter_cycles[litter_pool].shift(time_index=1) - litter_cycles[litter_pool]
+        change_in_pool = litter_cycles[litter_pool] - litter_cycles[litter_pool].shift(
+            time_index=1
         )
-        decay_loss = change_in_pool - non_decay_pool_changes
+        decay_loss = non_decay_pool_changes - change_in_pool
 
         # Extract pool specific details
         cue = pool_specific_details[litter_pool]["cue"]
