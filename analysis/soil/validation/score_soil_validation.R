@@ -42,40 +42,28 @@ validation_database <-
   open_dataset("data/derived/soil/validation/database_combined") |>
   collect()
 
-# Establish the scoring contract -----------------------------------------
-
-# TODO: Define model/version, scenario and parameter-configuration identifiers.
-# TODO: Check whether dataset, ID and var_canonical uniquely identify a target.
-# TODO: Audit missing, non-finite and unsupported matches. Report input,
-# eligible, excluded and scored counts, with reasons and join classes.
-# TODO: Map value_canonical to observed and value_VE_q50 to predicted.
-# The q50 is a median across matched cells and timestamps, not a predictive mean.
 
 # Score univariate point forecasts ---------------------------------------
-
-# TODO: Set forecast_unit explicitly and select ae_point and se_point.
-# TODO: Score observations, then calculate MAE as mean(ae_point) and RMSE as
-# sqrt(mean(se_point)), grouped by canonical variable, unit and join class.
-# TODO: Compare with yardstick on the same observations, including log1p.
-# log1p scores do not make variables with different units or scales comparable.
 
 univariate_scores <-
   as_forecast_point(
     validation_database,
+    # Use `c("dataset", "ID", "var_canonical")` as the observation-target key.
+    # `ID` comes from source keys, which are unique only within each dataset.
+    # `var_canonical` distinguishes measured targets; `dataset` prevents ID
+    # collisions across datasets.
     forecast_unit = c("dataset", "ID", "var_canonical"),
     observed = "value_canonical",
     predicted = "value_VE_q50"
   ) |>
-  transform_forecasts(offset = 1) |>
-  score()
+  # log shift transformation does not work on all VE data variables
+  # transform_forecasts(offset = 1) |>
+  score() |>
+  select(-se_point, -ape)
 
-# Use `c("dataset", "ID", "var_canonical")` as the observation-target key.
-# `ID` comes from source keys, which are unique only within each dataset.
-# `var_canonical` distinguishes measured targets; `dataset` prevents ID
-# collisions across datasets.
 univariate_scores |>
-  add_relative_skill(compare = "var_canonical", metric = "ae_point") |>
   summarise_scores(by = "var_canonical")
+
 
 # Pilot multivariate point forecasts -------------------------------------
 
