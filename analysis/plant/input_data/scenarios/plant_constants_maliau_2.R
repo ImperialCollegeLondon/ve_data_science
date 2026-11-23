@@ -34,7 +34,7 @@
 #|
 #| output_files:
 #|   - name: plant_constants_maliau_2.csv
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: |
 #|       Plant constants table for the Maliau 2 scenario.
 #|     variables:
@@ -527,14 +527,14 @@ plant_constants_maliau_2$root_lignin <-
 # Write CSV file
 
 dir.create(
-  "../../../../data/scenarios/maliau/maliau_2/data",
+  "../../../../data/scenarios/maliau/maliau_2/data/main",
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 write.csv(
   plant_constants_maliau_2,
-  "../../../../data/scenarios/maliau/maliau_2/data/plant_constants_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/main/plant_constants_maliau_2.csv",
   row.names = FALSE
 )
 
