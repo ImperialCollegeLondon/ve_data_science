@@ -1,0 +1,33 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3981222
+doi: 10.5281/zenodo.3981222
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: ''
+  screened_at: '2026-11-18T08:32:38Z'
+metadata:
+  title: Effects of habitat modification on a tritrophic cascade in a lowland tropical
+    rainforest
+  authors:
+  - Fraser, Adam
+  - Bernard, H
+  - Mackintosh, Emma
+  - Ewers, Robert M
+  - Banks-Leite, Cristina
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3981222
+  keywords:
+  - leaf herbivory
+  - birds
+  - exclusion cages
+  - point count
+  - insect predation
+  - ecsosystem processes
+  - trophic interactions
+  - vertebrate exclusion
+  - functional redundancy
+  provider: doi_content_search
+  retrieved_at: '2026-11-18T08:32:30Z'
