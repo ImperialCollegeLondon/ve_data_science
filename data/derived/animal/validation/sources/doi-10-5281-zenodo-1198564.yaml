@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-1198564
+doi: 10.5281/zenodo.1198564
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: This dataset has earthworm abundance and wet weight data from both top soil
+    and litter. We can validate our model ouptut with biomass density (use “biomass
+    per m2” column in datasheet) and individual density (use no. of individuals per
+    plot). May have to combine density of rows from the same SAFE Location. This dataset
+    should be transformed to min-max (0-1) to account for missing decomposer group
+    such as diplopoda.
+  screened_at: '2026-11-20T09:18:02Z'
+metadata:
+  title: Land use effect on earthworms
+  authors: Rao, Sri
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/1198564
+  keywords:
+  - Earthworms
+  - Soil pits
+  - Soil structure
+  - Below ground biodiversity
+  provider: doi_content_search
+  retrieved_at: '2026-11-20T09:03:02Z'

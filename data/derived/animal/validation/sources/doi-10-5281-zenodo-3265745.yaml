@@ -1,0 +1,59 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3265745
+doi: 10.5281/zenodo.3265745
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: This is a different dataset from Sarah Luke and March. The sheet “Leaf_litter_invertebrates”
+    which has 1m^2 quadrat for every 7m along a 100m transect. Location coordinates
+    only known for each transect so to process this dataset, we would combine abundance/density
+    from all 15 quadrats to compare with model output density. Lots of invert genera
+    are represented here – are the functional groups fully represented? I think yes.
+    If not,  predicted and observed should be converted to min-max (0-1) to account
+    for missing groups. We will only use control groups as termite suspensions (Termite
+    in datasheet) are the groups that exclude ground termites.
+  screened_at: '2026-11-20T08:04:22Z'
+metadata:
+  title: Termite abundance and ecosystem processes in Maliau Basin, 2015-2016 [HMTF]
+  authors:
+  - Ashton, Louise
+  - Griffiths, Hannah
+  - Parr, Catherine
+  - Evans, Theodore
+  - Eggleton, Paul
+  - Vairappan, Charles
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3265745
+  keywords:
+  - Bulbitermtes
+  - Coptotermes
+  - Dicuspiditermes
+  - Globertermes
+  - Hetertermes
+  - HMTF
+  - Homallotermes
+  - Human-modified tropical forest
+  - Hypotermes
+  - invertebrates
+  - leaf litter
+  - litter bags
+  - Macrotermes
+  - Malaysia
+  - Malaysiotermes
+  - Maliau Basin Conservation Area
+  - Microcerotermes
+  - Odontotermes
+  - Parrhinotermes
+  - Procapritermes
+  - Prohamitermes
+  - rainfall
+  - Sabah
+  - Schedorhinotermes
+  - soil moisture
+  - soil nutrients
+  - Termes
+  - termites
+  provider: doi_content_search
+  retrieved_at: '2026-11-20T08:03:29Z'

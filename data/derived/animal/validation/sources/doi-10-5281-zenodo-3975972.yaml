@@ -1,0 +1,30 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3975972
+doi: 10.5281/zenodo.3975972
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: This dataset includes 4m^2 quadrat with Control:no cage;Exclusion:inside
+    vertebrate exclusion cage for VJR and E plot. Authors employ visual surveys on
+    the quadrats to identify all invertebrate groups, mostly in order level. If we
+    use this dataset for invertebrate density, we would only use the control rows.Would
+    like to clarify what visual survey here is? counting what is inside the cage?
+  screened_at: '2026-11-20T08:55:57Z'
+metadata:
+  title: The importance of vertebrates in regulating insect herbivory pressure along
+    a gradient of logging intensity in Sabah, Borneo
+  authors:
+  - Ewers, Robert M
+  - Gray, Ryan
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3975972
+  keywords:
+  - Fungus
+  - Ordinal composition
+  - Understory vegetation
+  - Trophic interactions
+  - Herbivory
+  provider: doi_content_search
+  retrieved_at: '2026-11-20T08:54:35Z'

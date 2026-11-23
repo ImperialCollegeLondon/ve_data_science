@@ -1,0 +1,44 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3973550
+doi: 10.5281/zenodo.3973550
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: The dataset contains visual transect survey of amphibians on stream. Although
+    there is a good number of environmental covariates (stream variables) collected,
+    it will be difficult to estimate density due to the problem of imperfect detection
+    which normally requires detection covariate data which is not in this dataset.
+  screened_at: '2026-11-20T10:01:45Z'
+metadata:
+  title: Amphibian survey of riparian buffer zones at SAFE Project, Borneo
+  authors:
+  - Fraser, Adam
+  - Mackintosh, Emma
+  - MacLean, Catherine
+  - McKinlay, Amelia
+  - Martin, Stephanie
+  - Prairie, Aaron
+  - Vollans, Maisie
+  - Adzhar, Rahayu
+  - Wiederkehr, Fabienne
+  - Graves, Kristina
+  - Brasington, Ella
+  - Noble, Ciar
+  - Baynham, Georgina
+  - Roxby, Gabrielle
+  - Poznansky, Frederica
+  - Ewers, Robert M
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3973550
+  keywords:
+  - Frogs
+  - Amphibians
+  - Stream
+  - Riparian
+  - Species richness
+  - Diversity
+  - Morphology
+  provider: doi_content_search
+  retrieved_at: '2026-11-20T10:00:07Z'

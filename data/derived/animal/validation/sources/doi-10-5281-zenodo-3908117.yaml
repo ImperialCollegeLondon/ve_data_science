@@ -1,0 +1,56 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3908117
+doi: 10.5281/zenodo.3908117
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: 'Dataset has mainly three sets of data: seed removal(no. of seeds and but
+    no weight), live mealworms consumed or deadmealworms consumed (not eaten, partially,
+    fully eaten - subjective). We can do scaling 0-1 (1-10 for seeds and not-eaten-0,
+    partially-5 to fully-eaten-10 for mealworms) for this validation dataset. This
+    will be equivalent to model output where we can compare it with the mass flow
+    between resource pool (currently seed is not yet a pool but mealworms are detrivorous_fossorial_invertebrates
+    FG). Leave for later - low on priority.'
+  screened_at: '2026-11-20T04:37:32Z'
+metadata:
+  title: Ecosystem process rates across SAFE project forest quality gradient
+  authors:
+  - Mackintosh, Emma
+  - MacLean, Catherine
+  - Heath, Rebecca
+  - McKinlay, Amelia
+  - Martin, Stephanie
+  - Prairie, Aaron
+  - Vollans, Maisie
+  - Fraser, Adam
+  - Adzhar, Rahayu
+  - Wiederkehr, Fabienne
+  - Graves, Kristina
+  - Brasington, Ella
+  - Noble, Ciar
+  - Baynham, Georgina
+  - Roxby, Gabrielle
+  - Poznansky, Frederica
+  - Chung, Arthur
+  - Ewers, Robert M
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3908117
+  keywords:
+  - Ecosystem process
+  - vertebrate exclusion
+  - invertebrate exclusion
+  - vertebrates
+  - invertebrates
+  - seed dispersal
+  - seed removal
+  - predation
+  - scavenging
+  - predation rates
+  - scavenging rates
+  - ecosystem process rates
+  - forest quality gradient
+  - SAFE project
+  provider: doi_content_search
+  retrieved_at: '2026-11-20T03:54:38Z'
