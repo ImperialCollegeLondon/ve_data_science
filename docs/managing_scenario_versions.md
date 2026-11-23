@@ -125,7 +125,7 @@ You can add/update the `change_log.txt` file on Globus by accessing the HPC, the
 directly, there is no possibility of a conflict and the respective file will always be
 the latest GitHub version of the `change_log.txt` file. Please always use the method
 above to add/update the `change_log.txt` file on Globus, and not the Globus sync system
-as this latter would simply overwrite the existing file without guarantee that it is
+as the latter would simply overwrite the existing file without guarantee that it is
 actually the latest GitHub version.
 
 To access the HPC, please follow the instructions below.
@@ -184,7 +184,8 @@ be as follows:
 - Test the VE PR version with the new input data. If the VE PR version fails the test,
   resolve the VE code and/or update the files, then repeat the test.
 - After the test is succesfull, sync the files to Globus in `maliau_2/data/pr1958`
-- Also add the new (model-specific) config files to Globus in `maliau_2/config/pr1958`.
+- Also sync the new (model-specific) config files to Globus in a new
+  `maliau_2/config/pr1958` folder.
 - Document the addition of the new folders and files in the `change_log.txt` file and
   add these changes to the VE Data Science repo through a PR. Please add sufficient
   details to the changelog description.
@@ -195,8 +196,10 @@ However, once the VE repo PR has been merged, the now "outdated" main files in
 Note that this will usually only involve changing one file. Please leave the files
 that you didn't change alone, and record the change in the `change_log.txt` file.
 You will also need to update the config settings once the VE PR has been merged into
-`main`, so replace the respective model-specific config file in `maliau_2/config/main`
-with the new one in `maliau_2/config/pr1958`.
+`main`, so replace the respective model-specific config file in
+`maliau_2/config/main` with the new one in `maliau_2/config/pr1958`. Note that the
+config paths in `maliau_2/config/main` should point to the data files in
+`maliau_2/data/main` (and thus no longer to `maliau_2/data/pr1958`)
 
 It is worth pointing out that once the "outdated" main files in `maliau_2/data/main`
 have been replaced with an updated version, the "outdated" files are considered gone.
@@ -209,7 +212,7 @@ this document.
 
 ### Notes on testing a specific VE PR version
 
-After the new input data has been generated (i.e., usually on your local pc), carry out
+After the new input data has been generated (usually on your local pc), carry out
 a VE test run with the pinned VE PR version. A test run of a few timesteps should be
 sufficient to check whether the new VE PR version gets past configuration.
 
@@ -260,7 +263,7 @@ copied to a new folder (e.g., `maliau_2/data/release_0_2_3`, being the archive f
 for VE version 0.2.3). Also place a copy of the config files from `maliau_2/config/main`
 in `maliau_2/config/release_0_2_3`. The new VE version (in this example 0.2.3) can then
 be released, and the backup data and config files can then be used for this VE version.
-Similar to Part 2, record the changes in the changelog and pushed them to GitHub
+Similar to Part 2, record the changes in the changelog and push them to GitHub
 through a VE Data Science repo PR. Following this sequence should avoid any mismatches
 between a new VE release and the corresponding data and config files backup.
 
