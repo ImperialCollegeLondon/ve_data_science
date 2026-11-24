@@ -99,21 +99,20 @@ library(modelr)
 
 # Elevation
 # STRM-derived data
-elev <-
-  rast("data/primary/abiotic/STRM_data_elevation/SRTM_UTM50N_processed.tif")
+elev <- rast(
+  "data/primary/abiotic/STRM_data_elevation/SRTM_UTM50N_processed.tif"
+)
 
 # Topography
-topo <-
-  rast(
-    "data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif"
-  )
+topo <- rast(
+  "data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif"
+)
 
 # Climate
 # Not included now
 
 # Hydrology
-hydro <-
-  rast("data/primary/abiotic/SRTM_hydrology/SRTM_Log_Flow_Accum.tif")
+hydro <- rast("data/primary/abiotic/SRTM_hydrology/SRTM_Log_Flow_Accum.tif")
 
 # LiDAR
 acd <-
@@ -125,8 +124,10 @@ acd <-
 names(acd) <- "acd"
 
 # Biomass
-evi <-
-  rast("data/primary/plant/remote_biomass/Sabah_EVI_2024_Q1.tif")
+evi <- rast("data/primary/plant/remote_biomass/Sabah_EVI_2024_Q1.tif")
+
+# Community-weighted mean traits
+cwm_traits <- rast("data/primary/soil/cmw_traits/Sabah_canopy_traits.tif")
 
 # Location details
 # fill in missing coordinates
