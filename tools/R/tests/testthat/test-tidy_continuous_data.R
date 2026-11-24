@@ -21,6 +21,7 @@ source(here::here("tools/R/R/tidy_continuous_data.R"))
 make_tidy_continuous_fixture <- function(path, time_metadata = TRUE) {
   root <- pizzarr::zarr_create_group(path, zarr_format = 2L)
   outputs <- root$create_group("outputs")
+  inputs <- root$create_group("inputs")
   init <- root$create_group("init")
 
   write_array <- function(group, name, values, dimensions) {
@@ -37,6 +38,7 @@ make_tidy_continuous_fixture <- function(path, time_metadata = TRUE) {
     write_array(group, "pft", c(1, 2), "pft")
   }
   write_coordinates(outputs)
+  write_coordinates(inputs)
   write_coordinates(init)
 
   variable_dims <- list(cell_id = c("0", "1"), time_index = c("0", "1"))
@@ -107,10 +109,27 @@ make_tidy_continuous_fixture <- function(path, time_metadata = TRUE) {
     array(201:204, dim = c(2, 2), dimnames = variable_dims),
     names(variable_dims)
   )
+  input_time <- write_array(inputs, "valid_time", c(12, 36), "time_index")
+  write_array(
+    inputs,
+    "air_temperature_ref",
+    array(21:24, dim = c(2, 2), dimnames = variable_dims),
+    names(variable_dims)
+  )
+  write_array(inputs, "input_static", c(301, 302), "cell_id")
+
   init_time <- write_array(init, "valid_time", c(12, 36), "time_index")
   if (time_metadata) {
-    init_time$get_attrs()$set_item("units", "hours since 2000-01-01")
-    init_time$get_attrs()$set_item("calendar", "proleptic_gregorian")
+    for (time_coordinate in list(input_time, init_time)) {
+      time_coordinate$get_attrs()$set_item(
+        "units",
+        "hours since 2000-01-01"
+      )
+      time_coordinate$get_attrs()$set_item(
+        "calendar",
+        "proleptic_gregorian"
+      )
+    }
   }
 
   invisible(path)
@@ -153,11 +172,31 @@ test_that("timeless initial values and additional dimensions are preserved", {
     dplyr::filter(variable == "extra_state", timestamp %in% c(1.5, 2.5))
 
   expect_equal(timeless$time_index, c(-1, -1))
-  expect_equal(timeless$timestamp, c(-1, -1))
+  expect_true(all(is.na(timeless$timestamp)))
   expect_equal(timeless$value, c(101, 102))
   expect_equal(nrow(extra), 32L)
   expect_true(all(c("layers", "element", "pft") %in% names(extra)))
   expect_false(anyNA(extra |> dplyr::select(layers, element, pft)))
+})
+
+test_that("time-varying and timeless inputs are included", {
+  path <- withr::local_tempdir()
+  make_tidy_continuous_fixture(path)
+
+  result <- tidy_continuous_data(
+    path,
+    variables = c("air_temperature_ref", "input_static"),
+    initial = TRUE
+  )
+  varying <- result |>
+    dplyr::filter(variable == "air_temperature_ref")
+  timeless <- result |>
+    dplyr::filter(variable == "input_static")
+
+  expect_equal(varying$time_index, c(0, 0, 1, 1))
+  expect_equal(varying$timestamp, c(1.5, 1.5, 2.5, 2.5))
+  expect_equal(timeless$time_index, c(-1, -1))
+  expect_true(all(is.na(timeless$timestamp)))
 })
 
 test_that("timeless-only init and output-only behavior need no init mapping", {
@@ -176,7 +215,7 @@ test_that("timeless-only init and output-only behavior need no init mapping", {
   )
 
   expect_equal(initial$time_index[initial$value >= 100], c(-1, -1))
-  expect_equal(initial$timestamp[initial$value >= 100], c(-1, -1))
+  expect_true(all(is.na(initial$timestamp[initial$value >= 100])))
   expect_equal(nrow(output), 4L)
   expect_equal(output$time_index, c(0, 0, 1, 1))
   expect_equal(output$timestamp, c(1, 1, 31, 31))
@@ -193,10 +232,32 @@ test_that("time-varying init fails when its time mapping metadata is missing", {
       variables = "vapour_pressure_ref",
       initial = TRUE
     ),
-    "Could not identify one initial time coordinate"
+    "Could not identify one time coordinate"
   )
 })
 
+
+test_that("all variables exclude coordinates", {
+  path <- withr::local_tempdir()
+  make_tidy_continuous_fixture(path)
+
+  result <- tidy_continuous_data(path, initial = FALSE)
+
+  expect_false(any(
+    unique(result$variable) %in%
+      c(
+        "cell_id",
+        "element",
+        "layers",
+        "pft",
+        "time_index",
+        "timestamp",
+        "valid_time",
+        "x",
+        "y"
+      )
+  ))
+})
 
 test_that("requested initial variables absent from outputs are returned", {
   path <- withr::local_tempdir()
