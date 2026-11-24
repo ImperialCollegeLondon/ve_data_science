@@ -1,0 +1,34 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3906117
+doi: 10.5281/zenodo.3906117
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: 'Dataset includes wet weight of dung removal in 24 hours in RT sites in 2015.
+    Here we have absolute daily removal prorportion rate. This can be compared with
+    the model output of scavenged mass on the excrement pool. Question: Should this
+    be 1) compared with the constant of excrement scavenging provided by the model
+    or2) compared with calculated excrement scavenged rate from model output (mass
+    taken from scavenge_excrement_pool) of the exact day of observed data?'
+  screened_at: '2026-11-24T07:35:30Z'
+metadata:
+  title: Dung beetle community and dung removal data 2015
+  authors:
+  - Slade, Eleanor M.
+  - Milne, Sol
+  - Chung, Arthur. Y.C.
+  - Williamson, Joseph
+  - Parrett, Jonathan
+  year: 2020
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3906117
+  keywords:
+  - Dung beetle
+  - Dung removal
+  - Ecosystem functioning
+  - Biodiversity
+  - Insects
+  - Arthropods
+  provider: doi_content_search
+  retrieved_at: '2026-11-24T07:30:50Z'

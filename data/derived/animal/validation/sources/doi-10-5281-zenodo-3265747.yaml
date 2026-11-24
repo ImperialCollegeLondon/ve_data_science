@@ -1,0 +1,43 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3265747
+doi: 10.5281/zenodo.3265747
+screening:
+  decision: defer
+  reason: needs_second_opinion
+  notes: Dataset has time series dataset of ant and other invertebrate abundance measured
+    fortnightly at bait monitoring cards. Weight of bait removed is measured with
+    either ants or vertebrates excluded. Baits are biscuit, seed, fish. These could
+    be used to validate mass flow of these baits to vertebrates (cage-open, plot_treat-control,
+    inverts (cage-closed, plot_treat-control), ants (cage-closed, plot_treat-ant).
+    Locations are similar to Ashton litter invertebrate density. A bit lower priority
+    to validate seed is not yet a pool to validate and I am not sure which resource
+    pool biscuit belong to in our model?
+  screened_at: '2026-11-24T03:59:28Z'
+metadata:
+  title: Invertebrate activity data from an experiment in Malaysian Borneo, 2014-16
+    [HMTF]
+  authors:
+  - Griffiths, Hannah M.
+  - Ashton, Louise A
+  - Walker, Alice E
+  - Hasan, Fevziye
+  - Evans, Theodore
+  - Eggleton, Paul
+  - Parr, Catherine L
+  - Vairappan, Charles
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3265747
+  keywords:
+  - Animal behaviour
+  - Ants
+  - Fortnightly
+  - Invertebrates
+  - HMTF
+  - Human-modified tropical forest
+  - Malaysian Borneo
+  - SAFE project
+  - Maliau basin
+  provider: doi_content_search
+  retrieved_at: '2026-11-24T03:59:15Z'
