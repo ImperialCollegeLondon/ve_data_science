@@ -26,8 +26,8 @@ source("analysis/soil/initialisation/model_safe.R")
 ```
 
 ```text
-Reading layer `gazetteer' from data source 
-  `C:\Users\User\Documents\ve_data_science\data\primary\site\gazetteer.geojson' 
+Reading layer `gazetteer' from data source
+  `C:\Users\User\Documents\ve_data_science\data\primary\site\gazetteer.geojson'
   using driver `GeoJSON'
 Simple feature collection with 5171 features and 15 fields
 Geometry type: GEOMETRY
