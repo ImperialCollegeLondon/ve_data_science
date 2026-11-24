@@ -50,5 +50,5 @@ follow the indentation of the templates carefully!
 The `docs/` subfolder holds `module_landing_template.md`, a template for each module's
 landing page on the documentation website. Unlike the other templates, it is for a
 documentation page rather than a code file. See the
-[Documenting your work](https://imperialcollegelondon.github.io/ve_data_science/contributing/documenting_your_work/)
+[Documenting your work](https://imperialcollegelondon.github.io/ve_data_science/documenting_your_work/)
 page for how to use it.

@@ -192,7 +192,7 @@ md_table <- kable(tracker_data, format = "markdown", row.names = FALSE)
 
 # Add a header for the markdown document
 file_content <- c(
-  "# Plant validation Overview",
+  "# Plant validation overview",
   "",
   "Each row summarizes one observed-predicted variable pair.",
   "For exact extents, entries in the spatial and date lists are aligned by",
@@ -207,7 +207,7 @@ file_content <- c(
   "",
   md_table,
   "",
-  "![Observed vs predicted values for Maliau-2 validation comparisons](../analysis/plant/output_data/validation/metadata/observed_predicted_summary/observed_predicted_summary_maliau_2.png)"
+  "![Observed vs predicted values for Maliau-2 validation comparisons](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/analysis/plant/output_data/validation/metadata/observed_predicted_summary/observed_predicted_summary_maliau_2.png)"
 )
 
 # Save the Markdown file

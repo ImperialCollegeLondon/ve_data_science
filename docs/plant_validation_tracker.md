@@ -1,4 +1,4 @@
-# Plant validation Overview
+# Plant validation overview
 
 Each row summarizes one observed-predicted variable pair.
 For exact extents, entries in the spatial and date lists are aligned by
@@ -37,4 +37,4 @@ Pooled consecutive simulation dates and cell IDs are shown as ranges.
 |obs_total_stem_mass_2014_kg_ha |total_stem_c_mass_kg_ha          |kg C ha-1        |kg C ha-1        |OG2_728; OG2_727; OG2_727; OG2_721; OG2_723; OG2_723; OG2_728; OG2_725; OG2_724; OG2_724; OG2_725; OG2_726; OG2_722; OG2_720; OG2_720 |39; 43; 44; 45; 47; 48; 49; 54; 58; 59; 64; 86; 87; 96; 97 |2013-07-22; 2013-07-30; 2013-07-30; 2013-07-27; 2013-07-25; 2013-07-25; 2013-07-22; 2013-08-03; 2013-07-23; 2013-07-23; 2013-08-03; 2013-08-24; 2013-08-27; 2013-08-26; 2013-08-26 |2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-09-01; 2013-08-01; 2013-08-01; 2013-09-01; 2013-09-01; 2013-09-01; 2013-09-01; 2013-09-01 |exact                        |exact                         |exact                         |exact                          |
 |obs_total_leaf_mass_2014_kg_ha |total_foliage_c_mass_kg_ha       |kg C ha-1        |kg C ha-1        |OG2_728; OG2_727; OG2_727; OG2_721; OG2_723; OG2_723; OG2_728; OG2_725; OG2_724; OG2_724; OG2_725; OG2_726; OG2_722; OG2_720; OG2_720 |39; 43; 44; 45; 47; 48; 49; 54; 58; 59; 64; 86; 87; 96; 97 |2013-07-22; 2013-07-30; 2013-07-30; 2013-07-27; 2013-07-25; 2013-07-25; 2013-07-22; 2013-08-03; 2013-07-23; 2013-07-23; 2013-08-03; 2013-08-24; 2013-08-27; 2013-08-26; 2013-08-26 |2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-08-01; 2013-09-01; 2013-08-01; 2013-08-01; 2013-09-01; 2013-09-01; 2013-09-01; 2013-09-01; 2013-09-01 |exact                        |exact                         |exact                         |exact                          |
 
-![Observed vs predicted values for Maliau-2 validation comparisons](../analysis/plant/output_data/validation/metadata/observed_predicted_summary/observed_predicted_summary_maliau_2.png)
+![Observed vs predicted values for Maliau-2 validation comparisons](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/analysis/plant/output_data/validation/metadata/observed_predicted_summary/observed_predicted_summary_maliau_2.png)

@@ -50,26 +50,30 @@ grid.
 
 ## What a scenario folder contains
 
-Scenario files live under `data/scenarios/<site>/<scenario>/`.
+Scenario files live under `data/scenarios/<site>/<scenario>/`. The change log is stored
+on GitHub; the input data and most configuration files are shared through Globus.
 
 ```text
 data/scenarios/maliau/
   soil_litter_metadata.toml     sources for each soil and litter input variable
   maliau_2/
-    change_log.txt              dated record of changes to the input data
+    change_log.txt              dated record of changes, stored on GitHub
     config/
-      config.toml               model configuration
-      config_latest_release.toml
-    data/                       input data files, shared through Globus
+      config.toml               configuration stored on GitHub
+      main/                     configuration for the VE main branch, on Globus
+      release_<version>/        configuration for the latest VE release, on Globus
+    data/
+      main/                     input data for the VE main branch, on Globus
+      release_<version>/        input data for the latest VE release, on Globus
 ```
 
-The input data files are not stored on GitHub. See
-[Data with Globus](../using_globus.md) for how to download them.
-
-For `maliau_2` there are two configurations. `config.toml` is for the development
-version of the Virtual Ecosystem and `config_latest_release.toml` is for the latest
-release. The [Python setup page](../uv_setup.md) explains how to switch between
-versions of the model.
+The `config` and `data` folders on Globus hold one subfolder for each version of the
+Virtual Ecosystem they work with: `main` for the development version, one for the
+latest release, and sometimes one for a VE pull request being tested.
+[Managing scenario versions](../managing_scenario_versions.md) explains how these
+folders are kept up to date and how to add a new version. See
+[Data with Globus](../using_globus.md) for how to download the files, and the
+[Python setup page](../uv_setup.md) for how to switch between versions of the model.
 
 The script `analysis/site/build_config_maliau_2.R` rebuilds the `maliau_2`
 configuration from its parts and writes `config_regenerated.toml`, so that the result
@@ -92,8 +96,11 @@ scenario's `change_log.txt`. Add new entries at the top, in this form:
   - PR or issue
 ```
 
-The change log is the quickest way to find out why results from a scenario differ
-between two dates.
+The data and configuration files on Globus are not tracked by Git, so the change log
+is the only record of what changed in them. It is also the quickest way to find out why
+results from a scenario differ between two dates.
+[Managing scenario versions](../managing_scenario_versions.md) explains how to copy the
+updated change log to Globus.
 
 ## Model configuration
 

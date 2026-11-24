@@ -226,9 +226,10 @@ the join can use the existing VE variable metadata.
 If a source column maps to a canonical variable that is available only through
 local derived-variable support, the schema alone is not enough. You must add a
 registry entry for that canonical variable in
-[data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
+[data/derived/validation/derived_variables.toml](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/validation/derived_variables.toml).
 You must also implement its reader in
-[tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). See
+[tools/R/R/get_ve_variables.R](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/tools/R/R/get_ve_variables.R).
+See
 [Step 5](#5-registry-for-ve-originated-canonical-variables-with-derived-computation).
 
 For each dataset entry under `datasets:`, complete these **required** fields:
@@ -371,7 +372,7 @@ non-logical values. Error messages name the source, the clause, and the problem.
 - Known `var_canonical` names resolve against the latest VE
   canonical-variable metadata in `data_variables.toml` from the `develop`
   branch and, when supplied, the local derived-variable registry in
-  [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
+  [data/derived/validation/derived_variables.toml](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/validation/derived_variables.toml).
 - Source and canonical units are interpreted and converted with the `units`
   package. Use unit strings that the `units` package can read. Malformed or
   dimensionally incompatible units are errors.
@@ -526,7 +527,8 @@ Remove unused inner entries when the schema is complete.
 [Back to workflow overview](#workflow-overview).
 
 `join_ve_outputs()` depends on
-[tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). That file
+[tools/R/R/get_ve_variables.R](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/tools/R/R/get_ve_variables.R).
+That file
 provides `get_data_variables()` and `get_derived_variables()`. The second
 function reads the VE configuration TOML file, computes VE-originated canonical
 variables that are not stored directly in VE outputs, and returns them in the
@@ -553,7 +555,7 @@ canonical value instead of only looking for a variable stored directly in the VE
 output files.
 
 The current file lives at
-[data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml).
+[data/derived/validation/derived_variables.toml](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/validation/derived_variables.toml).
 Its entries follow this shape:
 
 ```toml
@@ -569,7 +571,7 @@ named `herbivore_density`. Its VE value must be derived from other VE outputs.
 The end-to-end change looks like this:
 
 1. Add a new `[[variable]]` block to
-   [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml):
+   [data/derived/validation/derived_variables.toml](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/validation/derived_variables.toml):
 
    ```toml
    [[variable]]
@@ -580,14 +582,15 @@ The end-to-end change looks like this:
    ```
 
 2. Define the `get_herbivore_density()` R function in
-   [tools/R/R/get_ve_variables.R](tools/R/R/get_ve_variables.R). The function
+   [tools/R/R/get_ve_variables.R](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/tools/R/R/get_ve_variables.R).
+   The function
    must read the raw VE inputs it needs, compute the output in the right object
    class (for example, array or data frame), and return it with the expected VE
    dimensions.
 
 !!! important
     Use the exact same `name` in both places: in the `name = ...` entry in
-    [data/derived/validation/derived_variables.toml](data/derived/validation/derived_variables.toml)
+    [data/derived/validation/derived_variables.toml](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/data/derived/validation/derived_variables.toml)
     and in the `var_canonical: ...` entry in the schema in
     [Step 4](#4-complete-schema-fields-manually).
 
@@ -650,7 +653,7 @@ are excluded, the build stops.
 [Back to workflow overview](#workflow-overview).
 
 Use
-[analysis/soil/validation/combine_validation_database.R](analysis/soil/validation/combine_validation_database.R)
+[analysis/soil/validation/build_soil_validation_database.R](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/analysis/soil/validation/build_soil_validation_database.R)
 as a reference workflow.
 
 `join_ve_outputs()` takes the validation database and VE scenario outputs from a

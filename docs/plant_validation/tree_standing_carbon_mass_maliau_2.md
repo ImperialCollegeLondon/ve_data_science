@@ -21,7 +21,7 @@ represent allometric parameter uncertainty only.
 The map shows the old-growth plots and all 100 cells in the Maliau-2 grid. Plot
 footprints are reconstructed as squares from their recorded areas (25 m x 25 m).
 
-![Maliau-2 grid cells and observed plot footprints](../../data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2/maliau_2_cells_and_observed_plots.png)
+![Maliau-2 grid cells and observed plot footprints](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2/maliau_2_cells_and_observed_plots.png)
 
 Each comparison row pairs one plot, one overlapping VE cell, and one census
 date. A plot may overlap multiple cells, so its observed value is repeated and
@@ -43,19 +43,19 @@ Each figure shows the mean mass per cell at each timestep. Values are in kg C ha
 
 Mean stem mass drops sharply during the initial timesteps.
 
-![Predicted mean stem carbon mass - all timesteps](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_mean_across_cells_all_time_indices_kg_ha.png)
+![Predicted mean stem carbon mass - all timesteps](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_mean_across_cells_all_time_indices_kg_ha.png)
 
 #### Mean Foliage Mass - all timesteps
 
-![Predicted mean foliage carbon mass - all timesteps](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_mean_across_cells_all_time_indices_kg_ha.png)
+![Predicted mean foliage carbon mass - all timesteps](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_mean_across_cells_all_time_indices_kg_ha.png)
 
 #### Mean Stem Mass - from timestep index 4 onwards
 
-![Predicted mean stem carbon mass - timestep 4 onwards](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_mean_across_cells_from_time_index_4_kg_ha.png)
+![Predicted mean stem carbon mass - timestep 4 onwards](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_mean_across_cells_from_time_index_4_kg_ha.png)
 
 #### Mean Foliage Mass - from timestep index 4 onwards
 
-![Predicted mean foliage carbon mass - timestep 4 onwards](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_mean_across_cells_from_time_index_4_kg_ha.png)
+![Predicted mean foliage carbon mass - timestep 4 onwards](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_mean_across_cells_from_time_index_4_kg_ha.png)
 
 ### PFT-Specific Cell Trajectories
 
@@ -71,24 +71,24 @@ the variability over time.
 
 Each line shows stem carbon mass in one grid cell for the panel's PFT.
 
-![Stem carbon mass by PFT and cell for all timesteps](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png)
+![Stem carbon mass by PFT and cell for all timesteps](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png)
 
 #### Foliage PFT trajectories - all timesteps
 
 Each line shows foliage carbon mass in one grid cell for the panel's PFT.
 
-![Foliage carbon mass by PFT and cell for all timesteps](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png)
+![Foliage carbon mass by PFT and cell for all timesteps](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_by_pft_and_cell_all_time_indices_kg_ha.png)
 
 #### Stem PFT trajectories - from timestep index 4 onwards
 
 Note the steep decline in carbon mass for emergent PFT at both the start and end.
 Also note the large difference between emergent and understory stem carbon mass.
 
-![Stem carbon mass by PFT and cell from timestep index 4](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png)
+![Stem carbon mass by PFT and cell from timestep index 4](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/stem_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png)
 
 #### Foliage PFT trajectories - from timestep index 4 onwards
 
-![Foliage carbon mass by PFT and cell from timestep index 4](../../data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png)
+![Foliage carbon mass by PFT and cell from timestep index 4](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/predicted_outputs_processing/predicted_outputs_processing_figures_maliau_2/foliage_c_mass_by_pft_and_cell_from_time_index_4_kg_ha.png)
 
 ## Observed vs Modelled Comparisons
 
@@ -107,11 +107,11 @@ matched variables, periods, spatial and temporal extents, and units.
 
 ### Stem Comparison
 
-![Comparison of observed and predicted stem carbon mass](../../data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2/stem_c_mass_summed_across_pfts_by_cell.png)
+![Comparison of observed and predicted stem carbon mass](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2/stem_c_mass_summed_across_pfts_by_cell.png)
 
 ### Foliage Comparison
 
-![Comparison of observed and predicted foliage carbon mass](../../data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2/foliage_c_mass_summed_across_pfts_by_cell.png)
+![Comparison of observed and predicted foliage carbon mass](https://raw.githubusercontent.com/ImperialCollegeLondon/ve_data_science/main/data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2/foliage_c_mass_summed_across_pfts_by_cell.png)
 
 ## Next steps in the validation process
 

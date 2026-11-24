@@ -1,4 +1,4 @@
-# Github Overview
+# GitHub overview
 
 !!! IMPORTANT
 

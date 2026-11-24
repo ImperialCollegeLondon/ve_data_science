@@ -1,4 +1,4 @@
-# Using GLOBUS
+# Using Globus
 
 We are using the [GLOBUS system](https://www.globus.org/) to curate the data used in the
 Virtual Ecosystem data science repository.

@@ -1,4 +1,4 @@
-# Data Pipeline Overview
+# Data pipeline overview
 
 <!-- markdownlint-disable MD046 -->
 <!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the

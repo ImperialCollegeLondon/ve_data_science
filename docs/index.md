@@ -41,11 +41,13 @@ How to set up the tools used in this repository:
   VE.
 * [R with renv](renv.md) explains how R package versions are recorded.
 * [Data with Globus](using_globus.md) explains how to get the data files.
+* [Running VE on the HPC](hpc_setup.md) explains how to run batches of
+  simulations on the computing cluster.
 * [Git and GitHub](github_overview.md) and
   [Uploading an R script](uploading_r_scripts.md) cover sharing your work.
 * [Configuration files](what_are_those_odd_files.md) explains the small files in
   the repository root.
-* [Documenting your work](contributing/documenting_your_work.md) explains how to
+* [Documenting your work](documenting_your_work.md) explains how to
   fill in your module's landing page and add pages for your module.
 
 ### Modules
@@ -55,11 +57,14 @@ gives an overview of the work and links to its scripts and notebooks:
 
 * [Soil and litter](modules/soil/index.md)
 * [Abiotic and hydrology](modules/abiotic/index.md), including
-  [sensitivity analysis](sensitivity_analysis.md)
+  [sensitivity analysis](sensitivity_analysis.md), the
+  [abiotic validation plan](abiotic_validation_plan.md) and the
+  [hydrology validation plan](hydrology_validation_plan.md)
 * [Animals](modules/animal/index.md), including the
   [animal model validation plan](animal_model_validation_plan.md)
 * [Plants](modules/plant/index.md), including the
-  [plant validation tracker](plant_validation_tracker.md)
+  [plant validation tracker](plant_validation_tracker.md) and the
+  [tree standing carbon mass validation](plant_validation/tree_standing_carbon_mass_maliau_2.md)
 
 The landing pages are drafts until each module team fills them in.
 
@@ -70,12 +75,12 @@ Methods that are used across multiple modules:
 * [AI-assisted parameterisation](AI-assisted-parameterisation.md)
 * [Building the validation database](validation_database.md)
 * [Derived variables](derived_variables.md)
-* [Coordinating VE input-data compatibility changes](ve_input_data_compatibility.md)
+* [Managing scenario data and configuration versions](managing_scenario_versions.md)
 
 ## Contributing
 
 To add documentation for your module, see
-[Documenting your work](contributing/documenting_your_work.md).
+[Documenting your work](documenting_your_work.md).
 
 If you have found a problem or want to suggest a change, please read the
 [contributing guide](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/CONTRIBUTING.md)
