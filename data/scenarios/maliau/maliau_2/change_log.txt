@@ -1,6 +1,6 @@
 # Change log of maliau_2 scenario input data and config
 2026-11-24
-- Module: Plant
+- Module: Abiotic & hydrology
 - Author: Lelavathy
 - Files moved:
   - data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc
