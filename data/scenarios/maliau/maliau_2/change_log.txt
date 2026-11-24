@@ -1,4 +1,16 @@
 # Change log of maliau_2 scenario input data and config
+2026-11-24
+- Module: Plant
+- Author: Lelavathy
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc
+  - data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc
+- Changes made:
+  1) Removed the abiotic and hydrology [[core.data.variable]] entries         	from config/main/data_config.toml to module specific 	configuration.
+  2) Abiotic and hydrology input data nc files were moved from data to 	data/main folder.
+  3) Abiotic, abiotic_simple, and hydrology config files were moved from 	config to config/main folder.
+- References:
+  - PR #829
 
 2026-11-23
 - Module: Plant
