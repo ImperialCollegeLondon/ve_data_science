@@ -16,7 +16,7 @@ title: "Summarised findings from the SAFE soil spatial model"
 author: "Lai, Hao Ran"
 date: last-modified
 format: gfm
-execute: 
+execute:
   warning: false
   message: false
 ---

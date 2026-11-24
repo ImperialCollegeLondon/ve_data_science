@@ -1,6 +1,6 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-10-28'
+generated_on: '2026-11-24'
 scripts:
 - script_path: gpp_and_npp_comparison_maliau_2.R
   title: gpp_and_npp_comparison_maliau_2
@@ -190,14 +190,16 @@ scripts:
     Compares observed plot-level tree standing carbon mass with Virtual
     Ecosystem cell-level stem and foliage carbon mass for Maliau-2. Each
     comparison row represents one observed plot, one overlapping VE cell,
-    and one actual census date.
+    and one census date (2011, 2014, 2015, 2017, or 2019).
   virtual_ecosystem_module: Plant
   author: Arne Scheire
   status: final
   input_files:
   - name: tree_standing_carbon_mass_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
-    description: Observed plot carbon mass, coordinates, and census dates.
+    description: |
+      Observed plot stem and leaf carbon mass, coordinates, and census dates
+      for 2011, 2014, 2015, 2017, and 2019.
   - name: tree_standing_carbon_mass_maliau_2.csv
     path: data/derived/plant/output_data/validation/predicted_outputs_processing
     description: |
@@ -214,19 +216,22 @@ scripts:
     path: data/derived/plant/output_data/validation/comparisons
     description: |
       Row-level observed and predicted stem and foliage carbon mass
-      comparisons for each plot-cell-date combination, including explicit
-      spatial and temporal aggregation status.
+      comparisons for each plot-cell-census-date combination across the
+      2011, 2014, 2015, 2017, and 2019 censuses, including spatial and
+      temporal aggregation status.
   - name: maliau_2_cells_and_observed_plots.png
     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
     description: VE cell IDs and observed plot footprints and centroids.
   - name: stem_c_mass_summed_across_pfts_by_cell.png
     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-    description: Stem carbon mass trajectories for cells overlapping observed plots,
-      with census observations.
+    description: |
+      Stem carbon mass trajectories for cells overlapping observed plots,
+      with observations from the 2011, 2014, 2015, 2017, and 2019 censuses.
   - name: foliage_c_mass_summed_across_pfts_by_cell.png
     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-    description: Foliage carbon mass trajectories for cells overlapping observed plots,
-      with census observations.
+    description: |
+      Foliage carbon mass trajectories for cells overlapping observed plots,
+      with observations from the 2011, 2014, 2015, 2017, and 2019 censuses.
   package_dependencies:
   - data.table
   - sf
