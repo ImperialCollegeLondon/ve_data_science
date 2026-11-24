@@ -1,4 +1,28 @@
 # Change log of maliau_2 scenario input data and config
+
+2026-11-24
+- Module: Animal
+- Author: Siti Nor Baizurah
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level1.csv
+  - data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level2.csv
+  - data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv
+  - data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level5.csv
+  - data/scenarios/maliau/maliau_2/data/main/animal_functional_groups_Maliau_level1.csv
+  - data/scenarios/maliau/maliau_2/data/main/animal_functional_groups_Maliau_level2.csv
+  - data/scenarios/maliau/maliau_2/data/main/animal_functional_groups_Maliau_level3.csv
+  - data/scenarios/maliau/maliau_2/data/main/animal_functional_groups_Maliau_level5.csv
+  - data/scenarios/maliau/maliau_2/config/animal_config.toml
+  - data/scenarios/maliau/maliau_2/config/main/animal_config.toml
+- Changes made:
+  - Animal functional group input data files (levels 1, 2, 3 and 5) were
+    moved from data to data/main folder. File contents unchanged.
+  - Animal config file was moved from config to config/main folder.
+  - Updated functional_group_definitions_path in animal_config.toml to
+    "../../data/main/animal_functional_groups_Maliau_level5.csv".
+- References:
+  - PR #760
+
 2026-11-24
 - Module: Abiotic, hydrology, soil, litter
 - Author: Lelavathy, Hao Ran Lai
