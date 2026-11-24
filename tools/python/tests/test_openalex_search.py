@@ -26,14 +26,14 @@ def response(data, error=None):
     return result
 
 
-def access(monkeypatch, tmp_path, env_file="", **settings):
-    """Resolve OpenAlex access with only the given process and .env settings."""
+def access(monkeypatch, tmp_path, renviron="", **settings):
+    """Resolve OpenAlex access with only the given process and .Renviron settings."""
     for name in ("OPENALEX_API_KEY", "OPENALEX_EMAIL"):
         monkeypatch.delenv(name, raising=False)
     for name, value in settings.items():
         monkeypatch.setenv(name, value)
-    (tmp_path / ".env").write_text(env_file)
-    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
+    (tmp_path / ".Renviron").write_text(renviron, encoding="utf-8")
+    with patch.object(helper.Path, "home", return_value=tmp_path):
         return helper.openalex_access()
 
 
@@ -47,11 +47,11 @@ def test_access_prefers_key_then_email_then_keyless(monkeypatch, tmp_path):
     assert access(monkeypatch, tmp_path) == ("keyless", {})
 
 
-def test_skill_local_env_and_process_precedence(monkeypatch, tmp_path):
-    """The skill-local .env works; a process setting overrides it."""
-    env_file = "# local settings\nOPENALEX_API_KEY=local\n"
-    assert access(monkeypatch, tmp_path, env_file)[1] == {"api_key": "local"}
-    assert access(monkeypatch, tmp_path, env_file, OPENALEX_API_KEY="process")[1] == {
+def test_user_renviron_and_process_precedence(monkeypatch, tmp_path):
+    """The user's .Renviron works; a process setting overrides it."""
+    renviron = "OPENALEX_API_KEY=renviron\n"
+    assert access(monkeypatch, tmp_path, renviron)[1] == {"api_key": "renviron"}
+    assert access(monkeypatch, tmp_path, renviron, OPENALEX_API_KEY="process")[1] == {
         "api_key": "process"
     }
 
