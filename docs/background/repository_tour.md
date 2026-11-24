@@ -1,4 +1,4 @@
-# Repository Overview
+# Repository overview
 
 This page explains what each top-level folder in the repository is for. The
 [data pipeline page](data_pipeline.md) explains how the folders relate to each other.

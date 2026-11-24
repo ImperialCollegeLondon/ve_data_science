@@ -1,4 +1,4 @@
-# Managing Scenario Data and Configuration Versions
+# Managing scenario data and configuration versions
 
 This document describes the workflow for managing scenario data and configuration versions
 within the VE Data Science repo. The document is split up into 3 parts:

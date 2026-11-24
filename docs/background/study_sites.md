@@ -1,4 +1,4 @@
-# Study Sites
+# Study sites
 
 <!-- markdownlint-disable MD046 -->
 <!-- The admonition syntax within mkdocs confuses markdownlint, because it thinks the
