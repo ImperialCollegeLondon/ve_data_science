@@ -34,7 +34,7 @@ the module's folder name in `analysis/`: `soil` (soil and litter), `abiotic` (ab
 and hydrology), `animal` or `plant`. Any other pages for your module, such as a
 validation plan, go in the same folder and sit under your module in the site menu.
 
-Information about the study sites goes on the [Study sites](../background/study_sites.md)
+Information about the study sites goes on the [Study sites](background/study_sites.md)
 page, not on module pages.
 
 ## The landing page sections
@@ -64,7 +64,7 @@ Each module's landing page already exists, made from the template, so you only n
 to fill it in:
 
 1. Create an issue for the work, and a branch named after it, as described in
-   [Git and GitHub](../github_overview.md).
+   [Git and GitHub](github_overview.md).
 2. Open your module's page in `docs/modules/<module>/index.md`.
 3. Fill in each section. The comments explain what to write; delete them as you go.
    When the page is complete, delete the "Draft" note at the top.
@@ -96,7 +96,7 @@ folder as the landing page. Then:
     ```
 
 2. Link to it from your module's landing page and from the
-   [home page](../index.md).
+   [home page](index.md).
 
 To start a landing page for a new module, copy
 [`module_landing_template.md`][landing] to `docs/modules/<module>/index.md` and add
