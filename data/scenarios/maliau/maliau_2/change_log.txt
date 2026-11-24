@@ -2,9 +2,12 @@
 2026-11-24
 - Module: Plant
 - Author: Lelavathy
-- Files changed:
+- Files moved:
   - data/scenarios/maliau/maliau_2/data/era5_maliau_10x10_2010_2020.nc
   - data/scenarios/maliau/maliau_2/data/elevation_maliau_10x10.nc
+  - data/scenarios/maliau/maliau_2/config/abiotic_simple.toml
+  - data/scenarios/maliau/maliau_2/config/abiotic.toml
+  - data/scenarios/maliau/maliau_2/config/hydrology.toml
 - Changes made:
   1) Removed the abiotic and hydrology [[core.data.variable]] entries         	from config/main/data_config.toml to module specific 	configuration.
   2) Abiotic and hydrology input data nc files were moved from data to 	data/main folder.
