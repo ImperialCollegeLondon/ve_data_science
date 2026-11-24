@@ -1,3 +1,5 @@
+library(tidyverse)
+library(viridis)
 library(CBFM)
 
 # Run script that fits a spatial model to the SAFE data
@@ -6,7 +8,7 @@ source("analysis/soil/initialisation/model_safe.R")
 # Variance partitioning
 # calculate variance component for each covariate (five of them),
 # including the intercept; hence the 1:6 index
-var_part <- varpart(fitcbfm, groupX = 1:6)
+var_part <- varpart(fitcbfm, groupX = c(1, rep(2, 3), rep(3, 2), rep(4, 4)))
 var_part_df <-
   with(var_part, rbind(varpart_X, varpart_B_space)) |>
   as.data.frame() |>
@@ -15,11 +17,9 @@ var_part_df <-
     predictor = recode_values(
       predictor,
       "Group1" ~ "Intercept",
-      "Group2" ~ "Elevation",
-      "Group3" ~ "Topography",
-      "Group4" ~ "Hydrology",
-      "Group5" ~ "ACD",
-      "Group6" ~ "EVI",
+      "Group2" ~ "Topographic",
+      "Group3" ~ "LiDAR",
+      "Group4" ~ "Canopy traits",
       "varpart_B_space" ~ "spatial_residual"
     )
   ) |>
@@ -54,7 +54,7 @@ png(
 )
 ggplot(var_part_df, aes(y = response, x = p_variance, fill = predictor)) +
   geom_col(position = "stack") +
-  scale_fill_grey() +
+  scale_fill_viridis_d(option = "turbo") +
   theme_bw() +
   coord_cartesian(expand = FALSE) +
   labs(
