@@ -20,6 +20,7 @@
 #| scripts:
 #|   - path: analysis/plant/output_data/validation/observed_data_processing/carbon_balance_components_maliau.R
 #|   - path: analysis/plant/output_data/validation/observed_data_processing/tree_standing_carbon_mass_maliau.R
+#|   - path: analysis/plant/output_data/validation/observed_data_processing/total_tree_standing_carbon_mass_maliau.R
 #|
 #| output_files:
 #|   - name: master_observed_data_processing_metadata.yml
@@ -254,7 +255,8 @@ write_metadata_summary <- function(metadata_summary) {
 
 scripts <- c(
   "carbon_balance_components_maliau.R",
-  "tree_standing_carbon_mass_maliau.R"
+  "tree_standing_carbon_mass_maliau.R",
+  "total_tree_standing_carbon_mass_maliau.R"
 )
 
 n_scripts <- length(scripts)
