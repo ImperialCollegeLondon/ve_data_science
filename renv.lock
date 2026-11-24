@@ -116,6 +116,7 @@
       "Language": "en-US",
       "NeedsCompilation": "no",
       "Roxygen": "list(markdown = FALSE)",
+      "Config/roxygen2/version": "8.0.0",
       "RoxygenNote": "7.3.3",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
@@ -123,7 +124,7 @@
       "RemoteUsername": "fhui28",
       "RemotePkgRef": "fhui28/CBFM",
       "RemoteRef": "HEAD",
-      "RemoteSha": "403b32be55df24350ce9d30889017c9ae2ca0c19",
+      "RemoteSha": "2a78f62f5ad5906b586e171e07a75ae57327310f",
       "Author": "Francis K.C. Hui [aut, cre], Chris Haak [aut]"
     },
     "CFtime": {
@@ -358,10 +359,10 @@
     },
     "KernSmooth": {
       "Package": "KernSmooth",
-      "Version": "2.23-26",
+      "Version": "2.23-27",
       "Source": "Repository",
       "Priority": "recommended",
-      "Date": "2024-12-10",
+      "Date": "2026-08-11",
       "Title": "Functions for Kernel Smoothing Supporting Wand & Jones (1995)",
       "Authors@R": "c(person(\"Matt\", \"Wand\", role = \"aut\", email = \"Matt.Wand@uts.edu.au\"), person(\"Cleve\", \"Moler\", role = \"ctb\", comment = \"LINPACK routines in src/d*\"), person(\"Brian\", \"Ripley\", role = c(\"trl\", \"cre\", \"ctb\"), email = \"Brian.Ripley@R-project.org\", comment = \"R port and updates\"))",
       "Note": "Maintainers are not available to give advice on using a package they did not author.",
@@ -407,11 +408,11 @@
     },
     "MASS": {
       "Package": "MASS",
-      "Version": "7.3-65",
+      "Version": "7.3-66",
       "Source": "Repository",
       "Priority": "recommended",
-      "Date": "2025-02-19",
-      "Revision": "$Rev: 3681 $",
+      "Date": "2026-07-15",
+      "Revision": "$Rev: 3693 $",
       "Depends": [
         "R (>= 4.4.0)",
         "grDevices",
@@ -941,7 +942,7 @@
     },
     "S7": {
       "Package": "S7",
-      "Version": "0.2.2",
+      "Version": "1.0.0",
       "Source": "Repository",
       "Title": "An Object Oriented System Meant to Become a Successor to S3 and S4",
       "Authors@R": "c( person(\"Object-Oriented Programming Working Group\", role = \"cph\"), person(\"Davis\", \"Vaughan\", role = \"aut\"), person(\"Jim\", \"Hester\", role = \"aut\", comment = c(ORCID = \"0000-0002-2739-7082\")), person(\"Tomasz\", \"Kalinowski\", role = \"aut\"), person(\"Will\", \"Landau\", role = \"aut\"), person(\"Michael\", \"Lawrence\", role = \"aut\"), person(\"Martin\", \"Maechler\", role = \"aut\", comment = c(ORCID = \"0000-0002-8685-9910\")), person(\"Luke\", \"Tierney\", role = \"aut\"), person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-4757-117X\")) )",
@@ -950,9 +951,10 @@
       "URL": "https://rconsortium.github.io/S7/, https://github.com/RConsortium/S7",
       "BugReports": "https://github.com/RConsortium/S7/issues",
       "Depends": [
-        "R (>= 3.5.0)"
+        "R (>= 4.2.0)"
       ],
       "Imports": [
+        "methods",
         "utils"
       ],
       "Suggests": [
@@ -960,10 +962,11 @@
         "callr",
         "covr",
         "knitr",
-        "methods",
+        "lifecycle",
         "rmarkdown",
-        "testthat (>= 3.2.0)",
-        "tibble"
+        "testthat (>= 3.3.0)",
+        "tibble",
+        "withr"
       ],
       "VignetteBuilder": "knitr",
       "Config/build/compilation-database": "true",
@@ -972,7 +975,7 @@
       "Config/testthat/parallel": "TRUE",
       "Config/testthat/start-first": "external-generic",
       "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.3",
+      "Config/roxygen2/version": "8.1.1",
       "NeedsCompilation": "yes",
       "Author": "Object-Oriented Programming Working Group [cph], Davis Vaughan [aut], Jim Hester [aut] (ORCID: <https://orcid.org/0000-0002-2739-7082>), Tomasz Kalinowski [aut], Will Landau [aut], Michael Lawrence [aut], Martin Maechler [aut] (ORCID: <https://orcid.org/0000-0002-8685-9910>), Luke Tierney [aut], Hadley Wickham [aut, cre] (ORCID: <https://orcid.org/0000-0003-4757-117X>)",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
@@ -1045,11 +1048,11 @@
     },
     "TMB": {
       "Package": "TMB",
-      "Version": "1.9.21",
+      "Version": "1.9.25",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Template Model Builder: A General Random Effect Tool Inspired by 'ADMB'",
-      "Date": "2026-03-22",
+      "Date": "2026-08-22",
       "Authors@R": "c(person(\"Kasper\",\"Kristensen\",role=c(\"aut\",\"cre\",\"cph\"),email=\"kaskr@dtu.dk\"), person(\"Brad\",\"Bell\",role=\"cph\"), person(\"Hans\",\"Skaug\",role=\"ctb\"), person(\"Arni\",\"Magnusson\",role=\"ctb\"), person(\"Casper\",\"Berg\",role=\"ctb\"), person(\"Anders\",\"Nielsen\",role=\"ctb\"), person(\"Martin\",\"Maechler\",role=\"ctb\"), person(\"Theo\",\"Michelot\",role=\"ctb\"), person(\"Mollie\",\"Brooks\",role=\"ctb\"), person(\"Alex\",\"Forrence\",role=\"ctb\"), person(\"Christoffer\",\"Moesgaard Albertsen\",role=\"ctb\"), person(\"Cole\",\"Monnahan\",role=\"ctb\") )",
       "Maintainer": "Kasper Kristensen <kaskr@dtu.dk>",
       "Author": "Kasper Kristensen [aut, cre, cph], Brad Bell [cph], Hans Skaug [ctb], Arni Magnusson [ctb], Casper Berg [ctb], Anders Nielsen [ctb], Martin Maechler [ctb], Theo Michelot [ctb], Mollie Brooks [ctb], Alex Forrence [ctb], Christoffer Moesgaard Albertsen [ctb], Cole Monnahan [ctb]",
@@ -4429,43 +4432,9 @@
       "Maintainer": "David Kahle <david@kahle.io>",
       "Repository": "CRAN"
     },
-    "ggokabeito": {
-      "Package": "ggokabeito",
-      "Version": "0.1.0",
-      "Source": "Repository",
-      "Title": "'Okabe-Ito' Scales for 'ggplot2' and 'ggraph'",
-      "Authors@R": "person(\"Malcolm\", \"Barrett\", , \"malcolmbarrett@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-0299-5825\"))",
-      "Description": "Discrete scales for the colorblind-friendly 'Okabe-Ito' palette, including 'color', 'fill', and 'edge_colour'. 'ggokabeito' provides 'ggplot2' and 'ggraph' scales to easily use the 'Okabe-Ito' palette in your data visualizations.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://github.com/malcolmbarrett/ggokabeito, https://malcolmbarrett.github.io/ggokabeito/",
-      "BugReports": "https://github.com/malcolmbarrett/ggokabeito/issues",
-      "Depends": [
-        "R (>= 4.0.0)"
-      ],
-      "Imports": [
-        "ggplot2",
-        "grDevices"
-      ],
-      "Suggests": [
-        "covr",
-        "ggraph",
-        "igraph",
-        "spelling",
-        "testthat (>= 3.0.0)",
-        "vdiffr"
-      ],
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "Language": "en-US",
-      "RoxygenNote": "7.1.2",
-      "NeedsCompilation": "no",
-      "Author": "Malcolm Barrett [aut, cre] (<https://orcid.org/0000-0003-0299-5825>)",
-      "Maintainer": "Malcolm Barrett <malcolmbarrett@gmail.com>",
-      "Repository": "CRAN"
-    },
     "ggplot2": {
       "Package": "ggplot2",
-      "Version": "4.0.3",
+      "Version": "4.0.4",
       "Source": "Repository",
       "Title": "Create Elegant Data Visualisations Using the Grammar of Graphics",
       "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\", comment = c(ORCID = \"0000-0003-4757-117X\")), person(\"Winston\", \"Chang\", role = \"aut\", comment = c(ORCID = \"0000-0002-1576-2126\")), person(\"Lionel\", \"Henry\", role = \"aut\"), person(\"Thomas Lin\", \"Pedersen\", , \"thomas.pedersen@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-5147-4711\")), person(\"Kohske\", \"Takahashi\", role = \"aut\"), person(\"Claus\", \"Wilke\", role = \"aut\", comment = c(ORCID = \"0000-0002-7470-9261\")), person(\"Kara\", \"Woo\", role = \"aut\", comment = c(ORCID = \"0000-0002-5125-4188\")), person(\"Hiroaki\", \"Yutani\", role = \"aut\", comment = c(ORCID = \"0000-0002-3385-7233\")), person(\"Dewey\", \"Dunnington\", role = \"aut\", comment = c(ORCID = \"0000-0002-9415-4582\")), person(\"Teun\", \"van den Brand\", role = \"aut\", comment = c(ORCID = \"0000-0002-9335-7468\")), person(\"Posit, PBC\", role = c(\"cph\", \"fnd\"), comment = c(ROR = \"03wc8by49\")) )",
@@ -5047,45 +5016,55 @@
     },
     "gratia": {
       "Package": "gratia",
-      "Version": "0.11.2",
+      "Version": "0.12.1",
       "Source": "Repository",
       "Title": "Graceful 'ggplot'-Based Graphics and Other Functions for GAMs Fitted Using 'mgcv'",
       "Authors@R": "c(person(given = \"Gavin L.\", family = \"Simpson\", email = \"ucfagls@gmail.com\", role = c(\"aut\",\"cre\",\"cph\"), comment = c(ORCID = \"0000-0002-9084-8413\")), person(given = \"Henrik\", family = \"Singmann\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4842-3657\")))",
       "Maintainer": "Gavin L. Simpson <ucfagls@gmail.com>",
       "Depends": [
-        "R (>= 4.1.0)"
+        "R (>= 4.4.0)"
       ],
       "Imports": [
-        "mgcv (>= 1.9-0)",
-        "ggplot2 (>= 3.5.0)",
+        "Rcpp",
+        "parallel",
+        "KernSmooth",
+        "mgcv (>= 1.9-4)",
+        "ggplot2 (>= 4.0.3)",
         "tibble (>= 3.0.0)",
         "dplyr (>= 1.2.0)",
         "tidyr",
         "rlang",
-        "patchwork (>= 1.2.0)",
+        "patchwork (>= 1.3.2)",
         "vctrs",
         "grid",
         "mvnfast",
         "purrr (>= 1.1.0)",
         "stats",
-        "tools",
         "grDevices",
         "stringr",
         "tidyselect (>= 1.2.0)",
         "lifecycle",
         "pillar",
         "cli",
-        "nlme",
-        "ggokabeito",
         "withr",
         "scales",
-        "mirai",
-        "tweedie (>= 2.3.5)"
+        "utils"
       ],
       "Suggests": [
-        "gamm4",
+        "posterior",
+        "coda",
+        "bayesplot",
+        "loo",
+        "ggcube (>= 0.3.0)",
+        "geometry",
+        "qgam",
+        "tweedie (>= 2.3.5)",
+        "gamm4 (>= 0.2-7)",
         "lme4",
+        "nlme",
         "testthat",
+        "R6",
+        "pkgload",
         "vdiffr",
         "MASS",
         "scam (>= 1.2-21)",
@@ -5095,15 +5074,15 @@
         "forcats",
         "GJRM",
         "readr",
-        "glmmTMB",
-        "ggdist",
-        "distributional",
-        "hexbin",
+        "glmmTMB (>= 1.1.15.2)",
+        "sdmTMB (>= 1.2.0)",
+        "RTMB",
+        "TMB",
+        "Matrix",
         "gamair",
-        "sf (>= 0.7-3)",
-        "svglite (>= 2.0.0)",
-        "curl",
+        "sf (>= 1.0-0)",
         "marginaleffects",
+        "mirai",
         "carrier"
       ],
       "Description": "Graceful 'ggplot'-based graphics and utility functions for working with generalized additive models (GAMs) fitted using the 'mgcv' package. Provides a reimplementation of the plot() method for GAMs that 'mgcv' provides, as well as 'tidyverse' compatible representations of estimated smooths.",
@@ -5111,13 +5090,16 @@
       "LazyData": "true",
       "URL": "https://gavinsimpson.github.io/gratia/",
       "BugReports": "https://github.com/gavinsimpson/gratia/issues",
-      "RoxygenNote": "7.3.3",
+      "LinkingTo": [
+        "Rcpp"
+      ],
       "Encoding": "UTF-8",
+      "Language": "en-GB",
       "VignetteBuilder": "knitr",
       "Config/testthat/edition": "3",
-      "Config/Needs/website": "rmarkdown, ggdist",
-      "Language": "en-GB",
-      "NeedsCompilation": "no",
+      "Config/Needs/website": "rmarkdown, ggdist, MASS, nlme, lme4, gamm4, GJRM, glmmTMB, sdmTMB, sf, ggcube, distributional, hexbin",
+      "Config/roxygen2/version": "8.1.1",
+      "NeedsCompilation": "yes",
       "Author": "Gavin L. Simpson [aut, cre, cph] (ORCID: <https://orcid.org/0000-0002-9084-8413>), Henrik Singmann [ctb] (ORCID: <https://orcid.org/0000-0002-4842-3657>)",
       "Repository": "CRAN"
     },
@@ -6118,9 +6100,9 @@
     },
     "lattice": {
       "Package": "lattice",
-      "Version": "0.22-9",
+      "Version": "0.23-1",
       "Source": "Repository",
-      "Date": "2026-02-03",
+      "Date": "2026-08-08",
       "Priority": "recommended",
       "Title": "Trellis Graphics for R",
       "Authors@R": "c(person(\"Deepayan\", \"Sarkar\", role = c(\"aut\", \"cre\"), email = \"deepayan.sarkar@r-project.org\", comment = c(ORCID = \"0000-0003-4107-1553\")), person(\"Felix\", \"Andrews\", role = \"ctb\"), person(\"Kevin\", \"Wright\", role = \"ctb\", comment = \"documentation\"), person(\"Neil\", \"Klepeis\", role = \"ctb\"), person(\"Johan\", \"Larsson\", role = \"ctb\", comment = \"miscellaneous improvements\"), person(\"Zhijian (Jason)\", \"Wen\", role = \"cph\", comment = \"filled contour code\"), person(\"Paul\", \"Murrell\", role = \"ctb\", email = \"paul@stat.auckland.ac.nz\"), person(\"Stefan\", \"Eng\", role = \"ctb\", comment = \"violin plot improvements\"), person(\"Achim\", \"Zeileis\", role = \"ctb\", comment = \"modern colors\"), person(\"Alexandre\", \"Courtiol\", role = \"ctb\", comment = \"generics for larrows, lpolygon, lrect and lsegments\") )",
@@ -6960,7 +6942,7 @@
     },
     "mgcv": {
       "Package": "mgcv",
-      "Version": "1.9-4",
+      "Version": "1.9-5",
       "Source": "Repository",
       "Authors@R": "person(given = \"Simon\", family = \"Wood\", role = c(\"aut\", \"cre\"), email = \"simon.wood@r-project.org\")",
       "Title": "Mixed GAM Computation Vehicle with Automatic Smoothness Estimation",
@@ -7306,9 +7288,9 @@
     },
     "nlme": {
       "Package": "nlme",
-      "Version": "3.1-169",
+      "Version": "3.1-172",
       "Source": "Repository",
-      "Date": "2026-03-27",
+      "Date": "2026-10-31",
       "Priority": "recommended",
       "Title": "Linear and Nonlinear Mixed Effects Models",
       "Authors@R": "c(person(\"José\", \"Pinheiro\", role = \"aut\", comment = \"S version\"), person(\"Douglas\", \"Bates\", role = \"aut\", comment = \"up to 2007\"), person(\"Saikat\", \"DebRoy\", role = \"ctb\", comment = \"up to 2002\"), person(\"Deepayan\", \"Sarkar\", role = \"ctb\", comment = \"up to 2005\"), person(\"EISPACK authors\", role = \"ctb\", comment = \"src/rs.f\"), person(\"Siem\", \"Heisterkamp\", role = \"ctb\", comment = \"Author fixed sigma\"), person(\"Bert\", \"Van Willigen\",role = \"ctb\", comment = \"Programmer fixed sigma\"), person(\"Johannes\", \"Ranke\", role = \"ctb\", comment = \"varConstProp()\"), person(\"R Core Team\", email = \"R-core@R-project.org\", role = c(\"aut\", \"cre\"), comment = c(ROR = \"02zz1nj61\")))",
@@ -7324,8 +7306,7 @@
         "lattice"
       ],
       "Suggests": [
-        "MASS",
-        "SASmixed"
+        "MASS"
       ],
       "LazyData": "yes",
       "Encoding": "UTF-8",
@@ -10446,9 +10427,9 @@
     },
     "stringi": {
       "Package": "stringi",
-      "Version": "1.8.7",
+      "Version": "1.8.9",
       "Source": "Repository",
-      "Date": "2025-03-27",
+      "Date": "2026-07-30",
       "Title": "Fast and Portable Character String Processing Facilities",
       "Description": "A collection of character string/text/natural language processing tools for pattern searching (e.g., with 'Java'-like regular expressions or the 'Unicode' collation algorithm), random string generation, case mapping, string transliteration, concatenation, sorting, padding, wrapping, Unicode normalisation, date-time formatting and parsing, and many more. They are fast, consistent, convenient, and - thanks to 'ICU' (International Components for Unicode) - portable across all locales and platforms. Documentation about 'stringi' is provided via its website at <https://stringi.gagolewski.com/> and the paper by Gagolewski (2022, <doi:10.18637/jss.v103.i02>).",
       "URL": "https://stringi.gagolewski.com/, https://github.com/gagolews/stringi, https://icu.unicode.org/",
@@ -10466,10 +10447,10 @@
       "Biarch": "TRUE",
       "License": "file LICENSE",
       "Authors@R": "c(person(given = \"Marek\", family = \"Gagolewski\", role = c(\"aut\", \"cre\", \"cph\"), email = \"marek@gagolewski.com\", comment = c(ORCID = \"0000-0003-0637-6028\")), person(given = \"Bartek\", family = \"Tartanus\", role = \"ctb\"), person(\"Unicode, Inc. and others\", role=\"ctb\", comment = \"ICU4C source code, Unicode Character Database\") )",
-      "RoxygenNote": "7.3.2",
       "Encoding": "UTF-8",
+      "Config/roxygen2/version": "8.0.0",
       "NeedsCompilation": "yes",
-      "Author": "Marek Gagolewski [aut, cre, cph] (<https://orcid.org/0000-0003-0637-6028>), Bartek Tartanus [ctb], Unicode, Inc. and others [ctb] (ICU4C source code, Unicode Character Database)",
+      "Author": "Marek Gagolewski [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-0637-6028>), Bartek Tartanus [ctb], Unicode, Inc. and others [ctb] (ICU4C source code, Unicode Character Database)",
       "Maintainer": "Marek Gagolewski <marek@gagolewski.com>",
       "License_is_FOSS": "yes",
       "Repository": "CRAN"
@@ -11487,9 +11468,9 @@
     },
     "tweedie": {
       "Package": "tweedie",
-      "Version": "3.1.0",
+      "Version": "3.2.2",
       "Source": "Repository",
-      "Date": "2026-05-18",
+      "Date": "2026-11-15",
       "Title": "Evaluation of Tweedie Exponential Family Models",
       "Authors@R": "person(\"Peter K.\", \"Dunn\", email = \"pdunn2@usc.edu.au\", role = c(\"cre\", \"aut\") )",
       "Depends": [
@@ -11511,9 +11492,9 @@
       "Description": "Maximum likelihood computations for Tweedie families, including the series expansion (Dunn and Smyth, 2005; <doi:10.1007/s11222-005-4070-y>) and the Fourier inversion  (Dunn and Smyth, 2008; <doi:10.1007/s11222-007-9039-6>), and related methods.",
       "License": "GPL (>= 2)",
       "NeedsCompilation": "yes",
-      "RoxygenNote": "7.3.3",
       "Config/testthat/edition": "3",
       "VignetteBuilder": "knitr",
+      "Config/roxygen2/version": "8.1.1",
       "Author": "Peter K. Dunn [cre, aut]",
       "Maintainer": "Peter K. Dunn <pdunn2@usc.edu.au>",
       "Repository": "CRAN"
