@@ -14,7 +14,11 @@ jupyter:
     path: C:\Users\User\AppData\Local\Python\pythoncore-3.14-64\share\jupyter\kernels\python3
 title: "Summarised findings from the SAFE soil spatial model"
 author: "Lai, Hao Ran"
+date: last-modified
 format: gfm
+execute: 
+  warning: false
+  message: false
 ---
 
 This short report visualises two outputs from the spatial soil model used to
