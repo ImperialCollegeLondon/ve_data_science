@@ -27,7 +27,8 @@
 #' @param args A concatenated string of arguments. For example,
 #'   \code{ve_run --install-example /usr/abc} can be replicated by calling
 #'   \code{ve_run_cli(c('--install-example', '/usr/abc/'))}
-#' @param venv Optional path to a virtual environment where ve_run is installed.
+#' @param virtualenv Optional path to a Python environment where ve_run is installed.
+#' @param condaenv Optional path to a conda environment where ve_run is installed.
 #'
 #' @returns An integer indicating success (0) or failure (1). Output and logs
 #'   are saved to the paths specified in `args`
@@ -46,10 +47,15 @@
 #'   )
 #'   ve_run(args)
 
-ve_run <- function(args, venv = NULL) {
-  if (!is.null(venv)) {
+ve_run <- function(args, virtualenv = NULL, condaenv = NULL) {
+  if (!is.null(virtualenv)) {
     # use virtual environment if specified
-    reticulate::use_virtualenv(venv)
+    reticulate::use_virtualenv(virtualenv)
+  }
+
+  if (!is.null(condaenv)) {
+    # use virtual environment if specified
+    reticulate::use_condaenv(condaenv)
   }
 
   # import the ve_run_cli function from VE
