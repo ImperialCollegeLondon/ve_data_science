@@ -1,6 +1,6 @@
 title: master_scenarios_metadata
 generated_by: analysis/plant/input_data/scenarios/master_scenarios.R
-generated_on: '2026-10-21'
+generated_on: '2026-11-23'
 scripts:
 - script_path: plant_cohort_data_maliau_2.R
   title: plant_cohort_data_maliau_2
@@ -98,7 +98,7 @@ scripts:
     description: LiDAR-derived point-density raster used as an environmental predictor.
   output_files:
   - name: cohort_data_10_cm_maliau_2.csv
-    path: data/scenarios/maliau/maliau_2/data
+    path: data/scenarios/maliau/maliau_2/data/main
     description: |
       Spatially predicted PFT cohort distribution for individuals with DBH
       greater than 10 cm.
@@ -212,7 +212,7 @@ scripts:
         grid cell; plot-level variation in cohort composition is not
         modelled separately.
   - name: cohort_data_1_cm_maliau_2.csv
-    path: data/scenarios/maliau/maliau_2/data
+    path: data/scenarios/maliau/maliau_2/data/main
     description: |
       Cohorts below the 10 cm census threshold are estimated from the
       difference between modelled total basal area for stems at or above 1 cm
@@ -362,7 +362,7 @@ scripts:
   status: final
   input_files:
   - name: cohort_data_1_cm_maliau_2.csv
-    path: data/scenarios/maliau/maliau_2/data
+    path: data/scenarios/maliau/maliau_2/data/main
     description: |
       Cohorts below the 10 cm census threshold are estimated from the
       difference between modelled total basal area for stems at or above 1 cm
@@ -408,7 +408,7 @@ scripts:
       univariate fit; a different raster may be selected for another run.
   output_files:
   - name: plant_input_data_maliau_2.nc
-    path: data/scenarios/maliau/maliau_2/data
+    path: data/scenarios/maliau/maliau_2/data/main
     description: |
       NetCDF file containing spatially distributed plant propagule and
       subcanopy vegetation and seedbank C, N and P mass for the Maliau 2 scenario.
@@ -804,7 +804,7 @@ scripts:
       constants in the plant input data library workflow.
   output_files:
   - name: plant_pft_definitions_maliau_2.csv
-    path: data/scenarios/maliau/maliau_2/data
+    path: data/scenarios/maliau/maliau_2/data/main
     description: |
       Plant functional type definition table for the Maliau 2 scenario.
       This scenario-specific table is assembled from the canonical Maliau
@@ -1493,7 +1493,7 @@ scripts:
       constants in the plant input data library workflow.
   output_files:
   - name: plant_constants_maliau_2.csv
-    path: data/scenarios/maliau/maliau_2/data
+    path: data/scenarios/maliau/maliau_2/data/main
     description: |
       Plant constants table for the Maliau 2 scenario.
     variables:
