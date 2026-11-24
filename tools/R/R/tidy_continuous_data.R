@@ -109,6 +109,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
       logical(1)
     )
 
+    # Dimensions and coordinate arrays are metadata, not state variables.
     coordinates <- union(
       dimensions,
       union(
@@ -126,6 +127,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
     initial_groups
   )
 
+  # Resolve requested names across both output and initial-state groups.
   if (is.null(variables)) {
     output_variables <- output_names
     initial_variables <- initial_names
@@ -143,6 +145,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
     })
   }
 
+  # Join shared spatial and temporal coordinates only once onto all outputs.
   outputs <- get_data_variables(path, group = "outputs", output_variables)
   xy <- get_data_variables(path, group = "outputs", c("x", "y")) |>
     reshape2::melt() |>
@@ -169,6 +172,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
   }
 
   parse_time_units <- function(units) {
+    # Convert source and output CF units through seconds for consistent comparison.
     if (length(units) != 1L || is.na(units) || !nzchar(units)) {
       stop("Unsupported or missing CF time units.", call. = FALSE)
     }
@@ -208,6 +212,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
     }
 
     initial <- get_data_variables(path, group = group_name, variables_to_read)
+    # A time dimension marks source-array timestamps; timeless arrays need a sentinel.
     time_varying <- names(initial)[vapply(
       initial,
       \(x) "time_index" %in% names(dimnames(x)),
@@ -252,6 +257,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
       )$get_attrs()$to_list()
       source_calendar <- source_attrs$calendar
       output_calendar <- output_attrs$calendar
+      # Mixed calendars could silently shift dates, so conversion is deliberately restricted.
       if (
         length(source_calendar) != 1L ||
           length(output_calendar) != 1L ||
@@ -279,6 +285,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
         stop("Invalid time coordinate mapping.", call. = FALSE)
       }
 
+      # Express source values in the output group's timestamp units.
       source_timestamps <- tibble::tibble(
         time_index = source_index,
         timestamp = (source_values *
@@ -312,6 +319,7 @@ tidy_continuous_data <- function(path, variables = NULL, initial = FALSE) {
       tidy_initial$timestamp <- NA_real_
     }
 
+    # Initial arrays remain fixed at -1 except those with source time indices.
     tidy_initial <- tidy_initial |>
       dplyr::mutate(
         time_index = dplyr::if_else(L1 %in% time_varying, time_index, -1),
