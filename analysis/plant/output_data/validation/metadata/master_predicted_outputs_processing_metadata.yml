@@ -1,6 +1,6 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-10-28'
+generated_on: '2026-11-24'
 scripts:
 - script_path: gpp_and_npp_maliau_2.R
   title: gpp_and_npp_maliau_2
@@ -835,9 +835,10 @@ scripts:
   title: tree_standing_carbon_mass_maliau_2
   description: |
     This script calculates Virtual Ecosystem standing stem and foliage carbon
-    mass for every Maliau-2 grid cell and model timestep. Cohort-level biomass
-    is multiplied by cohort abundance, summed across cohorts, and standardised
-    to kg C ha-1.
+    mass for every Maliau-2 grid cell and model timestep for initial cohorts
+    only (trees present at simulation start, dbh > 0.002 m). Cohort-level
+    biomass is multiplied by cohort abundance, summed across cohorts, and
+    standardised to kg C ha-1.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
   status: final
@@ -845,8 +846,10 @@ scripts:
   - name: plants_cohort_data.csv
     path: data/scenarios/maliau/maliau_2/out
     description: |
-      Virtual Ecosystem plant cohort biomass, abundance, cell identifiers,
-      and timesteps.
+      Virtual Ecosystem plant cohort data including cohort identifiers, cell
+      coordinates (cell_x, cell_y), plant functional types, DBH values,
+      biomass components (stem and foliage carbon), abundance, crown GPP, and
+      timesteps.
   - name: maliau_grid_definition.toml
     path: data/derived/site/maliau
     description: Maliau-2 grid geometry, cell IDs, and cell resolution.
@@ -855,7 +858,10 @@ scripts:
     description: Simulation start date and update interval.
   - name: tree_standing_carbon_mass_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
-    description: Observed plot data used for diagnostic figures only.
+    description: |
+      Observed plot data including plot locations, areas, and census dates
+      (2011, 2014, 2015, 2017, 2019). Used for spatial matching and diagnostic
+      figures only.
   output_files:
   - name: tree_standing_carbon_mass_maliau_2.csv
     path: data/derived/plant/output_data/validation/predicted_outputs_processing
@@ -972,5 +978,8 @@ scripts:
   - toml
   - reticulate
   usage_notes: |
-    Initialisation rows without whole_crown_gpp are excluded before cohort
-    aggregation to avoid double-counting timestep zero.
+    Only initial cohorts are retained (timestep 0, dbh > 0.002 m) to match the
+    validation dataset which comprises only 2011 census trees. Initialisation
+    rows without whole_crown_gpp are excluded before cohort aggregation to avoid
+    double-counting timestep zero. Observed data census dates (2015, 2017, 2019)
+    are parsed and available for plot-level diagnostic comparisons.
