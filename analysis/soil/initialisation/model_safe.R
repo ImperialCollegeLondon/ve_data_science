@@ -169,7 +169,7 @@ soil <-
     evi = extract(evi, .[, c("X", "Y")])[, "EVI"],
     cwm_C = extract(cwm_traits, .[, c("X", "Y")])[, "carbon_mass"],
     cwm_N = extract(cwm_traits, .[, c("X", "Y")])[, "nitrogen_mass"],
-    cwm_P = extract(cwm_traits, .[, c("X", "Y")])[, "carbon_mass"],
+    cwm_P = extract(cwm_traits, .[, c("X", "Y")])[, "phosphorus_mass"],
     cwm_WD = extract(cwm_traits, .[, c("X", "Y")])[, "wood_density"],
   ) %>%
   drop_na(elev, topo, hydro, acd, evi, cwm_C, cwm_N, cwm_P, cwm_WD)
