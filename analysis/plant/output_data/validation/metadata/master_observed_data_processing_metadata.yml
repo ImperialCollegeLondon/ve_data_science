@@ -1,6 +1,6 @@
 title: master_observed_data_processing_metadata
 generated_by: analysis/plant/output_data/validation/observed_data_processing/master_observed_data_processing.R
-generated_on: '2026-10-28'
+generated_on: '2026-11-24'
 scripts:
 - script_path: carbon_balance_components_maliau.R
   title: carbon_balance_components_maliau
@@ -1034,8 +1034,8 @@ scripts:
   description: |
     This script prepares the observed validation data for tree standing carbon
     mass for Maliau. It calculates plot-level stem and leaf carbon mass for
-    2011 and 2014 using allometric equations applied to tree census DBH data
-    from OG plots within the maliau_2 grid.
+    the available census years using allometric equations applied to tree census
+    DBH data from OG plots within the maliau_2 grid.
   virtual_ecosystem_module: Plant
   author: Arne Scheire
   status: final
@@ -1064,110 +1064,320 @@ scripts:
   - name: tree_standing_carbon_mass_maliau.csv
     path: data/derived/plant/output_data/validation/observed_data_processing
     description: |
-      Calculated tree standing carbon mass components for OG plots in maliau_2.
+      Plot-level stem and leaf carbon mass estimates for the 2011-recorded
+      tree cohort in the selected Maliau-2 OG plots. Includes estimates and
+      allometric standard errors for the 2011, 2014, 2015, 2017, and 2019
+      census rounds, plot-specific mean census dates, elapsed intervals,
+      and annualised net stem carbon changes between consecutive rounds.
     variables:
     - name: PlotID
       type: character
       units: dimensionless
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
       temporal_extent: ~
-      description: SAFE identifier for each observed census plot.
+      description: SAFE identifier for the observed census plot.
     - name: plot_area_m2
       type: numeric
       units: m2
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
       temporal_extent: ~
-      description: Area of each OG census plot.
+      description: Plot area in square metres (25 m by 25 m).
     - name: plot_area_ha
       type: numeric
       units: ha
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
       temporal_extent: ~
-      description: Area of each OG census plot in hectares.
+      description: Plot area in hectares (0.0625 ha).
     - name: plot_x
       type: numeric
       units: degrees longitude
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
       temporal_extent: ~
-      description: Plot centroid longitude in WGS84.
+      description: Plot centroid longitude in WGS84, from the SAFE gazetteer.
     - name: plot_y
       type: numeric
       units: degrees latitude
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
       temporal_extent: ~
-      description: Plot centroid latitude in WGS84.
-    - name: census_date_2011
-      type: date
-      units: ISO 8601 date
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date from the 2011 census.
-      description: Mean date of the 2011 census for the plot.
-    - name: census_date_2014
-      type: date
-      units: ISO 8601 date
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date from the 2014 census.
-      description: Mean date of the 2014 census for the plot.
+      description: Plot centroid latitude in WGS84, from the SAFE gazetteer.
     - name: obs_stem_mass_2011_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2011.
-      description: Plot stem carbon mass estimated from 2011 DBH values.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2011-labelled census round.
+      description: |
+        Stem carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2011 DBH using Kenzo et al. (2009) allometry and a
+        wood carbon fraction of 45.6%.
     - name: obs_stem_mass_2011_se_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2011.
-      description: SE from the allometric parameter uncertainties.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2011-labelled census round.
+      description: |
+        Propagated standard error for stem carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
     - name: obs_stem_mass_2014_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2014.
-      description: Plot stem carbon mass estimated from 2014 DBH values.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2014-labelled census round.
+      description: |
+        Stem carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2014 DBH using Kenzo et al. (2009) allometry and a
+        wood carbon fraction of 45.6%.
     - name: obs_stem_mass_2014_se_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2014.
-      description: SE from the allometric parameter uncertainties.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2014-labelled census round.
+      description: |
+        Propagated standard error for stem carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
+    - name: obs_stem_mass_2015_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2015-labelled census round.
+      description: |
+        Stem carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2015 DBH using Kenzo et al. (2009) allometry and a
+        wood carbon fraction of 45.6%.
+    - name: obs_stem_mass_2015_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2015-labelled census round.
+      description: |
+        Propagated standard error for stem carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
+    - name: obs_stem_mass_2017_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2017-labelled census round.
+      description: |
+        Stem carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2017 DBH using Kenzo et al. (2009) allometry and a
+        wood carbon fraction of 45.6%.
+    - name: obs_stem_mass_2017_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2017-labelled census round.
+      description: |
+        Propagated standard error for stem carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
+    - name: obs_stem_mass_2019_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2019-labelled census round.
+      description: |
+        Stem carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2019 DBH using Kenzo et al. (2009) allometry and a
+        wood carbon fraction of 45.6%.
+    - name: obs_stem_mass_2019_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2019-labelled census round.
+      description: |
+        Propagated standard error for stem carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
     - name: obs_leaf_mass_2011_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2011.
-      description: Plot leaf carbon mass estimated from 2011 DBH values.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2011-labelled census round.
+      description: |
+        Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2011 DBH using Kenzo et al. (2009) allometry and a
+        leaf carbon fraction of 44.30682%.
     - name: obs_leaf_mass_2011_se_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2011.
-      description: SE from the allometric parameter uncertainties.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2011-labelled census round.
+      description: |
+        Propagated standard error for leaf carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
     - name: obs_leaf_mass_2014_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2014.
-      description: Plot leaf carbon mass estimated from 2014 DBH values.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2014-labelled census round.
+      description: |
+        Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2014 DBH using Kenzo et al. (2009) allometry and a
+        leaf carbon fraction of 44.30682%.
     - name: obs_leaf_mass_2014_se_kg_ha
       type: numeric
       units: kg C ha-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot date stored in census_date_2014.
-      description: SE from the allometric parameter uncertainties.
-    - name: census_interval_years
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2014-labelled census round.
+      description: |
+        Propagated standard error for leaf carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
+    - name: obs_leaf_mass_2015_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2015-labelled census round.
+      description: |
+        Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2015 DBH using Kenzo et al. (2009) allometry and a
+        leaf carbon fraction of 44.30682%.
+    - name: obs_leaf_mass_2015_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2015-labelled census round.
+      description: |
+        Propagated standard error for leaf carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
+    - name: obs_leaf_mass_2017_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2017-labelled census round.
+      description: |
+        Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2017 DBH using Kenzo et al. (2009) allometry and a
+        leaf carbon fraction of 44.30682%.
+    - name: obs_leaf_mass_2017_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2017-labelled census round.
+      description: |
+        Propagated standard error for leaf carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
+    - name: obs_leaf_mass_2019_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2019-labelled census round.
+      description: |
+        Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+        estimated from 2019 DBH using Kenzo et al. (2009) allometry and a
+        leaf carbon fraction of 44.30682%.
+    - name: obs_leaf_mass_2019_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2019-labelled census round.
+      description: |
+        Propagated standard error for leaf carbon mass due to uncertainty
+        in the allometric coefficient and exponent; shared parameter
+        uncertainty is applied to the plot total.
+    - name: census_date_2011
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2011-labelled census round.
+      description: Mean observed census date for the round labelled 2011.
+    - name: census_date_2014
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2014-labelled census round.
+      description: Mean observed census date for the round labelled 2014.
+    - name: census_date_2015
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2015-labelled census round.
+      description: Mean observed census date for the round labelled 2015.
+    - name: census_date_2017
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2017-labelled census round.
+      description: Mean observed census date for the round labelled 2017.
+    - name: census_date_2019
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: 2019-labelled census round.
+      description: Mean observed census date for the round labelled 2019.
+    - name: census_2011_2014_interval_years
       type: numeric
       units: years
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
-      description: Time between the mean 2011 and 2014 census dates per plot.
-    - name: obs_stem_increment_kg_ha_yr
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2011- and 2014-labelled rounds.
+      description: |
+        Elapsed time between the plot's mean 2011 and 2014 census dates,
+        calculated as the date difference divided by 365.25.
+    - name: census_2014_2015_interval_years
+      type: numeric
+      units: years
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2014- and 2015-labelled rounds.
+      description: |
+        Elapsed time between the plot's mean 2014 and 2015 census dates,
+        calculated as the date difference divided by 365.25.
+    - name: census_2015_2017_interval_years
+      type: numeric
+      units: years
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2015- and 2017-labelled rounds.
+      description: |
+        Elapsed time between the plot's mean 2015 and 2017 census dates,
+        calculated as the date difference divided by 365.25.
+    - name: census_2017_2019_interval_years
+      type: numeric
+      units: years
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2017- and 2019-labelled rounds.
+      description: |
+        Elapsed time between the plot's mean 2017 and 2019 census dates,
+        calculated as the date difference divided by 365.25.
+    - name: obs_stem_increment_2011_2014_kg_ha_yr
       type: numeric
       units: kg C ha-1 y-1
-      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-      temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
-      description: Net annual change in standing stem carbon between censuses.
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2011- and 2014-labelled rounds.
+      description: |
+        Annualised net change in standing stem carbon per hectare for the
+        2011-recorded tree cohort, from the 2011 to 2014 census rounds.
+        This is net standing-carbon change, not gross woody productivity.
+    - name: obs_stem_increment_2014_2015_kg_ha_yr
+      type: numeric
+      units: kg C ha-1 y-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2014- and 2015-labelled rounds.
+      description: |
+        Annualised net change in standing stem carbon per hectare for the
+        2011-recorded tree cohort, from the 2014 to 2015 census rounds.
+        This is net standing-carbon change, not gross woody productivity.
+    - name: obs_stem_increment_2015_2017_kg_ha_yr
+      type: numeric
+      units: kg C ha-1 y-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2015- and 2017-labelled rounds.
+      description: |
+        Annualised net change in standing stem carbon per hectare for the
+        2011-recorded tree cohort, from the 2015 to 2017 census rounds.
+        This is net standing-carbon change, not gross woody productivity.
+    - name: obs_stem_increment_2017_2019_kg_ha_yr
+      type: numeric
+      units: kg C ha-1 y-1
+      spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+      temporal_extent: Interval between the 2017- and 2019-labelled rounds.
+      description: |
+        Annualised net change in standing stem carbon per hectare for the
+        2011-recorded tree cohort, from the 2017 to 2019 census rounds.
+        This is net standing-carbon change, not gross woody productivity.
   package_dependencies:
   - readxl
   - sf
