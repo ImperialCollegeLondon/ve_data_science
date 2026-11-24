@@ -22,18 +22,7 @@ library(tidyverse)
 library(viridis)
 library(CBFM)
 
-source("analysis/soil/initialisation/model_safe.R")
-```
-
-```text
-Reading layer `gazetteer' from data source 
-  `C:\Users\User\Documents\ve_data_science\data\primary\site\gazetteer.geojson' 
-  using driver `GeoJSON'
-Simple feature collection with 5171 features and 15 fields
-Geometry type: GEOMETRY
-Dimension:     XY
-Bounding box:  xmin: 116.9471 ymin: 4.41215 xmax: 117.9959 ymax: 4.961828
-Geodetic CRS:  WGS 84
+source("analysis/soil/initialisation/model_safe.R", echo = FALSE)
 ```
 
 ## Model coefficients

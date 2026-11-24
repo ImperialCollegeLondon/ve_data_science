@@ -41,7 +41,7 @@ library(tidyverse)
 library(viridis)
 library(CBFM)
 
-source("analysis/soil/initialisation/model_safe.R")
+source("analysis/soil/initialisation/model_safe.R", echo = FALSE)
 ```
 
 ## Model coefficients

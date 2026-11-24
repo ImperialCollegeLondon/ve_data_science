@@ -143,7 +143,7 @@ extra_locations <-
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 # tidy up location info
 location_sf <-
-  st_read("data/primary/site/gazetteer.geojson") %>%
+  st_read("data/primary/site/gazetteer.geojson", quiet = TRUE) %>%
   bind_rows(extra_locations) %>%
   st_transform(crs = st_crs(elev)) %>%
   st_centroid()
