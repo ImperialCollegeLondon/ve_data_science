@@ -125,7 +125,7 @@ The search does not change VE configuration. A failed search cannot support a
 `no_evidence` result.
 
 The assistant uses
-[`ve_constant_usage.toml`](../.github/skills/ve-constant-search/assets/ve_constant_usage.toml)
+[`ve_constant_usage.toml`](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/assets/ve_constant_usage.toml)
 to match selected constants to declarations, reference sites, functions and
 VE commit. This generated inventory covers declared configuration attributes
 across VE modules, including shared model and disturbance settings. It excludes
@@ -197,13 +197,15 @@ also ask before it makes a consequential scientific judgment. After your
 approval, it writes results under `data/derived/llm/`, with one CSV per VE
 module: `<module>_constant_literature_values.csv`. For soil, create this CSV
 from the blank template for new searches. An older soil CSV exists at
-[`data/derived/soil/llm/soil_constant_literature_values.csv`](../data/derived/soil/llm/soil_constant_literature_values.csv).
+`data/derived/soil/llm/soil_constant_literature_values.csv`, which is not stored
+on GitHub.
 That file contains historical results and is not the output path for new
 searches. Do not copy its rows into a new CSV without approval. Rows for other
 constants must remain unchanged. The skill's
 [CSV template](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/assets/soil_constant_literature_values.csv)
 is blank; the
-[field guide](../.github/skills/ve-constant-search/assets/README.md) defines its
+[field guide](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/assets/README.md)
+defines its
 fields. The historical soil CSV uses a different column order, so match columns
 by name if you review its rows. Keep each module's new results in its own CSV.
 Put each per-parameter log beside the corresponding module CSV.
@@ -214,7 +216,7 @@ supported, retain the range without inventing a point estimate. For gaps,
 record why the evidence is insufficient. Keep the search and screening log
 beside the resulting CSV so another reviewer can trace what was considered.
 Start a new per-parameter log from the
-[blank log template](../.github/skills/ve-constant-search/assets/constant_search_log.csv).
+[blank log template](https://github.com/ImperialCollegeLondon/ve_data_science/blob/main/.github/skills/ve-constant-search/assets/constant_search_log.csv).
 Record failed requests separately from successful zero-result searches. The
 OpenAlex helper supports `search "QUERY"` and `snowball --id W...` via
 `uv run --no-sync python
