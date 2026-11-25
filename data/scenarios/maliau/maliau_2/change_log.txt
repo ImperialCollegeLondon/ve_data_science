@@ -9,7 +9,7 @@
   - Updated microbial config file paths so that the correctly points to the
     right data files in `../../data/main/`
 - References:
-  - PR #760
+  - PR #835
 
 2026-11-24
 - Module: Animal
