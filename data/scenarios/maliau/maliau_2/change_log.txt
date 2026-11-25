@@ -1,5 +1,16 @@
 # Change log of maliau_2 scenario input data and config
 
+2026-11-25
+- Module: Animal
+- Author: Siti Nor Baizurah
+- Files changed:
+  - data/scenarios/maliau/maliau_2/config/main/soil_config.toml
+- Changes made:
+  - Updated microbial config file paths so that the correctly points to the
+    right data files in `../../data/main/`
+- References:
+  - PR #760
+
 2026-11-24
 - Module: Animal
 - Author: Siti Nor Baizurah
