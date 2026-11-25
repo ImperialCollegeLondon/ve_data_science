@@ -3,9 +3,10 @@
 #|
 #| description: |
 #|   This script calculates Virtual Ecosystem standing stem and foliage carbon
-#|   mass for every Maliau-2 grid cell and model timestep. Cohort-level biomass
-#|   is multiplied by cohort abundance, summed across cohorts, and standardised
-#|   to kg C ha-1.
+#|   mass for every Maliau-2 grid cell and model timestep for initial cohorts
+#|   only (trees present at simulation start, dbh > 0.002 m). Cohort-level
+#|   biomass is multiplied by cohort abundance, summed across cohorts, and
+#|   standardised to kg C ha-1.
 #|
 #| virtual_ecosystem_module:
 #|   - Plant
@@ -19,8 +20,10 @@
 #|   - name: plants_cohort_data.csv
 #|     path: data/scenarios/maliau/maliau_2/out
 #|     description: |
-#|       Virtual Ecosystem plant cohort biomass, abundance, cell identifiers,
-#|       and timesteps.
+#|       Virtual Ecosystem plant cohort data including cohort identifiers, cell
+#|       coordinates (cell_x, cell_y), plant functional types, DBH values,
+#|       biomass components (stem and foliage carbon), abundance, crown GPP, and
+#|       timesteps.
 #|   - name: maliau_grid_definition.toml
 #|     path: data/derived/site/maliau
 #|     description: Maliau-2 grid geometry, cell IDs, and cell resolution.
@@ -29,7 +32,10 @@
 #|     description: Simulation start date and update interval.
 #|   - name: tree_standing_carbon_mass_maliau.csv
 #|     path: data/derived/plant/output_data/validation/observed_data_processing
-#|     description: Observed plot data used for diagnostic figures only.
+#|     description: |
+#|       Observed plot data including plot locations, areas, and census dates
+#|       (2011, 2014, 2015, 2017, 2019). Used for spatial matching and diagnostic
+#|       figures only.
 #|
 #| output_files:
 #|   - name: tree_standing_carbon_mass_maliau_2.csv
@@ -143,8 +149,11 @@
 #|   - reticulate
 #|
 #| usage_notes: |
-#|   Initialisation rows without whole_crown_gpp are excluded before cohort
-#|   aggregation to avoid double-counting timestep zero.
+#|   Only initial cohorts are retained (timestep 0, dbh > 0.002 m) to match the
+#|   validation dataset which comprises only 2011 census trees. Initialisation
+#|   rows without whole_crown_gpp are excluded before cohort aggregation to avoid
+#|   double-counting timestep zero. Observed data census dates (2015, 2017, 2019)
+#|   are parsed and available for plot-level diagnostic comparisons.
 #| ---
 
 library(data.table)
@@ -176,6 +185,9 @@ figures_dir <- normalizePath(
 observed_data <- fread(observed_data_path)
 observed_data[, census_date_2011 := as.Date(census_date_2011)]
 observed_data[, census_date_2014 := as.Date(census_date_2014)]
+observed_data[, census_date_2015 := as.Date(census_date_2015)]
+observed_data[, census_date_2017 := as.Date(census_date_2017)]
+observed_data[, census_date_2019 := as.Date(census_date_2019)]
 
 # Load grid definition and model timing ------------------------------------
 
@@ -314,14 +326,23 @@ text(
 # Load and filter the large VE cohort output -------------------------------
 # Only the fields needed for the standing-mass calculation are loaded. This
 # avoids loading the full plants_cohort_data.csv into memory.
+
+column_names <- names(
+  data.table::fread(plants_cohort_data_path, nrows = 0)
+)
+print(column_names)
+
 required_columns <- c(
   "cell_x",
   "cell_y",
+  "cohort_id",
   "pft_name",
   "time",
   "time_index",
   "n_individuals",
   "whole_crown_gpp",
+  "dbh_value",
+  "dbh",
   "stem_C_biomass",
   "foliage_C_biomass"
 )
@@ -339,6 +360,24 @@ plants_cohort_data$cell_id <- grid_cells$cell_id[
     paste(grid_cells$cell_x, grid_cells$cell_y)
   )
 ]
+
+# Here we filter to initial cohorts only (because the validation data only focuses
+# on the 2011 initial trees)
+# We cannot use NA for GPP here because the new recruit cohorts also have NA
+# Hence, filter to cohorts at timestep 0 with dbh > 0.002 (since this is the
+# minimum starting dbh for ALL new recruits)
+initial_cohorts <-
+  unique(plants_cohort_data$cohort_id[
+    plants_cohort_data$time_index == 0 & plants_cohort_data$dbh_value > 0.002
+  ])
+length(initial_cohorts)
+
+total_cohorts <- unique(plants_cohort_data$cohort_id)
+length(total_cohorts)
+
+# Subset to initial cohorts
+plants_cohort_data <-
+  plants_cohort_data[plants_cohort_data$cohort_id %in% initial_cohorts, ]
 
 # Exclude initialisation rows, which have no computed GPP and would otherwise
 # duplicate the timestep-0 biomass.

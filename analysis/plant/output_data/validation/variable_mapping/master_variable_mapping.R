@@ -21,6 +21,7 @@
 #|   - path: analysis/plant/output_data/validation/variable_mapping/reproductive_turnover_mapping_maliau_2.yml
 #|   - path: analysis/plant/output_data/validation/variable_mapping/respiration_and_turnover_mapping_maliau_2.yml
 #|   - path: analysis/plant/output_data/validation/variable_mapping/tree_standing_carbon_mass_mapping_maliau_2.yml
+#|   - path: analysis/plant/output_data/validation/variable_mapping/total_tree_standing_carbon_mass_mapping_maliau_2.yml
 #|   - path: analysis/plant/output_data/validation/variable_mapping/symbiote_allocation_mapping_maliau_2.yml
 #|
 #| output_files:
@@ -88,6 +89,7 @@ mapping_files <- c(
   "reproductive_turnover_mapping_maliau_2.yml",
   "respiration_and_turnover_mapping_maliau_2.yml",
   "tree_standing_carbon_mass_mapping_maliau_2.yml",
+  "total_tree_standing_carbon_mass_mapping_maliau_2.yml",
   "symbiote_allocation_mapping_maliau_2.yml"
 )
 
