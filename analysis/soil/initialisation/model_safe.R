@@ -99,21 +99,20 @@ library(modelr)
 
 # Elevation
 # STRM-derived data
-elev <-
-  rast("data/primary/abiotic/STRM_data_elevation/SRTM_UTM50N_processed.tif")
+elev <- rast(
+  "data/primary/abiotic/STRM_data_elevation/SRTM_UTM50N_processed.tif"
+)
 
 # Topography
-topo <-
-  rast(
-    "data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif"
-  )
+topo <- rast(
+  "data/primary/abiotic/SAFE_topographic_roughness/SRTM_UTM50N_TRI_Wilson2007.tif"
+)
 
 # Climate
 # Not included now
 
 # Hydrology
-hydro <-
-  rast("data/primary/abiotic/SRTM_hydrology/SRTM_Log_Flow_Accum.tif")
+hydro <- rast("data/primary/abiotic/SRTM_hydrology/SRTM_Log_Flow_Accum.tif")
 
 # LiDAR
 acd <-
@@ -125,8 +124,12 @@ acd <-
 names(acd) <- "acd"
 
 # Biomass
-evi <-
-  rast("data/primary/plant/remote_biomass/Sabah_EVI_2024_Q1.tif")
+evi <- rast("data/primary/plant/remote_biomass/Sabah_EVI_2024_Q1.tif")
+
+# Community-weighted mean canopy traits
+cwm_traits <-
+  rast("data/primary/soil/cmw_traits/Sabah_canopy_traits.tif") |>
+  project(crs(topo))
 
 # Location details
 # fill in missing coordinates
@@ -140,7 +143,7 @@ extra_locations <-
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 # tidy up location info
 location_sf <-
-  st_read("data/primary/site/gazetteer.geojson") %>%
+  st_read("data/primary/site/gazetteer.geojson", quiet = TRUE) %>%
   bind_rows(extra_locations) %>%
   st_transform(crs = st_crs(elev)) %>%
   st_centroid()
@@ -163,9 +166,13 @@ soil <-
     topo = extract(topo, .[, c("X", "Y")])[, "SRTM_UTM50N_TRI_Wilson2007"],
     hydro = extract(hydro, .[, c("X", "Y")])[, "SRTM_Log_Flow_Accum"],
     acd = extract(acd, .[, c("X", "Y")])[, "acd"],
-    evi = extract(evi, .[, c("X", "Y")])[, "EVI"]
+    evi = extract(evi, .[, c("X", "Y")])[, "EVI"],
+    cwm_C = extract(cwm_traits, .[, c("X", "Y")])[, "carbon_mass"],
+    cwm_N = extract(cwm_traits, .[, c("X", "Y")])[, "nitrogen_mass"],
+    cwm_P = extract(cwm_traits, .[, c("X", "Y")])[, "phosphorus_mass"],
+    cwm_WD = extract(cwm_traits, .[, c("X", "Y")])[, "wood_density"],
   ) %>%
-  drop_na(elev, topo, hydro, acd, evi)
+  drop_na(elev, topo, hydro, acd, evi, cwm_C, cwm_N, cwm_P, cwm_WD)
 
 # a list of selected soil response variables
 soil_vars <-
@@ -191,9 +198,12 @@ rownames(soil_mat) <- soil$plot_code
 #     a form of power-law relationship
 soil_scaled <-
   soil %>%
-  mutate(across(c(elev, topo, acd, evi), log)) |>
+  mutate(across(c(elev, topo, acd, evi, cwm_C, cwm_N, cwm_P, cwm_WD), log)) |>
   mutate(across(c(hydro), log1p)) |>
-  mutate(across(c(elev, topo, hydro, acd, evi), ~ as.numeric(scale(.))))
+  mutate(across(
+    c(elev, topo, hydro, acd, evi, cwm_C, cwm_N, cwm_P, cwm_WD),
+    ~ as.numeric(scale(.))
+  ))
 
 
 # Model -------------------------------------------------------------------
@@ -215,7 +225,16 @@ basis_func <-
 fitcbfm <-
   CBFM(
     y = soil_mat,
-    formula = ~ 1 + elev + topo + hydro + acd + evi,
+    formula = ~ 1 +
+      elev +
+      topo +
+      hydro +
+      acd +
+      evi +
+      cwm_C +
+      cwm_N +
+      cwm_P +
+      cwm_WD,
     data = soil_scaled,
     B_space = basis_func,
     family = gaussian(),
