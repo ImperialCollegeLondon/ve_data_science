@@ -1,48 +1,3 @@
----
-jupytext:
-  formats: md:myst
-  text_representation:
-    extension: .md
-    format_name: myst
-    format_version: 0.13
-kernelspec:
-  name: python3
-  display_name: Python 3 (ipykernel)
-  language: python
-language_info:
-  name: python
-  version: 3.14.3
-  mimetype: text/x-python
-  codemirror_mode:
-    name: ipython
-    version: 3
-  pygments_lexer: ipython3
-  nbconvert_exporter: python
-  file_extension: .py
-ve_data_science:
-  title: Macronutrient cycling analysis report
-  description: 'Build and visualise macronutrient networks from Virtual Ecosystem
-    litter
-
-    simulation outputs, and check litter-pool flow balance across time steps.
-
-    '
-  author: []
-  virtual_ecosystem_module: Litter
-  status: wip
-  input_files: []
-  output_files: []
-  package_dependencies: [matplotlib, numpy, pathlib, virtual-ecosystem, xarray]
-  usage_notes: 'The network plot supports C, N, and P and accepts a time index and
-    grid
-
-    indices. The balance check reports per-pool and per-element residuals for
-
-    all time steps and grid cells.
-
-    TODO - GET COPILOT TO FILL OUT THESE DESCRIPTIONS ONCE I''M HAPPY WITH THEM'
----
-
 # Macronutrient cycling analysis
 
 ## Setup
@@ -50,15 +5,13 @@ ve_data_science:
 First setup everything by doing the necessary imports and loading in the
 simulation data and configuration.
 
-```{code-cell} ipython3
+
+```python
 from pathlib import Path
-from textwrap import fill
 
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
-
-from litter_analysis import INPUT_POOLS, generate_litter_network
+from litter_analysis import generate_litter_network
 from virtual_ecosystem.core.config_builder import (
     ConfigurationLoader,
     generate_configuration,
@@ -67,7 +20,8 @@ from virtual_ecosystem.core.core_components import CoreComponents
 from virtual_ecosystem.core.model_config import CoreConfiguration
 from virtual_ecosystem.models.litter.model_config import LitterConfiguration
 
-# With the imports load in the simulation data/configuration. (As this report is an example of usage I'm just providing a local path)
+# With the imports load in the simulation data/configuration. (As this report is
+# an example of usage I'm just providing a local path)
 data_dir = Path("/Users/jc2017/Desktop/litter_nutrient_cycling/maliau_2/out")
 
 model_data_path = data_dir / "model_data.nc"
@@ -81,17 +35,58 @@ core_config = full_config.get_subconfiguration("core", CoreConfiguration)
 core_components = CoreComponents(config=core_config)
 ```
 
+    [INFO] - config_builder - _collect_config_paths(427) - Config paths resolve to 1 files
+    [INFO] - config_builder - _load_config_toml(450) - Config TOML loaded from /Users/jc2017/Desktop/litter_nutrient_cycling/maliau_2/out/compiled_configuration.toml
+    [INFO] - config_builder - _compile_data(374) - Configuration data compiled.
+    [INFO] - registry - _register_module(163) - Registering module: virtual_ecosystem.core
+    [INFO] - registry - _register_module(176) - Configuration class registered for virtual_ecosystem.core
+    [INFO] - registry - _register_module(163) - Registering module: virtual_ecosystem.models.abiotic_simple
+    [INFO] - registry - _get_model(237) - Registering model class for virtual_ecosystem.models.abiotic_simple: AbioticSimpleModel
+    [INFO] - registry - _register_module(176) - Configuration class registered for virtual_ecosystem.models.abiotic_simple
+    [INFO] - registry - _register_module(163) - Registering module: virtual_ecosystem.models.hydrology
+    [INFO] - registry - _get_model(237) - Registering model class for virtual_ecosystem.models.hydrology: HydrologyModel
+    [INFO] - registry - _register_module(176) - Configuration class registered for virtual_ecosystem.models.hydrology
+    [INFO] - registry - _register_module(163) - Registering module: virtual_ecosystem.models.animal
+    [INFO] - registry - _get_model(237) - Registering model class for virtual_ecosystem.models.animal: AnimalModel
+    [INFO] - registry - _register_module(176) - Configuration class registered for virtual_ecosystem.models.animal
+    [INFO] - registry - _register_module(163) - Registering module: virtual_ecosystem.models.plants
+    [INFO] - registry - _get_model(237) - Registering model class for virtual_ecosystem.models.plants: PlantsModel
+    [INFO] - registry - _register_module(176) - Configuration class registered for virtual_ecosystem.models.plants
+    [INFO] - registry - _register_module(163) - Registering module: virtual_ecosystem.models.soil
+    [INFO] - registry - _get_model(237) - Registering model class for virtual_ecosystem.models.soil: SoilModel
+    [INFO] - registry - _register_module(176) - Configuration class registered for virtual_ecosystem.models.soil
+    [INFO] - registry - _register_module(163) - Registering module: virtual_ecosystem.models.litter
+    [INFO] - registry - _get_model(237) - Registering model class for virtual_ecosystem.models.litter: LitterModel
+    [INFO] - registry - _register_module(176) - Configuration class registered for virtual_ecosystem.models.litter
+    [INFO] - config_builder - generate_configuration(629) - Configuration model built.
+    [INFO] - config_builder - generate_configuration(642) - Configuration validated.
+    [INFO] - grid - from_config(330) - Grid created from configuration.
+    [INFO] - core_components - __post_init__(331) - Layer structure built from model configuration
+    [INFO] - core_components - __post_init__(147) - Timing details built from model configuration: start - 2010-01-01, end - 2020-12-31T18:00:00, run length - 347133600 seconds
+
+
 ## Generate litter macronutrient cycles
 
 Then call the function that generates the full litter model macronutrient cycles.
 
-```{code-cell} ipython3
+
+```python
 litter_cycles = generate_litter_network(
     model_data_path=model_data_path,
     litter_config=litter_config,
     core_config=core_config,
 )
 ```
+
+    /Users/jc2017/Repositories/ve_data_science/analysis/macronutrient_cycling/litter_analysis.py:171: FutureWarning: In a future version of xarray the default value for compat will change from compat='no_conflicts' to compat='override'. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
+      initial_nodes = xr.merge([inputs[INPUT_POOLS], initial[FLOW_GENERATED_ON_INIT]])
+    /Users/jc2017/Repositories/ve_data_science/analysis/macronutrient_cycling/litter_analysis.py:171: FutureWarning: In a future version of xarray the default value for compat will change from compat='no_conflicts' to compat='override'. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
+      initial_nodes = xr.merge([inputs[INPUT_POOLS], initial[FLOW_GENERATED_ON_INIT]])
+    /Users/jc2017/Repositories/ve_data_science/.venv/lib/python3.14/site-packages/virtual_ecosystem/models/litter/inputs.py:402: RuntimeWarning: invalid value encountered in multiply
+      lignin_proportion
+    /Users/jc2017/Repositories/ve_data_science/.venv/lib/python3.14/site-packages/virtual_ecosystem/models/litter/inputs.py:402: RuntimeWarning: invalid value encountered in multiply
+      lignin_proportion
+
 
 ## Visualise the macronutrient network
 
@@ -100,9 +95,9 @@ The plot shows carbon flows at the first simulated time step for grid index
 magnitude, with a minimum line size of 1. Arrows indicate the direction of the flow.
 The overall plot isn't amazing, but you can see the expected links.
 
-```{code-cell} ipython3
+
+```python
 import networkx as nx
-import matplotlib.pyplot as plt
 
 # Create directed graph
 G = nx.DiGraph()
@@ -199,13 +194,20 @@ plt.tight_layout()
 plt.show()
 ```
 
+
+    
+![png](output_5_0.png)
+    
+
+
 ## Check litter-pool flow balance
 
 While we could check a lot of different nodes the easiest thing to check is
 whether the individual flows to the mineralisation correctly sum to the total
 mineralisation flux.
 
-```{code-cell} ipython3
+
+```python
 mineralisation_variables = [
     "litter_pool_above_metabolic_cnp_→_litter_mineralisation_rate_cnp",
     "litter_pool_above_structural_cnp_→_litter_mineralisation_rate_cnp",
@@ -224,7 +226,8 @@ x_1 = 2.0
 
 bottom = 0
 
-# Extract depth and update interval (in days), which are both needed for unit conversions
+# Extract depth and update interval (in days), which are both needed for unit
+# conversions
 depth = core_config.constants.microbial_simulation_depth
 update_time_days = core_components.model_timing.update_interval_quantity.to("days").magnitude
 
@@ -272,9 +275,16 @@ plt.tight_layout()
 plt.show()
 ```
 
-To test this isn't a fluke, I then check the litter mineralisation components for each element, for each time index and grid cell. (300 NaN values are expected as this sum is not defined for the first timestep).cc
 
-```{code-cell} ipython3
+    
+![png](output_7_0.png)
+    
+
+
+To test this isn't a fluke, I then check the litter mineralisation components for each element, for each time index and grid cell. (300 NaN values are expected as this sum is not defined for the first timestep).
+
+
+```python
 # Convert mineralisation components from kg m-2 units to kg m-3 day-1 units and sum
 mineralisation_components = sum(
     litter_cycles[var]/(depth * update_time_days) for var in mineralisation_variables
@@ -293,3 +303,10 @@ print("NaNs:", np.isnan(residual).sum().item())
 print("Infinite values:", np.isinf(residual).sum().item())
 print("Bad finite values", count)
 ```
+
+    Total values: 39900
+    Finite values: 39600
+    NaNs: 300
+    Infinite values: 0
+    Bad finite values 0
+
