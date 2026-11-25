@@ -197,9 +197,11 @@ Note that this will usually only involve changing one file. Please leave the fil
 that you didn't change alone, and record the change in the `change_log.txt` file.
 You will also need to update the config settings once the VE PR has been merged into
 `main`, so replace the respective model-specific config file in
-`maliau_2/config/main` with the new one in `maliau_2/config/pr1958`. Note that the
-config paths in `maliau_2/config/main` should point to the data files in
-`maliau_2/data/main` (and thus no longer to `maliau_2/data/pr1958`)
+`maliau_2/config/main` with the new one in `maliau_2/config/pr1958`.
+
+Important: The config paths in `maliau_2/config/main` should point to the data files in
+`maliau_2/data/main` (no longer to `maliau_2/data/pr1958`). Hence, update the config
+paths in `maliau_2/config/main` accordingly once the data and config files have been moved.
 
 It is worth pointing out that once the "outdated" main files in `maliau_2/data/main`
 have been replaced with an updated version, the "outdated" files are considered gone.
