@@ -18,10 +18,10 @@ package_dependencies:
 usage_notes: |
   Run search "QUERY" or snowball --id W... from the repository root with
   uv. Access uses OPENALEX_API_KEY if set, else OPENALEX_EMAIL, else keyless.
-  Each is read from the process environment, then the skill's .env. The
+  Each is read from the process environment, then the user's .Renviron. The
   access approach is reported on stderr; the key and email are never printed.
-  Results go to stdout; network, HTTP, and JSON errors propagate rather than
-  becoming empty results.
+  Results go to stdout; request failures are reported without credential-bearing
+  URLs, and JSON errors propagate rather than becoming empty results.
   This script neither downloads full text nor changes the repository.
 ---
 """  # noqa: D205, D400, D415
@@ -36,14 +36,20 @@ import requests
 
 
 def read_setting(name):
-    """Return a setting from the process environment, then the skill's .env."""
+    """Return a setting from the process environment, then user .Renviron."""
     value = os.environ.get(name, "").strip()
     if value:
         return value
 
-    env_file = Path(__file__).resolve().parents[1] / ".env"
-    if env_file.is_file():
-        for line in env_file.read_text(encoding="utf-8-sig").splitlines():
+    home = Path.home()
+    renviron_files = [home / ".Renviron"]
+    if os.name == "nt":
+        renviron_files.insert(0, home / "Documents" / ".Renviron")
+
+    for renviron_file in renviron_files:
+        if not renviron_file.is_file():
+            continue
+        for line in renviron_file.read_text(encoding="utf-8-sig").splitlines():
             key, separator, value = line.strip().partition("=")
             if separator and key.strip() == name:
                 value = value.strip().strip("\"'")
@@ -53,12 +59,9 @@ def read_setting(name):
 
 
 def openalex_access():
-    """Return the access approach and headers: API key, then email, then keyless.
-
-    Credentials go in headers, not the URL, so HTTP error messages cannot leak them.
-    """
+    """Return the access approach and request parameters."""
     if key := read_setting("OPENALEX_API_KEY"):
-        return "api_key", {"Authorization": f"Bearer {key}"}
+        return "api_key", {"api_key": key}
     if email := read_setting("OPENALEX_EMAIL"):
         return "email", {"User-Agent": f"ve-constant-search (mailto:{email})"}
     return "keyless", {}
@@ -77,15 +80,25 @@ def reconstruct_openalex_abstract(inverted_index):
 
 
 def request_openalex(path, params):
-    """Get OpenAlex JSON; propagate HTTP, network and invalid JSON errors."""
-    _, headers = openalex_access()
-    response = requests.get(
-        f"https://api.openalex.org/works{path}",
-        headers=headers,
-        params=params,
-        timeout=15,
-    )
-    response.raise_for_status()
+    """Get OpenAlex JSON without exposing credentials in request errors."""
+    mode, access = openalex_access()
+    headers = access if mode == "email" else {}
+    request_params = {**params, **access} if mode == "api_key" else params
+    response = None
+    try:
+        response = requests.get(
+            f"https://api.openalex.org/works{path}",
+            headers=headers,
+            params=request_params,
+            timeout=15,
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        status = getattr(response, "status_code", None)
+        if not isinstance(status, int):
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+        detail = f"HTTP {status}" if isinstance(status, int) else type(exc).__name__
+        raise RuntimeError(f"OpenAlex request failed ({detail})") from None
     return response.json()
 
 
