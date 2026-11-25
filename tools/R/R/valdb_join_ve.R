@@ -138,6 +138,43 @@ classify_temporal_bounds <- function(
 }
 
 
+#' Compute the beta-median of a sample
+#'
+#' Internal helper for [join_ve_outputs()]. The beta-median med(beta)(F), as
+#' defined in Gneiting (2011, "Making and Evaluating Point Forecasts"), is the
+#' median of a distribution whose density is proportional to `y^beta * f(y)`,
+#' where `f` is the density of `F`. It is the Bayes-optimal point prediction
+#' under the scoring function class `S_beta(x, y) = |1 - (y / x)^beta|`, which
+#' nests the absolute percentage error (`beta = -1`) and relative error
+#' (`beta = 1`). The ordinary median (`beta = 0`) is the limiting case and is
+#' optimal for absolute error.
+#'
+#' @param values Numeric vector of sample values approximating `F`.
+#' @param beta Numeric exponent of the beta-median. Must be `0` or the sample
+#'   must be strictly positive, since the weighting `values^beta` is otherwise
+#'   undefined or infinite.
+#'
+#' @returns A single numeric value, or `NA_real_` if `values` is empty or the
+#'   weighting is not finite for the requested `beta`.
+
+beta_median <- function(values, beta) {
+  if (length(values) == 0) {
+    return(NA_real_)
+  }
+  if (beta != 0 && any(values <= 0)) {
+    return(NA_real_)
+  }
+  weights <- if (beta == 0) rep(1, length(values)) else values^beta
+  if (any(!is.finite(weights)) || sum(weights) == 0) {
+    return(NA_real_)
+  }
+  order_values <- order(values)
+  values_sorted <- values[order_values]
+  cumulative_weight <- cumsum(weights[order_values]) / sum(weights)
+  values_sorted[which(cumulative_weight >= 0.5)[1]]
+}
+
+
 #' Summarise VE outputs for one validation row
 #'
 #' Internal helper for [join_ve_outputs()].
@@ -157,8 +194,8 @@ classify_temporal_bounds <- function(
 #'   the cell containing the observation when it is spatially within the
 #'   scenario.
 #'
-#' @returns Named numeric vector with `value_VE_q05`, `value_VE_q50`, and
-#'   `value_VE_q95`.
+#' @returns Named numeric vector with `value_VE_q05`, `value_VE_q50`,
+#'   `value_VE_q95`, `value_VE_med_neg1`, and `value_VE_mean`.
 
 join_ve_outputs_per_row <- function(
   ve_data,
@@ -173,7 +210,9 @@ join_ve_outputs_per_row <- function(
   empty_quantiles <- c(
     value_VE_q05 = NA_real_,
     value_VE_q50 = NA_real_,
-    value_VE_q95 = NA_real_
+    value_VE_q95 = NA_real_,
+    value_VE_med_neg1 = NA_real_,
+    value_VE_mean = NA_real_
   )
 
   # flag indicating whether the matched variable data has a spatial scope
@@ -185,15 +224,22 @@ join_ve_outputs_per_row <- function(
     any(!is.na(matched_variable_data$spatial_scope))
 
   # function to summarise/aggregate VE outputs
-  # currently it is median and the lower/upper quantiles; this can be changed
-  # later
+  # currently it is median, the lower/upper quantiles, the beta = -1 median
+  # med(-1)(F) (the theoretically proper point prediction to pair with
+  # absolute percentage error (APE) scoring), and the mean (the Bayes-optimal
+  # prediction for squared error (SE) scoring; Gneiting 2011); this can be
+  # changed later
   summarise_ve_outputs <- function(data) {
     values <- dplyr::pull(data, value)
     if (length(values) == 0) {
       return(empty_quantiles)
     }
-    stats::quantile(values, probs = c(0.05, 0.5, 0.95)) |>
-      stats::setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95"))
+    c(
+      stats::quantile(values, probs = c(0.05, 0.5, 0.95)) |>
+        stats::setNames(c("value_VE_q05", "value_VE_q50", "value_VE_q95")),
+      value_VE_med_neg1 = beta_median(values, beta = -1),
+      value_VE_mean = mean(values)
+    )
   }
 
   # For interval observations, match both time_start and time_end to their
@@ -281,7 +327,14 @@ join_ve_outputs_per_row <- function(
 #' bounds, and appends VE quantile predictions to each validation row.
 #'
 #' The output preserves all rows and columns of `validation_database` and adds
-#' `value_VE_q05`, `value_VE_q50`, and `value_VE_q95`.
+#' `value_VE_q05`, `value_VE_q50`, `value_VE_q95`, `value_VE_med_neg1`, and
+#' `value_VE_mean`. `value_VE_med_neg1` is med(-1)(F) (Gneiting 2011), the
+#' theoretically proper point prediction to pair with absolute percentage
+#' error (APE) scoring; it differs from the ordinary median `value_VE_q50`
+#' used for absolute error. `value_VE_mean` is the Bayes-optimal point
+#' prediction to pair with squared error (SE) scoring. If matched values are
+#' non-positive or cannot produce finite weights, `value_VE_med_neg1` is
+#' `NA` and a warning reports the number of affected rows.
 #'
 #' @param validation_database A data frame containing at least
 #'   `var_canonical`, `time_start`, `time_end`, `latitude`, and `longitude`.
@@ -312,8 +365,9 @@ join_ve_outputs_per_row <- function(
 #'   \item Other classes are not yet implemented and currently return `NA` quantiles by design. There will be a warning to the user.
 #' }
 #'
-#' @returns A data frame with three appended columns: `value_VE_q05`,
-#'   `value_VE_q50`, and `value_VE_q95`.
+#' @returns A data frame with five appended columns: `value_VE_q05`,
+#'   `value_VE_q50`, `value_VE_q95`, `value_VE_med_neg1`, and
+#'   `value_VE_mean`.
 #'
 #' @export
 #'
@@ -524,7 +578,7 @@ join_ve_outputs <- function(
     ))
   }
 
-  validation_database_classified |>
+  joined_database <- validation_database_classified |>
     dplyr::mutate(
       value_VE = purrr::pmap(
         list(
@@ -539,4 +593,20 @@ join_ve_outputs <- function(
       )
     ) |>
     tidyr::unnest_wider(value_VE)
+
+  unavailable_medians <- sum(
+    !is.na(joined_database$value_VE_q50) &
+      is.na(joined_database$value_VE_med_neg1)
+  )
+  if (unavailable_medians > 0) {
+    cli::cli_warn(c(
+      "{unavailable_medians} matched row{?s} without a beta-median prediction.",
+      "i" = paste(
+        "Model values must be strictly positive and weights must have",
+        "a finite, nonzero total."
+      )
+    ))
+  }
+
+  joined_database
 }

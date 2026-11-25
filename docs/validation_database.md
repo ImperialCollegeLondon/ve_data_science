@@ -657,9 +657,13 @@ as a reference workflow.
 Zarr store. It joins the spatiotemporally aggregated VE outputs to each row. It
 reads VE variables that are stored directly in the outputs and VE-originated
 canonical variables that are computed from those outputs. It classifies each
-observation by spatial and temporal overlap with the scenario bounds. It returns
-three added columns: the lower quantile `value_VE_q05`, the median
-`value_VE_q50`, and the upper quantile `value_VE_q95`.
+observation by spatial and temporal overlap with the scenario bounds. It adds
+the lower quantile `value_VE_q05`, median `value_VE_q50`, upper quantile
+`value_VE_q95`, mean `value_VE_mean`, and weighted median
+`value_VE_med_neg1`. The weighted median is intended for absolute percentage
+error scoring. It is `NA` when matched values are non-positive or their weights
+do not have a finite, nonzero total. A warning reports the number of affected
+matched rows.
 
 The current implementation supports:
 

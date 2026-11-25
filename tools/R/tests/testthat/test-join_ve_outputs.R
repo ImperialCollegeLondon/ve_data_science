@@ -44,6 +44,111 @@ test_that("join_ve_outputs_per_row matches point observation to nearest timestam
   expect_equal(result["value_VE_q50"], c(value_VE_q50 = 100))
   expect_equal(result["value_VE_q05"], c(value_VE_q05 = 100))
   expect_equal(result["value_VE_q95"], c(value_VE_q95 = 100))
+  expect_equal(result["value_VE_med_neg1"], c(value_VE_med_neg1 = 100))
+  expect_equal(result["value_VE_mean"], c(value_VE_mean = 100))
+})
+
+test_that("join_ve_outputs_per_row computes value_VE_med_neg1 as the beta = -1 median", {
+  # beta_median() with beta = -1 weights values by 1 / value, so smaller
+  # values get relatively more weight than in the ordinary median.
+  ve_data <- tibble::tibble(
+    var_canonical = "soil_carbon",
+    date = as.POSIXct("2016-09-01", tz = "UTC"),
+    lat_min = 4.0,
+    lat_max = 5.0,
+    lon_min = 117.0,
+    lon_max = 118.0,
+    value = c(1, 2, 10, 20, 100)
+  )
+
+  result <- join_ve_outputs_per_row(
+    ve_data = ve_data,
+    var_canonical = "soil_carbon",
+    time_start = as.POSIXct("2016-09-01", tz = "UTC"),
+    time_end = as.POSIXct(NA, tz = "UTC"),
+    latitude = 4.5,
+    longitude = 117.5,
+    spatiotemporal_join_class = "spatial_within_temporal_within"
+  )
+
+  expect_equal(result["value_VE_q50"], c(value_VE_q50 = 10))
+  expect_equal(result["value_VE_med_neg1"], c(value_VE_med_neg1 = 1))
+  expect_equal(
+    result["value_VE_mean"],
+    c(value_VE_mean = mean(c(1, 2, 10, 20, 100)))
+  )
+})
+
+test_that("join_ve_outputs warns about unavailable beta-medians once", {
+  join_env <- new.env(parent = globalenv())
+  source(here::here("tools/R/R/valdb_join_ve.R"), local = join_env)
+  join_env$read_scenario_definition <- function(...) {
+    list(
+      grid_res = 100,
+      start_date = as.Date("2016-09-01"),
+      spatial_bounds = c(-1, -1, 1, 1),
+      temporal_bounds = as.Date(c("2016-08-31", "2016-09-10"))
+    )
+  }
+  join_env$get_data_variables <- function(zarr_path, group, variables) {
+    if ("x" %in% variables) {
+      return(list(
+        x = array(500000, dim = 1, dimnames = list(cell_id = "1")),
+        y = array(500000, dim = 1, dimnames = list(cell_id = "1"))
+      ))
+    }
+    list(
+      timestamp = array(
+        c(0, 1),
+        dim = 2,
+        dimnames = list(time_index = c("0", "1"))
+      )
+    )
+  }
+  join_env$get_derived_variables <- function(...) {
+    list(
+      soil_carbon = array(
+        c(0, 1),
+        dim = c(2, 1),
+        dimnames = list(time_index = c("0", "1"), cell_id = "1")
+      )
+    )
+  }
+  local_mocked_bindings(
+    zarr_open = function(...) {
+      list(get_item = function(...) {
+        list(get_store = function() list(listdir = function(...) character()))
+      })
+    },
+    .package = "pizzarr"
+  )
+
+  db <- tibble::tibble(
+    var_canonical = c("soil_carbon", "soil_carbon", "soil_carbon", "missing"),
+    time_start = as.POSIXct(
+      c("2016-09-01", "2016-09-01", "2016-09-02", "2016-09-01"),
+      tz = "UTC"
+    ),
+    time_end = as.POSIXct(
+      c("2016-09-02", "2016-09-02", NA, NA),
+      tz = "UTC"
+    ),
+    latitude = 10,
+    longitude = 10
+  )
+
+  expect_warning(
+    result <- join_env$join_ve_outputs(db, "unused", "unused"),
+    "2 matched rows without a beta-median prediction"
+  )
+  expect_equal(result$value_VE_med_neg1, c(NA_real_, NA_real_, 1, NA_real_))
+  expect_equal(result$value_VE_q50, c(0.5, 0.5, 1, NA_real_))
+  expect_warning(
+    join_env$join_ve_outputs(db[1, ], "unused", "unused"),
+    "1 matched row without a beta-median prediction"
+  )
+  expect_no_warning(join_env$join_ve_outputs(db[3:4, ], "unused", "unused"))
+  expect_true(is.na(join_env$beta_median(c(-1, 1), beta = -1)))
 })
 
 test_that("join_ve_outputs_per_row matches interval to nearest start and end timestamps", {
