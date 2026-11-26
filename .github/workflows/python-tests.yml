@@ -3,18 +3,20 @@ name: Python Tests
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, constant-search-microbial-pilot]
     paths:
       - 'tools/python/**'
       - 'pyproject.toml'
       - 'uv.lock'
       - '.github/workflows/python-tests.yml'
+      - '.github/skills/ve-constant-search/**'
   pull_request:
     paths:
       - 'tools/python/**'
       - 'pyproject.toml'
       - 'uv.lock'
       - '.github/workflows/python-tests.yml'
+      - '.github/skills/ve-constant-search/**'
 
 jobs:
   test:
@@ -23,16 +25,16 @@ jobs:
       MPLBACKEND: Agg
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
         with:
           python-version: '3.12'
           enable-cache: true
 
       - name: Install Python dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --group dev-pinned
 
       - name: Lint tools/python
         run: |
