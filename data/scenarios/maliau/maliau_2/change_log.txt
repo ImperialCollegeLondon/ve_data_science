@@ -1,3 +1,13 @@
+2026-11-23
+- Module: Plant
+- Author: Arne Scheire
+- Files changed:
+  - data/scenarios/maliau/maliau_2/config/main/plant_config
+- Changes made:
+  - The paths to plant data files in plant_config were changed from  ../data to ../../data/main.
+- References:
+  - Issue #815
+
 # Change log of maliau_2 scenario input data and config
 
 2026-11-25
