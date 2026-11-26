@@ -34,6 +34,8 @@
 library(arrow)
 library(tidyverse)
 library(scoringutils)
+library(rpart)
+
 
 # Load the combined validation database ---------------------------------------
 
@@ -101,3 +103,14 @@ scores_summary_groups <- summarise_scores(scores, by = "element")
 pairs(scores_summary_variables[, -1], log = "xy")
 
 # Weighted scores based on closeness to Maliau
+
+# Regression tree
+tree <- rpart(
+  ape ~ var_canonical,
+  data = scores |> filter(is.finite(ape)),
+  method = "anova",
+  control = rpart.control(cp = 0.0001)
+)
+
+plot(tree, uniform = TRUE, margin = 0.1)
+text(tree, use.n = TRUE, cex = 0.8)
