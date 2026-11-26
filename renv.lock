@@ -4284,37 +4284,6 @@
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
     },
-    "geodata": {
-      "Package": "geodata",
-      "Version": "0.6-9",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Access Geographic Data",
-      "Date": "2026-04-03",
-      "Depends": [
-        "R (>= 3.5.0)",
-        "terra (>= 1.6.41)"
-      ],
-      "Imports": [
-        "rappdirs"
-      ],
-      "Suggests": [
-        "jsonlite",
-        "R.utils",
-        "httr",
-        "archive"
-      ],
-      "Encoding": "UTF-8",
-      "Maintainer": "Robert J. Hijmans <r.hijmans@gmail.com>",
-      "Description": "Functions for downloading of geographic data for use in spatial analysis and mapping. The package facilitates access to climate, crops, elevation, land use, soil, species occurrence, accessibility, administrative boundaries and other data.",
-      "License": "GPL (>= 3)",
-      "URL": "https://rspatial.github.io/geodata/",
-      "BugReports": "https://github.com/rspatial/geodata/issues/",
-      "Authors@R": "c( person(\"Robert J.\", \"Hijmans\", role=c(\"cre\", \"aut\"),   email=\"r.hijmans@gmail.com\", comment=c(ORCID=\"0000-0001-5872-2872\")),\t\t\t person(\"Márcia\", \"Barbosa\", role=\"ctb\", comment=c(ORCID=\"0000-0001-8972-7713\")), person(\"Aniruddha\", \"Ghosh\", role=\"ctb\"), person(\"Alex\", \"Mandel\", role=\"ctb\"))",
-      "NeedsCompilation": "no",
-      "Author": "Robert J. Hijmans [cre, aut] (ORCID: <https://orcid.org/0000-0001-5872-2872>), Márcia Barbosa [ctb] (ORCID: <https://orcid.org/0000-0001-8972-7713>), Aniruddha Ghosh [ctb], Alex Mandel [ctb]",
-      "Repository": "CRAN"
-    },
     "geojsonsf": {
       "Package": "geojsonsf",
       "Version": "2.0.5",
@@ -6884,8 +6853,8 @@
     },
     "mapme.biodiversity": {
       "Package": "mapme.biodiversity",
-      "Version": "0.9.6",
-      "Source": "Repository",
+      "Version": "0.9.6.9000",
+      "Source": "GitHub",
       "Title": "Efficient Monitoring of Global Biodiversity Portfolios",
       "Authors@R": "c(person(given = \"Darius A.\",  family = \"G\\u00F6rgen\",  role = \"aut\", comment = c(ORCID = \"0009-0008-5503-7704\")), person(given = \"Om Prakash\",  family = \"Bhandari\",  role = \"aut\"), person(given = \"Andreas\", family = \"Petutschnig\", role = \"ctb\", comment = c(ORCID = \"0000-0001-5029-2425\")), person(given = \"Sven\",  family = \"Bergtold\", role = \"ctb\"), person(given = \"Zivan\",  family = \"Karaman\", email =  \"zivan.karaman@gmail.com\", role = c(\"ctb\", \"cre\"), comment = c(ORCID = \"0000-0002-8933-4589\")), person(given = \"MAPME-Initiative\", email = \"contact@mapme-initiative.org\", role = c(\"cph\", \"fnd\")) )",
       "Description": "Biodiversity areas, especially primary forest, serve a multitude of functions for local economy, regional functionality of the ecosystems as well as the global health of our planet. Recently, adverse changes in human land use practices and climatic responses to increased greenhouse gas emissions, put these biodiversity areas under a variety of different threats. The present package helps to analyse a number of biodiversity indicators based on freely available geographical datasets. It supports computational efficient routines that allow the analysis of potentially global biodiversity portfolios. The primary use case of the package is to support evidence based reporting of an organization's effort to protect biodiversity areas under threat and to identify regions were intervention is most duly needed.",
@@ -6926,12 +6895,19 @@
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
       "Language": "en-GB",
+      "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.3",
       "Collate": "'register.R' 'calc_biodiversity_intactness_index.R' 'calc_biome.R' 'calc_burned_area.R' 'calc_carbon.R' 'calc_deforestation_drivers.R' 'calc_drought_indicator.R' 'calc_ecoregion.R' 'calc_elevation.R' 'calc_exposed_population_acled.R' 'calc_exposed_population_ucdp.R' 'calc_fatalities_acled.R' 'calc_fatalities_ucdp.R' 'calc_gsw_change.R' 'calc_gsw_occurrence.R' 'calc_gsw_recurrence.R' 'calc_gsw_seasonality.R' 'calc_gsw_time_series.R' 'calc_gsw_transitions.R' 'calc_hfp.R' 'get_resources.R' 'calc_indicators.R' 'calc_ipbes_biomes.R' 'calc_iucn.R' 'calc_key_biodiversity_areas.R' 'calc_landcover.R' 'calc_mangroves_area.R' 'calc_population_count.R' 'calc_precipitation_chelsa.R' 'calc_precipitation_chirps.R' 'calc_precipitation_wc.R' 'calc_slope.R' 'calc_soilproperties.R' 'calc_temperature_max_wc.R' 'calc_temperature_min_wc.R' 'calc_traveltime.R' 'calc_traveltime_2000.R' 'calc_treecover_area.R' 'calc_treecover_area_and_emissions.R' 'calc_treecoverloss_emissions.R' 'calc_tri.R' 'chunking.R' 'engines.R' 'get_accessibility_2000.R' 'get_acled.R' 'get_biodiversity_intactness_index.R' 'get_carbon.R' 'get_chelsa.R' 'get_chirps.R' 'get_esalandcover.R' 'get_fritz_et_al.R' 'get_gfw_emissions.R' 'get_gfw_lossyear.R' 'get_gfw_treecover.R' 'get_gmw.R' 'get_gsw.R' 'get_gsw_time_series.R' 'get_hfp.R' 'get_ipbes_biomes.R' 'get_iucn.R' 'get_key_biodiversity_areas.R' 'get_mcd64A1.R' 'get_nasa_grace.R' 'get_nasa_srtm.R' 'get_nelson_et_al.R' 'get_soilgrids.R' 'get_teow.R' 'get_ucdp_ged.R' 'get_worldclim.R' 'get_worldpop.R' 'mapme.biodiversity-pkg.R' 'portfolio.R' 'spatial-utils.R' 'utils.R'",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "mapme.biodiversity",
+      "RemoteUsername": "mapme-initiative",
+      "RemotePkgRef": "mapme-initiative/mapme.biodiversity",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "522fd9cb3a0156d1743357c7a0dbf972a48d8157",
       "NeedsCompilation": "no",
       "Author": "Darius A. Görgen [aut] (ORCID: <https://orcid.org/0009-0008-5503-7704>), Om Prakash Bhandari [aut], Andreas Petutschnig [ctb] (ORCID: <https://orcid.org/0000-0001-5029-2425>), Sven Bergtold [ctb], Zivan Karaman [ctb, cre] (ORCID: <https://orcid.org/0000-0002-8933-4589>), MAPME-Initiative [cph, fnd]",
-      "Maintainer": "Zivan Karaman <zivan.karaman@gmail.com>",
-      "Repository": "CRAN"
+      "Maintainer": "Zivan Karaman <zivan.karaman@gmail.com>"
     },
     "maps": {
       "Package": "maps",
