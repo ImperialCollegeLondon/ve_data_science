@@ -13,6 +13,12 @@ path and an explicit encoding (the supplied CSV uses `cp1252`). The tool reads
 the metadata before the `field_name` header and checks that `BodyMass` is in
 grams. It never writes to the source or existing scenario files.
 
+Primary data are Git-ignored and are not included when cloning this repository.
+Before running, download `TraitMatrix_SAFE_Functional_Groups_template.csv`
+from the VE Data Science Globus collection, either directly or using transfer/sync,
+to `data/primary/animal/functional_group/`. See the
+[Globus guide](../../../docs/using_globus.md) for access and download instructions.
+
 Reusable parsing, filtering and export logic lives in
 [animal_fg_builder.py](../../../tools/python/src/ve_data_tools/animal_fg_builder.py).
 The app adds the repository's tools source directory to its import path, so
@@ -50,10 +56,14 @@ Renaming also updates offspring references. If removal leaves an offspring
 reference unresolved, fix it before downloading. Choose another existing group
 as offspring for metamorphosis, or self for direct development.
 
-Download the group CSV when finished. It has exactly the 15 columns of
-the Maliau level-3 reference CSV. **Birth mass remains blank: this is a draft,
+Download the group CSV when finished. It has the 15 columns of the Maliau
+level-3 reference CSV, followed by `t_opt`, `t_max_crit` and `t_min_crit`.
+**Birth mass remains blank: this is a draft,
 not a run-ready VE input.** Supply birth masses before simulation. Optional
-density is blank unless entered. Thermal columns are not added.
+density and temperatures are blank unless the user enters data. Temperatures
+are in degrees Celsius: `t_opt` is optimal activity temperature, `t_max_crit`
+is the upper critical temperature, and `t_min_crit` is the lower critical
+temperature. Leave them blank to use VE's estimation behaviour.
 
 The optional **included-taxa and mass log** has one record per contributing
 taxon per saved group. Manual masses are labelled `user`, without inventing a
