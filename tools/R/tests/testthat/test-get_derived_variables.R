@@ -125,11 +125,10 @@ test_that("get_soil_np_pool_microbial converts C to N and P pools correctly.", {
     )
   )
   # Extract stoichiometric ratios (C:N and C:P) for each microbial group
-  stoich <-
-    config$soil$microbial_group_definition |>
-    purrr::map_vec(\(x) {
-      as.data.frame(x[c("name", "c_n_ratio", "c_p_ratio")])
-    })
+  stoich <- readr::read_csv(
+    config$soil[["microbial_group_definition_path"]],
+    show_col_types = FALSE
+  )
   result <- get_soil_np_pool_microbial(mock_zarr, config = config)
   # Verify N pools: N = C / C:N ratio
   expect_equal(
@@ -176,18 +175,48 @@ test_that("get_soil_np_pool_microbial converts C to N and P pools correctly.", {
   )
 })
 
+test_that("microbial pools accept definitions from a CSV file", {
+  dir <- withr::local_tempdir()
+  mock_zarr <- create_mock_zarr(dir)
+  config <- toml::read_toml(create_mock_cfg(dir))
+  groups <- readr::read_csv(
+    config$soil[["microbial_group_definition_path"]],
+    show_col_types = FALSE
+  )
+  csv_path <- file.path(dir, "microbial_groups.csv")
+  readr::write_csv(groups[nrow(groups):1, ], csv_path)
+  config$soil$microbial_group_definition_path <- csv_path
+  config$soil$microbial_group_definition_unused <- "not-a-path"
+  config$soil$microbial_group_definition <- "not-a-path"
+
+  result <- get_soil_np_pool_microbial(mock_zarr, config)
+  expect_equal(result$soil_n_pool_saprotrophic_fungi[1, 1], 8 / 7)
+  expect_equal(result$soil_p_pool_saprotrophic_fungi[1, 1], 8 / 21)
+  expect_equal(result$soil_n_pool_ectomycorrhiza[1, 1], 7 / 9)
+  expect_equal(result$soil_p_pool_ectomycorrhiza[1, 1], 7 / 31)
+  expect_equal(result$soil_n_pool_arbuscular_mycorrhiza[1, 1], 5 / 11)
+  expect_equal(result$soil_p_pool_arbuscular_mycorrhiza[1, 1], 5 / 41)
+  expect_equal(result$soil_n_pool_bacteria[1, 1], 6 / 13)
+  expect_equal(result$soil_p_pool_bacteria[1, 1], 6 / 51)
+
+  config$soil$microbial_group_definition_path <- NULL
+  expect_error(
+    get_soil_np_pool_microbial(mock_zarr, config),
+    "Missing soil microbial_group_definition_path"
+  )
+})
+
 test_that("get_total_soil_n_per_volume sums all nitrogen pools", {
   dir <- withr::local_tempdir()
   mock_zarr <- create_mock_zarr(dir)
   mock_config <- create_mock_cfg(dir)
   config <- toml::read_toml(mock_config)
 
-  # Extract C:N ratios for all microbial groups (order: ectomycorrhiza, saprotrophic_fungi, arbuscular_mycorrhiza, bacteria)
-  stoich <-
-    config$soil$microbial_group_definition |>
-    purrr::map_vec(\(x) {
-      as.data.frame(x[c("name", "c_n_ratio")])
-    })
+  # Match C:N ratios to the order of the mock C pools.
+  stoich <- readr::read_csv(
+    config$soil[["microbial_group_definition_path"]],
+    show_col_types = FALSE
+  )
   c_n_ratio <- stoich$c_n_ratio[c(3, 4, 2, 1)]
   result <- get_total_soil_n_per_volume(mock_zarr, config = config)
   # Mock data pools: organic N (element slice "N") +
@@ -264,11 +293,10 @@ test_that("get_total_soil_p_per_volume sums all phosphorous pools", {
   mock_config <- create_mock_cfg(dir)
   config <- toml::read_toml(mock_config)
 
-  stoich <-
-    config$soil$microbial_group_definition |>
-    purrr::map_vec(\(x) {
-      as.data.frame(x[c("name", "c_p_ratio")])
-    })
+  stoich <- readr::read_csv(
+    config$soil[["microbial_group_definition_path"]],
+    show_col_types = FALSE
+  )
   c_p_ratio <- stoich$c_p_ratio[c(3, 4, 2, 1)]
   result <- get_total_soil_p_per_volume(mock_zarr, config = config)
   organic_p <- sum(c(

@@ -480,11 +480,11 @@ get_soil_np_pool_microbial <- function(zarr_path, config) {
   )
 
   # get the microbial nutrient stoichiometry
-  stoich <-
-    config$soil$microbial_group_definition |>
-    purrr::map_vec(\(x) {
-      as.data.frame(x[c("name", "c_n_ratio", "c_p_ratio")])
-    }) |>
+  microbial_groups_path <- config$soil[["microbial_group_definition_path"]]
+  if (is.null(microbial_groups_path)) {
+    cli::cli_abort("Missing soil microbial_group_definition_path in config.")
+  }
+  stoich <- readr::read_csv(microbial_groups_path, show_col_types = FALSE) |>
     dplyr::mutate(name = paste0("soil_c_pool_", name))
   # make sure that the names of microbial groups match up
   c_n_ratio <- stoich$c_n_ratio[match(names(soil_c_microbial), stoich$name)]
