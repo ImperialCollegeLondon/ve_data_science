@@ -55,6 +55,7 @@ dependencies = [
   "types-pyyaml>=6.0.12.20260724,<7",
   "virtual-ecosystem",
   "xarray[io]>=2026.7.0,<2027",
+  "streamlit>=1.50,<2",
 ]
 description = "This repository is the data science repository for the Virtual Ecosystem project. It is used to store all the research and analysis being used to parameterise and run the Virtual Ecosystem model."
 license = "BSD-3-Clause"
