@@ -161,13 +161,18 @@ beta_median <- function(values, beta) {
   if (length(values) == 0) {
     return(NA_real_)
   }
-  if (beta != 0 && any(values <= 0)) {
+  if (length(beta) != 1L || is.na(beta) || !is.finite(beta)) {
     return(NA_real_)
   }
-  weights <- if (beta == 0) rep(1, length(values)) else values^beta
-  if (any(!is.finite(weights)) || sum(weights) == 0) {
+  if (beta == 0) {
+    return(stats::median(values))
+  }
+  if (any(!is.finite(values)) || any(values <= 0)) {
     return(NA_real_)
   }
+
+  log_weights <- beta * log(values)
+  weights <- exp(log_weights - max(log_weights))
   order_values <- order(values)
   values_sorted <- values[order_values]
   cumulative_weight <- cumsum(weights[order_values]) / sum(weights)
