@@ -2,12 +2,12 @@
 #| title: Score soil and litter validation forecasts
 #|
 #| description: |
-#|   Starter workflow for scoring harmonised observations against joined Virtual
-#|   Ecosystem outputs. Scoring and reporting steps remain to be implemented.
+#|   Score harmonised observations against joined Virtual Ecosystem outputs
+#|   using point predictions optimal for each default scoring rule.
 #|
 #| virtual_ecosystem_module: Soil
 #|
-#| author: []
+#| author: Hao Ran Lai
 #|
 #| status: wip
 #|
@@ -28,8 +28,8 @@
 #|   - scoringutils
 #|
 #| usage_notes: |
-#|   Build database_combined first. Scoring decisions, outputs, and the
-#|   scoringutils dependency in renv.lock still need to be established.
+#|   Build database_combined first. Its median, beta-median, and mean
+#|   predictions are used for absolute, percentage, and squared errors.
 #| ---
 
 library(arrow)
@@ -43,60 +43,51 @@ validation_database <-
   collect()
 
 
-# Score univariate point forecasts ---------------------------------------
+# Score point forecasts -------------------------------------------------------
 
-# AE/SE scores: the ordinary median value_VE_q50 is the Bayes-optimal
-# prediction for these (Gneiting 2011), so se_point and ape are dropped here.
-univariate_scores <-
+# `ID` is unique only within each dataset; `var_canonical` identifies targets.
+forecast_unit <- c("dataset", "ID", "var_canonical")
+
+# The median is Bayes-optimal for absolute error (Gneiting 2011).
+ae_scores <-
   as_forecast_point(
     validation_database,
-    # Use `c("dataset", "ID", "var_canonical")` as the observation-target key.
-    # `ID` comes from source keys, which are unique only within each dataset.
-    # `var_canonical` distinguishes measured targets; `dataset` prevents ID
-    # collisions across datasets.
-    forecast_unit = c("dataset", "ID", "var_canonical"),
+    forecast_unit = forecast_unit,
     observed = "value_canonical",
     predicted = "value_VE_q50"
   ) |>
-  # log shift transformation does not work on all VE data variables
-  # transform_forecasts(offset = 1) |>
   score() |>
-  select(-se_point, -ape)
+  select(all_of(forecast_unit), ae_point)
 
-# APE score: scoring against value_VE_q50 would be improper, since the
-# ordinary median is not the Bayes-optimal prediction for APE. The proper
-# point prediction is med(-1)(F) (Gneiting 2011, Table 1), computed as
-# value_VE_med_neg1.
+# The mean is Bayes-optimal for squared error (Gneiting 2011).
+se_scores <-
+  as_forecast_point(
+    validation_database,
+    forecast_unit = forecast_unit,
+    observed = "value_canonical",
+    predicted = "value_VE_mean"
+  ) |>
+  score() |>
+  select(all_of(forecast_unit), se_point)
+
+# The beta-median with beta = -1 is Bayes-optimal for absolute percentage
+# error (Gneiting 2011, Table 1).
 ape_scores <-
   as_forecast_point(
     validation_database,
-    forecast_unit = c("dataset", "ID", "var_canonical"),
+    forecast_unit = forecast_unit,
     observed = "value_canonical",
     predicted = "value_VE_med_neg1"
   ) |>
   score() |>
-  select(-ae_point, -se_point)
+  select(all_of(forecast_unit), ape)
 
-univariate_scores |>
-  left_join(ape_scores, by = c("dataset", "ID", "var_canonical")) |>
-  summarise_scores(by = "var_canonical")
+scores <-
+  ae_scores |>
+  left_join(se_scores, by = forecast_unit) |>
+  left_join(ape_scores, by = forecast_unit)
 
+scores_summary <-
+  summarise_scores(scores, by = "var_canonical")
 
-# Pilot multivariate point forecasts -------------------------------------
-
-# TODO: Identify genuinely co-observed components using dataset and ID.
-# Check sampling support, define fixed component scales, and report incomplete
-# vectors. Report a blocker if suitable paired observations are unavailable.
-# TODO: Score a justified joint vector with the variogram score alongside
-# univariate metrics; the variogram alone misses a common additive bias.
-
-multivariate_scores <-
-  as_forecast_multivariate_point(
-    validation_database,
-    joint_across = "module", # placeholder
-    observed = "value_canonical",
-    predicted = "value_VE_q50"
-  ) |>
-  score()
-
-summarise_scores(multivariate_scores)
+pairs(scores_summary[, -1], log = "xy")
