@@ -30,6 +30,7 @@ SCHEMA = ROOT / (
     "data/scenarios/maliau/maliau_2/data/animal_functional_groups_Maliau_level3.csv"
 )
 TAXON_LEVELS = ("class", "order", "family", "genus", "species")
+TEMPERATURE_FIELDS = ("t_opt", "t_max_crit", "t_min_crit")
 STRATA = {
     "soil": ("StraSub",),
     "ground": ("StraTerr", "StraUnd"),
@@ -325,28 +326,40 @@ def validate_row(row: Row) -> None:
         or density < 0
     ):
         raise ValueError("Density must be blank or a non-negative finite value.")
+    for column in TEMPERATURE_FIELDS:
+        temperature = row.get(column)
+        if temperature is not None and (
+            not isinstance(temperature, (float, int)) or not math.isfinite(temperature)
+        ):
+            raise ValueError(
+                f"{column} must be blank or a finite temperature in Celsius."
+            )
     if not row.get("offspring_functional_group"):
         raise ValueError("Choose an offspring functional group.")
 
 
 def export_groups(groups: list[BuiltGroup], schema: Path = SCHEMA) -> str:
-    """Export exact reference columns, checking names and offspring references."""
+    """Export reference columns plus optional, user-supplied VE temperatures."""
     with schema.open(encoding="utf-8-sig", newline="") as handle:
         columns = next(csv.reader(handle))
+    columns.extend(column for column in TEMPERATURE_FIELDS if column not in columns)
     names = [str(group.row["name"]) for group in groups]
     if len(set(names)) != len(names):
         raise ValueError("Functional-group names must be unique.")
     for group in groups:
         validate_row(group.row)
-        if set(group.row) != set(columns):
+        if set(group.row).difference(columns) or set(columns).difference(
+            group.row
+        ).difference(TEMPERATURE_FIELDS):
             raise ValueError("Group fields do not match the reference CSV schema.")
         if group.row["offspring_functional_group"] not in names:
             raise ValueError(
                 f"{group.row['name']} references a missing offspring group."
             )
-    return pd.DataFrame([group.row for group in groups], columns=columns).to_csv(
-        index=False
-    )
+    return pd.DataFrame(
+        [{column: group.row.get(column) for column in columns} for group in groups],
+        columns=columns,
+    ).to_csv(index=False)
 
 
 def export_provenance(groups: list[BuiltGroup]) -> str:

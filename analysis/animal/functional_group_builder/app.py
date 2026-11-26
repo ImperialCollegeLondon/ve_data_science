@@ -20,6 +20,7 @@ from ve_data_tools.animal_fg_builder import (  # noqa: E402
     SOURCE,
     STRATA,
     TAXON_LEVELS,
+    TEMPERATURE_FIELDS,
     TRAITS,
     BuiltGroup,
     Row,
@@ -346,6 +347,14 @@ def main() -> None:
         format="%.9g",
         key=prefix + "density",
     )
+    for column in TEMPERATURE_FIELDS:
+        row[column] = st.number_input(
+            f"{column} (optional, Celsius)",
+            value=existing.row.get(column) if existing else None,
+            format="%.9g",
+            key=prefix + column,
+            help="Enter an empirical value, or leave blank for VE to estimate it.",
+        )
     ready = confirmed_taxa and bool(diets) and adult_mass is not None and adult_mass > 0
     ready = ready and all(row[column] is not None for column in TRAITS)
     if st.button("Save group" if existing else "Add group", disabled=not ready):

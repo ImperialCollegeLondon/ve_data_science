@@ -11,6 +11,7 @@ from ve_data_tools.animal_fg_builder import (
     ROOT,
     SCHEMA,
     SOURCE,
+    TEMPERATURE_FIELDS,
     TRAITS,
     BuiltGroup,
     class_taxa,
@@ -205,8 +206,18 @@ def test_exact_export_and_provenance_after_edits(records):
     with SCHEMA.open() as handle:
         header = next(csv.reader(handle))
     output = export_groups([group])
-    assert next(csv.reader(io.StringIO(output))) == header
+    assert next(csv.reader(io.StringIO(output))) == [*header, *TEMPERATURE_FIELDS]
     assert csv_preview(output)["birth_mass"].iloc[0] == ""
+    assert all(
+        csv_preview(output)[column].iloc[0] == "" for column in TEMPERATURE_FIELDS
+    )
+    group.row.update(t_opt=25.5, t_max_crit=42.0, t_min_crit=-3.0)
+    temperatures = csv_preview(export_groups([group]))
+    assert temperatures[list(TEMPERATURE_FIELDS)].iloc[0].tolist() == [25.5, 42.0, -3.0]
+    group.row["t_opt"] = float("inf")
+    with pytest.raises(ValueError, match="t_opt"):
+        export_groups([group])
+    group.row["t_opt"] = 25.5
     provenance = csv_preview(export_provenance([group]))
     assert provenance["functional_group"].tolist() == ["renamed"]
     assert provenance["mass_kg"].tolist() == [1.0]
@@ -258,14 +269,32 @@ def test_gui_create_edit_remove_and_custom_mass():
     assert saved.diets == []
     assert saved.row["diet"] == "_".join(observed_diets(expected_rows))
     assert saved.row["adult_mass"] == summarise_mass(expected_rows).median_kg
+    assert all(saved.row[column] is None for column in TEMPERATURE_FIELDS)
     select("Create or edit a group", 1)
     app.run()
+    for column, value in zip(TEMPERATURE_FIELDS, [26.0, 40.0, -2.0], strict=True):
+        next(
+            widget
+            for widget in app.number_input
+            if widget.label == f"{column} (optional, Celsius)"
+        ).set_value(value)
     next(
         widget for widget in app.text_input if widget.label == "Functional-group name"
     ).set_value("Renamed")
     next(button for button in app.button if button.label == "Save group").click().run()
     assert not app.exception
     assert app.session_state["groups"][1].row["name"] == "Renamed"
+    edited = app.session_state["groups"][1]
+    assert [edited.row[column] for column in TEMPERATURE_FIELDS] == [26.0, 40.0, -2.0]
+    for column, value in zip(TEMPERATURE_FIELDS, [26.0, 40.0, -2.0], strict=True):
+        assert (
+            next(
+                widget
+                for widget in app.number_input
+                if widget.label == f"{column} (optional, Celsius)"
+            ).value
+            == value
+        )
     next(
         button for button in app.button if button.label == "Remove this group"
     ).click().run()
