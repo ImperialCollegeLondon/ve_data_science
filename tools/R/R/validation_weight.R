@@ -1,7 +1,6 @@
 library(tidyverse)
 library(RcppTOML)
 library(sf)
-library(geodata)
 library(mapme.biodiversity)
 library(terra)
 
@@ -40,32 +39,43 @@ validation_aoi <- c(
   st_as_sf()
 
 
-# Download and read WorldClim bioclim data -------------------------
+# Download and read WorldClim climate data -------------------------
 
-# Native resolution is ~1 km, not the Maliau grid's 100 m.
-bioclim_tile_grid <- rast(resolution = 30)
-bioclim_tile_ids <- cells(
-  bioclim_tile_grid,
-  ext(vect(validation_aoi))
-)
-bioclim_tile_centres <- xyFromCell(
-  bioclim_tile_grid,
-  bioclim_tile_ids
-)
-bioclim_tiles <- map(seq_len(nrow(bioclim_tile_centres)), function(i) {
-  tile <- worldclim_tile(
-    var = "bio",
-    lon = bioclim_tile_centres[i, 1],
-    lat = bioclim_tile_centres[i, 2],
-    path = validation_dir
+# Keep the baseline year consistent with the human-impact data below.
+climate_years <- 2010
+climate_file <- file.path(validation_dir, "worldclim_climate.tif")
+mapme_options(outdir = NULL)
+get_resources(
+  validation_aoi,
+  get_worldclim_precipitation(
+    years = climate_years,
+    resolution = "2.5m"
+  ),
+  get_worldclim_min_temperature(
+    years = climate_years,
+    resolution = "2.5m"
+  ),
+  get_worldclim_max_temperature(
+    years = climate_years,
+    resolution = "2.5m"
   )
-  if (!inherits(tile, "SpatRaster")) {
-    stop("WorldClim tile download failed.")
-  }
-  crop(tile, vect(validation_aoi))
-})
-bioclim <- merge(sprc(bioclim_tiles))
-stopifnot(nlyr(bioclim) == 19)
+)
+climate_resources <- prep_resources(
+  validation_aoi,
+  resources = c(
+    "worldclim_precipitation",
+    "worldclim_min_temperature",
+    "worldclim_max_temperature"
+  )
+)
+climate <- c(
+  climate_resources$worldclim_precipitation,
+  climate_resources$worldclim_min_temperature,
+  climate_resources$worldclim_max_temperature
+)
+stopifnot(nlyr(climate) == 36 * length(climate_years))
+writeRaster(climate, climate_file, overwrite = TRUE)
+climate <- rast(climate_file)
 
 
 # Download and read ISRIC SoilGrids -------------------------------
