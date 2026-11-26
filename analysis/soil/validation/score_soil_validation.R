@@ -1,15 +1,15 @@
 #| ---
-#| title: Score soil and litter validation forecasts
+#| title: Score soil and litter validation database
 #|
 #| description: |
-#|   Score harmonised observations against joined Virtual Ecosystem outputs
-#|   using point predictions optimal for each default scoring rule.
+#|   Score validation datasets against joined Virtual Ecosystem outputs
+#|   using proper scores
 #|
 #| virtual_ecosystem_module: Soil
 #|
 #| author: Hao Ran Lai
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: database_combined
@@ -23,8 +23,7 @@
 #|
 #| package_dependencies:
 #|   - arrow
-#|   - dplyr
-#|   - here
+#|   - tidyverse
 #|   - scoringutils
 #|
 #| usage_notes: |
@@ -85,9 +84,20 @@ ape_scores <-
 scores <-
   ae_scores |>
   left_join(se_scores, by = forecast_unit) |>
-  left_join(ape_scores, by = forecast_unit)
+  left_join(ape_scores, by = forecast_unit) |>
+  mutate(
+    element = case_when(
+      str_detect(var_canonical, "(_c_|respiration)") ~ "C",
+      str_detect(var_canonical, "(_n_|nitrous_oxide)") ~ "N",
+      str_detect(var_canonical, "(_p_|phosphorus)") ~ "P"
+    )
+  )
 
-scores_summary <-
-  summarise_scores(scores, by = "var_canonical")
+stopifnot(!anyNA(scores$element))
 
-pairs(scores_summary[, -1], log = "xy")
+scores_summary_variables <- summarise_scores(scores, by = "var_canonical")
+scores_summary_groups <- summarise_scores(scores, by = "element")
+
+pairs(scores_summary_variables[, -1], log = "xy")
+
+# Weighted scores based on closeness to Maliau
