@@ -178,6 +178,28 @@ def test_class_mapping_and_accepted_diet_tags(records):
     assert DietType.parse("_".join(DIETS))
 
 
+def test_morphospecies_count_once_per_genus(records):
+    """Retain first valid genus mass without merging separate identified species."""
+    data = records(
+        {"taxon_level": "morphospecies", "taxon_name": "Morph A", "BodyMass": "NA"},
+        {"taxon_level": "morphospecies", "taxon_name": "Morph B", "BodyMass": "100"},
+        {"taxon_level": "morphospecies", "taxon_name": "Morph C", "BodyMass": "900"},
+        {"taxon_level": "morphospecies", "genus": "Other", "BodyMass": "100"},
+        {"species": "Bird named", "BodyMass": "1000"},
+        {"taxon_level": "morphospecies", "genus": "NA", "BodyMass": "8000"},
+    )
+    summary = summarise_mass(data)
+    assert summary.contributors["taxon_name"].tolist() == [
+        "Morph B",
+        "Bird 3",
+        "Bird 4",
+    ]
+    assert summary.contributors["mass_g"].tolist() == [100, 100, 1000]
+    assert summary.median_kg == pytest.approx(0.1)
+    assert any("Conflicting masses" in message for message in summary.warnings)
+    assert any("morphospecies genus" in message for message in summary.warnings)
+
+
 def test_exact_export_and_provenance_after_edits(records):
     """Renames, removals and manual masses preserve row/evidence correspondence."""
     summary = summarise_mass(records({}))

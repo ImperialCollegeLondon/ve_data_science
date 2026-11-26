@@ -257,23 +257,27 @@ def filter_safe(
 
 
 def summarise_mass(data: pd.DataFrame) -> MassSummary:
-    """Use the first valid mass per species or morphospecies, then take the median."""
+    """Use one mass per species and one per morphospecies genus for the median."""
     eligible = data[data["taxon_level"].isin(["species", "morphospecies"])].copy()
     warnings = []
     if len(eligible) != len(data):
         warnings.append(f"Excluded {len(data) - len(eligible)} higher-rank records.")
     identities = []
     for _, row in eligible.iterrows():
-        name = row["species"] if row["taxon_level"] == "species" else row["taxon_name"]
+        if row["taxon_level"] == "morphospecies":
+            if row["genus"].lower() in MISSING:
+                identities.append("")
+            else:
+                lineage = "|".join(row[col] for col in TAXON_LEVELS[:-1])
+                identities.append(f"morphospecies_genus:{lineage}")
+            continue
+        name = row["species"]
         if name.lower() in MISSING:
             name = row["taxon_name"]
         if name.lower() in MISSING:
             identities.append("")
-        elif row["taxon_level"] == "species":
-            identities.append(f"species:{name}")
         else:
-            lineage = "|".join(row[col] for col in TAXON_LEVELS[:-1])
-            identities.append(f"morphospecies:{lineage}|{name}")
+            identities.append(f"species:{name}")
     eligible["taxon_identity"] = identities
     numeric = pd.to_numeric(eligible["BodyMass"], errors="coerce")
     valid = numeric.notna() & numeric.gt(0) & numeric.lt(float("inf"))
@@ -284,7 +288,7 @@ def summarise_mass(data: pd.DataFrame) -> MassSummary:
         warnings.append(f"Excluded {int((~valid & ~invalid).sum())} missing masses.")
     if (eligible["taxon_identity"] == "").any():
         warnings.append(
-            "Excluded records without an identifiable species/morphospecies."
+            "Excluded records without an identifiable species or morphospecies genus."
         )
     eligible["mass_g"] = numeric
     eligible = eligible[valid & eligible["taxon_identity"].ne("")]
