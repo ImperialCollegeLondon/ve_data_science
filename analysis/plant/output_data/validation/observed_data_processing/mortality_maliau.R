@@ -129,54 +129,6 @@
 #|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
 #|         temporal_extent: Per-plot interval between Date_2017 and Date_2019.
 #|         description: Elapsed duration between the plot's census dates in years.
-#|       - name: mortality_count_11_14
-#|         type: integer
-#|         units: count
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2011 and Date_2014.
-#|         description: Trees in the initial cohort reported dead in this interval.
-#|       - name: mortality_count_14_15
-#|         type: integer
-#|         units: count
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2014 and Date_2015.
-#|         description: Trees in the initial cohort reported dead in this interval.
-#|       - name: mortality_count_15_17
-#|         type: integer
-#|         units: count
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2015 and Date_2017.
-#|         description: Trees in the initial cohort reported dead in this interval.
-#|       - name: mortality_count_17_19
-#|         type: integer
-#|         units: count
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2017 and Date_2019.
-#|         description: Trees in the initial cohort reported dead in this interval.
-#|       - name: mortality_count_11_14_yr
-#|         type: numeric
-#|         units: count year-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2011 and Date_2014, annualised.
-#|         description: Average annual death count for this interval.
-#|       - name: mortality_count_14_15_yr
-#|         type: numeric
-#|         units: count year-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2014 and Date_2015, annualised.
-#|         description: Average annual death count for this interval.
-#|       - name: mortality_count_15_17_yr
-#|         type: numeric
-#|         units: count year-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2015 and Date_2017, annualised.
-#|         description: Average annual death count for this interval.
-#|       - name: mortality_count_17_19_yr
-#|         type: numeric
-#|         units: count year-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2017 and Date_2019, annualised.
-#|         description: Average annual death count for this interval.
 #|       - name: mortality_count_11_14_ha_yr
 #|         type: numeric
 #|         units: count ha-1 year-1
@@ -201,30 +153,6 @@
 #|         spatial_extent: One value for each selected plot OG2_720 to OG2_728, standardised to one hectare.
 #|         temporal_extent: Per-plot interval between Date_2017 and Date_2019, annualised.
 #|         description: Average annual death count per hectare for this interval.
-#|       - name: mortality_fraction_11_14
-#|         type: numeric
-#|         units: dimensionless
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2011 and Date_2014.
-#|         description: Fraction of the initial 2011 cohort reported dead in this interval.
-#|       - name: mortality_fraction_14_15
-#|         type: numeric
-#|         units: dimensionless
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2014 and Date_2015.
-#|         description: Fraction of the initial 2011 cohort reported dead in this interval.
-#|       - name: mortality_fraction_15_17
-#|         type: numeric
-#|         units: dimensionless
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2015 and Date_2017.
-#|         description: Fraction of the initial 2011 cohort reported dead in this interval.
-#|       - name: mortality_fraction_17_19
-#|         type: numeric
-#|         units: dimensionless
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between Date_2017 and Date_2019.
-#|         description: Fraction of the initial 2011 cohort reported dead in this interval.
 #|       - name: mortality_fraction_11_14_yr
 #|         type: numeric
 #|         units: year-1
@@ -854,22 +782,22 @@ variables <- c(
   "interval_14_15_yr",
   "interval_15_17_yr",
   "interval_17_19_yr",
-  "mortality_count_11_14",
-  "mortality_count_14_15",
-  "mortality_count_15_17",
-  "mortality_count_17_19",
-  "mortality_count_11_14_yr",
-  "mortality_count_14_15_yr",
-  "mortality_count_15_17_yr",
-  "mortality_count_17_19_yr",
+  #"mortality_count_11_14",
+  #"mortality_count_14_15",
+  #"mortality_count_15_17",
+  #"mortality_count_17_19",
+  #"mortality_count_11_14_yr",
+  #"mortality_count_14_15_yr",
+  #"mortality_count_15_17_yr",
+  #"mortality_count_17_19_yr",
   "mortality_count_11_14_ha_yr",
   "mortality_count_14_15_ha_yr",
   "mortality_count_15_17_ha_yr",
   "mortality_count_17_19_ha_yr",
-  "mortality_fraction_11_14",
-  "mortality_fraction_14_15",
-  "mortality_fraction_15_17",
-  "mortality_fraction_17_19",
+  #"mortality_fraction_11_14",
+  #"mortality_fraction_14_15",
+  #"mortality_fraction_15_17",
+  #"mortality_fraction_17_19",
   "mortality_fraction_11_14_yr",
   "mortality_fraction_14_15_yr",
   "mortality_fraction_15_17_yr",
