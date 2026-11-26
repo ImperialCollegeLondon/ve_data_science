@@ -5,11 +5,6 @@ library(mapme.biodiversity)
 library(terra)
 
 
-# Use the SAFE gazetteer as a test case because it has a mixture of point and
-# polygons
-gazetteer <- st_read("data/primary/site/gazetteer.geojson")
-
-
 # Validation coverage -------------------------------------------
 
 validation_dir <- "data/primary/validation"
@@ -27,18 +22,14 @@ maliau_boundary <- st_as_sfc(st_bbox(
   ),
   crs = st_crs(maliau_2$epsg_code)
 ))
-# Buffer in metres to include neighbouring coarse raster cells.
-validation_aoi <- c(
-  st_geometry(st_transform(gazetteer, maliau_2$epsg_code)),
-  maliau_boundary
-) |>
-  st_buffer(dist = 1000) |>
-  st_bbox() |>
-  st_as_sfc() |>
+
+validation_aoi <- maliau_boundary |>
   st_transform(4326) |>
   st_as_sf()
 
-# Set up mapme options; also for reusing caches
+
+# Download and cache remote sensing data ---------------------------------
+
 mapme_options(outdir = validation_dir, verbose = TRUE)
 
 aoi_resources <-
