@@ -4,6 +4,7 @@
 *.tiff
 *.tif
 *.geotiff
+*.gpkg
 *.jpg
 *.jpeg
 *.xlsx
