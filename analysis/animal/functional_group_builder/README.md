@@ -72,8 +72,10 @@ SAFE taxon. Renamed/removed groups are reflected in the download.
 ## Mass calculation and missing values
 
 Only species and morphospecies contribute to the median. Species use the
-`species` field (falling back to `taxon_name`); morphospecies use `taxon_name`
-with taxonomic lineage to avoid merging distinct taxa. This is not a synonym
+`species` field (falling back to `taxon_name`); morphospecies contribute only
+one mass per genus, using taxonomic lineage to distinguish genera. Identified
+species remain separate even when their genus also has morphospecies.
+Morphospecies without a genus are excluded with a warning. This is not a synonym
 resolver. Numeric NA is missing; categorical NA and zero mean absence.
 The first positive finite mass per identity in source order is retained.
 Conflicting masses, duplicate records and exclusions are reported. Equal masses
