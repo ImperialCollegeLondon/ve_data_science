@@ -24,6 +24,7 @@
 #|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/tree_standing_carbon_mass_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/total_tree_standing_carbon_mass_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/symbiote_allocation_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.R
 #|
 #| output_files:
 #|   - name: master_predicted_outputs_processing_metadata.yml
@@ -187,7 +188,8 @@ scripts <- c(
   "respiration_and_turnover_maliau_2.R",
   "symbiote_allocation_maliau_2.R",
   "tree_standing_carbon_mass_maliau_2.R",
-  "total_tree_standing_carbon_mass_maliau_2.R"
+  "total_tree_standing_carbon_mass_maliau_2.R",
+  "mortality_maliau_2.R"
 )
 
 n_scripts <- length(scripts)
