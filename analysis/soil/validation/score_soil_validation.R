@@ -45,6 +45,8 @@ validation_database <-
 
 # Score univariate point forecasts ---------------------------------------
 
+# AE/SE scores: the ordinary median value_VE_q50 is the Bayes-optimal
+# prediction for these (Gneiting 2011), so se_point and ape are dropped here.
 univariate_scores <-
   as_forecast_point(
     validation_database,
@@ -61,7 +63,22 @@ univariate_scores <-
   score() |>
   select(-se_point, -ape)
 
+# APE score: scoring against value_VE_q50 would be improper, since the
+# ordinary median is not the Bayes-optimal prediction for APE. The proper
+# point prediction is med(-1)(F) (Gneiting 2011, Table 1), computed as
+# value_VE_med_neg1.
+ape_scores <-
+  as_forecast_point(
+    validation_database,
+    forecast_unit = c("dataset", "ID", "var_canonical"),
+    observed = "value_canonical",
+    predicted = "value_VE_med_neg1"
+  ) |>
+  score() |>
+  select(-ae_point, -se_point)
+
 univariate_scores |>
+  left_join(ape_scores, by = c("dataset", "ID", "var_canonical")) |>
   summarise_scores(by = "var_canonical")
 
 
