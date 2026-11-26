@@ -271,8 +271,7 @@ library(dplyr)
 
 # Steps:
 
-# - load census data and clean up (keep only dbh columns across years, only
-# trees that are still alive, subset to all OG plots, etc.)
+# - load census data and clean up
 
 date_columns <- c(64:75)
 # The Census11_20 sheet contains 239 columns.
