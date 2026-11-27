@@ -2,16 +2,18 @@
 #| title: Profile the Maliau 2 validation environment
 #|
 #| description: |
-#|     Builds the environmental reference distribution for the maliau_2 grid.
-#|     Each 100 m grid cell is treated as a separate portfolio asset so that
-#|     downstream comparisons preserve spatial combinations of covariates.
+#|   Builds the environmental reference distribution for the maliau_2 grid.
+#|   Each 100 m grid cell is treated as a separate portfolio asset so that
+#|   downstream comparisons preserve spatial combinations of covariates.
+#|   Indicators cover elevation, human footprint, precipitation, and soil
+#|   organic carbon.
 #|
 #| virtual_ecosystem_module: All
 #|
 #| author:
 #|   - Hao Ran Lai
 #|
-#| status: final
+#| status: wip
 #|
 #| input_files:
 #|   - name: maliau_grid_definition.toml
@@ -23,6 +25,10 @@
 #|     path: data/derived/validation/maliau_portfolio.gpkg
 #|     description: |
 #|       Environmental indicator values for each maliau_2 grid cell.
+#|   - name: maliau_portfolio.csv
+#|     path: data/derived/validation/maliau_portfolio.csv
+#|     description: |
+#|       Environmental indicator values in long format without geometry.
 #|
 #| source_files:
 #|
@@ -34,8 +40,8 @@
 #|   - terra
 #|
 #| usage_notes: |
-#|     Run from the repository root. Remote resources are cached under
-#|     data/primary/validation. The output is generated data and is git-ignored.
+#|   Run from the repository root. Remote resources are cached under
+#|   data/primary/validation. The output is generated data and is git-ignored.
 #| ---
 
 library(tidyverse)
