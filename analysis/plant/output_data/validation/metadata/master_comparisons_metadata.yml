@@ -331,8 +331,7 @@ scripts:
     The census period and observed census date columns are derived from the
     mapped variable names. The predicted file links each cell to a single
     plot, so an observed plot without a predicted match is dropped.
-    Spatial aggregation is exact because rows retain one plot and one cell.
-    Predicted temporal aggregation is pooled because each period value sums
-    deaths over all model timesteps in the period. The observed SE and
+    Spatial and temporal aggregation are exact because rows retain one plot,
+    one cell and one census period. The observed SE and
     predicted SD columns are kept but empty, as neither input has an
     uncertainty variable for mortality.

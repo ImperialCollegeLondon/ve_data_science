@@ -60,9 +60,8 @@
 #|   The census period and observed census date columns are derived from the
 #|   mapped variable names. The predicted file links each cell to a single
 #|   plot, so an observed plot without a predicted match is dropped.
-#|   Spatial aggregation is exact because rows retain one plot and one cell.
-#|   Predicted temporal aggregation is pooled because each period value sums
-#|   deaths over all model timesteps in the period. The observed SE and
+#|   Spatial and temporal aggregation are exact because rows retain one plot,
+#|   one cell and one census period. The observed SE and
 #|   predicted SD columns are kept but empty, as neither input has an
 #|   uncertainty variable for mortality.
 #| ---
@@ -348,7 +347,7 @@ comparison_rows <- rbindlist(
     merged_rows[, observed_spatial_aggregation := "exact"]
     merged_rows[, predicted_spatial_aggregation := "exact"]
     merged_rows[, observed_temporal_aggregation := "exact"]
-    merged_rows[, predicted_temporal_aggregation := "pooled"]
+    merged_rows[, predicted_temporal_aggregation := "exact"]
     merged_rows[, observed_spatial_extent := PlotID]
     merged_rows[, predicted_spatial_extent := cell_id]
     merged_rows[,
