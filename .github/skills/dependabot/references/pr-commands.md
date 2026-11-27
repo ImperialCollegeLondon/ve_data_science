@@ -85,7 +85,7 @@ Clears only the specified version range ignore for `express`.
 ## Tips
 
 - **Rebase vs Recreate**: Use `rebase` to resolve conflicts while keeping your review state. Use `recreate` to start fresh if the PR has diverged significantly.
-- **Force push over extra commits**: If you've pushed commits to a Dependabot branch and want Dependabot to rebase over them, include `[dependabot skip]` in your commit message.
+- **Rebase over extra commits**: Dependabot stops rebasing after someone pushes a commit to its branch. A `[dependabot skip]` marker lifts the stop, but the next rebase force-pushes over the branch and discards that commit. The marker does not override `rebase-strategy: "disabled"`; leave it out to preserve the commit.
 - **Persistent ignores**: Ignore commands via PR comments are stored centrally. For transparency in team repos, prefer using `ignore` in `dependabot.yml` instead.
 - **Merging Dependabot PRs**: Use GitHub's native auto-merge feature, the CLI (`gh pr merge`), or the web UI. The old `@dependabot merge` commands were deprecated in January 2026.
 - **Closing/Reopening**: Use the GitHub UI or CLI. The old `@dependabot close` and `@dependabot reopen` commands were deprecated in January 2026.
