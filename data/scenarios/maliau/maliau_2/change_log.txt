@@ -1,3 +1,24 @@
+# Change log of maliau_2 scenario input data and config
+
+2026-11-27
+- Module: Animal
+- Author: Siti Nor Baizurah
+- Files changed:
+  - data/scenarios/maliau/maliau_2/data/main/animal_functional_groups_Maliau_level5.csv
+- Changes made:
+  - herbivorous_subterranean_semelparous_nymphs: diet changed from wood to
+    detritus, with vertical_occupancy soil. A wood-only diet matches no food
+    resource in VE and stops the model at setup.
+  - herbivorous_terrestrial_termites, herbivorous_terrestrial_subterranean_larvae
+    and detrital_soil_macrofauna: diet changed from detritus_wood to detritus.
+    VE has no wood pool, but wood counts as a separate herbivory foraging
+    channel, so these FGs lost half their foraging time with
+    no food.
+  - All other FG definitions unchanged.
+- References:
+  - virtual_ecosystem Issue #1953
+  - virtual_ecosystem PR #1971 (foraging time split by channel)
+
 2026-11-23
 - Module: Plant
 - Author: Arne Scheire
@@ -7,8 +28,6 @@
   - The paths to plant data files in plant_config were changed from  ../data to ../../data/main.
 - References:
   - Issue #815
-
-# Change log of maliau_2 scenario input data and config
 
 2026-11-25
 - Module: Soil
