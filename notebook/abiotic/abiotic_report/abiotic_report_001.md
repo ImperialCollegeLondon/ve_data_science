@@ -186,8 +186,8 @@ ERA5 input; every point lies on the 2:1 line.*
 
 - **What it shows:** above the canopy equal to ERA5 (22.8 °C). In 2012-2020 the top
   canopy layer averages 39.5 °C (up to 46.5 °C as a monthly mean), the second canopy
-  layer 22.1 °C and the surface layer 24.4 °C; uniform in time, with cells differing by a
-  few degrees.
+  layer 22.1 °C and the surface layer 24.4 °C; uniform in time, with cells differing by
+  a few degrees.
 - **Problem:** the top canopy layer is 17 °C warmer than the air above it, and the
   surface layer is 1.6 °C warmer than ERA5 where forest floors are normally cooler.
 - **Evidence:** understory near-ground temperatures are on average 1.6 °C cooler than
@@ -541,8 +541,8 @@ kg⁻¹ divided by the seconds in a year.
      is affected.
 4. **Soil heat conservation.**
    - *What should happen:* heat flows down through soil from warm to cold, and whatever
-     leaves the topsoil arrives in the subsoil, so energy is conserved. Soil at about 1 m
-     depth stays close to the mean annual air temperature, so the base of the soil
+     leaves the topsoil arrives in the subsoil, so energy is conserved. Soil at about
+     1 m depth stays close to the mean annual air temperature, so the base of the soil
      should either exchange heat with deeper soil at that temperature or pass no heat.
    - *Why the run gives these results:* heat that flows into the subsoil is added to
      the subsoil but not taken from the topsoil, so heat is created every hour. The
@@ -566,9 +566,10 @@ kg⁻¹ divided by the seconds in a year.
 6. **Smaller points.**
    - The saturation humidity used for condensation is too low at high temperatures.
 
-   - A canopy layer that does not exist in a cell gets 0 W m⁻² instead of being empty (NaN).
-     In this run, 12 cells have no second canopy layer; their zeros lower that layer's mean from
-     425 to 375 W m⁻². Fill missing layers with NaN, as the other outputs do.
+   - A canopy layer that does not exist in a cell gets 0 W m⁻² instead of being empty
+     (NaN). In this run, 12 cells have no second canopy layer; their zeros lower that
+     layer's mean from 425 to 375 W m⁻². Fill missing layers with NaN, as the other
+     outputs do.
 
    - The reference vapour pressure and VPD are labelled as relative humidity in %
      in `AbioticModel._setup` (`abiotic_model.py`,lines 205-211)
@@ -577,10 +578,11 @@ kg⁻¹ divided by the seconds in a year.
      which affects day length.
 
    - The starting profile comes from the simple abiotic model: surface air 14.9 °C,
-     topsoil 19.1 °C and 100 % humidity. The full model then takes months (air) to years (soil)
-     to move away from it, so 2010-2011 are not representative. Either leave the first years out
-     of the analysis (the report quotes 2012-2020 for this reason), run a spin-up year first, or
-    start from the ERA5 temperature and humidity.
+     topsoil 19.1 °C and 100 % humidity. The full model then takes months (air) to
+     years (soil) to move away from it, so 2010-2011 are not representative. Either
+     leave the first years out of the analysis (the report quotes 2012-2020 for this
+     reason), run a spin-up year first, or start from the ERA5 temperature and
+     humidity.
 
 7. **Inputs from other modules affecting the results.**
    - *Evaporation and transpiration:* 413 mm per year, of which only 3 mm is
