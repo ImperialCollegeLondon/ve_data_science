@@ -135,6 +135,29 @@ def test_taxonomy_strata_and_optional_diet_filters(records):
         filter_safe(data, {"class": "Aves"}, [], "herbivore")
 
 
+def test_multiple_classes_filter_and_mass(records):
+    """Combine requested classes without including other taxa or plant rows."""
+    data = records(
+        {"class": "Insecta", "phylum": "Arthropoda", "BodyMass": "1000"},
+        {"class": "Arachnida", "phylum": "Arthropoda", "BodyMass": "3000"},
+        {"class": "Clitellata", "phylum": "Annelida", "BodyMass": "9000"},
+        {"class": "Insecta", "kingdom": "Plantae", "BodyMass": "100000"},
+        {"class": "Aves", "BodyMass": "200000"},
+    )
+    combined = filter_safe(
+        data, {}, ["ground"], "herbivore", classes=["Insecta", "Arachnida"]
+    )
+    assert combined["class"].tolist() == ["Insecta", "Arachnida"]
+    assert summarise_mass(combined).median_kg == 2.0
+    one_class = filter_safe(data, {}, ["ground"], "herbivore", classes=["Insecta"])
+    assert summarise_mass(one_class).median_kg == 1.0
+    assert filter_safe(
+        data, {"order": "Custom"}, ["ground"], "herbivore", classes=["Insecta"]
+    ).empty
+    with pytest.raises(ValueError, match="class"):
+        filter_safe(data, {}, ["ground"], "herbivore", classes=[])
+
+
 def test_species_identity_first_valid_mass_and_exclusions(records):
     """Equal-mass taxa count, but repeated taxon records do not weight medians."""
     data = records(
@@ -264,12 +287,11 @@ def test_gui_create_edit_remove_and_custom_mass():
             value
         )
 
-    select("Class", "Mammalia")
+    select("VE_taxa", "mammal")
     app.run()
     next(
-        widget for widget in app.checkbox if widget.label.startswith("Confirm VE")
-    ).check()
-    app.multiselect[0].set_value(["ground"])
+        widget for widget in app.multiselect if widget.label.startswith("Strata")
+    ).set_value(["ground"])
     app.run()
     select("Broad diet", "herbivore")
     app.run()
@@ -322,7 +344,7 @@ def test_gui_create_edit_remove_and_custom_mass():
     ).click().run()
     assert not app.exception
     assert not app.session_state["groups"]
-    select("Class", "Mammalia")
+    select("VE_taxa", "mammal")
     app.run()
     next(
         widget for widget in app.selectbox if widget.label.startswith("Species (")
@@ -333,9 +355,8 @@ def test_gui_create_edit_remove_and_custom_mass():
     ).set_value("Custom species")
     app.run()
     next(
-        widget for widget in app.checkbox if widget.label.startswith("Confirm VE")
-    ).check()
-    app.multiselect[0].set_value(["ground"])
+        widget for widget in app.multiselect if widget.label.startswith("Strata")
+    ).set_value(["ground"])
     app.run()
     select("Broad diet", "herbivore")
     app.run()
@@ -379,14 +400,13 @@ def test_gui_optional_diets_and_mass_filter(tmp_path, records):
         str(path)
     )
     app.run()
-    next(widget for widget in app.selectbox if widget.label == "Class").set_value(
-        "Aves"
+    next(widget for widget in app.selectbox if widget.label == "VE_taxa").set_value(
+        "bird"
     )
     app.run()
     next(
-        widget for widget in app.checkbox if widget.label.startswith("Confirm VE")
-    ).check()
-    app.multiselect[0].set_value(["ground"])
+        widget for widget in app.multiselect if widget.label.startswith("Strata")
+    ).set_value(["ground"])
     app.run()
     next(widget for widget in app.selectbox if widget.label == "Broad diet").set_value(
         "herbivore"
@@ -417,3 +437,73 @@ def test_gui_optional_diets_and_mass_filter(tmp_path, records):
     assert not app.exception
     assert app.session_state["groups"][1].row["adult_mass"] == 1.5
     assert len(app.session_state["groups"][1].contributors) == 2
+
+
+def test_gui_invertebrate_classes_and_edit():
+    """All classes or a subset drive mass and survive editing a saved group."""
+    app = AppTest.from_file(str(APP), default_timeout=30).run()
+    taxa = next(widget for widget in app.selectbox if widget.label == "VE_taxa")
+    assert set(taxa.options) == {
+        "bird",
+        "mammal",
+        "reptile",
+        "amphibian",
+        "invertebrate",
+    }
+    taxa.set_value("invertebrate")
+    app.run()
+    classes = next(
+        widget for widget in app.multiselect if widget.label == "Class (optional)"
+    )
+    assert {"Insecta", "Arachnida", "Clitellata"} <= set(classes.options)
+    next(
+        widget for widget in app.multiselect if widget.label.startswith("Strata")
+    ).set_value(["ground"])
+    app.run()
+    next(widget for widget in app.selectbox if widget.label == "Broad diet").set_value(
+        "herbivore"
+    )
+    app.run()
+    data = load_safe(SOURCE)
+    mapped = [
+        name for name, taxon in class_taxa(data).items() if taxon == "invertebrate"
+    ]
+    all_rows = filter_safe(data, {}, ["ground"], "herbivore", classes=mapped)
+    assert app.metric[0].value == f"{summarise_mass(all_rows).median_kg:.9g}"
+    next(
+        widget for widget in app.multiselect if widget.label == "Class (optional)"
+    ).set_value(["Insecta", "Arachnida"])
+    app.run()
+    subset = filter_safe(
+        data, {}, ["ground"], "herbivore", classes=["Insecta", "Arachnida"]
+    )
+    assert app.metric[0].value == f"{summarise_mass(subset).median_kg:.9g}"
+    for column, enum in TRAITS.items():
+        next(widget for widget in app.selectbox if widget.label == column).set_value(
+            next(iter(enum)).value
+        )
+    app.run()
+    next(button for button in app.button if button.label == "Add group").click().run()
+    assert not app.exception
+    group = app.session_state["groups"][1]
+    assert group.row["taxa"] == "invertebrate"
+    assert group.selected_classes == ["Insecta", "Arachnida"]
+    assert group.row["adult_mass"] == summarise_mass(subset).median_kg
+    assert set(group.contributors["class"]) <= {"Insecta", "Arachnida"}
+    next(
+        widget for widget in app.selectbox if widget.label == "Create or edit a group"
+    ).set_value(1)
+    app.run()
+    assert next(
+        widget for widget in app.multiselect if widget.label == "Class (optional)"
+    ).value == ["Insecta", "Arachnida"]
+    next(widget for widget in app.selectbox if widget.label == "VE_taxa").set_value(
+        "bird"
+    )
+    app.run()
+    class_widget = next(
+        widget for widget in app.multiselect if widget.label == "Class (optional)"
+    )
+    assert class_widget.options == ["Aves"]
+    assert class_widget.value == []
+    assert not app.exception

@@ -110,6 +110,7 @@ class BuiltGroup:
     diets: list[str]
     filter_diets: bool
     contributors: pd.DataFrame = field(default_factory=pd.DataFrame)
+    selected_classes: list[str] = field(default_factory=list)
 
 
 def load_safe(path: Path, encoding: str = "cp1252") -> pd.DataFrame:
@@ -235,11 +236,17 @@ def filter_safe(
     strata: list[str],
     broad_diet: str,
     diets: list[str] | None = None,
+    *,
+    classes: list[str] | None = None,
 ) -> pd.DataFrame:
-    """Require all selected filters; allow alternatives within a mapped VE tag."""
-    if not taxonomy.get("class") or not strata:
-        raise ValueError("Class and at least one stratum are required.")
+    """Require all filters; accept a class union or a single taxonomy class."""
+    if not (taxonomy.get("class") or classes) or not strata:
+        raise ValueError("At least one class and one stratum are required.")
     result = data[data["kingdom"] == "Animalia"]
+    if classes is not None:
+        if not classes:
+            raise ValueError("At least one class is required.")
+        result = result[result["class"].isin(classes)]
     for level, value in taxonomy.items():
         if level not in TAXON_LEVELS:
             raise ValueError(f"Unsupported taxonomic level: {level}")

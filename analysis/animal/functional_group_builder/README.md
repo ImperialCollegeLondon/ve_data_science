@@ -28,9 +28,10 @@ Tests live in
 
 ## Building groups
 
-1. Choose a supported animal **class** and tick the **required** VE-taxa
-   confirmation.
-   Optionally refine with cascading order, family, genus and species dropdowns.
+1. Choose **VE_taxa**: bird, mammal, reptile, amphibian or invertebrate.
+   Optionally select one or more matching SAFE classes; leaving class empty
+   includes all supported classes mapped to the VE taxon. Optionally refine
+   further with cascading order, family, genus and species dropdowns.
    Optional levels allow custom entries. There is no fallback to broader
    taxonomy: a custom entry without matches requires a manual adult mass in kg.
 2. Select at least one **stratum**.

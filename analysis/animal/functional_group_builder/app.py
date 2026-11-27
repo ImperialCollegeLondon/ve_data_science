@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-from virtual_ecosystem.models.animal.animal_traits import DietType
+from virtual_ecosystem.models.animal.animal_traits import DietType, TaxaType
 
 # The workflow repository is not installed as a Python package.
 tools_src = Path(__file__).resolve().parents[3] / "tools/python/src"
@@ -132,22 +132,49 @@ def main() -> None:
         st.rerun()
 
     st.subheader("1. Taxonomy")
-    chosen_class = st.selectbox(
-        "Class",
-        sorted(mappings),
-        index=sorted(mappings).index(existing.taxonomy["class"]) if existing else None,
-        key=prefix + "class",
+    taxa_options = [taxon.value for taxon in TaxaType]
+    saved_taxa = existing.row["taxa"] if existing else None
+    taxa = st.selectbox(
+        "VE_taxa",
+        taxa_options,
+        index=taxa_options.index(saved_taxa) if saved_taxa in taxa_options else None,
+        key=prefix + "taxa",
     )
-    if chosen_class is None:
-        st.info("Choose an animal class to start.")
+    if taxa is None:
+        st.info("Choose a VE taxon to start.")
         st.stop()
-    taxonomy = {"class": chosen_class}
+    available_classes = sorted(
+        name for name, value in mappings.items() if value == taxa
+    )
+    if not available_classes:
+        st.warning(f"The SAFE source has no supported classes for {taxa}.")
+        st.stop()
+    previous_classes = (
+        existing.selected_classes if existing and saved_taxa == taxa else []
+    )
+    if existing and saved_taxa == taxa and "class" in existing.taxonomy:
+        previous_classes = [existing.taxonomy["class"]]
+    if any(value not in available_classes for value in previous_classes):
+        st.error("Saved classes are not available in the current SAFE source.")
+        st.stop()
+    selected_classes = st.multiselect(
+        "Class (optional)",
+        available_classes,
+        default=previous_classes,
+        key=prefix + "classes_" + taxa,
+        help="Leave empty to include all supported classes for this VE taxon.",
+    )
+    effective_classes = selected_classes or available_classes
+    st.caption("Classes included: " + ", ".join(effective_classes))
+    taxonomy: dict[str, str] = {}
     taxonomic_data = data[
-        (data["kingdom"] == "Animalia") & (data["class"] == chosen_class)
+        (data["kingdom"] == "Animalia") & data["class"].isin(effective_classes)
     ]
     for level in TAXON_LEVELS[1:]:
         options = taxonomic_options(taxonomic_data, level)
-        previous = existing.taxonomy.get(level) if existing else None
+        previous = (
+            existing.taxonomy.get(level) if existing and saved_taxa == taxa else None
+        )
         custom_option = "Enter a custom value..."
         options.append(custom_option)
         previous_choice = previous if previous in options else custom_option
@@ -155,13 +182,32 @@ def main() -> None:
             f"{level.title()} (optional)",
             options,
             index=options.index(previous_choice) if previous else None,
-            key=prefix + level + "|" + "|".join(taxonomy.values()),
+            key=(
+                prefix
+                + level
+                + "|"
+                + taxa
+                + "|"
+                + "|".join(sorted(effective_classes))
+                + "|"
+                + "|".join(taxonomy.values())
+            ),
         )
         if chosen == custom_option:
             chosen = st.text_input(
                 f"Custom {level}",
                 value=previous if previous and previous not in options else "",
-                key=prefix + "custom_" + level,
+                key=(
+                    prefix
+                    + "custom_"
+                    + level
+                    + "|"
+                    + taxa
+                    + "|"
+                    + "|".join(sorted(effective_classes))
+                    + "|"
+                    + "|".join(taxonomy.values())
+                ),
             ).strip()
             if not chosen:
                 st.info(
@@ -171,16 +217,6 @@ def main() -> None:
         if chosen:
             taxonomy[level] = chosen.strip()
             taxonomic_data = taxonomic_data[taxonomic_data[level] == chosen.strip()]
-    taxa = mappings[chosen_class]
-    confirmed_taxa = st.checkbox(
-        f"Confirm VE taxa: {taxa} (required)",
-        value=existing is not None,
-        key=prefix + "confirm_" + taxa,
-        help="Tick to confirm the class-to-VE mapping before saving a group.",
-    )
-    if not confirmed_taxa:
-        st.info("Required: confirm the mapped VE taxon before adding this group.")
-
     st.subheader("2. Strata")
     strata = st.multiselect(
         "Strata (at least one required; all selected strata must match)",
@@ -201,7 +237,7 @@ def main() -> None:
     if broad is None:
         st.info("Select a broad diet.")
         st.stop()
-    filtered = filter_safe(data, taxonomy, strata, broad)
+    filtered = filter_safe(data, taxonomy, strata, broad, classes=effective_classes)
     suggestions = observed_diets(filtered)
     st.write("Observed mapped tags:", ", ".join(suggestions) or "None")
     st.caption(
@@ -253,7 +289,9 @@ def main() -> None:
         )
         st.stop()
     if filter_diets:
-        filtered = filter_safe(data, taxonomy, strata, broad, selected_diets)
+        filtered = filter_safe(
+            data, taxonomy, strata, broad, selected_diets, classes=effective_classes
+        )
     if broad in {"carnivore", "herbivore", "omnivore"}:
         if (
             diets
@@ -302,7 +340,9 @@ def main() -> None:
         )
 
     st.subheader("5. Name and other VE traits")
-    suggested_name = "_".join([*taxonomy.values(), *strata, broad]).replace(" ", "_")
+    suggested_name = "_".join(
+        [taxa, *selected_classes, *taxonomy.values(), *strata, broad]
+    ).replace(" ", "_")
     name = st.text_input(
         "Functional-group name",
         value=str(existing.row["name"]) if existing else suggested_name,
@@ -355,7 +395,7 @@ def main() -> None:
             key=prefix + column,
             help="Enter an empirical value, or leave blank for VE to estimate it.",
         )
-    ready = confirmed_taxa and bool(diets) and adult_mass is not None and adult_mass > 0
+    ready = bool(diets) and adult_mass is not None and adult_mass > 0
     ready = ready and all(row[column] is not None for column in TRAITS)
     if st.button("Save group" if existing else "Add group", disabled=not ready):
         if any(
@@ -382,13 +422,14 @@ def main() -> None:
                     selected_diets,
                     filter_diets,
                     summary.contributors.copy(),
+                    selected_classes.copy(),
                 )
                 if not existing:
                     st.session_state.next_id += 1
                 st.session_state.pending_editor = edit_id
                 st.rerun()
     st.caption(
-        "Confirm taxa and complete each trait dropdown to save. Specific diets "
+        "Complete each trait dropdown to save. Specific diets "
         "are optional when observed tags are available."
     )
 
