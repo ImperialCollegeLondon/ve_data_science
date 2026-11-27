@@ -23,6 +23,8 @@
 #|   - cli
 #|   - mapme.biodiversity
 #|   - sf
+#|   - terra
+#|   - tibble
 #|
 #| usage_notes: |
 #|     Profiling requires internet access unless all requested resources are
@@ -53,6 +55,10 @@
 #'   profile.
 #' @param mapme.outdir Directory used to cache remote-sensing resources.
 #' @param verbose Whether mapme should print progress information.
+#' @param grid_rasters Optional named list of `SpatRaster` templates. Features
+#'   with the same intersected cells and temporal periods are profiled once.
+#' @param soilgrids_path Optional local SoilGrids raster. When supplied, mapme's
+#'   global SoilGrids VRT is replaced by bulk extraction from this raster.
 #'
 #' @returns An `sf` object containing nested indicator data. Temporal indicators
 #'   are restricted to each observation's window when endpoints are supplied.
@@ -67,7 +73,9 @@ profile_validation_environment <- function(
   time_zone = "UTC",
   years = NULL,
   mapme.outdir = "data/primary/validation",
-  verbose = TRUE
+  verbose = TRUE,
+  grid_rasters = NULL,
+  soilgrids_path = NULL
 ) {
   datasets <- prepare_mapme_polygons(
     x = x,
@@ -81,6 +89,28 @@ profile_validation_environment <- function(
     time_end = time_end,
     time_zone = time_zone
   )
+  original_datasets <- datasets
+  profile_requests <- NULL
+  if (!is.null(grid_rasters)) {
+    profile_requests <- prepare_profile_requests(
+      datasets,
+      time_windows,
+      grid_rasters
+    )
+    datasets <- profile_requests$datasets
+    time_windows <- profile_requests$time_windows
+    if (verbose && profile_requests$request_count < nrow(original_datasets)) {
+      cli::cli_inform(c(
+        "i" = paste(
+          "Grid deduplication reduced profiling from",
+          nrow(original_datasets),
+          "to",
+          profile_requests$request_count,
+          "requests"
+        )
+      ))
+    }
+  }
   profile_years <- prepare_profile_years(years, time_windows)
 
   # Set mapme_options()
@@ -96,8 +126,8 @@ profile_validation_environment <- function(
   # Download resources or reuse from cache
   # The environmental and anthropogenic factors to profile a site is subjected
   # to change
-  resources <-
-    mapme.biodiversity::get_resources(
+  if (is.null(soilgrids_path)) {
+    resources <- mapme.biodiversity::get_resources(
       datasets,
       mapme.biodiversity::get_nasa_srtm(),
       mapme.biodiversity::get_humanfootprint(years = profile_years),
@@ -111,19 +141,335 @@ profile_validation_environment <- function(
         stats = "mean"
       )
     )
+    portfolio <- mapme.biodiversity::calc_indicators(
+      resources,
+      mapme.biodiversity::calc_elevation(),
+      mapme.biodiversity::calc_humanfootprint(),
+      mapme.biodiversity::calc_precipitation_wc(),
+      mapme.biodiversity::calc_soilproperties()
+    )
+  } else {
+    if (!file.exists(soilgrids_path)) {
+      cli::cli_abort(
+        "Local SoilGrids raster does not exist: {.file {soilgrids_path}}"
+      )
+    }
+    resources <- mapme.biodiversity::get_resources(
+      datasets,
+      mapme.biodiversity::get_nasa_srtm(),
+      mapme.biodiversity::get_humanfootprint(years = profile_years),
+      mapme.biodiversity::get_worldclim_precipitation(
+        years = profile_years,
+        resolution = "10m"
+      )
+    )
+    portfolio <- mapme.biodiversity::calc_indicators(
+      resources,
+      mapme.biodiversity::calc_elevation(),
+      mapme.biodiversity::calc_humanfootprint(),
+      mapme.biodiversity::calc_precipitation_wc()
+    )
+    portfolio$soilproperties <- extract_local_soilproperties(
+      datasets,
+      soilgrids_path
+    )
+  }
 
-  # Calculate zonal statistics
-  portfolio <- mapme.biodiversity::calc_indicators(
-    resources,
-    mapme.biodiversity::calc_elevation(),
-    mapme.biodiversity::calc_humanfootprint(),
-    mapme.biodiversity::calc_precipitation_wc(),
-    mapme.biodiversity::calc_soilproperties()
-  )
-
-  filter_validation_time(portfolio, time_windows)
+  portfolio <- filter_validation_time(portfolio, time_windows)
+  if (!is.null(profile_requests)) {
+    portfolio <- expand_profile_requests(
+      portfolio,
+      original_datasets,
+      profile_requests$representative_rows
+    )
+  }
+  portfolio
 }
 
+#' Prepare representative validation profiling requests
+#'
+#' Groups features that intersect the same cells in every resource grid and
+#' cover the same annual and monthly periods.
+#'
+#' @param x Prepared `sf` polygons.
+#' @param time_windows Output from [prepare_profile_time()].
+#' @param grid_rasters Named list of `terra::SpatRaster` grid templates.
+#'
+#' @returns A list containing representative features, their time windows, and
+#'   a vector mapping each original feature to a representative row.
+
+prepare_profile_requests <- function(x, time_windows, grid_rasters) {
+  if (!inherits(x, "sf") || nrow(x) == 0L) {
+    cli::cli_abort("{.arg x} must be a non-empty {.cls sf} object")
+  }
+  if (
+    !is.list(grid_rasters) ||
+      length(grid_rasters) == 0L ||
+      is.null(names(grid_rasters)) ||
+      any(!nzchar(names(grid_rasters))) ||
+      anyDuplicated(names(grid_rasters))
+  ) {
+    cli::cli_abort("{.arg grid_rasters} must be a named, non-empty list")
+  }
+
+  grid_keys <- lapply(grid_rasters, profile_grid_signatures, x = x)
+  spatial_key <- do.call(paste, c(grid_keys, sep = "|"))
+  time_key <- profile_period_signatures(time_windows, nrow(x))
+  request_key <- paste(spatial_key, time_key, sep = "|")
+  request_groups <- match(request_key, unique(request_key))
+  representative_rows <- which(!duplicated(request_groups))
+
+  representative_windows <- time_windows
+  if (!is.null(representative_windows)) {
+    representative_windows$time_start <-
+      representative_windows$time_start[representative_rows]
+    representative_windows$time_end <-
+      representative_windows$time_end[representative_rows]
+  }
+
+  list(
+    datasets = x[representative_rows, ],
+    time_windows = representative_windows,
+    representative_rows = request_groups,
+    request_count = length(representative_rows)
+  )
+}
+
+#' Identify raster-cell sets for polygon features
+#'
+#' @param raster A `terra::SpatRaster` grid template.
+#' @param x An `sf` polygon dataset.
+#'
+#' @returns A character vector containing one cell-set signature per feature.
+
+profile_grid_signatures <- function(raster, x) {
+  if (!inherits(raster, "SpatRaster")) {
+    cli::cli_abort("Every grid raster must be a {.cls SpatRaster}")
+  }
+
+  vector <- terra::vect(sf::st_transform(x, terra::crs(raster)))
+  cell_pairs <- terra::cells(raster, vector)
+  signatures <- paste0("outside:", seq_len(nrow(x)))
+  if (length(cell_pairs) == 0L) {
+    return(signatures)
+  }
+
+  ids <- as.integer(cell_pairs[, "ID"])
+  cells <- as.numeric(cell_pairs[, "cell"])
+  valid <- is.finite(cells)
+  if (!any(valid)) {
+    return(signatures)
+  }
+  ids <- ids[valid]
+  cells <- cells[valid]
+  cell_sets <- split(cells, ids)
+  signatures[as.integer(names(cell_sets))] <- vapply(
+    cell_sets,
+    function(values) paste(sort(unique(values)), collapse = ","),
+    character(1)
+  )
+  signatures
+}
+
+#' Identify annual and monthly periods required by observation windows
+#'
+#' @param time_windows Output from [prepare_profile_time()].
+#' @param n Number of features.
+#'
+#' @returns A character vector containing one temporal signature per feature.
+
+profile_period_signatures <- function(time_windows, n) {
+  if (is.null(time_windows)) {
+    return(rep("timeless", n))
+  }
+
+  start <- time_windows$time_start
+  end <- time_windows$time_end - 1
+  paste(
+    format(start, "%Y", tz = time_windows$time_zone),
+    format(end, "%Y", tz = time_windows$time_zone),
+    format(start, "%Y-%m", tz = time_windows$time_zone),
+    format(end, "%Y-%m", tz = time_windows$time_zone),
+    sep = "|"
+  )
+}
+
+#' Expand profiled representatives to the original feature set
+#'
+#' @param portfolio Profiled representative features.
+#' @param datasets Original prepared features.
+#' @param representative_rows Mapping from original rows to representative rows.
+#'
+#' @returns An `sf` portfolio with one row per original feature.
+
+expand_profile_requests <- function(
+  portfolio,
+  datasets,
+  representative_rows
+) {
+  if (length(representative_rows) != nrow(datasets)) {
+    cli::cli_abort("Profile request mapping must match the original features")
+  }
+  if (max(representative_rows) != nrow(portfolio)) {
+    cli::cli_abort("Profile request mapping does not match the portfolio")
+  }
+
+  result <- datasets
+  result$assetid <- seq_len(nrow(result))
+  geometry_column <- attr(portfolio, "sf_column")
+  generated_columns <- setdiff(
+    names(portfolio),
+    c(names(datasets), geometry_column, "assetid")
+  )
+  for (column in generated_columns) {
+    result[[column]] <- portfolio[[column]][representative_rows]
+  }
+  result
+}
+
+#' Load raster grids used for validation request deduplication
+#'
+#' @param mapme.outdir Directory containing mapme resource caches.
+#' @param soilgrids_path Optional path to a local SoilGrids crop.
+#'
+#' @returns A named list of `SpatRaster` templates, or `NULL` if a cache resource
+#'   is unavailable.
+
+read_validation_profile_grids <- function(
+  mapme.outdir = "data/primary/validation",
+  soilgrids_path = NULL
+) {
+  first_matching <- function(path, pattern) {
+    files <- list.files(path, pattern = pattern, full.names = TRUE)
+    if (length(files) == 0L) NULL else sort(files)[1L]
+  }
+
+  srtm_files <- list.files(
+    file.path(mapme.outdir, "nasa_srtm"),
+    pattern = "\\.tif$",
+    full.names = TRUE
+  )
+  humanfootprint <- first_matching(
+    file.path(mapme.outdir, "humanfootprint"),
+    "\\.tif$"
+  )
+  precipitation <- first_matching(
+    file.path(mapme.outdir, "worldclim_precipitation"),
+    "\\.tif$"
+  )
+  if (is.null(soilgrids_path)) {
+    soilgrids_path <- file.path(
+      mapme.outdir,
+      "soilgrids/soc_0-5cm_mean.vrt"
+    )
+  }
+  if (
+    length(srtm_files) == 0L ||
+      is.null(humanfootprint) ||
+      is.null(precipitation) ||
+      !file.exists(soilgrids_path)
+  ) {
+    cli::cli_warn("Grid deduplication disabled because a grid cache is missing")
+    return(NULL)
+  }
+
+  list(
+    elevation = terra::vrt(srtm_files),
+    humanfootprint = terra::rast(humanfootprint),
+    precipitation = terra::rast(precipitation),
+    soilproperties = terra::rast(soilgrids_path)
+  )
+}
+
+#' Materialise a local SoilGrids crop
+#'
+#' @param x Validation features used to define the crop extent.
+#' @param source_path Path to the SoilGrids VRT.
+#' @param destination_path Path for the local raster crop.
+#' @param point_radius_m Buffer radius used when `x` contains points.
+#'
+#' @returns The destination path, or `NULL` when the source cache is missing.
+
+prepare_local_validation_soilgrids <- function(
+  x,
+  source_path = "data/primary/validation/soilgrids/soc_0-5cm_mean.vrt",
+  destination_path = "data/primary/validation/soilgrids/soc_0-5cm_mean_validation_crop.tif",
+  point_radius_m = 5
+) {
+  datasets <- prepare_mapme_polygons(x, point_radius_m = point_radius_m)
+  if (file.exists(destination_path)) {
+    crop <- terra::rast(destination_path)
+    crop_datasets <- sf::st_transform(datasets, terra::crs(crop))
+    crop_extent <- terra::ext(crop)
+    feature_extent <- terra::ext(terra::vect(crop_datasets))
+    crop_covers_features <-
+      feature_extent$xmin >= crop_extent$xmin &&
+      feature_extent$xmax <= crop_extent$xmax &&
+      feature_extent$ymin >= crop_extent$ymin &&
+      feature_extent$ymax <= crop_extent$ymax
+    if (crop_covers_features) {
+      return(destination_path)
+    }
+    cli::cli_warn(
+      "Existing SoilGrids crop does not cover all validation features"
+    )
+    return(NULL)
+  }
+  if (!file.exists(source_path)) {
+    cli::cli_warn("Local SoilGrids crop skipped because its source is missing")
+    return(NULL)
+  }
+
+  source <- terra::rast(source_path)
+  datasets <- sf::st_transform(datasets, terra::crs(source))
+  dir.create(dirname(destination_path), recursive = TRUE, showWarnings = FALSE)
+  temporary_path <- paste0(
+    tools::file_path_sans_ext(destination_path),
+    "-",
+    Sys.getpid(),
+    ".tif"
+  )
+  on.exit(unlink(temporary_path), add = TRUE)
+  terra::crop(
+    source,
+    terra::vect(datasets),
+    snap = "out",
+    filename = temporary_path,
+    overwrite = TRUE
+  )
+  if (!file.rename(temporary_path, destination_path)) {
+    cli::cli_abort("Could not move the completed SoilGrids crop into place")
+  }
+  destination_path
+}
+
+#' Extract SoilGrids properties from a local raster
+#'
+#' @param x Prepared validation polygons.
+#' @param path Local SoilGrids SOC raster.
+#'
+#' @returns A list of indicator tibbles, one per feature.
+
+extract_local_soilproperties <- function(x, path) {
+  raster <- terra::rast(path)
+  datasets <- sf::st_transform(x, terra::crs(raster))
+  values <- terra::extract(
+    raster,
+    terra::vect(datasets),
+    fun = mean,
+    na.rm = TRUE,
+    ID = FALSE
+  )
+  values <- as.numeric(values[[1L]]) / 10
+  lapply(values, function(value) {
+    tibble::tibble(
+      datetime = as.POSIXct("2017-02-01T00:00:00Z", tz = "UTC"),
+      variable = "soc_0_5cm_mean_mean",
+      unit = "g/kg",
+      value = value
+    )
+  })
+}
 #' Prepare observation windows for temporal profiling
 #'
 #' @param x A validation dataset.

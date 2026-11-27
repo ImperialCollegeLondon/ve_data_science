@@ -42,24 +42,29 @@
 #| package_dependencies:
 #|   - arrow
 #|   - dplyr
+#|   - future
 #|   - lubridate
 #|   - mapme.biodiversity
 #|   - RcppTOML
 #|   - readr
 #|   - sf
+#|   - terra
 #|
 #| usage_notes: |
 #|     Run after build_soil_validation_database.R. Remote resources are cached
-#|     under data/primary/validation and may take time to download on first run.
+#|     under data/primary/validation. A one-time local SoilGrids crop and grid-
+#|     aware deduplication avoid repeated remote and zonal extraction.
 #| ---
 
 library(arrow)
 library(dplyr)
+library(future)
 library(lubridate)
 library(mapme.biodiversity)
 library(RcppTOML)
 library(readr)
 library(sf)
+library(terra)
 
 source("tools/R/R/validation_weight.R")
 
@@ -118,12 +123,24 @@ validation_locations <-
 
 reference_portfolio <- read_validation_portfolio(reference_portfolio_path)
 
-validation_portfolio <- profile_validation_environment(
-  validation_locations,
-  point_radius_m = 5,
-  time_zone = "Asia/Kuching",
-  mapme.outdir = "data/primary/validation",
-  verbose = TRUE
+local_soilgrids_path <- prepare_local_validation_soilgrids(
+  validation_locations
+)
+profile_grids <- read_validation_profile_grids(
+  soilgrids_path = local_soilgrids_path
+)
+
+validation_portfolio <- with(
+  future::plan(future::multisession, workers = 4L),
+  profile_validation_environment(
+    validation_locations,
+    point_radius_m = 5,
+    time_zone = "Asia/Kuching",
+    mapme.outdir = "data/primary/validation",
+    verbose = TRUE,
+    grid_rasters = profile_grids,
+    soilgrids_path = local_soilgrids_path
+  )
 )
 
 validation_profiles <- portfolio_long(
