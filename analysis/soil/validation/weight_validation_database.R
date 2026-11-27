@@ -6,8 +6,10 @@
 #|     the maliau_2 simulation period and profiles their locations with the
 #|     environmental resources used for validation weighting.
 #|
-#|     It prepares both validation and scenario reference profiles. Similarity
-#|     calculation and final weights are intentionally not calculated here.
+#|     It prepares both validation and scenario reference profiles. Request
+#|     deduplication and a persistent local SoilGrids crop reduce runtime.
+#|     Similarity calculation and final weights are intentionally not calculated
+#|     here.
 #|
 #| virtual_ecosystem_module: Soil
 #|
@@ -42,7 +44,6 @@
 #| package_dependencies:
 #|   - arrow
 #|   - dplyr
-#|   - future
 #|   - lubridate
 #|   - mapme.biodiversity
 #|   - RcppTOML
@@ -52,13 +53,16 @@
 #|
 #| usage_notes: |
 #|     Run after build_soil_validation_database.R. Remote resources are cached
-#|     under data/primary/validation. A one-time local SoilGrids crop and grid-
-#|     aware deduplication avoid repeated remote and zonal extraction.
+#|     under data/primary/validation. The script reduces runtime by extracting
+#|     each matching raster-cell and time-period combination once and using a
+#|     persistent local SoilGrids crop. Creating or refreshing the crop can be
+#|     slow on its first run. A cached 100-row subset reduced runtime from 278
+#|     seconds to 121 seconds. The full cached dataset of 854 observations took
+#|     1021 seconds and produced 616 extraction requests.
 #| ---
 
 library(arrow)
 library(dplyr)
-library(future)
 library(lubridate)
 library(mapme.biodiversity)
 library(RcppTOML)
@@ -130,17 +134,14 @@ profile_grids <- read_validation_profile_grids(
   soilgrids_path = local_soilgrids_path
 )
 
-validation_portfolio <- with(
-  future::plan(future::multisession, workers = 4L),
-  profile_validation_environment(
-    validation_locations,
-    point_radius_m = 5,
-    time_zone = "Asia/Kuching",
-    mapme.outdir = "data/primary/validation",
-    verbose = TRUE,
-    grid_rasters = profile_grids,
-    soilgrids_path = local_soilgrids_path
-  )
+validation_portfolio <- profile_validation_environment(
+  validation_locations,
+  point_radius_m = 5,
+  time_zone = "Asia/Kuching",
+  mapme.outdir = "data/primary/validation",
+  verbose = TRUE,
+  grid_rasters = profile_grids,
+  soilgrids_path = local_soilgrids_path
 )
 
 validation_profiles <- portfolio_long(

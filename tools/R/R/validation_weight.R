@@ -4,7 +4,8 @@
 #| description: |
 #|     Profiles validation dataset polygons or coordinates with global
 #|     remote-sensing resources and loads saved environmental reference
-#|     portfolios.
+#|     portfolios. Optional request deduplication and local SoilGrids extraction
+#|     reduce runtime.
 #|
 #| virtual_ecosystem_module: All
 #|
@@ -28,7 +29,11 @@
 #|
 #| usage_notes: |
 #|     Profiling requires internet access unless all requested resources are
-#|     cached.
+#|     cached. Supply grid_rasters to avoid repeated extraction for matching
+#|     raster cells and time periods. Supply soilgrids_path to use bulk local
+#|     SoilGrids extraction after creating a crop. Missing grid caches disable
+#|     deduplication, while a missing local crop retains remote SoilGrids
+#|     extraction. The first crop can be slow; subsequent runs reuse it.
 #| ---
 
 #' Profile the remote-sensing environment for validation datasets
