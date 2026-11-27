@@ -6,7 +6,7 @@
 #|   Each 100 m grid cell is treated as a separate portfolio asset so that
 #|   downstream comparisons preserve spatial combinations of covariates.
 #|   Indicators cover elevation, human footprint, precipitation, and soil
-#|   organic carbon.
+#|   organic carbon within the scenario's 2010--2020 observation window.
 #|
 #| virtual_ecosystem_module: All
 #|
@@ -18,7 +18,7 @@
 #| input_files:
 #|   - name: maliau_grid_definition.toml
 #|     path: data/derived/site/maliau/maliau_grid_definition.toml
-#|     description: Scenario bounds, CRS, grid dimensions, and resolution.
+#|     description: Scenario bounds, CRS, grid dimensions, resolution, and timing.
 #|
 #| output_files:
 #|   - name: maliau_portfolio.gpkg
@@ -64,6 +64,13 @@ maliau_2 <-
   parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
   pluck("Scenario", "maliau_2")
 
+simulation_start <- as.Date(maliau_2$core$timing$start_date)
+simulation_end <- seq(
+  simulation_start,
+  by = maliau_2$core$timing$run_length,
+  length.out = 2
+)[2]
+
 maliau_boundary <- st_as_sfc(st_bbox(
   c(
     xmin = maliau_2$ll_x,
@@ -92,6 +99,8 @@ maliau_grid <-
 
 aoi_resources <- profile_validation_environment(
   maliau_grid,
+  time_start = rep(simulation_start, nrow(maliau_grid)),
+  time_end = rep(simulation_end, nrow(maliau_grid)),
   mapme.outdir = "data/primary/validation",
   verbose = TRUE
 )
