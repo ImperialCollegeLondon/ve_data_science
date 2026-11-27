@@ -18,10 +18,12 @@ terminal:
 You only maintain *one* virtual-environment folder `.venv`.
 No juggling among multiple virtual environments.
 
-The versions are defined in `pyproject.toml` in the project root. The pinned
-`dev-pinned` version can be changed at any time; it is to pin a specific version
-in case we need to troubleshoot with a particular commit. You can also add
-required dependencies in `pyproject.toml` for the team.
+The versions are defined in `pyproject.toml` in the project root. The stable
+release is the `virtual-ecosystem` entry in `[project].dependencies`. The git
+builds are set per group in `[tool.uv.sources]`. The pinned `dev-pinned` version
+can be changed at any time; it is to pin a specific version in case we need to
+troubleshoot with a particular commit. You can also add required dependencies in
+`pyproject.toml` for the team.
 
 ---
 
@@ -70,6 +72,8 @@ is already in that cache *and is the exact version this project asks for*,
 `uv sync` will skip installing it again.
 That is why repeat syncs are typically much faster after the first run.
 
+Plain `uv sync` always installs the PyPI release.
+
 You do **not** need to activate the environment to start using it.
 
 ---
@@ -86,7 +90,8 @@ uv sync --group dev-pinned
 
 Only one version is active at a time, and each command switches to that version.
 Simply switching groups does not need any extra flags; `uv sync` will install
-whatever version that group needs. See
+whatever version that group needs. Do not pass `dev` and `dev-pinned` together;
+they conflict. See
 [Step 4](#step-4-update-virtual-ecosystem) if you want to pull in new changes
 from upstream.
 
@@ -104,7 +109,9 @@ uv sync
 ```
 
 This updates `uv.lock` (the file that records exact package versions), then
-installs the newest compatible PyPI release of `virtual-ecosystem`.
+installs the newest compatible PyPI release of `virtual-ecosystem`. This stays
+within the range in `pyproject.toml`; change the bound to move to a new minor
+release.
 
 Note: `uv.lock` is shared across groups. So `uv lock --upgrade-package
 virtual-ecosystem` can update lock entries for that package in multiple groups,
@@ -124,8 +131,8 @@ that package, instead of only reinstalling what is already pinned in `uv.lock`.
 
 ### C) Update the pinned `dev-pinned` commit
 
-1. Edit `pyproject.toml` and change the pinned commit hash for the `dev-pinned`
-   dependency.
+1. Edit `pyproject.toml` and change `rev` in the `dev-pinned` entry of
+   `[tool.uv.sources]`.
 2. Update `uv.lock` (the file that records exact package versions) and sync:
 
 ```sh
@@ -151,7 +158,8 @@ grep -A 2 "name = \"virtual-ecosystem\"" uv.lock
 
 `uv pip show virtual-ecosystem` is less useful here because it shows a version
 tag but not the commit hash for GitHub builds, i.e., the release and dev
-versions can have the same version tag.
+versions can have the same version tag. It is fine for checking the PyPI
+release.
 
 ---
 

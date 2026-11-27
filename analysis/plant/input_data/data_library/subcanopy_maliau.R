@@ -37,7 +37,7 @@
 #|       This CSV file contains the subcanopy parameters used as plant model
 #|       constants in the plant input data library workflow.
 #|     variables:
-#|       - name: subcanopy_vegetation_biomass
+#|       - name: subcanopy_vegetation_c
 #|         type: numeric
 #|         units: kg C m^-2
 #|         description: |
@@ -65,7 +65,7 @@
 #|           dry weight is used because the model allocates subcanopy carbon to
 #|           leafy biomass; using leaf dry weight only would better match predicted
 #|           leaf area but would underestimate total subcanopy carbon.
-#|       - name: subcanopy_seedbank_biomass
+#|       - name: subcanopy_seedbank_c
 #|         type: numeric
 #|         units: kg C m^-2
 #|         description: |
@@ -652,7 +652,7 @@ data <- unique(data)
 
 ##################################################
 
-# Initial subcanopy seedbank biomass
+# Initial subcanopy seedbank carbon mass
 # We derive this as the following:
 # - seedbank biomass = 23% of seed rain (ak reproductive tissues), based on
 # Dalling et al. (1998; https://doi.org/10.2307/176953)
@@ -739,8 +739,8 @@ data <- data[, c(
 )]
 
 colnames(data) <- c(
-  "subcanopy_vegetation_biomass",
-  "subcanopy_seedbank_biomass",
+  "subcanopy_vegetation_c",
+  "subcanopy_seedbank_c",
   "subcanopy_specific_leaf_area",
   "subcanopy_reproductive_allocation"
 )
@@ -854,10 +854,10 @@ write.csv(
 
 # Summary of units
 
-# "subcanopy_vegetation_biomass" = kg C m-2
-# "subcanopy_seedbank_biomass" = kg C m-2
+# "subcanopy_vegetation_c" = kg C m-2
+# "subcanopy_seedbank_c" = kg C m-2
 # "subcanopy_specific_leaf_area" = m2 kg-1 C
-# "subcanopy_reproductive_allocation" = fraction of aboveground (leaf) biomass
+# "subcanopy_reproductive_allocation" = fraction of aboveground (leaf) carbon mass
 # "subcanopy_respiration_fraction" = fraction of GPP
 # "subcanopy_extinction_coef" = unitless
 # "subcanopy_yield" = fraction of GPP

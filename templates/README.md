@@ -44,3 +44,11 @@ Each script file format has to include the YAML metadata in slightly different w
 
 One thing to note with YAML is that it is extremely fussy about indent spacing - try to
 follow the indentation of the templates carefully!
+
+## Documentation page templates
+
+The `docs/` subfolder holds `module_landing_template.md`, a template for each module's
+landing page on the documentation website. Unlike the other templates, it is for a
+documentation page rather than a code file. See the
+[Documenting your work](https://imperialcollegelondon.github.io/ve_data_science/contributing/documenting_your_work/)
+page for how to use it.

@@ -26,7 +26,7 @@
 #|
 #| output_files:
 #|   - name: soil_maliau.nc
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: The subset soil input data for the Maliau 2 scenario
 #|
 #| package_dependencies:
@@ -67,7 +67,7 @@ ncout <- subset_nc(
   ll_y = ll_y,
   ur_x = ur_x,
   ur_y = ur_y,
-  filename = "data/scenarios/maliau/maliau_2/data/soil_maliau.nc",
+  filename = "data/scenarios/maliau/maliau_2/data/main/soil_maliau.nc",
   description = "Soil data for the Maliau 2 scenario",
   close.nc = FALSE
 )
