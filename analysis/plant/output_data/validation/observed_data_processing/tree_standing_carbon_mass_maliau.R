@@ -4,8 +4,8 @@
 #| description: |
 #|   This script prepares the observed validation data for tree standing carbon
 #|   mass for Maliau. It calculates plot-level stem and leaf carbon mass for
-#|   2011 and 2014 using allometric equations applied to tree census DBH data
-#|   from OG plots within the maliau_2 grid.
+#|   the available census years using allometric equations applied to tree census
+#|   DBH data from OG plots within the maliau_2 grid.
 #|
 #| virtual_ecosystem_module:
 #|   - Plant
@@ -42,110 +42,320 @@
 #|   - name: tree_standing_carbon_mass_maliau.csv
 #|     path: data/derived/plant/output_data/validation/observed_data_processing
 #|     description: |
-#|       Calculated tree standing carbon mass components for OG plots in maliau_2.
+#|       Plot-level stem and leaf carbon mass estimates for the 2011-recorded
+#|       tree cohort in the selected Maliau-2 OG plots. Includes estimates and
+#|       allometric standard errors for the 2011, 2014, 2015, 2017, and 2019
+#|       census rounds, plot-specific mean census dates, elapsed intervals,
+#|       and annualised net stem carbon changes between consecutive rounds.
 #|     variables:
 #|       - name: PlotID
 #|         type: character
 #|         units: dimensionless
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
 #|         temporal_extent: null
-#|         description: SAFE identifier for each observed census plot.
+#|         description: SAFE identifier for the observed census plot.
 #|       - name: plot_area_m2
 #|         type: numeric
 #|         units: m2
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
 #|         temporal_extent: null
-#|         description: Area of each OG census plot.
+#|         description: Plot area in square metres (25 m by 25 m).
 #|       - name: plot_area_ha
 #|         type: numeric
 #|         units: ha
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
 #|         temporal_extent: null
-#|         description: Area of each OG census plot in hectares.
+#|         description: Plot area in hectares (0.0625 ha).
 #|       - name: plot_x
 #|         type: numeric
 #|         units: degrees longitude
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
 #|         temporal_extent: null
-#|         description: Plot centroid longitude in WGS84.
+#|         description: Plot centroid longitude in WGS84, from the SAFE gazetteer.
 #|       - name: plot_y
 #|         type: numeric
 #|         units: degrees latitude
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
 #|         temporal_extent: null
-#|         description: Plot centroid latitude in WGS84.
-#|       - name: census_date_2011
-#|         type: date
-#|         units: ISO 8601 date
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date from the 2011 census.
-#|         description: Mean date of the 2011 census for the plot.
-#|       - name: census_date_2014
-#|         type: date
-#|         units: ISO 8601 date
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date from the 2014 census.
-#|         description: Mean date of the 2014 census for the plot.
+#|         description: Plot centroid latitude in WGS84, from the SAFE gazetteer.
 #|       - name: obs_stem_mass_2011_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2011.
-#|         description: Plot stem carbon mass estimated from 2011 DBH values.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2011-labelled census round.
+#|         description: |
+#|           Stem carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2011 DBH using Kenzo et al. (2009) allometry and a
+#|           wood carbon fraction of 45.6%.
 #|       - name: obs_stem_mass_2011_se_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2011.
-#|         description: SE from the allometric parameter uncertainties.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2011-labelled census round.
+#|         description: |
+#|           Propagated standard error for stem carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
 #|       - name: obs_stem_mass_2014_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2014.
-#|         description: Plot stem carbon mass estimated from 2014 DBH values.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2014-labelled census round.
+#|         description: |
+#|           Stem carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2014 DBH using Kenzo et al. (2009) allometry and a
+#|           wood carbon fraction of 45.6%.
 #|       - name: obs_stem_mass_2014_se_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2014.
-#|         description: SE from the allometric parameter uncertainties.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2014-labelled census round.
+#|         description: |
+#|           Propagated standard error for stem carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
+#|       - name: obs_stem_mass_2015_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2015-labelled census round.
+#|         description: |
+#|           Stem carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2015 DBH using Kenzo et al. (2009) allometry and a
+#|           wood carbon fraction of 45.6%.
+#|       - name: obs_stem_mass_2015_se_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2015-labelled census round.
+#|         description: |
+#|           Propagated standard error for stem carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
+#|       - name: obs_stem_mass_2017_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2017-labelled census round.
+#|         description: |
+#|           Stem carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2017 DBH using Kenzo et al. (2009) allometry and a
+#|           wood carbon fraction of 45.6%.
+#|       - name: obs_stem_mass_2017_se_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2017-labelled census round.
+#|         description: |
+#|           Propagated standard error for stem carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
+#|       - name: obs_stem_mass_2019_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2019-labelled census round.
+#|         description: |
+#|           Stem carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2019 DBH using Kenzo et al. (2009) allometry and a
+#|           wood carbon fraction of 45.6%.
+#|       - name: obs_stem_mass_2019_se_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2019-labelled census round.
+#|         description: |
+#|           Propagated standard error for stem carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
 #|       - name: obs_leaf_mass_2011_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2011.
-#|         description: Plot leaf carbon mass estimated from 2011 DBH values.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2011-labelled census round.
+#|         description: |
+#|           Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2011 DBH using Kenzo et al. (2009) allometry and a
+#|           leaf carbon fraction of 44.30682%.
 #|       - name: obs_leaf_mass_2011_se_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2011.
-#|         description: SE from the allometric parameter uncertainties.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2011-labelled census round.
+#|         description: |
+#|           Propagated standard error for leaf carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
 #|       - name: obs_leaf_mass_2014_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2014.
-#|         description: Plot leaf carbon mass estimated from 2014 DBH values.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2014-labelled census round.
+#|         description: |
+#|           Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2014 DBH using Kenzo et al. (2009) allometry and a
+#|           leaf carbon fraction of 44.30682%.
 #|       - name: obs_leaf_mass_2014_se_kg_ha
 #|         type: numeric
 #|         units: kg C ha-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot date stored in census_date_2014.
-#|         description: SE from the allometric parameter uncertainties.
-#|       - name: census_interval_years
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2014-labelled census round.
+#|         description: |
+#|           Propagated standard error for leaf carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
+#|       - name: obs_leaf_mass_2015_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2015-labelled census round.
+#|         description: |
+#|           Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2015 DBH using Kenzo et al. (2009) allometry and a
+#|           leaf carbon fraction of 44.30682%.
+#|       - name: obs_leaf_mass_2015_se_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2015-labelled census round.
+#|         description: |
+#|           Propagated standard error for leaf carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
+#|       - name: obs_leaf_mass_2017_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2017-labelled census round.
+#|         description: |
+#|           Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2017 DBH using Kenzo et al. (2009) allometry and a
+#|           leaf carbon fraction of 44.30682%.
+#|       - name: obs_leaf_mass_2017_se_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2017-labelled census round.
+#|         description: |
+#|           Propagated standard error for leaf carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
+#|       - name: obs_leaf_mass_2019_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2019-labelled census round.
+#|         description: |
+#|           Leaf carbon mass per hectare for the 2011-recorded tree cohort,
+#|           estimated from 2019 DBH using Kenzo et al. (2009) allometry and a
+#|           leaf carbon fraction of 44.30682%.
+#|       - name: obs_leaf_mass_2019_se_kg_ha
+#|         type: numeric
+#|         units: kg C ha-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2019-labelled census round.
+#|         description: |
+#|           Propagated standard error for leaf carbon mass due to uncertainty
+#|           in the allometric coefficient and exponent; shared parameter
+#|           uncertainty is applied to the plot total.
+#|       - name: census_date_2011
+#|         type: date
+#|         units: ISO 8601 date
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2011-labelled census round.
+#|         description: Mean observed census date for the round labelled 2011.
+#|       - name: census_date_2014
+#|         type: date
+#|         units: ISO 8601 date
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2014-labelled census round.
+#|         description: Mean observed census date for the round labelled 2014.
+#|       - name: census_date_2015
+#|         type: date
+#|         units: ISO 8601 date
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2015-labelled census round.
+#|         description: Mean observed census date for the round labelled 2015.
+#|       - name: census_date_2017
+#|         type: date
+#|         units: ISO 8601 date
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2017-labelled census round.
+#|         description: Mean observed census date for the round labelled 2017.
+#|       - name: census_date_2019
+#|         type: date
+#|         units: ISO 8601 date
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: 2019-labelled census round.
+#|         description: Mean observed census date for the round labelled 2019.
+#|       - name: census_2011_2014_interval_years
 #|         type: numeric
 #|         units: years
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
-#|         description: Time between the mean 2011 and 2014 census dates per plot.
-#|       - name: obs_stem_increment_kg_ha_yr
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2011- and 2014-labelled rounds.
+#|         description: |
+#|           Elapsed time between the plot's mean 2011 and 2014 census dates,
+#|           calculated as the date difference divided by 365.25.
+#|       - name: census_2014_2015_interval_years
+#|         type: numeric
+#|         units: years
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2014- and 2015-labelled rounds.
+#|         description: |
+#|           Elapsed time between the plot's mean 2014 and 2015 census dates,
+#|           calculated as the date difference divided by 365.25.
+#|       - name: census_2015_2017_interval_years
+#|         type: numeric
+#|         units: years
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2015- and 2017-labelled rounds.
+#|         description: |
+#|           Elapsed time between the plot's mean 2015 and 2017 census dates,
+#|           calculated as the date difference divided by 365.25.
+#|       - name: census_2017_2019_interval_years
+#|         type: numeric
+#|         units: years
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2017- and 2019-labelled rounds.
+#|         description: |
+#|           Elapsed time between the plot's mean 2017 and 2019 census dates,
+#|           calculated as the date difference divided by 365.25.
+#|       - name: obs_stem_increment_2011_2014_kg_ha_yr
 #|         type: numeric
 #|         units: kg C ha-1 y-1
-#|         spatial_extent: One value for each selected plot OG2_720 to OG2_728.
-#|         temporal_extent: Per-plot interval between census_date_2011 and census_date_2014.
-#|         description: Net annual change in standing stem carbon between censuses.
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2011- and 2014-labelled rounds.
+#|         description: |
+#|           Annualised net change in standing stem carbon per hectare for the
+#|           2011-recorded tree cohort, from the 2011 to 2014 census rounds.
+#|           This is net standing-carbon change, not gross woody productivity.
+#|       - name: obs_stem_increment_2014_2015_kg_ha_yr
+#|         type: numeric
+#|         units: kg C ha-1 y-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2014- and 2015-labelled rounds.
+#|         description: |
+#|           Annualised net change in standing stem carbon per hectare for the
+#|           2011-recorded tree cohort, from the 2014 to 2015 census rounds.
+#|           This is net standing-carbon change, not gross woody productivity.
+#|       - name: obs_stem_increment_2015_2017_kg_ha_yr
+#|         type: numeric
+#|         units: kg C ha-1 y-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2015- and 2017-labelled rounds.
+#|         description: |
+#|           Annualised net change in standing stem carbon per hectare for the
+#|           2011-recorded tree cohort, from the 2015 to 2017 census rounds.
+#|           This is net standing-carbon change, not gross woody productivity.
+#|       - name: obs_stem_increment_2017_2019_kg_ha_yr
+#|         type: numeric
+#|         units: kg C ha-1 y-1
+#|         spatial_extent: One value per selected OG plot; currently OG2_720 to OG2_728.
+#|         temporal_extent: Interval between the 2017- and 2019-labelled rounds.
+#|         description: |
+#|           Annualised net change in standing stem carbon per hectare for the
+#|           2011-recorded tree cohort, from the 2017 to 2019 census rounds.
+#|           This is net standing-carbon change, not gross woody productivity.
 #|
 #| package_dependencies:
 #|   - readxl
@@ -170,7 +380,7 @@ library(dplyr)
 # - load census data and clean up (keep only dbh columns across years, only
 # trees that are still alive, subset to all OG plots, etc.)
 
-date_columns <- c(64, 68)
+date_columns <- c(64:75)
 # The Census11_20 sheet contains 239 columns.
 column_types <- rep("guess", 239)
 column_types[date_columns] <- "date"
@@ -311,10 +521,22 @@ text(
 # particular year, then we cannot use that year for calculating the total plot
 # carbon mass for that particular validation date.
 # Keep in mind that some NA values may be because the tree was recruited in a
-# specific year (i.e. it didnt exist in early census years; in which case the
+# specific year (i.e. it didn't exist in early census years; in which case the
 # NA value is valid).
 # We should also check for any incorrect DBH entries for years where trees were
 # already reported as dead.
+
+# On closer inspection, it appears only 2014 has (new) recruits measured. This
+# means that all the other years do not truly capture the TOTAL plot carbon mass.
+# Therefore, we will subset to 2011 trees only. There is an issue however where
+# some initial trees lost their tag in later years, so we need to make sure that
+# these are counted too, else we are underestimating the total plot carbon mass.
+# To account for this, we want to:
+# - keep the trees with first record year being 2011
+# - exclude those with first record year being 2014 (these are recruits)
+# - exclude those with first record year being 2019 (some of these are 2011 trees
+#   with lost tag - note that it's not possible to say which ones, hence exclude)
+# - exclude those with first record year being `NA` (these are also 2014 recruits)
 
 # Check census years to check
 names(tree_census_11_20)
@@ -323,86 +545,88 @@ names(tree_census_11_20)
 # In terms of date, some variation is fine, as long as it fits within the same month
 
 simulation_plot_ids
-selected_columns <- c(4, 5, 6, 12, 13, 14, 15, 40:51, 64:75, 88)
+selected_columns <- c(4:6, 12:15, 40:51, 64:75, 88)
 
 OG2_720 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_720",
   c(selected_columns)
 ]
-# Order based on Dead_year_IND
-# 2707-1 dead in 2014
-# 2715-1 dead in 2017
-# 2716-1 dead in 2017
-# 2717-1 dead in 2017
-# Checked and ok, no unexpected dbh values
-# Then order based on first record year to check for truly missing dbh
-# Periods to use: 2011, 2014
-# Periods to exclude: 2012, 2012b, 2013, 2014b, 2015 (partial census), 2016,
-#                     2017 (partial census), 2018, 2019 (partial census), 2020
-# So, we only really have 2 census dates that we can use for validation of
-# total trees measured
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_721 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_721",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_722 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_722",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_723 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_723",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_724 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_724",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_725 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_725",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_726 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_726",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_727 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_727",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
 OG2_728 <- tree_census_11_20[
   tree_census_11_20$PlotID == "OG2_728",
   c(selected_columns)
 ]
-# Same, checked
-# Good: 2011, 2014
+# Periods to use: 2011, 2014, 2015, 2017, 2019
 
-# So, we can subset to 2011 and 2014 census data only
+# So, we can subset to 2011, 2014, 2015, 2017 and 2019 census data, and then
+# only keep the trees with first record year being 2011
+
 names(tree_census_11_20)
 tree_census_11_20 <- tree_census_11_20[
   tree_census_11_20$PlotID %in% simulation_plot_ids,
-  c(4, 5, 17:21, 40, 44, 52, 56, 64, 68, 90, 91)
+  c(4:6, 12:15, 17:21, 40:51, 64:75, 90, 91)
+]
+
+tree_census_11_20$DBH2011_mm_clean <-
+  as.numeric(tree_census_11_20$DBH2011_mm_clean)
+tree_census_11_20$DBH2014_mm_clean <-
+  as.numeric(tree_census_11_20$DBH2014_mm_clean)
+tree_census_11_20$DBH2015_mm_clean <-
+  as.numeric(tree_census_11_20$DBH2015_mm_clean)
+tree_census_11_20$DBH2017_mm_clean <-
+  as.numeric(tree_census_11_20$DBH2017_mm_clean)
+tree_census_11_20$DBH2019_mm_clean <-
+  as.numeric(tree_census_11_20$DBH2019_mm_clean)
+
+tree_census_11_20$FirstRecord_year_IND <-
+  as.numeric(tree_census_11_20$FirstRecord_year_IND)
+
+tree_census_11_20 <- tree_census_11_20[
+  !is.na(tree_census_11_20$FirstRecord_year_IND) &
+    tree_census_11_20$FirstRecord_year_IND == 2011,
 ]
 
 # - add wood density if using Riutta et al. (2018) (Chave) method (not used for now)
@@ -550,9 +774,30 @@ stem_2014_kg_c_tree <- calculate_allometric_carbon(
   exponent = 2.48,
   carbon_fraction = 0.456
 )
+stem_2015_kg_c_tree <- calculate_allometric_carbon(
+  tree_census_11_20$DBH2015_mm_clean,
+  coefficient = 0.0822,
+  exponent = 2.48,
+  carbon_fraction = 0.456
+)
+stem_2017_kg_c_tree <- calculate_allometric_carbon(
+  tree_census_11_20$DBH2017_mm_clean,
+  coefficient = 0.0822,
+  exponent = 2.48,
+  carbon_fraction = 0.456
+)
+stem_2019_kg_c_tree <- calculate_allometric_carbon(
+  tree_census_11_20$DBH2019_mm_clean,
+  coefficient = 0.0822,
+  exponent = 2.48,
+  carbon_fraction = 0.456
+)
 
 tree_census_11_20$obs_stem_mass_2011_kg_c_tree <- stem_2011_kg_c_tree
 tree_census_11_20$obs_stem_mass_2014_kg_c_tree <- stem_2014_kg_c_tree
+tree_census_11_20$obs_stem_mass_2015_kg_c_tree <- stem_2015_kg_c_tree
+tree_census_11_20$obs_stem_mass_2017_kg_c_tree <- stem_2017_kg_c_tree
+tree_census_11_20$obs_stem_mass_2019_kg_c_tree <- stem_2019_kg_c_tree
 
 #####
 
@@ -574,9 +819,30 @@ leaf_2014_kg_c_tree <- calculate_allometric_carbon(
   exponent = 1.67,
   carbon_fraction = 0.4430682
 )
+leaf_2015_kg_c_tree <- calculate_allometric_carbon(
+  tree_census_11_20$DBH2015_mm_clean,
+  coefficient = 0.0442,
+  exponent = 1.67,
+  carbon_fraction = 0.4430682
+)
+leaf_2017_kg_c_tree <- calculate_allometric_carbon(
+  tree_census_11_20$DBH2017_mm_clean,
+  coefficient = 0.0442,
+  exponent = 1.67,
+  carbon_fraction = 0.4430682
+)
+leaf_2019_kg_c_tree <- calculate_allometric_carbon(
+  tree_census_11_20$DBH2019_mm_clean,
+  coefficient = 0.0442,
+  exponent = 1.67,
+  carbon_fraction = 0.4430682
+)
 
 tree_census_11_20$obs_leaf_mass_2011_kg_c_tree <- leaf_2011_kg_c_tree
 tree_census_11_20$obs_leaf_mass_2014_kg_c_tree <- leaf_2014_kg_c_tree
+tree_census_11_20$obs_leaf_mass_2015_kg_c_tree <- leaf_2015_kg_c_tree
+tree_census_11_20$obs_leaf_mass_2017_kg_c_tree <- leaf_2017_kg_c_tree
+tree_census_11_20$obs_leaf_mass_2019_kg_c_tree <- leaf_2019_kg_c_tree
 
 #####
 
@@ -589,22 +855,40 @@ plot_to_hectare <- 10000 / plot_area_m2
 tree_mass_columns <- c(
   "obs_stem_mass_2011_kg_c_tree",
   "obs_stem_mass_2014_kg_c_tree",
+  "obs_stem_mass_2015_kg_c_tree",
+  "obs_stem_mass_2017_kg_c_tree",
+  "obs_stem_mass_2019_kg_c_tree",
   "obs_leaf_mass_2011_kg_c_tree",
-  "obs_leaf_mass_2014_kg_c_tree"
+  "obs_leaf_mass_2014_kg_c_tree",
+  "obs_leaf_mass_2015_kg_c_tree",
+  "obs_leaf_mass_2017_kg_c_tree",
+  "obs_leaf_mass_2019_kg_c_tree"
 )
 
 plot_mass_columns <- c(
   "obs_stem_mass_2011_kg_c_plot",
   "obs_stem_mass_2014_kg_c_plot",
+  "obs_stem_mass_2015_kg_c_plot",
+  "obs_stem_mass_2017_kg_c_plot",
+  "obs_stem_mass_2019_kg_c_plot",
   "obs_leaf_mass_2011_kg_c_plot",
-  "obs_leaf_mass_2014_kg_c_plot"
+  "obs_leaf_mass_2014_kg_c_plot",
+  "obs_leaf_mass_2015_kg_c_plot",
+  "obs_leaf_mass_2017_kg_c_plot",
+  "obs_leaf_mass_2019_kg_c_plot"
 )
 
 hectare_mass_columns <- c(
   "obs_stem_mass_2011_kg_ha",
   "obs_stem_mass_2014_kg_ha",
+  "obs_stem_mass_2015_kg_ha",
+  "obs_stem_mass_2017_kg_ha",
+  "obs_stem_mass_2019_kg_ha",
   "obs_leaf_mass_2011_kg_ha",
-  "obs_leaf_mass_2014_kg_ha"
+  "obs_leaf_mass_2014_kg_ha",
+  "obs_leaf_mass_2015_kg_ha",
+  "obs_leaf_mass_2017_kg_ha",
+  "obs_leaf_mass_2019_kg_ha"
 )
 
 plot_summary <- aggregate(
@@ -660,6 +944,51 @@ plot_summary$obs_stem_mass_2014_se_kg_ha <- vapply(
   },
   numeric(1)
 )
+plot_summary$obs_stem_mass_2015_se_kg_ha <- vapply(
+  plot_groups,
+  function(plot_data) {
+    calculate_plot_se(
+      plot_data$DBH2015_mm_clean,
+      coefficient = 0.0822,
+      exponent = 2.48,
+      coefficient_se = 0.0152,
+      exponent_se = 0.08,
+      carbon_fraction = 0.456
+    ) *
+      plot_to_hectare
+  },
+  numeric(1)
+)
+plot_summary$obs_stem_mass_2017_se_kg_ha <- vapply(
+  plot_groups,
+  function(plot_data) {
+    calculate_plot_se(
+      plot_data$DBH2017_mm_clean,
+      coefficient = 0.0822,
+      exponent = 2.48,
+      coefficient_se = 0.0152,
+      exponent_se = 0.08,
+      carbon_fraction = 0.456
+    ) *
+      plot_to_hectare
+  },
+  numeric(1)
+)
+plot_summary$obs_stem_mass_2019_se_kg_ha <- vapply(
+  plot_groups,
+  function(plot_data) {
+    calculate_plot_se(
+      plot_data$DBH2019_mm_clean,
+      coefficient = 0.0822,
+      exponent = 2.48,
+      coefficient_se = 0.0152,
+      exponent_se = 0.08,
+      carbon_fraction = 0.456
+    ) *
+      plot_to_hectare
+  },
+  numeric(1)
+)
 plot_summary$obs_leaf_mass_2011_se_kg_ha <- vapply(
   plot_groups,
   function(plot_data) {
@@ -690,6 +1019,51 @@ plot_summary$obs_leaf_mass_2014_se_kg_ha <- vapply(
   },
   numeric(1)
 )
+plot_summary$obs_leaf_mass_2015_se_kg_ha <- vapply(
+  plot_groups,
+  function(plot_data) {
+    calculate_plot_se(
+      plot_data$DBH2015_mm_clean,
+      coefficient = 0.0442,
+      exponent = 1.67,
+      coefficient_se = 0.0148,
+      exponent_se = 0.14,
+      carbon_fraction = 0.4430682
+    ) *
+      plot_to_hectare
+  },
+  numeric(1)
+)
+plot_summary$obs_leaf_mass_2017_se_kg_ha <- vapply(
+  plot_groups,
+  function(plot_data) {
+    calculate_plot_se(
+      plot_data$DBH2017_mm_clean,
+      coefficient = 0.0442,
+      exponent = 1.67,
+      coefficient_se = 0.0148,
+      exponent_se = 0.14,
+      carbon_fraction = 0.4430682
+    ) *
+      plot_to_hectare
+  },
+  numeric(1)
+)
+plot_summary$obs_leaf_mass_2019_se_kg_ha <- vapply(
+  plot_groups,
+  function(plot_data) {
+    calculate_plot_se(
+      plot_data$DBH2019_mm_clean,
+      coefficient = 0.0442,
+      exponent = 1.67,
+      coefficient_se = 0.0148,
+      exponent_se = 0.14,
+      carbon_fraction = 0.4430682
+    ) *
+      plot_to_hectare
+  },
+  numeric(1)
+)
 
 # Also calculate the annual woody increment so that we can then compare this
 # with the 7.7 Mg ha-1 y-1 reported by Miyamoto et al. (2024) for Maliau.
@@ -700,7 +1074,13 @@ plot_summary$obs_leaf_mass_2014_se_kg_ha <- vapply(
 
 # Use each plot's mean census date because each census lasted several days.
 plot_dates <- aggregate(
-  tree_census_11_20[c("Date_2011", "Date_2014")],
+  tree_census_11_20[c(
+    "Date_2011",
+    "Date_2014",
+    "Date_2015",
+    "Date_2017",
+    "Date_2019"
+  )],
   by = list(PlotID = tree_census_11_20$PlotID),
   FUN = mean,
   na.rm = TRUE
@@ -709,12 +1089,35 @@ plot_dates <- plot_dates[match(plot_summary$PlotID, plot_dates$PlotID), ]
 
 plot_summary$census_date_2011 <- plot_dates$Date_2011
 plot_summary$census_date_2014 <- plot_dates$Date_2014
-plot_summary$census_interval_years <-
+plot_summary$census_date_2015 <- plot_dates$Date_2015
+plot_summary$census_date_2017 <- plot_dates$Date_2017
+plot_summary$census_date_2019 <- plot_dates$Date_2019
+
+plot_summary$census_2011_2014_interval_years <-
   as.numeric(plot_dates$Date_2014 - plot_dates$Date_2011) / 365.25
-plot_summary$obs_stem_increment_kg_ha_yr <-
+plot_summary$census_2014_2015_interval_years <-
+  as.numeric(plot_dates$Date_2015 - plot_dates$Date_2014) / 365.25
+plot_summary$census_2015_2017_interval_years <-
+  as.numeric(plot_dates$Date_2017 - plot_dates$Date_2015) / 365.25
+plot_summary$census_2017_2019_interval_years <-
+  as.numeric(plot_dates$Date_2019 - plot_dates$Date_2017) / 365.25
+
+plot_summary$obs_stem_increment_2011_2014_kg_ha_yr <-
   (plot_summary$obs_stem_mass_2014_kg_ha -
     plot_summary$obs_stem_mass_2011_kg_ha) /
-  plot_summary$census_interval_years
+  plot_summary$census_2011_2014_interval_years
+plot_summary$obs_stem_increment_2014_2015_kg_ha_yr <-
+  (plot_summary$obs_stem_mass_2015_kg_ha -
+    plot_summary$obs_stem_mass_2014_kg_ha) /
+  plot_summary$census_2014_2015_interval_years
+plot_summary$obs_stem_increment_2015_2017_kg_ha_yr <-
+  (plot_summary$obs_stem_mass_2017_kg_ha -
+    plot_summary$obs_stem_mass_2015_kg_ha) /
+  plot_summary$census_2015_2017_interval_years
+plot_summary$obs_stem_increment_2017_2019_kg_ha_yr <-
+  (plot_summary$obs_stem_mass_2019_kg_ha -
+    plot_summary$obs_stem_mass_2017_kg_ha) /
+  plot_summary$census_2017_2019_interval_years
 
 # Note that this is net change in standing stem carbon, not gross woody productivity.
 
@@ -742,14 +1145,35 @@ variables <- c(
   "obs_stem_mass_2011_se_kg_ha",
   "obs_stem_mass_2014_kg_ha",
   "obs_stem_mass_2014_se_kg_ha",
+  "obs_stem_mass_2015_kg_ha",
+  "obs_stem_mass_2015_se_kg_ha",
+  "obs_stem_mass_2017_kg_ha",
+  "obs_stem_mass_2017_se_kg_ha",
+  "obs_stem_mass_2019_kg_ha",
+  "obs_stem_mass_2019_se_kg_ha",
   "obs_leaf_mass_2011_kg_ha",
   "obs_leaf_mass_2011_se_kg_ha",
   "obs_leaf_mass_2014_kg_ha",
   "obs_leaf_mass_2014_se_kg_ha",
+  "obs_leaf_mass_2015_kg_ha",
+  "obs_leaf_mass_2015_se_kg_ha",
+  "obs_leaf_mass_2017_kg_ha",
+  "obs_leaf_mass_2017_se_kg_ha",
+  "obs_leaf_mass_2019_kg_ha",
+  "obs_leaf_mass_2019_se_kg_ha",
   "census_date_2011",
   "census_date_2014",
-  "census_interval_years",
-  "obs_stem_increment_kg_ha_yr"
+  "census_date_2015",
+  "census_date_2017",
+  "census_date_2019",
+  "census_2011_2014_interval_years",
+  "census_2014_2015_interval_years",
+  "census_2015_2017_interval_years",
+  "census_2017_2019_interval_years",
+  "obs_stem_increment_2011_2014_kg_ha_yr",
+  "obs_stem_increment_2014_2015_kg_ha_yr",
+  "obs_stem_increment_2015_2017_kg_ha_yr",
+  "obs_stem_increment_2017_2019_kg_ha_yr"
 )
 
 plot_summary <- plot_summary[, variables]

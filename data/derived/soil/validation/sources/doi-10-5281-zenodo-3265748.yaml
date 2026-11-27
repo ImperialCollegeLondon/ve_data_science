@@ -1,0 +1,36 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-3265748
+doi: 10.5281/zenodo.3265748
+screening:
+  decision: exclude
+  reason: no_relevant_variables
+  notes: ''
+  screened_at: '2026-11-18T08:34:48Z'
+metadata:
+  title: Invertebrate activity data from an experiment in Malaysian Borneo, 2014-16
+    [HMTF]
+  authors:
+  - Griffiths, Hannah M.
+  - Ashton, Louise A
+  - Walker, Alice E
+  - Hasan, Fevziye
+  - Evans, Theodore
+  - Eggleton, Paul
+  - Parr, Catherine L
+  - Vairappan, Charles
+  year: 2019
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/3265748
+  keywords:
+  - Animal behaviour
+  - Ants
+  - Fortnightly
+  - Invertebrates
+  - HMTF
+  - Human-modified tropical forest
+  - Malaysian Borneo
+  - SAFE project
+  - Maliau basin
+  provider: doi_content_search
+  retrieved_at: '2026-11-18T08:34:07Z'

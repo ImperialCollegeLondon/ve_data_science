@@ -5,7 +5,7 @@
 #|   Compares observed plot-level tree standing carbon mass with Virtual
 #|   Ecosystem cell-level stem and foliage carbon mass for Maliau-2. Each
 #|   comparison row represents one observed plot, one overlapping VE cell,
-#|   and one actual census date.
+#|   and one census date (2011, 2014, 2015, 2017, or 2019).
 #|
 #| virtual_ecosystem_module:
 #|   - Plant
@@ -13,12 +13,14 @@
 #| author:
 #|   - Arne Scheire
 #|
-#| status: wip
+#| status: final
 #|
 #| input_files:
 #|   - name: tree_standing_carbon_mass_maliau.csv
 #|     path: data/derived/plant/output_data/validation/observed_data_processing
-#|     description: Observed plot carbon mass, coordinates, and census dates.
+#|     description: |
+#|       Observed plot stem and leaf carbon mass, coordinates, and census dates
+#|       for 2011, 2014, 2015, 2017, and 2019.
 #|   - name: tree_standing_carbon_mass_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: |
@@ -36,17 +38,22 @@
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: |
 #|       Row-level observed and predicted stem and foliage carbon mass
-#|       comparisons for each plot-cell-date combination, including explicit
-#|       spatial and temporal aggregation status.
+#|       comparisons for each plot-cell-census-date combination across the
+#|       2011, 2014, 2015, 2017, and 2019 censuses, including spatial and
+#|       temporal aggregation status.
 #|   - name: maliau_2_cells_and_observed_plots.png
 #|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
 #|     description: VE cell IDs and observed plot footprints and centroids.
 #|   - name: stem_c_mass_summed_across_pfts_by_cell.png
 #|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-#|     description: Stem carbon mass trajectories for cells overlapping observed plots, with census observations.
+#|     description: |
+#|       Stem carbon mass trajectories for cells overlapping observed plots,
+#|       with observations from the 2011, 2014, 2015, 2017, and 2019 censuses.
 #|   - name: foliage_c_mass_summed_across_pfts_by_cell.png
 #|     path: data/derived/plant/output_data/validation/comparisons/comparisons_figures_maliau_2
-#|     description: Foliage carbon mass trajectories for cells overlapping observed plots, with census observations.
+#|     description: |
+#|       Foliage carbon mass trajectories for cells overlapping observed plots,
+#|       with observations from the 2011, 2014, 2015, 2017, and 2019 censuses.
 #|
 #| package_dependencies:
 #|   - data.table
@@ -95,6 +102,9 @@ site_definition <- grid_definition$Scenario$maliau_2
 
 observed_data[, census_date_2011 := as.Date(census_date_2011)]
 observed_data[, census_date_2014 := as.Date(census_date_2014)]
+observed_data[, census_date_2015 := as.Date(census_date_2015)]
+observed_data[, census_date_2017 := as.Date(census_date_2017)]
+observed_data[, census_date_2019 := as.Date(census_date_2019)]
 predicted_data <- unique(
   predicted_data[, .(
     cell_id,
@@ -226,6 +236,9 @@ for (tissue_column in names(tissue_plots)) {
   }
   observed_2011 <- observed_data[[paste0(observed_prefix, "_2011_kg_ha")]]
   observed_2014 <- observed_data[[paste0(observed_prefix, "_2014_kg_ha")]]
+  observed_2015 <- observed_data[[paste0(observed_prefix, "_2015_kg_ha")]]
+  observed_2017 <- observed_data[[paste0(observed_prefix, "_2017_kg_ha")]]
+  observed_2019 <- observed_data[[paste0(observed_prefix, "_2019_kg_ha")]]
   first_cell_mass_kg_ha <-
     plot_cell_mass_kg_ha[cell_id == plot_cell_ids[1]]
   plot(
@@ -233,7 +246,14 @@ for (tissue_column in names(tissue_plots)) {
     first_cell_mass_kg_ha[[tissue_column]],
     type = "l",
     ylim = range(
-      c(plot_cell_mass_kg_ha[[tissue_column]], observed_2011, observed_2014),
+      c(
+        plot_cell_mass_kg_ha[[tissue_column]],
+        observed_2011,
+        observed_2014,
+        observed_2015,
+        observed_2017,
+        observed_2019
+      ),
       na.rm = TRUE
     ),
     col = cell_colours[1],
@@ -252,12 +272,7 @@ for (tissue_column in names(tissue_plots)) {
       lwd = 0.6
     )
   }
-  points(
-    observed_data$census_date_2011,
-    observed_2011,
-    pch = 16,
-    col = "black"
-  )
+  points(observed_data$census_date_2011, observed_2011, pch = 16, col = "black")
   text(
     observed_data$census_date_2011,
     observed_2011,
@@ -265,23 +280,48 @@ for (tissue_column in names(tissue_plots)) {
     pos = 4,
     cex = 0.65
   )
-  points(
-    observed_data$census_date_2014,
-    observed_2014,
-    pch = 17,
-    col = "black"
-  )
+  points(observed_data$census_date_2014, observed_2014, pch = 17, col = "black")
   text(
     observed_data$census_date_2014,
     observed_2014,
+    labels = observed_data$PlotID,
+    pos = 4,
+    cex = 0.65
+  )
+  points(observed_data$census_date_2015, observed_2015, pch = 15, col = "black")
+  text(
+    observed_data$census_date_2015,
+    observed_2015,
+    labels = observed_data$PlotID,
+    pos = 4,
+    cex = 0.65
+  )
+  points(observed_data$census_date_2017, observed_2017, pch = 18, col = "black")
+  text(
+    observed_data$census_date_2017,
+    observed_2017,
+    labels = observed_data$PlotID,
+    pos = 4,
+    cex = 0.65
+  )
+  points(observed_data$census_date_2019, observed_2019, pch = 8, col = "black")
+  text(
+    observed_data$census_date_2019,
+    observed_2019,
     labels = observed_data$PlotID,
     pos = 4,
     cex = 0.65
   )
   legend(
     "topright",
-    legend = c("Observed 2011", "Observed 2014"),
-    pch = c(16, 17),
+    legend = c(
+      "Observed 2011",
+      "Observed 2014",
+      "Observed 2015",
+      "Observed 2017",
+      "Observed 2019"
+    ),
+    pch = c(16, 17, 15, 18, 8),
     col = "black",
     bty = "n"
   )

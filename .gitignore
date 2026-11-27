@@ -12,6 +12,7 @@
 *.txt
 *.rds
 *.RData
+*.[zZ][iI][pP]
 
 # Primary data
 data/primary/*
@@ -22,7 +23,14 @@ data/primary/*
 data/derived/plant/**/*.csv
 data/derived/troubleshoot/runtime_per_cell/*.png
 data/derived/soil/necromass/li_et_al_2023.csv
-data/derived/soil/llm/soil_constant_usage.toml
+data/derived/soil/llm/ve_constant_usage_exploratory.toml
+data/derived/soil/llm/soil_code_chunks.jsonl
+data/derived/soil/llm/soil_constant_literature_values.csv
+data/derived/soil/llm/full_text
+data/derived/soil/llm/full_text/**
+!data/derived/soil/llm/full_text/
+!data/derived/soil/llm/full_text/README.md
+data/derived/soil/llm/*csv
 data/derived/litter/stock/litter_stock.csv
 *.duckdb
 analysis/troubleshoot/cnp_ratios/*png
@@ -31,6 +39,9 @@ data/derived/soil/spatial_model
 data/derived/soil/fungi_stoichiometry/sporocarp_CNP.csv
 data/derived/soil/validation/literature_search/results.csv
 data/derived/soil/validation/datasets/nottingham_2021/*.csv
+
+/.github/skills/ve-constant-search/sources/**
+!/.github/skills/ve-constant-search/sources/manifest.csv
 
 # MkDocs build output
 /site/

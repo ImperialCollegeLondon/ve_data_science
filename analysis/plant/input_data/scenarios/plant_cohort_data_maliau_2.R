@@ -98,7 +98,7 @@
 #|
 #| output_files:
 #|   - name: cohort_data_10_cm_maliau_2.csv
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: |
 #|       Spatially predicted PFT cohort distribution for individuals with DBH
 #|       greater than 10 cm.
@@ -212,7 +212,7 @@
 #|           grid cell; plot-level variation in cohort composition is not
 #|           modelled separately.
 #|   - name: cohort_data_1_cm_maliau_2.csv
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: |
 #|       Cohorts below the 10 cm census threshold are estimated from the
 #|       difference between modelled total basal area for stems at or above 1 cm
@@ -1024,14 +1024,14 @@ cohort_data_10_cm_maliau_2$plant_cohorts_n <- round(
 )
 
 dir.create(
-  "../../../../data/scenarios/maliau/maliau_2/data",
+  "../../../../data/scenarios/maliau/maliau_2/data/main",
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 write.csv(
   cohort_data_10_cm_maliau_2,
-  "../../../../data/scenarios/maliau/maliau_2/data/cohort_data_10_cm_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/main/cohort_data_10_cm_maliau_2.csv",
   row.names = FALSE
 )
 
@@ -1212,14 +1212,14 @@ cohort_data_1_cm_maliau_2$plant_cohorts_n <- round(
 )
 
 dir.create(
-  "../../../../data/scenarios/maliau/maliau_2/data",
+  "../../../../data/scenarios/maliau/maliau_2/data/main",
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 write.csv(
   cohort_data_1_cm_maliau_2,
-  "../../../../data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/main/cohort_data_1_cm_maliau_2.csv",
   row.names = FALSE
 )
 
