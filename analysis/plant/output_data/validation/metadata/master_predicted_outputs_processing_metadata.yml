@@ -1,6 +1,6 @@
 title: master_predicted_outputs_processing_metadata
 generated_by: analysis/plant/output_data/validation/predicted_outputs_processing/master_predicted_outputs_processing.R
-generated_on: '2026-11-24'
+generated_on: '2026-11-27'
 scripts:
 - script_path: gpp_and_npp_maliau_2.R
   title: gpp_and_npp_maliau_2
@@ -983,3 +983,412 @@ scripts:
     rows without whole_crown_gpp are excluded before cohort aggregation to avoid
     double-counting timestep zero. Observed data census dates (2015, 2017, 2019)
     are parsed and available for plot-level diagnostic comparisons.
+- script_path: total_tree_standing_carbon_mass_maliau_2.R
+  title: total_tree_standing_carbon_mass_maliau_2
+  description: |
+    This script calculates Virtual Ecosystem total standing stem and foliage carbon
+    mass for every Maliau-2 grid cell and model timestep. Cohort-level biomass
+    is multiplied by cohort abundance, summed across cohorts, and standardised
+    to kg C ha-1.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: plants_cohort_data.csv
+    path: data/scenarios/maliau/maliau_2/out
+    description: |
+      Virtual Ecosystem plant cohort biomass, abundance, cell identifiers,
+      and timesteps.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid geometry, cell IDs, and cell resolution.
+  - name: compiled_configuration.toml
+    path: data/scenarios/maliau/maliau_2/out
+    description: Simulation start date and update interval.
+  - name: tree_standing_carbon_mass_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Observed plot data used for diagnostic figures only.
+  output_files:
+  - name: total_tree_standing_carbon_mass_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      Per-cell total and per-PFT total standing stem and foliage carbon mass for
+      each timestep. Total masses repeat across the PFT rows for each cell
+      and timestep.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Each model timestep.
+      description: Zero-based Virtual Ecosystem cell identifier.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      temporal_extent: ~
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      temporal_extent: ~
+      description: Cell centre northing in the grid CRS.
+    - name: timestep_end_date
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: End date of the model timestep.
+    - name: timestep_start_date
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Start of the model timestep.
+      description: Start date of the model timestep.
+    - name: time_index
+      type: integer
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Model timestep index.
+      description: Zero-based Virtual Ecosystem timestep index.
+    - name: stem_c_mass_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Total standing stem carbon mass across PFTs, repeated on each PFT
+        row.
+    - name: foliage_c_mass_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Total standing foliage carbon mass across PFTs, repeated on each
+        PFT row.
+    - name: pft_name
+      type: character
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Plant functional type for the per-PFT mass fields.
+    - name: stem_c_mass_per_pft_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Standing stem carbon mass per hectare for pft_name.
+    - name: foliage_c_mass_per_pft_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Standing foliage carbon mass per hectare for pft_name.
+    - name: units
+      type: character
+      units: dimensionless
+      spatial_extent: All output rows.
+      temporal_extent: ~
+      description: Units for the standing carbon mass fields.
+  package_dependencies:
+  - data.table
+  - sf
+  - toml
+  - reticulate
+  usage_notes: |
+    Initialisation rows without whole_crown_gpp are excluded before cohort
+    aggregation to avoid double-counting timestep zero.
+- script_path: mortality_maliau_2.R
+  title: mortality_maliau_2
+  description: |
+    This script calculates Virtual Ecosystem tree mortality for every Maliau-2
+    grid cell and model timestep for initial cohorts only (trees present at
+    simulation start, dbh > 0.002 m). Cohort-level mortality (count and
+    fraction of initial trees) is standardised to per hectare and per year.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: plants_cohort_data.csv
+    path: data/scenarios/maliau/maliau_2/out
+    description: |
+      Virtual Ecosystem plant cohort data including cohort identifiers, cell
+      coordinates (cell_x, cell_y), plant functional types, DBH values,
+      abundance, crown GPP, and timesteps.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid geometry, cell IDs, and cell resolution.
+  - name: compiled_configuration.toml
+    path: data/scenarios/maliau/maliau_2/out
+    description: Simulation start date and update interval.
+  - name: mortality_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: |
+      One summary record per selected OG plot in Maliau-2, including
+      interval mortality counts, annualised counts per hectare, and
+      annualised fractions of the initial 2011 tree cohort.
+  output_files:
+  - name: mortality_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      Initial-cohort records by cell and model timestep, including annualised
+      mortality counts and fractions. Cell-level summaries are repeated across
+      the relevant cohort rows. Census-period summaries are filled only on
+      rows whose timestep falls within that period and are missing elsewhere;
+      plot fields are missing for cells without a matched observed plot.
+    variables:
+    - name: cell_id
+      type: integer
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Each model timestep.
+      description: Zero-based Virtual Ecosystem cell identifier.
+    - name: cell_x
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      temporal_extent: ~
+      description: Cell centre easting in the grid CRS.
+    - name: cell_y
+      type: numeric
+      units: m
+      spatial_extent: Cell centre.
+      temporal_extent: ~
+      description: Cell centre northing in the grid CRS.
+    - name: cohort_id
+      type: character
+      units: dimensionless
+      spatial_extent: Individual cohort within a cell.
+      temporal_extent: ~
+      description: Virtual Ecosystem identifier for the plant cohort.
+    - name: timestep_start_date
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Start date of the model timestep.
+    - name: timestep_end_date
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: End date of the model timestep.
+    - name: time_index
+      type: integer
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Model timestep index.
+      description: Zero-based Virtual Ecosystem timestep index.
+    - name: pft_name
+      type: character
+      units: dimensionless
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Plant functional type for the per-PFT mass fields.
+    - name: time
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: Source model time value for this cohort record.
+    - name: n_individuals
+      type: numeric
+      units: count
+      spatial_extent: Individual cohort within a cell.
+      temporal_extent: Exact model timestep.
+      description: Number of individuals represented by the cohort.
+    - name: whole_crown_gpp
+      type: numeric
+      units: ~
+      spatial_extent: Individual cohort within a cell.
+      temporal_extent: Exact model timestep.
+      description: Whole-crown gross primary productivity from the source data.
+    - name: dbh_value
+      type: numeric
+      units: m
+      spatial_extent: Individual cohort within a cell.
+      temporal_extent: Exact model timestep.
+      description: DBH value used to identify initial cohorts.
+    - name: dbh
+      type: numeric
+      units: ~
+      spatial_extent: Individual cohort within a cell.
+      temporal_extent: Exact model timestep.
+      description: DBH field from the source cohort data.
+    - name: cohort_mortality_count
+      type: numeric
+      units: count
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: |
+        Mortality count for each of the initial cohorts (new recruits are
+        excluded), for each cell and each timestep.
+    - name: mortality_count
+      type: numeric
+      units: count
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: |
+        Total mortality count across PFTs, for each cell and each timestep.
+    - name: mortality_count_per_pft
+      type: numeric
+      units: count
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Exact model timestep.
+      description: |
+        Mortality count per pft_name, for each cell and each timestep.
+    - name: mortality_count_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
+      temporal_extent: Annualised model timestep.
+      description: |
+        Total annualised mortality count across PFTs, standardised to per
+        hectare, for each cell and each timestep.
+    - name: mortality_fraction_yr
+      type: numeric
+      units: year-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: Annualised model timestep.
+      description: |
+        Total annualised mortality fraction across PFTs, for each cell and
+        each timestep.
+    - name: PlotID
+      type: character
+      units: dimensionless
+      spatial_extent: Matched observed plot, if present.
+      temporal_extent: ~
+      description: Observed plot matched to the cell; NA when unmatched.
+    - name: Date_2011
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Matched observed plot, if present.
+      temporal_extent: 2011 census date.
+      description: Plot-specific 2011 census date.
+    - name: Date_2014
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Matched observed plot, if present.
+      temporal_extent: 2014 census date.
+      description: Plot-specific 2014 census date.
+    - name: Date_2015
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Matched observed plot, if present.
+      temporal_extent: 2015 census date.
+      description: Plot-specific 2015 census date.
+    - name: Date_2017
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Matched observed plot, if present.
+      temporal_extent: 2017 census date.
+      description: Plot-specific 2017 census date.
+    - name: Date_2019
+      type: date
+      units: ISO 8601 date
+      spatial_extent: Matched observed plot, if present.
+      temporal_extent: 2019 census date.
+      description: Plot-specific 2019 census date.
+    - name: mortality_count_11_14_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2011 and Date_2014.
+      description: |
+        Total annualised mortality count across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2011
+        and Date_2014, standardised to per hectare.
+    - name: mortality_fraction_11_14_yr
+      type: numeric
+      units: year-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2011 and Date_2014.
+      description: |
+        Total annualised mortality fraction across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2011
+        and Date_2014.
+    - name: mortality_count_14_15_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2014 and Date_2015.
+      description: |
+        Total annualised mortality count across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2014
+        and Date_2015, standardised to per hectare.
+    - name: mortality_fraction_14_15_yr
+      type: numeric
+      units: year-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2014 and Date_2015.
+      description: |
+        Total annualised mortality fraction across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2014
+        and Date_2015.
+    - name: mortality_count_15_17_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2015 and Date_2017.
+      description: |
+        Total annualised mortality count across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2015
+        and Date_2017, standardised to per hectare.
+    - name: mortality_fraction_15_17_yr
+      type: numeric
+      units: year-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2015 and Date_2017.
+      description: |
+        Total annualised mortality fraction across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2015
+        and Date_2017.
+    - name: mortality_count_17_19_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2017 and Date_2019.
+      description: |
+        Total annualised mortality count across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2017
+        and Date_2019, standardised to per hectare.
+    - name: mortality_fraction_17_19_yr
+      type: numeric
+      units: year-1
+      spatial_extent: Single Maliau-2 grid cell.
+      temporal_extent: |
+        Annualised, pooled model timesteps, matching the interval between
+        observed census Date_2017 and Date_2019.
+      description: |
+        Total annualised mortality fraction across PFTs for pooled model
+        timesteps matching the interval between observed census Date_2017
+        and Date_2019.
+  package_dependencies:
+  - data.table
+  - sf
+  - toml
+  - reticulate
+  usage_notes: |
+    Only initial cohorts are retained (timestep 0, dbh > 0.002 m) to match the
+    validation dataset which comprises only 2011 census trees. Initialisation
+    rows without whole_crown_gpp are excluded before cohort aggregation to avoid
+    double-counting timestep zero. Observed data census dates (2015, 2017, 2019)
+    are parsed and available for plot-level diagnostic comparisons.
+    Census-interval values pool every model timestep from the one containing
+    the start census date to the one containing the end census date, and are
+    annualised by the duration of those timesteps rather than by the difference
+    between census dates.

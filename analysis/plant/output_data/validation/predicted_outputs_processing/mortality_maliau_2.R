@@ -128,36 +128,39 @@
 #|         units: count
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Exact model timestep.
-#|         description: Mortality count for each of the initial cohorts (new
-#|         recruits are excluded), for each cell and each timestep.
+#|         description: |
+#|           Mortality count for each of the initial cohorts (new recruits are
+#|           excluded), for each cell and each timestep.
 #|       - name: mortality_count
 #|         type: numeric
 #|         units: count
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Exact model timestep.
-#|         description: Total mortality count across PFTs, for each cell and each
-#|         timestep.
+#|         description: |
+#|           Total mortality count across PFTs, for each cell and each timestep.
 #|       - name: mortality_count_per_pft
 #|         type: numeric
 #|         units: count
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Exact model timestep.
-#|         description: Mortality count per pft_name, for each cell and each
-#|         timestep.
+#|         description: |
+#|           Mortality count per pft_name, for each cell and each timestep.
 #|       - name: mortality_count_ha_yr
 #|         type: numeric
 #|         units: count ha-1 year-1
 #|         spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
 #|         temporal_extent: Annualised model timestep.
-#|         description: Total annualised mortality count across PFTs,
-#|         standardised to per hectare, for each cell and each timestep.
+#|         description: |
+#|           Total annualised mortality count across PFTs, standardised to per
+#|           hectare, for each cell and each timestep.
 #|       - name: mortality_fraction_yr
 #|         type: numeric
 #|         units: year-1
 #|         spatial_extent: Single Maliau-2 grid cell.
 #|         temporal_extent: Annualised model timestep.
-#|         description: Total annualised mortality fraction across PFTs,
-#|         for each cell and each timestep.
+#|         description: |
+#|           Total annualised mortality fraction across PFTs, for each cell and
+#|           each timestep.
 #|       - name: PlotID
 #|         type: character
 #|         units: dimensionless
@@ -198,74 +201,90 @@
 #|         type: numeric
 #|         units: count ha-1 year-1
 #|         spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2011 and Date_2014.
-#|         description: Total annualised mortality count across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2011
-#|         and Date_2014, standardised to per hectare.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2011 and Date_2014.
+#|         description: |
+#|           Total annualised mortality count across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2011
+#|           and Date_2014, standardised to per hectare.
 #|       - name: mortality_fraction_11_14_yr
 #|         type: numeric
 #|         units: year-1
 #|         spatial_extent: Single Maliau-2 grid cell.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2011 and Date_2014.
-#|         description: Total annualised mortality fraction across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2011
-#|         and Date_2014.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2011 and Date_2014.
+#|         description: |
+#|           Total annualised mortality fraction across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2011
+#|           and Date_2014.
 #|       - name: mortality_count_14_15_ha_yr
 #|         type: numeric
 #|         units: count ha-1 year-1
 #|         spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2014 and Date_2015.
-#|         description: Total annualised mortality count across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2014
-#|         and Date_2015, standardised to per hectare.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2014 and Date_2015.
+#|         description: |
+#|           Total annualised mortality count across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2014
+#|           and Date_2015, standardised to per hectare.
 #|       - name: mortality_fraction_14_15_yr
 #|         type: numeric
 #|         units: year-1
 #|         spatial_extent: Single Maliau-2 grid cell.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2014 and Date_2015.
-#|         description: Total annualised mortality fraction across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2014
-#|         and Date_2015.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2014 and Date_2015.
+#|         description: |
+#|           Total annualised mortality fraction across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2014
+#|           and Date_2015.
 #|       - name: mortality_count_15_17_ha_yr
 #|         type: numeric
 #|         units: count ha-1 year-1
 #|         spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2015 and Date_2017.
-#|         description: Total annualised mortality count across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2015
-#|         and Date_2017, standardised to per hectare.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2015 and Date_2017.
+#|         description: |
+#|           Total annualised mortality count across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2015
+#|           and Date_2017, standardised to per hectare.
 #|       - name: mortality_fraction_15_17_yr
 #|         type: numeric
 #|         units: year-1
 #|         spatial_extent: Single Maliau-2 grid cell.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2015 and Date_2017.
-#|         description: Total annualised mortality fraction across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2015
-#|         and Date_2017.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2015 and Date_2017.
+#|         description: |
+#|           Total annualised mortality fraction across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2015
+#|           and Date_2017.
 #|       - name: mortality_count_17_19_ha_yr
 #|         type: numeric
 #|         units: count ha-1 year-1
 #|         spatial_extent: Single Maliau-2 grid cell, standardised to one hectare.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2017 and Date_2019.
-#|         description: Total annualised mortality count across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2017
-#|         and Date_2019, standardised to per hectare.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2017 and Date_2019.
+#|         description: |
+#|           Total annualised mortality count across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2017
+#|           and Date_2019, standardised to per hectare.
 #|       - name: mortality_fraction_17_19_yr
 #|         type: numeric
 #|         units: year-1
 #|         spatial_extent: Single Maliau-2 grid cell.
-#|         temporal_extent: Annualised, pooled model timesteps, matching the
-#|         interval between observed census Date_2017 and Date_2019.
-#|         description: Total annualised mortality fraction across PFTs for pooled
-#|         model timesteps matching the interval between observed census Date_2017
-#|         and Date_2019.
+#|         temporal_extent: |
+#|           Annualised, pooled model timesteps, matching the interval between
+#|           observed census Date_2017 and Date_2019.
+#|         description: |
+#|           Total annualised mortality fraction across PFTs for pooled model
+#|           timesteps matching the interval between observed census Date_2017
+#|           and Date_2019.
 #|
 #| package_dependencies:
 #|   - data.table

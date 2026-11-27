@@ -1,6 +1,6 @@
 title: master_comparisons_metadata
 generated_by: analysis/plant/output_data/validation/comparisons/master_comparisons.R
-generated_on: '2026-11-24'
+generated_on: '2026-11-27'
 scripts:
 - script_path: gpp_and_npp_comparison_maliau_2.R
   title: gpp_and_npp_comparison_maliau_2
@@ -242,3 +242,97 @@ scripts:
     footprint. These repeated comparison rows are not independent observations.
     Aggregation status is exact when rows retain one plot/cell and census/
     timestep unit; exact does not necessarily mean exact equal coordinates or dates.
+- script_path: total_tree_standing_carbon_mass_comparison_maliau_2.R
+  title: total_tree_standing_carbon_mass_comparison_maliau_2
+  description: |
+    Compares observed total plot-level tree standing carbon mass for the 2014
+    census with Virtual Ecosystem cell-level total stem and foliage carbon mass
+    for Maliau-2. Each row represents one plot, one overlapping VE cell, and
+    one matched model timestep.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: total_tree_standing_carbon_mass_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: Total observed stem and leaf mass and plot data for 2014.
+  - name: total_tree_standing_carbon_mass_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      VE cell-time total standing carbon mass, including all cohorts and
+      recruits. Repeated totals are reduced to one cell-time row.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid geometry and cell dimensions.
+  output_files:
+  - name: total_tree_standing_carbon_mass_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      Observed and predicted total stem and leaf carbon mass comparisons
+      for the 2014 census, with spatial and temporal aggregation status.
+  package_dependencies:
+  - data.table
+  - sf
+  - toml
+  usage_notes: |
+    Observed plot values are repeated for every VE cell intersecting the plot
+    footprint. These repeated comparison rows are not independent observations.
+    The comparison uses the 2014 total tree population, including recruits,
+    and matches each plot census date to its containing model timestep.
+- script_path: mortality_comparison_maliau_2.R
+  title: mortality_comparison_maliau_2
+  description: |
+    Compares observed plot-level tree mortality with Virtual Ecosystem
+    cell-level tree mortality for Maliau-2. Annualised mortality counts per
+    hectare and annualised mortality fractions of the initial trees are
+    compared for four census periods (2011-2014, 2014-2015, 2015-2017, and
+    2017-2019). Each comparison row represents one observed plot, one
+    overlapping VE cell, and one mapped variable for one census period.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: mortality_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: |
+      Observed plot mortality counts and fractions per census period, plot
+      coordinates, and census dates for 2011, 2014, 2015, 2017, and 2019.
+  - name: mortality_maliau_2.csv
+    path: data/derived/plant/output_data/validation/predicted_outputs_processing
+    description: |
+      VE initial-cohort records by cell and timestep. Census-period mortality
+      counts and fractions are filled only on rows whose timestep falls
+      within that period, and are reduced to one row per cell and plot for
+      comparison.
+  - name: mortality_mapping_maliau_2.yml
+    path: analysis/plant/output_data/validation/variable_mapping
+    description: Observed-to-predicted variable and date mappings.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid geometry and cell dimensions.
+  output_files:
+  - name: mortality_comparison_maliau_2.csv
+    path: data/derived/plant/output_data/validation/comparisons
+    description: |
+      Row-level observed and predicted mortality count and fraction
+      comparisons for each plot-cell-period combination, including the
+      observed census dates, the predicted timestep span, and spatial and
+      temporal aggregation status.
+  package_dependencies:
+  - data.table
+  - sf
+  - toml
+  - yaml
+  usage_notes: |
+    Run the predicted processing script first so that mortality_maliau_2.csv
+    contains timestep_start_date and period values filled only within each
+    census period. Observed and predicted values are linked by PlotID; the
+    census periods are matched in the predicted processing, not by date here.
+    The census period and observed census date columns are derived from the
+    mapped variable names. The predicted file links each cell to a single
+    plot, so an observed plot without a predicted match is dropped.
+    Spatial aggregation is exact because rows retain one plot and one cell.
+    Predicted temporal aggregation is pooled because each period value sums
+    deaths over all model timesteps in the period. The observed SE and
+    predicted SD columns are kept but empty, as neither input has an
+    uncertainty variable for mortality.
