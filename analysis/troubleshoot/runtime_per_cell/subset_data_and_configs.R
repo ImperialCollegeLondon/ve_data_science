@@ -26,10 +26,10 @@
 #|     path: data/scenarios/maliau/maliau_2/data
 #|     description: Plant functional type definitions
 #|   - name: soil_maliau.nc
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: Soil input data
 #|   - name: litter_maliau.nc
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: Litter input data
 #|   - name: elevation_maliau_10x10.nc
 #|     path: data/scenarios/maliau/maliau_2/data
@@ -167,7 +167,7 @@ file.copy(paste0(copy_dir, files_to_copy), paste_dir)
 for (j in seq_along(ur_y)) {
   # soil data
   subset_nc(
-    nc = "data/scenarios/maliau/maliau_2/data/soil_maliau.nc",
+    nc = "data/scenarios/maliau/maliau_2/data/main/soil_maliau.nc",
     ll_x = ll_x,
     ll_y = ll_y,
     ur_x = ur_x,
@@ -181,7 +181,7 @@ for (j in seq_along(ur_y)) {
 
   # litter data
   subset_nc(
-    nc = "data/scenarios/maliau/maliau_2/data/litter_maliau.nc",
+    nc = "data/scenarios/maliau/maliau_2/data/main/litter_maliau.nc",
     ll_x = ll_x,
     ll_y = ll_y,
     ur_x = ur_x,

@@ -1,0 +1,138 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/copilot-setup-steps.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+      - 'renv.lock'
+      - 'renv/activate.R'
+      - 'renv/settings.json'
+      - '.Rprofile'
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 59
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          enable-cache: true
+
+      - name: Install locked Python dependencies with the pinned pilot VE
+        run: uv sync --locked --group dev-pinned
+
+      - name: Check out matching pinned Virtual Ecosystem source
+        shell: bash
+        run: |
+          set -euo pipefail
+          ve_commit="$(uv run --no-sync python -c '
+          import tomllib
+          from pathlib import Path
+          sources = tomllib.loads(Path("pyproject.toml").read_text())["tool"]["uv"]["sources"]["virtual-ecosystem"]
+          print(next(source["rev"] for source in sources if source.get("group") == "dev-pinned"))
+          ')"
+          ve_root="$(dirname "$GITHUB_WORKSPACE")/virtual_ecosystem"
+          if [[ -e "$ve_root" ]]; then
+            echo "VE source checkout already exists: $ve_root" >&2
+            exit 1
+          fi
+          git init -q "$ve_root"
+          git -C "$ve_root" remote add origin \
+            https://github.com/ImperialCollegeLondon/virtual_ecosystem.git
+          git -C "$ve_root" fetch --quiet --depth 1 origin "$ve_commit"
+          git -C "$ve_root" checkout --quiet --detach FETCH_HEAD
+          if [[ "$(git -C "$ve_root" rev-parse HEAD)" != "$ve_commit" ]]; then
+            echo "VE checkout does not match the pilot pin" >&2
+            exit 1
+          fi
+          VE_ROOT="$ve_root" uv run --no-sync python -c '
+          import hashlib
+          import os
+          from pathlib import Path
+
+          import virtual_ecosystem
+
+          def digests(root):
+              return {
+                  path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in root.rglob("*.py")
+              }
+
+          installed = Path(virtual_ecosystem.__file__).parent
+          source = Path(os.environ["VE_ROOT"], "virtual_ecosystem")
+          if digests(installed) != digests(source):
+              raise ValueError("Installed VE does not match the pinned source")
+          '
+          echo "Prepared VE source at $ve_commit"
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - name: Install system dependencies for R packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            gdal-bin \
+            libabsl-dev \
+            libclang-dev \
+            libcurl4-openssl-dev \
+            libfftw3-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libgdal-dev \
+            libgeos-dev \
+            libicu-dev \
+            libnetcdf-dev \
+            libnode-dev \
+            libpng-dev \
+            libproj-dev \
+            libssl-dev \
+            libtbb-dev \
+            libudunits2-dev \
+            libx11-dev \
+            libzmq3-dev \
+            make \
+            pandoc
+
+      - name: Restore locked R dependencies
+        uses: r-lib/actions/setup-renv@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2
+        with:
+          cache-version: 1
+        env:
+          RENV_INSTALL_TEST_LOAD: 'FALSE'
+
+      - name: Configure reticulate Python
+        run:
+          echo "RETICULATE_PYTHON=$GITHUB_WORKSPACE/.venv/bin/python" >>
+          "$GITHUB_ENV"
+
+      - name: Verify R and Python integration
+        shell: Rscript {0}
+        run: |
+          print(R.version.string)
+          for (package in c("here", "testthat", "reticulate")) {
+            if (!requireNamespace(package, quietly = TRUE)) {
+              stop("Missing R package: ", package)
+            }
+          }
+          python <- reticulate::py_config()$python
+          stopifnot(
+            normalizePath(python) ==
+              normalizePath(Sys.getenv("RETICULATE_PYTHON"))
+          )

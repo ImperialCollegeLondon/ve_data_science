@@ -98,16 +98,16 @@
 #|
 #| output_files:
 #|   - name: cohort_data_10_cm_maliau_2.csv
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: |
 #|       Spatially predicted PFT cohort distribution for individuals with DBH
 #|       greater than 10 cm.
 #|     variables:
-#|       - name: plant_cohorts_cell_id
-#|         type: integer
-#|         units: dimensionless
+#|       - name: plant_cohorts_x
+#|         type: numeric
+#|         units: m
 #|         description: |
-#|           Identifier of the scenario grid cell.
+#|           Easting coordinate of the scenario grid-cell centre.
 #|         references:
 #|           - citation: "maliau_grid_definition.toml"
 #|             doi: null
@@ -118,7 +118,25 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: |
-#|           Cell identifiers are inherited from the scenario grid definition.
+#|           Coordinates are inherited from the scenario grid definition and
+#|           use its projected coordinate reference system.
+#|       - name: plant_cohorts_y
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Northing coordinate of the scenario grid-cell centre.
+#|         references:
+#|           - citation: "maliau_grid_definition.toml"
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: |
+#|           Coordinates are inherited from the scenario grid definition and
+#|           use its projected coordinate reference system.
 #|       - name: plant_cohorts_pft
 #|         type: character
 #|         units: dimensionless
@@ -194,7 +212,7 @@
 #|           grid cell; plot-level variation in cohort composition is not
 #|           modelled separately.
 #|   - name: cohort_data_1_cm_maliau_2.csv
-#|     path: data/scenarios/maliau/maliau_2/data
+#|     path: data/scenarios/maliau/maliau_2/data/main
 #|     description: |
 #|       Cohorts below the 10 cm census threshold are estimated from the
 #|       difference between modelled total basal area for stems at or above 1 cm
@@ -203,11 +221,11 @@
 #|       5–10 cm size-class fractions, then allocated across PFTs using cell-level
 #|       PFT abundance.
 #|     variables:
-#|       - name: plant_cohorts_cell_id
-#|         type: integer
-#|         units: dimensionless
+#|       - name: plant_cohorts_x
+#|         type: numeric
+#|         units: m
 #|         description: |
-#|           Identifier of the scenario grid cell.
+#|           Easting coordinate of the scenario grid-cell centre.
 #|         references:
 #|           - citation: "maliau_grid_definition.toml"
 #|             doi: null
@@ -218,7 +236,25 @@
 #|             site_condition: null
 #|             date: null
 #|         assumptions: |
-#|           Cell identifiers are inherited from the scenario grid definition.
+#|           Coordinates are inherited from the scenario grid definition and
+#|           use its projected coordinate reference system.
+#|       - name: plant_cohorts_y
+#|         type: numeric
+#|         units: m
+#|         description: |
+#|           Northing coordinate of the scenario grid-cell centre.
+#|         references:
+#|           - citation: "maliau_grid_definition.toml"
+#|             doi: null
+#|             url: null
+#|             origin: null
+#|             biome: null
+#|             vegetation_type: null
+#|             site_condition: null
+#|             date: null
+#|         assumptions: |
+#|           Coordinates are inherited from the scenario grid definition and
+#|           use its projected coordinate reference system.
 #|       - name: plant_cohorts_pft
 #|         type: character
 #|         units: dimensionless
@@ -965,12 +1001,13 @@ model_output_df <- model_output_df[
 
 # Clean and save pft cohort distribution (individuals >10cm dbh)
 
-cohort_data_10_cm_maliau_2 <- model_output_df[, c(
-  "cell_id",
-  "plant_cohorts_pft",
-  "plant_cohorts_dbh",
-  "plant_cohorts_n"
-)]
+cohort_data_10_cm_maliau_2 <- data.frame(
+  plant_cohorts_x = model_output_df$x,
+  plant_cohorts_y = model_output_df$y,
+  plant_cohorts_pft = model_output_df$plant_cohorts_pft,
+  plant_cohorts_dbh = model_output_df$plant_cohorts_dbh,
+  plant_cohorts_n = model_output_df$plant_cohorts_n
+)
 
 if (any(is.na(cohort_data_10_cm_maliau_2$plant_cohorts_n))) {
   message(
@@ -986,19 +1023,15 @@ cohort_data_10_cm_maliau_2$plant_cohorts_n <- round(
   cohort_data_10_cm_maliau_2$plant_cohorts_n
 )
 
-names(cohort_data_10_cm_maliau_2)[
-  names(cohort_data_10_cm_maliau_2) == "cell_id"
-] <- "plant_cohorts_cell_id"
-
 dir.create(
-  "../../../../data/scenarios/maliau/maliau_2/data",
+  "../../../../data/scenarios/maliau/maliau_2/data/main",
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 write.csv(
   cohort_data_10_cm_maliau_2,
-  "../../../../data/scenarios/maliau/maliau_2/data/cohort_data_10_cm_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/main/cohort_data_10_cm_maliau_2.csv",
   row.names = FALSE
 )
 
@@ -1109,9 +1142,18 @@ small_dbh_rows$plant_cohorts_n <-
   small_dbh_rows$pft_fraction *
   small_dbh_fraction[small_dbh_rows$dbh_category]
 
+small_dbh_rows$x <- grid_cells$x[
+  match(small_dbh_rows$cell_id, grid_cells$cell_id)
+]
+small_dbh_rows$y <- grid_cells$y[
+  match(small_dbh_rows$cell_id, grid_cells$cell_id)
+]
+
 small_dbh_rows <- small_dbh_rows[
   c(
     "cell_id",
+    "x",
+    "y",
     "plant_cohorts_pft",
     "plant_cohorts_dbh",
     "plant_cohorts_n"
@@ -1120,7 +1162,14 @@ small_dbh_rows <- small_dbh_rows[
 
 # Append the new small-stem rows and restore the model input ordering.
 model_output_df <- model_output_df[
-  c("cell_id", "plant_cohorts_pft", "plant_cohorts_dbh", "plant_cohorts_n")
+  c(
+    "cell_id",
+    "x",
+    "y",
+    "plant_cohorts_pft",
+    "plant_cohorts_dbh",
+    "plant_cohorts_n"
+  )
 ]
 model_output_df <- rbind(
   model_output_df,
@@ -1140,12 +1189,13 @@ model_output_df <- model_output_df[
 
 # Clean and save pft cohort distribution (individuals <10cm dbh)
 
-cohort_data_1_cm_maliau_2 <- model_output_df[, c(
-  "cell_id",
-  "plant_cohorts_pft",
-  "plant_cohorts_dbh",
-  "plant_cohorts_n"
-)]
+cohort_data_1_cm_maliau_2 <- data.frame(
+  plant_cohorts_x = model_output_df$x,
+  plant_cohorts_y = model_output_df$y,
+  plant_cohorts_pft = model_output_df$plant_cohorts_pft,
+  plant_cohorts_dbh = model_output_df$plant_cohorts_dbh,
+  plant_cohorts_n = model_output_df$plant_cohorts_n
+)
 
 if (any(is.na(cohort_data_1_cm_maliau_2$plant_cohorts_n))) {
   message(
@@ -1161,19 +1211,15 @@ cohort_data_1_cm_maliau_2$plant_cohorts_n <- round(
   cohort_data_1_cm_maliau_2$plant_cohorts_n
 )
 
-names(cohort_data_1_cm_maliau_2)[
-  names(cohort_data_1_cm_maliau_2) == "cell_id"
-] <- "plant_cohorts_cell_id"
-
 dir.create(
-  "../../../../data/scenarios/maliau/maliau_2/data",
+  "../../../../data/scenarios/maliau/maliau_2/data/main",
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 write.csv(
   cohort_data_1_cm_maliau_2,
-  "../../../../data/scenarios/maliau/maliau_2/data/cohort_data_1_cm_maliau_2.csv",
+  "../../../../data/scenarios/maliau/maliau_2/data/main/cohort_data_1_cm_maliau_2.csv",
   row.names = FALSE
 )
 

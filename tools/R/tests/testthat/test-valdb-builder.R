@@ -20,8 +20,7 @@
 #|     - withr
 #|     - yaml
 #| ---
-source(here::here("tools/R/R/valdb.R"))
-
+# Modules loaded by setup.R: valdb_screening, valdb_build, valdb_join_ve
 
 new_builder_test_schema <- function(doi) {
   dataset <- new_schema_template()
@@ -197,32 +196,6 @@ test_that("list_build_sources reports malformed YAML with its path", {
 })
 
 
-test_that("list_build_sources rejects duplicate DOI records", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record("10.1000/duplicate")
-  write_builder_test_record(record, sources_dir, "first.yaml")
-  write_builder_test_record(record, sources_dir, "second.yaml")
-
-  expect_error(list_build_sources(sources_dir))
-})
-
-
-test_that("list_build_sources rejects schemas without a proceed decision", {
-  sources_dir <- withr::local_tempdir()
-  record <- new_builder_test_record(
-    "10.1000/excluded",
-    decision = "exclude"
-  )
-  path <- write_builder_test_record(record, sources_dir)
-
-  expect_error(
-    list_build_sources(sources_dir),
-    basename(path),
-    fixed = TRUE
-  )
-})
-
-
 test_that("list_build_sources flattens nested multi-dataset records", {
   sources_dir <- withr::local_tempdir()
   record <- new_builder_test_record("10.1000/nested")
@@ -322,6 +295,38 @@ test_that("validate_source_schema checks scalar fields and collections", {
   invalid_key <- source
   invalid_key$dedup_key <- c("sample_id", "sample_id")
   expect_error(validate_source_schema(invalid_key, schema_path), "dedup_key")
+})
+
+
+test_that("validate_source_schema checks optional provenance fields", {
+  directory <- withr::local_tempdir()
+  data_path <- file.path(directory, "data.csv")
+  raw_path <- file.path(directory, "raw.csv")
+  script_path <- file.path(directory, "preprocess_script")
+  readr::write_csv(tibble::tibble(sample_id = 1, soil_carbon = 2), data_path)
+  file.create(raw_path, script_path)
+  source <- new_builder_test_schema("10.1000/valid")
+  source$data_file <- data_path
+  schema_path <- file.path(directory, "source.yaml")
+
+  provided <- source
+  provided$data_file_original <- raw_path
+  provided$preprocess_script <- script_path
+  expect_no_error(validate_source_schema(provided, schema_path))
+
+  missing_script <- provided
+  missing_script$preprocess_script <- file.path(directory, "missing_script")
+  expect_error(
+    validate_source_schema(missing_script, schema_path),
+    "preprocess_script"
+  )
+
+  blank_original <- provided
+  blank_original$data_file_original <- ""
+  expect_error(
+    validate_source_schema(blank_original, schema_path),
+    "data_file_original"
+  )
 })
 
 

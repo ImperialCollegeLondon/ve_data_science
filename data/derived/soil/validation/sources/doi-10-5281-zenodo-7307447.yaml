@@ -1,0 +1,27 @@
+schema_version: 1
+record_id: doi-10-5281-zenodo-7307447
+doi: 10.5281/zenodo.7307447
+screening:
+  decision: proceed
+  reason: relevant_validation_data
+  notes: Need to figure out how to obtain NET gas exchanges from VE.
+  screened_at: '2026-11-20T02:09:28Z'
+metadata:
+  title: Eddy covariance SAFE Flux Tower
+  authors:
+  - Mills, Maria
+  - Riutta, Terhi
+  - Malhi, Yadvinder
+  - Ewers, Robert M
+  - Majalap, Noreen
+  year: 2022
+  journal: ~
+  publisher: Zenodo
+  url: https://zenodo.org/record/7307447
+  keywords:
+  - Eddy covariance SAFE Flux Tower
+  - carbon fluxes
+  - energy exchange
+  - carbon balance
+  provider: doi_content_search
+  retrieved_at: '2026-11-20T02:08:17Z'
