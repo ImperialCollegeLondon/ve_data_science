@@ -9,7 +9,7 @@ screening:
     nitrate were measured with resin bags and could not be converted to VE's
     mass per mass basis. I used the Mehlich-III phosphorous because it can be
     converted to VE's unit. Data embargoed but Hao Ran has obtained permission.
-  screened_at: "2026-08-18T07:57:56Z"
+  screened_at: '2026-08-18T07:57:56Z'
 metadata:
   title: Danum Valley 50-Ha Plot Soil Nutrient Data
   authors: Burslem, David F.R.P.
@@ -25,7 +25,7 @@ metadata:
     - Sabah
     - Malaysia
   provider: doi_content_search
-  retrieved_at: "2026-08-18T07:56:44Z"
+  retrieved_at: '2026-08-18T07:56:44Z'
 datasets:
   - source_id: burslem_2025
     data_file: data/primary/soil/burslem_2025/50-ha_soil_data.csv
@@ -43,10 +43,11 @@ datasets:
       longitude_column: Longitude
       from_file: data/primary/soil/burslem_2025/locations.csv
     temporal:
-      format: "%d/%m/%Y"
+      format: '%d/%m/%Y'
       same_for_all_rows:
         start: 1/10/2016
-        precision: "month"
+        end: 31/10/2016
+        precision: 'month'
         note:
           Sampling date stated in the description documentation
           data/primary/soil/burslem_2025/danum_soil_sampling_and_analysis_methods.docx

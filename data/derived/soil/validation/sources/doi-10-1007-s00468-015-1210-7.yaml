@@ -9,7 +9,7 @@ screening:
     ingested, but fine-root biomass does not contain C content. Contains
     standard deviation of inorganic N; we haven't really thought about
     validating variance yet, but worth revisiting.
-  screened_at: "2026-09-18T02:03:42Z"
+  screened_at: '2026-09-18T02:03:42Z'
 metadata:
   title:
     Variation in the aboveground stand structure and fine-root biomass of
@@ -26,7 +26,7 @@ metadata:
   url: http://dx.doi.org/10.1007/s00468-015-1210-7
   keywords: ~
   provider: doi_content_search
-  retrieved_at: "2026-09-18T02:02:39Z"
+  retrieved_at: '2026-09-18T02:02:39Z'
 datasets:
   - source_id: miyamoto_2015
     data_file: data/primary/soil/miyamoto_2015/data.csv
@@ -46,10 +46,11 @@ datasets:
       latitude_column: lat
       longitude_column: lon
     temporal:
-      format: "%d/%m/%Y"
+      format: '%d/%m/%Y'
       timezone: Asia/Kuching
       same_for_all_rows:
         start: 1/6/2014
+        end: 30/6/2014
         precision: month
         note:
           The article stated that soil sampling for all plots were completed
