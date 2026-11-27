@@ -31,6 +31,9 @@
 #|       Environmental indicator values in long format without geometry.
 #|
 #| source_files:
+#|   - name: validation_weight.R
+#|     path: tools/R/R/validation_weight.R
+#|     description: Reusable remote-sensing profiling helper.
 #|
 #| package_dependencies:
 #|   - mapme.biodiversity
@@ -49,6 +52,8 @@ library(RcppTOML)
 library(sf)
 library(mapme.biodiversity)
 library(terra)
+
+source("tools/R/R/validation_weight.R")
 
 
 # Validation coverage ----------------------------------------------------
@@ -85,27 +90,11 @@ maliau_grid <-
 # Then calculate zonal statistics per grid
 # Download will take a while, but subsequent runs will use the cached files
 
-mapme_options(outdir = "data/primary/validation", verbose = TRUE)
-
-aoi_resources <-
-  maliau_grid |>
-  st_transform(4326) |>
-  get_resources(
-    get_nasa_srtm(),
-    get_humanfootprint(years = 2010:2020),
-    get_worldclim_precipitation(years = 2010:2020, resolution = "10m"),
-    get_soilgrids(
-      layers = "soc",
-      depths = "0-5cm",
-      stats = "mean"
-    )
-  ) |>
-  calc_indicators(
-    calc_elevation(),
-    calc_humanfootprint(),
-    calc_precipitation_wc(),
-    calc_soilproperties()
-  )
+aoi_resources <- profile_validation_environment(
+  maliau_grid,
+  mapme.outdir = "data/primary/validation",
+  verbose = TRUE
+)
 
 # write data as a Geopackage
 write_portfolio(
