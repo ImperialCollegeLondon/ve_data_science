@@ -29,7 +29,7 @@
 #| output_files:
 #|   - name: soil_validation_portfolio.gpkg
 #|     path: data/derived/soil/validation/soil_validation_portfolio.gpkg
-#|     description: Environmental profiles for eligible validation locations.
+#|     description: Environmental profiles for eligible location-date windows.
 #|   - name: soil_validation_portfolio.csv
 #|     path: data/derived/soil/validation/soil_validation_portfolio.csv
 #|     description: Validation environmental profiles in long format.
@@ -121,12 +121,12 @@ if (nrow(eligible_database) == 0L) {
 }
 
 
-# Prepare one profile per validation location -----------------------------
+# Prepare one profile per validation location-date window -----------------
 
 validation_locations <-
   eligible_database |>
-  distinct(longitude, latitude) |>
-  arrange(longitude, latitude) |>
+  distinct(longitude, latitude, time_start, time_end) |>
+  arrange(longitude, latitude, time_start, time_end) |>
   mutate(assetid = row_number()) |>
   st_as_sf(
     coords = c("longitude", "latitude"),
@@ -139,7 +139,7 @@ reference_portfolio <- read_validation_portfolio(reference_portfolio_path)
 validation_portfolio <- profile_validation_environment(
   validation_locations,
   point_radius_m = 5,
-  years = 2010:2020,
+  time_zone = "Asia/Kuching",
   mapme.outdir = "data/primary/validation",
   verbose = TRUE
 )
