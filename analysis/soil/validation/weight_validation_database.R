@@ -113,7 +113,6 @@ validation_locations <-
   eligible_database |>
   distinct(longitude, latitude, time_start, time_end) |>
   arrange(longitude, latitude, time_start, time_end) |>
-  mutate(assetid = row_number()) |>
   st_as_sf(
     coords = c("longitude", "latitude"),
     crs = 4326,
