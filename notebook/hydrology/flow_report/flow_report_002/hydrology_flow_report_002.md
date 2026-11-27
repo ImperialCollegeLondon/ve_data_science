@@ -1,13 +1,26 @@
 # VE hydrology: test_001 against test_002
 
-This report compares the hydrology of two `maliau_2` runs: `test_001`, made before the water-balance fixes (reported in `flow_report_001`), and `test_002`, made after the identified issues were addressed in [PR #1935](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1935) and [PR #1919](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1919). The diagnostic report for `test_001` informed these changes, and `test_002` was run afterwards to assess their effects on model behaviour. For each variable the report describes what test_002 shows, the problem that remains and its possible cause, with a remark where calibration is needed, and ends with the calibration points. Figures and numbers come from `notebook/hydrology/flow_report/hydrological_flow_comparison_002.ipynb`, which reads both runs' `model_data.zarr` stores, and from `data/derived/validation/hydrology/hydrology_validation_test_002.xlsx`, which places the test_002 values next to the observed stream and soil moisture data.
+This report compares the hydrology of two `maliau_2` runs: `test_001`, made before the
+water-balance fixes (reported in `flow_report_001`), and `test_002`, made after the
+identified issues were addressed in
+[PR #1935](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1935) and
+[PR #1919](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1919). The
+diagnostic report for `test_001` informed these changes, and `test_002` was run
+afterwards to assess their effects on model behaviour. For each variable the report
+describes what test_002 shows, the problem that remains and its possible cause, with a
+remark where calibration is needed, and ends with the calibration points. Figures and
+numbers come from
+`notebook/hydrology/flow_report/hydrological_flow_comparison_002.ipynb`, which reads
+both runs' `model_data.zarr` stores, and from
+`data/derived/validation/hydrology/hydrology_validation_test_002.xlsx`, which places the
+test_002 values next to the observed stream and soil moisture data.
 
 ## Environment and data provenance
 
 | Item | test_001 | test_002 |
 | --- | --- | --- |
 | Virtual Ecosystem (logfile.log) | `0.2.1` | `0.2.3` |
-| VE commit (run readme) | `22689f01`  | `3dd40851` (following [PR #1935](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1935) and [PR #1919](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1919)) |
+| VE commit (run readme) | `22689f01` | `3dd40851` (following [PR #1935](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1935) and [PR #1919](https://github.com/ImperialCollegeLondon/virtual_ecosystem/pull/1919)) |
 | Base configuration | `static_hydro_configuration_001` | `static_hydro_configuration_002` |
 | Input data folder | `data/sensitivity/hydrology/data` | `data/scenarios/maliau/maliau_2/data` |
 | Grid origin (`xoff`, `yoff`) | 496 400, 524 100 | 495 559.3, 524 298.8 |
@@ -17,7 +30,7 @@ This report compares the hydrology of two `maliau_2` runs: `test_001`, made befo
 | Dynamic module | `hydrology` | `hydrology` |
 | Timing | 2010-01 to 2020-12, 132 monthly steps of 30 daily steps | same as test_001 |
 
-**Hydrology parameters that changed**
+### Hydrology parameters that changed
 
 | Parameter | test_001 | test_002 |
 | --- | --- | --- |
@@ -147,7 +160,8 @@ outputs are 1.36 times rainfall in 2010 and 0.98-1.01 times from 2011.*
 
 ## 1. Canopy
 
-Rain is first intercepted by the canopy; what is not evaporated reaches the ground as throughfall.
+Rain is first intercepted by the canopy; what is not evaporated reaches the ground as
+throughfall.
 
 ### precipitation_surface (throughfall)
 
@@ -160,7 +174,8 @@ Rain is first intercepted by the canopy; what is not evaporated reaches the grou
 
 ## 2. Land surface
 
-Throughfall either runs off the surface, bypasses the soil through preferential paths to groundwater, or infiltrates the topsoil.
+Throughfall either runs off the surface, bypasses the soil through preferential paths to
+groundwater, or infiltrates the topsoil.
 
 ### surface_runoff
 
@@ -198,7 +213,8 @@ Throughfall either runs off the surface, bypasses the soil through preferential 
 
 ## 3. Soil
 
-Water in the topsoil drains to the subsoil; the subsoil loses water laterally as stormflow and drains slowly to groundwater.
+Water in the topsoil drains to the subsoil; the subsoil loses water laterally as
+stormflow and drains slowly to groundwater.
 
 ### Soil moisture
 
@@ -262,7 +278,9 @@ there. test_002: topsoil 54-93 mm (saturation 127.5 mm), subsoil 206-302 mm
 
 ## 4. Groundwater
 
-Bypass flow and subsoil drainage recharge the upper store, which releases subsurface flow and percolates to the lower store; the lower store releases baseflow and loses water to deep groundwater.
+Bypass flow and subsoil drainage recharge the upper store, which releases subsurface
+flow and percolates to the lower store; the lower store releases baseflow and loses
+water to deep groundwater.
 
 ### Groundwater stores
 
@@ -332,7 +350,8 @@ first month and then stay between 0 and 180 mm (upper) and 0.6 and 122 mm
 
 ## 5. Routing and outlets
 
-Surface and subsurface runoff are routed downslope to the sinks, where total runoff is converted to river discharge and can be compared with gauged streams.
+Surface and subsurface runoff are routed downslope to the sinks, where total runoff is
+converted to river discharge and can be compared with gauged streams.
 
 ### Drainage network and outlets
 
@@ -503,7 +522,7 @@ matches runoff. Three issues, however, look like code or model-structure problem
 and should be settled before calibrating, because calibrated parameters would
 otherwise compensate for them.
 
-**Code or structure (check first)**
+### Code or structure (check first)
 
 1. **Transpiration of 3 mm per year.** The largest error in the water balance. It
    is most likely a units or interface issue between the plants and hydrology
@@ -518,7 +537,7 @@ otherwise compensate for them.
    reaches residual moisture. It does not affect the fluxes, but it makes the
    output unusable for comparison with tensiometer data.
 
-**Calibration (parameter values)**
+### Calibration (parameter values)
 
 - `bypass_flow_coefficient` (1.0), which sends 53 % of rainfall to groundwater.
 - `max_percolation_rate_uzlz` and `groundwater_loss`, which set baseflow and the
@@ -528,7 +547,7 @@ otherwise compensate for them.
   move rather than fitted to data.
 - The initial groundwater state, which causes the 2010 spin-up excess.
 
-**Neither: the rainfall forcing**
+### Neither: the rainfall forcing
 
 - ERA5 rainfall is 14 % below the Danum gauge and matches its monthly pattern
   poorly (r = 0.39), which limits how well monthly runoff can match observations
