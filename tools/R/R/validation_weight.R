@@ -33,6 +33,8 @@
 #'
 #' Accepts polygon datasets directly or coordinates in EPSG:4326. Point inputs
 #' are buffered because mapme.biodiversity only accepts polygon portfolios.
+#' Timeless profiles omit observation windows and use all requested years,
+#' which default to 2010--2020.
 #'
 #' @param x An `sf` object containing polygon or point datasets.
 #' @param longitude,latitude Matching numeric vectors in EPSG:4326. Use these
@@ -41,11 +43,14 @@
 #'   This is an extraction adapter, not an inferred sampling footprint. Defaults
 #'   to 5 m as this is a common GPS error range.
 #' @param time_start,time_end Observation window endpoints as `Date` or
-#'   date-time vectors. Windows use an exclusive `time_end`. If omitted,
-#'   matching columns in `x` are used.
-#' @param time_zone Time zone used to assign observations to calendar periods.
+#'   date-time vectors. Supply both endpoints or neither. Windows use an
+#'   exclusive `time_end`. If both are omitted, matching columns in `x` are used.
+#'   If `x` also lacks both columns, the profile is timeless.
+#' @param time_zone Time zone name used to assign observations to calendar
+#'   periods. Use `OlsonNames()` to list valid names.
 #' @param years Years used for the human-footprint and precipitation resources.
-#'   Defaults to the observation window years, or 2010--2020 without windows.
+#'   Defaults to the observation window years, or 2010--2020 for a timeless
+#'   profile.
 #' @param mapme.outdir Directory used to cache remote-sensing resources.
 #' @param verbose Whether mapme should print progress information.
 #'
@@ -70,7 +75,7 @@ profile_validation_environment <- function(
     latitude = latitude,
     point_radius_m = point_radius_m
   )
-  time_windows <- prepare_validation_time(
+  time_windows <- prepare_profile_time(
     datasets,
     time_start = time_start,
     time_end = time_end,
@@ -122,12 +127,16 @@ profile_validation_environment <- function(
 #' Prepare observation windows for temporal profiling
 #'
 #' @param x A validation dataset.
-#' @param time_start,time_end Optional observation window endpoints.
-#' @param time_zone Time zone used to assign observations to calendar periods.
+#' @param time_start,time_end Optional observation window endpoints. Supply both
+#'   or neither. When both are omitted, matching columns in `x` are used if
+#'   present; otherwise the profile is timeless.
+#' @param time_zone Time zone name used to assign observations to calendar
+#'   periods. Use `OlsonNames()` to list valid names.
 #'
-#' @returns Date-time vectors and their calendar time zone, or `NULL`.
+#' @returns Date-time vectors and their calendar time zone, or `NULL` for a
+#'   timeless profile.
 
-prepare_validation_time <- function(
+prepare_profile_time <- function(
   x,
   time_start = NULL,
   time_end = NULL,
@@ -169,7 +178,10 @@ prepare_validation_time <- function(
     cli::cli_abort("{.arg time_zone} must be one time-zone name")
   }
   if (!time_zone %in% OlsonNames()) {
-    cli::cli_abort("{.arg time_zone} must be a valid time-zone name")
+    cli::cli_abort(c(
+      "{.arg time_zone} must be a valid time-zone name",
+      "i" = "Use {.fn OlsonNames} to list valid names."
+    ))
   }
 
   time_start <- as.POSIXct(time_start, tz = "UTC")
@@ -187,8 +199,9 @@ prepare_validation_time <- function(
 
 #' Select resource years for validation profiling
 #'
-#' @param years Optional requested years.
-#' @param time_windows Output from [prepare_validation_time()].
+#' @param years Optional requested years. If omitted, years are inferred from
+#'   `time_windows`, or default to 2010--2020 for a timeless profile.
+#' @param time_windows Output from [prepare_profile_time()], or `NULL`.
 #'
 #' @returns An integer vector of years.
 
@@ -243,7 +256,7 @@ prepare_profile_years <- function(years = NULL, time_windows = NULL) {
 #' Restrict temporal portfolio indicators to observation windows
 #'
 #' @param portfolio A profiled validation portfolio.
-#' @param time_windows Output from [prepare_validation_time()].
+#' @param time_windows Output from [prepare_profile_time()].
 #'
 #' @returns The portfolio with annual and monthly indicators filtered per asset.
 

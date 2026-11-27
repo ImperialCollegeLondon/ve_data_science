@@ -89,7 +89,7 @@ test_that("validation time windows are read from datasets", {
     crs = 4326
   )
 
-  windows <- prepare_validation_time(datasets)
+  windows <- prepare_profile_time(datasets)
 
   expect_length(windows$time_start, 2L)
   expect_s3_class(windows$time_start, "POSIXct")
@@ -98,7 +98,7 @@ test_that("validation time windows are read from datasets", {
     2018:2020
   )
 
-  local_windows <- prepare_validation_time(
+  local_windows <- prepare_profile_time(
     data.frame(assetid = 1L),
     as.POSIXct("2019-12-31 16:00:00", tz = "UTC"),
     as.POSIXct("2020-12-31 16:00:00", tz = "UTC"),
@@ -163,16 +163,25 @@ test_that("validation time windows are checked", {
   datasets <- data.frame(assetid = 1L)
 
   expect_error(
-    prepare_validation_time(datasets, as.Date("2020-01-01")),
+    prepare_profile_time(datasets, as.Date("2020-01-01")),
     "Both.*time_start.*time_end"
   )
   expect_error(
-    prepare_validation_time(
+    prepare_profile_time(
       datasets,
       as.Date("2020-02-01"),
       as.Date("2020-01-01")
     ),
     "time_end.*be after"
+  )
+  expect_error(
+    prepare_profile_time(
+      datasets,
+      as.Date("2020-01-01"),
+      as.Date("2020-02-01"),
+      time_zone = "Not/A_Time_Zone"
+    ),
+    "OlsonNames"
   )
   expect_error(
     prepare_profile_years(
