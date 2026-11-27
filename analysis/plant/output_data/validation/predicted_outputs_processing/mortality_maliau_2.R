@@ -40,9 +40,10 @@
 #|     path: data/derived/plant/output_data/validation/predicted_outputs_processing
 #|     description: |
 #|       Initial-cohort records by cell and model timestep, including annualised
-#|       mortality counts and fractions. Cell- and plot-level summaries are
-#|       repeated across the relevant cohort rows; plot fields are missing for
-#|       cells without a matched observed plot.
+#|       mortality counts and fractions. Cell-level summaries are repeated across
+#|       the relevant cohort rows. Census-period summaries are filled only on
+#|       rows whose timestep falls within that period and are missing elsewhere;
+#|       plot fields are missing for cells without a matched observed plot.
 #|     variables:
 #|       - name: cell_id
 #|         type: integer
@@ -632,7 +633,8 @@ for (column in date_columns) {
 # Both boundary timesteps are counted in full because a tree could have died at
 # any point within them, so annualise by the duration of the summed timesteps
 # rather than by the difference between census dates.
-# The result is repeated on each cohort row in the group.
+# The result is written only to rows whose timestep falls within that range;
+# rows outside the period are left as NA.
 plants_cohort_data[
   !is.na(PlotID) & !is.na(Date_2011) & !is.na(Date_2014),
   mortality_count_11_14_ha_yr := {
@@ -646,14 +648,11 @@ plants_cohort_data[
         timestep_start_date < Date_2014[1] &
         Date_2014[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       cell_area_ha /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]
@@ -673,14 +672,11 @@ plants_cohort_data[
         timestep_start_date < Date_2015[1] &
         Date_2015[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       cell_area_ha /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]
@@ -700,14 +696,11 @@ plants_cohort_data[
         timestep_start_date < Date_2017[1] &
         Date_2017[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       cell_area_ha /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]
@@ -727,14 +720,11 @@ plants_cohort_data[
         timestep_start_date < Date_2019[1] &
         Date_2019[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       cell_area_ha /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]
@@ -790,14 +780,11 @@ plants_cohort_data[
         timestep_start_date < Date_2014[1] &
         Date_2014[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]
@@ -817,14 +804,11 @@ plants_cohort_data[
         timestep_start_date < Date_2015[1] &
         Date_2015[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]
@@ -844,14 +828,11 @@ plants_cohort_data[
         timestep_start_date < Date_2017[1] &
         Date_2017[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]
@@ -871,14 +852,11 @@ plants_cohort_data[
         timestep_start_date < Date_2019[1] &
         Date_2019[1] <= timestep_end_date
     ])
-    sum(
-      cohort_mortality_count[
-        time_index >= start_timestep & time_index <= end_timestep
-      ],
-      na.rm = TRUE
-    ) /
+    in_period <- time_index >= start_timestep & time_index <= end_timestep
+    period_mortality <- sum(cohort_mortality_count[in_period], na.rm = TRUE) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
       ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
+    ifelse(in_period, period_mortality, NA_real_)
   },
   by = .(cell_id, PlotID)
 ]

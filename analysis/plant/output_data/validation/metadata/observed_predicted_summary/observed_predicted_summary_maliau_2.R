@@ -35,6 +35,9 @@
 #|   - name: total_tree_standing_carbon_mass_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: Matched observed and predicted total standing-carbon values.
+#|   - name: mortality_comparison_maliau_2.csv
+#|     path: data/derived/plant/output_data/validation/comparisons
+#|     description: Matched observed and predicted mortality count and fraction.
 #|
 #| output_files:
 #|   - name: observed_predicted_summary_maliau_2.png
@@ -55,7 +58,8 @@ comparison_files <- c(
   "../../../../../../data/derived/plant/output_data/validation/comparisons/symbiote_allocation_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv",
-  "../../../../../../data/derived/plant/output_data/validation/comparisons/total_tree_standing_carbon_mass_comparison_maliau_2.csv"
+  "../../../../../../data/derived/plant/output_data/validation/comparisons/total_tree_standing_carbon_mass_comparison_maliau_2.csv",
+  "../../../../../../data/derived/plant/output_data/validation/comparisons/mortality_comparison_maliau_2.csv"
 )
 output_file <- "observed_predicted_summary_maliau_2.png"
 

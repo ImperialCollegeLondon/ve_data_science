@@ -24,6 +24,7 @@
 #|   - path: analysis/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.R
 #|   - path: analysis/plant/output_data/validation/comparisons/total_tree_standing_carbon_mass_comparison_maliau_2.R
+#|   - path: analysis/plant/output_data/validation/comparisons/mortality_comparison_maliau_2.R
 #|
 #| output_files:
 #|   - name: master_comparisons_metadata.yml
@@ -177,7 +178,8 @@ scripts <- c(
   "symbiote_allocation_comparison_maliau_2.R",
   "respiration_and_turnover_comparison_maliau_2.R",
   "tree_standing_carbon_mass_comparison_maliau_2.R",
-  "total_tree_standing_carbon_mass_comparison_maliau_2.R"
+  "total_tree_standing_carbon_mass_comparison_maliau_2.R",
+  "mortality_comparison_maliau_2.R"
 )
 
 n_scripts <- length(scripts)

@@ -38,7 +38,8 @@ comparison_files <- c(
   "../../../../../data/derived/plant/output_data/validation/comparisons/symbiote_allocation_comparison_maliau_2.csv",
   "../../../../../data/derived/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.csv",
   "../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv",
-  "../../../../../data/derived/plant/output_data/validation/comparisons/total_tree_standing_carbon_mass_comparison_maliau_2.csv"
+  "../../../../../data/derived/plant/output_data/validation/comparisons/total_tree_standing_carbon_mass_comparison_maliau_2.csv",
+  "../../../../../data/derived/plant/output_data/validation/comparisons/mortality_comparison_maliau_2.csv"
 )
 
 output_md_path <- "../../../../../docs/plant_validation_tracker.md"
