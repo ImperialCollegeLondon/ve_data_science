@@ -60,7 +60,7 @@ source("tools/R/R/validation_weight.R")
 
 # Validation coverage ----------------------------------------------------
 
-# Convert the maliau_2 metadata to a sf grids
+# Convert the maliau_2 metadata to an sf grid
 
 maliau_2 <-
   parseTOML("data/derived/site/maliau/maliau_grid_definition.toml") |>
@@ -100,6 +100,7 @@ aoi_resources <- profile_validation_environment(
   maliau_grid,
   time_start = rep(simulation_start, nrow(maliau_grid)),
   time_end = rep(simulation_end, nrow(maliau_grid)),
+  time_zone = "Asia/Kuching",
   mapme.outdir = "data/primary/validation",
   verbose = TRUE
 )
