@@ -227,3 +227,155 @@ test_that("validation dataset inputs are checked", {
     "`x` must be an <sf> object"
   )
 })
+
+test_that("profile requests deduplicate matching cells and periods", {
+  grid <- terra::rast(
+    ncols = 2,
+    nrows = 1,
+    xmin = 0,
+    xmax = 2,
+    ymin = 0,
+    ymax = 1,
+    crs = "EPSG:4326"
+  )
+  terra::values(grid) <- 1:2
+  square <- function(xmin, xmax) {
+    sf::st_polygon(list(rbind(
+      c(xmin, 0.1),
+      c(xmax, 0.1),
+      c(xmax, 0.9),
+      c(xmin, 0.9),
+      c(xmin, 0.1)
+    )))
+  }
+  datasets <- sf::st_as_sf(
+    data.frame(
+      time_start = as.POSIXct(
+        c("2018-01-01", "2018-01-10", "2018-01-01"),
+        tz = "UTC"
+      ),
+      time_end = as.POSIXct(
+        c("2018-01-31", "2018-02-01", "2018-01-31"),
+        tz = "UTC"
+      ),
+      feature = c("first", "same", "crossing")
+    ),
+    geometry = sf::st_sfc(
+      square(0.1, 0.2),
+      square(0.2, 0.3),
+      square(0.4, 1.6),
+      crs = 4326
+    )
+  )
+
+  requests <- prepare_profile_requests(
+    datasets,
+    prepare_profile_time(datasets),
+    list(test = grid)
+  )
+  expect_equal(requests$request_count, 2L)
+  expect_equal(requests$representative_rows, c(1L, 1L, 2L))
+
+  portfolio <- requests$datasets
+  portfolio$indicator <- list(
+    data.frame(value = 10),
+    data.frame(value = 20)
+  )
+  expanded <- expand_profile_requests(
+    portfolio,
+    datasets,
+    requests$representative_rows
+  )
+  expect_equal(nrow(expanded), nrow(datasets))
+  expect_equal(expanded$feature, datasets$feature)
+  expect_equal(
+    vapply(expanded$indicator, function(x) x$value, numeric(1)),
+    c(10, 10, 20)
+  )
+})
+
+
+test_that("profile requests keep outside features separate", {
+  grid <- terra::rast(
+    ncols = 1,
+    nrows = 1,
+    xmin = 0,
+    xmax = 1,
+    ymin = 0,
+    ymax = 1,
+    crs = "EPSG:4326"
+  )
+  terra::values(grid) <- 1
+  datasets <- sf::st_as_sf(
+    data.frame(label = c("one", "two")),
+    geometry = sf::st_sfc(
+      sf::st_point(c(2, 2)),
+      sf::st_point(c(2, 2)),
+      crs = 4326
+    ) |>
+      sf::st_buffer(0.01)
+  )
+
+  requests <- prepare_profile_requests(
+    datasets,
+    time_windows = NULL,
+    grid_rasters = list(test = grid)
+  )
+
+  expect_equal(requests$request_count, 2L)
+})
+
+
+test_that("local SoilGrids extraction preserves portfolio shape", {
+  directory <- withr::local_tempdir()
+  source_path <- file.path(directory, "source.tif")
+  destination_path <- file.path(directory, "crop.tif")
+  source <- terra::rast(
+    ncols = 2,
+    nrows = 1,
+    xmin = 0,
+    xmax = 2,
+    ymin = 0,
+    ymax = 1,
+    crs = "EPSG:4326"
+  )
+  terra::values(source) <- c(100, 200)
+  terra::writeRaster(source, source_path, overwrite = TRUE)
+  datasets <- sf::st_as_sf(
+    data.frame(label = "feature"),
+    geometry = sf::st_sfc(
+      sf::st_polygon(list(rbind(
+        c(0.1, 0.1),
+        c(0.2, 0.1),
+        c(0.2, 0.2),
+        c(0.1, 0.2),
+        c(0.1, 0.1)
+      ))),
+      crs = 4326
+    )
+  )
+
+  crop_path <- prepare_local_validation_soilgrids(
+    datasets,
+    source_path,
+    destination_path
+  )
+  indicators <- extract_local_soilproperties(datasets, crop_path)
+
+  expect_equal(crop_path, destination_path)
+  expect_equal(
+    prepare_local_validation_soilgrids(
+      datasets,
+      source_path,
+      destination_path
+    ),
+    destination_path
+  )
+  expect_length(indicators, 1L)
+  expect_equal(
+    names(indicators[[1L]]),
+    c("datetime", "variable", "unit", "value")
+  )
+  expect_equal(indicators[[1L]]$variable, "soc_0_5cm_mean_mean")
+  expect_equal(indicators[[1L]]$value, 10)
+})

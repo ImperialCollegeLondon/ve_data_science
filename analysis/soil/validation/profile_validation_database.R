@@ -1,13 +1,14 @@
 #| ---
-#| title: Profile soil validation observations for weighting
+#| title: Profile soil validation observations
 #|
 #| description: |
 #|     This R script selects observations whose measurement windows fall within
 #|     the maliau_2 simulation period and profiles their locations with the
 #|     environmental resources used for validation weighting.
 #|
-#|     It prepares both validation and scenario reference profiles. Similarity
-#|     calculation and final weights are intentionally not calculated here.
+#|     It prepares validation profiles. Request deduplication and a persistent
+#|     local SoilGrids crop reduce runtime. Similarity calculation and final
+#|     weights are intentionally not calculated here.
 #|
 #| virtual_ecosystem_module: Soil
 #|
@@ -19,12 +20,9 @@
 #|   - name: database_combined
 #|     path: data/derived/soil/validation/database_combined
 #|     description: Soil validation observations combined with VE outputs.
-#|   - name: config.toml
-#|     path: data/scenarios/maliau/maliau_2/config/config.toml
+#|   - name: maliau_grid_definition.toml
+#|     path: data/derived/site/maliau/maliau_grid_definition.toml
 #|     description: Scenario timing configuration.
-#|   - name: maliau_portfolio.gpkg
-#|     path: data/derived/validation/maliau_portfolio.gpkg
-#|     description: Environmental profiles for the maliau_2 reference grid.
 #|
 #| output_files:
 #|   - name: soil_validation_portfolio.gpkg
@@ -37,7 +35,7 @@
 #| source_files:
 #|   - name: validation_weight.R
 #|     path: tools/R/R/
-#|     description: Environmental profiling and portfolio-reading functions.
+#|     description: Environmental profiling functions.
 #|
 #| package_dependencies:
 #|   - arrow
@@ -47,10 +45,16 @@
 #|   - RcppTOML
 #|   - readr
 #|   - sf
+#|   - terra
 #|
 #| usage_notes: |
 #|     Run after build_soil_validation_database.R. Remote resources are cached
-#|     under data/primary/validation and may take time to download on first run.
+#|     under data/primary/validation. The script reduces runtime by extracting
+#|     each matching raster-cell and time-period combination once and using a
+#|     persistent local SoilGrids crop. Creating or refreshing the crop can be
+#|     slow on its first run. A cached 100-row subset reduced runtime from 278
+#|     seconds to 121 seconds. The full cached dataset of 854 observations took
+#|     1021 seconds and produced 616 extraction requests.
 #| ---
 
 library(arrow)
@@ -60,6 +64,7 @@ library(mapme.biodiversity)
 library(RcppTOML)
 library(readr)
 library(sf)
+library(terra)
 
 source("tools/R/R/validation_weight.R")
 
@@ -68,12 +73,8 @@ source("tools/R/R/validation_weight.R")
 
 scenario <- "maliau_2"
 validation_database_path <- "data/derived/soil/validation/database_combined"
-scenario_config_path <- file.path(
-  "data/scenarios/maliau",
-  scenario,
-  "config/config.toml"
-)
-reference_portfolio_path <- "data/derived/validation/maliau_portfolio.gpkg"
+scenario_definition_path <-
+  "data/derived/site/maliau/maliau_grid_definition.toml"
 validation_portfolio_path <-
   "data/derived/soil/validation/soil_validation_portfolio.gpkg"
 validation_profile_path <-
@@ -82,9 +83,9 @@ validation_profile_path <-
 
 # Select observations within the simulation period ------------------------
 
-scenario_config <- parseTOML(scenario_config_path)
-simulation_start <- as.Date(scenario_config$core$timing$start_date)
-run_length <- trimws(scenario_config$core$timing$run_length)
+scenario_definition <- parseTOML(scenario_definition_path)$Scenario[[scenario]]
+simulation_start <- as.Date(scenario_definition$core$timing$start_date)
+run_length <- trimws(scenario_definition$core$timing$run_length)
 simulation_end <- simulation_start %m+% lubridate::period(run_length)
 simulation_start <- as.POSIXct(simulation_start, tz = "UTC")
 simulation_end <- as.POSIXct(simulation_end, tz = "UTC")
@@ -93,14 +94,16 @@ validation_database <-
   open_dataset(validation_database_path) |>
   collect()
 
-eligible_rows <-
-  !is.na(validation_database$time_start) &
-  !is.na(validation_database$time_end) &
-  validation_database$time_start >= simulation_start &
-  validation_database$time_end <= simulation_end
+validation_database <- validation_database |>
+  filter(
+    !is.na(time_start),
+    !is.na(time_end),
+    time_start >= simulation_start,
+    time_end <= simulation_end
+  )
 
-if (nrow(validation_database) == 0L || !all(eligible_rows)) {
-  stop("All validation observations must fall within the simulation period.")
+if (nrow(validation_database) == 0L) {
+  stop("No validation observations fall within the simulation period.")
 }
 
 
@@ -116,22 +119,25 @@ validation_locations <-
     remove = FALSE
   )
 
-reference_portfolio <- read_validation_portfolio(reference_portfolio_path)
+local_soilgrids_path <- prepare_local_validation_soilgrids(
+  validation_locations
+)
+profile_grids <- read_validation_profile_grids(
+  soilgrids_path = local_soilgrids_path
+)
 
 validation_portfolio <- profile_validation_environment(
   validation_locations,
   point_radius_m = 5,
   time_zone = "Asia/Kuching",
   mapme.outdir = "data/primary/validation",
-  verbose = TRUE
+  verbose = TRUE,
+  grid_rasters = profile_grids,
+  soilgrids_path = local_soilgrids_path
 )
 
 validation_profiles <- portfolio_long(
   validation_portfolio,
-  drop_geoms = TRUE
-)
-reference_profiles <- portfolio_long(
-  reference_portfolio,
   drop_geoms = TRUE
 )
 
