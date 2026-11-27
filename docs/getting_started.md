@@ -51,7 +51,7 @@ to use.
     This command can take quite a long time to run - among other things, it is installing
     a separate version of R just to be used for file checking!
 
-3. If you do not have R 4.4 installed, you will now need to install it.
+3. If you do not have R 4.6.0 installed, you will now need to install it.
 
 4. You now need to configure VSCode to work with R. This involves changing some of the
    settings so that it [TBD]

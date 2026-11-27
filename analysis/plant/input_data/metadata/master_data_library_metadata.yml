@@ -1,6 +1,6 @@
 title: master_data_library_metadata
 generated_by: analysis/plant/input_data/data_library/master_data_library.R
-generated_on: '2026-10-12'
+generated_on: '2026-10-21'
 scripts:
 - script_path: pfts_maliau.R
   title: pfts_maliau
@@ -454,36 +454,34 @@ scripts:
         an annual rate, which is applied uniformly across PFTs.
     - name: resp_f
       type: numeric
-      units: year-1
+      units: fraction
       description: |
         Leaf specific maintenance respiration rate.
       references:
-      - citation: Yan and Zhao (2007)
-        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
-        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+      - citation: Li et al. (2014)
+        doi: https://doi.org/10.5194/bg-11-6711-2014
+        url: https://bg.copernicus.org/articles/11/6711/2014/
         origin: ~
         biome: ~
-        vegetation_type: rain forest tree
+        vegetation_type: ~
         site_condition: ~
         date: ~
-      assumptions: A daily literature respiration value is multiplied by 365 to obtain
-        an annual rate, which is applied uniformly across PFTs.
+      assumptions: Value set at 10% of total GPP
     - name: resp_s
       type: numeric
       units: year-1
       description: |
         Wood specific maintenance respiration rate.
       references:
-      - citation: Yan and Zhao (2007)
-        doi: http://dx.doi.org/10.1016/S1872-2032(07)60056-0
-        url: https://www.sciencedirect.com/science/article/pii/S1872203207600560?via%3Dihub
+      - citation: Li et al. (2014)
+        doi: https://doi.org/10.5194/bg-11-6711-2014
+        url: https://bg.copernicus.org/articles/11/6711/2014/
         origin: ~
         biome: ~
-        vegetation_type: rain forest tree
+        vegetation_type: ~
         site_condition: ~
         date: ~
-      assumptions: A daily literature respiration value is multiplied by 365 to obtain
-        an annual rate, which is applied uniformly across PFTs.
+      assumptions: ~
     - name: resp_rt
       type: numeric
       units: year-1
