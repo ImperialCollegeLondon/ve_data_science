@@ -1,7 +1,7 @@
 <!-- markdownlint-disable-file -->
 ---
 name: github-issues
-description: 'Create, update, and manage GitHub issues using MCP tools. Use this skill when users want to create bug reports, feature requests, or task issues, update existing issues, add labels/assignees/milestones, set issue fields (dates, priority, custom fields), set issue types, manage issue workflows, link issues, add dependencies, or track blocked-by/blocking relationships. Triggers on requests like "create an issue", "file a bug", "request a feature", "update issue X", "set the priority", "set the start date", "link issues", "add dependency", "blocked by", "blocking", or any GitHub issue management task.'
+description: 'Create, update, and manage GitHub issues using MCP tools. Use this skill when users want to create bug reports, feature requests, or task issues, update existing issues, manage labels or milestones, add assignees, set issue fields (dates, priority, custom fields), set issue types, manage issue workflows, link issues, add dependencies, or track blocked-by/blocking relationships. Triggers on requests like "create an issue", "file a bug", "request a feature", "update issue X", "set the priority", "set the start date", "create a label", "rename a label", "list repo labels", "link issues", "add dependency", "blocked by", "blocking", or any GitHub issue management task.'
 ---
 
 # GitHub Issues
@@ -19,11 +19,21 @@ Manage GitHub issues using the `@modelcontextprotocol/server-github` MCP server.
 | `mcp__github__search_issues` | Search issues across repos using GitHub search syntax |
 | `mcp__github__projects_list` | List projects, project fields, project items, status updates |
 | `mcp__github__projects_get` | Get details of a project, field, item, or status update |
+
+### MCP Tools (write operations)
+
+The MCP server supports issue creation and updates, comments and reactions, and
+sub-issue operations. Use `gh api` when the required REST field is not exposed
+through MCP or when the MCP server is unavailable.
+
+| Tool | Purpose |
+|------|---------|
+| `mcp__github__issue_write` | Create or update an issue, including title, body, type, labels, assignees, milestone, and issue fields |
+| `mcp__github__add_issue_comment` | Add a comment or reaction |
+| `mcp__github__sub_issue_write` | Add, remove, or reprioritize a sub-issue |
 | `mcp__github__projects_write` | Add/update/delete project items, create status updates |
 
 ### CLI / REST API (write operations)
-
-The MCP server does not currently support creating, updating, or commenting on issues. Use `gh api` for these operations.
 
 | Operation | Command |
 |-----------|---------|
@@ -40,12 +50,14 @@ The MCP server does not currently support creating, updating, or commenting on i
 1. **Determine action**: Create, update, or query?
 2. **Gather context**: Get repo info, existing labels, milestones if needed
 3. **Structure content**: Use appropriate template from [references/templates.md](references/templates.md)
-4. **Execute**: Use MCP tools for reads, `gh api` for writes
+4. **Execute**: Use MCP tools for supported reads and writes; use `gh api` for unsupported REST operations or when MCP is unavailable
 5. **Confirm**: Report the issue URL to user
 
 ## Creating Issues
 
-Use `gh api` to create issues. This supports all parameters including issue types.
+Use `mcp__github__issue_write` when available for supported issue fields,
+including issue types. Use `gh api` for REST-only fields or when MCP is
+unavailable; the example below shows the CLI fallback.
 
 ```bash
 gh api repos/{owner}/{repo}/issues \
@@ -62,8 +74,8 @@ Add any of these flags to the `gh api` call:
 
 ```
 -f type="Bug"                    # Issue type (Bug, Feature, Task, Epic, etc.)
--f labels[]="bug"                # Labels (repeat for multiple)
--f assignees[]="username"        # Assignees (repeat for multiple)
+-f 'labels[]=bug'                # Labels (repeat for multiple)
+-f 'assignees[]=username'        # Assignees (repeat for multiple)
 -f milestone=1                   # Milestone number
 ```
 
@@ -116,7 +128,7 @@ Only include fields you want to change. Available fields: `title`, `body`, `stat
 
 **Action**:
 ```bash
-gh api repos/github/awesome-copilot/issues \
+gh api repos/{owner}/{repo}/issues \
   -X POST \
   -f title="Login page crashes when using SSO" \
   -f type="Bug" \
@@ -142,11 +154,11 @@ Page becomes unresponsive and displays error." \
 
 **Action**:
 ```bash
-gh api repos/github/awesome-copilot/issues \
+gh api repos/{owner}/{repo}/issues \
   -X POST \
   -f title="Add dark mode support" \
   -f type="Feature" \
-  -f labels[]="high-priority" \
+  -f 'labels[]=high-priority' \
   -f body="## Summary
 Add dark mode theme option for improved user experience and accessibility.
 
@@ -195,6 +207,8 @@ The following features require REST or GraphQL APIs beyond the basic MCP tools. 
 |------------|-------------|-----------|
 | Advanced search | Complex queries with boolean logic, date ranges, cross-repo search, issue field filters (`field.name:value`) | [references/search.md](references/search.md) |
 | Sub-issues & parent issues | Breaking work into hierarchical tasks | [references/sub-issues.md](references/sub-issues.md) |
+| Milestones | Creating, updating, closing, and assigning milestones | [references/milestones.md](references/milestones.md) |
+| Labels | Listing, creating, editing, deleting, and applying labels | [references/labels.md](references/labels.md) |
 | Issue dependencies | Tracking blocked-by / blocking relationships | [references/dependencies.md](references/dependencies.md) |
 | Issue types (advanced) | GraphQL operations beyond MCP `list_issue_types` / `type` param | [references/issue-types.md](references/issue-types.md) |
 | Projects V2 | Project boards, progress reports, field management | [references/projects.md](references/projects.md) |
