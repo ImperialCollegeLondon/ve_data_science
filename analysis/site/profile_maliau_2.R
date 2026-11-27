@@ -37,6 +37,7 @@
 #|
 #| package_dependencies:
 #|   - mapme.biodiversity
+#|   - lubridate
 #|   - RcppTOML
 #|   - sf
 #|   - tidyverse
@@ -48,6 +49,7 @@
 #| ---
 
 library(tidyverse)
+library(lubridate)
 library(RcppTOML)
 library(sf)
 library(mapme.biodiversity)
@@ -65,11 +67,8 @@ maliau_2 <-
   pluck("Scenario", "maliau_2")
 
 simulation_start <- as.Date(maliau_2$core$timing$start_date)
-simulation_end <- seq(
-  simulation_start,
-  by = maliau_2$core$timing$run_length,
-  length.out = 2
-)[2]
+simulation_end <-
+  simulation_start %m+% lubridate::period(maliau_2$core$timing$run_length)
 
 maliau_boundary <- st_as_sfc(st_bbox(
   c(

@@ -42,6 +42,7 @@
 #| package_dependencies:
 #|   - arrow
 #|   - dplyr
+#|   - lubridate
 #|   - mapme.biodiversity
 #|   - RcppTOML
 #|   - readr
@@ -54,6 +55,7 @@
 
 library(arrow)
 library(dplyr)
+library(lubridate)
 library(mapme.biodiversity)
 library(RcppTOML)
 library(readr)
@@ -65,15 +67,13 @@ source("tools/R/R/validation_weight.R")
 # Input and output paths ----------------------------------------------------
 
 scenario <- "maliau_2"
-validation_database_path <-
-  "data/derived/soil/validation/database_combined"
+validation_database_path <- "data/derived/soil/validation/database_combined"
 scenario_config_path <- file.path(
   "data/scenarios/maliau",
   scenario,
   "config/config.toml"
 )
-reference_portfolio_path <-
-  "data/derived/validation/maliau_portfolio.gpkg"
+reference_portfolio_path <- "data/derived/validation/maliau_portfolio.gpkg"
 validation_portfolio_path <-
   "data/derived/soil/validation/soil_validation_portfolio.gpkg"
 validation_profile_path <-
@@ -85,21 +85,11 @@ validation_profile_path <-
 scenario_config <- parseTOML(scenario_config_path)
 simulation_start <- as.Date(scenario_config$core$timing$start_date)
 run_length <- trimws(scenario_config$core$timing$run_length)
-run_length_parts <- strsplit(run_length, "[[:space:]]+")[[1]]
-
-if (
-  length(run_length_parts) != 2L ||
-    !grepl("^[0-9]+$", run_length_parts[1]) ||
-    !run_length_parts[2] %in% c("year", "years")
-) {
+if (!grepl("^[0-9]+ years?$", run_length)) {
   stop("Scenario run_length must be expressed as a whole number of years.")
 }
 
-simulation_end <- seq(
-  simulation_start,
-  by = run_length,
-  length.out = 2
-)[2]
+simulation_end <- simulation_start %m+% lubridate::period(run_length)
 simulation_start <- as.POSIXct(simulation_start, tz = "UTC")
 simulation_end <- as.POSIXct(simulation_end, tz = "UTC")
 
