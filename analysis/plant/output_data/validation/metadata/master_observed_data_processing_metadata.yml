@@ -1,6 +1,6 @@
 title: master_observed_data_processing_metadata
 generated_by: analysis/plant/output_data/validation/observed_data_processing/master_observed_data_processing.R
-generated_on: '2026-11-24'
+generated_on: '2026-11-27'
 scripts:
 - script_path: carbon_balance_components_maliau.R
   title: carbon_balance_components_maliau
@@ -1387,3 +1387,293 @@ scripts:
     Mass values are standardised from 25 m x 25 m plots to kg C ha-1.
     Standard errors represent allometric parameter uncertainty only. The stem
     increment is net standing-carbon change, not gross woody productivity.
+- script_path: total_tree_standing_carbon_mass_maliau.R
+  title: total_tree_standing_carbon_mass_maliau
+  description: |
+    This script prepares the observed validation data for total tree standing carbon
+    mass for Maliau. It calculates plot-level stem and leaf carbon mass for
+    the available census years using allometric equations applied to tree census
+    DBH data from OG plots within the maliau_2 grid.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: tree_census_11_20.xlsx
+    path: data/primary/plant/tree_census
+    description: |
+      https://doi.org/10.5281/zenodo.14882506
+      Tree census data from the SAFE Project 2011–2020.
+      Data includes measurements of DBH and estimates of tree height for
+      all stems, fruiting and flowering estimates, estimates of epiphyte
+      and liana cover, and taxonomic IDs.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid extent and dimensions.
+  - name: gazetteer.geojson
+    path: data/primary/site
+    description: Plot centroid coordinates used to identify plots in the grid.
+  - name: inagawa_nutrients_wood_density.xlsx
+    path: data/primary/plant/traits_data
+    description: Wood carbon content data used to derive the mean wood carbon fraction.
+  - name: both_tree_functional_traits.xlsx
+    path: data/primary/plant/traits_data
+    description: Leaf carbon content data used to derive the mean leaf carbon fraction.
+  output_files:
+  - name: total_tree_standing_carbon_mass_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: |
+      Calculated total tree standing carbon mass components for OG plots in maliau_2.
+    variables:
+    - name: PlotID
+      type: character
+      units: dimensionless
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: SAFE identifier for each observed census plot.
+    - name: plot_area_m2
+      type: numeric
+      units: m2
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Area of each OG census plot.
+    - name: plot_area_ha
+      type: numeric
+      units: ha
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Area of each OG census plot in hectares.
+    - name: plot_x
+      type: numeric
+      units: degrees longitude
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Plot centroid longitude in WGS84.
+    - name: plot_y
+      type: numeric
+      units: degrees latitude
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Plot centroid latitude in WGS84.
+    - name: census_date_2014
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date from the 2014 census.
+      description: Mean date of the 2014 census for the plot.
+    - name: obs_total_stem_mass_2014_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: Plot stem carbon mass estimated from 2014 DBH values.
+    - name: obs_total_stem_mass_2014_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: SE from the allometric parameter uncertainties.
+    - name: obs_total_leaf_mass_2014_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: Plot leaf carbon mass estimated from 2014 DBH values.
+    - name: obs_total_leaf_mass_2014_se_kg_ha
+      type: numeric
+      units: kg C ha-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot date stored in census_date_2014.
+      description: SE from the allometric parameter uncertainties.
+  package_dependencies:
+  - readxl
+  - sf
+  - toml
+  - dplyr
+  usage_notes: |
+    Mass values are standardised from 25 m x 25 m plots to kg C ha-1.
+    Standard errors represent allometric parameter uncertainty only. The stem
+    increment is net standing-carbon change, not gross woody productivity.
+- script_path: mortality_maliau.R
+  title: mortality_maliau
+  description: |
+    This script prepares the observed validation data for tree mortality
+    for Maliau. It calculates tree mortality based on the SAFE census data,
+    for the OG plots within the maliau_2 grid.
+  virtual_ecosystem_module: Plant
+  author: Arne Scheire
+  status: final
+  input_files:
+  - name: tree_census_11_20.xlsx
+    path: data/primary/plant/tree_census
+    description: |
+      https://doi.org/10.5281/zenodo.14882506
+      Tree census data from the SAFE Project 2011–2020.
+      Data includes measurements of DBH and estimates of tree height for
+      all stems, fruiting and flowering estimates, estimates of epiphyte
+      and liana cover, and taxonomic IDs.
+  - name: maliau_grid_definition.toml
+    path: data/derived/site/maliau
+    description: Maliau-2 grid extent and dimensions.
+  - name: gazetteer.geojson
+    path: data/primary/site
+    description: Plot centroid coordinates used to identify plots in the grid.
+  output_files:
+  - name: mortality_maliau.csv
+    path: data/derived/plant/output_data/validation/observed_data_processing
+    description: |
+      One summary record per selected OG plot in Maliau-2, including
+      interval mortality counts, annualised counts per hectare, and
+      annualised fractions of the initial 2011 tree cohort.
+    variables:
+    - name: PlotID
+      type: character
+      units: dimensionless
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: SAFE identifier for each observed census plot.
+    - name: centroid_x
+      type: numeric
+      units: degrees longitude
+      spatial_extent: One centroid for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Plot centroid longitude in WGS84.
+    - name: centroid_y
+      type: numeric
+      units: degrees latitude
+      spatial_extent: One centroid for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Plot centroid latitude in WGS84.
+    - name: plot_area_m2
+      type: numeric
+      units: m2
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Area of each OG census plot.
+    - name: plot_area_ha
+      type: numeric
+      units: ha
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: ~
+      description: Area of each OG census plot in hectares.
+    - name: initial_trees
+      type: integer
+      units: count
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: 2011 baseline cohort.
+      description: Number of trees in the plot's initial 2011 cohort.
+    - name: Date_2011
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot in Maliau-2.
+      temporal_extent: Date of the 2011 census.
+      description: Plot-specific date of the 2011 census.
+    - name: Date_2014
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot in Maliau-2.
+      temporal_extent: Date of the 2014 census.
+      description: Plot-specific date of the 2014 census.
+    - name: Date_2015
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot in Maliau-2.
+      temporal_extent: Date of the 2015 census.
+      description: Plot-specific date of the 2015 census.
+    - name: Date_2017
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot in Maliau-2.
+      temporal_extent: Date of the 2017 census.
+      description: Plot-specific date of the 2017 census.
+    - name: Date_2019
+      type: date
+      units: ISO 8601 date
+      spatial_extent: One value per selected OG plot in Maliau-2.
+      temporal_extent: Date of the 2019 census.
+      description: Plot-specific date of the 2019 census.
+    - name: interval_11_14_yr
+      type: numeric
+      units: year
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2011 and Date_2014.
+      description: Elapsed duration between the plot's census dates in years.
+    - name: interval_14_15_yr
+      type: numeric
+      units: year
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2014 and Date_2015.
+      description: Elapsed duration between the plot's census dates in years.
+    - name: interval_15_17_yr
+      type: numeric
+      units: year
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2015 and Date_2017.
+      description: Elapsed duration between the plot's census dates in years.
+    - name: interval_17_19_yr
+      type: numeric
+      units: year
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2017 and Date_2019.
+      description: Elapsed duration between the plot's census dates in years.
+    - name: mortality_count_11_14_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728, standardised
+        to one hectare.
+      temporal_extent: Per-plot interval between Date_2011 and Date_2014, annualised.
+      description: Average annual death count per hectare for this interval.
+    - name: mortality_count_14_15_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728, standardised
+        to one hectare.
+      temporal_extent: Per-plot interval between Date_2014 and Date_2015, annualised.
+      description: Average annual death count per hectare for this interval.
+    - name: mortality_count_15_17_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728, standardised
+        to one hectare.
+      temporal_extent: Per-plot interval between Date_2015 and Date_2017, annualised.
+      description: Average annual death count per hectare for this interval.
+    - name: mortality_count_17_19_ha_yr
+      type: numeric
+      units: count ha-1 year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728, standardised
+        to one hectare.
+      temporal_extent: Per-plot interval between Date_2017 and Date_2019, annualised.
+      description: Average annual death count per hectare for this interval.
+    - name: mortality_fraction_11_14_yr
+      type: numeric
+      units: year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2011 and Date_2014, annualised.
+      description: Annualised fraction of the initial cohort reported dead.
+    - name: mortality_fraction_14_15_yr
+      type: numeric
+      units: year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2014 and Date_2015, annualised.
+      description: Annualised fraction of the initial cohort reported dead.
+    - name: mortality_fraction_15_17_yr
+      type: numeric
+      units: year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2015 and Date_2017, annualised.
+      description: Annualised fraction of the initial cohort reported dead.
+    - name: mortality_fraction_17_19_yr
+      type: numeric
+      units: year-1
+      spatial_extent: One value for each selected plot OG2_720 to OG2_728.
+      temporal_extent: Per-plot interval between Date_2017 and Date_2019, annualised.
+      description: Annualised fraction of the initial cohort reported dead.
+  package_dependencies:
+  - readxl
+  - sf
+  - toml
+  - dplyr
+  usage_notes: |
+    Mortality counts are recorded per census interval and annualised using
+    plot-specific census dates. The annualised counts are also standardised
+    to per hectare. Mortality fractions use the initial 2011 tree cohort as
+    the denominator and are annualised without area standardisation.

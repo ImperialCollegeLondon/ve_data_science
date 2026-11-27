@@ -1,6 +1,6 @@
 title: master_variable_mapping_metadata
 generated_by: analysis/plant/output_data/validation/variable_mapping/master_variable_mapping.R
-generated_on: '2026-11-24'
+generated_on: '2026-11-27'
 mappings:
 - mapping_path: gpp_and_npp_mapping_maliau_2.yml
   variable_mappings:
@@ -208,6 +208,28 @@ mappings:
       variable: foliage_c_mass_kg_ha
       sd_variable: ~
       date_variable: timestep_end_date
+- mapping_path: total_tree_standing_carbon_mass_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/total_tree_standing_carbon_mass_maliau.csv
+      variable: obs_total_stem_mass_2014_kg_ha
+      se_variable: obs_total_stem_mass_2014_se_kg_ha
+      date_variable: census_date_2014
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/total_tree_standing_carbon_mass_maliau_2.csv
+      variable: total_stem_c_mass_kg_ha
+      sd_variable: ~
+      date_variable: timestep_end_date
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/total_tree_standing_carbon_mass_maliau.csv
+      variable: obs_total_leaf_mass_2014_kg_ha
+      se_variable: obs_total_leaf_mass_2014_se_kg_ha
+      date_variable: census_date_2014
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/total_tree_standing_carbon_mass_maliau_2.csv
+      variable: total_foliage_c_mass_kg_ha
+      sd_variable: ~
+      date_variable: timestep_end_date
 - mapping_path: symbiote_allocation_mapping_maliau_2.yml
   variable_mappings:
   - observed:
@@ -218,3 +240,69 @@ mappings:
       file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/symbiote_allocation_maliau_2.csv
       variable: symbiote_allocation_mean
       sd_variable: symbiote_allocation_sd
+- mapping_path: mortality_mapping_maliau_2.yml
+  variable_mappings:
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_count_11_14_ha_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_count_11_14_ha_yr
+      sd_variable: ~
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_count_14_15_ha_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_count_14_15_ha_yr
+      sd_variable: ~
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_count_15_17_ha_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_count_15_17_ha_yr
+      sd_variable: ~
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_count_17_19_ha_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_count_17_19_ha_yr
+      sd_variable: ~
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_fraction_11_14_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_fraction_11_14_yr
+      sd_variable: ~
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_fraction_14_15_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_fraction_14_15_yr
+      sd_variable: ~
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_fraction_15_17_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_fraction_15_17_yr
+      sd_variable: ~
+  - observed:
+      file: ../../../../../data/derived/plant/output_data/validation/observed_data_processing/mortality_maliau.csv
+      variable: mortality_fraction_17_19_yr
+      se_variable: ~
+    predicted:
+      file: ../../../../../data/derived/plant/output_data/validation/predicted_outputs_processing/mortality_maliau_2.csv
+      variable: mortality_fraction_17_19_yr
+      sd_variable: ~
