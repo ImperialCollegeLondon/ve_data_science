@@ -1,25 +1,38 @@
 # Herbivore test: VE 0.2.1 vs VE 0.2.2
 
-This notebook summarises the main patterns from the Level 1 herbivore test outputs for **Elephant** (slow-growing reference) and **Kancil** (faster-growing case). Currently, in our level 1 Maliau, we only have one herbivore, and default one was elephant. For simple testing, however, the choice of herbivore can affect how clearly model behaviour is observed over a relatively short simulation.
+This notebook summarises the main patterns from the Level 1 herbivore test outputs for
+**Elephant** (slow-growing reference) and **Kancil** (faster-growing case). Currently,
+in our level 1 Maliau, we only have one herbivore, and default one was elephant. For
+simple testing, however, the choice of herbivore can affect how clearly model behaviour
+is observed over a relatively short simulation.
 
-For this reason, both slow- and fast-growing herbivore cases were tested. A slow-growing case such as Elephant may show little change within a short run, whereas Kancil provides a faster-growing comparison where changes in body mass and population dynamics should become visible sooner. The intention was not to compare species biologically, but more to test behaviour and impact of using different input FG.
+For this reason, both slow- and fast-growing herbivore cases were tested. A slow-growing
+case such as Elephant may show little change within a short run, whereas Kancil provides
+a faster-growing comparison where changes in body mass and population dynamics should
+become visible sooner. The intention was not to compare species biologically, but more
+to test behaviour and impact of using different input FG.
 
-Comparison of Virtual Ecosystem animal-module output for two representative herbivore tests used in Maliau Level 1:
+Comparison of Virtual Ecosystem animal-module output for two representative herbivore
+tests used in Maliau Level 1:
 
 - **Elephant**: slow-growing reference
 - **Kancil**: faster-growing case
 
-Population-density and body-mass trajectories are compared to assess changes in model output following fixes in VE 0.2.2.
+Population-density and body-mass trajectories are compared to assess changes in model
+output following fixes in VE 0.2.2.
 
 **Author:** Siti Nor Baizurah · **Status:** Final
 
-This notebook reuses the functions in `fg_population_density_local.py` and `fg_population_density_0.2.1_vs_0.2.2_metrics.py` so the numbers match the standalone script exactly.
-
-
+This notebook reuses the functions in `fg_population_density_local.py` and
+`fg_population_density_0.2.1_vs_0.2.2_metrics.py` so the numbers match the standalone
+script exactly.
 
 ## 1 Calculate metrics
 
-Each run is split into its initial state (used for initialisation, and t=0) and its trajectory (the first updated state at `time_index` 0 onwards), then density and mean individual body mass are calculated per time step. The landscape is 1 km², so population density (individuals/km²) equals the total number of individuals.
+Each run is split into its initial state (used for initialisation, and t=0) and its
+trajectory (the first updated state at `time_index` 0 onwards), then density and mean
+individual body mass are calculated per time step. The landscape is 1 km², so population
+density (individuals/km²) equals the total number of individuals.
 
 ```python
 initial_tables, trajectory_tables = [], []
@@ -73,11 +86,16 @@ coverage
 [4 rows x 7 columns]
 ```
 
-The Elephant 0.2.2 run is 9 months shorter than 0.2.1. Both Elephant runs end with a single cohort, but Kancil keeps essentially all 100 cohorts. Longer here just means that simulation ran longer before it ended, not that necessarily means Kancil lived longer than Elephants.
+The Elephant 0.2.2 run is 9 months shorter than 0.2.1. Both Elephant runs end with a
+single cohort, but Kancil keeps essentially all 100 cohorts. Longer here just means that
+simulation ran longer before it ended, not that necessarily means Kancil lived longer
+than Elephants.
 
 When exacly they die out?
-Elephant: dies out (down to 1) — 2017-01-31 in 0.2.1, 2015-04-02 in 0.2.2, and stays at 1 for months/years while the run keeps going.
-Kancil: never dies out in either version,still hundreds of individuals and still declining at the very last simulated step.
+Elephant: dies out (down to 1) — 2017-01-31 in 0.2.1, 2015-04-02 in 0.2.2, and stays at
+1 for months/years while the run keeps going.
+Kancil: never dies out in either version,still hundreds of individuals and still
+declining at the very last simulated step.
 
 ```python
 initialisation[
@@ -102,7 +120,8 @@ initialisation[
 [4 rows x 6 columns]
 ```
 
-Note: I did not set empirical density here, so it will be by default "Madingley" that initialise the populations.
+Note: I did not set empirical density here, so it will be by default "Madingley" that
+initialise the populations.
 
 ## 3. Change over the period shared by all four runs
 
@@ -121,11 +140,15 @@ slow_fast_summary
 [4 rows x 10 columns]
 ```
 
-Note: this summary table is a reasonable checkpoint, but not trustworthy on its own, the trajectory in the next section, is where the real story is.
+Note: this summary table is a reasonable checkpoint, but not trustworthy on its own, the
+trajectory in the next section, is where the real story is.
 
 ## 4. How the versions diverge over time
 
-End-point values can hide differences along the trajectory, so the percentage difference (of density and body mass) of 0.2.2 relative to 0.2.1 is calculated at every shared date (here means dates that both versions were still running on, so a real side-by-side comparison is possible.).
+End-point values can hide differences along the trajectory, so the percentage difference
+(of density and body mass) of 0.2.2 relative to 0.2.1 is calculated at every shared date
+(here means dates that both versions were still running on, so a real side-by-side
+comparison is possible.).
 
 ```python
 def version_difference(test: str) -> pd.DataFrame:
@@ -188,17 +211,21 @@ largest
 
 Legend
 
--max_abs_density_diff_% : The single biggest gap between 0.2.1 and 0.2.2's population density, found on any date across the whole run
+-max_abs_density_diff_% : The single biggest gap between 0.2.1 and 0.2.2's population
+density, found on any date across the whole run
 
 -density_diff_date: The date that biggest density gap happened on
 
--max_abs_body_mass_diff_%: The single biggest gap between 0.2.1 and 0.2.2's body mass, found on any date across the whole run
+-max_abs_body_mass_diff_%: The single biggest gap between 0.2.1 and 0.2.2's body mass,
+found on any date across the whole run
 
 -body_mass_diff_date: The date that biggest body-mass gap happened on
 
 ## 5. Kancil (fast-growing-medium sized herbivore)
 
-Kancil year by year, seems like for the density barely differs between versions, but body mass tells a different story. Seems like they put weight faster for several years, and settle to similar value or both versions.
+Kancil year by year, seems like for the density barely differs between versions, but
+body mass tells a different story. Seems like they put weight faster for several years,
+and settle to similar value or both versions.
 Kancil, sampled roughly yearly:
 
 ```python
@@ -226,7 +253,8 @@ time                                      ...
 
 ## 6. Elephant (slow growing-large sized herbivore)
 
-While for elephant, body mass identical between versions the whole way thorugh, but density surely looks wild.
+While for elephant, body mass identical between versions the whole way thorugh, but
+density surely looks wild.
 Elephant, sampled roughly every six months:
 
 ```python
@@ -313,25 +341,39 @@ show_comparison("elephant")
 
 ### Kancil
 
-- **Body mass:** This is where the main difference between the two versions shows up. In 0.2.1, body mass stays fairly flat for the first few years before increasing. In 0.2.2, growth starts straight away and then levels off later in the run.
-- The final body mass is quite similar between the two runs, so looking only at the end point would miss this difference in the growth pattern.
-- **Density:** Both versions show a similar steady decline, with 0.2.2 staying slightly higher.
+- **Body mass:** This is where the main difference between the two versions shows up. In
+  0.2.1, body mass stays fairly flat for the first few years before increasing. In
+  0.2.2, growth starts straight away and then levels off later in the run.
+- The final body mass is quite similar between the two runs, so looking only at the end
+  point would miss this difference in the growth pattern.
+- **Density:** Both versions show a similar steady decline, with 0.2.2 staying slightly
+  higher.
 
 ### Elephant
 
-- **Body mass:** There is very little difference between versions. Both show slow, gradual growth.
-- **Density:** Both decline, although 0.2.2 reaches very low numbers a bit earlier. Since only a few individuals are left by then, the percentage difference looks larger than the actual difference in numbers.
+- **Body mass:** There is very little difference between versions. Both show slow,
+  gradual growth.
+- **Density:** Both decline, although 0.2.2 reaches very low numbers a bit earlier.
+  Since only a few individuals are left by then, the percentage difference looks larger
+  than the actual difference in numbers.
 
 ### Overall
 
-The clearest effect of the version change is on **Kancil body mass**, where the growth pattern changes quite noticeably. Elephant body mass is mostly unchanged, and both herbivores still show a strong decline in density.
+The clearest effect of the version change is on **Kancil body mass**, where the growth
+pattern changes quite noticeably. Elephant body mass is mostly unchanged, and both
+herbivores still show a strong decline in density.
 
-So for this test, the biggest change between the two runs is in how the faster-growing Kancil gains mass, rather than in the overall population decline. (Note: since the runs also differ in configuration, this can't be attributed to the mass-transfer fix alone.)
+So for this test, the biggest change between the two runs is in how the faster-growing
+Kancil gains mass, rather than in the overall population decline. (Note: since the runs
+also differ in configuration, this can't be attributed to the mass-transfer fix alone.)
 
-Just from this testing, it seems like using Kancil as the representative for Maliau_1 now, seems more robust.
+Just from this testing, it seems like using Kancil as the representative for Maliau_1
+now, seems more robust.
 
 ## 9. Caveats
 
 - The runs differ in VE version and configuration
-- Elephant results rest on ≤52 individuals and a single stochastic run; differences of a few individuals should not be over-interpreted.
-- Trajectory `time_index` 0 uses the first updated state, so Elephant starts at 51 (0.2.1) vs 52 (0.2.2) despite identical initialisation.
+- Elephant results rest on ≤52 individuals and a single stochastic run; differences of a
+  few individuals should not be over-interpreted.
+- Trajectory `time_index` 0 uses the first updated state, so Elephant starts at 51
+  (0.2.1) vs 52 (0.2.2) despite identical initialisation.
