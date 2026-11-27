@@ -93,24 +93,21 @@ validation_database <-
   open_dataset(validation_database_path) |>
   collect()
 
-eligible_database <-
-  validation_database |>
-  filter(
-    !is.na(time_start),
-    !is.na(time_end),
-    time_start >= simulation_start,
-    time_end <= simulation_end
-  )
+eligible_rows <-
+  !is.na(validation_database$time_start) &
+  !is.na(validation_database$time_end) &
+  validation_database$time_start >= simulation_start &
+  validation_database$time_end <= simulation_end
 
-if (nrow(eligible_database) == 0L) {
-  stop("No validation observations fall within the simulation period.")
+if (nrow(validation_database) == 0L || !all(eligible_rows)) {
+  stop("All validation observations must fall within the simulation period.")
 }
 
 
 # Prepare one profile per validation location-date window -----------------
 
 validation_locations <-
-  eligible_database |>
+  validation_database |>
   distinct(longitude, latitude, time_start, time_end) |>
   arrange(longitude, latitude, time_start, time_end) |>
   st_as_sf(
