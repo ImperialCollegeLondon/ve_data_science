@@ -68,6 +68,12 @@
 #|         spatial_extent: Individual cohort within a cell.
 #|         temporal_extent: null
 #|         description: Virtual Ecosystem identifier for the plant cohort.
+#|       - name: timestep_start_date
+#|         type: date
+#|         units: ISO 8601 date
+#|         spatial_extent: Single Maliau-2 grid cell.
+#|         temporal_extent: Exact model timestep.
+#|         description: Start date of the model timestep.
 #|       - name: timestep_end_date
 #|         type: date
 #|         units: ISO 8601 date
@@ -272,6 +278,10 @@
 #|   rows without whole_crown_gpp are excluded before cohort aggregation to avoid
 #|   double-counting timestep zero. Observed data census dates (2015, 2017, 2019)
 #|   are parsed and available for plot-level diagnostic comparisons.
+#|   Census-interval values pool every model timestep from the one containing
+#|   the start census date to the one containing the end census date, and are
+#|   annualised by the duration of those timesteps rather than by the difference
+#|   between census dates.
 #| ---
 
 library(data.table)
@@ -513,8 +523,22 @@ plants_cohort_data[, cell_id := as.integer(cell_id)]
 plants_cohort_data[, time_index := as.numeric(time_index)]
 plants_cohort_data[, n_individuals := as.numeric(n_individuals)]
 plants_cohort_data[,
+  timestep_start_date := simulation_start_date +
+    time_index * timestep_interval_in_days
+]
+# Initialisation rows are a snapshot taken at the simulation start, so they
+# start and end on that date rather than spanning a timestep.
+plants_cohort_data[
+  time_index == -1,
+  timestep_start_date := simulation_start_date
+]
+plants_cohort_data[,
   timestep_end_date := simulation_start_date +
     (time_index + 1) * timestep_interval_in_days
+]
+plants_cohort_data[
+  time_index == -1,
+  timestep_end_date := simulation_start_date
 ]
 
 # cohort_mortality_count is calculated as the different in n-individuals within
@@ -604,19 +628,22 @@ for (column in date_columns) {
 #####
 
 # For each cell-plot group, find the timesteps containing the census dates.
-# Sum cohort deaths across that inclusive range, then annualise by interval and
-# cell area. The result is repeated on each cohort row in the group.
+# Sum cohort deaths across that inclusive range, then standardise by cell area.
+# Both boundary timesteps are counted in full because a tree could have died at
+# any point within them, so annualise by the duration of the summed timesteps
+# rather than by the difference between census dates.
+# The result is repeated on each cohort row in the group.
 plants_cohort_data[
   !is.na(PlotID) & !is.na(Date_2011) & !is.na(Date_2014),
   mortality_count_11_14_ha_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2011[1] &
+        timestep_start_date < Date_2011[1] &
         Date_2011[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2014[1] &
+        timestep_start_date < Date_2014[1] &
         Date_2014[1] <= timestep_end_date
     ])
     sum(
@@ -626,7 +653,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       cell_area_ha /
-      (as.numeric(Date_2014[1] - Date_2011[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -638,12 +665,12 @@ plants_cohort_data[
   mortality_count_14_15_ha_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2014[1] &
+        timestep_start_date < Date_2014[1] &
         Date_2014[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2015[1] &
+        timestep_start_date < Date_2015[1] &
         Date_2015[1] <= timestep_end_date
     ])
     sum(
@@ -653,7 +680,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       cell_area_ha /
-      (as.numeric(Date_2015[1] - Date_2014[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -665,12 +692,12 @@ plants_cohort_data[
   mortality_count_15_17_ha_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2015[1] &
+        timestep_start_date < Date_2015[1] &
         Date_2015[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2017[1] &
+        timestep_start_date < Date_2017[1] &
         Date_2017[1] <= timestep_end_date
     ])
     sum(
@@ -680,7 +707,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       cell_area_ha /
-      (as.numeric(Date_2017[1] - Date_2015[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -692,12 +719,12 @@ plants_cohort_data[
   mortality_count_17_19_ha_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2017[1] &
+        timestep_start_date < Date_2017[1] &
         Date_2017[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2019[1] &
+        timestep_start_date < Date_2019[1] &
         Date_2019[1] <= timestep_end_date
     ])
     sum(
@@ -707,7 +734,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       cell_area_ha /
-      (as.numeric(Date_2019[1] - Date_2017[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -747,19 +774,20 @@ mean(unique(observed_data$mortality_count_17_19_ha_yr), na.rm = TRUE)
 # the census period duration.
 
 # For each cell-plot group, sum deaths from the timestep containing Date_2011
-# through the timestep containing Date_2014, then annualise by initial abundance.
+# through the timestep containing Date_2014, divide by initial abundance, then
+# annualise by the duration of the summed timesteps.
 
 plants_cohort_data[
   !is.na(PlotID) & !is.na(Date_2011) & !is.na(Date_2014),
   mortality_fraction_11_14_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2011[1] &
+        timestep_start_date < Date_2011[1] &
         Date_2011[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2014[1] &
+        timestep_start_date < Date_2014[1] &
         Date_2014[1] <= timestep_end_date
     ])
     sum(
@@ -769,7 +797,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
-      (as.numeric(Date_2014[1] - Date_2011[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -781,12 +809,12 @@ plants_cohort_data[
   mortality_fraction_14_15_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2014[1] &
+        timestep_start_date < Date_2014[1] &
         Date_2014[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2015[1] &
+        timestep_start_date < Date_2015[1] &
         Date_2015[1] <= timestep_end_date
     ])
     sum(
@@ -796,7 +824,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
-      (as.numeric(Date_2015[1] - Date_2014[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -808,12 +836,12 @@ plants_cohort_data[
   mortality_fraction_15_17_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2015[1] &
+        timestep_start_date < Date_2015[1] &
         Date_2015[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2017[1] &
+        timestep_start_date < Date_2017[1] &
         Date_2017[1] <= timestep_end_date
     ])
     sum(
@@ -823,7 +851,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
-      (as.numeric(Date_2017[1] - Date_2015[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -835,12 +863,12 @@ plants_cohort_data[
   mortality_fraction_17_19_yr := {
     start_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2017[1] &
+        timestep_start_date < Date_2017[1] &
         Date_2017[1] <= timestep_end_date
     ])
     end_timestep <- min(time_index[
       time_index >= 0 &
-        timestep_end_date - timestep_interval_in_days < Date_2019[1] &
+        timestep_start_date < Date_2019[1] &
         Date_2019[1] <= timestep_end_date
     ])
     sum(
@@ -850,7 +878,7 @@ plants_cohort_data[
       na.rm = TRUE
     ) /
       sum(n_individuals[time_index == -1], na.rm = TRUE) /
-      (as.numeric(Date_2019[1] - Date_2017[1]) / 365.25)
+      ((end_timestep - start_timestep + 1) * timestep_interval_in_days / 365.25)
   },
   by = .(cell_id, PlotID)
 ]
@@ -879,27 +907,32 @@ mean(unique(observed_data$mortality_fraction_17_19_yr), na.rm = TRUE)
 
 #####
 
-# Save file
+# Final cleanup and save file
 
 predicted_data <- plants_cohort_data
+
+# Here we can exclude the initialisation rows as they no longer serve a purpose.
+
+predicted_data <- predicted_data[predicted_data$time_index >= 0, ]
 
 # Subset based on what's needed for comparison, for now all columns and rows are
 # kept.
 
 names(predicted_data)
 output_columns <- c(
+  "cell_id",
   "cell_x",
   "cell_y",
+  #"time",
+  "time_index",
+  "timestep_start_date",
+  "timestep_end_date",
   "cohort_id",
   "pft_name",
-  "time",
-  "time_index",
   "n_individuals",
-  "whole_crown_gpp",
+  #"whole_crown_gpp",
   "dbh_value",
   "dbh",
-  "cell_id",
-  "timestep_end_date",
   "cohort_mortality_count",
   "mortality_count",
   "mortality_count_per_pft",
