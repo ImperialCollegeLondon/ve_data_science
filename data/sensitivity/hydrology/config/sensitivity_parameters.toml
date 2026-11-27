@@ -3,31 +3,82 @@
 #
 # Author: Lelavathy Samikan
 #
-# Add parameters to any model section.
-# Supported sampling methods:
-# - Sobol
-# - Morris
-# - Latin Hypercube
-###############################################################################
-
-###############################################################################
-# Hydrology
+# Purpose:
+#   Hydrology-focused global sensitivity analysis for undisturbed tropical
+#   forest conditions.
+#
+# Sampling methods:
+#   - Sobol
+#   - Morris
+#   - Latin Hypercube
+#
+# Important:
+#   The ranges below are literature-informed plausible ranges for tropical
+#   forest soils and hydrological behaviour. Where a VE parameter is a
+#   conceptual/model parameter rather than a directly measurable field
+#   property, the range is deliberately treated as a plausible uncertainty
+#   range around the VE default rather than as a measured tropical range.
+#
+#   The VE default of each constant, with its description, units and the
+#   data sets or studies it is taken from, is in the VE hydrology model
+#   configuration (HydrologyConstants):
+#   https://github.com/ImperialCollegeLondon/virtual_ecosystem/blob/develop/virtual_ecosystem/models/hydrology/model_config.py
 ###############################################################################
 
 [hydrology]
 
-[[hydrology.parameters]]
-name = "hydrology.constants.saturated_hydraulic_conductivity"
-bounds = [1e-6, 1e-4]
+[[hydrology.constants]]
+name = "soil_moisture_residual"
+bounds = [0.10, 0.25]
 
-[[hydrology.parameters]]
-name = "hydrology.constants.soil_moisture_saturation"
-bounds = [0.40, 0.65]
+[[hydrology.constants]]
+name = "soil_moisture_saturation"
+bounds = [0.40, 0.70]
 
-[[hydrology.parameters]]
-name = "hydrology.constants.groundwater_capacity"
+[[hydrology.constants]]
+name = "saturated_hydraulic_conductivity"
+bounds = [6.0e-6, 8.0e-4]
+
+[[hydrology.constants]]
+name = "van_genuchten_nonlinearily_parameter"
+bounds = [1.20, 2.00]
+
+[[hydrology.constants]]
+name = "pore_connectivity_parameter"
+bounds = [0.30, 0.70]
+
+[[hydrology.constants]]
+name = "air_entry_potential_inverse"
+bounds = [0.01, 0.10]
+
+[[hydrology.constants]]
+name = "groundwater_capacity"
 bounds = [200.0, 1500.0]
 
-[[hydrology.parameters]]
-name = "hydrology.constants.bypass_flow_coefficient"
-bounds = [0.2, 2.0]
+[[hydrology.constants]]
+name = "max_percolation_rate_uzlz"
+bounds = [0.5, 10.0]
+
+[[hydrology.constants]]
+name = "groundwater_loss"
+bounds = [0.10, 5.0]
+
+[[hydrology.constants]]
+name = "reservoir_const_upper_groundwater"
+bounds = [5.0, 60.0]
+
+[[hydrology.constants]]
+name = "reservoir_const_lower_groundwater"
+bounds = [5.0, 60.0]
+
+[[hydrology.constants]]
+name = "bypass_flow_coefficient"
+bounds = [0.10, 2.00]
+
+[[hydrology.constants]]
+name = "stormflow_coefficient"
+bounds = [0.10, 2.00]
+
+[[hydrology.constants]]
+name = "saturation_exponent"
+bounds = [1.0, 3.0]
