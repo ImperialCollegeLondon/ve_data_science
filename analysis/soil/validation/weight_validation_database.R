@@ -85,10 +85,6 @@ validation_profile_path <-
 scenario_config <- parseTOML(scenario_config_path)
 simulation_start <- as.Date(scenario_config$core$timing$start_date)
 run_length <- trimws(scenario_config$core$timing$run_length)
-if (!grepl("^[0-9]+ years?$", run_length)) {
-  stop("Scenario run_length must be expressed as a whole number of years.")
-}
-
 simulation_end <- simulation_start %m+% lubridate::period(run_length)
 simulation_start <- as.POSIXct(simulation_start, tz = "UTC")
 simulation_end <- as.POSIXct(simulation_end, tz = "UTC")
