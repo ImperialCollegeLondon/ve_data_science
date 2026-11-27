@@ -1,21 +1,20 @@
 #| ---
-#| title: Build the compiled config for the maliau_2 scenario
+#| title: Deprecated: Build the compiled config for the maliau_2 scenario
 #|
 #| description: |
-#|   Build a regenerated compiled TOML configuration file for the
-#|   `maliau_2` scenario.
+#|   Deprecated script retained for reference. Do not run it: it would replace
+#|   the `maliau_2` scenario `config.toml`, which may also be removed in future.
 #|
 #|   The script assembles module sections and repeated
 #|   `[[core.data.variable]]` entries with helper functions from
-#|   `tools/R/R/build_config.R`, with the aim of keeping the generated output
-#|   close to the committed scenario config while remaining reproducible.
+#|   `tools/R/R/build_config.R`.
 #|
 #| virtual_ecosystem_module: All
 #|
 #| author:
 #|   - Hao Ran Lai
 #|
-#| status: final
+#| status: deprecated
 #|
 #| input_files:
 #|   - name: maliau_grid_definition.toml
@@ -29,11 +28,11 @@
 #|       plants module config.
 #|
 #| output_files:
-#|   - name: config_regenerated.toml
-#|     path: data/scenarios/maliau/maliau_2/config/config_regenerated.toml
+#|   - name: config.toml
+#|     path: data/scenarios/maliau/maliau_2/config/config.toml
 #|     description: |
-#|       Regenerated compiled configuration written for inspection and
-#|       comparison with the committed scenario config.
+#|       Existing scenario configuration. Do not overwrite by running this
+#|       deprecated script.
 #|
 #| source_files:
 #|   - name: build_config.R
@@ -47,14 +46,19 @@
 #|   - toml
 #|
 #| usage_notes: |
-#|   Run this script from the repository root so that the relative paths used
-#|   by `source()`, `toml::read_toml()`, `read_csv()`, and the rendered config
-#|   remain valid.
+#|   DEPRECATED: Do not run this script. It would replace `config.toml`, which
+#|   may also be removed in future.
 #|
 #|   `tomledit` is used for writing/rendering scalar fields in the
 #|   sourced helper, but `toml` is used here to read the scenario input
 #|   into a plain R structure.
 #| ---
+
+# DEPRECATED: DO NOT RUN. This script would replace config.toml, which may
+# also be removed in future.
+stop(
+  "DEPRECATED: Do not run this script; it would replace config.toml."
+)
 
 library(tidyverse)
 source("tools/R/R/build_config.R")
@@ -204,8 +208,7 @@ lines <- c(
   )
 )
 
-# Write a regenerated config for side-by-side inspection, not to overwrite the
-# committed scenario config.
+# Write the scenario config.
 build_config(
   lines = lines,
   path = "data/scenarios/maliau/maliau_2/config",

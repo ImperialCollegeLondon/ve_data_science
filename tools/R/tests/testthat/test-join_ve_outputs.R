@@ -128,6 +128,28 @@ test_that("join_ve_outputs_per_row ignores spatial bounds for spatial_outside", 
   expect_equal(result["value_VE_q50"], c(value_VE_q50 = 100))
 })
 
+test_that("join_ve_outputs_per_row matches landscape density without coordinates", {
+  ve_data <- tibble::tibble(
+    var_canonical = "density_carnivorous_aquatic_mammal_L5",
+    spatial_scope = "landscape",
+    date = as.POSIXct("2016-09-01", tz = "UTC"),
+    value = 100
+  )
+
+  result <-
+    join_ve_outputs_per_row(
+      ve_data = ve_data,
+      var_canonical = "density_carnivorous_aquatic_mammal_L5",
+      time_start = as.POSIXct("2016-09-15", tz = "UTC"),
+      time_end = as.POSIXct(NA, tz = "UTC"),
+      latitude = NA_real_,
+      longitude = NA_real_,
+      spatiotemporal_join_class = "spatial_within_temporal_within"
+    )
+
+  expect_equal(result["value_VE_q50"], c(value_VE_q50 = 100))
+})
+
 test_that("join_ve_outputs_per_row returns NA for unimplemented spatiotemporal classes", {
   ve_data <- tibble::tibble(
     var_canonical = "soil_carbon",

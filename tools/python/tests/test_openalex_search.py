@@ -22,35 +22,64 @@ def response(data, error=None):
     result = Mock()
     result.json.return_value = data
     result.raise_for_status.side_effect = error
+    result.status_code = 503 if error else 200
     return result
 
 
-def test_missing_email_points_to_setup(monkeypatch, tmp_path):
-    """A missing contact address reports where to find exact setup steps."""
-    monkeypatch.delenv("OPENALEX_EMAIL", raising=False)
-    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
-        with pytest.raises(ValueError, match="Configure OpenAlex"):
-            helper.get_openalex_email()
+def access(monkeypatch, tmp_path, renviron="", **settings):
+    """Resolve OpenAlex access with only the given process and .Renviron settings."""
+    for name in ("OPENALEX_API_KEY", "OPENALEX_EMAIL"):
+        monkeypatch.delenv(name, raising=False)
+    for name, value in settings.items():
+        monkeypatch.setenv(name, value)
+    (tmp_path / ".Renviron").write_text(renviron, encoding="utf-8")
+    with patch.object(helper.Path, "home", return_value=tmp_path):
+        return helper.openalex_access()
 
 
-def test_skill_local_email_without_process_variable(monkeypatch, tmp_path):
-    """The skill-local file works regardless of the working directory."""
-    monkeypatch.delenv("OPENALEX_EMAIL", raising=False)
-    env_file = tmp_path / ".env"
-    env_file.write_text("# local settings\nOPENALEX_EMAIL=local@example.org\n")
-    monkeypatch.chdir(tmp_path / "..")
+def test_access_prefers_key_then_email_then_keyless(monkeypatch, tmp_path):
+    """Use the API key when available; fall back to email, then keyless."""
+    assert access(
+        monkeypatch, tmp_path, OPENALEX_API_KEY="k", OPENALEX_EMAIL="a@b.org"
+    ) == ("api_key", {"api_key": "k"})
+    approach, headers = access(monkeypatch, tmp_path, OPENALEX_EMAIL="a@b.org")
+    assert approach == "email" and "a@b.org" in headers["User-Agent"]
+    assert access(monkeypatch, tmp_path) == ("keyless", {})
 
-    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
-        assert helper.get_openalex_email() == "local@example.org"
+
+def test_user_renviron_and_process_precedence(monkeypatch, tmp_path):
+    """The user's .Renviron works; a process setting overrides it."""
+    renviron = "OPENALEX_API_KEY=renviron\n"
+    assert access(monkeypatch, tmp_path, renviron)[1] == {"api_key": "renviron"}
+    assert access(monkeypatch, tmp_path, renviron, OPENALEX_API_KEY="process")[1] == {
+        "api_key": "process"
+    }
 
 
-def test_process_email_takes_precedence(monkeypatch, tmp_path):
-    """An explicit process setting overrides the skill-local file."""
-    monkeypatch.setenv("OPENALEX_EMAIL", "process@example.org")
-    (tmp_path / ".env").write_text("OPENALEX_EMAIL=local@example.org\n")
+def test_credentials_are_sent_only_to_openalex(monkeypatch):
+    """Send the required key parameter without including credentials in headers."""
+    monkeypatch.setenv("OPENALEX_API_KEY", "secret-key")
+    monkeypatch.setenv("OPENALEX_EMAIL", "researcher@example.org")
+    with patch.object(
+        helper.requests, "get", return_value=response({"results": []})
+    ) as request:
+        helper.search_openalex("parameter")
 
-    with patch.object(helper, "__file__", str(tmp_path / "scripts/openalex_search.py")):
-        assert helper.get_openalex_email() == "process@example.org"
+    assert request.call_args.kwargs["params"]["api_key"] == "secret-key"
+    assert "secret-key" not in request.call_args.kwargs["headers"].values()
+    assert "researcher@example.org" not in request.call_args.kwargs["headers"].values()
+
+
+def test_request_failure_does_not_expose_api_key(monkeypatch):
+    """Sanitise request errors because OpenAlex requires keys in query parameters."""
+    monkeypatch.setenv("OPENALEX_API_KEY", "secret-key")
+    failure = requests.HTTPError("request URL includes secret-key")
+    with patch.object(helper.requests, "get", return_value=response({}, failure)):
+        with pytest.raises(RuntimeError, match="OpenAlex request failed") as error:
+            helper.search_openalex("parameter")
+
+    assert str(error.value) == "OpenAlex request failed (HTTP 503)"
+    assert "secret-key" not in str(error.value)
 
 
 def test_zero_results_are_success(monkeypatch):
@@ -82,8 +111,9 @@ def test_search_http_failure_propagates(monkeypatch):
     monkeypatch.setenv("OPENALEX_EMAIL", "researcher@example.org")
     failure = requests.HTTPError("503")
     with patch.object(helper.requests, "get", return_value=response({}, failure)):
-        with pytest.raises(requests.HTTPError, match="503"):
+        with pytest.raises(RuntimeError, match="OpenAlex request failed") as error:
             helper.search_openalex("rare parameter")
+    assert str(error.value) == "OpenAlex request failed (HTTP 503)"
 
 
 def test_failed_citation_lookup_propagates(monkeypatch):
@@ -92,5 +122,5 @@ def test_failed_citation_lookup_propagates(monkeypatch):
     seed = response({"id": "https://openalex.org/W1", "referenced_works": []})
     failure = response({}, requests.HTTPError("429"))
     with patch.object(helper.requests, "get", side_effect=[seed, failure]):
-        with pytest.raises(requests.HTTPError, match="429"):
+        with pytest.raises(RuntimeError, match="OpenAlex request failed"):
             helper.fetch_snowball_citations("W1")

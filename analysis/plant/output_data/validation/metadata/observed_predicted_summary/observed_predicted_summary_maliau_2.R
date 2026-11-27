@@ -32,6 +32,9 @@
 #|   - name: tree_standing_carbon_mass_comparison_maliau_2.csv
 #|     path: data/derived/plant/output_data/validation/comparisons
 #|     description: Matched observed and predicted standing-carbon values.
+#|   - name: total_tree_standing_carbon_mass_comparison_maliau_2.csv
+#|     path: data/derived/plant/output_data/validation/comparisons
+#|     description: Matched observed and predicted total standing-carbon values.
 #|
 #| output_files:
 #|   - name: observed_predicted_summary_maliau_2.png
@@ -51,7 +54,8 @@ comparison_files <- c(
   "../../../../../../data/derived/plant/output_data/validation/comparisons/reproductive_turnover_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/symbiote_allocation_comparison_maliau_2.csv",
   "../../../../../../data/derived/plant/output_data/validation/comparisons/respiration_and_turnover_comparison_maliau_2.csv",
-  "../../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv"
+  "../../../../../../data/derived/plant/output_data/validation/comparisons/tree_standing_carbon_mass_comparison_maliau_2.csv",
+  "../../../../../../data/derived/plant/output_data/validation/comparisons/total_tree_standing_carbon_mass_comparison_maliau_2.csv"
 )
 output_file <- "observed_predicted_summary_maliau_2.png"
 
@@ -139,8 +143,8 @@ draw_comparison_figure <- function(data, pairs, file_path) {
     )
   }
 
-  grDevices::png(file_path, width = 2400, height = 2800, res = 200)
-  graphics::layout(matrix(c(1, 2), nrow = 2), heights = c(5, 2.2))
+  grDevices::png(file_path, width = 2400, height = 4000, res = 200)
+  graphics::layout(matrix(c(1, 2), nrow = 2), heights = c(5, 4))
   old_par <- graphics::par(
     mar = c(4.5, 4.5, 3.5, 1),
     pty = "s"
